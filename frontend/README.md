@@ -2,32 +2,37 @@
 
 TypeScript sources live in `frontend/src` and compile to `static/app`.
 
-Legacy migration status:
+Viewer module status:
 
 - Already strict-typed (no `@ts-nocheck`):
-  - `legacy/loader.ts`
-  - `legacy/core/APIClient.ts`
-  - `legacy/core/ExamViewer.ts`
-  - `legacy/core/ExamLoader.ts`
-  - `legacy/core/UserContextManager.ts`
-  - `legacy/personalCenter.ts`
-  - `legacy/managers/AnswerManager.ts`
-  - `legacy/managers/AudioManager.ts`
-  - `legacy/managers/CategoryNavigationManager.ts`
-  - `legacy/managers/FuriganaManager.ts`
-  - `legacy/managers/NavigationManager.ts`
-  - `legacy/managers/QuestionMapManager.ts`
-  - `legacy/renderers/QuestionRenderer.ts`
-  - `legacy/managers/StateManager.ts`
-  - `legacy/utils/*`
+  - `viewer/core/APIClient.ts`
+  - `viewer/core/ExamViewer.ts`
+  - `viewer/core/ExamLoader.ts`
+  - `viewer/core/UserContextManager.ts`
+  - `viewer/personalCenter.ts`
+  - `viewer/managers/AnswerManager.ts`
+  - `viewer/managers/AudioManager.ts`
+  - `viewer/managers/CategoryNavigationManager.ts`
+  - `viewer/managers/FuriganaManager.ts`
+  - `viewer/managers/NavigationManager.ts`
+  - `viewer/managers/QuestionMapManager.ts`
+  - `viewer/renderers/QuestionRenderer.ts`
+  - `viewer/managers/StateManager.ts`
+  - `viewer/utils/*`
 - Remaining staged modules (still `@ts-nocheck`): none.
 
 Round 4 enhancements:
-- `legacy/personalCenter.ts` keeps strict typing and restores richer UI behavior:
+- `viewer/personalCenter.ts` keeps strict typing and restores richer UI behavior:
   - dashboard cards + service intents
   - role overview + mock user impersonation
   - system flags table + risk confirmation modal
   - WeChat login modal flow (simulated)
+
+Runtime boot flow:
+- `main.ts` now directly imports `viewerBootstrap.ts`
+- `viewerBootstrap.ts` loads the viewer modules in-order and initializes the page
+- `legacyBridge.ts` and `legacy/loader.ts` are removed; there is no script-injection compatibility boot path anymore
+- viewer modules now live under `frontend/src/viewer` and compile to `static/app/viewer`
 
 ## Build
 

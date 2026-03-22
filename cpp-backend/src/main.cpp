@@ -43,6 +43,7 @@ trantor::Logger::LogLevel toLogLevel(const std::string &level)
 int main()
 {
     auto cfg = infrastructure::config::loadConfig();
+    std::filesystem::create_directories(cfg.logDir);
 
     infrastructure::storage::ExamRepository examRepo(cfg.dataPaperDir);
     infrastructure::storage::AnswerRepository answerRepo(cfg.dataUserDir);
@@ -70,7 +71,13 @@ int main()
     router.registerRoutes();
 
     app().setThreadNum(static_cast<size_t>(cfg.threads));
+    app().setLogPath(
+        cfg.logDir.string(),
+        cfg.logFileBaseName,
+        cfg.logFileSize,
+        cfg.logMaxFiles);
     app().setLogLevel(toLogLevel(cfg.logLevel));
+    app().setLogLocalTime(true);
     app().addListener(cfg.host, cfg.port);
     app().setDocumentRoot(cfg.documentRoot.string());
     app().setFileTypes({"html", "css", "js", "png", "jpg", "jpeg", "svg", "ico", "json", "mp3", "wav"});
@@ -96,6 +103,9 @@ int main()
     std::cout << "base_dir=" << cfg.baseDir << "\n";
     std::cout << "data_paper_dir=" << cfg.dataPaperDir << "\n";
     std::cout << "data_user_dir=" << cfg.dataUserDir << "\n";
+    std::cout << "app_env=" << cfg.appEnv << "\n";
+    std::cout << "log_dir=" << cfg.logDir << "\n";
+    std::cout << "log_level=" << cfg.logLevel << "\n";
 
     app().run();
     return 0;

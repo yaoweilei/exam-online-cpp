@@ -20,14 +20,25 @@ Environment variables:
 - `HOST` (default `0.0.0.0`)
 - `PORT` (default `8000`)
 - `THREADS` (default `4`)
+- `APP_ENV` (`development|production`, default `development`)
 - `BASE_DIR` (default current workspace)
 - `DOCUMENT_ROOT` (default `BASE_DIR`)
+- `LOG_DIR` (default `BASE_DIR/logs/backend`)
+- `LOG_FILE_BASENAME` (default `exam-online-cpp`)
+- `LOG_FILE_SIZE` (default `100000000`)
+- `LOG_MAX_FILES` (default `10`)
 - `LOG_LEVEL` (`DEBUG|INFO|WARN|ERROR`)
+
+Logging defaults:
+
+- `APP_ENV=development` -> default `LOG_LEVEL=DEBUG`
+- `APP_ENV=production` -> default `LOG_LEVEL=INFO`
+- You can force quieter production logs with `LOG_LEVEL=ERROR`
 
 ## User/Role baseline migration
 
 ```bash
-python cpp-backend/tools/migrate_user_baseline.py --base-dir .
+powershell -ExecutionPolicy Bypass -File cpp-backend/tools/migrate_user_baseline.ps1 -BaseDir .
 ```
 
 ## API

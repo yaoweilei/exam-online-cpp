@@ -1,7 +1,7 @@
 import { ApiClient } from './api/client.js';
 import { Tracker } from './analytics/tracker.js';
 import { loadExams } from './features/exams.js';
-import { bootLegacyViewer } from './features/legacyBridge.js';
+import { bootViewerApp } from './features/viewerBootstrap.js';
 import { restoreSession } from './features/session.js';
 import { AppStore } from './state/store.js';
 async function bootstrap() {
@@ -16,9 +16,9 @@ async function bootstrap() {
         await loadExams(api, store);
     }
     catch (error) {
-        console.error('[main] loadExams failed, fallback to legacy loader fetch:', error);
+        console.error('[main] loadExams failed, fallback to viewer bootstrap fetch:', error);
     }
-    await bootLegacyViewer();
+    await bootViewerApp();
     Tracker.log('app_ready', { levels: Object.keys(store.getState().examsByLevel).length });
 }
 if (document.readyState === 'loading') {

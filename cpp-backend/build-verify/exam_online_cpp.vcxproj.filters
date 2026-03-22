@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\_develop\_side\exam-online-cpp\cpp-backend\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\_develop\_side\exam-online-cpp\cpp-backend\src\transport\ApiRouter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\_develop\_side\exam-online-cpp\cpp-backend\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{8322B9A2-AF62-389F-B1CC-FD6711DE3F49}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
