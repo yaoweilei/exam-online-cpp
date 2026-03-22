@@ -71,3 +71,5 @@ temp/
 # Frontend/C++ build outputs
 frontend/node_modules/
 cpp-backend/build/
+cpp-backend/build-*/
+static/app/
