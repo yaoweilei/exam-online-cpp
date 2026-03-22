@@ -8,32 +8,15 @@
 </head>
 
 <body>
-	<!-- 配置 -->
 	<script>
-		// 资源文件路径配置（统一使用 /resource 路径）
-		window.__FURIGANA_DICT_URL__ = "/resource/furigana.dict.json";
-		window.__AUDIO_BASE__ = "/resource/audio";
-		window.__ICONS_BASE__ = "/resource/icons";
-		window.__IMAGES_BASE__ = "/resource/image";
-		
-		// 标记为 Web 应用模式（使用 API 加载数据）
+		window.__FURIGANA_DICT_URL__ = "/static/resource/furigana.dict.json";
 		window.__WEB_APP_MODE__ = true;
-		
-		// API 基础路径
-		window.__API_BASE__ = "/api";
-		
-		// 日志级别配置
-		// DEBUG: 显示所有日志（调试用）
-		// INFO: 显示一般信息及以上（默认）
-		// WARN: 只显示警告和错误
-		// ERROR: 只显示错误
-		window.__LOG_LEVEL__ = "INFO";
+		window.__API_BASE__ = "/api/v2";
+		window.__EXAMS_BY_LEVEL__ = {};
 	</script>
 
-	<!-- 试卷内容主容器 -->
 	<div id="exam-content">
 		<div id="exam-workarea">
-			<!-- 试卷选择面板 -->
 			<div id="exam-library-panel">
 				<select id="exam-level-select" class="btn-secondary">
 					<option value="N1">N1</option>
@@ -42,58 +25,67 @@
 					<option value="N4">N4</option>
 					<option value="N5">N5</option>
 				</select>
-				<select id="exam-paper-select" class="btn-secondary">
+				<select id="exam-paper-select" class="btn-secondary" data-level="N1">
 					<option value="">-</option>
 				</select>
+				<button id="theme-toggle" class="btn-secondary" title="切换主题">
+					<span class="theme-icon">🌙</span>
+					<span class="theme-text">深色</span>
+				</button>
 			</div>
 
-			<!-- 试卷头部信息 -->
 			<div id="exam-header"></div>
 
-			<!-- 试卷控制工具栏 -->
 			<div id="exam-controls" class="toolbar-grid">
 				<button id="toggle-answers" class="btn-secondary">显示答案</button>
 				<button id="open-question-map" class="btn-secondary" title="题目选择面板">答题卡</button>
 				<button id="top-prev" class="btn-secondary" title="上一题(←)">上一题</button>
 				<button id="top-next" class="btn-secondary" title="下一题(→)">下一题</button>
 				<button id="toggle-explanations" class="btn-secondary">显示详解</button>
-				<!-- 分类下拉占位符 -->
 				<div class="category-slot" data-cat-slot="vocab"></div>
 				<div class="category-slot" data-cat-slot="reading"></div>
 				<div class="category-slot" data-cat-slot="listening"></div>
 			</div>
 
-			<!-- 分类导航容器 -->
 			<div id="category-navigation" style="display:none"></div>
-
-			<!-- 章节导航容器 -->
 			<div id="section-navigation"></div>
 
-			<!-- 宽度控制容器 -->
 			<div id="width-control" title="拖动调整内容最大宽度">
 				<input id="width-slider" type="range" min="0" max="1800" step="10" />
 			</div>
 
-			<!-- 当前题目容器 -->
 			<div id="current-question-container"></div>
-
-			<!-- 题目导航容器 -->
 			<div id="question-navigation"></div>
 		</div>
 	</div>
 
-	<!-- 加载器脚本（包含模块加载和试卷选择器初始化） -->
-	<script src="/static/loader.js"></script>
+	<script type="module" src="/static/app/main.js"></script>
 
-	<!-- 错误处理 -->
 	<script>
-		window.addEventListener('error', (e) => {
-			console.error('[HTML] Global error:', e.error);
-		});
+		(function() {
+			const themeToggle = document.getElementById('theme-toggle');
+			const themeIcon = themeToggle.querySelector('.theme-icon');
+			const themeText = themeToggle.querySelector('.theme-text');
+			const body = document.body;
 
-		window.addEventListener('unhandledrejection', (e) => {
-			console.error('[HTML] Unhandled promise rejection:', e.reason);
-		});
+			const savedTheme = localStorage.getItem('exam-theme') || 'dark';
+			if (savedTheme === 'light') {
+				body.classList.add('light-theme');
+				themeIcon.textContent = '☀️';
+				themeText.textContent = '浅色';
+			} else {
+				themeIcon.textContent = '🌙';
+				themeText.textContent = '深色';
+			}
+
+			themeToggle.addEventListener('click', function() {
+				body.classList.toggle('light-theme');
+				const isLight = body.classList.contains('light-theme');
+				themeIcon.textContent = isLight ? '☀️' : '🌙';
+				themeText.textContent = isLight ? '浅色' : '深色';
+				localStorage.setItem('exam-theme', isLight ? 'light' : 'dark');
+			});
+		})();
 	</script>
 </body>
 </html>

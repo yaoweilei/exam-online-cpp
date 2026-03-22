@@ -15,7 +15,7 @@
 		// 标记为 Web 应用模式（使用 API 加载数据）
 		window.__WEB_APP_MODE__ = true;
 		// API 基础路径
-		window.__API_BASE__ = "/api";
+		window.__API_BASE__ = "/api/v2";
 		// 后端渲染的试卷数据
 		window.__EXAMS_BY_LEVEL__ = {{ exams_by_level | tojson | safe }};
 	</script>
@@ -79,8 +79,8 @@
 		</div>
 	</div>
 
-	<!-- 加载器脚本（包含模块加载和试卷选择器初始化） -->
-	<script src="/static/loader.js"></script>
+	<!-- 新模块化入口：内部会桥接 legacy loader（不改布局） -->
+	<script type="module" src="/static/app/main.js"></script>
 
 	<!-- 主题切换脚本 -->
 	<script>

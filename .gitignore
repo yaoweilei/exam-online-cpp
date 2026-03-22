@@ -57,8 +57,17 @@ Thumbs.db
 # 用户数据（可选，根据需要调整）
 data/user/users.json
 data/user/answers/
+data/paper/jlpt/.exam_index.json
+data/user/_users.wal.log
+data/user/_users.wal.snapshot.json
+data/user/answers/_wal.log
+data/user/answers/_wal.snapshot.json
 
 # 临时文件
 tmp/
 temp/
 *.tmp
+
+# Frontend/C++ build outputs
+frontend/node_modules/
+cpp-backend/build/

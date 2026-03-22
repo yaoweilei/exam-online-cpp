@@ -248,10 +248,11 @@
 				: null;
 			if (!userId || userId === 'guest') return {};
 
-			const apiBase = window.__API_BASE__ || '/api';
+			const apiBase = window.__API_BASE__ || '/api/v2';
 			const resp = await fetch(`${apiBase}/progress/${userId}/exams`);
 			if (!resp.ok) return {};
-			return await resp.json();
+			const payload = await resp.json();
+			return payload && payload.data !== undefined ? payload.data : payload;
 		} catch (e) {
 			console.warn('[Loader] Failed to fetch user progress:', e);
 			return {};

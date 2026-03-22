@@ -58,7 +58,7 @@ class AnswerManager {
 
 	/**
 	 * 计算得分 - 已迁移到后端 API
-	 * 使用 POST /api/answers/submit 获取评分结果
+	 * 使用 POST /api/v2/answers/submit 获取评分结果
 	 */
 	// calculateScore() - 已删除，使用后端 API
 
@@ -135,22 +135,26 @@ class AnswerManager {
 	 */
 	async submitAnswers() {
 		try {
-			// 调用后端 API 进行评分
-			const response = await fetch('/api/answers/submit', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					user_id: this.examViewer.userId || 'guest',
-					exam_id: this.examViewer._currentExamId || 'unknown',
-					answers: this.examViewer.userAnswers
-				})
-			});
-
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const result = await response.json();
+			const result = window.APIClient
+				? await window.APIClient.submitAnswers(
+					this.examViewer.userId || 'guest',
+					this.examViewer._currentExamId || 'unknown',
+					this.examViewer.userAnswers
+				)
+				: await (async () => {
+					const apiBase = window.__API_BASE__ || '/api/v2';
+					const response = await fetch(`${apiBase}/answers/submit`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							user_id: this.examViewer.userId || 'guest',
+							exam_id: this.examViewer._currentExamId || 'unknown',
+							answers: this.examViewer.userAnswers
+						})
+					});
+					const payload = await response.json();
+					return payload.data !== undefined ? payload.data : payload;
+				})();
 			
 			// 显示答案
 			this.examViewer.showAnswers = true;

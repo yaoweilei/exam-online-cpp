@@ -50,11 +50,13 @@ class ExamLoader {
 	 */
 	static async getExamList() {
 		try {
-			const response = await fetch('/api/exams');
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+			if (window.APIClient) {
+				return await window.APIClient.getExams();
 			}
-			return await response.json();
+			const apiBase = window.__API_BASE__ || '/api/v2';
+			const response = await fetch(`${apiBase}/exams`);
+			const payload = await response.json();
+			return payload.data !== undefined ? payload.data : payload;
 		} catch (error) {
 			console.error('[ExamLoader] Failed to load exam list:', error);
 			return [];
@@ -68,11 +70,13 @@ class ExamLoader {
 	 */
 	static async getExam(examId) {
 		try {
-			const response = await fetch(`/api/exams/${examId}`);
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+			if (window.APIClient) {
+				return await window.APIClient.getExam(examId);
 			}
-			return await response.json();
+			const apiBase = window.__API_BASE__ || '/api/v2';
+			const response = await fetch(`${apiBase}/exams/${examId}`);
+			const payload = await response.json();
+			return payload.data !== undefined ? payload.data : payload;
 		} catch (error) {
 			console.error(`[ExamLoader] Failed to load exam ${examId}:`, error);
 			return null;
