@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 
 #include "application/recommendation/RecommendationStrategy.h"
@@ -14,6 +15,7 @@ namespace transport
 {
 struct AppContext
 {
+    std::filesystem::path staticDir;
     application::services::ExamService *examService{nullptr};
     application::services::AnswerService *answerService{nullptr};
     application::services::AuthService *authService{nullptr};

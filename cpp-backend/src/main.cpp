@@ -59,6 +59,7 @@ int main()
     application::recommendation::RuleBasedRecommendationStrategy recommendationStrategy(statisticsService, examService);
 
     transport::AppContext context{
+        .staticDir = cfg.staticDir,
         .examService = &examService,
         .answerService = &answerService,
         .authService = &authService,
@@ -103,6 +104,7 @@ int main()
     std::cout << "base_dir=" << cfg.baseDir << "\n";
     std::cout << "data_paper_dir=" << cfg.dataPaperDir << "\n";
     std::cout << "data_user_dir=" << cfg.dataUserDir << "\n";
+    std::cout << "static_dir=" << cfg.staticDir << "\n";
     std::cout << "app_env=" << cfg.appEnv << "\n";
     std::cout << "log_dir=" << cfg.logDir << "\n";
     std::cout << "log_level=" << cfg.logLevel << "\n";

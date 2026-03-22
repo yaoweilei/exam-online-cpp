@@ -43,8 +43,13 @@ void ApiRouter::registerRoutes() const
 {
     app().registerHandler(
         "/",
-        [](const HttpRequestPtr &, std::function<void(const HttpResponsePtr &)> &&callback) {
-            const auto path = std::filesystem::current_path() / "static" / "index.html";
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            const auto path = ctx.staticDir / "index.html";
+            if (!std::filesystem::exists(path))
+            {
+                callback(common::fail(req, k404NotFound, "INDEX_NOT_FOUND", "Index file not found"));
+                return;
+            }
             auto response = HttpResponse::newFileResponse(path.string());
             response->setContentTypeCode(CT_TEXT_HTML);
             callback(response);
@@ -53,14 +58,34 @@ void ApiRouter::registerRoutes() const
 
     app().registerHandler(
         "/resource/{1:.*}",
-        [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, const std::string &path) {
-            const auto fullPath = std::filesystem::current_path() / "static" / "resource" / path;
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, const std::string &path) {
+            const auto fullPath = ctx.staticDir / "resource" / path;
             if (!std::filesystem::exists(fullPath))
             {
                 callback(common::fail(req, k404NotFound, "RESOURCE_NOT_FOUND", "Resource not found"));
                 return;
             }
             callback(HttpResponse::newFileResponse(fullPath.string()));
+        },
+        {Get});
+
+    app().registerHandler(
+        "/healthz",
+        [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            Json::Value out(Json::objectValue);
+            out["status"] = "ok";
+            out["service"] = "exam-online-cpp";
+            callback(common::ok(req, out));
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/health",
+        [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            Json::Value out(Json::objectValue);
+            out["status"] = "ok";
+            out["service"] = "exam-online-cpp";
+            callback(common::ok(req, out));
         },
         {Get});
 

@@ -5,10 +5,29 @@ set BUILD_DIR=cpp-backend\build
 set TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 if "%APP_ENV%"=="" set APP_ENV=development
-if "%LOG_LEVEL%"=="" set LOG_LEVEL=DEBUG
+if /I "%APP_ENV%"=="production" (
+  if "%LOG_LEVEL%"=="" set LOG_LEVEL=INFO
+) else (
+  if "%LOG_LEVEL%"=="" set LOG_LEVEL=DEBUG
+)
 if "%LOG_DIR%"=="" set LOG_DIR=%CD%\logs\backend
 if "%LOG_FILE_BASENAME%"=="" set LOG_FILE_BASENAME=exam-online-cpp
 if "%LOG_MAX_FILES%"=="" set LOG_MAX_FILES=10
+
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
+
+if not exist data\user\users.json (
+  powershell -ExecutionPolicy Bypass -File cpp-backend/tools/migrate_user_baseline.ps1 -BaseDir .
+  if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+)
+if not exist data\user\roles.json (
+  powershell -ExecutionPolicy Bypass -File cpp-backend/tools/migrate_user_baseline.ps1 -BaseDir .
+  if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+)
+
+echo [start-cpp] APP_ENV=%APP_ENV%
+echo [start-cpp] LOG_LEVEL=%LOG_LEVEL%
+echo [start-cpp] LOG_DIR=%LOG_DIR%
 
 if not exist %BUILD_DIR% (
   cmake -S cpp-backend -B %BUILD_DIR% -DCMAKE_TOOLCHAIN_FILE=%TOOLCHAIN_FILE%

@@ -1,0 +1,5 @@
+D:/_develop/_side/exam-online-cpp/cpp-backend/build-verify2/CMakeFiles/exam_online_cpp.dir
+D:/_develop/_side/exam-online-cpp/cpp-backend/build-verify2/CMakeFiles/smoke_tests.dir
+D:/_develop/_side/exam-online-cpp/cpp-backend/build-verify2/CMakeFiles/RUN_TESTS.dir
+D:/_develop/_side/exam-online-cpp/cpp-backend/build-verify2/CMakeFiles/ALL_BUILD.dir
+D:/_develop/_side/exam-online-cpp/cpp-backend/build-verify2/CMakeFiles/ZERO_CHECK.dir

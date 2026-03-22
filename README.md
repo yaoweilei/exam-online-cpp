@@ -63,6 +63,7 @@ start-cpp.bat
 - `APP_ENV=development`
 - `LOG_LEVEL=DEBUG`
 - `LOG_DIR=logs/backend`
+- 如果 `data/user/users.json` 或 `data/user/roles.json` 缺失，会自动补一次基线迁移
 
 手动构建运行：
 
@@ -92,6 +93,11 @@ set APP_ENV=production
 set LOG_LEVEL=ERROR
 start-cpp.bat
 ```
+
+健康检查接口：
+
+- [http://127.0.0.1:8000/healthz](http://127.0.0.1:8000/healthz)
+- `GET /api/v2/health`
 
 ## 代码库结构
 
@@ -273,6 +279,7 @@ exam-online-cpp/
 - `transport`
   - 负责注册 HTTP 路由
   - 当前核心路由在 [ApiRouter.cpp](D:/_develop/_side/exam-online-cpp/cpp-backend/src/transport/ApiRouter.cpp)
+  - 根页面和资源目录都走配置里的 `staticDir`，不再依赖进程当前工作目录
 - `application`
   - 封装考试、答题、认证、统计、用户、推荐、振假名等服务
 - `domain`
