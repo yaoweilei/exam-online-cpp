@@ -1,1 +1,0 @@
-{"version":3,"file":"tracker.js","sourceRoot":"","sources":["../../../frontend/src/analytics/tracker.ts"],"names":[],"mappings":"AAAA,MAAM,OAAO,OAAO;IACnB,MAAM,CAAC,GAAG,CAAC,KAAa,EAAE,UAAmC,EAAE;QAC9D,IAAK,MAA+C,CAAC,aAAa,EAAE,CAAC;YACpE,OAAO,CAAC,GAAG,CAAC,aAAa,KAAK,EAAE,EAAE,OAAO,CAAC,CAAC;QAC5C,CAAC;IACF,CAAC;CACD"}

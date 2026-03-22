@@ -1,3 +1,0 @@
-smoke_tests 0 0
----
-smoke_tests
