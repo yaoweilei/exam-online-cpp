@@ -26,6 +26,15 @@ struct AppConfig
     size_t logFileSize{100000000};
     size_t logMaxFiles{10};
     bool enableSendfile{true};
+    // WeChat Open Platform
+    std::string wechatAppId;
+    std::string wechatAppSecret;
+    std::string wechatCallbackBaseUrl;  // e.g. "https://example.com"
+    // SMS (Aliyun / Tencent)
+    std::string smsAccessKeyId;
+    std::string smsAccessKeySecret;
+    std::string smsSignName;
+    std::string smsTemplateCode;
 };
 
 inline std::string readEnv(const char *name, const std::string &fallback)
@@ -91,6 +100,15 @@ inline AppConfig loadConfig()
     config.logMaxFiles = readEnvSize("LOG_MAX_FILES", config.logMaxFiles);
     const auto defaultLogLevel = isDevelopmentEnv(config.appEnv) ? "DEBUG" : "INFO";
     config.logLevel = toUpperCopy(readEnv("LOG_LEVEL", defaultLogLevel));
+    // WeChat
+    config.wechatAppId = readEnv("WECHAT_APP_ID", "");
+    config.wechatAppSecret = readEnv("WECHAT_APP_SECRET", "");
+    config.wechatCallbackBaseUrl = readEnv("WECHAT_CALLBACK_BASE_URL", "");
+    // SMS
+    config.smsAccessKeyId = readEnv("SMS_ACCESS_KEY_ID", "");
+    config.smsAccessKeySecret = readEnv("SMS_ACCESS_KEY_SECRET", "");
+    config.smsSignName = readEnv("SMS_SIGN_NAME", "");
+    config.smsTemplateCode = readEnv("SMS_TEMPLATE_CODE", "");
     return config;
 }
 }  // namespace infrastructure::config

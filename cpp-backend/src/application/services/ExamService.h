@@ -7,13 +7,18 @@
 
 #include "domain/Models.h"
 #include "infrastructure/storage/ExamRepository.h"
+#include "application/services/SubscriptionService.h"
 
 namespace application::services
 {
 class ExamService
 {
   public:
-    explicit ExamService(infrastructure::storage::ExamRepository &repository) : repository_(repository) {}
+    explicit ExamService(infrastructure::storage::ExamRepository &repository,
+                         application::services::SubscriptionService &subscriptionService)
+        : repository_(repository), subscriptionService_(subscriptionService)
+    {
+    }
 
     Json::Value listExams(const std::string &level, const std::string &year, const std::string &sort) const
     {
@@ -68,8 +73,17 @@ class ExamService
         return grouped;
     }
 
-    Json::Value getExam(const std::string &examId) const
+    // userId may be empty (guest); access_level check still applies.
+    Json::Value getExam(const std::string &examId, const std::string &userId = "guest") const
     {
+        // First check if the exam exists by peeking at the index
+        const auto &exams = repository_.listExams();
+        const auto it = std::find_if(exams.begin(), exams.end(),
+                                     [&](const domain::ExamSummary &s) { return s.id == examId; });
+        if (it != exams.end())
+        {
+            subscriptionService_.requireAccess(userId, it->accessLevel);
+        }
         return repository_.getExamById(examId);
     }
 
@@ -85,5 +99,6 @@ class ExamService
 
   private:
     infrastructure::storage::ExamRepository &repository_;
+    application::services::SubscriptionService &subscriptionService_;
 };
 }  // namespace application::services

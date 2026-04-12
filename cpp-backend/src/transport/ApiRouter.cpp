@@ -35,6 +35,16 @@ std::string requireString(const Json::Value &json, const std::string &field)
     }
     return value;
 }
+
+std::string resolveToken(const HttpRequestPtr &req)
+{
+    const auto bearer = req->getHeader("Authorization");
+    if (!bearer.empty() && bearer.rfind("Bearer ", 0) == 0)
+    {
+        return bearer.substr(7);
+    }
+    return req->getParameter("token");
+}
 }  // namespace
 
 namespace transport
@@ -111,7 +121,9 @@ void ApiRouter::registerRoutes() const
         [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string examId) {
             try
             {
-                callback(common::ok(req, ctx.examService->getExam(examId)));
+                // Pass user_id for subscription check; defaults to "guest"
+                const auto userId = req->getParameter("user_id").empty() ? "guest" : req->getParameter("user_id");
+                callback(common::ok(req, ctx.examService->getExam(examId, userId)));
             }
             catch (const common::AppException &e)
             {
@@ -282,12 +294,54 @@ void ApiRouter::registerRoutes() const
         [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             try
             {
-                const auto token = req->getParameter("token");
+                const auto token = resolveToken(req);
                 if (token.empty())
                 {
                     throw common::AppException("VALIDATION_ERROR", "Missing token parameter", k422UnprocessableEntity);
                 }
                 callback(common::ok(req, ctx.authService->verify(token)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/me",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto token = resolveToken(req);
+                if (token.empty())
+                {
+                    throw common::AppException("VALIDATION_ERROR", "Missing token parameter", k422UnprocessableEntity);
+                }
+                const auto session = ctx.authService->verify(token);
+                callback(common::ok(req, ctx.userService->getUser(session.get("user_id", "").asString())));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/me/context",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto token = resolveToken(req);
+                if (token.empty())
+                {
+                    throw common::AppException("VALIDATION_ERROR", "Missing token parameter", k422UnprocessableEntity);
+                }
+                const auto session = ctx.authService->verify(token);
+                Json::Value out = ctx.userService->context(session.get("user_id", "").asString());
+                out["session"] = session;
+                callback(common::ok(req, out));
             }
             catch (const common::AppException &e)
             {
@@ -455,6 +509,234 @@ void ApiRouter::registerRoutes() const
                 out["word"] = word;
                 out["reading"] = ctx.furiganaService->reading(word);
                 callback(common::ok(req, out));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    // -------------------------------------------------------------------------
+    // Profile
+    // -------------------------------------------------------------------------
+
+    app().registerHandler(
+        "/api/v2/profile/{1}",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+            try
+            {
+                callback(common::ok(req, ctx.profileService->getProfile(userId)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/profile/{1}",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                callback(common::ok(req, ctx.profileService->updateProfile(userId, body)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Put});
+
+    // -------------------------------------------------------------------------
+    // Bookmarks
+    // -------------------------------------------------------------------------
+
+    app().registerHandler(
+        "/api/v2/bookmarks/{1}",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+            try
+            {
+                callback(common::ok(req, ctx.bookmarkService->getBookmarks(userId)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/bookmarks/{1}/exams",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto examId = requireString(body, "exam_id");
+                callback(common::ok(req, ctx.bookmarkService->addExamBookmark(userId, examId)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v2/bookmarks/{1}/exams/{2}",
+        [ctx = context_](const HttpRequestPtr &req,
+                         std::function<void(const HttpResponsePtr &)> &&callback,
+                         std::string userId,
+                         std::string examId) {
+            try
+            {
+                callback(common::ok(req, ctx.bookmarkService->removeExamBookmark(userId, examId)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Delete});
+
+    // -------------------------------------------------------------------------
+    // Subscription
+    // -------------------------------------------------------------------------
+
+    app().registerHandler(
+        "/api/v2/subscription/{1}",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+            try
+            {
+                Json::Value out = ctx.subscriptionService->currentSubscription(userId);
+                out["user_id"] = userId;
+                callback(common::ok(req, out));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/subscription/{1}/grant",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto expiresAt = body.get("expires_at", "").asString();
+                const auto plan = body.get("plan", "pro").asString();
+                const auto status = body.get("status", "active").asString();
+                Json::Value out = ctx.subscriptionService->grantSubscription(userId, plan, expiresAt, status);
+                out["user_id"] = userId;
+                callback(common::ok(req, out));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    // -------------------------------------------------------------------------
+    // Phone binding
+    // -------------------------------------------------------------------------
+
+    app().registerHandler(
+        "/api/v2/auth/phone/send-code",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto phone = requireString(body, "phone");
+                ctx.phoneService->sendVerificationCode(phone);
+                Json::Value out(Json::objectValue);
+                out["phone"] = phone;
+                callback(common::ok(req, out, "code_sent"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v2/auth/phone/verify",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto userId = requireString(body, "user_id");
+                const auto phone = requireString(body, "phone");
+                const auto code = requireString(body, "code");
+                callback(common::ok(req, ctx.phoneService->verifyAndBind(userId, phone, code)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    // -------------------------------------------------------------------------
+    // WeChat login
+    // -------------------------------------------------------------------------
+
+    app().registerHandler(
+        "/api/v2/auth/wechat/qrcode",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                callback(common::ok(req, ctx.wechatService->generateQrcode()));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/auth/wechat/callback",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto code = req->getParameter("code");
+                const auto state = req->getParameter("state");
+                if (code.empty() || state.empty())
+                {
+                    throw common::AppException("VALIDATION_ERROR", "Missing code or state", k422UnprocessableEntity);
+                }
+                ctx.wechatService->handleCallback(code, state);
+                // Return a simple HTML page that tells the user to return to the app
+                auto resp = HttpResponse::newHttpResponse();
+                resp->setStatusCode(k200OK);
+                resp->setContentTypeCode(CT_TEXT_HTML);
+                resp->setBody("<html><body><script>window.close();</script><p>Login successful. You may close this window.</p></body></html>");
+                callback(resp);
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/auth/wechat/poll",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto state = req->getParameter("state");
+                if (state.empty())
+                {
+                    throw common::AppException("VALIDATION_ERROR", "Missing state parameter", k422UnprocessableEntity);
+                }
+                callback(common::ok(req, ctx.wechatService->poll(state)));
             }
             catch (const common::AppException &e)
             {

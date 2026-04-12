@@ -16,6 +16,9 @@
 - 前端查看器主模块位于 [frontend/src/viewer](D:/_develop/_side/exam-online-cpp/frontend/src/viewer)
 - 编译产物输出到 [static/app](D:/_develop/_side/exam-online-cpp/static/app)
 - 后端接口统一挂在 `/api/v2`
+- 用户模块设计稿见 [docs/user-module-design.md](D:/_develop/_side/exam-online-cpp/docs/user-module-design.md)
+- 用户模块式样书见 [docs/user-module-spec.md](D:/_develop/_side/exam-online-cpp/docs/user-module-spec.md)
+- 用户模块接口式样书见 [docs/user-module-api-spec.md](D:/_develop/_side/exam-online-cpp/docs/user-module-api-spec.md)
 
 ## 技术栈
 

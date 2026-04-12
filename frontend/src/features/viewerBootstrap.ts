@@ -16,6 +16,7 @@ interface ViewerExamMeta {
 interface ViewerCurrentUser {
 	user_id?: string;
 	username?: string;
+	id?: string;
 	[key: string]: unknown;
 }
 
@@ -187,8 +188,8 @@ async function ensureExamsByLevelLoaded(): Promise<void> {
 
 async function fetchUserProgress(): Promise<Record<string, number>> {
 	try {
-		const userContextManager = getGlobalWindow().UserContextManager as ViewerUserContextStatic | undefined;
-		const userId = userContextManager?.currentUser?.user_id ?? userContextManager?.currentUser?.username ?? null;
+		const userContext = window.getUserContext?.() as ViewerCurrentUser | undefined;
+		const userId = userContext?.user_id ?? userContext?.id ?? userContext?.username ?? null;
 		if (!userId || userId === 'guest') {
 			return {};
 		}

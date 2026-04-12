@@ -6,10 +6,15 @@
 #include "application/recommendation/RecommendationStrategy.h"
 #include "application/services/AnswerService.h"
 #include "application/services/AuthService.h"
+#include "application/services/BookmarkService.h"
 #include "application/services/ExamService.h"
 #include "application/services/FuriganaService.h"
+#include "application/services/PhoneService.h"
+#include "application/services/ProfileService.h"
 #include "application/services/StatisticsService.h"
+#include "application/services/SubscriptionService.h"
 #include "application/services/UserService.h"
+#include "application/services/WechatService.h"
 
 namespace transport
 {
@@ -22,6 +27,11 @@ struct AppContext
     application::services::StatisticsService *statisticsService{nullptr};
     application::services::UserService *userService{nullptr};
     application::services::FuriganaService *furiganaService{nullptr};
+    application::services::ProfileService *profileService{nullptr};
+    application::services::BookmarkService *bookmarkService{nullptr};
+    application::services::SubscriptionService *subscriptionService{nullptr};
+    application::services::PhoneService *phoneService{nullptr};
+    application::services::WechatService *wechatService{nullptr};
     application::recommendation::RecommendationStrategy *recommendationStrategy{nullptr};
 };
 

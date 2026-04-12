@@ -1,10 +1,7 @@
+import type { CurrentUser } from '../api/dto.js';
+
 export interface AppState {
-	user: {
-		guest: boolean;
-		user_id?: string;
-		username?: string;
-		token?: string;
-	};
+	user: CurrentUser | { guest: true };
 	examsByLevel: Record<string, unknown[]>;
 	currentLevel: string;
 }

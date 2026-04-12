@@ -8,6 +8,7 @@ export interface ExamSummary {
 	session: string;
 	display: string;
 	checked?: boolean;
+	access_level?: string;
 	[key: string]: unknown;
 }
 

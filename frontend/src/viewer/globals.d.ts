@@ -15,7 +15,7 @@ interface LegacyApiClientShape {
 	logout(token: string): Promise<unknown>;
 	verifyToken(token: string): Promise<unknown>;
 	getExams(options?: { level?: string; year?: string; sort?: string }): Promise<unknown[]>;
-	getExam(examId: string): Promise<unknown>;
+	getExam(examId: string, userId?: string): Promise<unknown>;
 	createExam(examData: unknown): Promise<unknown>;
 	deleteExam(examId: string): Promise<unknown>;
 	submitAnswers(userId: string, examId: string, answers: Record<string, unknown>): Promise<unknown>;
@@ -30,6 +30,10 @@ interface LegacyApiClientShape {
 	getUsersByRole(roleId: string): Promise<unknown[]>;
 	getUserPermissions(userId: string): Promise<unknown>;
 	getAllRoles(): Promise<unknown>;
+	getProfile(userId: string): Promise<unknown>;
+	getSubscription(userId: string): Promise<unknown>;
+	getMe(token: string): Promise<unknown>;
+	getMeContext(token: string): Promise<unknown>;
 	addFurigana(text: string): Promise<unknown>;
 	getReading(word: string): Promise<unknown>;
 }
@@ -80,6 +84,7 @@ interface Window {
 	refreshPersonalCenterTrigger?: () => Promise<void> | void;
 	getUserContext?: () => Record<string, unknown>;
 	_pcDebug?: Record<string, unknown>;
+	__openLoginModal?: () => void;
 }
 
 interface Document {

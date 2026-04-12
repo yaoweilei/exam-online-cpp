@@ -10,6 +10,7 @@
 #include "common/AppException.h"
 #include "common/RequestId.h"
 #include "common/TimeUtils.h"
+#include "infrastructure/storage/ProfileRepository.h"
 #include "infrastructure/storage/UserRepository.h"
 
 namespace application::services
@@ -17,7 +18,11 @@ namespace application::services
 class AuthService
 {
   public:
-    explicit AuthService(infrastructure::storage::UserRepository &repository) : repository_(repository) {}
+    explicit AuthService(infrastructure::storage::UserRepository &repository,
+                        infrastructure::storage::ProfileRepository &profileRepository)
+        : repository_(repository), profileRepository_(profileRepository)
+    {
+    }
 
     Json::Value login(const std::string &username, const std::string &password)
     {
@@ -27,24 +32,7 @@ class AuthService
             throw common::AppException("INVALID_CREDENTIALS", "Username or password is invalid", drogon::k401Unauthorized);
         }
 
-        const auto token = common::generateRequestId();
-        const auto expiresAt = common::nowIso8601();
-        {
-            std::scoped_lock lock(mutex_);
-            sessions_[token] = Session{
-                .userId = user.get("id", "").asString(),
-                .username = user.get("username", "").asString(),
-                .roles = user["roles"],
-                .expiresAt = std::chrono::system_clock::now() + std::chrono::hours(24 * 7),
-                .expiresAtIso = expiresAt};
-        }
-
-        Json::Value out(Json::objectValue);
-        out["user_id"] = user.get("id", "").asString();
-        out["username"] = user.get("username", "").asString();
-        out["roles"] = user["roles"];
-        out["token"] = token;
-        return out;
+        return createSessionPayload(user);
     }
 
     Json::Value registerUser(const std::string &username, const std::string &password, const std::string &email)
@@ -55,6 +43,17 @@ class AuthService
         out["username"] = user.get("username", "").asString();
         out["roles"] = user["roles"];
         return out;
+    }
+
+    Json::Value loginViaUser(const Json::Value &user)
+    {
+        return createSessionPayload(user);
+    }
+
+    // Called after WeChat OAuth2 callback completes; creates a session for the user.
+    std::string createSessionForUser(const Json::Value &user)
+    {
+        return createSessionPayload(user).get("token", "").asString();
     }
 
     bool logout(const std::string &token)
@@ -86,6 +85,45 @@ class AuthService
     }
 
   private:
+    Json::Value createSessionPayload(const Json::Value &user)
+    {
+        const auto token = common::generateRequestId();
+        const auto expiresAt = std::chrono::system_clock::now() + std::chrono::hours(24 * 7);
+        {
+            std::scoped_lock lock(mutex_);
+            sessions_[token] = Session{
+                .userId = user.get("id", "").asString(),
+                .username = user.get("username", "").asString(),
+                .roles = user["roles"],
+                .expiresAt = expiresAt,
+                .expiresAtIso = formatTime(expiresAt)};
+        }
+
+        profileRepository_.updateStreak(user.get("id", "").asString());
+
+        Json::Value out(Json::objectValue);
+        out["user_id"] = user.get("id", "").asString();
+        out["username"] = user.get("username", "").asString();
+        out["roles"] = user["roles"];
+        out["token"] = token;
+        out["expires_at"] = formatTime(expiresAt);
+        return out;
+    }
+
+    static std::string formatTime(const std::chrono::system_clock::time_point &timePoint)
+    {
+        const auto t = std::chrono::system_clock::to_time_t(timePoint);
+        std::tm tm{};
+#ifdef _WIN32
+        gmtime_s(&tm, &t);
+#else
+        gmtime_r(&t, &tm);
+#endif
+        char buf[25];
+        std::strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &tm);
+        return buf;
+    }
+
     struct Session
     {
         std::string userId;
@@ -96,6 +134,7 @@ class AuthService
     };
 
     infrastructure::storage::UserRepository &repository_;
+    infrastructure::storage::ProfileRepository &profileRepository_;
     std::unordered_map<std::string, Session> sessions_;
     std::mutex mutex_;
 };

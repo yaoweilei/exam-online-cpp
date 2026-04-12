@@ -16,6 +16,7 @@ struct ExamSummary
     std::string session;
     std::string display;
     bool checked{false};
+    std::string accessLevel{"free"};  // "free" | "pro" | "ultra"
 
     Json::Value toJson() const
     {
@@ -28,6 +29,7 @@ struct ExamSummary
         value["session"] = session;
         value["display"] = display;
         value["checked"] = checked;
+        value["access_level"] = accessLevel;
         return value;
     }
 };

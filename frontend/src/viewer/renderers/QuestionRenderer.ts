@@ -518,7 +518,8 @@ class QuestionRenderer {
 	 */
 	isAdmin() {
 		const userContext = this.examViewer.userContextManager?.getUserContext();
-		return userContext?.roles?.includes('superAdmin') || false;
+		const roles = Array.isArray(userContext?.roles) ? userContext.roles : [];
+		return roles.some((role: string) => ['teacher', 'orgAdmin', 'systemAdmin', 'superAdmin'].includes(role));
 	}
 
 	/**

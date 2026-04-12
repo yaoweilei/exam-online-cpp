@@ -16,6 +16,62 @@
 	</script>
 
 	<div id="exam-content">
+		<!-- 顶部用户栏 -->
+		<div id="user-bar">
+			<button id="login-entry-btn" class="btn-login-entry">登录</button>
+			<div id="user-info-bar" style="display:none">
+				<span id="user-display"></span>
+				<button id="logout-btn" class="btn-logout">退出</button>
+			</div>
+		</div>
+
+		<!-- 登录弹窗 -->
+		<div id="login-modal">
+			<div class="login-box">
+				<div class="login-title">JLPT 在线试卷</div>
+
+				<!-- WeChat 面板 -->
+				<div data-panel="wechat">
+					<div class="qr-wrapper">
+						<img id="wechat-qr-img" class="qr-img" src="" alt="二维码" />
+					</div>
+					<div id="wechat-qr-text" class="qr-hint">待扫码</div>
+					<div id="wechat-status" class="login-status"></div>
+					<button id="wechat-stub-btn" class="btn-stub" style="display:none">🔧 模拟扫码（开发模式）</button>
+				</div>
+
+				<!-- 手机号面板 -->
+				<div data-panel="phone" style="display:none">
+					<input id="login-phone" class="login-input" type="tel" placeholder="手机号" />
+					<div class="login-code-row">
+						<input id="login-phone-code" class="login-input code-input" type="text" placeholder="验证码" />
+						<button id="login-btn-send-code" class="btn-send-code">发送验证码</button>
+					</div>
+					<button id="login-btn-phone-verify" class="btn-primary-login">验证登录</button>
+				</div>
+
+				<!-- 用户名密码面板 -->
+				<div data-panel="password" style="display:none">
+					<input id="login-username" class="login-input" type="text" placeholder="用户名" />
+					<input id="login-password" class="login-input" type="password" placeholder="密码" />
+					<button id="login-btn-password" class="btn-primary-login">登录</button>
+				</div>
+
+				<div id="login-error" class="login-error" style="display:none"></div>
+
+				<!-- 底部同意协议 -->
+				<div class="login-agree">
+					<label><input type="checkbox" checked /> 同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a></label>
+				</div>
+
+				<!-- 模式切换图标 -->
+				<div class="login-mode-bar">
+					<button class="login-mode-icon active" data-mode="wechat" title="微信扫码登录">💬</button>
+					<button class="login-mode-icon" data-mode="phone" title="手机号登录">📱</button>
+					<button class="login-mode-icon" data-mode="password" title="用户名密码登录">🔑</button>
+				</div>
+			</div>
+		</div>
 		<div id="exam-workarea">
 			<div id="exam-library-panel">
 				<select id="exam-level-select" class="btn-secondary">

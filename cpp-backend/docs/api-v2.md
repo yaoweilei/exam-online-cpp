@@ -38,3 +38,8 @@ Base prefix: `/api/v2`
 - `GET /roles`
 - `POST /furigana/add`
 - `GET /furigana/reading/{word}`
+- `GET /profile/{user_id}`
+- `PUT /profile/{user_id}`
+- `GET /bookmarks/{user_id}`
+- `POST /bookmarks/{user_id}/exams`
+- `DELETE /bookmarks/{user_id}/exams/{exam_id}`

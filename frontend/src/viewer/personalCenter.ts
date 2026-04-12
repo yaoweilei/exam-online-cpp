@@ -11,6 +11,12 @@ interface PCBalance {
 	updatedAt: string;
 }
 
+interface PCSubscription {
+	plan: string;
+	status: string;
+	expiresAt: string;
+}
+
 interface PCUser {
 	id: string;
 	displayName: string;
@@ -21,6 +27,9 @@ interface PCUser {
 	lastLoginAt?: string;
 	status?: string;
 	accessibleLevels?: string[];
+	subscription?: PCSubscription;
+	scopeType?: string;
+	organizationType?: string;
 }
 
 interface PCContext {
@@ -34,6 +43,9 @@ interface PCContext {
 	lastLoginAt?: string;
 	status?: string;
 	accessibleLevels?: string[];
+	subscription?: PCSubscription;
+	scopeType?: string;
+	organizationType?: string;
 }
 
 interface PCContextManager {
@@ -100,7 +112,7 @@ interface RoleDef {
 		{ id: 'roles', title: '角色权限', gate: (u) => !u.guest },
 		{ id: 'community', title: '社群', gate: (u) => !u.guest },
 		{ id: 'balance', title: '账户', gate: (u) => !u.guest },
-		{ id: 'admin-hub', title: '管理面板', gate: (u) => hasAnyRole(u, ['teacher', 'reviewer', 'academicAdmin', 'systemAdmin', 'superAdmin']) },
+		{ id: 'admin-hub', title: '管理面板', gate: (u) => hasAnyRole(u, ['teacher', 'reviewer', 'orgAdmin', 'systemAdmin', 'superAdmin']) },
 		{ id: 'system-flags', title: '系统开关', gate: (u) => hasAnyRole(u, ['superAdmin']) },
 		{ id: 'logout', title: '退出登录', gate: (u) => !u.guest }
 	];
@@ -146,7 +158,7 @@ interface RoleDef {
 			title: '题目管理',
 			icon: '🗂️',
 			intent: 'openQuestionManager',
-			gate: (u) => hasAnyRole(u, ['teacher', 'academicAdmin', 'systemAdmin', 'superAdmin'])
+			gate: (u) => hasAnyRole(u, ['teacher', 'orgAdmin', 'systemAdmin', 'superAdmin'])
 		},
 		{
 			id: 'approvals',
@@ -176,7 +188,7 @@ interface RoleDef {
 		{ id: 'student', name: '学生', desc: '做题 / 积分 / 充值', risk: 'low' },
 		{ id: 'teacher', name: '教师', desc: '组卷 / 题库管理 / 布置', risk: 'medium' },
 		{ id: 'reviewer', name: '阅卷', desc: '阅卷审核、质检', risk: 'medium' },
-		{ id: 'academicAdmin', name: '教务', desc: '课程/科目/班级高级配置', risk: 'medium' },
+		{ id: 'orgAdmin', name: '组织管理员', desc: '组织空间内的成员与资源管理', risk: 'medium' },
 		{ id: 'systemAdmin', name: '系统管理员', desc: '系统级管理（非高危开关）', risk: 'high' },
 		{ id: 'superAdmin', name: '超级管理员', desc: '全部权限 + 高危系统操作', risk: 'critical' }
 	];
@@ -253,7 +265,7 @@ interface RoleDef {
 			allUsers = [];
 			return;
 		}
-		const roles = ['guest', 'student', 'teacher', 'reviewer', 'academicAdmin', 'systemAdmin', 'superAdmin'];
+		const roles = ['guest', 'student', 'teacher', 'reviewer', 'orgAdmin', 'systemAdmin', 'superAdmin'];
 		const map = new Map<string, PCUser>();
 		for (const role of roles) {
 			try {
@@ -263,10 +275,27 @@ interface RoleDef {
 					if (typeof u.id !== 'string') {
 						return;
 					}
+					const subscriptionValue =
+						u.subscription && typeof u.subscription === 'object'
+							? (u.subscription as Record<string, unknown>)
+							: null;
 					map.set(u.id, {
 						id: u.id,
-						displayName: typeof u.displayName === 'string' ? u.displayName : u.id,
-						roleIds: Array.isArray(u.roleIds) ? u.roleIds.filter((v): v is string => typeof v === 'string') : [],
+						displayName:
+							typeof u.display_name === 'string'
+								? u.display_name
+								: typeof u.displayName === 'string'
+									? u.displayName
+									: typeof u.username === 'string'
+										? u.username
+										: u.id,
+						roleIds: Array.isArray(u.role_ids)
+							? u.role_ids.filter((v): v is string => typeof v === 'string')
+							: Array.isArray(u.roles)
+								? u.roles.filter((v): v is string => typeof v === 'string')
+								: Array.isArray(u.roleIds)
+									? u.roleIds.filter((v): v is string => typeof v === 'string')
+									: [],
 						balance:
 							u.balance && typeof u.balance === 'object'
 								? {
@@ -281,12 +310,33 @@ interface RoleDef {
 								  }
 								: undefined,
 						email: typeof u.email === 'string' ? u.email : undefined,
-						avatar: typeof u.avatar === 'string' ? u.avatar : null,
-						lastLoginAt: typeof u.lastLoginAt === 'string' ? u.lastLoginAt : undefined,
+						avatar:
+							typeof u.avatar_url === 'string'
+								? u.avatar_url
+								: typeof u.avatar === 'string'
+									? u.avatar
+									: null,
+						lastLoginAt:
+							typeof u.last_active_at === 'string'
+								? u.last_active_at
+								: typeof u.lastLoginAt === 'string'
+									? u.lastLoginAt
+									: undefined,
 						status: typeof u.status === 'string' ? u.status : undefined,
-						accessibleLevels: Array.isArray(u.accessibleLevels)
-							? u.accessibleLevels.filter((v): v is string => typeof v === 'string')
-							: undefined
+						accessibleLevels: Array.isArray(u.accessible_levels)
+							? u.accessible_levels.filter((v): v is string => typeof v === 'string')
+							: Array.isArray(u.accessibleLevels)
+								? u.accessibleLevels.filter((v): v is string => typeof v === 'string')
+								: undefined,
+						subscription: subscriptionValue
+							? {
+									plan: typeof subscriptionValue.plan === 'string' ? subscriptionValue.plan : 'free',
+									status: typeof subscriptionValue.status === 'string' ? subscriptionValue.status : 'active',
+									expiresAt: typeof subscriptionValue.expires_at === 'string' ? subscriptionValue.expires_at : ''
+							  }
+							: undefined,
+						scopeType: typeof u.scope_type === 'string' ? u.scope_type : undefined,
+						organizationType: typeof u.organization_type === 'string' ? u.organization_type : undefined
 					});
 				});
 			} catch (error) {
@@ -294,6 +344,35 @@ interface RoleDef {
 			}
 		}
 		allUsers = Array.from(map.values());
+	}
+
+	function planLabel(plan: string | undefined): string {
+		if (!plan) {
+			return 'free';
+		}
+		return plan.toUpperCase();
+	}
+
+	function scopeLabel(ctx: PCContext): string {
+		if (ctx.organizationType === 'business') {
+			return '企业空间';
+		}
+		if (ctx.organizationType === 'school') {
+			return '学校空间';
+		}
+		if (ctx.scopeType === 'organization') {
+			return '组织空间';
+		}
+		return '个人空间';
+	}
+
+	function openLoginModal(): void {
+		if (window.__openLoginModal) {
+			window.__openLoginModal();
+			return;
+		}
+		const trigger = document.getElementById('login-entry-btn') as HTMLButtonElement | null;
+		trigger?.click();
 	}
 
 	function ensureRoot(): HTMLDivElement {
@@ -352,7 +431,7 @@ interface RoleDef {
 			(document.getElementById('exam-workarea') || document.body).appendChild(trigger);
 			trigger.onclick = () => {
 				if (getContext().guest) {
-					openWechatModal();
+					openLoginModal();
 				} else {
 					openPanel();
 				}
@@ -448,6 +527,9 @@ interface RoleDef {
 				lastLoginAt: user.lastLoginAt || new Date().toLocaleString(),
 				status: user.status || 'active',
 				accessibleLevels: user.accessibleLevels || ['*'],
+				subscription: user.subscription,
+				scopeType: user.scopeType,
+				organizationType: user.organizationType,
 				guest: false
 			});
 		};
@@ -462,6 +544,10 @@ interface RoleDef {
 		const features = visibleFeatures(ctx);
 		const roles = escapeHtml((ctx.roles || []).join(', ') || '无');
 		const welcomeName = ctx.displayName ? `，${escapeHtml(ctx.displayName)}` : '';
+		const plan = planLabel(ctx.subscription?.plan);
+		const scope = scopeLabel(ctx);
+		const subscriptionStatus = escapeHtml(ctx.subscription?.status || 'active');
+		const expiresAt = escapeHtml(ctx.subscription?.expiresAt || '长期');
 		return `<div class="pc-dashboard">
 			<div class="pc-dashboard-cards">
 				<div class="pc-card pc-balance-card">
@@ -505,7 +591,9 @@ interface RoleDef {
 			<div class="pc-card pc-meta-card">
 				<div class="pc-meta-line">欢迎${welcomeName}！</div>
 				<div class="pc-meta-line">当前角色：${roles}</div>
-				<div class="pc-meta-line subtle">更多功能将逐步开放。</div>
+				<div class="pc-meta-line">当前套餐：${plan} / ${subscriptionStatus}</div>
+				<div class="pc-meta-line">当前空间：${escapeHtml(scope)}</div>
+				<div class="pc-meta-line subtle">到期时间：${expiresAt}</div>
 			</div>
 		</div>`;
 	}
@@ -663,6 +751,9 @@ interface RoleDef {
 				lastLoginAt: user.lastLoginAt || new Date().toLocaleString(),
 				status: user.status || 'active',
 				accessibleLevels: user.accessibleLevels || ['*'],
+				subscription: user.subscription,
+				scopeType: user.scopeType,
+				organizationType: user.organizationType,
 				guest: false
 			});
 		});
@@ -714,7 +805,7 @@ interface RoleDef {
 				attachDashboardHandlers(container);
 				break;
 			case 'profile':
-				container.innerHTML = `<div class="pc-section"><h2>个人资料</h2><p>昵称：${escapeHtml(ctx.displayName || '未设置')}</p><p>UID：${escapeHtml(ctx.id || '-')}</p><p>最近登录：${escapeHtml(ctx.lastLoginAt || '-')}</p></div>`;
+				container.innerHTML = `<div class="pc-section"><h2>个人资料</h2><p>昵称：${escapeHtml(ctx.displayName || '未设置')}</p><p>UID：${escapeHtml(ctx.id || '-')}</p><p>最近登录：${escapeHtml(ctx.lastLoginAt || '-')}</p><p>空间类型：${escapeHtml(scopeLabel(ctx))}</p><p>当前套餐：${escapeHtml(planLabel(ctx.subscription?.plan))} / ${escapeHtml(ctx.subscription?.status || 'active')}</p><p>到期时间：${escapeHtml(ctx.subscription?.expiresAt || '长期')}</p></div>`;
 				break;
 			case 'roles':
 				container.innerHTML = renderRoles(ctx);
@@ -727,7 +818,7 @@ interface RoleDef {
 				container.innerHTML = `<div class="pc-section"><h2>账户</h2><p>余额：${ctx.balance?.credits ?? 0}</p><p><button disabled>充值（占位）</button></p></div>`;
 				break;
 			case 'admin-hub':
-				container.innerHTML = `<div class="pc-section"><h2>管理面板</h2><ul><li><button disabled>题目管理（占位）</button></li><li><button disabled>角色审批（占位）</button></li><li><button disabled>统计报表（占位）</button></li></ul></div>`;
+				container.innerHTML = `<div class="pc-section"><h2>管理面板</h2><p>当前空间：${escapeHtml(scopeLabel(ctx))}</p><p>当前角色：${escapeHtml((ctx.roles || []).join(', ') || '无')}</p><ul><li><button disabled>题目管理（占位）</button></li><li><button disabled>成员管理（占位）</button></li><li><button disabled>统计报表（占位）</button></li></ul></div>`;
 				break;
 			case 'system-flags':
 				container.innerHTML = renderSystemFlags();
@@ -802,95 +893,10 @@ interface RoleDef {
 	}
 
 	function openWechatModal(): void {
-		let modal = document.getElementById('wechat-login-modal') as HTMLDivElement | null;
-		if (!modal) {
-			modal = document.createElement('div');
-			modal.id = 'wechat-login-modal';
-			modal.className = 'wechat-hidden';
-			modal.innerHTML = `<div class="wechat-backdrop" data-wc-act="close"></div>
-				<div class="wechat-panel" role="dialog" aria-modal="true" aria-label="微信登录">
-					<div class="wechat-header">
-						<strong>微信扫码登录</strong>
-						<button class="wechat-close" data-wc-act="close" aria-label="关闭">×</button>
-					</div>
-					<div class="wechat-body">
-						<div class="wechat-qr-box" id="wechat-qr-box">
-							<div class="wechat-qr-placeholder">生成中…</div>
-						</div>
-						<div class="wechat-status" id="wechat-status"></div>
-					</div>
-					<div class="wechat-footer">
-						<button class="wc-btn" data-wc-act="refresh">刷新二维码</button>
-						<button class="wc-btn" data-wc-act="close">取消</button>
-					</div>
-				</div>`;
-			modal.addEventListener('click', (event) => {
-				const target = event.target as HTMLElement | null;
-				const action = target?.dataset.wcAct;
-				if (action === 'close') {
-					closeWechatModal();
-				} else if (action === 'refresh') {
-					openWechatModal();
-				}
-			});
-			document.addEventListener('keydown', (event) => {
-				if (event.key === 'Escape') {
-					closeWechatModal();
-				}
-			});
-			document.body.appendChild(modal);
-		}
-		modal.classList.remove('wechat-hidden');
-		modal.classList.add('wechat-open');
-
-		const status = modal.querySelector('#wechat-status') as HTMLElement | null;
-		if (status) {
-			status.textContent = '请扫码登录（模拟）';
-		}
-		const qr = modal.querySelector('#wechat-qr-box') as HTMLElement | null;
-		if (qr) {
-			const token = Math.random().toString(36).slice(2, 8).toUpperCase();
-			qr.innerHTML = `<canvas width="180" height="180"></canvas>`;
-			const canvas = qr.querySelector('canvas');
-			const ctx = canvas?.getContext('2d');
-			if (ctx) {
-				ctx.fillStyle = '#fff';
-				ctx.fillRect(0, 0, 180, 180);
-				ctx.fillStyle = '#000';
-				ctx.font = '12px monospace';
-				ctx.fillText('WECHAT QR', 40, 70);
-				ctx.fillText(token, 60, 95);
-				ctx.fillText('模拟', 70, 120);
-			}
-		}
-		if (wechatTimer !== null) {
-			window.clearTimeout(wechatTimer);
-		}
-		wechatTimer = window.setTimeout(() => {
-			const superAdmin = allUsers.find((u) => u.id === 'superAdmin01') || {
-				id: 'superAdmin01',
-				displayName: '超级管理员0111',
-				roleIds: ['superAdmin'],
-				balance: { credits: 1000, updatedAt: new Date().toISOString() }
-			};
-			window.setUserContext?.({
-				id: superAdmin.id,
-				displayName: superAdmin.displayName,
-				roles: superAdmin.roleIds,
-				balance: superAdmin.balance,
-				guest: false
-			});
-			closeWechatModal();
-			openPanel();
-		}, 1000);
+		openLoginModal();
 	}
 
 	function closeWechatModal(): void {
-		const modal = document.getElementById('wechat-login-modal') as HTMLDivElement | null;
-		if (modal) {
-			modal.classList.remove('wechat-open');
-			modal.classList.add('wechat-hidden');
-		}
 		if (wechatTimer !== null) {
 			window.clearTimeout(wechatTimer);
 			wechatTimer = null;

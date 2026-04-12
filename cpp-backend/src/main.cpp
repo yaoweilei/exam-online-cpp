@@ -5,16 +5,23 @@
 #include "application/recommendation/RuleBasedRecommendationStrategy.h"
 #include "application/services/AnswerService.h"
 #include "application/services/AuthService.h"
+#include "application/services/BookmarkService.h"
 #include "application/services/ExamService.h"
 #include "application/services/FuriganaService.h"
+#include "application/services/PhoneService.h"
+#include "application/services/ProfileService.h"
 #include "application/services/StatisticsService.h"
+#include "application/services/SubscriptionService.h"
 #include "application/services/UserService.h"
+#include "application/services/WechatService.h"
 #include "common/ApiResponse.h"
 #include "common/RequestId.h"
 #include "infrastructure/config/AppConfig.h"
 #include "infrastructure/storage/AnswerRepository.h"
+#include "infrastructure/storage/BookmarkRepository.h"
 #include "infrastructure/storage/ExamRepository.h"
 #include "infrastructure/storage/FuriganaRepository.h"
+#include "infrastructure/storage/ProfileRepository.h"
 #include "infrastructure/storage/UserRepository.h"
 #include "transport/ApiRouter.h"
 
@@ -49,13 +56,27 @@ int main()
     infrastructure::storage::AnswerRepository answerRepo(cfg.dataUserDir);
     infrastructure::storage::UserRepository userRepo(cfg.dataUserDir);
     infrastructure::storage::FuriganaRepository furiganaRepo(cfg.furiganaDictPath);
+    infrastructure::storage::ProfileRepository profileRepo(cfg.dataUserDir);
+    infrastructure::storage::BookmarkRepository bookmarkRepo(cfg.dataUserDir);
 
-    application::services::ExamService examService(examRepo);
+    application::services::SubscriptionService subscriptionService(profileRepo);
+    application::services::ExamService examService(examRepo, subscriptionService);
     application::services::AnswerService answerService(answerRepo);
-    application::services::AuthService authService(userRepo);
+    application::services::AuthService authService(userRepo, profileRepo);
     application::services::StatisticsService statisticsService(answerRepo);
-    application::services::UserService userService(userRepo);
+    application::services::UserService userService(userRepo, profileRepo, subscriptionService);
     application::services::FuriganaService furiganaService(furiganaRepo);
+    application::services::ProfileService profileService(profileRepo);
+    application::services::BookmarkService bookmarkService(bookmarkRepo);
+    application::services::StubSmsService stubSmsService;
+    application::services::PhoneService phoneService(userRepo, stubSmsService, authService);
+    application::services::WechatService wechatService(
+        userRepo,
+        authService,
+        application::services::WechatService::Config{
+            .appId = cfg.wechatAppId,
+            .appSecret = cfg.wechatAppSecret,
+            .callbackBaseUrl = cfg.wechatCallbackBaseUrl});
     application::recommendation::RuleBasedRecommendationStrategy recommendationStrategy(statisticsService, examService);
 
     transport::AppContext context{
@@ -66,6 +87,11 @@ int main()
         .statisticsService = &statisticsService,
         .userService = &userService,
         .furiganaService = &furiganaService,
+        .profileService = &profileService,
+        .bookmarkService = &bookmarkService,
+        .subscriptionService = &subscriptionService,
+        .phoneService = &phoneService,
+        .wechatService = &wechatService,
         .recommendationStrategy = &recommendationStrategy};
 
     transport::ApiRouter router(context);

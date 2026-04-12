@@ -8,6 +8,19 @@ class APIClient {
 		return window.__API_BASE__ || '/api/v2';
 	}
 
+	static readStoredUserId(): string {
+		try {
+			const raw = localStorage.getItem('exam_v2_user');
+			if (!raw) {
+				return '';
+			}
+			const parsed = JSON.parse(raw) as { user_id?: string; id?: string };
+			return parsed.user_id ?? parsed.id ?? '';
+		} catch {
+			return '';
+		}
+	}
+
 	static buildUrl(path: string): string {
 		if (path.startsWith('http://') || path.startsWith('https://')) {
 			return path;
@@ -87,8 +100,10 @@ class APIClient {
 		return this.request(`/exams${query ? `?${query}` : ''}`);
 	}
 
-	static async getExam(examId: string): Promise<unknown> {
-		return this.request(`/exams/${examId}`);
+	static async getExam(examId: string, userId?: string): Promise<unknown> {
+		const effectiveUserId = userId ?? this.readStoredUserId();
+		const query = effectiveUserId ? `?user_id=${encodeURIComponent(effectiveUserId)}` : '';
+		return this.request(`/exams/${examId}${query}`);
 	}
 
 	static async createExam(examData: unknown): Promise<unknown> {
@@ -158,6 +173,22 @@ class APIClient {
 
 	static async getAllRoles(): Promise<unknown> {
 		return this.request('/roles');
+	}
+
+	static async getProfile(userId: string): Promise<unknown> {
+		return this.request(`/profile/${userId}`);
+	}
+
+	static async getSubscription(userId: string): Promise<unknown> {
+		return this.request(`/subscription/${userId}`);
+	}
+
+	static async getMe(token: string): Promise<unknown> {
+		return this.request(`/me?token=${encodeURIComponent(token)}`);
+	}
+
+	static async getMeContext(token: string): Promise<unknown> {
+		return this.request(`/me/context?token=${encodeURIComponent(token)}`);
 	}
 
 	// ==================== 振假名 ====================

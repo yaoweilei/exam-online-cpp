@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#f9f9f9"/>
+  <!-- Outer border -->
+  <rect x="10" y="10" width="80" height="80" fill="none" stroke="#333" stroke-width="6"/>
+  <rect x="110" y="10" width="80" height="80" fill="none" stroke="#333" stroke-width="6"/>
+  <rect x="10" y="110" width="80" height="80" fill="none" stroke="#333" stroke-width="6"/>
+  <!-- Inner squares -->
+  <rect x="24" y="24" width="52" height="52" fill="#333"/>
+  <rect x="124" y="24" width="52" height="52" fill="#333"/>
+  <rect x="24" y="124" width="52" height="52" fill="#333"/>
+  <!-- Inner white -->
+  <rect x="34" y="34" width="32" height="32" fill="#f9f9f9"/>
+  <rect x="134" y="34" width="32" height="32" fill="#f9f9f9"/>
+  <rect x="34" y="134" width="32" height="32" fill="#f9f9f9"/>
+  <!-- Dots pattern (static stub) -->
+  <rect x="115" y="110" width="10" height="10" fill="#333"/>
+  <rect x="135" y="110" width="10" height="10" fill="#333"/>
+  <rect x="155" y="110" width="10" height="10" fill="#333"/>
+  <rect x="175" y="110" width="10" height="10" fill="#333"/>
+  <rect x="115" y="130" width="10" height="10" fill="#333"/>
+  <rect x="155" y="130" width="10" height="10" fill="#333"/>
+  <rect x="115" y="150" width="10" height="10" fill="#333"/>
+  <rect x="135" y="150" width="10" height="10" fill="#333"/>
+  <rect x="175" y="150" width="10" height="10" fill="#333"/>
+  <rect x="115" y="170" width="10" height="10" fill="#333"/>
+  <rect x="135" y="170" width="10" height="10" fill="#333"/>
+  <rect x="155" y="170" width="10" height="10" fill="#333"/>
+  <rect x="175" y="170" width="10" height="10" fill="#333"/>
+  <!-- DEV label -->
+  <text x="100" y="196" text-anchor="middle" font-family="monospace" font-size="9" fill="#aaa">DEV STUB</text>
+</svg>

@@ -176,6 +176,7 @@ class ExamRepository
             summary.title = examInfo.get("title", examId).asString();
             summary.checked = examInfo.get("checked", false).asBool();
             summary.questionCount = countQuestions(examInfo);
+            summary.accessLevel = normalizeAccessLevel(examInfo.get("access_level", "free").asString());
             return summary;
         }
         catch (...)
@@ -223,6 +224,19 @@ class ExamRepository
             result.push_back(token);
         }
         return result;
+    }
+
+    static std::string normalizeAccessLevel(const std::string &accessLevel)
+    {
+        if (accessLevel == "premium")
+        {
+            return "pro";
+        }
+        if (accessLevel == "free" || accessLevel == "pro" || accessLevel == "ultra")
+        {
+            return accessLevel;
+        }
+        return "free";
     }
 
   private:

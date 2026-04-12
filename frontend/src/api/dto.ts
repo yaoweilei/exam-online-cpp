@@ -7,6 +7,7 @@ export interface ExamSummary {
 	session: string;
 	display: string;
 	checked?: boolean;
+	access_level?: string;
 }
 
 export interface ExamDetail {
@@ -63,4 +64,150 @@ export interface RecommendationItem {
 	exam_id: string;
 	reason: string;
 	score: number;
+}
+
+export type RoleId =
+	| 'guest'
+	| 'student'
+	| 'teacher'
+	| 'reviewer'
+	| 'orgAdmin'
+	| 'systemAdmin'
+	| 'superAdmin';
+
+export type PlanId = 'free' | 'pro' | 'ultra';
+
+export type PlanStatus = 'active' | 'trial' | 'expired' | 'canceled';
+
+export type ScopeType = 'personal' | 'organization';
+
+export type OrganizationType = '' | 'business' | 'school';
+
+export interface AuthSession {
+	user_id: string;
+	username: string;
+	roles: RoleId[];
+	token?: string;
+	expires_at?: string;
+}
+
+export interface ProfileView {
+	user_id: string;
+	display_name: string;
+	avatar_url: string;
+	locale: string;
+	goal_level: string;
+	goal_date: string;
+	daily_target: number;
+	streak_days: number;
+	longest_streak: number;
+	last_active_at: string;
+	xp: number;
+	credits: number;
+	scope_type: ScopeType;
+	scope_id: string;
+	organization_type: OrganizationType;
+	plan: PlanId;
+	plan_status: PlanStatus;
+	plan_expires_at: string;
+	notification_enabled: boolean;
+}
+
+export interface SubscriptionView {
+	scope_type: ScopeType;
+	scope_id: string;
+	organization_type: OrganizationType;
+	plan: PlanId;
+	status: PlanStatus;
+	expires_at: string;
+	entitlements: string[];
+	accessible_levels: string[];
+	is_active: boolean;
+	user_id?: string;
+}
+
+export interface MembershipView {
+	user_id: string;
+	scope_type: ScopeType;
+	scope_id: string;
+	organization_type: OrganizationType;
+	roles: RoleId[];
+}
+
+export interface PermissionItem {
+	id: string;
+	title: string;
+	icon?: string;
+}
+
+export interface PermissionSection {
+	id: string;
+	title: string;
+}
+
+export interface PermissionView {
+	user_id: string;
+	roles: RoleId[];
+	subscription: SubscriptionView;
+	features: PermissionItem[];
+	sections: PermissionSection[];
+}
+
+export interface UserBalance {
+	credits: number;
+	updated_at: string;
+	updatedAt: string;
+}
+
+export interface UserView {
+	id: string;
+	user_id: string;
+	username: string;
+	email: string;
+	phone: string;
+	phone_verified: boolean;
+	status: string;
+	created_at: string;
+	roles: RoleId[];
+	role_ids: RoleId[];
+	roleIds: RoleId[];
+	display_name: string;
+	displayName: string;
+	avatar_url: string;
+	avatar: string;
+	locale: string;
+	goal_level: string;
+	goal_date: string;
+	daily_target: number;
+	last_active_at: string;
+	lastLoginAt: string;
+	scope_type: ScopeType;
+	scope_id: string;
+	organization_type: OrganizationType;
+	subscription: SubscriptionView;
+	plan: PlanId;
+	plan_status: PlanStatus;
+	plan_expires_at: string;
+	entitlements: string[];
+	accessible_levels: string[];
+	accessibleLevels: string[];
+	balance: UserBalance;
+}
+
+export interface MeContext {
+	user: UserView;
+	profile: ProfileView;
+	membership: MembershipView;
+	subscription: SubscriptionView;
+	permissions: PermissionView;
+	session: AuthSession;
+}
+
+export interface CurrentUser extends UserView {
+	guest: boolean;
+	token: string;
+	profile: ProfileView;
+	membership: MembershipView;
+	permissions: PermissionView;
+	session_expires_at: string;
 }

@@ -1,23 +1,40 @@
+import type { ApiClient } from '../api/client.js';
+import type { CurrentUser, MeContext } from '../api/dto.js';
 import { AppStore } from '../state/store.js';
 
 const USER_KEY = 'exam_v2_user';
 const TOKEN_KEY = 'exam_v2_token';
 
-export function restoreSession(store: AppStore): void {
+export function buildCurrentUser(context: MeContext, token: string): CurrentUser {
+	return {
+		...context.user,
+		guest: false,
+		token,
+		profile: context.profile,
+		membership: context.membership,
+		permissions: context.permissions,
+		session_expires_at: context.session.expires_at ?? '',
+		subscription: context.subscription
+	};
+}
+
+export async function restoreSession(api: ApiClient, store: AppStore): Promise<void> {
 	try {
-		const raw = localStorage.getItem(USER_KEY);
-		if (!raw) return;
-		const user = JSON.parse(raw) as { user_id?: string; username?: string; token?: string };
-		store.setState({ user: { ...user, guest: false } });
+		const token = localStorage.getItem(TOKEN_KEY) ?? '';
+		if (!token) return;
+
+		const context = (await api.getMeContext(token)) as MeContext;
+		const user = buildCurrentUser(context, token);
+		persistSession(user);
+		store.setState({ user });
 	} catch {
-		// ignore invalid local cache
+		clearSession(store);
 	}
 }
 
-export function persistSession(payload: unknown): void {
-	localStorage.setItem(USER_KEY, JSON.stringify(payload));
-	const token = (payload as { token?: string }).token ?? '';
-	localStorage.setItem(TOKEN_KEY, token);
+export function persistSession(user: CurrentUser): void {
+	localStorage.setItem(USER_KEY, JSON.stringify(user));
+	localStorage.setItem(TOKEN_KEY, user.token);
 }
 
 export function clearSession(store: AppStore): void {
