@@ -8,6 +8,7 @@
 #include "application/services/BookmarkService.h"
 #include "application/services/ExamService.h"
 #include "application/services/FuriganaService.h"
+#include "application/services/OrganizationService.h"
 #include "application/services/PhoneService.h"
 #include "application/services/ProfileService.h"
 #include "application/services/StatisticsService.h"
@@ -21,6 +22,7 @@
 #include "infrastructure/storage/BookmarkRepository.h"
 #include "infrastructure/storage/ExamRepository.h"
 #include "infrastructure/storage/FuriganaRepository.h"
+#include "infrastructure/storage/OrganizationRepository.h"
 #include "infrastructure/storage/ProfileRepository.h"
 #include "infrastructure/storage/UserRepository.h"
 #include "transport/ApiRouter.h"
@@ -57,19 +59,24 @@ int main()
     infrastructure::storage::UserRepository userRepo(cfg.dataUserDir);
     infrastructure::storage::FuriganaRepository furiganaRepo(cfg.furiganaDictPath);
     infrastructure::storage::ProfileRepository profileRepo(cfg.dataUserDir);
+    infrastructure::storage::OrganizationRepository organizationRepo(cfg.dataUserDir);
     infrastructure::storage::BookmarkRepository bookmarkRepo(cfg.dataUserDir);
 
-    application::services::SubscriptionService subscriptionService(profileRepo);
+    application::services::SubscriptionService subscriptionService(profileRepo, organizationRepo);
     application::services::ExamService examService(examRepo, subscriptionService);
     application::services::AnswerService answerService(answerRepo);
-    application::services::AuthService authService(userRepo, profileRepo);
+    application::services::AuthService authService(
+        userRepo,
+        profileRepo,
+        infrastructure::config::isDevelopmentEnv(cfg.appEnv));
     application::services::StatisticsService statisticsService(answerRepo);
-    application::services::UserService userService(userRepo, profileRepo, subscriptionService);
+    application::services::UserService userService(userRepo, profileRepo, organizationRepo, subscriptionService);
     application::services::FuriganaService furiganaService(furiganaRepo);
     application::services::ProfileService profileService(profileRepo);
+    application::services::OrganizationService organizationService(organizationRepo, userRepo, subscriptionService);
     application::services::BookmarkService bookmarkService(bookmarkRepo);
     application::services::StubSmsService stubSmsService;
-    application::services::PhoneService phoneService(userRepo, stubSmsService, authService);
+    application::services::PhoneService phoneService(userRepo, stubSmsService);
     application::services::WechatService wechatService(
         userRepo,
         authService,
@@ -81,6 +88,7 @@ int main()
 
     transport::AppContext context{
         .staticDir = cfg.staticDir,
+		.disableStaticCache = infrastructure::config::isDevelopmentEnv(cfg.appEnv),
         .examService = &examService,
         .answerService = &answerService,
         .authService = &authService,
@@ -88,6 +96,7 @@ int main()
         .userService = &userService,
         .furiganaService = &furiganaService,
         .profileService = &profileService,
+        .organizationService = &organizationService,
         .bookmarkService = &bookmarkService,
         .subscriptionService = &subscriptionService,
         .phoneService = &phoneService,
@@ -107,7 +116,7 @@ int main()
     app().setLogLocalTime(true);
     app().addListener(cfg.host, cfg.port);
     app().setDocumentRoot(cfg.documentRoot.string());
-    app().setFileTypes({"html", "css", "js", "png", "jpg", "jpeg", "svg", "ico", "json", "mp3", "wav"});
+    app().setFileTypes({"html", "css", "js", "map", "png", "jpg", "jpeg", "svg", "ico", "json", "mp3", "wav"});
     app().enableServerHeader(false);
 
     app().registerPreRoutingAdvice([](const HttpRequestPtr &req) {
@@ -115,6 +124,20 @@ int main()
                  << req->methodString() << " "
                  << req->path() << " request_id=" << common::resolveRequestId(req);
     });
+
+    if (infrastructure::config::isDevelopmentEnv(cfg.appEnv))
+    {
+        app().registerPreSendingAdvice([](const HttpRequestPtr &req, const HttpResponsePtr &resp) {
+            const auto &path = req->path();
+            if (path.rfind("/static/", 0) != 0 && path.rfind("/resource/", 0) != 0)
+            {
+                return;
+            }
+            resp->addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+            resp->addHeader("Pragma", "no-cache");
+            resp->addHeader("Expires", "0");
+        });
+    }
 
     app().setCustomErrorHandler([](HttpStatusCode statusCode, const HttpRequestPtr &req) {
         auto response = HttpResponse::newHttpJsonResponse(common::envelope(

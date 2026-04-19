@@ -3,14 +3,15 @@
 #include <map>
 #include <mutex>
 #include <string>
+#include <vector>
 
 #include <json/json.h>
 
+#include "application/services/AuthService.h"
 #include "common/AppException.h"
 #include "common/RequestId.h"
 #include "common/TimeUtils.h"
 #include "infrastructure/storage/UserRepository.h"
-#include "AuthService.h"
 
 // WechatService implements the "WeChat Web QR-code login" OAuth2 flow.
 //
@@ -41,10 +42,9 @@ class WechatService
         std::string callbackBaseUrl;  // e.g. "https://example.com"
     };
 
-    explicit WechatService(
-        infrastructure::storage::UserRepository &userRepository,
-        AuthService &authService,
-        Config config)
+    explicit WechatService(infrastructure::storage::UserRepository &userRepository,
+                           AuthService &authService,
+                           Config config)
         : userRepository_(userRepository), authService_(authService), config_(std::move(config))
     {
     }
@@ -64,6 +64,12 @@ class WechatService
             // Development stub: return a fake QR code URL
             out["qrcode_url"] = "https://stub.wechat.example/qrcode?state=" + state;
             out["stub"] = true;
+            Json::Value testIds(Json::arrayValue);
+            for (const auto &testId : defaultDevelopmentTestIds())
+            {
+                testIds.append(testId);
+            }
+            out["test_ids"] = testIds;
         }
         else
         {
@@ -94,7 +100,7 @@ class WechatService
         {
             // Stub: use the code itself as a fake openid
             openid = "stub_openid_" + code;
-            nickname = "TestUser";
+            nickname = code;
         }
         else
         {
@@ -108,7 +114,7 @@ class WechatService
             avatarUrl = tokenResp.get("headimgurl", "").asString();
         }
 
-        const auto user = userRepository_.upsertWechatUser(openid, nickname, avatarUrl);
+        const auto user = userRepository_.upsertWechatUser(openid, nickname, avatarUrl, config_.appId.empty() ? code : std::string());
         const auto sessionToken = authService_.createSessionForUser(user);
 
         std::unique_lock lock(mutex_);
@@ -149,6 +155,17 @@ class WechatService
     }
 
   private:
+    static const std::vector<std::string> &defaultDevelopmentTestIds()
+    {
+        static const std::vector<std::string> testIds = {
+            "wxdev_001",
+            "wxdev_002",
+            "wxdev_003",
+            "teacher_001",
+            "reviewer_001"};
+        return testIds;
+    }
+
     // In production this makes an HTTPS call to api.weixin.qq.com.
     // Stubbed out here to avoid introducing an HTTP client dependency.
     Json::Value exchangeCodeForToken(const std::string & /*code*/) const

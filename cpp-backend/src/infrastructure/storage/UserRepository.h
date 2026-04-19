@@ -1,12 +1,11 @@
 #pragma once
 
-#include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <mutex>
 #include <shared_mutex>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 #include <drogon/utils/Utilities.h>
@@ -14,7 +13,7 @@
 
 #include "JsonIo.h"
 #include "WalStore.h"
-#include "common/AppException.h"
+#include "common/IdGenerator.h"
 #include "common/TimeUtils.h"
 
 namespace infrastructure::storage
@@ -36,45 +35,131 @@ class UserRepository
     void ensureBaseline()
     {
         std::unique_lock lock(mutex_);
+        if (!std::filesystem::exists(usersFile_))
+        {
+            Json::Value users(Json::objectValue);
+            users["guest"]["id"] = "guest";
+            users["guest"]["user_id"] = "guest";
+            users["guest"]["username"] = "guest";
+            users["guest"]["password_hash"] = hashPassword("guest");
+            users["guest"]["password_algo"] = "sha256";
+            users["guest"]["status"] = "active";
+            users["guest"]["email"] = "";
+            users["guest"]["phone"] = "";
+            users["guest"]["phone_verified"] = false;
+            users["guest"]["member_no"] = "";
+            users["guest"]["scope_type"] = "personal";
+            users["guest"]["scope_id"] = "guest";
+            users["guest"]["organization_type"] = "";
+            users["guest"]["roles"] = Json::arrayValue;
+            users["guest"]["roles"].append("guest");
+            users["guest"]["created_at"] = common::nowIso8601();
+            writeJsonFileAtomic(usersFile_, users);
+        }
 
-        auto usersJson = std::filesystem::exists(usersFile_) ? readJsonFile(usersFile_) : defaultUsers();
-        usersJson = normalizeUsers(usersJson);
-        writeJsonFileAtomic(usersFile_, usersJson);
+        if (!std::filesystem::exists(rolesFile_))
+        {
+            writeJsonFileAtomic(rolesFile_, defaultRolesMap());
+            return;
+        }
 
-        auto rolesJson = std::filesystem::exists(rolesFile_) ? readJsonFile(rolesFile_) : defaultRolesMap();
-        rolesJson = normalizeRoles(rolesJson);
-        wal_.append("roles_normalized", rolesJson);
-        writeJsonFileAtomic(rolesFile_, rolesJson);
+        auto roles = readJsonFile(rolesFile_);
+        Json::Value normalized = defaultRolesMap();
+        if (roles.isMember("roles") && roles["roles"].isArray())
+        {
+            for (const auto &role : roles["roles"])
+            {
+                const auto id = normalizeRoleId(role.get("id", "").asString());
+                if (id.empty())
+                {
+                    continue;
+                }
+                normalized[id] = mergeRoleDefinition(normalized[id], role, id);
+            }
+        }
+        else if (roles.isObject())
+        {
+            for (const auto &id : roles.getMemberNames())
+            {
+                const auto normalizedId = normalizeRoleId(id);
+                if (normalizedId.empty())
+                {
+                    continue;
+                }
+                normalized[normalizedId] = mergeRoleDefinition(normalized[normalizedId], roles[id], normalizedId);
+            }
+        }
+
+        wal_.append("roles_normalized", normalized);
+        writeJsonFileAtomic(rolesFile_, normalized);
     }
 
     Json::Value users() const
     {
         std::shared_lock lock(mutex_);
-        return normalizeUsers(readJsonFile(usersFile_));
+        auto rawUsers = readJsonFile(usersFile_);
+        Json::Value normalized(Json::objectValue);
+        for (const auto &key : rawUsers.getMemberNames())
+        {
+            normalized[key] = normalizeUser(rawUsers[key]);
+        }
+        return normalized;
     }
 
     Json::Value roles() const
     {
         std::shared_lock lock(mutex_);
-        return normalizeRoles(readJsonFile(rolesFile_));
+        auto rolesJson = readJsonFile(rolesFile_);
+        Json::Value normalized = defaultRolesMap();
+        for (const auto &id : rolesJson.getMemberNames())
+        {
+            const auto normalizedId = normalizeRoleId(id);
+            if (normalizedId.empty())
+            {
+                continue;
+            }
+            normalized[normalizedId] = mergeRoleDefinition(normalized[normalizedId], rolesJson[id], normalizedId);
+        }
+        return normalized;
     }
 
     Json::Value findUserByUsername(const std::string &username) const
     {
-        auto usersJson = users();
-        if (!usersJson.isMember(username))
+        std::shared_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
+        for (const auto &name : usersJson.getMemberNames())
         {
-            return Json::Value(Json::nullValue);
+            const auto user = normalizeUser(usersJson[name]);
+            if (user.get("username", "").asString() == username)
+            {
+                return user;
+            }
         }
-        return usersJson[username];
+        return Json::Value(Json::nullValue);
+    }
+
+    Json::Value findUserByLoginId(const std::string &loginId) const
+    {
+        std::shared_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
+        for (const auto &name : usersJson.getMemberNames())
+        {
+            const auto user = normalizeUser(usersJson[name]);
+            if (matchesLoginId(user, loginId))
+            {
+                return user;
+            }
+        }
+        return Json::Value(Json::nullValue);
     }
 
     Json::Value findUserById(const std::string &userId) const
     {
-        auto usersJson = users();
+        std::shared_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
         for (const auto &name : usersJson.getMemberNames())
         {
-            const auto &user = usersJson[name];
+            const auto user = normalizeUser(usersJson[name]);
             if (user.get("id", "").asString() == userId)
             {
                 return user;
@@ -85,22 +170,23 @@ class UserRepository
 
     Json::Value usersByRole(const std::string &roleId) const
     {
-        auto usersJson = users();
+        const auto normalizedRole = normalizeRoleId(roleId);
+        std::shared_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
         Json::Value result(Json::arrayValue);
-        const auto normalizedRoleId = normalizeRoleId(roleId);
         for (const auto &name : usersJson.getMemberNames())
         {
-            const auto &user = usersJson[name];
+            const auto user = normalizeUser(usersJson[name]);
             bool matched = false;
             for (const auto &role : user["roles"])
             {
-                if (normalizeRoleId(role.asString()) == normalizedRoleId)
+                if (normalizeRoleId(role.asString()) == normalizedRole)
                 {
                     matched = true;
                     break;
                 }
             }
-            if (normalizedRoleId == "guest" && user["roles"].empty())
+            if (normalizedRole == "guest" && user["roles"].empty())
             {
                 matched = true;
             }
@@ -115,33 +201,77 @@ class UserRepository
     Json::Value createUser(const std::string &username, const std::string &password, const std::string &email)
     {
         std::unique_lock lock(mutex_);
-        auto usersJson = normalizeUsers(readJsonFile(usersFile_));
-        if (usersJson.isMember(username))
+        auto usersJson = readJsonFile(usersFile_);
+        if (containsUsername(usersJson, username))
         {
             throw common::AppException("USER_EXISTS", "Username already exists", drogon::k400BadRequest);
         }
 
-        const auto userId = "user_" + std::to_string(usersJson.size() + 1);
-        Json::Value user(Json::objectValue);
-        user["id"] = userId;
-        user["username"] = username;
-        user["password_hash"] = hashPassword(password);
-        user["password_algo"] = "sha256";
-        user["email"] = email;
-        user["phone"] = "";
-        user["phone_verified"] = false;
-        user["roles"] = Json::arrayValue;
-        user["roles"].append("student");
-        user["scope_type"] = "personal";
-        user["scope_id"] = userId;
-        user["organization_type"] = "";
-        user["status"] = "active";
-        user["created_at"] = common::nowIso8601();
+        const auto userId = generateUserId();
+        const auto key = userId;
+        usersJson[key]["id"] = userId;
+        usersJson[key]["user_id"] = userId;
+        usersJson[key]["username"] = username;
+        usersJson[key]["member_no"] = nextPersonalMemberNo(usersJson);
+        usersJson[key]["password_hash"] = hashPassword(password);
+        usersJson[key]["password_algo"] = "sha256";
+        usersJson[key]["email"] = email;
+        usersJson[key]["phone"] = "";
+        usersJson[key]["phone_verified"] = false;
+        usersJson[key]["status"] = "active";
+        usersJson[key]["scope_type"] = "personal";
+        usersJson[key]["scope_id"] = userId;
+        usersJson[key]["organization_type"] = "";
+        usersJson[key]["roles"] = Json::arrayValue;
+        usersJson[key]["roles"].append("student");
+        usersJson[key]["created_at"] = common::nowIso8601();
 
-        usersJson[username] = user;
-        wal_.append("user_created", user);
+        wal_.append("user_created", usersJson[key]);
         writeJsonFileAtomic(usersFile_, usersJson);
-        return user;
+        return normalizeUser(usersJson[key]);
+    }
+
+    Json::Value createDevelopmentUser(const std::string &loginId)
+    {
+        std::unique_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
+        for (const auto &name : usersJson.getMemberNames())
+        {
+            const auto user = normalizeUser(usersJson[name]);
+            if (matchesLoginId(user, loginId))
+            {
+                return user;
+            }
+        }
+
+        const auto userId = generateUserId();
+        const auto key = userId;
+        const auto loginKey = sanitizeIdentifier(loginId);
+        const auto username = uniqueUsernameForBase(usersJson, loginId.empty() ? ("wxdev_" + loginKey) : loginId);
+
+        usersJson[key]["id"] = userId;
+        usersJson[key]["user_id"] = userId;
+        usersJson[key]["username"] = username;
+        usersJson[key]["member_no"] = nextPersonalMemberNo(usersJson);
+        usersJson[key]["password_hash"] = "";
+        usersJson[key]["password_algo"] = "dev-empty";
+        usersJson[key]["email"] = "";
+        usersJson[key]["phone"] = "";
+        usersJson[key]["phone_verified"] = false;
+        usersJson[key]["wechat_openid"] = "stub_openid_" + loginKey;
+        usersJson[key]["wechat_nickname"] = username;
+        usersJson[key]["dev_login_id"] = loginId;
+        usersJson[key]["status"] = "active";
+        usersJson[key]["scope_type"] = "personal";
+        usersJson[key]["scope_id"] = userId;
+        usersJson[key]["organization_type"] = "";
+        usersJson[key]["roles"] = Json::arrayValue;
+        usersJson[key]["roles"].append("student");
+        usersJson[key]["created_at"] = common::nowIso8601();
+
+        wal_.append("development_user_created", usersJson[key]);
+        writeJsonFileAtomic(usersFile_, usersJson);
+        return normalizeUser(usersJson[key]);
     }
 
     bool verifyPassword(const Json::Value &user, const std::string &password) const
@@ -158,10 +288,18 @@ class UserRepository
         return false;
     }
 
+    // Bind (or update) a verified phone number to a user.
     Json::Value bindPhone(const std::string &userId, const std::string &phone)
     {
         std::unique_lock lock(mutex_);
-        auto usersJson = normalizeUsers(readJsonFile(usersFile_));
+        auto usersJson = readJsonFile(usersFile_);
+        for (const auto &name : usersJson.getMemberNames())
+        {
+            if (usersJson[name].get("phone", "").asString() == phone && usersJson[name].get("id", "").asString() != userId)
+            {
+                throw common::AppException("PHONE_IN_USE", "Phone number is already bound to another user", drogon::k409Conflict);
+            }
+        }
         for (auto &name : usersJson.getMemberNames())
         {
             if (usersJson[name].get("id", "").asString() == userId)
@@ -170,7 +308,7 @@ class UserRepository
                 usersJson[name]["phone_verified"] = true;
                 wal_.append("phone_bound", usersJson[name]);
                 writeJsonFileAtomic(usersFile_, usersJson);
-                return usersJson[name];
+                return normalizeUser(usersJson[name]);
             }
         }
         throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
@@ -178,82 +316,81 @@ class UserRepository
 
     Json::Value findUserByPhone(const std::string &phone) const
     {
-        auto usersJson = users();
+        std::shared_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
         for (const auto &name : usersJson.getMemberNames())
         {
             if (usersJson[name].get("phone", "").asString() == phone)
             {
-                return usersJson[name];
+                return normalizeUser(usersJson[name]);
             }
         }
         return Json::Value(Json::nullValue);
     }
 
-    Json::Value ensurePhoneUser(const std::string &phone)
+    Json::Value createPhoneUser(const std::string &phone)
     {
         std::unique_lock lock(mutex_);
-        auto usersJson = normalizeUsers(readJsonFile(usersFile_));
-        for (auto &name : usersJson.getMemberNames())
+        auto usersJson = readJsonFile(usersFile_);
+        for (const auto &name : usersJson.getMemberNames())
         {
             if (usersJson[name].get("phone", "").asString() == phone)
             {
-                return usersJson[name];
+                return normalizeUser(usersJson[name]);
             }
         }
 
-        std::string usernameBase = "phone_" + sanitizeDigits(phone);
-        if (usernameBase == "phone_")
-        {
-            usernameBase = "phone_user";
-        }
-        std::string username = usernameBase;
-        size_t suffix = 1;
-        while (usersJson.isMember(username))
-        {
-            username = usernameBase + "_" + std::to_string(++suffix);
-        }
+        const auto usernameBase = "phone_" + sanitizePhone(phone);
+        const auto username = uniqueUsernameForBase(usersJson, usernameBase);
+        const auto userId = generateUserId();
+        const auto key = userId;
+        usersJson[key]["id"] = userId;
+        usersJson[key]["user_id"] = userId;
+        usersJson[key]["username"] = username;
+        usersJson[key]["member_no"] = nextPersonalMemberNo(usersJson);
+        usersJson[key]["password_hash"] = "";
+        usersJson[key]["password_algo"] = "phone";
+        usersJson[key]["email"] = "";
+        usersJson[key]["phone"] = phone;
+        usersJson[key]["phone_verified"] = true;
+        usersJson[key]["status"] = "active";
+        usersJson[key]["scope_type"] = "personal";
+        usersJson[key]["scope_id"] = userId;
+        usersJson[key]["organization_type"] = "";
+        usersJson[key]["roles"] = Json::arrayValue;
+        usersJson[key]["roles"].append("student");
+        usersJson[key]["created_at"] = common::nowIso8601();
 
-        const auto userId = "phone_" + std::to_string(usersJson.size() + 1);
-        Json::Value user(Json::objectValue);
-        user["id"] = userId;
-        user["username"] = username;
-        user["password_hash"] = "";
-        user["password_algo"] = "phone";
-        user["email"] = "";
-        user["phone"] = phone;
-        user["phone_verified"] = true;
-        user["roles"] = Json::arrayValue;
-        user["roles"].append("student");
-        user["scope_type"] = "personal";
-        user["scope_id"] = userId;
-        user["organization_type"] = "";
-        user["status"] = "active";
-        user["created_at"] = common::nowIso8601();
-
-        usersJson[username] = user;
-        wal_.append("phone_user_created", user);
+        wal_.append("phone_user_created", usersJson[key]);
         writeJsonFileAtomic(usersFile_, usersJson);
-        return user;
+        return normalizeUser(usersJson[key]);
     }
 
+    // Find user by WeChat openid (returns null if not found).
     Json::Value findUserByOpenid(const std::string &openid) const
     {
-        auto usersJson = users();
+        std::shared_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
         for (const auto &name : usersJson.getMemberNames())
         {
             if (usersJson[name].get("wechat_openid", "").asString() == openid)
             {
-                return usersJson[name];
+                return normalizeUser(usersJson[name]);
             }
         }
         return Json::Value(Json::nullValue);
     }
 
-    Json::Value upsertWechatUser(const std::string &openid, const std::string &nickname, const std::string &avatarUrl)
+    // Create or update a user by WeChat openid.
+    Json::Value upsertWechatUser(const std::string &openid,
+                                const std::string &nickname,
+                                const std::string &avatarUrl,
+                                const std::string &loginIdHint = "")
     {
         std::unique_lock lock(mutex_);
-        auto usersJson = normalizeUsers(readJsonFile(usersFile_));
+        auto usersJson = readJsonFile(usersFile_);
 
+        // Search for existing user with this openid
         for (auto &name : usersJson.getMemberNames())
         {
             if (usersJson[name].get("wechat_openid", "").asString() == openid)
@@ -266,37 +403,55 @@ class UserRepository
                 {
                     usersJson[name]["wechat_avatar"] = avatarUrl;
                 }
+                if (!loginIdHint.empty())
+                {
+                    usersJson[name]["dev_login_id"] = loginIdHint;
+                }
+                usersJson[name]["status"] = usersJson[name].get("status", "active").asString();
+                if (usersJson[name]["roles"].empty())
+                {
+                    usersJson[name]["roles"] = Json::arrayValue;
+                    usersJson[name]["roles"].append("student");
+                }
+                if (usersJson[name].get("member_no", "").asString().empty())
+                {
+                    usersJson[name]["member_no"] = nextPersonalMemberNo(usersJson);
+                }
                 wal_.append("wechat_user_updated", usersJson[name]);
                 writeJsonFileAtomic(usersFile_, usersJson);
-                return usersJson[name];
+                return normalizeUser(usersJson[name]);
             }
         }
 
-        const auto userId = "wx_" + openid.substr(0, std::min(openid.size(), static_cast<size_t>(12)));
-        std::string username = "wx_user_" + std::to_string(usersJson.size() + 1);
-        Json::Value user(Json::objectValue);
-        user["id"] = userId;
-        user["username"] = username;
-        user["password_hash"] = "";
-        user["password_algo"] = "wechat";
-        user["email"] = "";
-        user["phone"] = "";
-        user["phone_verified"] = false;
-        user["wechat_openid"] = openid;
-        user["wechat_nickname"] = nickname;
-        user["wechat_avatar"] = avatarUrl;
-        user["roles"] = Json::arrayValue;
-        user["roles"].append("student");
-        user["scope_type"] = "personal";
-        user["scope_id"] = userId;
-        user["organization_type"] = "";
-        user["status"] = "active";
-        user["created_at"] = common::nowIso8601();
+        // Create new user
+        const auto userId = generateUserId();
+        const auto usernameBase = loginIdHint.empty() ? ("wx_" + openid.substr(0, std::min(openid.size(), static_cast<size_t>(10)))) : loginIdHint;
+        const auto username = uniqueUsernameForBase(usersJson, usernameBase);
+        const auto key = userId;
+        usersJson[key]["id"] = userId;
+        usersJson[key]["user_id"] = userId;
+        usersJson[key]["username"] = username;
+        usersJson[key]["member_no"] = nextPersonalMemberNo(usersJson);
+        usersJson[key]["password_hash"] = "";
+        usersJson[key]["password_algo"] = "wechat";
+        usersJson[key]["email"] = "";
+        usersJson[key]["phone"] = "";
+        usersJson[key]["phone_verified"] = false;
+        usersJson[key]["wechat_openid"] = openid;
+        usersJson[key]["wechat_nickname"] = nickname;
+        usersJson[key]["wechat_avatar"] = avatarUrl;
+        usersJson[key]["dev_login_id"] = loginIdHint;
+        usersJson[key]["status"] = "active";
+        usersJson[key]["scope_type"] = "personal";
+        usersJson[key]["scope_id"] = userId;
+        usersJson[key]["organization_type"] = "";
+        usersJson[key]["roles"] = Json::arrayValue;
+        usersJson[key]["roles"].append("student");
+        usersJson[key]["created_at"] = common::nowIso8601();
 
-        usersJson[username] = user;
-        wal_.append("wechat_user_created", user);
+        wal_.append("wechat_user_created", usersJson[key]);
         writeJsonFileAtomic(usersFile_, usersJson);
-        return user;
+        return normalizeUser(usersJson[key]);
     }
 
     static std::string hashPassword(const std::string &password)
@@ -305,31 +460,165 @@ class UserRepository
     }
 
   private:
-    static Json::Value defaultUsers()
+    static Json::Value defaultRolesMap()
     {
-        Json::Value users(Json::objectValue);
-        users["guest"] = guestUser();
-        return users;
+        Json::Value roles(Json::objectValue);
+        roles["guest"]["id"] = "guest";
+        roles["guest"]["name"] = "访客";
+        roles["guest"]["description"] = "未登录访客";
+        roles["guest"]["permissions"] = Json::arrayValue;
+        roles["guest"]["permissions"].append("view_exams");
+        roles["guest"]["permissions"].append("submit_answers");
+
+        roles["student"]["id"] = "student";
+        roles["student"]["name"] = "学习者";
+        roles["student"]["description"] = "默认业务角色";
+        roles["student"]["permissions"] = Json::arrayValue;
+        roles["student"]["permissions"].append("view_exams");
+        roles["student"]["permissions"].append("submit_answers");
+        roles["student"]["permissions"].append("save_progress");
+
+        roles["teacher"]["id"] = "teacher";
+        roles["teacher"]["name"] = "教师";
+        roles["teacher"]["description"] = "题目与教学内容管理";
+        roles["teacher"]["permissions"] = Json::arrayValue;
+        roles["teacher"]["permissions"].append("question.manage");
+
+        roles["reviewer"]["id"] = "reviewer";
+        roles["reviewer"]["name"] = "阅卷员";
+        roles["reviewer"]["description"] = "阅卷与审核";
+        roles["reviewer"]["permissions"] = Json::arrayValue;
+        roles["reviewer"]["permissions"].append("review.manage");
+
+        roles["orgAdmin"]["id"] = "orgAdmin";
+        roles["orgAdmin"]["name"] = "组织管理员";
+        roles["orgAdmin"]["description"] = "组织成员与空间管理";
+        roles["orgAdmin"]["permissions"] = Json::arrayValue;
+        roles["orgAdmin"]["permissions"].append("organization.manage");
+
+        roles["systemAdmin"]["id"] = "systemAdmin";
+        roles["systemAdmin"]["name"] = "系统管理员";
+        roles["systemAdmin"]["description"] = "系统运维管理";
+        roles["systemAdmin"]["permissions"] = Json::arrayValue;
+        roles["systemAdmin"]["permissions"].append("system.manage");
+
+        roles["superAdmin"]["id"] = "superAdmin";
+        roles["superAdmin"]["name"] = "超级管理员";
+        roles["superAdmin"]["description"] = "平台全部权限";
+        roles["superAdmin"]["permissions"] = Json::arrayValue;
+        roles["superAdmin"]["permissions"].append("*");
+        return roles;
     }
 
-    static Json::Value guestUser()
+    static Json::Value normalizeUser(const Json::Value &input)
     {
-        Json::Value user(Json::objectValue);
-        user["id"] = "guest";
-        user["username"] = "guest";
-        user["password_hash"] = hashPassword("guest");
-        user["password_algo"] = "sha256";
-        user["email"] = "";
-        user["phone"] = "";
-        user["phone_verified"] = false;
-        user["roles"] = Json::arrayValue;
-        user["roles"].append("guest");
-        user["scope_type"] = "personal";
-        user["scope_id"] = "guest";
-        user["organization_type"] = "";
-        user["status"] = "active";
-        user["created_at"] = common::nowIso8601();
+        Json::Value user = input.isObject() ? input : Json::Value(Json::objectValue);
+        const auto userId = user.get("id", user.get("user_id", "")).asString();
+        user["id"] = userId;
+        user["user_id"] = userId;
+        user["username"] = user.get("username", "").asString();
+        user["member_no"] = user.get("member_no", user.get("student_no", "")).asString();
+        user["memberNo"] = user["member_no"].asString();
+        user["student_no"] = user.get("student_no", "").asString();
+        user["studentNo"] = user["student_no"].asString();
+        user["employee_no"] = user.get("employee_no", "").asString();
+        user["employeeNo"] = user["employee_no"].asString();
+        user["dev_login_id"] = user.get("dev_login_id", "").asString();
+        user["email"] = user.get("email", "").asString();
+        user["phone"] = user.get("phone", "").asString();
+        user["phone_verified"] = user.get("phone_verified", false).asBool();
+        user["status"] = normalizeStatus(user.get("status", "active").asString());
+        user["scope_type"] = normalizeScopeType(user.get("scope_type", "personal").asString());
+        user["scope_id"] = user.get("scope_id", userId).asString();
+        user["organization_type"] = normalizeOrganizationType(
+            user.get("organization_type", user["scope_type"].asString() == "organization" ? "business" : "").asString(),
+            user["scope_type"].asString());
+        user["created_at"] = user.get("created_at", common::nowIso8601()).asString();
+        user["roles"] = normalizeRolesArray(user["roles"]);
         return user;
+    }
+
+    static Json::Value mergeRoleDefinition(const Json::Value &baseline, const Json::Value &incoming, const std::string &roleId)
+    {
+        Json::Value merged = baseline.isObject() ? baseline : Json::Value(Json::objectValue);
+        merged["id"] = roleId;
+        merged["name"] = incoming.get("name", merged.get("name", roleId).asString()).asString();
+        merged["description"] = incoming.get("description", merged.get("description", "").asString()).asString();
+
+        Json::Value permissions(Json::arrayValue);
+        appendUniqueStrings(permissions, merged["permissions"]);
+        appendUniqueStrings(permissions, incoming["permissions"]);
+        appendUniqueStrings(permissions, incoming["privileges"]);
+        merged["permissions"] = permissions;
+        return merged;
+    }
+
+    static Json::Value normalizeRolesArray(const Json::Value &roles)
+    {
+        Json::Value normalized(Json::arrayValue);
+
+        if (roles.isString())
+        {
+            appendUniqueRole(normalized, normalizeRoleId(roles.asString()));
+        }
+        else if (roles.isArray())
+        {
+            for (const auto &role : roles)
+            {
+                appendUniqueRole(normalized, normalizeRoleId(role.asString()));
+            }
+        }
+
+        if (normalized.empty())
+        {
+            normalized.append("student");
+        }
+        return normalized;
+    }
+
+    static void appendUniqueStrings(Json::Value &target, const Json::Value &values)
+    {
+        if (!values.isArray())
+        {
+            return;
+        }
+        for (const auto &value : values)
+        {
+            const auto item = value.asString();
+            if (item.empty())
+            {
+                continue;
+            }
+            bool exists = false;
+            for (const auto &current : target)
+            {
+                if (current.asString() == item)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists)
+            {
+                target.append(item);
+            }
+        }
+    }
+
+    static void appendUniqueRole(Json::Value &target, const std::string &role)
+    {
+        if (role.empty())
+        {
+            return;
+        }
+        for (const auto &item : target)
+        {
+            if (item.asString() == role)
+            {
+                return;
+            }
+        }
+        target.append(role);
     }
 
     static std::string normalizeRoleId(const std::string &roleId)
@@ -342,213 +631,164 @@ class UserRepository
         {
             return "systemAdmin";
         }
-        if (roleId == "academic" || roleId == "academicAdmin")
+        if (roleId == "academicAdmin")
         {
             return "orgAdmin";
         }
-        return roleId;
+        if (roleId == "guest" || roleId == "student" || roleId == "teacher" || roleId == "reviewer" ||
+            roleId == "orgAdmin" || roleId == "systemAdmin" || roleId == "superAdmin")
+        {
+            return roleId;
+        }
+        return "";
     }
 
-    static Json::Value normalizeRolesArray(const Json::Value &roles)
+    static std::string normalizeStatus(const std::string &status)
     {
-        Json::Value normalized(Json::arrayValue);
-        std::unordered_set<std::string> seen;
-        if (roles.isArray())
+        if (status == "active" || status == "disabled" || status == "pending")
         {
-            for (const auto &role : roles)
-            {
-                const auto normalizedRole = normalizeRoleId(role.asString());
-                if (normalizedRole.empty() || seen.count(normalizedRole) > 0)
-                {
-                    continue;
-                }
-                normalized.append(normalizedRole);
-                seen.insert(normalizedRole);
-            }
+            return status;
         }
-        if (normalized.empty())
-        {
-            normalized.append("guest");
-        }
-        return normalized;
+        return "active";
     }
 
-    static Json::Value normalizeUsers(const Json::Value &users)
+    static std::string normalizeScopeType(const std::string &scopeType)
     {
-        Json::Value normalized(Json::objectValue);
-        if (!users.isObject())
-        {
-            normalized["guest"] = guestUser();
-            return normalized;
-        }
-
-        for (const auto &username : users.getMemberNames())
-        {
-            const auto &rawUser = users[username];
-            const auto key = rawUser.get("username", username).asString().empty()
-                                 ? username
-                                 : rawUser.get("username", username).asString();
-            normalized[key] = normalizeUser(rawUser, key);
-        }
-
-        if (!normalized.isMember("guest"))
-        {
-            normalized["guest"] = guestUser();
-        }
-        return normalized;
+        return scopeType == "organization" ? "organization" : "personal";
     }
 
-    static Json::Value normalizeUser(const Json::Value &rawUser, const std::string &username)
+    static std::string normalizeOrganizationType(const std::string &organizationType, const std::string &scopeType)
     {
-        Json::Value user(rawUser.isObject() ? rawUser : Json::Value(Json::objectValue));
-        const auto userId = user.get("id", username).asString().empty() ? username : user.get("id", username).asString();
-        user["id"] = userId;
-        user["username"] = username;
-        user["email"] = user.get("email", "").asString();
-        user["phone"] = user.get("phone", "").asString();
-        user["phone_verified"] = user.get("phone_verified", false).asBool();
-        user["password_hash"] = user.get("password_hash", "").asString();
-        user["password_algo"] = user.get("password_algo", "sha256").asString();
-        user["roles"] = normalizeRolesArray(user["roles"]);
-        user["scope_type"] = user.get("scope_type", "personal").asString();
-        user["scope_id"] = user.get("scope_id", userId).asString();
-        user["organization_type"] = user.get("organization_type", "").asString();
-        user["status"] = user.get("status", "active").asString();
-        user["created_at"] = user.get("created_at", "").asString();
-        return user;
+        if (scopeType != "organization")
+        {
+            return "";
+        }
+        if (organizationType == "business" || organizationType == "school")
+        {
+            return organizationType;
+        }
+        return "business";
     }
 
-    static Json::Value normalizeRoles(const Json::Value &roles)
+    static bool containsUsername(const Json::Value &usersJson, const std::string &username)
     {
-        Json::Value normalized = defaultRolesMap();
-
-        auto copyRole = [&](const std::string &id, const Json::Value &role) {
-            if (id.empty())
-            {
-                return;
-            }
-            const auto normalizedId = normalizeRoleId(id);
-            Json::Value &target = normalized[normalizedId];
-            target["id"] = normalizedId;
-            const auto fallbackName = target.isMember("name") ? target["name"].asString() : normalizedId;
-            const auto fallbackDescription = target.isMember("description") ? target["description"].asString() : "";
-            target["name"] = role.get("name", fallbackName).asString();
-            target["description"] = role.get("description", fallbackDescription).asString();
-            target["permissions"] = Json::arrayValue;
-
-            std::unordered_set<std::string> seen;
-            for (const auto &p : target["permissions"])
-            {
-                seen.insert(p.asString());
-            }
-            for (const auto &p : role["privileges"])
-            {
-                const auto permission = p.asString();
-                if (!permission.empty() && seen.insert(permission).second)
-                {
-                    target["permissions"].append(permission);
-                }
-            }
-            for (const auto &p : role["permissions"])
-            {
-                const auto permission = p.asString();
-                if (!permission.empty() && seen.insert(permission).second)
-                {
-                    target["permissions"].append(permission);
-                }
-            }
-            if (target["permissions"].empty())
-            {
-                target["permissions"] = role["permissions"];
-            }
-        };
-
-        if (roles.isMember("roles") && roles["roles"].isArray())
+        for (const auto &name : usersJson.getMemberNames())
         {
-            for (const auto &role : roles["roles"])
+            if (usersJson[name].get("username", "").asString() == username)
             {
-                copyRole(role.get("id", "").asString(), role);
+                return true;
             }
         }
-        else if (roles.isObject())
-        {
-            for (const auto &roleId : roles.getMemberNames())
-            {
-                copyRole(roleId, roles[roleId]);
-            }
-        }
-
-        return normalized;
+        return false;
     }
 
-    static std::string sanitizeDigits(const std::string &value)
+    static bool matchesLoginId(const Json::Value &user, const std::string &loginId)
     {
-        std::string sanitized;
-        for (const char ch : value)
-        {
-            if (ch >= '0' && ch <= '9')
-            {
-                sanitized.push_back(ch);
-            }
-        }
-        return sanitized;
+        return user.get("username", "").asString() == loginId ||
+               user.get("id", "").asString() == loginId ||
+               user.get("user_id", "").asString() == loginId ||
+             user.get("member_no", "").asString() == loginId ||
+               user.get("student_no", "").asString() == loginId ||
+             user.get("employee_no", "").asString() == loginId ||
+               user.get("dev_login_id", "").asString() == loginId;
     }
 
-    static Json::Value defaultRolesMap()
+    static std::string uniqueStorageKey(const Json::Value &usersJson, const std::string &base)
     {
-        Json::Value roles(Json::objectValue);
+        std::string key = base;
+        int suffix = 1;
+        while (usersJson.isMember(key))
+        {
+            key = base + "_" + std::to_string(suffix++);
+        }
+        return key;
+    }
 
-        roles["guest"]["id"] = "guest";
-        roles["guest"]["name"] = "访客";
-        roles["guest"]["description"] = "未登录用户，仅可浏览公开内容";
-        roles["guest"]["permissions"] = Json::arrayValue;
-        roles["guest"]["permissions"].append("view_exams");
-        roles["guest"]["permissions"].append("submit_answers");
+    static std::string uniqueUsernameForBase(const Json::Value &usersJson, const std::string &base)
+    {
+        std::string username = base;
+        int suffix = 1;
+        while (containsUsername(usersJson, username))
+        {
+            username = base + "_" + std::to_string(suffix++);
+        }
+        return username;
+    }
 
-        roles["student"]["id"] = "student";
-        roles["student"]["name"] = "学生";
-        roles["student"]["description"] = "个人学习用户";
-        roles["student"]["permissions"] = Json::arrayValue;
-        roles["student"]["permissions"].append("view_exams");
-        roles["student"]["permissions"].append("submit_answers");
-        roles["student"]["permissions"].append("save_progress");
+    static std::string nextPersonalMemberNo(const Json::Value &usersJson)
+    {
+        int maxSerial = 0;
+        for (const auto &name : usersJson.getMemberNames())
+        {
+            maxSerial = (std::max)(maxSerial, extractPrefixedSerial(usersJson[name].get("member_no", "").asString(), "MEM-"));
+        }
+        return "MEM-" + padSerial(maxSerial + 1, 6);
+    }
 
-        roles["teacher"]["id"] = "teacher";
-        roles["teacher"]["name"] = "教师";
-        roles["teacher"]["description"] = "题库与教学内容维护";
-        roles["teacher"]["permissions"] = Json::arrayValue;
-        roles["teacher"]["permissions"].append("edit_exam");
-        roles["teacher"]["permissions"].append("submit_for_review");
+    static std::string padSerial(int value, int width)
+    {
+        auto text = std::to_string(value);
+        if (static_cast<int>(text.size()) >= width)
+        {
+            return text;
+        }
+        return std::string(static_cast<size_t>(width - text.size()), '0') + text;
+    }
 
-        roles["reviewer"]["id"] = "reviewer";
-        roles["reviewer"]["name"] = "阅卷";
-        roles["reviewer"]["description"] = "阅卷与审核";
-        roles["reviewer"]["permissions"] = Json::arrayValue;
-        roles["reviewer"]["permissions"].append("review_exam");
-        roles["reviewer"]["permissions"].append("score_exam");
+    static std::string sanitizeIdentifier(const std::string &value)
+    {
+        std::string out;
+        for (const auto ch : value)
+        {
+            if ((ch >= '0' && ch <= '9') ||
+                (ch >= 'a' && ch <= 'z') ||
+                (ch >= 'A' && ch <= 'Z') ||
+                ch == '_' || ch == '-')
+            {
+                out.push_back(ch);
+            }
+        }
+        return out.empty() ? std::string("test") : out;
+    }
 
-        roles["orgAdmin"]["id"] = "orgAdmin";
-        roles["orgAdmin"]["name"] = "组织管理员";
-        roles["orgAdmin"]["description"] = "组织空间内的成员与资源管理";
-        roles["orgAdmin"]["permissions"] = Json::arrayValue;
-        roles["orgAdmin"]["permissions"].append("manage_members");
-        roles["orgAdmin"]["permissions"].append("manage_assignments");
+    static std::string sanitizePhone(const std::string &phone)
+    {
+        std::string out;
+        for (const auto c : phone)
+        {
+            if (c >= '0' && c <= '9')
+            {
+                out.push_back(c);
+            }
+        }
+        return out.empty() ? std::string("user") : out;
+    }
 
-        roles["systemAdmin"]["id"] = "systemAdmin";
-        roles["systemAdmin"]["name"] = "系统管理员";
-        roles["systemAdmin"]["description"] = "平台级系统管理";
-        roles["systemAdmin"]["permissions"] = Json::arrayValue;
-        roles["systemAdmin"]["permissions"].append("manage_users");
-        roles["systemAdmin"]["permissions"].append("manage_roles");
-        roles["systemAdmin"]["permissions"].append("manage_content");
+    static int extractPrefixedSerial(const std::string &value, const std::string &prefix)
+    {
+        if (value.rfind(prefix, 0) != 0)
+        {
+            return 0;
+        }
 
-        roles["superAdmin"]["id"] = "superAdmin";
-        roles["superAdmin"]["name"] = "超级管理员";
-        roles["superAdmin"]["description"] = "最高权限";
-        roles["superAdmin"]["permissions"] = Json::arrayValue;
-        roles["superAdmin"]["permissions"].append("*");
+        const auto serial = value.substr(prefix.size());
+        if (serial.empty())
+        {
+            return 0;
+        }
+        for (const auto ch : serial)
+        {
+            if (ch < '0' || ch > '9')
+            {
+                return 0;
+            }
+        }
+        return std::stoi(serial);
+    }
 
-        return roles;
+    static std::string generateUserId()
+    {
+        return common::generateOpaqueId("usr_");
     }
 
   private:

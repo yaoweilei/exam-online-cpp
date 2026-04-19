@@ -179,8 +179,18 @@ class APIClient {
 		return this.request(`/profile/${userId}`);
 	}
 
-	static async getSubscription(userId: string): Promise<unknown> {
-		return this.request(`/subscription/${userId}`);
+	static async updateProfile(userId: string, patch: unknown): Promise<unknown> {
+		return this.request(`/profile/${userId}`, {
+			method: 'PUT',
+			body: JSON.stringify(patch)
+		});
+	}
+
+	static async getSubscription(scopeId: string, options: { scopeType?: 'personal' | 'organization' } = {}): Promise<unknown> {
+		const params = new URLSearchParams();
+		if (options.scopeType) params.append('scope_type', options.scopeType);
+		const query = params.toString();
+		return this.request(`/subscription/${scopeId}${query ? `?${query}` : ''}`);
 	}
 
 	static async getMe(token: string): Promise<unknown> {
@@ -189,6 +199,38 @@ class APIClient {
 
 	static async getMeContext(token: string): Promise<unknown> {
 		return this.request(`/me/context?token=${encodeURIComponent(token)}`);
+	}
+
+	static async getOrganizations(token: string): Promise<unknown[]> {
+		return this.request(`/organizations?token=${encodeURIComponent(token)}`);
+	}
+
+	static async getOrganization(organizationId: string, token: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}?token=${encodeURIComponent(token)}`);
+	}
+
+	static async createOrganization(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/organizations', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async getOrganizationMembers(organizationId: string, token: string): Promise<unknown[]> {
+		return this.request(`/organizations/${organizationId}/members?token=${encodeURIComponent(token)}`);
+	}
+
+	static async saveOrganizationMember(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/members`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/members/${userId}?token=${encodeURIComponent(token)}`, {
+			method: 'DELETE'
+		});
 	}
 
 	// ==================== 振假名 ====================

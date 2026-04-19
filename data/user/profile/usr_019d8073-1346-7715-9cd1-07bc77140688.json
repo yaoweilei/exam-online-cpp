@@ -1,0 +1,22 @@
+{
+  "avatar_url" : "",
+  "credits" : 0,
+  "daily_target" : 20,
+  "display_name" : "",
+  "goal_date" : "",
+  "goal_level" : "",
+  "last_active_at" : "2026-04-12T06:48:38.472Z",
+  "locale" : "zh-CN",
+  "longest_streak" : 1,
+  "notification_enabled" : true,
+  "organization_type" : "",
+  "plan" : "free",
+  "plan_expires" : "",
+  "plan_expires_at" : "",
+  "plan_status" : "active",
+  "scope_id" : "usr_019d8073-1346-7715-9cd1-07bc77140688",
+  "scope_type" : "personal",
+  "streak_days" : 1,
+  "user_id" : "usr_019d8073-1346-7715-9cd1-07bc77140688",
+  "xp" : 0
+}

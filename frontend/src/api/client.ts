@@ -89,8 +89,20 @@ export class ApiClient {
 		});
 	}
 
-	getSubscription(userId: string): Promise<unknown> {
-		return this.request(`/subscription/${userId}`);
+	logout(token: string): Promise<unknown> {
+		return this.request('/auth/logout', {
+			method: 'POST',
+			body: JSON.stringify({ token })
+		});
+	}
+
+	getSubscription(scopeId: string, options: { scopeType?: 'personal' | 'organization' } = {}): Promise<unknown> {
+		const params = new URLSearchParams();
+		if (options.scopeType) {
+			params.append('scope_type', options.scopeType);
+		}
+		const query = params.toString();
+		return this.request(`/subscription/${scopeId}${query ? `?${query}` : ''}`);
 	}
 
 	getMe(token: string): Promise<unknown> {
@@ -99,5 +111,37 @@ export class ApiClient {
 
 	getMeContext(token: string): Promise<unknown> {
 		return this.request(`/me/context?token=${encodeURIComponent(token)}`);
+	}
+
+	getOrganizations(token: string): Promise<unknown[]> {
+		return this.request(`/organizations?token=${encodeURIComponent(token)}`);
+	}
+
+	getOrganization(organizationId: string, token: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}?token=${encodeURIComponent(token)}`);
+	}
+
+	createOrganization(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/organizations', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	getOrganizationMembers(organizationId: string, token: string): Promise<unknown[]> {
+		return this.request(`/organizations/${organizationId}/members?token=${encodeURIComponent(token)}`);
+	}
+
+	saveOrganizationMember(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/members`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/members/${userId}?token=${encodeURIComponent(token)}`, {
+			method: 'DELETE'
+		});
 	}
 }

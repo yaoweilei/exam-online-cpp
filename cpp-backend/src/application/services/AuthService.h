@@ -1,7 +1,9 @@
 #pragma once
 
 #include <chrono>
+#include <iomanip>
 #include <mutex>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 
@@ -19,20 +21,35 @@ class AuthService
 {
   public:
     explicit AuthService(infrastructure::storage::UserRepository &repository,
-                        infrastructure::storage::ProfileRepository &profileRepository)
-        : repository_(repository), profileRepository_(profileRepository)
+                        infrastructure::storage::ProfileRepository &profileRepository,
+                        bool developmentMode = false)
+        : repository_(repository), profileRepository_(profileRepository), developmentMode_(developmentMode)
     {
     }
 
     Json::Value login(const std::string &username, const std::string &password)
     {
-        auto user = repository_.findUserByUsername(username);
-        if (user.isNull() || !repository_.verifyPassword(user, password))
+        auto user = repository_.findUserByLoginId(username);
+        if (user.isNull() && developmentMode_ && password.empty())
+        {
+            user = repository_.createDevelopmentUser(username);
+        }
+
+        if (user.isNull())
         {
             throw common::AppException("INVALID_CREDENTIALS", "Username or password is invalid", drogon::k401Unauthorized);
         }
 
-        return createSessionPayload(user);
+        const auto allowEmptyPassword = developmentMode_ && password.empty() && allowsDevelopmentEmptyPassword(user);
+        if (!allowEmptyPassword && !repository_.verifyPassword(user, password))
+        {
+            throw common::AppException("INVALID_CREDENTIALS", "Username or password is invalid", drogon::k401Unauthorized);
+        }
+
+        const auto token = createSessionForUser(user);
+        auto out = verify(token);
+        out["token"] = token;
+        return out;
     }
 
     Json::Value registerUser(const std::string &username, const std::string &password, const std::string &email)
@@ -45,15 +62,22 @@ class AuthService
         return out;
     }
 
-    Json::Value loginViaUser(const Json::Value &user)
-    {
-        return createSessionPayload(user);
-    }
-
     // Called after WeChat OAuth2 callback completes; creates a session for the user.
     std::string createSessionForUser(const Json::Value &user)
     {
-        return createSessionPayload(user).get("token", "").asString();
+        const auto token = common::generateRequestId();
+        const auto expiresAt = std::chrono::system_clock::now() + std::chrono::hours(24 * 7);
+        {
+            std::scoped_lock lock(mutex_);
+            sessions_[token] = Session{
+                .userId = user.get("id", "").asString(),
+                .username = user.get("username", "").asString(),
+                .roles = user["roles"],
+                .expiresAt = expiresAt,
+                .expiresAtIso = toIso8601(expiresAt)};
+        }
+        profileRepository_.updateStreak(user.get("id", "").asString());
+        return token;
     }
 
     bool logout(const std::string &token)
@@ -85,43 +109,31 @@ class AuthService
     }
 
   private:
-    Json::Value createSessionPayload(const Json::Value &user)
-    {
-        const auto token = common::generateRequestId();
-        const auto expiresAt = std::chrono::system_clock::now() + std::chrono::hours(24 * 7);
+        static bool allowsDevelopmentEmptyPassword(const Json::Value &user)
         {
-            std::scoped_lock lock(mutex_);
-            sessions_[token] = Session{
-                .userId = user.get("id", "").asString(),
-                .username = user.get("username", "").asString(),
-                .roles = user["roles"],
-                .expiresAt = expiresAt,
-                .expiresAtIso = formatTime(expiresAt)};
+                const auto algo = user.get("password_algo", "").asString();
+                return algo == "wechat" || algo == "dev-empty" || !user.get("dev_login_id", "").asString().empty();
         }
 
-        profileRepository_.updateStreak(user.get("id", "").asString());
-
-        Json::Value out(Json::objectValue);
-        out["user_id"] = user.get("id", "").asString();
-        out["username"] = user.get("username", "").asString();
-        out["roles"] = user["roles"];
-        out["token"] = token;
-        out["expires_at"] = formatTime(expiresAt);
-        return out;
-    }
-
-    static std::string formatTime(const std::chrono::system_clock::time_point &timePoint)
+    static std::string toIso8601(std::chrono::system_clock::time_point timePoint)
     {
-        const auto t = std::chrono::system_clock::to_time_t(timePoint);
+        using namespace std::chrono;
+        const auto secondsPart = time_point_cast<std::chrono::seconds>(timePoint);
+        const auto ms = duration_cast<milliseconds>(timePoint - secondsPart).count();
+        const auto timeValue = system_clock::to_time_t(timePoint);
+
         std::tm tm{};
 #ifdef _WIN32
-        gmtime_s(&tm, &t);
+        gmtime_s(&tm, &timeValue);
 #else
-        gmtime_r(&t, &tm);
+        gmtime_r(&timeValue, &tm);
 #endif
-        char buf[25];
-        std::strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &tm);
-        return buf;
+
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S")
+            << "." << std::setw(3) << std::setfill('0') << ms
+            << "Z";
+        return oss.str();
     }
 
     struct Session
@@ -135,6 +147,7 @@ class AuthService
 
     infrastructure::storage::UserRepository &repository_;
     infrastructure::storage::ProfileRepository &profileRepository_;
+    bool developmentMode_{false};
     std::unordered_map<std::string, Session> sessions_;
     std::mutex mutex_;
 };

@@ -31,9 +31,16 @@ interface LegacyApiClientShape {
 	getUserPermissions(userId: string): Promise<unknown>;
 	getAllRoles(): Promise<unknown>;
 	getProfile(userId: string): Promise<unknown>;
-	getSubscription(userId: string): Promise<unknown>;
+	updateProfile(userId: string, patch: unknown): Promise<unknown>;
+	getSubscription(scopeId: string, options?: { scopeType?: 'personal' | 'organization' }): Promise<unknown>;
 	getMe(token: string): Promise<unknown>;
 	getMeContext(token: string): Promise<unknown>;
+	getOrganizations(token: string): Promise<unknown[]>;
+	getOrganization(organizationId: string, token: string): Promise<unknown>;
+	createOrganization(token: string, payload: unknown): Promise<unknown>;
+	getOrganizationMembers(organizationId: string, token: string): Promise<unknown[]>;
+	saveOrganizationMember(organizationId: string, token: string, payload: unknown): Promise<unknown>;
+	removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown>;
 	addFurigana(text: string): Promise<unknown>;
 	getReading(word: string): Promise<unknown>;
 }

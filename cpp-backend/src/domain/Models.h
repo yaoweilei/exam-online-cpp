@@ -16,7 +16,7 @@ struct ExamSummary
     std::string session;
     std::string display;
     bool checked{false};
-    std::string accessLevel{"free"};  // "free" | "pro" | "ultra"
+    std::string accessLevel{"free"};  // "free" | "premium"
 
     Json::Value toJson() const
     {

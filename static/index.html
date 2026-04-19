@@ -3,8 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="0">
 	<title>在线试卷系统</title>
-	<link href="/static/style.css" rel="stylesheet">
+	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231f1914'/%3E%3Cpath d='M18 18h28v28H18z' fill='none' stroke='%23f7f4ef' stroke-width='4'/%3E%3Cpath d='M24 26h16M24 32h16M24 38h10' stroke='%23f7f4ef' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+	<link href="/static/style.css?v=20260415b" rel="stylesheet">
 </head>
 
 <body>
@@ -38,6 +42,7 @@
 					<div id="wechat-qr-text" class="qr-hint">待扫码</div>
 					<div id="wechat-status" class="login-status"></div>
 					<button id="wechat-stub-btn" class="btn-stub" style="display:none">🔧 模拟扫码（开发模式）</button>
+					<div id="wechat-test-id-list" class="login-test-id-list" style="display:none"></div>
 				</div>
 
 				<!-- 手机号面板 -->
@@ -52,8 +57,8 @@
 
 				<!-- 用户名密码面板 -->
 				<div data-panel="password" style="display:none">
-					<input id="login-username" class="login-input" type="text" placeholder="用户名" />
-					<input id="login-password" class="login-input" type="password" placeholder="密码" />
+					<input id="login-username" class="login-input" type="text" placeholder="用户名 / user_id / member_no（学号/工号）/ 测试 ID" />
+					<input id="login-password" class="login-input" type="password" placeholder="密码（开发测试可留空）" />
 					<button id="login-btn-password" class="btn-primary-login">登录</button>
 				</div>
 
@@ -74,14 +79,14 @@
 		</div>
 		<div id="exam-workarea">
 			<div id="exam-library-panel">
-				<select id="exam-level-select" class="btn-secondary">
+				<select id="exam-level-select" class="btn-secondary" autocomplete="off">
 					<option value="N1">N1</option>
 					<option value="N2">N2</option>
 					<option value="N3">N3</option>
 					<option value="N4">N4</option>
 					<option value="N5">N5</option>
 				</select>
-				<select id="exam-paper-select" class="btn-secondary" data-level="N1">
+				<select id="exam-paper-select" class="btn-secondary" data-level="N1" autocomplete="off">
 					<option value="">-</option>
 				</select>
 				<button id="theme-toggle" class="btn-secondary" title="切换主题">
@@ -115,7 +120,7 @@
 		</div>
 	</div>
 
-	<script type="module" src="/static/app/main.js"></script>
+	<script type="module" src="/static/app/main.js?v=20260415b"></script>
 
 	<script>
 		(function() {

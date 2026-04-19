@@ -9,6 +9,7 @@
 
 #include "common/AppException.h"
 #include "application/services/SubscriptionService.h"
+#include "infrastructure/storage/OrganizationRepository.h"
 #include "infrastructure/storage/ProfileRepository.h"
 #include "infrastructure/storage/UserRepository.h"
 
@@ -20,8 +21,12 @@ class UserService
     explicit UserService(
         infrastructure::storage::UserRepository &repository,
         infrastructure::storage::ProfileRepository &profileRepository,
+                infrastructure::storage::OrganizationRepository &organizationRepository,
         SubscriptionService &subscriptionService)
-        : repository_(repository), profileRepository_(profileRepository), subscriptionService_(subscriptionService)
+                : repository_(repository),
+                    profileRepository_(profileRepository),
+                    organizationRepository_(organizationRepository),
+                    subscriptionService_(subscriptionService)
     {
     }
 
@@ -49,13 +54,16 @@ class UserService
     Json::Value permissions(const std::string &userId) const
     {
         const auto user = requireUser(userId);
+        const auto profile = profileRepository_.loadProfile(userId);
+        const auto membership = resolveMembership(userId, user, profile);
         const auto subscription = subscriptionService_.currentSubscription(userId);
+        const auto roles = effectiveRoles(user["roles"], membership["roles"]);
         Json::Value out(Json::objectValue);
         out["user_id"] = user.get("id", userId).asString();
-        out["roles"] = user["roles"];
+        out["roles"] = roles;
         out["subscription"] = subscription;
-        out["features"] = visibleFeatures(user["roles"], subscription);
-        out["sections"] = visibleSections(user["roles"], subscription);
+        out["features"] = visibleFeatures(roles, subscription);
+        out["sections"] = visibleSections(roles, subscription);
         return out;
     }
 
@@ -63,21 +71,17 @@ class UserService
     {
         const auto user = requireUser(userId);
         const auto profile = profileRepository_.loadProfile(userId);
+        const auto membership = resolveMembership(userId, user, profile);
         const auto subscription = subscriptionService_.currentSubscription(userId);
 
         Json::Value out(Json::objectValue);
         out["user"] = buildUserView(user);
-        out["profile"] = profile;
-
-        Json::Value membership(Json::objectValue);
-        membership["user_id"] = userId;
-        membership["scope_type"] = profile.get("scope_type", user.get("scope_type", "personal")).asString();
-        membership["scope_id"] = profile.get("scope_id", user.get("scope_id", userId)).asString();
-        membership["organization_type"] = profile.get("organization_type", user.get("organization_type", "")).asString();
-        membership["roles"] = user["roles"];
+        out["profile"] = buildProfileView(profile, subscription);
         out["membership"] = membership;
         out["subscription"] = subscription;
         out["permissions"] = permissions(userId);
+        out["memberships"] = organizationRepository_.listMembershipsForUser(userId);
+        out["organizations"] = organizationRepository_.listOrganizationsForUser(userId);
         return out;
     }
 
@@ -121,20 +125,30 @@ class UserService
     {
         const auto userId = user.get("id", "").asString();
         const auto profile = profileRepository_.loadProfile(userId);
+        const auto membership = resolveMembership(userId, user, profile);
         const auto subscription = subscriptionService_.currentSubscription(userId);
+        const auto roles = effectiveRoles(user["roles"], membership["roles"]);
 
         Json::Value out(Json::objectValue);
         out["id"] = userId;
         out["user_id"] = userId;
         out["username"] = user.get("username", "").asString();
+        const auto activeMemberNo = membership.get("member_no", user.get("member_no", "")).asString();
+        out["member_no"] = activeMemberNo;
+        out["memberNo"] = activeMemberNo;
+        out["student_no"] = membership.get("student_no", user.get("student_no", "")).asString();
+        out["studentNo"] = out["student_no"].asString();
+        out["employee_no"] = membership.get("employee_no", user.get("employee_no", "")).asString();
+        out["employeeNo"] = out["employee_no"].asString();
+        out["dev_login_id"] = user.get("dev_login_id", "").asString();
         out["email"] = user.get("email", "").asString();
         out["phone"] = user.get("phone", "").asString();
         out["phone_verified"] = user.get("phone_verified", false).asBool();
         out["status"] = user.get("status", "active").asString();
         out["created_at"] = user.get("created_at", "").asString();
-        out["roles"] = user["roles"];
-        out["role_ids"] = user["roles"];
-        out["roleIds"] = user["roles"];
+        out["roles"] = roles;
+        out["role_ids"] = roles;
+        out["roleIds"] = roles;
         out["display_name"] = profile.get("display_name", "").asString();
         out["displayName"] = profile.get("display_name", "").asString();
         out["avatar_url"] = profile.get("avatar_url", "").asString();
@@ -145,9 +159,9 @@ class UserService
         out["daily_target"] = profile.get("daily_target", 20).asInt();
         out["last_active_at"] = profile.get("last_active_at", "").asString();
         out["lastLoginAt"] = profile.get("last_active_at", "").asString();
-        out["scope_type"] = profile.get("scope_type", user.get("scope_type", "personal")).asString();
-        out["scope_id"] = profile.get("scope_id", user.get("scope_id", userId)).asString();
-        out["organization_type"] = profile.get("organization_type", user.get("organization_type", "")).asString();
+        out["scope_type"] = membership.get("scope_type", "personal").asString();
+        out["scope_id"] = membership.get("scope_id", userId).asString();
+        out["organization_type"] = membership.get("organization_type", "").asString();
         out["subscription"] = subscription;
         out["plan"] = subscription.get("plan", "free").asString();
         out["plan_status"] = subscription.get("status", "active").asString();
@@ -159,6 +173,15 @@ class UserService
         return out;
     }
 
+    static Json::Value buildProfileView(const Json::Value &profile, const Json::Value &subscription)
+    {
+        Json::Value out = profile;
+        out["plan"] = subscription.get("plan", "free").asString();
+        out["plan_status"] = subscription.get("status", "active").asString();
+        out["plan_expires_at"] = subscription.get("expires_at", "").asString();
+        return out;
+    }
+
     static Json::Value buildBalance(const Json::Value &profile)
     {
         Json::Value balance(Json::objectValue);
@@ -166,6 +189,65 @@ class UserService
         balance["updated_at"] = profile.get("last_active_at", "").asString();
         balance["updatedAt"] = profile.get("last_active_at", "").asString();
         return balance;
+    }
+
+    Json::Value resolveMembership(const std::string &userId, const Json::Value &user, const Json::Value &profile) const
+    {
+        const auto scopeType = profile.get("scope_type", "personal").asString();
+        const auto scopeId = profile.get("scope_id", userId).asString();
+        if (scopeType == "organization" && !scopeId.empty() && scopeId != userId)
+        {
+            auto membership = organizationRepository_.findMembership(userId, scopeId);
+            if (!membership.isNull())
+            {
+                return membership;
+            }
+        }
+
+        Json::Value membership(Json::objectValue);
+        membership["membership_id"] = "personal:" + userId;
+        membership["user_id"] = userId;
+        membership["scope_type"] = "personal";
+        membership["scope_id"] = userId;
+        membership["organization_type"] = "";
+        membership["member_no"] = user.get("member_no", "").asString();
+        membership["student_no"] = "";
+        membership["employee_no"] = "";
+        membership["roles"] = user["roles"];
+        return membership;
+    }
+
+    static Json::Value effectiveRoles(const Json::Value &baseRoles, const Json::Value &membershipRoles)
+    {
+        Json::Value out(Json::arrayValue);
+        appendUniqueRoles(out, baseRoles);
+        appendUniqueRoles(out, membershipRoles);
+        return out;
+    }
+
+    static void appendUniqueRoles(Json::Value &target, const Json::Value &source)
+    {
+        if (!source.isArray())
+        {
+            return;
+        }
+        for (const auto &role : source)
+        {
+            const auto value = role.asString();
+            bool exists = false;
+            for (const auto &current : target)
+            {
+                if (current.asString() == value)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists)
+            {
+                target.append(value);
+            }
+        }
     }
 
     static Json::Value visibleFeatures(const Json::Value &userRoles, const Json::Value &subscription)
@@ -240,6 +322,7 @@ class UserService
   private:
     infrastructure::storage::UserRepository &repository_;
     infrastructure::storage::ProfileRepository &profileRepository_;
+        infrastructure::storage::OrganizationRepository &organizationRepository_;
     SubscriptionService &subscriptionService_;
 };
 }  // namespace application::services

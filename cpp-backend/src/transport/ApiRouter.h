@@ -9,6 +9,7 @@
 #include "application/services/BookmarkService.h"
 #include "application/services/ExamService.h"
 #include "application/services/FuriganaService.h"
+#include "application/services/OrganizationService.h"
 #include "application/services/PhoneService.h"
 #include "application/services/ProfileService.h"
 #include "application/services/StatisticsService.h"
@@ -21,6 +22,7 @@ namespace transport
 struct AppContext
 {
     std::filesystem::path staticDir;
+	bool disableStaticCache{false};
     application::services::ExamService *examService{nullptr};
     application::services::AnswerService *answerService{nullptr};
     application::services::AuthService *authService{nullptr};
@@ -28,6 +30,7 @@ struct AppContext
     application::services::UserService *userService{nullptr};
     application::services::FuriganaService *furiganaService{nullptr};
     application::services::ProfileService *profileService{nullptr};
+    application::services::OrganizationService *organizationService{nullptr};
     application::services::BookmarkService *bookmarkService{nullptr};
     application::services::SubscriptionService *subscriptionService{nullptr};
     application::services::PhoneService *phoneService{nullptr};

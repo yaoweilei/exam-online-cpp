@@ -137,6 +137,11 @@ function hasGroupedExams(examsByLevel: Record<string, ViewerExamMeta[]>): boolea
 	return Object.values(examsByLevel).some((items) => Array.isArray(items) && items.length > 0);
 }
 
+function hasExamsForLevel(examsByLevel: Record<string, ViewerExamMeta[]>, level: string): boolean {
+	const exams = examsByLevel[level];
+	return Array.isArray(exams) && exams.length > 0;
+}
+
 async function fetchExamsForFallback(): Promise<ViewerExamMeta[]> {
 	try {
 		const apiClient = window.APIClient as ViewerExamListApi | undefined;
@@ -164,9 +169,9 @@ async function fetchExamsForFallback(): Promise<ViewerExamMeta[]> {
 	}
 }
 
-async function ensureExamsByLevelLoaded(): Promise<void> {
+async function ensureExamsByLevelLoaded(requiredLevel?: string): Promise<void> {
 	const current = window.__EXAMS_BY_LEVEL__ ?? {};
-	if (hasGroupedExams(current)) {
+	if (requiredLevel ? hasExamsForLevel(current, requiredLevel) : hasGroupedExams(current)) {
 		return;
 	}
 
@@ -184,6 +189,34 @@ async function ensureExamsByLevelLoaded(): Promise<void> {
 		grouped[level].push(exam);
 	});
 	window.__EXAMS_BY_LEVEL__ = grouped;
+}
+
+async function syncPaperSelect(
+	levelSelect: HTMLSelectElement,
+	paperSelect: HTMLSelectElement,
+	options: { dispatchChange?: boolean; preserveCurrentValue?: boolean } = {}
+): Promise<void> {
+	const { dispatchChange = false, preserveCurrentValue = false } = options;
+	const level = levelSelect.value;
+	if (!level) {
+		paperSelect.innerHTML = buildPaperOptions([], userProgressCache);
+		return;
+	}
+
+	await ensureExamsByLevelLoaded(level);
+	const exams = window.__EXAMS_BY_LEVEL__?.[level] ?? [];
+	const currentValue = preserveCurrentValue ? paperSelect.value : '';
+	paperSelect.innerHTML = buildPaperOptions(exams, userProgressCache);
+
+	if (currentValue && exams.some((exam) => exam.id === currentValue)) {
+		paperSelect.value = currentValue;
+	} else if (exams.length > 0) {
+		paperSelect.value = exams[0].id;
+	}
+
+	if (dispatchChange && paperSelect.value) {
+		paperSelect.dispatchEvent(new Event('change'));
+	}
 }
 
 async function fetchUserProgress(): Promise<Record<string, number>> {
@@ -235,15 +268,16 @@ function buildOptionText(exam: ViewerExamMeta, userProgress: Record<string, numb
 }
 
 function buildPaperOptions(exams: ViewerExamMeta[], userProgress: Record<string, number>): string {
-	return (
-		'<option value="">-</option>' +
-		exams
-			.map((exam) => {
-				const text = buildOptionText(exam, userProgress);
-				return `<option value="${exam.id}" data-checked="${Boolean(exam.checked)}">${text}</option>`;
-			})
-			.join('')
-	);
+	if (exams.length === 0) {
+		return '<option value="">-</option>';
+	}
+
+	return exams
+		.map((exam) => {
+			const text = buildOptionText(exam, userProgress);
+			return `<option value="${exam.id}" data-checked="${Boolean(exam.checked)}">${text}</option>`;
+		})
+		.join('');
 }
 
 async function refreshPaperSelectIcons(): Promise<void> {
@@ -319,60 +353,37 @@ async function initExamSelectors(): Promise<void> {
 	});
 
 	levelSelect.addEventListener('change', () => {
-		const level = levelSelect.value;
-		const examsByLevel = window.__EXAMS_BY_LEVEL__ ?? {};
-		const exams = examsByLevel[level] ?? [];
+		void syncPaperSelect(levelSelect, paperSelect, { dispatchChange: true });
+	});
 
-		if (exams.length === 0) {
-			void ensureExamsByLevelLoaded().then(() => {
-				const refreshed = window.__EXAMS_BY_LEVEL__?.[level] ?? [];
-				paperSelect.innerHTML = buildPaperOptions(refreshed, userProgressCache);
-				if (refreshed.length > 0) {
-					paperSelect.value = refreshed[0].id;
-					paperSelect.dispatchEvent(new Event('change'));
-				}
-			});
+	const repairPaperSelect = (): void => {
+		if (paperSelect.options.length > 1) {
 			return;
 		}
+		void syncPaperSelect(levelSelect, paperSelect, {
+			dispatchChange: true,
+			preserveCurrentValue: true
+		});
+	};
 
-		paperSelect.innerHTML = buildPaperOptions(exams, userProgressCache);
-		if (exams.length > 0) {
-			paperSelect.value = exams[0].id;
-			paperSelect.dispatchEvent(new Event('change'));
+	window.addEventListener('pageshow', repairPaperSelect);
+	document.addEventListener('visibilitychange', () => {
+		if (!document.hidden) {
+			repairPaperSelect();
 		}
 	});
 
-	const initialLevel = levelSelect.value;
-	if (initialLevel) {
-		const examsByLevel = window.__EXAMS_BY_LEVEL__ ?? {};
-		const exams = examsByLevel[initialLevel] ?? [];
-
-		if (paperSelect.options.length <= 1) {
-			paperSelect.innerHTML = buildPaperOptions(exams, userProgressCache);
-		}
-
-		if (paperSelect.value) {
-			paperSelect.dispatchEvent(new Event('change'));
-		} else if (exams.length > 0) {
-			paperSelect.value = exams[0].id;
-			paperSelect.dispatchEvent(new Event('change'));
-		}
-	}
+	await syncPaperSelect(levelSelect, paperSelect, {
+		dispatchChange: true,
+		preserveCurrentValue: true
+	});
 
 	userProgressCache = await fetchUserProgress();
 	if (Object.keys(userProgressCache).length > 0) {
 		await refreshPaperSelectIcons();
 	}
 
-	await ensureExamsByLevelLoaded();
-	const exams = window.__EXAMS_BY_LEVEL__?.[levelSelect.value] ?? [];
-	if (paperSelect.options.length <= 1 && exams.length > 0) {
-		paperSelect.innerHTML = buildPaperOptions(exams, userProgressCache);
-		if (!paperSelect.value) {
-			paperSelect.value = exams[0].id;
-			paperSelect.dispatchEvent(new Event('change'));
-		}
-	}
+	repairPaperSelect();
 }
 
 function createExamViewer(): void {

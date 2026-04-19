@@ -30,13 +30,13 @@ class ProfileRepository
         {
             return defaultProfile(userId);
         }
-        return normalizeProfile(readJsonFile(path), userId);
+        return normalizeProfile(userId, readJsonFile(path));
     }
 
     void saveProfile(const std::string &userId, const Json::Value &data)
     {
         std::unique_lock lock(mutex_);
-        writeJsonFileAtomic(profileDir_ / (userId + ".json"), normalizeProfile(data, userId));
+        writeJsonFileAtomic(profileDir_ / (userId + ".json"), normalizeProfile(userId, data));
     }
 
     // Called on every successful login: updates streak_days / last_active_at.
@@ -47,7 +47,7 @@ class ProfileRepository
 
         std::unique_lock lock(mutex_);
         const auto path = profileDir_ / (userId + ".json");
-        auto profile = std::filesystem::exists(path) ? normalizeProfile(readJsonFile(path), userId) : defaultProfile(userId);
+        auto profile = std::filesystem::exists(path) ? normalizeProfile(userId, readJsonFile(path)) : defaultProfile(userId);
 
         const auto lastActive = profile.get("last_active_at", "").asString();
         const auto lastDate = lastActive.size() >= 10 ? lastActive.substr(0, 10) : "";
@@ -94,50 +94,48 @@ class ProfileRepository
         p["last_active_at"] = "";
         p["xp"] = 0;
         p["credits"] = 0;
-        p["scope_type"] = "personal";
-        p["scope_id"] = userId;
-        p["organization_type"] = "";
         p["plan"] = "free";
         p["plan_status"] = "active";
         p["plan_expires_at"] = "";
+        p["plan_expires"] = "";
+        p["scope_type"] = "personal";
+        p["scope_id"] = userId;
+        p["organization_type"] = "";
         p["notification_enabled"] = true;
         return p;
     }
 
-    static Json::Value normalizeProfile(const Json::Value &raw, const std::string &userId)
+    static Json::Value normalizeProfile(const std::string &userId, const Json::Value &input)
     {
         Json::Value profile = defaultProfile(userId);
-        if (raw.isObject())
+        if (input.isObject())
         {
-            for (const auto &member : raw.getMemberNames())
+            for (const auto &name : input.getMemberNames())
             {
-                profile[member] = raw[member];
+                profile[name] = input[name];
             }
         }
 
-        const auto plan = normalizePlan(profile.get("plan", "free").asString());
-        const auto expiresAt = profile.get("plan_expires_at", profile.get("plan_expires", "")).asString();
-
         profile["user_id"] = userId;
-        profile["display_name"] = profile.get("display_name", "").asString();
-        profile["avatar_url"] = profile.get("avatar_url", "").asString();
-        profile["locale"] = profile.get("locale", "zh-CN").asString();
-        profile["goal_level"] = profile.get("goal_level", "").asString();
-        profile["goal_date"] = profile.get("goal_date", "").asString();
-        profile["daily_target"] = profile.get("daily_target", 20).asInt();
-        profile["streak_days"] = profile.get("streak_days", 0).asInt();
-        profile["longest_streak"] = profile.get("longest_streak", 0).asInt();
-        profile["last_active_at"] = profile.get("last_active_at", "").asString();
-        profile["xp"] = profile.get("xp", 0).asInt();
-        profile["credits"] = profile.get("credits", 0).asInt();
-        profile["scope_type"] = profile.get("scope_type", "personal").asString();
+        profile["plan"] = normalizePlan(profile.get("plan", "free").asString());
+        profile["plan_status"] = normalizePlanStatus(profile.get("plan_status", "active").asString());
+        if (!profile.isMember("plan_expires_at") || profile["plan_expires_at"].asString().empty())
+        {
+            profile["plan_expires_at"] = profile.get("plan_expires", "").asString();
+        }
+        profile["plan_expires"] = profile.get("plan_expires_at", "").asString();
+        profile["scope_type"] = profile.get("scope_type", "personal").asString() == "organization" ? "organization" : "personal";
         profile["scope_id"] = profile.get("scope_id", userId).asString();
-        profile["organization_type"] = profile.get("organization_type", "").asString();
-        profile["plan"] = plan;
-        profile["plan_status"] = normalizePlanStatus(profile.get("plan_status", "").asString(), expiresAt);
-        profile["plan_expires_at"] = expiresAt;
-        profile.removeMember("plan_expires");
-        profile["notification_enabled"] = profile.get("notification_enabled", true).asBool();
+        if (profile["scope_type"].asString() == "organization")
+        {
+            const auto organizationType = profile.get("organization_type", "business").asString();
+            profile["organization_type"] = (organizationType == "school") ? "school" : "business";
+        }
+        else
+        {
+            profile["organization_type"] = "";
+            profile["scope_id"] = profile["scope_id"].asString().empty() ? userId : profile["scope_id"].asString();
+        }
         return profile;
     }
 
@@ -147,30 +145,20 @@ class ProfileRepository
         {
             return "pro";
         }
-        if (plan == "ultra" || plan == "pro" || plan == "free")
+        if (plan == "free" || plan == "pro" || plan == "ultra")
         {
             return plan;
         }
         return "free";
     }
 
-    static std::string normalizePlanStatus(const std::string &status, const std::string &expiresAt)
+    static std::string normalizePlanStatus(const std::string &status)
     {
-        std::string normalized = status;
-        if (normalized != "active" && normalized != "trial" && normalized != "expired" && normalized != "canceled")
+        if (status == "active" || status == "trial" || status == "expired" || status == "canceled")
         {
-            normalized = "active";
+            return status;
         }
-        if (!expiresAt.empty())
-        {
-            const auto today = common::nowIso8601().substr(0, 10);
-            const auto expiryDate = expiresAt.size() >= 10 ? expiresAt.substr(0, 10) : expiresAt;
-            if (!expiryDate.empty() && expiryDate < today)
-            {
-                normalized = "expired";
-            }
-        }
-        return normalized;
+        return "active";
     }
 
     // Returns true if `other` (YYYY-MM-DD) is exactly one day before `today` (YYYY-MM-DD).

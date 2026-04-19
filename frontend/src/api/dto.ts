@@ -120,6 +120,7 @@ export interface SubscriptionView {
 	plan: PlanId;
 	status: PlanStatus;
 	expires_at: string;
+	seats?: number;
 	entitlements: string[];
 	accessible_levels: string[];
 	is_active: boolean;
@@ -127,11 +128,37 @@ export interface SubscriptionView {
 }
 
 export interface MembershipView {
+	membership_id?: string;
 	user_id: string;
 	scope_type: ScopeType;
 	scope_id: string;
 	organization_type: OrganizationType;
 	roles: RoleId[];
+	member_no?: string;
+	memberNo?: string;
+	student_no?: string;
+	studentNo?: string;
+	employee_no?: string;
+	employeeNo?: string;
+	joined_at?: string;
+	organization_id?: string;
+	organization_name?: string;
+	username?: string;
+	status?: string;
+}
+
+export interface OrganizationView {
+	organization_id: string;
+	scope_type: 'organization';
+	scope_id: string;
+	name: string;
+	organization_type: Exclude<OrganizationType, ''>;
+	created_by: string;
+	created_at: string;
+	updated_at: string;
+	member_count: number;
+	seats: number;
+	subscription: SubscriptionView;
 }
 
 export interface PermissionItem {
@@ -163,6 +190,13 @@ export interface UserView {
 	id: string;
 	user_id: string;
 	username: string;
+	member_no?: string;
+	memberNo?: string;
+	student_no?: string;
+	studentNo?: string;
+	employee_no?: string;
+	employeeNo?: string;
+	dev_login_id?: string;
 	email: string;
 	phone: string;
 	phone_verified: boolean;
@@ -201,6 +235,8 @@ export interface MeContext {
 	subscription: SubscriptionView;
 	permissions: PermissionView;
 	session: AuthSession;
+	memberships?: MembershipView[];
+	organizations?: OrganizationView[];
 }
 
 export interface CurrentUser extends UserView {

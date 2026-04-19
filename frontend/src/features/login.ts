@@ -1,5 +1,5 @@
 import { ApiClient } from '../api/client.js';
-import type { AuthSession, MeContext } from '../api/dto.js';
+import type { MeContext } from '../api/dto.js';
 import { buildCurrentUser, persistSession } from './session.js';
 import { AppStore } from '../state/store.js';
 
@@ -88,12 +88,17 @@ export class LoginModal {
 		const statusEl = this.modal.querySelector<HTMLElement>('#wechat-status');
 		const qrImg = this.modal.querySelector<HTMLImageElement>('#wechat-qr-img');
 		const qrText = this.modal.querySelector<HTMLElement>('#wechat-qr-text');
+		const testIdList = this.modal.querySelector<HTMLElement>('#wechat-test-id-list');
 
 		if (statusEl) statusEl.textContent = '生成中…';
 		if (qrText) qrText.textContent = '待扫码';
+		if (testIdList) {
+			testIdList.innerHTML = '';
+			testIdList.style.display = 'none';
+		}
 
 		try {
-			const data = await this.api.request<{ state: string; qrcode_url: string; stub?: boolean }>(
+			const data = await this.api.request<{ state: string; qrcode_url: string; stub?: boolean; test_ids?: string[] }>(
 				'/auth/wechat/qrcode'
 			);
 
@@ -117,9 +122,25 @@ export class LoginModal {
 
 			// Store state for stub button
 			if (stubBtn) {
+				stubBtn.textContent = '🔧 随机测试 ID 登录';
 				stubBtn.onclick = () => {
 					void this.simulateWechatScan(data.state);
 				};
+			}
+
+			if (data.stub && Array.isArray(data.test_ids) && data.test_ids.length > 0 && testIdList) {
+				if (statusEl) statusEl.textContent = '开发模式：点击测试 ID 模拟微信登录';
+				testIdList.style.display = 'grid';
+				for (const testId of data.test_ids) {
+					const button = document.createElement('button');
+					button.type = 'button';
+					button.className = 'login-test-id-item';
+					button.textContent = testId;
+					button.addEventListener('click', () => {
+						void this.simulateWechatScan(data.state, testId);
+					});
+					testIdList.appendChild(button);
+				}
 			}
 
 			this.startPolling(data.state);
@@ -128,8 +149,8 @@ export class LoginModal {
 		}
 	}
 
-	private async simulateWechatScan(state: string): Promise<void> {
-		const code = 'stub_' + Math.random().toString(36).slice(2, 8);
+	private async simulateWechatScan(state: string, testId?: string): Promise<void> {
+		const code = testId ?? ('stub_' + Math.random().toString(36).slice(2, 8));
 		try {
 			await fetch(`/api/v2/auth/wechat/callback?code=${code}&state=${state}`);
 		} catch {
@@ -150,12 +171,7 @@ export class LoginModal {
 
 				if (result.done && result.token) {
 					this.stopPolling();
-					void this.onLoginSuccess({
-						token: result.token,
-						user_id: result.user_id!,
-						username: result.username!,
-						roles: (result.roles ?? []) as AuthSession['roles']
-					});
+					void this.onLoginSuccess({ token: result.token, user_id: result.user_id!, username: result.username!, roles: result.roles ?? [] });
 				}
 			} catch {
 				// state expired or error — stop
@@ -177,13 +193,13 @@ export class LoginModal {
 		const username = (this.modal.querySelector<HTMLInputElement>('#login-username'))?.value.trim() ?? '';
 		const password = (this.modal.querySelector<HTMLInputElement>('#login-password'))?.value ?? '';
 
-		if (!username || !password) {
-			this.showError('请输入用户名和密码');
+		if (!username) {
+			this.showError('请输入用户名、user_id、member_no（学号/工号）或测试 ID');
 			return;
 		}
 
 		try {
-			const data = await this.api.request<AuthSession>(
+			const data = await this.api.request<{ token: string; user_id: string; username: string; roles: string[] }>(
 				'/auth/login',
 				{ method: 'POST', body: JSON.stringify({ username, password }) }
 			);
@@ -229,11 +245,19 @@ export class LoginModal {
 		try {
 			// Try username=phone, password="" pattern via phone verify endpoint
 			// The backend verify endpoint returns the full user object after binding
-			const data = await this.api.request<AuthSession>(
+			const data = await this.api.request<{ token?: string; user_id?: string; username?: string; roles?: string[] }>(
 				'/auth/phone/verify',
 				{ method: 'POST', body: JSON.stringify({ user_id: 'guest', phone, code }) }
 			);
-			await this.onLoginSuccess(data);
+			// After binding, do a proper login via phone-as-username pattern
+			// For now, show success and reload so session is restored from profile
+			this.showError('手机号绑定成功！请使用用户名登录');
+			if (data.user_id) {
+				// auto-login as the bound user if token available
+				if (data.token) {
+					await this.onLoginSuccess({ token: data.token, user_id: data.user_id, username: data.username ?? phone, roles: data.roles ?? [] });
+				}
+			}
 		} catch (e) {
 			this.showError((e as Error).message || '验证失败');
 		}
@@ -241,15 +265,16 @@ export class LoginModal {
 
 	// ─── Common ──────────────────────────────────────────────────────────────
 
-	private async onLoginSuccess(payload: AuthSession): Promise<void> {
-		if (!payload.token) {
-			throw new Error('登录成功但未返回 token');
-		}
+	private async onLoginSuccess(payload: { token: string; user_id: string; username: string; roles: string[] }): Promise<void> {
 		const context = (await this.api.getMeContext(payload.token)) as MeContext;
-		const currentUser = buildCurrentUser(context, payload.token);
-		persistSession(currentUser);
-		this.store.setState({ user: currentUser });
+		const user = buildCurrentUser(context, payload.token);
+		persistSession(user);
+		this.store.setState({ user });
 		this.close();
+		(window as Window & {
+			setUserContext?: (ctx: Record<string, unknown>) => void;
+			__onLoginSuccess?: () => void;
+		}).setUserContext?.(user as unknown as Record<string, unknown>);
 		(window as Window & { __onLoginSuccess?: () => void }).__onLoginSuccess?.();
 	}
 

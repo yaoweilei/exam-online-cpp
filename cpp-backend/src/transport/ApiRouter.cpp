@@ -36,14 +36,63 @@ std::string requireString(const Json::Value &json, const std::string &field)
     return value;
 }
 
-std::string resolveToken(const HttpRequestPtr &req)
+std::string readToken(const HttpRequestPtr &req, const Json::Value *json = nullptr)
 {
-    const auto bearer = req->getHeader("Authorization");
-    if (!bearer.empty() && bearer.rfind("Bearer ", 0) == 0)
+    auto token = req->getParameter("token");
+    if (token.empty())
     {
-        return bearer.substr(7);
+        const auto authorization = req->getHeader("Authorization");
+        constexpr std::string_view bearerPrefix = "Bearer ";
+        if (authorization.rfind(bearerPrefix, 0) == 0)
+        {
+            token = authorization.substr(bearerPrefix.size());
+        }
     }
-    return req->getParameter("token");
+    if (token.empty() && json != nullptr)
+    {
+        token = json->get("token", "").asString();
+    }
+    return token;
+}
+
+Json::Value requireSession(application::services::AuthService &authService, const HttpRequestPtr &req, const Json::Value *json = nullptr)
+{
+    const auto token = readToken(req, json);
+    if (token.empty())
+    {
+        throw common::AppException("VALIDATION_ERROR", "Missing token parameter", k422UnprocessableEntity);
+    }
+    auto session = authService.verify(token);
+    session["token"] = token;
+    return session;
+}
+
+bool hasAnyRole(const Json::Value &roles, std::initializer_list<const char *> expected)
+{
+    for (const auto &role : roles)
+    {
+        const auto value = role.asString();
+        for (const auto *candidate : expected)
+        {
+            if (value == candidate)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void applyNoCacheHeaders(const HttpResponsePtr &response)
+{
+    response->addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    response->addHeader("Pragma", "no-cache");
+    response->addHeader("Expires", "0");
+}
+
+bool containsParentTraversal(const std::string &path)
+{
+    return path.find("..") != std::string::npos;
 }
 }  // namespace
 
@@ -62,6 +111,35 @@ void ApiRouter::registerRoutes() const
             }
             auto response = HttpResponse::newFileResponse(path.string());
             response->setContentTypeCode(CT_TEXT_HTML);
+            if (ctx.disableStaticCache)
+            {
+                applyNoCacheHeaders(response);
+            }
+            callback(response);
+        },
+        {Get});
+
+    app().registerHandler(
+        "/static/{1:.*}",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, const std::string &path) {
+            if (path.empty() || containsParentTraversal(path))
+            {
+                callback(common::fail(req, k404NotFound, "STATIC_NOT_FOUND", "Static asset not found"));
+                return;
+            }
+
+            const auto fullPath = ctx.staticDir / path;
+            if (!std::filesystem::exists(fullPath) || std::filesystem::is_directory(fullPath))
+            {
+                callback(common::fail(req, k404NotFound, "STATIC_NOT_FOUND", "Static asset not found"));
+                return;
+            }
+
+            auto response = HttpResponse::newFileResponse(fullPath.string());
+            if (ctx.disableStaticCache)
+            {
+                applyNoCacheHeaders(response);
+            }
             callback(response);
         },
         {Get});
@@ -75,7 +153,12 @@ void ApiRouter::registerRoutes() const
                 callback(common::fail(req, k404NotFound, "RESOURCE_NOT_FOUND", "Resource not found"));
                 return;
             }
-            callback(HttpResponse::newFileResponse(fullPath.string()));
+            auto response = HttpResponse::newFileResponse(fullPath.string());
+            if (ctx.disableStaticCache)
+            {
+                applyNoCacheHeaders(response);
+            }
+            callback(response);
         },
         {Get});
 
@@ -243,7 +326,7 @@ void ApiRouter::registerRoutes() const
             {
                 const auto body = parseJsonBody(req);
                 const auto username = requireString(body, "username");
-                const auto password = requireString(body, "password");
+                const auto password = body.get("password", "").asString();
                 callback(common::ok(req, ctx.authService->login(username, password)));
             }
             catch (const common::AppException &e)
@@ -294,7 +377,7 @@ void ApiRouter::registerRoutes() const
         [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             try
             {
-                const auto token = resolveToken(req);
+                const auto token = req->getParameter("token");
                 if (token.empty())
                 {
                     throw common::AppException("VALIDATION_ERROR", "Missing token parameter", k422UnprocessableEntity);
@@ -313,12 +396,7 @@ void ApiRouter::registerRoutes() const
         [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             try
             {
-                const auto token = resolveToken(req);
-                if (token.empty())
-                {
-                    throw common::AppException("VALIDATION_ERROR", "Missing token parameter", k422UnprocessableEntity);
-                }
-                const auto session = ctx.authService->verify(token);
+                const auto session = requireSession(*ctx.authService, req);
                 callback(common::ok(req, ctx.userService->getUser(session.get("user_id", "").asString())));
             }
             catch (const common::AppException &e)
@@ -333,15 +411,10 @@ void ApiRouter::registerRoutes() const
         [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             try
             {
-                const auto token = resolveToken(req);
-                if (token.empty())
-                {
-                    throw common::AppException("VALIDATION_ERROR", "Missing token parameter", k422UnprocessableEntity);
-                }
-                const auto session = ctx.authService->verify(token);
-                Json::Value out = ctx.userService->context(session.get("user_id", "").asString());
-                out["session"] = session;
-                callback(common::ok(req, out));
+                const auto session = requireSession(*ctx.authService, req);
+                auto context = ctx.userService->context(session.get("user_id", "").asString());
+                context["session"] = session;
+                callback(common::ok(req, context));
             }
             catch (const common::AppException &e)
             {
@@ -607,12 +680,18 @@ void ApiRouter::registerRoutes() const
 
     app().registerHandler(
         "/api/v2/subscription/{1}",
-        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string scopeId) {
             try
             {
-                Json::Value out = ctx.subscriptionService->currentSubscription(userId);
-                out["user_id"] = userId;
-                callback(common::ok(req, out));
+                const auto scopeType = req->getParameter("scope_type");
+                if (scopeType == "organization" || scopeId.rfind("org_", 0) == 0)
+                {
+                    callback(common::ok(req, ctx.subscriptionService->subscriptionForOrganization(scopeId)));
+                }
+                else
+                {
+                    callback(common::ok(req, ctx.subscriptionService->subscriptionForUser(scopeId)));
+                }
             }
             catch (const common::AppException &e)
             {
@@ -623,16 +702,19 @@ void ApiRouter::registerRoutes() const
 
     app().registerHandler(
         "/api/v2/subscription/{1}/grant",
-        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string scopeId) {
             try
             {
                 const auto body = parseJsonBody(req);
-                const auto expiresAt = body.get("expires_at", "").asString();
-                const auto plan = body.get("plan", "pro").asString();
-                const auto status = body.get("status", "active").asString();
-                Json::Value out = ctx.subscriptionService->grantSubscription(userId, plan, expiresAt, status);
-                out["user_id"] = userId;
-                callback(common::ok(req, out));
+                const auto scopeType = body.get("scope_type", req->getParameter("scope_type")).asString();
+                if (scopeType == "organization" || scopeId.rfind("org_", 0) == 0)
+                {
+                    callback(common::ok(req, ctx.subscriptionService->updateOrganizationSubscription(scopeId, body)));
+                }
+                else
+                {
+                    callback(common::ok(req, ctx.subscriptionService->updateUserSubscription(scopeId, body)));
+                }
             }
             catch (const common::AppException &e)
             {
@@ -640,6 +722,130 @@ void ApiRouter::registerRoutes() const
             }
         },
         {Post});
+
+    // -------------------------------------------------------------------------
+    // Organization
+    // -------------------------------------------------------------------------
+
+    app().registerHandler(
+        "/api/v2/organizations",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto session = requireSession(*ctx.authService, req);
+                callback(common::ok(
+                    req,
+                    ctx.organizationService->listOrganizationsForUser(
+                        session.get("user_id", "").asString(),
+                        hasAnyRole(session["roles"], {"systemAdmin", "superAdmin"}))));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/organizations",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                if (hasAnyRole(session["roles"], {"guest"}))
+                {
+                    throw common::AppException("FORBIDDEN", "Guest users cannot create organizations", k403Forbidden);
+                }
+                callback(common::ok(req, ctx.organizationService->createOrganization(session.get("user_id", "").asString(), body), "organization_created"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v2/organizations/{1}",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string organizationId) {
+            try
+            {
+                const auto session = requireSession(*ctx.authService, req);
+                if (!ctx.organizationService->canAccessOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                {
+                    throw common::AppException("FORBIDDEN", "You do not have access to this organization", k403Forbidden);
+                }
+                callback(common::ok(req, ctx.organizationService->getOrganization(organizationId)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/organizations/{1}/members",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string organizationId) {
+            try
+            {
+                const auto session = requireSession(*ctx.authService, req);
+                if (!ctx.organizationService->canAccessOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                {
+                    throw common::AppException("FORBIDDEN", "You do not have access to this organization", k403Forbidden);
+                }
+                callback(common::ok(req, ctx.organizationService->listMembers(organizationId)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/organizations/{1}/members",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string organizationId) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                if (!ctx.organizationService->canManageOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                {
+                    throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization", k403Forbidden);
+                }
+                callback(common::ok(req, ctx.organizationService->upsertMember(organizationId, body), "member_saved"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post, Put});
+
+    app().registerHandler(
+        "/api/v2/organizations/{1}/members/{2}",
+        [ctx = context_](const HttpRequestPtr &req,
+                         std::function<void(const HttpResponsePtr &)> &&callback,
+                         std::string organizationId,
+                         std::string userId) {
+            try
+            {
+                const auto session = requireSession(*ctx.authService, req);
+                if (!ctx.organizationService->canManageOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                {
+                    throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization", k403Forbidden);
+                }
+                ctx.organizationService->removeMember(organizationId, userId);
+                callback(common::ok(req, Json::Value(Json::objectValue), "member_removed"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Delete});
 
     // -------------------------------------------------------------------------
     // Phone binding
@@ -670,10 +876,14 @@ void ApiRouter::registerRoutes() const
             try
             {
                 const auto body = parseJsonBody(req);
-                const auto userId = requireString(body, "user_id");
+                const auto userId = body.get("user_id", "guest").asString();
                 const auto phone = requireString(body, "phone");
                 const auto code = requireString(body, "code");
-                callback(common::ok(req, ctx.phoneService->verifyAndBind(userId, phone, code)));
+                const auto user = ctx.phoneService->verifyAndBind(userId, phone, code);
+                const auto token = ctx.authService->createSessionForUser(user);
+                auto out = ctx.authService->verify(token);
+                out["token"] = token;
+                callback(common::ok(req, out));
             }
             catch (const common::AppException &e)
             {

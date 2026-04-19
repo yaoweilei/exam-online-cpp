@@ -27,7 +27,7 @@ class ProfileService
         static const std::vector<std::string> allowed = {
             "display_name", "avatar_url", "locale",
             "goal_level", "goal_date", "daily_target",
-            "notification_enabled"};
+            "notification_enabled", "scope_type", "scope_id", "organization_type"};
 
         for (const auto &field : allowed)
         {

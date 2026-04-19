@@ -9,7 +9,6 @@
 #include <json/json.h>
 
 #include "SmsService.h"
-#include "AuthService.h"
 #include "common/AppException.h"
 #include "common/TimeUtils.h"
 #include "infrastructure/storage/UserRepository.h"
@@ -20,9 +19,8 @@ class PhoneService
 {
   public:
     explicit PhoneService(infrastructure::storage::UserRepository &userRepository,
-                          SmsService &smsService,
-                          AuthService &authService)
-        : userRepository_(userRepository), smsService_(smsService), authService_(authService)
+                          SmsService &smsService)
+        : userRepository_(userRepository), smsService_(smsService)
     {
     }
 
@@ -60,7 +58,7 @@ class PhoneService
         }
     }
 
-    // Step 2: verify the code and bind the phone to the user.
+    // Step 2: verify the code and either bind an existing user or create/login a phone user.
     Json::Value verifyAndBind(const std::string &userId, const std::string &phone, const std::string &code)
     {
         validatePhoneFormat(phone);
@@ -83,18 +81,17 @@ class PhoneService
         pending_.erase(it);
         lock.unlock();
 
-        Json::Value user = (userId.empty() || userId == "guest")
-                               ? userRepository_.ensurePhoneUser(phone)
-                               : userRepository_.bindPhone(userId, phone);
-
-        if (user.get("phone", "").asString() != phone)
+        if (userId.empty() || userId == "guest")
         {
-            user = userRepository_.bindPhone(user.get("id", "").asString(), phone);
+            auto existing = userRepository_.findUserByPhone(phone);
+            if (!existing.isNull())
+            {
+                return existing;
+            }
+            return userRepository_.createPhoneUser(phone);
         }
 
-        auto session = authService_.loginViaUser(user);
-        session["user"] = user;
-        return session;
+        return userRepository_.bindPhone(userId, phone);
     }
 
   private:
@@ -130,7 +127,6 @@ class PhoneService
 
     infrastructure::storage::UserRepository &userRepository_;
     SmsService &smsService_;
-    AuthService &authService_;
     std::unordered_map<std::string, PendingCode> pending_;
     std::mutex mutex_;
 };

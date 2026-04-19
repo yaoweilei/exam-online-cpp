@@ -1,15 +1,4 @@
 {
-  "assistant" : 
-  {
-    "description" : "\u534f\u52a9\u6559\u5e08\u5904\u7406\u9898\u76ee\u521d\u7a3f\u4e0e\u8d44\u6e90\u6574\u7406\uff0c\u4e0d\u80fd\u6700\u7ec8\u53d1\u5e03\u3002",
-    "id" : "assistant",
-    "name" : "\u52a9\u7406",
-    "permissions" : 
-    [
-      "editDraft",
-      "attachResource"
-    ]
-  },
   "guest" : 
   {
     "description" : "Guest",
@@ -28,6 +17,7 @@
     "name" : "\u6559\u52a1",
     "permissions" : 
     [
+      "organization.manage",
       "scheduleExam",
       "reviewExam",
       "publishExam"
@@ -40,6 +30,7 @@
     "name" : "\u9605\u5377",
     "permissions" : 
     [
+      "review.manage",
       "review_exam",
       "score_exam"
     ]
@@ -51,6 +42,9 @@
     "name" : "\u5b66\u751f",
     "permissions" : 
     [
+      "view_exams",
+      "submit_answers",
+      "save_progress",
       "takeExam",
       "viewResult"
     ]
@@ -62,6 +56,7 @@
     "name" : "\u8d85\u7ea7\u7ba1\u7406\u5458",
     "permissions" : 
     [
+      "*",
       "manageSystem",
       "manageUsers",
       "manageRoles",
@@ -77,6 +72,7 @@
     "name" : "\u7cfb\u7edf\u7ba1\u7406\u5458",
     "permissions" : 
     [
+      "system.manage",
       "manageUsers",
       "reviewExam",
       "editExam",
@@ -90,6 +86,7 @@
     "name" : "\u6559\u5e08",
     "permissions" : 
     [
+      "question.manage",
       "editExam",
       "submitForReview"
     ]

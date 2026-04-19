@@ -1,11 +1,17 @@
 import { ApiClient } from './api/client.js';
-import type { CurrentUser } from './api/dto.js';
-import { Tracker } from './analytics/tracker.js';
 import { loadExams } from './features/exams.js';
 import { bootViewerApp } from './features/viewerBootstrap.js';
 import { restoreSession, clearSession } from './features/session.js';
 import { AppStore } from './state/store.js';
 import { LoginModal } from './features/login.js';
+
+function logAppReady(levels: number): void {
+	if (!(window as Window & { __APP_DEBUG__?: boolean }).__APP_DEBUG__) {
+		return;
+	}
+
+	console.log('[app] app_ready', { levels });
+}
 
 async function bootstrap(): Promise<void> {
 	(window as Window & { __API_BASE__?: string; __WEB_APP_MODE__?: boolean; __APP_DEBUG__?: boolean }).__API_BASE__ =
@@ -15,61 +21,38 @@ async function bootstrap(): Promise<void> {
 
 	const api = new ApiClient('/api/v2');
 	const store = new AppStore();
-	await restoreSession(api, store);
-
-	// --- User bar wiring ---
 	const loginModal = new LoginModal(api, store);
-	(window as Window & { __openLoginModal?: () => void }).__openLoginModal = () => loginModal.open();
+	const appWindow = window as Window & {
+		__openLoginModal?: () => void;
+		__onLoginSuccess?: () => void;
+		setUserContext?: (ctx: Record<string, unknown>) => void;
+		refreshPersonalCenterTrigger?: () => Promise<void> | void;
+		logoutUser?: () => void;
+	};
 
+	const userBar = document.getElementById('user-bar');
 	const loginEntryBtn = document.getElementById('login-entry-btn');
-	const userInfoBar   = document.getElementById('user-info-bar');
-	const userDisplay   = document.getElementById('user-display');
-	const logoutBtn     = document.getElementById('logout-btn');
+	userBar?.setAttribute('style', 'display:none');
 
-	function refreshUserBar(): void {
-		const state = store.getState();
-		const loggedIn = !state.user.guest && state.user.user_id;
-		if (loggedIn) {
-			loginEntryBtn?.setAttribute('style', 'display:none');
-			if (userInfoBar) userInfoBar.style.display = '';
-			if (userDisplay) {
-				const currentUser = state.user as CurrentUser;
-				userDisplay.textContent = currentUser.display_name || currentUser.username || '';
-			}
-		} else {
-			if (loginEntryBtn) loginEntryBtn.style.display = '';
-			userInfoBar?.setAttribute('style', 'display:none');
+	function syncViewerUserState(): void {
+		const currentUser = store.getState().user;
+		if (currentUser && !currentUser.guest) {
+			appWindow.setUserContext?.(currentUser as unknown as Record<string, unknown>);
+			return;
 		}
+		appWindow.setUserContext?.({ guest: true });
+		appWindow.refreshPersonalCenterTrigger?.();
 	}
 
-	function toViewerUserContext(user: CurrentUser): Record<string, unknown> {
-		return {
-			id: user.user_id,
-			userId: user.user_id,
-			username: user.username,
-			displayName: user.display_name || user.displayName || user.username,
-			roles: user.roles,
-			roleIds: user.role_ids,
-			email: user.email,
-			avatar: user.avatar_url || user.avatar || null,
-			lastLoginAt: user.last_active_at || user.lastLoginAt || '',
-			status: user.status,
-			balance: user.balance,
-			scopeType: user.scope_type,
-			scopeId: user.scope_id,
-			organizationType: user.organization_type,
-			plan: user.plan,
-			planStatus: user.plan_status,
-			planExpiresAt: user.plan_expires_at,
-			subscription: user.subscription,
-			permissions: user.permissions,
-			accessibleLevels: user.accessible_levels,
-			guest: false
-		};
-	}
+	void restoreSession(api, store).finally(() => {
+		syncViewerUserState();
+	});
 
-	refreshUserBar();
+	appWindow.__openLoginModal = () => loginModal.open();
 	loginEntryBtn?.addEventListener('click', () => loginModal.open());
+	appWindow.__onLoginSuccess = () => {
+		syncViewerUserState();
+	};
 
 	try {
 		await loadExams(api, store);
@@ -77,40 +60,25 @@ async function bootstrap(): Promise<void> {
 		console.error('[main] loadExams failed, fallback to viewer bootstrap fetch:', error);
 	}
 	await bootViewerApp();
+	syncViewerUserState();
 
-	const viewerLogout = window.logoutUser;
-	const viewerSetUserContext = window.setUserContext;
-	const syncViewerContext = (): void => {
+	const viewerLogout = appWindow.logoutUser;
+	appWindow.logoutUser = async () => {
 		const currentUser = store.getState().user;
-		if (currentUser.guest) {
-			viewerLogout?.();
-			return;
-		}
-		viewerSetUserContext?.(toViewerUserContext(currentUser));
-		window.refreshPersonalCenterTrigger?.();
-	};
-
-	const handleLogout = (): void => {
-		clearSession(store);
-		refreshUserBar();
+		const token = !currentUser.guest ? currentUser.token : '';
 		viewerLogout?.();
-		window.refreshPersonalCenterTrigger?.();
+		if (token) {
+			try {
+				await api.logout(token);
+			} catch (error) {
+				console.warn('[main] backend logout failed:', error);
+			}
+		}
+		clearSession(store);
+		syncViewerUserState();
 	};
 
-	logoutBtn?.addEventListener('click', handleLogout);
-	window.logoutUser = handleLogout;
-	store.subscribe(() => {
-		refreshUserBar();
-		syncViewerContext();
-	});
-	syncViewerContext();
-
-	(window as Window & { __onLoginSuccess?: () => void }).__onLoginSuccess = () => {
-		refreshUserBar();
-		syncViewerContext();
-	};
-
-	Tracker.log('app_ready', { levels: Object.keys(store.getState().examsByLevel).length });
+	logAppReady(Object.keys(store.getState().examsByLevel).length);
 }
 
 if (document.readyState === 'loading') {
