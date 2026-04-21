@@ -8,6 +8,7 @@
 #include "common/TimeUtils.h"
 #include "infrastructure/storage/OrganizationRepository.h"
 #include "infrastructure/storage/ProfileRepository.h"
+#include "infrastructure/storage/UserRepository.h"
 
 namespace application::services
 {
@@ -15,8 +16,13 @@ class SubscriptionService
 {
   public:
     explicit SubscriptionService(infrastructure::storage::ProfileRepository &profileRepository,
-                                 infrastructure::storage::OrganizationRepository &organizationRepository)
-        : profileRepository_(profileRepository), organizationRepository_(organizationRepository)
+                                                                 infrastructure::storage::OrganizationRepository &organizationRepository,
+                                                                 infrastructure::storage::UserRepository &userRepository,
+                                                                 int referralRewardCredits = 10)
+                : profileRepository_(profileRepository),
+                    organizationRepository_(organizationRepository),
+                    userRepository_(userRepository),
+                    referralRewardCredits_(referralRewardCredits < 0 ? 0 : referralRewardCredits)
     {
     }
 
@@ -77,7 +83,9 @@ class SubscriptionService
         profile["plan_expires_at"] = patch.get("expires_at", profile.get("plan_expires_at", "")).asString();
         profile["plan_expires"] = profile["plan_expires_at"].asString();
         profileRepository_.saveProfile(userId, profile);
-        return subscriptionForUser(userId);
+        const auto subscription = subscriptionForUser(userId);
+        settleReferralReward(userId, subscription);
+        return subscription;
     }
 
     Json::Value updateOrganizationSubscription(const std::string &organizationId, const Json::Value &patch)
@@ -154,6 +162,31 @@ class SubscriptionService
     }
 
   private:
+    void settleReferralReward(const std::string &userId, const Json::Value &subscription)
+    {
+        if (!qualifiesForReferralReward(subscription))
+        {
+            return;
+        }
+
+        const auto referredUser = userRepository_.findUserById(userId);
+        if (referredUser.isNull())
+        {
+            return;
+        }
+
+        const auto referrerUserId = referredUser.get("referred_by_user_id", "").asString();
+        if (referrerUserId.empty() || referredUser.get("referral_reward_status", "none").asString() != "pending")
+        {
+            return;
+        }
+
+        const auto rewardCredits = referralRewardCredits_;
+        const auto rewardKey = std::string("referral:") + userId + ":subscription.activated";
+        profileRepository_.grantCreditsIfAbsent(referrerUserId, rewardKey, rewardCredits, "referral.subscription.activated");
+        userRepository_.grantReferralRewardIfPending(userId, "subscription.activated", rewardCredits, referrerUserId);
+    }
+
     static Json::Value buildSubscription(const std::string &scopeType,
                                          const std::string &scopeId,
                                          const std::string &organizationType,
@@ -265,6 +298,12 @@ class SubscriptionService
         return expiresAt >= common::nowIso8601();
     }
 
+    static bool qualifiesForReferralReward(const Json::Value &subscription)
+    {
+        const auto plan = normalizePlan(subscription.get("plan", "free").asString());
+        return subscription.get("status", "active").asString() == "active" && (plan == "pro" || plan == "ultra");
+    }
+
     static std::string normalizePlan(const std::string &plan)
     {
         if (plan == "premium")
@@ -289,5 +328,7 @@ class SubscriptionService
 
     infrastructure::storage::ProfileRepository &profileRepository_;
     infrastructure::storage::OrganizationRepository &organizationRepository_;
+    infrastructure::storage::UserRepository &userRepository_;
+    int referralRewardCredits_;
 };
 }  // namespace application::services

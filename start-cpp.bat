@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+chcp 65001>nul
+
 set BUILD_DIR=cpp-backend\build
 set TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
@@ -37,7 +39,15 @@ if not exist %BUILD_DIR% (
 cmake --build %BUILD_DIR% --config Release
 if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 
-%BUILD_DIR%\Release\exam_online_cpp.exe
-if %ERRORLEVEL% NEQ 0 (
-  %BUILD_DIR%\exam_online_cpp.exe
+if exist "%BUILD_DIR%\Release\exam_online_cpp.exe" (
+  "%BUILD_DIR%\Release\exam_online_cpp.exe"
+  exit /b %ERRORLEVEL%
 )
+
+if exist "%BUILD_DIR%\exam_online_cpp.exe" (
+  "%BUILD_DIR%\exam_online_cpp.exe"
+  exit /b %ERRORLEVEL%
+)
+
+echo [start-cpp] backend executable not found
+exit /b 1

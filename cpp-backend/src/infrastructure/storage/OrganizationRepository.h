@@ -290,6 +290,14 @@ class OrganizationRepository
             subscription["accessible_levels"] = Json::arrayValue;
         }
         organization["subscription"] = subscription;
+        if (!organization.isMember("invitations") || !organization["invitations"].isArray())
+        {
+            organization["invitations"] = Json::arrayValue;
+        }
+        if (!organization.isMember("audit_logs") || !organization["audit_logs"].isArray())
+        {
+            organization["audit_logs"] = Json::arrayValue;
+        }
         return organization;
     }
 

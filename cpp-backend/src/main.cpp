@@ -1,4 +1,12 @@
 #include <iostream>
+#include <memory>
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
 
 #include <drogon/HttpAppFramework.h>
 
@@ -6,8 +14,11 @@
 #include "application/services/AnswerService.h"
 #include "application/services/AuthService.h"
 #include "application/services/BookmarkService.h"
+#include "application/services/ContactChangeChallengeService.h"
+#include "application/services/EmailVerificationService.h"
 #include "application/services/ExamService.h"
 #include "application/services/FuriganaService.h"
+#include "application/services/NotificationService.h"
 #include "application/services/OrganizationService.h"
 #include "application/services/PhoneService.h"
 #include "application/services/ProfileService.h"
@@ -31,6 +42,18 @@ using namespace drogon;
 
 namespace
 {
+#ifdef _WIN32
+void configureConsoleUtf8()
+{
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+}
+#else
+void configureConsoleUtf8()
+{
+}
+#endif
+
 trantor::Logger::LogLevel toLogLevel(const std::string &level)
 {
     if (level == "DEBUG")
@@ -47,10 +70,38 @@ trantor::Logger::LogLevel toLogLevel(const std::string &level)
     }
     return trantor::Logger::kInfo;
 }
+
+std::unique_ptr<application::services::EmailService> buildEmailService(const infrastructure::config::AppConfig &cfg)
+{
+    if (cfg.emailProvider == "resend")
+    {
+        return std::make_unique<application::services::ResendEmailService>(application::services::ResendEmailService::Config{
+            .apiKey = cfg.emailApiKey,
+            .fromAddress = cfg.emailFromAddress,
+            .fromName = cfg.emailFromName,
+            .apiBaseUrl = cfg.emailApiBaseUrl});
+    }
+    return std::make_unique<application::services::StubEmailService>();
+}
+
+std::unique_ptr<application::services::SmsService> buildSmsService(const infrastructure::config::AppConfig &cfg)
+{
+    if (cfg.smsProvider == "twilio")
+    {
+        return std::make_unique<application::services::TwilioSmsService>(application::services::TwilioSmsService::Config{
+            .accountSid = cfg.smsAccountSid,
+            .authToken = cfg.smsAuthToken,
+            .fromNumber = cfg.smsFromNumber,
+            .apiBaseUrl = cfg.smsApiBaseUrl});
+    }
+    return std::make_unique<application::services::StubSmsService>();
+}
 }  // namespace
 
 int main()
 {
+    configureConsoleUtf8();
+
     auto cfg = infrastructure::config::loadConfig();
     std::filesystem::create_directories(cfg.logDir);
 
@@ -62,7 +113,11 @@ int main()
     infrastructure::storage::OrganizationRepository organizationRepo(cfg.dataUserDir);
     infrastructure::storage::BookmarkRepository bookmarkRepo(cfg.dataUserDir);
 
-    application::services::SubscriptionService subscriptionService(profileRepo, organizationRepo);
+    application::services::SubscriptionService subscriptionService(
+        profileRepo,
+        organizationRepo,
+        userRepo,
+        cfg.referralRewardCredits);
     application::services::ExamService examService(examRepo, subscriptionService);
     application::services::AnswerService answerService(answerRepo);
     application::services::AuthService authService(
@@ -73,10 +128,19 @@ int main()
     application::services::UserService userService(userRepo, profileRepo, organizationRepo, subscriptionService);
     application::services::FuriganaService furiganaService(furiganaRepo);
     application::services::ProfileService profileService(profileRepo);
-    application::services::OrganizationService organizationService(organizationRepo, userRepo, subscriptionService);
+    auto emailService = buildEmailService(cfg);
+    auto smsService = buildSmsService(cfg);
+    application::services::ContactChangeChallengeService contactChangeChallengeService(userRepo, *emailService, *smsService);
+    application::services::OrganizationService organizationService(
+        organizationRepo,
+        userRepo,
+        subscriptionService,
+        *smsService,
+        *emailService,
+        cfg.publicWebBaseUrl);
     application::services::BookmarkService bookmarkService(bookmarkRepo);
-    application::services::StubSmsService stubSmsService;
-    application::services::PhoneService phoneService(userRepo, stubSmsService);
+    application::services::PhoneService phoneService(userRepo, *smsService, contactChangeChallengeService);
+    application::services::EmailVerificationService emailVerificationService(userRepo, *emailService, contactChangeChallengeService);
     application::services::WechatService wechatService(
         userRepo,
         authService,
@@ -100,6 +164,8 @@ int main()
         .bookmarkService = &bookmarkService,
         .subscriptionService = &subscriptionService,
         .phoneService = &phoneService,
+        .emailVerificationService = &emailVerificationService,
+        .contactChangeChallengeService = &contactChangeChallengeService,
         .wechatService = &wechatService,
         .recommendationStrategy = &recommendationStrategy};
 

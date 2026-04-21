@@ -27,6 +27,13 @@
 - 数据：本地 JSON、索引文件、WAL 日志
 - 测试：C++ `ctest` + PowerShell smoke 脚本
 
+## 编码规则
+
+- 仓库文本文件统一使用 UTF-8，这条规则已经落在根目录的 `.editorconfig`
+- Windows 下后端 MSVC 编译会显式使用 `/utf-8`，避免中文、日文字符串按本地代码页误解析
+- `start-cpp.bat` 和后端启动时都会把控制台切到 UTF-8，减少本地 stub 邮件/SMS 日志乱码
+- 即便如此，终端字体或外部工具如果不支持 UTF-8，显示层仍可能出问题；默认排查顺序先看控制台编码，再看字体和查看工具
+
 ## 快速启动
 
 ### 1. 安装依赖
@@ -76,6 +83,13 @@ cmake --build cpp-backend/build --config Release
 cpp-backend/build/Release/exam_online_cpp.exe
 ```
 
+如果要让组织邀请走真实邮件或短信，先复制 `.env.example` 到 `.env` 或直接设置环境变量，再按下面两组配置打开对应 provider：
+
+- 邮件：`EMAIL_PROVIDER=resend`、`EMAIL_API_KEY`、`EMAIL_FROM_ADDRESS`
+- 短信：`SMS_PROVIDER=twilio`、`SMS_ACCOUNT_SID`、`SMS_AUTH_TOKEN`、`SMS_FROM_NUMBER`
+- 邀请链接：`PUBLIC_WEB_BASE_URL` 必须指向用户实际可访问的前端地址，否则邮件/SMS 中的落地链接会回到默认本地地址
+- 推荐奖励：`REFERRAL_REWARD_CREDITS` 控制推荐人拿到的 credits 数量，默认 `10`
+
 启动后访问：
 
 - 首页：[http://127.0.0.1:8000](http://127.0.0.1:8000)
@@ -101,6 +115,61 @@ start-cpp.bat
 
 - [http://127.0.0.1:8000/healthz](http://127.0.0.1:8000/healthz)
 - `GET /api/v2/health`
+
+## 本地回归
+
+如果你想一键跑完整的本地回归，可以直接执行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\run-local-regression.ps1
+```
+
+这个统一入口会自动完成：
+
+- Release 构建
+- `ctest` 运行 `smoke_tests`
+- 启动本地后端
+- 运行组织安全回归脚本 `test_org_security.ps1`
+- 运行推荐奖励集成回归脚本 `cpp-backend/tests/integration_flow_smoke.ps1`
+- 最后停止后端进程
+
+如果要顺手验证奖励配置链路，可以传非默认奖励值：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\run-local-regression.ps1 -ReferralRewardCredits 25
+```
+
+## 组织邀请通知
+
+组织管理员现在可以直接按邮箱或手机号发邀请，后端会自动投递邀请码，并把投递状态写回组织邀请记录。
+
+- 默认 `stub` provider 只在后端控制台打印邮件/SMS 内容，适合本地联调
+- 真实邮件当前支持 Resend 风格 API
+- 真实短信当前支持 Twilio 风格 API
+- 邀请接受方不能只凭邀请码加入，必须先登录并验证与邀请目标一致的邮箱或手机号
+- 邮件和短信里的落地链接会自动附带 `invite_token` 查询参数，登录后个人中心会自动进入待处理邀请主入口
+
+如果你想直接手测一遍完整的组织邀请流程，后端启动后可以执行：
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File .\cpp-backend\tools\prepare_org_invite_demo.ps1 -BaseDir .
+```
+
+这个脚本会自动准备并复用一套本地演示数据：
+
+- 发起邀请账号：`orgadmin_invite_demo`，开发环境空密码登录
+- 接受邀请账号：`student_invite_demo`，开发环境空密码登录
+- 预置已验证联系人：`orginvite.demo@example.local`、`13800138099`
+- 预置测试组织：`Invite Demo Org`
+- 自动重置该账号在测试组织中的成员状态，并重新发出一封邮箱邀请和一条短信邀请
+
+跑完后，`student_invite_demo` 登录进入个人中心，就应该能在“待处理组织邀请”里直接看到两条可接受邀请；`orgadmin_invite_demo` 登录后，则可以在“管理”里继续创建、取消和查看邀请审计。
+
+## 推荐奖励
+
+- 普通用户推荐与企业邀请已经拆开
+- 默认规则是：被推荐用户激活个人付费套餐后，推荐人获得 `10` credits
+- 如果你要调整奖励额度，直接设置 `REFERRAL_REWARD_CREDITS`，不需要改代码
 
 ## 代码库结构
 

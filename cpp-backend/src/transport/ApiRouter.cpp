@@ -345,7 +345,8 @@ void ApiRouter::registerRoutes() const
                 const auto username = requireString(body, "username");
                 const auto password = requireString(body, "password");
                 const auto email = body.get("email", "").asString();
-                callback(common::ok(req, ctx.authService->registerUser(username, password, email)));
+                const auto referralCode = body.get("referral_code", body.get("ref", "")).asString();
+                callback(common::ok(req, ctx.authService->registerUser(username, password, email, referralCode)));
             }
             catch (const common::AppException &e)
             {
@@ -424,6 +425,38 @@ void ApiRouter::registerRoutes() const
         {Get});
 
     app().registerHandler(
+        "/api/v2/me/invitations",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto session = requireSession(*ctx.authService, req);
+                callback(common::ok(req, ctx.organizationService->listPendingInvitationsForUser(session.get("user_id", "").asString())));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/me/referral/claim",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto referralCode = requireString(body, "referral_code");
+                callback(common::ok(req, ctx.userService->claimReferral(session.get("user_id", "").asString(), referralCode), "referral_claimed"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    app().registerHandler(
         "/api/v2/statistics/{1}",
         [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
             try
@@ -491,6 +524,52 @@ void ApiRouter::registerRoutes() const
                 const auto limitParam = req->getParameter("limit");
                 const int limit = limitParam.empty() ? 5 : (std::max)(1, std::stoi(limitParam));
                 callback(common::ok(req, ctx.recommendationStrategy->recommend(userId, limit)));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v2/users/search",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto session = requireSession(*ctx.authService, req);
+                if (!hasAnyRole(session["roles"], {"orgAdmin", "systemAdmin", "superAdmin"}))
+                {
+                    throw common::AppException("FORBIDDEN", "You do not have permission to search users", k403Forbidden);
+                }
+
+                const auto query = req->getParameter("q");
+                if (query.empty())
+                {
+                    throw common::AppException("VALIDATION_ERROR", "Missing query parameter: q", k422UnprocessableEntity);
+                }
+
+                std::size_t limit = 12;
+                const auto limitParam = req->getParameter("limit");
+                if (!limitParam.empty())
+                {
+                    int parsedLimit = 12;
+                    try
+                    {
+                        parsedLimit = std::stoi(limitParam);
+                    }
+                    catch (...)
+                    {
+                        throw common::AppException("VALIDATION_ERROR", "limit must be a positive integer", k422UnprocessableEntity);
+                    }
+                    if (parsedLimit <= 0)
+                    {
+                        throw common::AppException("VALIDATION_ERROR", "limit must be a positive integer", k422UnprocessableEntity);
+                    }
+                    limit = static_cast<std::size_t>((std::min)(parsedLimit, 50));
+                }
+
+                callback(common::ok(req, ctx.userService->searchUsers(query, limit)));
             }
             catch (const common::AppException &e)
             {
@@ -683,13 +762,23 @@ void ApiRouter::registerRoutes() const
         [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string scopeId) {
             try
             {
+                const auto session = requireSession(*ctx.authService, req);
                 const auto scopeType = req->getParameter("scope_type");
                 if (scopeType == "organization" || scopeId.rfind("org_", 0) == 0)
                 {
+                    if (!ctx.organizationService->canAccessOrganization(session.get("user_id", "").asString(), session["roles"], scopeId))
+                    {
+                        throw common::AppException("FORBIDDEN", "You do not have access to this organization subscription", k403Forbidden);
+                    }
                     callback(common::ok(req, ctx.subscriptionService->subscriptionForOrganization(scopeId)));
                 }
                 else
                 {
+                    const auto currentUserId = session.get("user_id", "").asString();
+                    if (currentUserId != scopeId && !hasAnyRole(session["roles"], {"systemAdmin", "superAdmin"}))
+                    {
+                        throw common::AppException("FORBIDDEN", "You do not have access to this subscription", k403Forbidden);
+                    }
                     callback(common::ok(req, ctx.subscriptionService->subscriptionForUser(scopeId)));
                 }
             }
@@ -706,13 +795,23 @@ void ApiRouter::registerRoutes() const
             try
             {
                 const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
                 const auto scopeType = body.get("scope_type", req->getParameter("scope_type")).asString();
                 if (scopeType == "organization" || scopeId.rfind("org_", 0) == 0)
                 {
-                    callback(common::ok(req, ctx.subscriptionService->updateOrganizationSubscription(scopeId, body)));
+                    if (!ctx.organizationService->canManageOrganization(session.get("user_id", "").asString(), session["roles"], scopeId))
+                    {
+                        throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization subscription", k403Forbidden);
+                    }
+                    callback(common::ok(req, ctx.organizationService->updateSubscription(session.get("user_id", "").asString(), scopeId, body)));
                 }
                 else
                 {
+                    const auto currentUserId = session.get("user_id", "").asString();
+                    if (currentUserId != scopeId && !hasAnyRole(session["roles"], {"systemAdmin", "superAdmin"}))
+                    {
+                        throw common::AppException("FORBIDDEN", "You do not have permission to manage this subscription", k403Forbidden);
+                    }
                     callback(common::ok(req, ctx.subscriptionService->updateUserSubscription(scopeId, body)));
                 }
             }
@@ -733,11 +832,19 @@ void ApiRouter::registerRoutes() const
             try
             {
                 const auto session = requireSession(*ctx.authService, req);
-                callback(common::ok(
-                    req,
-                    ctx.organizationService->listOrganizationsForUser(
-                        session.get("user_id", "").asString(),
-                        hasAnyRole(session["roles"], {"systemAdmin", "superAdmin"}))));
+                auto organizations = ctx.organizationService->listOrganizationsForUser(
+                    session.get("user_id", "").asString(),
+                    hasAnyRole(session["roles"], {"systemAdmin", "superAdmin"}));
+                for (auto &organization : organizations)
+                {
+                    const auto organizationId = organization.get("organization_id", organization.get("scope_id", "")).asString();
+                    if (!ctx.organizationService->canManageOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                    {
+                        organization.removeMember("invitations");
+                        organization.removeMember("audit_logs");
+                    }
+                }
+                callback(common::ok(req, organizations));
             }
             catch (const common::AppException &e)
             {
@@ -776,7 +883,13 @@ void ApiRouter::registerRoutes() const
                 {
                     throw common::AppException("FORBIDDEN", "You do not have access to this organization", k403Forbidden);
                 }
-                callback(common::ok(req, ctx.organizationService->getOrganization(organizationId)));
+                auto organization = ctx.organizationService->getOrganization(organizationId);
+                if (!ctx.organizationService->canManageOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                {
+                    organization.removeMember("invitations");
+                    organization.removeMember("audit_logs");
+                }
+                callback(common::ok(req, organization));
             }
             catch (const common::AppException &e)
             {
@@ -815,7 +928,7 @@ void ApiRouter::registerRoutes() const
                 {
                     throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization", k403Forbidden);
                 }
-                callback(common::ok(req, ctx.organizationService->upsertMember(organizationId, body), "member_saved"));
+                callback(common::ok(req, ctx.organizationService->upsertMember(session.get("user_id", "").asString(), organizationId, body), "member_saved"));
             }
             catch (const common::AppException &e)
             {
@@ -837,7 +950,7 @@ void ApiRouter::registerRoutes() const
                 {
                     throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization", k403Forbidden);
                 }
-                ctx.organizationService->removeMember(organizationId, userId);
+                ctx.organizationService->removeMember(session.get("user_id", "").asString(), organizationId, userId);
                 callback(common::ok(req, Json::Value(Json::objectValue), "member_removed"));
             }
             catch (const common::AppException &e)
@@ -847,9 +960,100 @@ void ApiRouter::registerRoutes() const
         },
         {Delete});
 
+    app().registerHandler(
+        "/api/v2/organizations/{1}/invitations",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string organizationId) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                if (!ctx.organizationService->canManageOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                {
+                    throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization", k403Forbidden);
+                }
+                callback(common::ok(req, ctx.organizationService->createInvitation(session.get("user_id", "").asString(), organizationId, body), "invitation_created"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v2/organizations/{1}/invitations/{2}",
+        [ctx = context_](const HttpRequestPtr &req,
+                         std::function<void(const HttpResponsePtr &)> &&callback,
+                         std::string organizationId,
+                         std::string invitationId) {
+            try
+            {
+                const auto session = requireSession(*ctx.authService, req);
+                if (!ctx.organizationService->canManageOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                {
+                    throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization", k403Forbidden);
+                }
+                ctx.organizationService->cancelInvitation(session.get("user_id", "").asString(), organizationId, invitationId);
+                callback(common::ok(req, Json::Value(Json::objectValue), "invitation_cancelled"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Delete});
+
+    app().registerHandler(
+        "/api/v2/organizations/invitations/accept",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto inviteToken = body.get("invite_token", body.get("invite_code", "")).asString();
+                if (inviteToken.empty())
+                {
+                    throw common::AppException("INVITE_TOKEN_REQUIRED", "Invite token is required", drogon::k422UnprocessableEntity);
+                }
+                auto result = ctx.organizationService->acceptInvitation(session.get("user_id", "").asString(), inviteToken);
+                const auto organizationId = result["organization"].get("organization_id", result["organization"].get("scope_id", "")).asString();
+                if (!ctx.organizationService->canManageOrganization(session.get("user_id", "").asString(), session["roles"], organizationId))
+                {
+                    result["organization"].removeMember("invitations");
+                    result["organization"].removeMember("audit_logs");
+                }
+                callback(common::ok(req, result, "invitation_accepted"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
     // -------------------------------------------------------------------------
     // Phone binding
     // -------------------------------------------------------------------------
+
+    app().registerHandler(
+        "/api/v2/auth/contact-change/send-code",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto channel = requireString(body, "channel");
+                ctx.contactChangeChallengeService->sendChallengeCode(session.get("user_id", "").asString(), channel);
+                Json::Value out(Json::objectValue);
+                out["channel"] = channel;
+                callback(common::ok(req, out, "code_sent"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
 
     app().registerHandler(
         "/api/v2/auth/phone/send-code",
@@ -876,14 +1080,66 @@ void ApiRouter::registerRoutes() const
             try
             {
                 const auto body = parseJsonBody(req);
-                const auto userId = body.get("user_id", "guest").asString();
+                const auto session = body.get("token", "").asString().empty()
+                                         ? Json::Value(Json::nullValue)
+                                         : requireSession(*ctx.authService, req, &body);
+                const auto userId = session.isNull() ? body.get("user_id", "guest").asString() : session.get("user_id", "").asString();
                 const auto phone = requireString(body, "phone");
                 const auto code = requireString(body, "code");
-                const auto user = ctx.phoneService->verifyAndBind(userId, phone, code);
+                const auto changeChallengeChannel = body.get("change_challenge_channel", "").asString();
+                const auto changeChallengeCode = body.get("change_challenge_code", "").asString();
+                const auto referralCode = body.get("referral_code", body.get("ref", "")).asString();
+                const auto user = ctx.phoneService->verifyAndBind(userId, phone, code, referralCode, changeChallengeChannel, changeChallengeCode);
+                if (!session.isNull())
+                {
+                    callback(common::ok(req, ctx.userService->getUser(user.get("id", "").asString()), "phone_verified"));
+                    return;
+                }
                 const auto token = ctx.authService->createSessionForUser(user);
                 auto out = ctx.authService->verify(token);
                 out["token"] = token;
                 callback(common::ok(req, out));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v2/auth/email/send-code",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                requireSession(*ctx.authService, req, &body);
+                const auto email = requireString(body, "email");
+                ctx.emailVerificationService->sendVerificationCode(email);
+                Json::Value out(Json::objectValue);
+                out["email"] = email;
+                callback(common::ok(req, out, "code_sent"));
+            }
+            catch (const common::AppException &e)
+            {
+                callback(common::fail(req, e.statusCode(), e.code(), e.message()));
+            }
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v2/auth/email/verify",
+        [ctx = context_](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            try
+            {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto email = requireString(body, "email");
+                const auto code = requireString(body, "code");
+                const auto changeChallengeChannel = body.get("change_challenge_channel", "").asString();
+                const auto changeChallengeCode = body.get("change_challenge_code", "").asString();
+                const auto user = ctx.emailVerificationService->verifyAndBind(session.get("user_id", "").asString(), email, code, changeChallengeChannel, changeChallengeCode);
+                callback(common::ok(req, ctx.userService->getUser(user.get("id", "").asString()), "email_verified"));
             }
             catch (const common::AppException &e)
             {

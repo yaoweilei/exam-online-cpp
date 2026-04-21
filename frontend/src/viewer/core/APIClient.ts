@@ -72,10 +72,10 @@ class APIClient {
 		});
 	}
 
-	static async register(username: string, password: string, email: string | null = null): Promise<unknown> {
+	static async register(username: string, password: string, email: string | null = null, referralCode = ''): Promise<unknown> {
 		return this.request('/auth/register', {
 			method: 'POST',
-			body: JSON.stringify({ username, password, email })
+			body: JSON.stringify({ username, password, email, referral_code: referralCode })
 		});
 	}
 
@@ -83,6 +83,63 @@ class APIClient {
 		return this.request('/auth/logout', {
 			method: 'POST',
 			body: JSON.stringify({ token })
+		});
+	}
+
+	static async sendContactChangeChallenge(token: string, channel: 'email' | 'phone'): Promise<unknown> {
+		return this.request('/auth/contact-change/send-code', {
+			method: 'POST',
+			body: JSON.stringify({ token, channel })
+		});
+	}
+
+	static async sendPhoneVerificationCode(phone: string): Promise<unknown> {
+		return this.request('/auth/phone/send-code', {
+			method: 'POST',
+			body: JSON.stringify({ phone })
+		});
+	}
+
+	static async verifyPhone(
+		token: string,
+		phone: string,
+		code: string,
+		options: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string } = {}
+	): Promise<unknown> {
+		return this.request('/auth/phone/verify', {
+			method: 'POST',
+			body: JSON.stringify({
+				token,
+				phone,
+				code,
+				change_challenge_channel: options.changeChallengeChannel || '',
+				change_challenge_code: options.changeChallengeCode || ''
+			})
+		});
+	}
+
+	static async sendEmailVerificationCode(token: string, email: string): Promise<unknown> {
+		return this.request('/auth/email/send-code', {
+			method: 'POST',
+			body: JSON.stringify({ token, email })
+		});
+	}
+
+	static async verifyEmail(
+		token: string,
+		email: string,
+		code: string,
+		options: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string } = {}
+	): Promise<unknown> {
+		return this.request('/auth/email/verify', {
+			method: 'POST',
+			body: JSON.stringify({
+				token,
+				email,
+				code,
+				change_challenge_channel: options.changeChallengeChannel || '',
+				change_challenge_code: options.changeChallengeCode || ''
+			})
 		});
 	}
 
@@ -201,6 +258,22 @@ class APIClient {
 		return this.request(`/me/context?token=${encodeURIComponent(token)}`);
 	}
 
+	static async claimReferralCode(token: string, referralCode: string): Promise<unknown> {
+		return this.request('/me/referral/claim', {
+			method: 'POST',
+			body: JSON.stringify({ token, referral_code: referralCode })
+		});
+	}
+
+	static async getMyPendingOrganizationInvitations(token: string): Promise<unknown[]> {
+		return this.request(`/me/invitations?token=${encodeURIComponent(token)}`);
+	}
+
+	static async searchUsers(token: string, query: string, limit = 12): Promise<unknown[]> {
+		const params = new URLSearchParams({ token, q: query, limit: String(limit) });
+		return this.request(`/users/search?${params.toString()}`);
+	}
+
 	static async getOrganizations(token: string): Promise<unknown[]> {
 		return this.request(`/organizations?token=${encodeURIComponent(token)}`);
 	}
@@ -230,6 +303,33 @@ class APIClient {
 	static async removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown> {
 		return this.request(`/organizations/${organizationId}/members/${userId}?token=${encodeURIComponent(token)}`, {
 			method: 'DELETE'
+		});
+	}
+
+	static async saveOrganizationInvitation(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/invitations`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async cancelOrganizationInvitation(organizationId: string, invitationId: string, token: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/invitations/${invitationId}?token=${encodeURIComponent(token)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	static async acceptOrganizationInvitation(token: string, inviteToken: string): Promise<unknown> {
+		return this.request('/organizations/invitations/accept', {
+			method: 'POST',
+			body: JSON.stringify({ token, invite_token: inviteToken })
+		});
+	}
+
+	static async updateOrganizationSubscription(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/subscription/${organizationId}/grant`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, scope_type: 'organization' })
 		});
 	}
 

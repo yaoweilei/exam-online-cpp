@@ -52,9 +52,12 @@ class AuthService
         return out;
     }
 
-    Json::Value registerUser(const std::string &username, const std::string &password, const std::string &email)
+    Json::Value registerUser(const std::string &username,
+                             const std::string &password,
+                             const std::string &email,
+                             const std::string &referralCode = "")
     {
-        auto user = repository_.createUser(username, password, email);
+        auto user = repository_.createUser(username, password, email, referralCode);
         Json::Value out(Json::objectValue);
         out["user_id"] = user.get("id", "").asString();
         out["username"] = user.get("username", "").asString();

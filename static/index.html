@@ -35,7 +35,7 @@
 				<div class="login-title">JLPT 在线试卷</div>
 
 				<!-- WeChat 面板 -->
-				<div data-panel="wechat">
+				<div class="login-panel is-active" data-panel="wechat">
 					<div class="qr-wrapper">
 						<img id="wechat-qr-img" class="qr-img" src="" alt="二维码" />
 					</div>
@@ -46,7 +46,7 @@
 				</div>
 
 				<!-- 手机号面板 -->
-				<div data-panel="phone" style="display:none">
+				<div class="login-panel" data-panel="phone">
 					<input id="login-phone" class="login-input" type="tel" placeholder="手机号" />
 					<div class="login-code-row">
 						<input id="login-phone-code" class="login-input code-input" type="text" placeholder="验证码" />
@@ -56,7 +56,7 @@
 				</div>
 
 				<!-- 用户名密码面板 -->
-				<div data-panel="password" style="display:none">
+				<div class="login-panel" data-panel="password">
 					<input id="login-username" class="login-input" type="text" placeholder="用户名 / user_id / member_no（学号/工号）/ 测试 ID" />
 					<input id="login-password" class="login-input" type="password" placeholder="密码（开发测试可留空）" />
 					<button id="login-btn-password" class="btn-primary-login">登录</button>

@@ -1,1 +1,1357 @@
-{}
+{
+  "org_019da90a-c65f-7070-8133-868932764be7" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "actor_username" : "orgadmin_guard_20260420115908",
+        "audit_id" : "audit_019da90a-c68d-7d9a-bfae-334a53f67c68",
+        "created_at" : "2026-04-20T03:59:08.942Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "free",
+          "previous_seats" : 5,
+          "previous_status" : "active",
+          "seats" : 30,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "actor_username" : "orgadmin_guard_20260420115908",
+        "audit_id" : "audit_019da90a-c67b-7769-86f4-3fbca1de395b",
+        "created_at" : "2026-04-20T03:59:08.924Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420115908@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019da90a-c679-7f85-8200-bff7050f090b",
+          "invite_code" : "invite_019da90a-c679-7ef7-8f6c-ce04e5b58923"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "actor_username" : "orgadmin_guard_20260420115908",
+        "audit_id" : "audit_019da90a-c679-7ee4-8f23-81e7935223cd",
+        "created_at" : "2026-04-20T03:59:08.922Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420115908@example.local",
+          "invitation_id" : "oinv_019da90a-c679-7f85-8200-bff7050f090b",
+          "invite_code" : "invite_019da90a-c679-7ef7-8f6c-ce04e5b58923",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "member.added",
+        "actor_user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "actor_username" : "orgadmin_guard_20260420115908",
+        "audit_id" : "audit_019da90a-c671-7cb8-b588-4b8480d7df2f",
+        "created_at" : "2026-04-20T03:59:08.913Z",
+        "details" : 
+        {
+          "member_no" : "MEM-20260420115908",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019da90a-c658-75b6-8472-9e9d63b39f29",
+          "username" : "student_guard_20260420115908"
+        },
+        "summary" : "\u6dfb\u52a0\u7ec4\u7ec7\u6210\u5458"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "actor_username" : "orgadmin_guard_20260420115908",
+        "audit_id" : "audit_019da90a-c660-75fc-a05f-0866a1b684c1",
+        "created_at" : "2026-04-20T03:59:08.897Z",
+        "details" : 
+        {
+          "organization_id" : "org_019da90a-c65f-7070-8133-868932764be7",
+          "organization_type" : "business",
+          "plan" : "free",
+          "seats" : 5
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T03:59:08.895Z",
+    "created_by" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+    "invitations" : 
+    [
+      {
+        "channel" : "email",
+        "contact" : "guard_20260420115908@example.local",
+        "created_at" : "2026-04-20T03:59:08.921Z",
+        "created_by" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "delivered_at" : "2026-04-20T03:59:08.923Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "guard_20260420115908@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T03:59:08.921Z",
+        "invitation_id" : "oinv_019da90a-c679-7f85-8200-bff7050f090b",
+        "invite_code" : "invite_019da90a-c679-7ef7-8f6c-ce04e5b58923",
+        "member_no" : "INV-20260420115908",
+        "message" : "security smoke",
+        "organization_id" : "org_019da90a-c65f-7070-8133-868932764be7",
+        "organization_name" : "GuardOrg_20260420115908",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : ""
+      }
+    ],
+    "name" : "GuardOrg_20260420115908",
+    "organization_id" : "org_019da90a-c65f-7070-8133-868932764be7",
+    "organization_type" : "business",
+    "scope_id" : "org_019da90a-c65f-7070-8133-868932764be7",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019da90a-c65f-7070-8133-868932764be7",
+      "scope_type" : "organization",
+      "seats" : 30,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T03:59:08.942Z"
+  },
+  "org_019da90a-c6cf-7488-bbf0-01b43595a2fd" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "actor_username" : "orgadmin_guard_20260420115908",
+        "audit_id" : "audit_019da90a-c6e1-7900-8854-ad2ce1085c7f",
+        "created_at" : "2026-04-20T03:59:09.025Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420115908@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019da90a-c6df-7fa8-be1b-ac8b3a84009d",
+          "invite_code" : "invite_019da90a-c6df-752f-bc44-54149d93dcc6"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "actor_username" : "orgadmin_guard_20260420115908",
+        "audit_id" : "audit_019da90a-c6df-7ea5-9734-f4ec7c164d8a",
+        "created_at" : "2026-04-20T03:59:09.023Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420115908@example.local",
+          "invitation_id" : "oinv_019da90a-c6df-7fa8-be1b-ac8b3a84009d",
+          "invite_code" : "invite_019da90a-c6df-752f-bc44-54149d93dcc6",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "actor_username" : "orgadmin_guard_20260420115908",
+        "audit_id" : "audit_019da90a-c6d0-701c-92fa-c72af0805992",
+        "created_at" : "2026-04-20T03:59:09.009Z",
+        "details" : 
+        {
+          "organization_id" : "org_019da90a-c6cf-7488-bbf0-01b43595a2fd",
+          "organization_type" : "business",
+          "plan" : "free",
+          "seats" : 5
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T03:59:09.007Z",
+    "created_by" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+    "invitations" : 
+    [
+      {
+        "channel" : "email",
+        "contact" : "guard_20260420115908@example.local",
+        "created_at" : "2026-04-20T03:59:09.023Z",
+        "created_by" : "usr_019da90a-c638-758f-8503-6685a003d0ac",
+        "delivered_at" : "2026-04-20T03:59:09.025Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "guard_20260420115908@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T03:59:09.023Z",
+        "invitation_id" : "oinv_019da90a-c6df-7fa8-be1b-ac8b3a84009d",
+        "invite_code" : "invite_019da90a-c6df-752f-bc44-54149d93dcc6",
+        "member_no" : "",
+        "message" : "",
+        "organization_id" : "org_019da90a-c6cf-7488-bbf0-01b43595a2fd",
+        "organization_name" : "GuardOrg_20260420115908",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : ""
+      }
+    ],
+    "name" : "GuardOrg_20260420115908",
+    "organization_id" : "org_019da90a-c6cf-7488-bbf0-01b43595a2fd",
+    "organization_type" : "business",
+    "scope_id" : "org_019da90a-c6cf-7488-bbf0-01b43595a2fd",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "free",
+      "scope_id" : "org_019da90a-c6cf-7488-bbf0-01b43595a2fd",
+      "scope_type" : "organization",
+      "seats" : 5,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T03:59:09.030Z"
+  },
+  "org_019da91c-746c-7e6a-b8f8-270d1922ec5f" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "actor_username" : "orgadmin_guard_20260420121827",
+        "audit_id" : "audit_019da91c-74a0-73ce-a890-5570a00a8851",
+        "created_at" : "2026-04-20T04:18:27.617Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "free",
+          "previous_seats" : 5,
+          "previous_status" : "active",
+          "seats" : 30,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "actor_username" : "orgadmin_guard_20260420121827",
+        "audit_id" : "audit_019da91c-748c-7958-9d53-d37fe31e6f44",
+        "created_at" : "2026-04-20T04:18:27.597Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420121827@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019da91c-748a-7358-b386-7786727a8839",
+          "invite_code" : "invite_019da91c-748a-7432-a5c5-06ee3bf077f9"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "actor_username" : "orgadmin_guard_20260420121827",
+        "audit_id" : "audit_019da91c-748a-77d0-9d8f-b34465f26cbb",
+        "created_at" : "2026-04-20T04:18:27.595Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420121827@example.local",
+          "invitation_id" : "oinv_019da91c-748a-7358-b386-7786727a8839",
+          "invite_code" : "invite_019da91c-748a-7432-a5c5-06ee3bf077f9",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "member.added",
+        "actor_user_id" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "actor_username" : "orgadmin_guard_20260420121827",
+        "audit_id" : "audit_019da91c-7480-7731-a71e-586de48014e6",
+        "created_at" : "2026-04-20T04:18:27.585Z",
+        "details" : 
+        {
+          "member_no" : "MEM-20260420121827",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019da91c-7463-71c7-8d1d-4fd751f8efa4",
+          "username" : "student_guard_20260420121827"
+        },
+        "summary" : "\u6dfb\u52a0\u7ec4\u7ec7\u6210\u5458"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "actor_username" : "orgadmin_guard_20260420121827",
+        "audit_id" : "audit_019da91c-746e-7656-8fea-963f4d0672c4",
+        "created_at" : "2026-04-20T04:18:27.567Z",
+        "details" : 
+        {
+          "organization_id" : "org_019da91c-746c-7e6a-b8f8-270d1922ec5f",
+          "organization_type" : "business",
+          "plan" : "free",
+          "seats" : 5
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T04:18:27.564Z",
+    "created_by" : "usr_019da91c-7452-71ae-b685-cad070953740",
+    "invitations" : 
+    [
+      {
+        "channel" : "email",
+        "contact" : "guard_20260420121827@example.local",
+        "created_at" : "2026-04-20T04:18:27.594Z",
+        "created_by" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "delivered_at" : "2026-04-20T04:18:27.596Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "guard_20260420121827@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T04:18:27.594Z",
+        "invitation_id" : "oinv_019da91c-748a-7358-b386-7786727a8839",
+        "invite_code" : "invite_019da91c-748a-7432-a5c5-06ee3bf077f9",
+        "member_no" : "INV-20260420121827",
+        "message" : "security smoke",
+        "organization_id" : "org_019da91c-746c-7e6a-b8f8-270d1922ec5f",
+        "organization_name" : "GuardOrg_20260420121827",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : ""
+      }
+    ],
+    "name" : "GuardOrg_20260420121827",
+    "organization_id" : "org_019da91c-746c-7e6a-b8f8-270d1922ec5f",
+    "organization_type" : "business",
+    "scope_id" : "org_019da91c-746c-7e6a-b8f8-270d1922ec5f",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019da91c-746c-7e6a-b8f8-270d1922ec5f",
+      "scope_type" : "organization",
+      "seats" : 30,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T04:18:27.617Z"
+  },
+  "org_019da91c-74e1-79d4-b57a-ec38bfecd9b7" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "actor_username" : "orgadmin_guard_20260420121827",
+        "audit_id" : "audit_019da91c-74f6-706a-a720-2d27354caae3",
+        "created_at" : "2026-04-20T04:18:27.703Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420121827@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019da91c-74f4-7ac0-a75b-ae504355788d",
+          "invite_code" : "invite_019da91c-74f4-797f-9974-1ef0d5106c87"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "actor_username" : "orgadmin_guard_20260420121827",
+        "audit_id" : "audit_019da91c-74f4-7b76-a337-8920c4c98ffa",
+        "created_at" : "2026-04-20T04:18:27.701Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420121827@example.local",
+          "invitation_id" : "oinv_019da91c-74f4-7ac0-a75b-ae504355788d",
+          "invite_code" : "invite_019da91c-74f4-797f-9974-1ef0d5106c87",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "actor_username" : "orgadmin_guard_20260420121827",
+        "audit_id" : "audit_019da91c-74e4-7f1b-9ee1-d91d878885c0",
+        "created_at" : "2026-04-20T04:18:27.685Z",
+        "details" : 
+        {
+          "organization_id" : "org_019da91c-74e1-79d4-b57a-ec38bfecd9b7",
+          "organization_type" : "business",
+          "plan" : "free",
+          "seats" : 5
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T04:18:27.681Z",
+    "created_by" : "usr_019da91c-7452-71ae-b685-cad070953740",
+    "invitations" : 
+    [
+      {
+        "channel" : "email",
+        "contact" : "guard_20260420121827@example.local",
+        "created_at" : "2026-04-20T04:18:27.700Z",
+        "created_by" : "usr_019da91c-7452-71ae-b685-cad070953740",
+        "delivered_at" : "2026-04-20T04:18:27.702Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "guard_20260420121827@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T04:18:27.700Z",
+        "invitation_id" : "oinv_019da91c-74f4-7ac0-a75b-ae504355788d",
+        "invite_code" : "invite_019da91c-74f4-797f-9974-1ef0d5106c87",
+        "member_no" : "",
+        "message" : "",
+        "organization_id" : "org_019da91c-74e1-79d4-b57a-ec38bfecd9b7",
+        "organization_name" : "GuardOrg_20260420121827",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : ""
+      }
+    ],
+    "name" : "GuardOrg_20260420121827",
+    "organization_id" : "org_019da91c-74e1-79d4-b57a-ec38bfecd9b7",
+    "organization_type" : "business",
+    "scope_id" : "org_019da91c-74e1-79d4-b57a-ec38bfecd9b7",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "free",
+      "scope_id" : "org_019da91c-74e1-79d4-b57a-ec38bfecd9b7",
+      "scope_type" : "organization",
+      "seats" : 5,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T04:18:27.708Z"
+  },
+  "org_019da91e-b8ce-7995-a042-492d4a2625d2" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "actor_username" : "orgadmin_guard_20260420122056",
+        "audit_id" : "audit_019da91e-b8ff-7d1f-af57-d5a9b45ae288",
+        "created_at" : "2026-04-20T04:20:56.192Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "free",
+          "previous_seats" : 5,
+          "previous_status" : "active",
+          "seats" : 30,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "actor_username" : "orgadmin_guard_20260420122056",
+        "audit_id" : "audit_019da91e-b8ec-78e8-a999-288dd68363ac",
+        "created_at" : "2026-04-20T04:20:56.173Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420122056@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019da91e-b8ea-7fbf-8a42-e1aa7c816adf",
+          "invite_code" : "invite_019da91e-b8ea-71a3-8bf8-21c669796dfd"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "actor_username" : "orgadmin_guard_20260420122056",
+        "audit_id" : "audit_019da91e-b8ea-7efe-aba4-371d196c4b7d",
+        "created_at" : "2026-04-20T04:20:56.171Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420122056@example.local",
+          "invitation_id" : "oinv_019da91e-b8ea-7fbf-8a42-e1aa7c816adf",
+          "invite_code" : "invite_019da91e-b8ea-71a3-8bf8-21c669796dfd",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "member.added",
+        "actor_user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "actor_username" : "orgadmin_guard_20260420122056",
+        "audit_id" : "audit_019da91e-b8e1-7754-a163-80a7c7702a3f",
+        "created_at" : "2026-04-20T04:20:56.162Z",
+        "details" : 
+        {
+          "member_no" : "MEM-20260420122056",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019da91e-b8c7-7ff4-8184-9233d372e1dd",
+          "username" : "student_guard_20260420122056"
+        },
+        "summary" : "\u6dfb\u52a0\u7ec4\u7ec7\u6210\u5458"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "actor_username" : "orgadmin_guard_20260420122056",
+        "audit_id" : "audit_019da91e-b8d0-7344-8708-93c64a28256f",
+        "created_at" : "2026-04-20T04:20:56.145Z",
+        "details" : 
+        {
+          "organization_id" : "org_019da91e-b8ce-7995-a042-492d4a2625d2",
+          "organization_type" : "business",
+          "plan" : "free",
+          "seats" : 5
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T04:20:56.142Z",
+    "created_by" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+    "invitations" : 
+    [
+      {
+        "channel" : "email",
+        "contact" : "guard_20260420122056@example.local",
+        "created_at" : "2026-04-20T04:20:56.170Z",
+        "created_by" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "delivered_at" : "2026-04-20T04:20:56.172Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "guard_20260420122056@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T04:20:56.170Z",
+        "invitation_id" : "oinv_019da91e-b8ea-7fbf-8a42-e1aa7c816adf",
+        "invite_code" : "invite_019da91e-b8ea-71a3-8bf8-21c669796dfd",
+        "member_no" : "INV-20260420122056",
+        "message" : "security smoke",
+        "organization_id" : "org_019da91e-b8ce-7995-a042-492d4a2625d2",
+        "organization_name" : "GuardOrg_20260420122056",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : ""
+      }
+    ],
+    "name" : "GuardOrg_20260420122056",
+    "organization_id" : "org_019da91e-b8ce-7995-a042-492d4a2625d2",
+    "organization_type" : "business",
+    "scope_id" : "org_019da91e-b8ce-7995-a042-492d4a2625d2",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019da91e-b8ce-7995-a042-492d4a2625d2",
+      "scope_type" : "organization",
+      "seats" : 30,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T04:20:56.192Z"
+  },
+  "org_019da91e-b944-735a-ae28-568b7586533a" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "actor_username" : "orgadmin_guard_20260420122056",
+        "audit_id" : "audit_019da91e-b956-78d1-a0c4-dcfd09593970",
+        "created_at" : "2026-04-20T04:20:56.279Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420122056@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019da91e-b954-7a4c-8cbf-f2e877e16842",
+          "invite_code" : "invite_019da91e-b954-7777-878c-94491261d61e"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "actor_username" : "orgadmin_guard_20260420122056",
+        "audit_id" : "audit_019da91e-b954-717e-9b06-4f8ed369f8ee",
+        "created_at" : "2026-04-20T04:20:56.277Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420122056@example.local",
+          "invitation_id" : "oinv_019da91e-b954-7a4c-8cbf-f2e877e16842",
+          "invite_code" : "invite_019da91e-b954-7777-878c-94491261d61e",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "actor_username" : "orgadmin_guard_20260420122056",
+        "audit_id" : "audit_019da91e-b946-7c2e-a5aa-69a08ce2d5da",
+        "created_at" : "2026-04-20T04:20:56.263Z",
+        "details" : 
+        {
+          "organization_id" : "org_019da91e-b944-735a-ae28-568b7586533a",
+          "organization_type" : "business",
+          "plan" : "free",
+          "seats" : 5
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T04:20:56.260Z",
+    "created_by" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+    "invitations" : 
+    [
+      {
+        "channel" : "email",
+        "contact" : "guard_20260420122056@example.local",
+        "created_at" : "2026-04-20T04:20:56.276Z",
+        "created_by" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180",
+        "delivered_at" : "2026-04-20T04:20:56.278Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "guard_20260420122056@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T04:20:56.276Z",
+        "invitation_id" : "oinv_019da91e-b954-7a4c-8cbf-f2e877e16842",
+        "invite_code" : "invite_019da91e-b954-7777-878c-94491261d61e",
+        "member_no" : "",
+        "message" : "",
+        "organization_id" : "org_019da91e-b944-735a-ae28-568b7586533a",
+        "organization_name" : "GuardOrg_20260420122056",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : ""
+      }
+    ],
+    "name" : "GuardOrg_20260420122056",
+    "organization_id" : "org_019da91e-b944-735a-ae28-568b7586533a",
+    "organization_type" : "business",
+    "scope_id" : "org_019da91e-b944-735a-ae28-568b7586533a",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "free",
+      "scope_id" : "org_019da91e-b944-735a-ae28-568b7586533a",
+      "scope_type" : "organization",
+      "seats" : 5,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T04:20:56.284Z"
+  },
+  "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "actor_username" : "orgadmin_guard_20260420122113",
+        "audit_id" : "audit_019da91e-fdd7-77b4-89d9-875628c30647",
+        "created_at" : "2026-04-20T04:21:13.816Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "free",
+          "previous_seats" : 5,
+          "previous_status" : "active",
+          "seats" : 30,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "actor_username" : "orgadmin_guard_20260420122113",
+        "audit_id" : "audit_019da91e-fdbf-7ad7-93c5-bb7b437e5b5d",
+        "created_at" : "2026-04-20T04:21:13.792Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420122113@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019da91e-fdbc-7916-ac4b-6a1681b0b9e2",
+          "invite_code" : "invite_019da91e-fdbc-7b2b-bb56-fe198f8efe5a"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "actor_username" : "orgadmin_guard_20260420122113",
+        "audit_id" : "audit_019da91e-fdbc-782b-809b-5d2dca1edcdb",
+        "created_at" : "2026-04-20T04:21:13.789Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420122113@example.local",
+          "invitation_id" : "oinv_019da91e-fdbc-7916-ac4b-6a1681b0b9e2",
+          "invite_code" : "invite_019da91e-fdbc-7b2b-bb56-fe198f8efe5a",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "member.added",
+        "actor_user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "actor_username" : "orgadmin_guard_20260420122113",
+        "audit_id" : "audit_019da91e-fdb1-7182-988d-7c531639301c",
+        "created_at" : "2026-04-20T04:21:13.778Z",
+        "details" : 
+        {
+          "member_no" : "MEM-20260420122113",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019da91e-fd91-74ff-a782-7cc5e4738d73",
+          "username" : "student_guard_20260420122113"
+        },
+        "summary" : "\u6dfb\u52a0\u7ec4\u7ec7\u6210\u5458"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "actor_username" : "orgadmin_guard_20260420122113",
+        "audit_id" : "audit_019da91e-fd9c-7820-adae-e1f82d6d8f6e",
+        "created_at" : "2026-04-20T04:21:13.757Z",
+        "details" : 
+        {
+          "organization_id" : "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a",
+          "organization_type" : "business",
+          "plan" : "free",
+          "seats" : 5
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T04:21:13.754Z",
+    "created_by" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+    "invitations" : 
+    [
+      {
+        "channel" : "email",
+        "contact" : "guard_20260420122113@example.local",
+        "created_at" : "2026-04-20T04:21:13.788Z",
+        "created_by" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "delivered_at" : "2026-04-20T04:21:13.791Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "guard_20260420122113@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T04:21:13.788Z",
+        "invitation_id" : "oinv_019da91e-fdbc-7916-ac4b-6a1681b0b9e2",
+        "invite_code" : "invite_019da91e-fdbc-7b2b-bb56-fe198f8efe5a",
+        "member_no" : "INV-20260420122113",
+        "message" : "security smoke",
+        "organization_id" : "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a",
+        "organization_name" : "GuardOrg_20260420122113",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : ""
+      }
+    ],
+    "name" : "GuardOrg_20260420122113",
+    "organization_id" : "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a",
+    "organization_type" : "business",
+    "scope_id" : "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a",
+      "scope_type" : "organization",
+      "seats" : 30,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T04:21:13.816Z"
+  },
+  "org_019da91e-fe1f-7def-a5d6-9beecf4f4bb9" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "actor_username" : "orgadmin_guard_20260420122113",
+        "audit_id" : "audit_019da91e-fe35-7e6c-a267-edf5d03b6611",
+        "created_at" : "2026-04-20T04:21:13.910Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420122113@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019da91e-fe32-7f5d-b4cd-6b945e8ff227",
+          "invite_code" : "invite_019da91e-fe32-7f9e-83fe-590cb7e2018f"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "actor_username" : "orgadmin_guard_20260420122113",
+        "audit_id" : "audit_019da91e-fe32-749e-92f8-a3970f2e9f6d",
+        "created_at" : "2026-04-20T04:21:13.907Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "guard_20260420122113@example.local",
+          "invitation_id" : "oinv_019da91e-fe32-7f5d-b4cd-6b945e8ff227",
+          "invite_code" : "invite_019da91e-fe32-7f9e-83fe-590cb7e2018f",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "actor_username" : "orgadmin_guard_20260420122113",
+        "audit_id" : "audit_019da91e-fe22-7dd8-ac34-ad1936de01d9",
+        "created_at" : "2026-04-20T04:21:13.891Z",
+        "details" : 
+        {
+          "organization_id" : "org_019da91e-fe1f-7def-a5d6-9beecf4f4bb9",
+          "organization_type" : "business",
+          "plan" : "free",
+          "seats" : 5
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T04:21:13.887Z",
+    "created_by" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+    "invitations" : 
+    [
+      {
+        "channel" : "email",
+        "contact" : "guard_20260420122113@example.local",
+        "created_at" : "2026-04-20T04:21:13.906Z",
+        "created_by" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055",
+        "delivered_at" : "2026-04-20T04:21:13.908Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "guard_20260420122113@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T04:21:13.906Z",
+        "invitation_id" : "oinv_019da91e-fe32-7f5d-b4cd-6b945e8ff227",
+        "invite_code" : "invite_019da91e-fe32-7f9e-83fe-590cb7e2018f",
+        "member_no" : "",
+        "message" : "",
+        "organization_id" : "org_019da91e-fe1f-7def-a5d6-9beecf4f4bb9",
+        "organization_name" : "GuardOrg_20260420122113",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : ""
+      }
+    ],
+    "name" : "GuardOrg_20260420122113",
+    "organization_id" : "org_019da91e-fe1f-7def-a5d6-9beecf4f4bb9",
+    "organization_type" : "business",
+    "scope_id" : "org_019da91e-fe1f-7def-a5d6-9beecf4f4bb9",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "free",
+      "scope_id" : "org_019da91e-fe1f-7def-a5d6-9beecf4f4bb9",
+      "scope_type" : "organization",
+      "seats" : 5,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T04:21:13.915Z"
+  },
+  "org_019dab7f-726e-73ca-ae5b-d2610c608000" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab83-12fd-7d16-b817-b01cf365dcfe",
+        "created_at" : "2026-04-20T15:29:47.261Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019dab83-12fa-7484-9a5b-72c77feb41ea",
+          "invite_code" : "invite_019dab83-12fa-7e17-860b-a8d200fb1f6b"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab83-12fa-70d8-91e7-7b5d0183b98e",
+        "created_at" : "2026-04-20T15:29:47.259Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019dab83-12fa-7484-9a5b-72c77feb41ea",
+          "invite_code" : "invite_019dab83-12fa-7e17-860b-a8d200fb1f6b",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab83-12ed-7693-aa8d-a77d96de5e6b",
+        "created_at" : "2026-04-20T15:29:47.246Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019dab83-12ea-7c73-a4bb-4b5fe837b003",
+          "invite_code" : "invite_019dab83-12ea-7fe3-92c9-efbd57586c11"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab83-12ea-75fc-b90c-7853eb4b8c11",
+        "created_at" : "2026-04-20T15:29:47.243Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019dab83-12ea-7c73-a4bb-4b5fe837b003",
+          "invite_code" : "invite_019dab83-12ea-7fe3-92c9-efbd57586c11",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab83-12c3-7e49-bbee-1c502ae5da9a",
+        "created_at" : "2026-04-20T15:29:47.208Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab81-c7e5-76c8-ac61-f8613942ad04",
+        "created_at" : "2026-04-20T15:28:22.507Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab80-7d3e-790c-9d39-147fd7c2512e",
+        "created_at" : "2026-04-20T15:26:57.862Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab80-6894-7242-918d-60346bd12ed8",
+        "created_at" : "2026-04-20T15:26:52.573Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab80-5416-71ce-946e-ea9c30ad2f83",
+        "created_at" : "2026-04-20T15:26:47.326Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab80-2d62-73af-9dee-bce010b957f5",
+        "created_at" : "2026-04-20T15:26:37.417Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab80-1764-7192-ae2e-5df1c7ccd959",
+        "created_at" : "2026-04-20T15:26:31.789Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab7f-8fe7-7925-938b-808deb5a40d7",
+        "created_at" : "2026-04-20T15:25:57.100Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab7f-728d-7eee-9ab8-2cd539ba2469",
+        "created_at" : "2026-04-20T15:25:49.582Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019dab7f-7271-768f-9e96-b0cfeb5cdb1c",
+        "created_at" : "2026-04-20T15:25:49.555Z",
+        "details" : 
+        {
+          "organization_id" : "org_019dab7f-726e-73ca-ae5b-d2610c608000",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-20T15:25:49.550Z",
+    "created_by" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+    "invitations" : 
+    [
+      {
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-04-20T15:29:47.258Z",
+        "created_by" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "delivered_at" : "2026-04-20T15:29:47.260Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T15:29:47.258Z",
+        "invitation_id" : "oinv_019dab83-12fa-7484-9a5b-72c77feb41ea",
+        "invite_code" : "invite_019dab83-12fa-7e17-860b-a8d200fb1f6b",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019dab7f-726e-73ca-ae5b-d2610c608000",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : "usr_019dab7d-7319-753f-970e-eeff60de9215"
+      },
+      {
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-04-20T15:29:47.242Z",
+        "created_by" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e",
+        "delivered_at" : "2026-04-20T15:29:47.245Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-04-27T15:29:47.242Z",
+        "invitation_id" : "oinv_019dab83-12ea-7c73-a4bb-4b5fe837b003",
+        "invite_code" : "invite_019dab83-12ea-7fe3-92c9-efbd57586c11",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019dab7f-726e-73ca-ae5b-d2610c608000",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : "usr_019dab7d-7319-753f-970e-eeff60de9215"
+      }
+    ],
+    "name" : "Invite Demo Org",
+    "organization_id" : "org_019dab7f-726e-73ca-ae5b-d2610c608000",
+    "organization_type" : "business",
+    "scope_id" : "org_019dab7f-726e-73ca-ae5b-d2610c608000",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019dab7f-726e-73ca-ae5b-d2610c608000",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-04-20T15:29:47.265Z"
+  }
+}

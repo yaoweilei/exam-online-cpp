@@ -1,0 +1,33 @@
+{
+  "avatar_url" : "",
+  "credit_awards" : 
+  {
+    "referral:usr_019da8fa-ed2a-7982-bcb7-e7591f572309:subscription.activated" : 
+    {
+      "amount" : 10,
+      "granted_at" : "2026-04-20T03:41:50.293Z",
+      "reason" : "referral.subscription.activated"
+    }
+  },
+  "credits" : 10,
+  "credits_updated_at" : "2026-04-20T03:41:50.293Z",
+  "daily_target" : 20,
+  "display_name" : "",
+  "goal_date" : "",
+  "goal_level" : "",
+  "last_active_at" : "2026-04-20T03:41:50.225Z",
+  "last_credit_reason" : "referral.subscription.activated",
+  "locale" : "zh-CN",
+  "longest_streak" : 1,
+  "notification_enabled" : true,
+  "organization_type" : "",
+  "plan" : "free",
+  "plan_expires" : "",
+  "plan_expires_at" : "",
+  "plan_status" : "active",
+  "scope_id" : "usr_019da8fa-ed09-7b05-9da9-8d301a89a70a",
+  "scope_type" : "personal",
+  "streak_days" : 1,
+  "user_id" : "usr_019da8fa-ed09-7b05-9da9-8d301a89a70a",
+  "xp" : 0
+}

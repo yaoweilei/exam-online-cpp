@@ -39,6 +39,42 @@ class ProfileRepository
         writeJsonFileAtomic(profileDir_ / (userId + ".json"), normalizeProfile(userId, data));
     }
 
+    bool grantCreditsIfAbsent(const std::string &userId,
+                              const std::string &awardKey,
+                              int credits,
+                              const std::string &reason)
+    {
+        if (awardKey.empty() || credits <= 0)
+        {
+            return false;
+        }
+
+        std::unique_lock lock(mutex_);
+        const auto path = profileDir_ / (userId + ".json");
+        auto profile = std::filesystem::exists(path) ? normalizeProfile(userId, readJsonFile(path)) : defaultProfile(userId);
+        if (!profile.isMember("credit_awards") || !profile["credit_awards"].isObject())
+        {
+            profile["credit_awards"] = Json::Value(Json::objectValue);
+        }
+        if (profile["credit_awards"].isMember(awardKey))
+        {
+            return false;
+        }
+
+        profile["credits"] = profile.get("credits", 0).asInt() + credits;
+        profile["credits_updated_at"] = common::nowIso8601();
+        profile["last_credit_reason"] = reason;
+
+        Json::Value award(Json::objectValue);
+        award["amount"] = credits;
+        award["reason"] = reason;
+        award["granted_at"] = profile["credits_updated_at"].asString();
+        profile["credit_awards"][awardKey] = award;
+
+        writeJsonFileAtomic(path, profile);
+        return true;
+    }
+
     // Called on every successful login: updates streak_days / last_active_at.
     void updateStreak(const std::string &userId)
     {
@@ -94,6 +130,8 @@ class ProfileRepository
         p["last_active_at"] = "";
         p["xp"] = 0;
         p["credits"] = 0;
+        p["credits_updated_at"] = "";
+        p["last_credit_reason"] = "";
         p["plan"] = "free";
         p["plan_status"] = "active";
         p["plan_expires_at"] = "";

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cctype>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -46,6 +47,52 @@ class UserService
         return out;
     }
 
+    Json::Value searchUsers(const std::string &query, std::size_t limit = 12) const
+    {
+        const auto needle = normalizeSearchText(query);
+        Json::Value out(Json::arrayValue);
+        if (needle.empty())
+        {
+            return out;
+        }
+
+        struct SearchHit
+        {
+            int score;
+            std::string sortKey;
+            Json::Value user;
+        };
+
+        std::vector<SearchHit> hits;
+        const auto users = repository_.users();
+        for (const auto &userId : users.getMemberNames())
+        {
+            const auto &user = users[userId];
+            const auto score = scoreUserSearchMatch(user, profileRepository_.loadProfile(userId), needle);
+            if (score <= 0)
+            {
+                continue;
+            }
+            auto view = buildUserView(user);
+            hits.push_back({score, normalizeSearchText(view.get("username", userId).asString()), view});
+        }
+
+        std::sort(hits.begin(), hits.end(), [](const SearchHit &left, const SearchHit &right) {
+            if (left.score != right.score)
+            {
+                return left.score > right.score;
+            }
+            return left.sortKey < right.sortKey;
+        });
+
+        const auto cappedLimit = (std::min)(limit, hits.size());
+        for (std::size_t index = 0; index < cappedLimit; ++index)
+        {
+            out.append(hits[index].user);
+        }
+        return out;
+    }
+
     Json::Value allRoles() const
     {
         return repository_.roles();
@@ -83,6 +130,11 @@ class UserService
         out["memberships"] = organizationRepository_.listMembershipsForUser(userId);
         out["organizations"] = organizationRepository_.listOrganizationsForUser(userId);
         return out;
+    }
+
+    Json::Value claimReferral(const std::string &userId, const std::string &referralCode) const
+    {
+        return buildUserView(repository_.claimReferral(userId, referralCode));
     }
 
   private:
@@ -142,6 +194,7 @@ class UserService
         out["employeeNo"] = out["employee_no"].asString();
         out["dev_login_id"] = user.get("dev_login_id", "").asString();
         out["email"] = user.get("email", "").asString();
+        out["email_verified"] = user.get("email_verified", false).asBool();
         out["phone"] = user.get("phone", "").asString();
         out["phone_verified"] = user.get("phone_verified", false).asBool();
         out["status"] = user.get("status", "active").asString();
@@ -170,6 +223,7 @@ class UserService
         out["accessible_levels"] = subscription["accessible_levels"];
         out["accessibleLevels"] = subscription["accessible_levels"];
         out["balance"] = buildBalance(profile);
+        out["referral"] = buildReferralView(user);
         return out;
     }
 
@@ -186,9 +240,35 @@ class UserService
     {
         Json::Value balance(Json::objectValue);
         balance["credits"] = profile.get("credits", 0).asInt();
-        balance["updated_at"] = profile.get("last_active_at", "").asString();
-        balance["updatedAt"] = profile.get("last_active_at", "").asString();
+        balance["updated_at"] = profile.get("credits_updated_at", profile.get("last_active_at", "")).asString();
+        balance["updatedAt"] = balance["updated_at"].asString();
         return balance;
+    }
+
+    static Json::Value buildReferralView(const Json::Value &user)
+    {
+        Json::Value referral(Json::objectValue);
+        referral["code"] = user.get("referral_code", "").asString();
+        referral["referral_code"] = referral["code"].asString();
+        referral["referred_by_user_id"] = user.get("referred_by_user_id", "").asString();
+        referral["referredByUserId"] = referral["referred_by_user_id"].asString();
+        referral["referred_by_code"] = user.get("referred_by_code", "").asString();
+        referral["referredByCode"] = referral["referred_by_code"].asString();
+        referral["bound_at"] = user.get("referral_bound_at", "").asString();
+        referral["boundAt"] = referral["bound_at"].asString();
+        referral["reward_status"] = user.get("referral_reward_status", "none").asString();
+        referral["rewardStatus"] = referral["reward_status"].asString();
+        referral["reward_granted_at"] = user.get("referral_reward_granted_at", "").asString();
+        referral["rewardGrantedAt"] = referral["reward_granted_at"].asString();
+        referral["reward_trigger"] = user.get("referral_reward_trigger", "").asString();
+        referral["rewardTrigger"] = referral["reward_trigger"].asString();
+        referral["reward_credit_amount"] = user.get("referral_reward_credit_amount", 0).asInt();
+        referral["rewardCreditAmount"] = referral["reward_credit_amount"].asInt();
+        referral["reward_credit_recipient_user_id"] = user.get("referral_reward_credit_recipient_user_id", "").asString();
+        referral["rewardCreditRecipientUserId"] = referral["reward_credit_recipient_user_id"].asString();
+        referral["has_referrer"] = !referral["referred_by_user_id"].asString().empty();
+        referral["hasReferrer"] = referral["has_referrer"].asBool();
+        return referral;
     }
 
     Json::Value resolveMembership(const std::string &userId, const Json::Value &user, const Json::Value &profile) const
@@ -317,6 +397,52 @@ class UserService
         add("admin-hub", "管理面板", {"teacher", "reviewer", "orgAdmin", "systemAdmin", "superAdmin"});
         add("logout", "退出登录");
         return sections;
+    }
+
+    static std::string normalizeSearchText(const std::string &value)
+    {
+        std::string out;
+        out.reserve(value.size());
+        for (const auto ch : value)
+        {
+            out.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+        }
+        return out;
+    }
+
+    static int scoreSearchField(const std::string &field,
+                                const std::string &needle,
+                                const int exactScore,
+                                const int prefixScore,
+                                const int containsScore)
+    {
+        const auto haystack = normalizeSearchText(field);
+        if (haystack.empty())
+        {
+            return 0;
+        }
+        if (haystack == needle)
+        {
+            return exactScore;
+        }
+        if (haystack.rfind(needle, 0) == 0)
+        {
+            return prefixScore;
+        }
+        return haystack.find(needle) != std::string::npos ? containsScore : 0;
+    }
+
+    static int scoreUserSearchMatch(const Json::Value &user, const Json::Value &profile, const std::string &needle)
+    {
+        int score = 0;
+        score = (std::max)(score, scoreSearchField(user.get("username", "").asString(), needle, 140, 110, 80));
+        score = (std::max)(score, scoreSearchField(user.get("dev_login_id", "").asString(), needle, 135, 105, 76));
+        score = (std::max)(score, scoreSearchField(user.get("id", user.get("user_id", "")).asString(), needle, 130, 100, 74));
+        score = (std::max)(score, scoreSearchField(user.get("member_no", "").asString(), needle, 120, 92, 72));
+        score = (std::max)(score, scoreSearchField(user.get("email", "").asString(), needle, 112, 90, 68));
+        score = (std::max)(score, scoreSearchField(user.get("phone", "").asString(), needle, 108, 88, 66));
+        score = (std::max)(score, scoreSearchField(profile.get("display_name", "").asString(), needle, 118, 94, 70));
+        return score;
     }
 
   private:

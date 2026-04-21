@@ -1,8 +1,10 @@
 #pragma once
 
 #include <chrono>
+#include <cctype>
 #include <filesystem>
 #include <mutex>
+#include <random>
 #include <shared_mutex>
 #include <string>
 #include <unordered_map>
@@ -45,6 +47,7 @@ class UserRepository
             users["guest"]["password_algo"] = "sha256";
             users["guest"]["status"] = "active";
             users["guest"]["email"] = "";
+            users["guest"]["email_verified"] = false;
             users["guest"]["phone"] = "";
             users["guest"]["phone_verified"] = false;
             users["guest"]["member_no"] = "";
@@ -99,10 +102,14 @@ class UserRepository
         std::shared_lock lock(mutex_);
         auto rawUsers = readJsonFile(usersFile_);
         Json::Value normalized(Json::objectValue);
-        for (const auto &key : rawUsers.getMemberNames())
-        {
-            normalized[key] = normalizeUser(rawUsers[key]);
-        }
+        forEachUserValue(rawUsers, [&normalized](const Json::Value &entry) {
+            const auto user = normalizeUser(entry);
+            const auto key = user.get("id", user.get("user_id", "")).asString();
+            if (!key.empty())
+            {
+                normalized[key] = user;
+            }
+        });
         return normalized;
     }
 
@@ -127,45 +134,76 @@ class UserRepository
     {
         std::shared_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            const auto user = normalizeUser(usersJson[name]);
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &username](const Json::Value &entry) {
+            if (!result.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
             if (user.get("username", "").asString() == username)
             {
-                return user;
+                result = user;
             }
-        }
-        return Json::Value(Json::nullValue);
+        });
+        return result;
+    }
+
+    Json::Value findUserByEmail(const std::string &email) const
+    {
+        std::shared_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &email](const Json::Value &entry) {
+            if (!result.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
+            if (user.get("email", "").asString() == email)
+            {
+                result = user;
+            }
+        });
+        return result;
     }
 
     Json::Value findUserByLoginId(const std::string &loginId) const
     {
         std::shared_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            const auto user = normalizeUser(usersJson[name]);
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &loginId](const Json::Value &entry) {
+            if (!result.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
             if (matchesLoginId(user, loginId))
             {
-                return user;
+                result = user;
             }
-        }
-        return Json::Value(Json::nullValue);
+        });
+        return result;
     }
 
     Json::Value findUserById(const std::string &userId) const
     {
         std::shared_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            const auto user = normalizeUser(usersJson[name]);
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &userId](const Json::Value &entry) {
+            if (!result.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
             if (user.get("id", "").asString() == userId)
             {
-                return user;
+                result = user;
             }
-        }
-        return Json::Value(Json::nullValue);
+        });
+        return result;
     }
 
     Json::Value usersByRole(const std::string &roleId) const
@@ -174,9 +212,8 @@ class UserRepository
         std::shared_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
         Json::Value result(Json::arrayValue);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            const auto user = normalizeUser(usersJson[name]);
+        forEachUserValue(usersJson, [&result, &normalizedRole](const Json::Value &entry) {
+            const auto user = normalizeUser(entry);
             bool matched = false;
             for (const auto &role : user["roles"])
             {
@@ -194,17 +231,31 @@ class UserRepository
             {
                 result.append(user);
             }
-        }
+        });
         return result;
     }
 
-    Json::Value createUser(const std::string &username, const std::string &password, const std::string &email)
+    Json::Value createUser(const std::string &username,
+                           const std::string &password,
+                           const std::string &email,
+                           const std::string &referralCode = "")
     {
         std::unique_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
         if (containsUsername(usersJson, username))
         {
             throw common::AppException("USER_EXISTS", "Username already exists", drogon::k400BadRequest);
+        }
+
+        Json::Value referrer(Json::nullValue);
+        const auto normalizedReferralCode = normalizeReferralCode(referralCode);
+        if (!normalizedReferralCode.empty())
+        {
+            referrer = findUserByReferralCodeUnlocked(usersJson, normalizedReferralCode);
+            if (referrer.isNull())
+            {
+                throw common::AppException("REFERRAL_CODE_INVALID", "Referral code is invalid", drogon::k422UnprocessableEntity);
+            }
         }
 
         const auto userId = generateUserId();
@@ -216,6 +267,7 @@ class UserRepository
         usersJson[key]["password_hash"] = hashPassword(password);
         usersJson[key]["password_algo"] = "sha256";
         usersJson[key]["email"] = email;
+        usersJson[key]["email_verified"] = false;
         usersJson[key]["phone"] = "";
         usersJson[key]["phone_verified"] = false;
         usersJson[key]["status"] = "active";
@@ -225,6 +277,11 @@ class UserRepository
         usersJson[key]["roles"] = Json::arrayValue;
         usersJson[key]["roles"].append("student");
         usersJson[key]["created_at"] = common::nowIso8601();
+        usersJson[key]["referral_code"] = generateReferralCode(usersJson, username);
+        usersJson[key]["referred_by_user_id"] = referrer.isNull() ? "" : referrer.get("id", referrer.get("user_id", "")).asString();
+        usersJson[key]["referred_by_code"] = referrer.isNull() ? "" : normalizedReferralCode;
+        usersJson[key]["referral_bound_at"] = referrer.isNull() ? "" : common::nowIso8601();
+        usersJson[key]["referral_reward_status"] = referrer.isNull() ? "none" : "pending";
 
         wal_.append("user_created", usersJson[key]);
         writeJsonFileAtomic(usersFile_, usersJson);
@@ -235,13 +292,21 @@ class UserRepository
     {
         std::unique_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            const auto user = normalizeUser(usersJson[name]);
+        Json::Value existing(Json::nullValue);
+        forEachUserValue(usersJson, [&existing, &loginId](const Json::Value &entry) {
+            if (!existing.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
             if (matchesLoginId(user, loginId))
             {
-                return user;
+                existing = user;
             }
+        });
+        if (!existing.isNull())
+        {
+            return existing;
         }
 
         const auto userId = generateUserId();
@@ -256,6 +321,7 @@ class UserRepository
         usersJson[key]["password_hash"] = "";
         usersJson[key]["password_algo"] = "dev-empty";
         usersJson[key]["email"] = "";
+        usersJson[key]["email_verified"] = false;
         usersJson[key]["phone"] = "";
         usersJson[key]["phone_verified"] = false;
         usersJson[key]["wechat_openid"] = "stub_openid_" + loginKey;
@@ -265,8 +331,7 @@ class UserRepository
         usersJson[key]["scope_type"] = "personal";
         usersJson[key]["scope_id"] = userId;
         usersJson[key]["organization_type"] = "";
-        usersJson[key]["roles"] = Json::arrayValue;
-        usersJson[key]["roles"].append("student");
+        usersJson[key]["roles"] = developmentRolesForLoginId(loginId);
         usersJson[key]["created_at"] = common::nowIso8601();
 
         wal_.append("development_user_created", usersJson[key]);
@@ -293,23 +358,66 @@ class UserRepository
     {
         std::unique_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            if (usersJson[name].get("phone", "").asString() == phone && usersJson[name].get("id", "").asString() != userId)
+        forEachUserValue(usersJson, [&phone, &userId](Json::Value &entry) {
+            const auto user = normalizeUser(entry);
+            if (user.get("phone", "").asString() == phone && user.get("id", "").asString() != userId)
             {
                 throw common::AppException("PHONE_IN_USE", "Phone number is already bound to another user", drogon::k409Conflict);
             }
-        }
-        for (auto &name : usersJson.getMemberNames())
-        {
-            if (usersJson[name].get("id", "").asString() == userId)
+        });
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &userId, &phone](Json::Value &entry) {
+            if (!result.isNull())
             {
-                usersJson[name]["phone"] = phone;
-                usersJson[name]["phone_verified"] = true;
-                wal_.append("phone_bound", usersJson[name]);
-                writeJsonFileAtomic(usersFile_, usersJson);
-                return normalizeUser(usersJson[name]);
+                return;
             }
+            const auto user = normalizeUser(entry);
+            if (user.get("id", "").asString() == userId)
+            {
+                entry["phone"] = phone;
+                entry["phone_verified"] = true;
+                result = normalizeUser(entry);
+            }
+        });
+        if (!result.isNull())
+        {
+            wal_.append("phone_bound", result);
+            writeJsonFileAtomic(usersFile_, usersJson);
+            return result;
+        }
+        throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
+    }
+
+    Json::Value bindEmail(const std::string &userId, const std::string &email)
+    {
+        std::unique_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
+        forEachUserValue(usersJson, [&email, &userId](Json::Value &entry) {
+            const auto user = normalizeUser(entry);
+            if (user.get("email", "").asString() == email && user.get("id", "").asString() != userId)
+            {
+                throw common::AppException("EMAIL_IN_USE", "Email is already bound to another user", drogon::k409Conflict);
+            }
+        });
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &userId, &email](Json::Value &entry) {
+            if (!result.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
+            if (user.get("id", "").asString() == userId)
+            {
+                entry["email"] = email;
+                entry["email_verified"] = true;
+                result = normalizeUser(entry);
+            }
+        });
+        if (!result.isNull())
+        {
+            wal_.append("email_bound", result);
+            writeJsonFileAtomic(usersFile_, usersJson);
+            return result;
         }
         throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
     }
@@ -318,25 +426,50 @@ class UserRepository
     {
         std::shared_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            if (usersJson[name].get("phone", "").asString() == phone)
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &phone](const Json::Value &entry) {
+            if (!result.isNull())
             {
-                return normalizeUser(usersJson[name]);
+                return;
             }
-        }
-        return Json::Value(Json::nullValue);
+            const auto user = normalizeUser(entry);
+            if (user.get("phone", "").asString() == phone)
+            {
+                result = user;
+            }
+        });
+        return result;
     }
 
-    Json::Value createPhoneUser(const std::string &phone)
+    Json::Value createPhoneUser(const std::string &phone, const std::string &referralCode = "")
     {
         std::unique_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            if (usersJson[name].get("phone", "").asString() == phone)
+        Json::Value existing(Json::nullValue);
+        forEachUserValue(usersJson, [&existing, &phone](const Json::Value &entry) {
+            if (!existing.isNull())
             {
-                return normalizeUser(usersJson[name]);
+                return;
+            }
+            const auto user = normalizeUser(entry);
+            if (user.get("phone", "").asString() == phone)
+            {
+                existing = user;
+            }
+        });
+        if (!existing.isNull())
+        {
+            return existing;
+        }
+
+        Json::Value referrer(Json::nullValue);
+        const auto normalizedReferralCode = normalizeReferralCode(referralCode);
+        if (!normalizedReferralCode.empty())
+        {
+            referrer = findUserByReferralCodeUnlocked(usersJson, normalizedReferralCode);
+            if (referrer.isNull())
+            {
+                throw common::AppException("REFERRAL_CODE_INVALID", "Referral code is invalid", drogon::k422UnprocessableEntity);
             }
         }
 
@@ -351,6 +484,7 @@ class UserRepository
         usersJson[key]["password_hash"] = "";
         usersJson[key]["password_algo"] = "phone";
         usersJson[key]["email"] = "";
+        usersJson[key]["email_verified"] = false;
         usersJson[key]["phone"] = phone;
         usersJson[key]["phone_verified"] = true;
         usersJson[key]["status"] = "active";
@@ -360,10 +494,131 @@ class UserRepository
         usersJson[key]["roles"] = Json::arrayValue;
         usersJson[key]["roles"].append("student");
         usersJson[key]["created_at"] = common::nowIso8601();
+        usersJson[key]["referral_code"] = generateReferralCode(usersJson, username);
+        usersJson[key]["referred_by_user_id"] = referrer.isNull() ? "" : referrer.get("id", referrer.get("user_id", "")).asString();
+        usersJson[key]["referred_by_code"] = referrer.isNull() ? "" : normalizedReferralCode;
+        usersJson[key]["referral_bound_at"] = referrer.isNull() ? "" : common::nowIso8601();
+        usersJson[key]["referral_reward_status"] = referrer.isNull() ? "none" : "pending";
 
         wal_.append("phone_user_created", usersJson[key]);
         writeJsonFileAtomic(usersFile_, usersJson);
         return normalizeUser(usersJson[key]);
+    }
+
+    Json::Value findUserByReferralCode(const std::string &referralCode) const
+    {
+        const auto normalizedCode = normalizeReferralCode(referralCode);
+        if (normalizedCode.empty())
+        {
+            return Json::Value(Json::nullValue);
+        }
+
+        std::shared_lock lock(mutex_);
+        return findUserByReferralCodeUnlocked(readJsonFile(usersFile_), normalizedCode);
+    }
+
+    Json::Value claimReferral(const std::string &userId, const std::string &referralCode)
+    {
+        const auto normalizedCode = normalizeReferralCode(referralCode);
+        if (normalizedCode.empty())
+        {
+            throw common::AppException("REFERRAL_CODE_REQUIRED", "Referral code is required", drogon::k422UnprocessableEntity);
+        }
+
+        std::unique_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
+        const auto referrer = findUserByReferralCodeUnlocked(usersJson, normalizedCode);
+        if (referrer.isNull())
+        {
+            throw common::AppException("REFERRAL_CODE_INVALID", "Referral code is invalid", drogon::k422UnprocessableEntity);
+        }
+
+        const auto referrerUserId = referrer.get("id", referrer.get("user_id", "")).asString();
+        Json::Value updated(Json::nullValue);
+        forEachUserValue(usersJson, [&updated, &userId, &normalizedCode, &referrerUserId](Json::Value &entry) {
+            if (!updated.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
+            if (user.get("id", "").asString() != userId)
+            {
+                return;
+            }
+            if (!user.get("referred_by_user_id", "").asString().empty())
+            {
+                throw common::AppException("REFERRAL_ALREADY_CLAIMED", "Referral is already bound for this account", drogon::k409Conflict);
+            }
+            if (user.get("referral_code", "").asString() == normalizedCode || userId == referrerUserId)
+            {
+                throw common::AppException("REFERRAL_SELF_NOT_ALLOWED", "You cannot use your own referral code", drogon::k409Conflict);
+            }
+            entry["referred_by_user_id"] = referrerUserId;
+            entry["referred_by_code"] = normalizedCode;
+            entry["referral_bound_at"] = common::nowIso8601();
+            entry["referral_reward_status"] = "pending";
+            updated = normalizeUser(entry);
+        });
+
+        if (updated.isNull())
+        {
+            throw common::AppException("USER_NOT_FOUND", "User not found", drogon::k404NotFound);
+        }
+
+        wal_.append("referral_claimed", updated);
+        writeJsonFileAtomic(usersFile_, usersJson);
+        return updated;
+    }
+
+    bool grantReferralRewardIfPending(const std::string &userId,
+                                      const std::string &trigger,
+                                      int rewardCredits = 0,
+                                      const std::string &rewardRecipientUserId = "")
+    {
+        std::unique_lock lock(mutex_);
+        auto usersJson = readJsonFile(usersFile_);
+        Json::Value updated(Json::nullValue);
+        bool changed = false;
+        forEachUserValue(usersJson, [&updated, &userId, &trigger, &rewardCredits, &rewardRecipientUserId, &changed](Json::Value &entry) {
+            if (!updated.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
+            if (user.get("id", "").asString() != userId)
+            {
+                return;
+            }
+
+            updated = user;
+            if (user.get("referred_by_user_id", "").asString().empty() ||
+                user.get("referral_reward_status", "none").asString() != "pending")
+            {
+                return;
+            }
+
+            entry["referral_reward_status"] = "granted";
+            entry["referral_reward_granted_at"] = common::nowIso8601();
+            entry["referral_reward_trigger"] = trigger;
+            entry["referral_reward_credit_amount"] = rewardCredits;
+            entry["referral_reward_credit_recipient_user_id"] = rewardRecipientUserId;
+            updated = normalizeUser(entry);
+            changed = true;
+        });
+
+        if (updated.isNull())
+        {
+            throw common::AppException("USER_NOT_FOUND", "User not found", drogon::k404NotFound);
+        }
+
+        if (!changed)
+        {
+            return false;
+        }
+
+        wal_.append("referral_reward_granted", updated);
+        writeJsonFileAtomic(usersFile_, usersJson);
+        return true;
     }
 
     // Find user by WeChat openid (returns null if not found).
@@ -371,14 +626,19 @@ class UserRepository
     {
         std::shared_lock lock(mutex_);
         auto usersJson = readJsonFile(usersFile_);
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            if (usersJson[name].get("wechat_openid", "").asString() == openid)
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &openid](const Json::Value &entry) {
+            if (!result.isNull())
             {
-                return normalizeUser(usersJson[name]);
+                return;
             }
-        }
-        return Json::Value(Json::nullValue);
+            const auto user = normalizeUser(entry);
+            if (user.get("wechat_openid", "").asString() == openid)
+            {
+                result = user;
+            }
+        });
+        return result;
     }
 
     // Create or update a user by WeChat openid.
@@ -391,36 +651,47 @@ class UserRepository
         auto usersJson = readJsonFile(usersFile_);
 
         // Search for existing user with this openid
-        for (auto &name : usersJson.getMemberNames())
-        {
-            if (usersJson[name].get("wechat_openid", "").asString() == openid)
+        Json::Value updated(Json::nullValue);
+        forEachUserValue(usersJson, [&updated, &openid, &nickname, &avatarUrl, &loginIdHint, this, &usersJson](Json::Value &entry) {
+            if (!updated.isNull())
             {
-                if (!nickname.empty())
-                {
-                    usersJson[name]["wechat_nickname"] = nickname;
-                }
-                if (!avatarUrl.empty())
-                {
-                    usersJson[name]["wechat_avatar"] = avatarUrl;
-                }
-                if (!loginIdHint.empty())
-                {
-                    usersJson[name]["dev_login_id"] = loginIdHint;
-                }
-                usersJson[name]["status"] = usersJson[name].get("status", "active").asString();
-                if (usersJson[name]["roles"].empty())
-                {
-                    usersJson[name]["roles"] = Json::arrayValue;
-                    usersJson[name]["roles"].append("student");
-                }
-                if (usersJson[name].get("member_no", "").asString().empty())
-                {
-                    usersJson[name]["member_no"] = nextPersonalMemberNo(usersJson);
-                }
-                wal_.append("wechat_user_updated", usersJson[name]);
-                writeJsonFileAtomic(usersFile_, usersJson);
-                return normalizeUser(usersJson[name]);
+                return;
             }
+            const auto user = normalizeUser(entry);
+            if (user.get("wechat_openid", "").asString() != openid)
+            {
+                return;
+            }
+            if (!nickname.empty())
+            {
+                entry["wechat_nickname"] = nickname;
+            }
+            if (!avatarUrl.empty())
+            {
+                entry["wechat_avatar"] = avatarUrl;
+            }
+            if (!loginIdHint.empty())
+            {
+                entry["dev_login_id"] = loginIdHint;
+                entry["roles"] = developmentRolesForLoginId(loginIdHint);
+            }
+            else if (entry["roles"].empty())
+            {
+                entry["roles"] = Json::arrayValue;
+                entry["roles"].append("student");
+            }
+            entry["status"] = normalizeStatus(user.get("status", "active").asString());
+            if (normalizeUser(entry).get("member_no", "").asString().empty())
+            {
+                entry["member_no"] = nextPersonalMemberNo(usersJson);
+            }
+            updated = normalizeUser(entry);
+        });
+        if (!updated.isNull())
+        {
+            wal_.append("wechat_user_updated", updated);
+            writeJsonFileAtomic(usersFile_, usersJson);
+            return updated;
         }
 
         // Create new user
@@ -435,6 +706,7 @@ class UserRepository
         usersJson[key]["password_hash"] = "";
         usersJson[key]["password_algo"] = "wechat";
         usersJson[key]["email"] = "";
+        usersJson[key]["email_verified"] = false;
         usersJson[key]["phone"] = "";
         usersJson[key]["phone_verified"] = false;
         usersJson[key]["wechat_openid"] = openid;
@@ -445,8 +717,7 @@ class UserRepository
         usersJson[key]["scope_type"] = "personal";
         usersJson[key]["scope_id"] = userId;
         usersJson[key]["organization_type"] = "";
-        usersJson[key]["roles"] = Json::arrayValue;
-        usersJson[key]["roles"].append("student");
+        usersJson[key]["roles"] = loginIdHint.empty() ? normalizeRolesArray(Json::Value(Json::arrayValue)) : developmentRolesForLoginId(loginIdHint);
         usersJson[key]["created_at"] = common::nowIso8601();
 
         wal_.append("wechat_user_created", usersJson[key]);
@@ -516,7 +787,8 @@ class UserRepository
         const auto userId = user.get("id", user.get("user_id", "")).asString();
         user["id"] = userId;
         user["user_id"] = userId;
-        user["username"] = user.get("username", "").asString();
+        user["username"] = user.get("username", userId).asString();
+        user["display_name"] = user.get("display_name", user.get("displayName", "")).asString();
         user["member_no"] = user.get("member_no", user.get("student_no", "")).asString();
         user["memberNo"] = user["member_no"].asString();
         user["student_no"] = user.get("student_no", "").asString();
@@ -525,6 +797,11 @@ class UserRepository
         user["employeeNo"] = user["employee_no"].asString();
         user["dev_login_id"] = user.get("dev_login_id", "").asString();
         user["email"] = user.get("email", "").asString();
+        user["email_verified"] = user.get("email_verified", false).asBool();
+        user["avatar"] = user.get("avatar", user.get("avatar_url", "")).asString();
+        user["avatar_url"] = user.get("avatar_url", user["avatar"].asString()).asString();
+        user["password_hash"] = user.get("password_hash", user.get("passwordHash", "")).asString();
+        user["password_algo"] = user.get("password_algo", user["password_hash"].asString().empty() ? "sha256" : "sha256").asString();
         user["phone"] = user.get("phone", "").asString();
         user["phone_verified"] = user.get("phone_verified", false).asBool();
         user["status"] = normalizeStatus(user.get("status", "active").asString());
@@ -533,9 +810,201 @@ class UserRepository
         user["organization_type"] = normalizeOrganizationType(
             user.get("organization_type", user["scope_type"].asString() == "organization" ? "business" : "").asString(),
             user["scope_type"].asString());
-        user["created_at"] = user.get("created_at", common::nowIso8601()).asString();
-        user["roles"] = normalizeRolesArray(user["roles"]);
+        user["created_at"] = user.get("created_at", user.get("createdAt", common::nowIso8601())).asString();
+        user["referral_code"] = normalizeReferralCode(user.get("referral_code", user.get("referralCode", "")).asString());
+        user["referralCode"] = user["referral_code"].asString();
+        user["referred_by_user_id"] = user.get("referred_by_user_id", user.get("referredByUserId", "")).asString();
+        user["referredByUserId"] = user["referred_by_user_id"].asString();
+        user["referred_by_code"] = normalizeReferralCode(user.get("referred_by_code", user.get("referredByCode", "")).asString());
+        user["referredByCode"] = user["referred_by_code"].asString();
+        user["referral_bound_at"] = user.get("referral_bound_at", user.get("referralBoundAt", "")).asString();
+        user["referralBoundAt"] = user["referral_bound_at"].asString();
+        user["referral_reward_status"] = normalizeReferralRewardStatus(user.get("referral_reward_status", user.get("referralRewardStatus", user["referred_by_user_id"].asString().empty() ? "none" : "pending")).asString());
+        user["referralRewardStatus"] = user["referral_reward_status"].asString();
+        user["referral_reward_granted_at"] = user.get("referral_reward_granted_at", user.get("referralRewardGrantedAt", "")).asString();
+        user["referralRewardGrantedAt"] = user["referral_reward_granted_at"].asString();
+        user["referral_reward_trigger"] = user.get("referral_reward_trigger", user.get("referralRewardTrigger", "")).asString();
+        user["referralRewardTrigger"] = user["referral_reward_trigger"].asString();
+        user["referral_reward_credit_amount"] = user.get("referral_reward_credit_amount", user.get("referralRewardCreditAmount", 0)).asInt();
+        user["referralRewardCreditAmount"] = user["referral_reward_credit_amount"].asInt();
+        user["referral_reward_credit_recipient_user_id"] = user.get("referral_reward_credit_recipient_user_id", user.get("referralRewardCreditRecipientUserId", "")).asString();
+        user["referralRewardCreditRecipientUserId"] = user["referral_reward_credit_recipient_user_id"].asString();
+        if (user["referral_code"].asString().empty())
+        {
+            user["referral_code"] = legacyReferralCode(userId, user.get("username", "").asString());
+            user["referralCode"] = user["referral_code"].asString();
+        }
+        user["roles"] = normalizeRolesArray(user.isMember("roles") ? user["roles"] : user["roleIds"]);
         return user;
+    }
+
+    static std::string normalizeReferralCode(std::string referralCode)
+    {
+        std::string normalized;
+        normalized.reserve(referralCode.size());
+        for (const auto ch : referralCode)
+        {
+            if (std::isalnum(static_cast<unsigned char>(ch)))
+            {
+                normalized.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(ch))));
+            }
+        }
+        return normalized;
+    }
+
+    static std::string normalizeReferralRewardStatus(const std::string &status)
+    {
+        if (status == "none" || status == "pending" || status == "granted" || status == "rejected")
+        {
+            return status;
+        }
+        return "none";
+    }
+
+    static Json::Value findUserByReferralCodeUnlocked(const Json::Value &usersJson, const std::string &referralCode)
+    {
+        Json::Value result(Json::nullValue);
+        forEachUserValue(usersJson, [&result, &referralCode](const Json::Value &entry) {
+            if (!result.isNull())
+            {
+                return;
+            }
+            const auto user = normalizeUser(entry);
+            if (user.get("referral_code", "").asString() == referralCode)
+            {
+                result = user;
+            }
+        });
+        return result;
+    }
+
+    static std::string generateReferralCode(const Json::Value &usersJson, const std::string &seed)
+    {
+        const auto prefix = buildReferralPrefix(seed);
+        std::random_device rd;
+        std::mt19937 generator(rd());
+        std::uniform_int_distribution<int> distribution(0, 35);
+        constexpr char alphabet[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (int attempt = 0; attempt < 32; ++attempt)
+        {
+            std::string code = prefix;
+            while (code.size() < 10)
+            {
+                code.push_back(alphabet[distribution(generator)]);
+            }
+            if (findUserByReferralCodeUnlocked(usersJson, code).isNull())
+            {
+                return code;
+            }
+        }
+        return "REF" + common::generateOpaqueId("").substr(0, 8);
+    }
+
+    static std::string buildReferralPrefix(const std::string &seed)
+    {
+        auto normalizedSeed = normalizeReferralCode(seed);
+        if (normalizedSeed.size() > 6)
+        {
+            normalizedSeed = normalizedSeed.substr(0, 6);
+        }
+        if (normalizedSeed.size() < 3)
+        {
+            normalizedSeed = "REF";
+        }
+        return normalizedSeed;
+    }
+
+    static std::string legacyReferralCode(const std::string &userId, const std::string &username)
+    {
+        auto prefix = buildReferralPrefix(username);
+        auto suffix = normalizeReferralCode(userId);
+        if (suffix.size() > 10 - prefix.size())
+        {
+            suffix = suffix.substr(suffix.size() - (10 - prefix.size()));
+        }
+        while (suffix.size() < 10 - prefix.size())
+        {
+            suffix.insert(suffix.begin(), '0');
+        }
+        return prefix + suffix;
+    }
+
+    template <typename Func>
+    static void forEachUserValue(const Json::Value &usersJson, Func visitor)
+    {
+        if (usersJson.isArray())
+        {
+            for (const auto &entry : usersJson)
+            {
+                if (entry.isObject())
+                {
+                    visitor(entry);
+                }
+            }
+            return;
+        }
+        if (!usersJson.isObject())
+        {
+            return;
+        }
+        for (const auto &name : usersJson.getMemberNames())
+        {
+            const auto &entry = usersJson[name];
+            if (name == "users" && entry.isArray())
+            {
+                for (const auto &legacyEntry : entry)
+                {
+                    if (legacyEntry.isObject())
+                    {
+                        visitor(legacyEntry);
+                    }
+                }
+                continue;
+            }
+            if (entry.isObject())
+            {
+                visitor(entry);
+            }
+        }
+    }
+
+    template <typename Func>
+    static void forEachUserValue(Json::Value &usersJson, Func visitor)
+    {
+        if (usersJson.isArray())
+        {
+            for (auto &entry : usersJson)
+            {
+                if (entry.isObject())
+                {
+                    visitor(entry);
+                }
+            }
+            return;
+        }
+        if (!usersJson.isObject())
+        {
+            return;
+        }
+        for (const auto &name : usersJson.getMemberNames())
+        {
+            auto &entry = usersJson[name];
+            if (name == "users" && entry.isArray())
+            {
+                for (auto &legacyEntry : entry)
+                {
+                    if (legacyEntry.isObject())
+                    {
+                        visitor(legacyEntry);
+                    }
+                }
+                continue;
+            }
+            if (entry.isObject())
+            {
+                visitor(entry);
+            }
+        }
     }
 
     static Json::Value mergeRoleDefinition(const Json::Value &baseline, const Json::Value &incoming, const std::string &roleId)
@@ -672,14 +1141,18 @@ class UserRepository
 
     static bool containsUsername(const Json::Value &usersJson, const std::string &username)
     {
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            if (usersJson[name].get("username", "").asString() == username)
+        bool found = false;
+        forEachUserValue(usersJson, [&found, &username](const Json::Value &entry) {
+            if (found)
             {
-                return true;
+                return;
             }
-        }
-        return false;
+            if (normalizeUser(entry).get("username", "").asString() == username)
+            {
+                found = true;
+            }
+        });
+        return found;
     }
 
     static bool matchesLoginId(const Json::Value &user, const std::string &loginId)
@@ -718,11 +1191,42 @@ class UserRepository
     static std::string nextPersonalMemberNo(const Json::Value &usersJson)
     {
         int maxSerial = 0;
-        for (const auto &name : usersJson.getMemberNames())
-        {
-            maxSerial = (std::max)(maxSerial, extractPrefixedSerial(usersJson[name].get("member_no", "").asString(), "MEM-"));
-        }
+        forEachUserValue(usersJson, [&maxSerial](const Json::Value &entry) {
+            maxSerial = (std::max)(maxSerial, extractPrefixedSerial(normalizeUser(entry).get("member_no", "").asString(), "MEM-"));
+        });
         return "MEM-" + padSerial(maxSerial + 1, 6);
+    }
+
+    static Json::Value developmentRolesForLoginId(const std::string &loginId)
+    {
+        Json::Value roles(Json::arrayValue);
+        if (loginId.rfind("superadmin_", 0) == 0 || loginId.rfind("super_", 0) == 0)
+        {
+            roles.append("superAdmin");
+            return roles;
+        }
+        if (loginId.rfind("systemadmin_", 0) == 0 || loginId.rfind("sysadmin_", 0) == 0 || loginId.rfind("system_", 0) == 0)
+        {
+            roles.append("systemAdmin");
+            return roles;
+        }
+        if (loginId.rfind("orgadmin_", 0) == 0 || loginId.rfind("org_admin_", 0) == 0 || loginId.rfind("admin_", 0) == 0)
+        {
+            roles.append("orgAdmin");
+            return roles;
+        }
+        if (loginId.rfind("teacher_", 0) == 0)
+        {
+            roles.append("teacher");
+            return roles;
+        }
+        if (loginId.rfind("reviewer_", 0) == 0)
+        {
+            roles.append("reviewer");
+            return roles;
+        }
+        roles.append("student");
+        return roles;
     }
 
     static std::string padSerial(int value, int width)

@@ -1,10 +1,18 @@
 #pragma once
 
+#include <algorithm>
 #include <chrono>
+#include <cctype>
+#include <iomanip>
+#include <sstream>
 #include <string>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 #include <json/json.h>
 
+#include "application/services/NotificationService.h"
 #include "application/services/SubscriptionService.h"
 #include "common/AppException.h"
 #include "common/IdGenerator.h"
@@ -17,12 +25,18 @@ namespace application::services
 class OrganizationService
 {
   public:
-    explicit OrganizationService(infrastructure::storage::OrganizationRepository &organizationRepository,
-                                 infrastructure::storage::UserRepository &userRepository,
-                                 SubscriptionService &subscriptionService)
+        explicit OrganizationService(infrastructure::storage::OrganizationRepository &organizationRepository,
+                           infrastructure::storage::UserRepository &userRepository,
+                           SubscriptionService &subscriptionService,
+                           SmsService &smsService,
+                           EmailService &emailService,
+                           std::string publicWebBaseUrl)
         : organizationRepository_(organizationRepository),
           userRepository_(userRepository),
-          subscriptionService_(subscriptionService)
+            subscriptionService_(subscriptionService),
+            smsService_(smsService),
+            emailService_(emailService),
+            publicWebBaseUrl_(std::move(publicWebBaseUrl))
     {
     }
 
@@ -81,7 +95,7 @@ class OrganizationService
         subscription["seats"] = payload.get("seats", 0).asInt();
         organization["subscription"] = subscription;
 
-        const auto savedOrganization = organizationRepository_.upsertOrganization(organization);
+        auto savedOrganization = organizationRepository_.upsertOrganization(organization);
 
         Json::Value membership(Json::objectValue);
         membership["user_id"] = actorUserId;
@@ -91,6 +105,22 @@ class OrganizationService
         membership["roles"] = payload.isMember("owner_roles") ? payload["owner_roles"] : defaultOwnerRoles();
         membership = assignBusinessNumbers(savedOrganization, membership, Json::Value(Json::nullValue));
         organizationRepository_.upsertMembership(membership);
+
+        savedOrganization = appendAuditEntry(
+            savedOrganization,
+            createAuditEntry(
+                actorUserId,
+                "organization.created",
+                "创建组织",
+                [&] {
+                    Json::Value details(Json::objectValue);
+                    details["organization_id"] = organizationId;
+                    details["organization_type"] = organizationType;
+                    details["plan"] = savedOrganization["subscription"].get("plan", "free").asString();
+                    details["seats"] = savedOrganization["subscription"].get("seats", 0).asInt();
+                    return details;
+                }()));
+        savedOrganization = organizationRepository_.upsertOrganization(savedOrganization);
 
         return enrichOrganization(savedOrganization);
     }
@@ -107,7 +137,281 @@ class OrganizationService
         return out;
     }
 
-    Json::Value upsertMember(const std::string &organizationId, const Json::Value &payload)
+    Json::Value createInvitation(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload)
+    {
+        auto organization = requireOrganization(organizationId);
+        const auto contact = extractInvitationContact(payload);
+        const auto roles = normalizeMemberRoles(payload.isMember("roles") ? payload["roles"] : defaultMemberRoles());
+        const auto targetUser = findUserByInvitationContact(contact);
+        const auto targetUserId = targetUser.isNull() ? std::string("") : targetUser.get("id", "").asString();
+        if (!targetUserId.empty() && !organizationRepository_.findMembership(targetUserId, organizationId).isNull())
+        {
+            throw common::AppException("ALREADY_MEMBER", "This contact already belongs to the organization", drogon::k409Conflict);
+        }
+
+        const auto normalizedContact = contact.value;
+        for (const auto &invitation : organization["invitations"])
+        {
+            if (invitation.get("status", "pending").asString() != "pending")
+            {
+                continue;
+            }
+            if (invitation.get("channel", "").asString() == contact.channel && invitation.get("contact", "").asString() == normalizedContact)
+            {
+                throw common::AppException("INVITATION_EXISTS", "A pending invitation already exists for this contact", drogon::k409Conflict);
+            }
+        }
+
+        Json::Value invitation(Json::objectValue);
+        invitation["invitation_id"] = common::generateOpaqueId("oinv_");
+        invitation["invite_code"] = generateInvitationCode();
+        invitation["organization_id"] = organizationId;
+        invitation["organization_name"] = organization.get("name", "").asString();
+        invitation["channel"] = contact.channel;
+        invitation["contact"] = normalizedContact;
+        invitation["email"] = contact.channel == "email" ? normalizedContact : "";
+        invitation["phone"] = contact.channel == "phone" ? normalizedContact : "";
+        invitation["target_user_id"] = targetUserId;
+        invitation["status"] = "pending";
+        invitation["roles"] = roles;
+        invitation["member_no"] = payload.get("member_no", "").asString();
+        invitation["student_no"] = payload.get("student_no", "").asString();
+        invitation["employee_no"] = payload.get("employee_no", "").asString();
+        invitation["message"] = payload.get("message", "").asString();
+        invitation["created_by"] = actorUserId;
+        invitation["created_at"] = common::nowIso8601();
+        invitation["expires_at"] = payload.get("expires_at", defaultInvitationExpiresAt()).asString();
+        invitation["delivery_status"] = "pending";
+        invitation["delivery_provider"] = "";
+        invitation["delivery_message_id"] = "";
+        invitation["delivery_error"] = "";
+        invitation["delivered_at"] = "";
+
+        organization = prependInvitation(organization, invitation);
+        organization = appendAuditEntry(
+            organization,
+            createAuditEntry(
+                actorUserId,
+                "invitation.created",
+                "创建组织邀请",
+                [&] {
+                    Json::Value details(Json::objectValue);
+                    details["invitation_id"] = invitation["invitation_id"].asString();
+                    details["invite_code"] = invitation["invite_code"].asString();
+                    details["channel"] = contact.channel;
+                    details["contact"] = normalizedContact;
+                    details["roles"] = roles;
+                    return details;
+                }()));
+        organization = organizationRepository_.upsertOrganization(organization);
+
+        const auto delivery = deliverInvitation(organization, invitation);
+        invitation = mergeInvitationDelivery(invitation, delivery);
+        organization = replaceInvitation(organization, invitation);
+        organization = appendAuditEntry(
+            organization,
+            createAuditEntry(
+                actorUserId,
+                delivery.delivered ? "invitation.delivered" : "invitation.delivery_failed",
+                delivery.delivered ? "发送组织邀请" : "组织邀请发送失败",
+                [&] {
+                    Json::Value details(Json::objectValue);
+                    details["invitation_id"] = invitation["invitation_id"].asString();
+                    details["invite_code"] = invitation["invite_code"].asString();
+                    details["channel"] = contact.channel;
+                    details["contact"] = normalizedContact;
+                    details["delivery_status"] = invitation.get("delivery_status", "pending").asString();
+                    details["delivery_provider"] = invitation.get("delivery_provider", "").asString();
+                    if (!invitation.get("delivery_error", "").asString().empty())
+                    {
+                        details["delivery_error"] = invitation.get("delivery_error", "").asString();
+                    }
+                    return details;
+                }()));
+        organization = organizationRepository_.upsertOrganization(organization);
+        return invitation;
+    }
+
+    void cancelInvitation(const std::string &actorUserId, const std::string &organizationId, const std::string &invitationId)
+    {
+        auto organization = requireOrganization(organizationId);
+        auto invitations = organization.get("invitations", Json::Value(Json::arrayValue));
+        bool found = false;
+        for (Json::ArrayIndex index = 0; index < invitations.size(); ++index)
+        {
+            auto &invitation = invitations[index];
+            if (invitation.get("invitation_id", "").asString() != invitationId)
+            {
+                continue;
+            }
+            found = true;
+            if (invitation.get("status", "pending").asString() != "pending")
+            {
+                throw common::AppException("INVITATION_INVALID", "Only pending invitations can be cancelled", drogon::k409Conflict);
+            }
+            invitation["status"] = "cancelled";
+            invitation["cancelled_at"] = common::nowIso8601();
+            invitation["cancelled_by"] = actorUserId;
+            organization["invitations"] = invitations;
+            organization = appendAuditEntry(
+                organization,
+                createAuditEntry(
+                    actorUserId,
+                    "invitation.cancelled",
+                    "取消组织邀请",
+                    [&] {
+                        Json::Value details(Json::objectValue);
+                        details["invitation_id"] = invitationId;
+                        details["invite_code"] = invitation.get("invite_code", "").asString();
+                        details["contact"] = invitation.get("contact", "").asString();
+                        return details;
+                    }()));
+            organizationRepository_.upsertOrganization(organization);
+            return;
+        }
+        if (!found)
+        {
+            throw common::AppException("INVITATION_NOT_FOUND", "Invitation not found", drogon::k404NotFound);
+        }
+    }
+
+    Json::Value acceptInvitation(const std::string &actorUserId, const std::string &inviteCode)
+    {
+        const auto actor = userRepository_.findUserById(actorUserId);
+        if (actor.isNull())
+        {
+            throw common::AppException("USER_NOT_FOUND", "User not found: " + actorUserId, drogon::k404NotFound);
+        }
+
+        const auto organizations = organizationRepository_.allOrganizationsArray();
+        for (const auto &organizationValue : organizations)
+        {
+            auto organization = requireOrganization(organizationValue.get("organization_id", organizationValue.get("scope_id", "")).asString());
+            auto invitations = organization.get("invitations", Json::Value(Json::arrayValue));
+            for (Json::ArrayIndex index = 0; index < invitations.size(); ++index)
+            {
+                auto invitation = invitations[index];
+                if (invitation.get("invite_code", "").asString() != inviteCode)
+                {
+                    continue;
+                }
+                if (invitation.get("status", "pending").asString() != "pending")
+                {
+                    throw common::AppException("INVITATION_INVALID", "Invitation is no longer pending", drogon::k409Conflict);
+                }
+                if (isExpiredIso8601(invitation.get("expires_at", "").asString()))
+                {
+                    throw common::AppException("INVITATION_EXPIRED", "Invitation has expired", drogon::k409Conflict);
+                }
+                const auto targetUserId = invitation.get("target_user_id", "").asString();
+                if (!targetUserId.empty() && targetUserId != actorUserId)
+                {
+                    throw common::AppException("INVITATION_FORBIDDEN", "Invitation belongs to another account", drogon::k403Forbidden);
+                }
+                ensureInvitationContactVerified(actor, invitation);
+                const auto organizationId = organization.get("organization_id", "").asString();
+                if (!organizationRepository_.findMembership(actorUserId, organizationId).isNull())
+                {
+                    throw common::AppException("ALREADY_MEMBER", "You already belong to this organization", drogon::k409Conflict);
+                }
+                const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
+                const auto seats = subscription.get("seats", 0).asInt();
+                if (seats > 0 && organizationRepository_.memberCount(organizationId) >= seats)
+                {
+                    throw common::AppException("ORGANIZATION_SEATS_FULL", "Organization seat limit reached", drogon::k409Conflict);
+                }
+
+                Json::Value membership(Json::objectValue);
+                membership["user_id"] = actorUserId;
+                membership["scope_type"] = "organization";
+                membership["scope_id"] = organizationId;
+                membership["organization_type"] = organization.get("organization_type", "business").asString();
+                membership["roles"] = normalizeMemberRoles(invitation.get("roles", defaultMemberRoles()));
+                membership["joined_at"] = common::nowIso8601();
+                membership["member_no"] = invitation.get("member_no", "").asString();
+                membership["student_no"] = invitation.get("student_no", "").asString();
+                membership["employee_no"] = invitation.get("employee_no", "").asString();
+                membership = assignBusinessNumbers(organization, membership, Json::Value(Json::nullValue));
+                auto savedMembership = organizationRepository_.upsertMembership(membership);
+
+                invitation["status"] = "accepted";
+                invitation["accepted_by"] = actorUserId;
+                invitation["accepted_at"] = common::nowIso8601();
+                invitations[index] = invitation;
+                organization["invitations"] = invitations;
+                organization = appendAuditEntry(
+                    organization,
+                    createAuditEntry(
+                        actorUserId,
+                        "invitation.accepted",
+                        "接受组织邀请",
+                        [&] {
+                            Json::Value details(Json::objectValue);
+                            details["organization_id"] = organizationId;
+                            details["invitation_id"] = invitation.get("invitation_id", "").asString();
+                            details["invite_code"] = inviteCode;
+                            details["membership_id"] = savedMembership.get("membership_id", "").asString();
+                            return details;
+                        }()));
+                organization = organizationRepository_.upsertOrganization(organization);
+
+                Json::Value result(Json::objectValue);
+                result["organization"] = enrichOrganization(organization);
+                result["membership"] = enrichMembership(savedMembership);
+                return result;
+            }
+        }
+
+        throw common::AppException("INVITATION_NOT_FOUND", "Invitation not found", drogon::k404NotFound);
+    }
+
+    Json::Value listPendingInvitationsForUser(const std::string &actorUserId) const
+    {
+        const auto actor = userRepository_.findUserById(actorUserId);
+        if (actor.isNull())
+        {
+            throw common::AppException("USER_NOT_FOUND", "User not found: " + actorUserId, drogon::k404NotFound);
+        }
+
+        std::vector<Json::Value> visibleInvitations;
+        const auto organizations = organizationRepository_.allOrganizationsArray();
+        for (const auto &organizationValue : organizations)
+        {
+            const auto organizationId = organizationValue.get("organization_id", organizationValue.get("scope_id", "")).asString();
+            if (organizationId.empty())
+            {
+                continue;
+            }
+            const auto organization = requireOrganization(organizationId);
+            for (const auto &invitation : organization.get("invitations", Json::Value(Json::arrayValue)))
+            {
+                const auto invitationView = buildPendingInvitationView(actor, organization, invitation);
+                if (!invitationView.isNull())
+                {
+                    visibleInvitations.push_back(invitationView);
+                }
+            }
+        }
+
+        std::sort(visibleInvitations.begin(), visibleInvitations.end(), [](const Json::Value &left, const Json::Value &right) {
+            const auto leftCanAccept = left.get("can_accept", false).asBool();
+            const auto rightCanAccept = right.get("can_accept", false).asBool();
+            if (leftCanAccept != rightCanAccept)
+            {
+                return leftCanAccept > rightCanAccept;
+            }
+            return left.get("created_at", "").asString() > right.get("created_at", "").asString();
+        });
+
+        Json::Value out(Json::arrayValue);
+        for (const auto &entry : visibleInvitations)
+        {
+            out.append(entry);
+        }
+        return out;
+    }
+
+    Json::Value upsertMember(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload)
     {
         const auto organization = requireOrganization(organizationId);
         const auto userId = payload.get("user_id", "").asString();
@@ -130,26 +434,101 @@ class OrganizationService
             throw common::AppException("ORGANIZATION_SEATS_FULL", "Organization seat limit reached", drogon::k409Conflict);
         }
 
+        const auto roles = normalizeMemberRoles(payload.isMember("roles") ? payload["roles"] : defaultMemberRoles());
+        ensureOrgAdminGuard(organizationId, existing, roles);
+
         Json::Value membership(Json::objectValue);
         membership["membership_id"] = existing.isNull() ? Json::Value(Json::nullValue) : existing.get("membership_id", "");
         membership["user_id"] = userId;
         membership["scope_type"] = "organization";
         membership["scope_id"] = organizationId;
         membership["organization_type"] = organization.get("organization_type", "business").asString();
-        membership["roles"] = payload.isMember("roles") ? payload["roles"] : defaultMemberRoles();
+        membership["roles"] = roles;
         membership["joined_at"] = existing.isNull() ? common::nowIso8601() : existing.get("joined_at", common::nowIso8601()).asString();
         membership["member_no"] = payload.get("member_no", existing.get("member_no", "")).asString();
         membership["student_no"] = payload.get("student_no", existing.get("student_no", "")).asString();
         membership["employee_no"] = payload.get("employee_no", existing.get("employee_no", "")).asString();
         membership = assignBusinessNumbers(organization, membership, existing);
 
-        return enrichMembership(organizationRepository_.upsertMembership(membership));
+        auto savedMembership = organizationRepository_.upsertMembership(membership);
+        auto savedOrganization = requireOrganization(organizationId);
+        savedOrganization = appendAuditEntry(
+            savedOrganization,
+            createAuditEntry(
+                actorUserId,
+                existing.isNull() ? "member.added" : "member.updated",
+                existing.isNull() ? "添加组织成员" : "更新组织成员",
+                [&] {
+                    Json::Value details(Json::objectValue);
+                    details["user_id"] = userId;
+                    details["username"] = user.get("username", "").asString();
+                    details["roles"] = roles;
+                    details["member_no"] = savedMembership.get("member_no", "").asString();
+                    if (!existing.isNull())
+                    {
+                        details["previous_roles"] = existing["roles"];
+                        details["previous_member_no"] = existing.get("member_no", "").asString();
+                    }
+                    return details;
+                }()));
+        organizationRepository_.upsertOrganization(savedOrganization);
+
+        return enrichMembership(savedMembership);
     }
 
-    void removeMember(const std::string &organizationId, const std::string &userId)
+    void removeMember(const std::string &actorUserId, const std::string &organizationId, const std::string &userId)
     {
-        requireOrganization(organizationId);
+        auto organization = requireOrganization(organizationId);
+        const auto existing = organizationRepository_.findMembership(userId, organizationId);
+        if (existing.isNull())
+        {
+            return;
+        }
+        ensureOrgAdminGuard(organizationId, existing, Json::Value(Json::nullValue));
+        const auto user = userRepository_.findUserById(userId);
         organizationRepository_.removeMembership(userId, organizationId);
+        organization = appendAuditEntry(
+            organization,
+            createAuditEntry(
+                actorUserId,
+                "member.removed",
+                "移除组织成员",
+                [&] {
+                    Json::Value details(Json::objectValue);
+                    details["user_id"] = userId;
+                    details["username"] = user.isNull() ? std::string("") : user.get("username", "").asString();
+                    details["roles"] = existing["roles"];
+                    details["member_no"] = existing.get("member_no", "").asString();
+                    return details;
+                }()));
+        organizationRepository_.upsertOrganization(organization);
+    }
+
+    Json::Value updateSubscription(const std::string &actorUserId, const std::string &organizationId, const Json::Value &patch)
+    {
+        const auto before = subscriptionService_.subscriptionForOrganization(organizationId);
+        const auto updated = subscriptionService_.updateOrganizationSubscription(organizationId, patch);
+        auto organization = requireOrganization(organizationId);
+        organization = appendAuditEntry(
+            organization,
+            createAuditEntry(
+                actorUserId,
+                "subscription.updated",
+                "更新组织套餐与席位",
+                [&] {
+                    Json::Value details(Json::objectValue);
+                    details["previous_plan"] = before.get("plan", "free").asString();
+                    details["plan"] = updated.get("plan", "free").asString();
+                    details["previous_status"] = before.get("status", "active").asString();
+                    details["status"] = updated.get("status", "active").asString();
+                    details["previous_seats"] = before.get("seats", 0).asInt();
+                    details["seats"] = updated.get("seats", 0).asInt();
+                    details["previous_expires_at"] = before.get("expires_at", "").asString();
+                    details["expires_at"] = updated.get("expires_at", "").asString();
+                    return details;
+                }()));
+        organizationRepository_.upsertOrganization(organization);
+        return updated;
     }
 
     bool canAccessOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const
@@ -201,6 +580,14 @@ class OrganizationService
         organization["member_count"] = organizationRepository_.memberCount(organizationId);
         organization["subscription"] = subscriptionService_.subscriptionForOrganization(organizationId);
         organization["seats"] = organization["subscription"].get("seats", 0).asInt();
+        if (!organization.isMember("invitations") || !organization["invitations"].isArray())
+        {
+            organization["invitations"] = Json::arrayValue;
+        }
+        if (!organization.isMember("audit_logs") || !organization["audit_logs"].isArray())
+        {
+            organization["audit_logs"] = Json::arrayValue;
+        }
         return organization;
     }
 
@@ -322,6 +709,503 @@ class OrganizationService
         return roles;
     }
 
+    static Json::Value allowedMembershipRoles()
+    {
+        Json::Value roles(Json::arrayValue);
+        roles.append("student");
+        roles.append("teacher");
+        roles.append("reviewer");
+        roles.append("orgAdmin");
+        return roles;
+    }
+
+    static bool hasRole(const Json::Value &roles, const std::string &expected)
+    {
+        for (const auto &role : roles)
+        {
+            if (role.asString() == expected)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static Json::Value normalizeMemberRoles(const Json::Value &inputRoles)
+    {
+        Json::Value roles(Json::arrayValue);
+        std::unordered_set<std::string> seen;
+        std::unordered_set<std::string> allowed;
+        for (const auto &role : allowedMembershipRoles())
+        {
+            allowed.insert(role.asString());
+        }
+
+        if (inputRoles.isArray())
+        {
+            for (const auto &role : inputRoles)
+            {
+                const auto value = role.asString();
+                if (value.empty() || !allowed.contains(value) || seen.contains(value))
+                {
+                    continue;
+                }
+                seen.insert(value);
+                roles.append(value);
+            }
+        }
+
+        if (roles.empty())
+        {
+            throw common::AppException("VALIDATION_ERROR", "roles must include at least one valid organization role", drogon::k422UnprocessableEntity);
+        }
+        return roles;
+    }
+
+    Json::Value appendAuditEntry(Json::Value organization, const Json::Value &entry) const
+    {
+        Json::Value logs(Json::arrayValue);
+        logs.append(entry);
+        if (organization["audit_logs"].isArray())
+        {
+            for (const auto &existing : organization["audit_logs"])
+            {
+                if (logs.size() >= 80)
+                {
+                    break;
+                }
+                logs.append(existing);
+            }
+        }
+        organization["audit_logs"] = logs;
+        organization["updated_at"] = common::nowIso8601();
+        return organization;
+    }
+
+    Json::Value prependInvitation(Json::Value organization, const Json::Value &entry) const
+    {
+        Json::Value invitations(Json::arrayValue);
+        invitations.append(entry);
+        if (organization["invitations"].isArray())
+        {
+            for (const auto &existing : organization["invitations"])
+            {
+                invitations.append(existing);
+            }
+        }
+        organization["invitations"] = invitations;
+        organization["updated_at"] = common::nowIso8601();
+        return organization;
+    }
+
+    Json::Value replaceInvitation(Json::Value organization, const Json::Value &entry) const
+    {
+        auto invitations = organization.get("invitations", Json::Value(Json::arrayValue));
+        bool replaced = false;
+        for (Json::ArrayIndex index = 0; index < invitations.size(); ++index)
+        {
+            if (invitations[index].get("invitation_id", "").asString() != entry.get("invitation_id", "").asString())
+            {
+                continue;
+            }
+            invitations[index] = entry;
+            replaced = true;
+            break;
+        }
+        if (!replaced)
+        {
+            invitations.append(entry);
+        }
+        organization["invitations"] = invitations;
+        organization["updated_at"] = common::nowIso8601();
+        return organization;
+    }
+
+    Json::Value createAuditEntry(const std::string &actorUserId,
+                                 const std::string &action,
+                                 const std::string &summary,
+                                 const Json::Value &details) const
+    {
+        Json::Value entry(Json::objectValue);
+        entry["audit_id"] = common::generateOpaqueId("audit_");
+        entry["action"] = action;
+        entry["summary"] = summary;
+        entry["actor_user_id"] = actorUserId;
+        const auto actor = userRepository_.findUserById(actorUserId);
+        entry["actor_username"] = actor.isNull() ? actorUserId : actor.get("username", actorUserId).asString();
+        entry["created_at"] = common::nowIso8601();
+        entry["details"] = details;
+        return entry;
+    }
+
+    struct InvitationContact
+    {
+        std::string channel;
+        std::string value;
+    };
+
+    struct InvitationEligibility
+    {
+        bool visible{false};
+        bool canAccept{false};
+        bool contactMatches{false};
+        bool contactVerified{false};
+        bool expired{false};
+        std::string blockCode;
+        std::string blockMessage;
+    };
+
+    static InvitationContact extractInvitationContact(const Json::Value &payload)
+    {
+        const auto email = payload.get("email", "").asString();
+        if (looksLikeEmail(email))
+        {
+            return {"email", email};
+        }
+        const auto phone = normalizePhone(payload.get("phone", "").asString());
+        if (!phone.empty())
+        {
+            return {"phone", phone};
+        }
+        throw common::AppException("VALIDATION_ERROR", "Invitation requires a valid email or phone", drogon::k422UnprocessableEntity);
+    }
+
+    Json::Value findUserByInvitationContact(const InvitationContact &contact) const
+    {
+        if (contact.channel == "email")
+        {
+            return userRepository_.findUserByEmail(contact.value);
+        }
+        if (contact.channel == "phone")
+        {
+            return userRepository_.findUserByPhone(contact.value);
+        }
+        return Json::Value(Json::nullValue);
+    }
+
+    Json::Value buildPendingInvitationView(const Json::Value &actor,
+                                          const Json::Value &organization,
+                                          const Json::Value &invitation) const
+    {
+        const auto eligibility = evaluateInvitationEligibility(actor, organization, invitation);
+        if (!eligibility.visible)
+        {
+            return Json::Value(Json::nullValue);
+        }
+
+        Json::Value view(Json::objectValue);
+        view["invitation_id"] = invitation.get("invitation_id", "").asString();
+        view["invite_code"] = invitation.get("invite_code", "").asString();
+        view["organization_id"] = organization.get("organization_id", "").asString();
+        view["organization_name"] = organization.get("name", invitation.get("organization_name", "")).asString();
+        view["organization_type"] = organization.get("organization_type", "business").asString();
+        view["channel"] = invitation.get("channel", "email").asString();
+        view["contact"] = invitation.get("contact", "").asString();
+        view["email"] = invitation.get("email", "").asString();
+        view["phone"] = invitation.get("phone", "").asString();
+        view["target_user_id"] = invitation.get("target_user_id", "").asString();
+        view["status"] = invitation.get("status", "pending").asString();
+        view["roles"] = invitation.get("roles", Json::Value(Json::arrayValue));
+        view["member_no"] = invitation.get("member_no", "").asString();
+        view["student_no"] = invitation.get("student_no", "").asString();
+        view["employee_no"] = invitation.get("employee_no", "").asString();
+        view["message"] = invitation.get("message", "").asString();
+        view["created_by"] = invitation.get("created_by", "").asString();
+        const auto inviter = userRepository_.findUserById(view["created_by"].asString());
+        view["created_by_username"] = inviter.isNull() ? view["created_by"].asString() : inviter.get("username", view["created_by"].asString()).asString();
+        view["created_at"] = invitation.get("created_at", "").asString();
+        view["expires_at"] = invitation.get("expires_at", "").asString();
+        view["delivery_status"] = invitation.get("delivery_status", "pending").asString();
+        view["delivery_provider"] = invitation.get("delivery_provider", "").asString();
+        view["delivery_message_id"] = invitation.get("delivery_message_id", "").asString();
+        view["delivery_error"] = invitation.get("delivery_error", "").asString();
+        view["delivered_at"] = invitation.get("delivered_at", "").asString();
+        view["contact_matches"] = eligibility.contactMatches;
+        view["contact_verified"] = eligibility.contactVerified;
+        view["can_accept"] = eligibility.canAccept;
+        view["is_expired"] = eligibility.expired;
+        view["accept_block_code"] = eligibility.blockCode;
+        view["accept_block_message"] = eligibility.blockMessage;
+        view["accept_url"] = buildInvitationAcceptUrl(invitation.get("invite_code", "").asString());
+        return view;
+    }
+
+    InvitationEligibility evaluateInvitationEligibility(const Json::Value &actor,
+                                                        const Json::Value &organization,
+                                                        const Json::Value &invitation) const
+    {
+        InvitationEligibility eligibility;
+        if (invitation.get("status", "pending").asString() != "pending")
+        {
+            return eligibility;
+        }
+
+        const auto actorUserId = actor.get("id", actor.get("user_id", "")).asString();
+        const auto organizationId = organization.get("organization_id", "").asString();
+        if (!organizationId.empty() && !organizationRepository_.findMembership(actorUserId, organizationId).isNull())
+        {
+            return eligibility;
+        }
+
+        const auto targetUserId = invitation.get("target_user_id", "").asString();
+        if (!targetUserId.empty() && targetUserId != actorUserId)
+        {
+            return eligibility;
+        }
+
+        const auto channel = invitation.get("channel", "").asString();
+        const auto expectedContact = invitation.get("contact", "").asString();
+        const auto matchedByTargetUser = !targetUserId.empty() && targetUserId == actorUserId;
+        const auto matchedByContact = invitationContactMatchesActor(actor, channel, expectedContact);
+        if (!matchedByTargetUser && !matchedByContact)
+        {
+            return eligibility;
+        }
+
+        eligibility.visible = true;
+        eligibility.contactMatches = matchedByContact;
+        eligibility.expired = isExpiredIso8601(invitation.get("expires_at", "").asString());
+        if (eligibility.expired)
+        {
+            eligibility.blockCode = "INVITATION_EXPIRED";
+            eligibility.blockMessage = "邀请已过期，请联系管理员重新发送。";
+            return eligibility;
+        }
+
+        const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
+        const auto seats = subscription.get("seats", 0).asInt();
+        if (seats > 0 && organizationRepository_.memberCount(organizationId) >= seats)
+        {
+            eligibility.blockCode = "ORGANIZATION_SEATS_FULL";
+            eligibility.blockMessage = "组织席位已满，请联系管理员扩容后再加入。";
+            return eligibility;
+        }
+
+        if (channel == "email")
+        {
+            eligibility.contactVerified = actor.get("email_verified", false).asBool();
+            if (!matchedByContact)
+            {
+                eligibility.blockCode = "INVITATION_CONTACT_BIND_REQUIRED";
+                eligibility.blockMessage = "请先绑定并验证受邀邮箱 " + expectedContact;
+                return eligibility;
+            }
+            if (!eligibility.contactVerified)
+            {
+                eligibility.blockCode = "INVITATION_EMAIL_VERIFICATION_REQUIRED";
+                eligibility.blockMessage = "请先验证受邀邮箱 " + expectedContact;
+                return eligibility;
+            }
+            eligibility.canAccept = true;
+            return eligibility;
+        }
+
+        eligibility.contactVerified = actor.get("phone_verified", false).asBool();
+        if (!matchedByContact)
+        {
+            eligibility.blockCode = "INVITATION_CONTACT_BIND_REQUIRED";
+            eligibility.blockMessage = "请先绑定并验证受邀手机号 " + expectedContact;
+            return eligibility;
+        }
+        if (!eligibility.contactVerified)
+        {
+            eligibility.blockCode = "INVITATION_PHONE_VERIFICATION_REQUIRED";
+            eligibility.blockMessage = "请先验证受邀手机号 " + expectedContact;
+            return eligibility;
+        }
+        eligibility.canAccept = true;
+        return eligibility;
+    }
+
+    static bool invitationContactMatchesActor(const Json::Value &actor,
+                                              const std::string &channel,
+                                              const std::string &expectedContact)
+    {
+        if (channel == "email")
+        {
+            return toLowerCopy(actor.get("email", "").asString()) == toLowerCopy(expectedContact);
+        }
+        return normalizePhone(actor.get("phone", "").asString()) == normalizePhone(expectedContact);
+    }
+
+    DeliveryResult deliverInvitation(const Json::Value &organization, const Json::Value &invitation) const
+    {
+        const auto organizationName = organization.get("name", "你的组织").asString();
+        const auto inviteCode = invitation.get("invite_code", "").asString();
+        const auto acceptUrl = buildInvitationAcceptUrl(inviteCode);
+        const auto channel = invitation.get("channel", "email").asString();
+        const auto contact = invitation.get("contact", "").asString();
+
+        std::string roleText;
+        for (const auto &role : invitation["roles"])
+        {
+            if (!roleText.empty())
+            {
+                roleText += " / ";
+            }
+            roleText += role.asString();
+        }
+
+        const auto textBody = "你被 " + organizationName + " 邀请加入组织。角色：" +
+                      (roleText.empty() ? std::string("student") : roleText) +
+                      "。请先登录并验证与你收到邀请相同的" + (channel == "email" ? std::string("邮箱") : std::string("手机号")) +
+                      "（" + contact + "），然后通过以下链接在个人中心完成接受：" + acceptUrl;
+
+        if (channel == "phone")
+        {
+            SmsMessage message;
+            message.to = invitation.get("phone", contact).asString();
+            message.body = textBody;
+            return smsService_.send(message);
+        }
+
+        EmailMessage message;
+        message.toAddress = invitation.get("email", contact).asString();
+        message.subject = organizationName + " 邀请你加入组织";
+        message.textBody = textBody;
+        return emailService_.send(message);
+    }
+
+    Json::Value mergeInvitationDelivery(Json::Value invitation, const DeliveryResult &delivery) const
+    {
+        invitation["delivery_status"] = delivery.delivered ? "sent" : "failed";
+        invitation["delivery_provider"] = delivery.provider;
+        invitation["delivery_message_id"] = delivery.providerMessageId;
+        invitation["delivery_error"] = delivery.errorMessage;
+        invitation["delivered_at"] = delivery.delivered ? common::nowIso8601() : "";
+        return invitation;
+    }
+
+    void ensureInvitationContactVerified(const Json::Value &actor, const Json::Value &invitation) const
+    {
+        const auto channel = invitation.get("channel", "").asString();
+        const auto expectedContact = invitation.get("contact", "").asString();
+        if (channel == "email")
+        {
+            if (!actor.get("email_verified", false).asBool())
+            {
+                throw common::AppException("INVITATION_EMAIL_VERIFICATION_REQUIRED", "Verify the invited email before accepting this invitation", drogon::k409Conflict);
+            }
+            if (toLowerCopy(actor.get("email", "").asString()) != toLowerCopy(expectedContact))
+            {
+                throw common::AppException("INVITATION_CONTACT_MISMATCH", "This invitation requires the verified email " + expectedContact, drogon::k409Conflict);
+            }
+            return;
+        }
+        if (!actor.get("phone_verified", false).asBool())
+        {
+            throw common::AppException("INVITATION_PHONE_VERIFICATION_REQUIRED", "Verify the invited phone before accepting this invitation", drogon::k409Conflict);
+        }
+        if (normalizePhone(actor.get("phone", "").asString()) != normalizePhone(expectedContact))
+        {
+            throw common::AppException("INVITATION_CONTACT_MISMATCH", "This invitation requires the verified phone " + expectedContact, drogon::k409Conflict);
+        }
+    }
+
+    static bool looksLikeEmail(const std::string &value)
+    {
+        const auto atPos = value.find('@');
+        const auto dotPos = value.rfind('.');
+        return !value.empty() && atPos != std::string::npos && dotPos != std::string::npos && dotPos > atPos + 1;
+    }
+
+    static std::string toLowerCopy(std::string value)
+    {
+        for (auto &ch : value)
+        {
+            ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+        }
+        return value;
+    }
+
+    static std::string normalizePhone(const std::string &value)
+    {
+        std::string digits;
+        for (const auto ch : value)
+        {
+            if (ch >= '0' && ch <= '9')
+            {
+                digits.push_back(ch);
+            }
+        }
+        return digits;
+    }
+
+    static std::string generateInvitationCode()
+    {
+        return common::generateOpaqueId("invite_");
+    }
+
+    std::string buildInvitationAcceptUrl(const std::string &inviteCode) const
+    {
+        auto baseUrl = publicWebBaseUrl_.empty() ? std::string("http://127.0.0.1:8000") : publicWebBaseUrl_;
+        while (!baseUrl.empty() && baseUrl.back() == '/')
+        {
+            baseUrl.pop_back();
+        }
+        return baseUrl + "/?invite_token=" + inviteCode;
+    }
+
+    static std::string defaultInvitationExpiresAt()
+    {
+        using namespace std::chrono;
+        const auto inviteTime = system_clock::now() + hours(24 * 7);
+        const auto secondsPart = time_point_cast<std::chrono::seconds>(inviteTime);
+        const auto ms = duration_cast<milliseconds>(inviteTime - secondsPart).count();
+        const auto timeValue = system_clock::to_time_t(inviteTime);
+
+        std::tm tm{};
+#ifdef _WIN32
+        gmtime_s(&tm, &timeValue);
+#else
+        gmtime_r(&timeValue, &tm);
+#endif
+
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S")
+            << "." << std::setw(3) << std::setfill('0') << ms
+            << "Z";
+        return oss.str();
+    }
+
+    static bool isExpiredIso8601(const std::string &value)
+    {
+        return !value.empty() && value < common::nowIso8601();
+    }
+
+    void ensureOrgAdminGuard(const std::string &organizationId, const Json::Value &existing, const Json::Value &nextRoles) const
+    {
+        if (existing.isNull() || !hasRole(existing["roles"], "orgAdmin"))
+        {
+            return;
+        }
+
+        const auto willRemainOrgAdmin = !nextRoles.isNull() && hasRole(nextRoles, "orgAdmin");
+        if (willRemainOrgAdmin)
+        {
+            return;
+        }
+
+        if (organizationAdminCount(organizationId) <= 1)
+        {
+            throw common::AppException("LAST_ORG_ADMIN", "Organization must retain at least one orgAdmin", drogon::k409Conflict);
+        }
+    }
+
+    int organizationAdminCount(const std::string &organizationId) const
+    {
+        const auto memberships = organizationRepository_.listMembershipsForScope(organizationId);
+        int count = 0;
+        for (const auto &membership : memberships)
+        {
+            if (hasRole(membership["roles"], "orgAdmin"))
+            {
+                ++count;
+            }
+        }
+        return count;
+    }
+
     static std::string generateOrganizationId()
     {
         return common::generateOpaqueId("org_");
@@ -343,5 +1227,8 @@ class OrganizationService
     infrastructure::storage::OrganizationRepository &organizationRepository_;
     infrastructure::storage::UserRepository &userRepository_;
     SubscriptionService &subscriptionService_;
+    SmsService &smsService_;
+    EmailService &emailService_;
+    std::string publicWebBaseUrl_;
 };
 }  // namespace application::services

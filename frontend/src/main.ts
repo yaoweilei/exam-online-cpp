@@ -1,7 +1,7 @@
 import { ApiClient } from './api/client.js';
 import { loadExams } from './features/exams.js';
 import { bootViewerApp } from './features/viewerBootstrap.js';
-import { restoreSession, clearSession } from './features/session.js';
+import { restoreSession, clearSession, captureReferralCodeFromUrl } from './features/session.js';
 import { AppStore } from './state/store.js';
 import { LoginModal } from './features/login.js';
 
@@ -18,6 +18,7 @@ async function bootstrap(): Promise<void> {
 		'/api/v2';
 	(window as Window & { __WEB_APP_MODE__?: boolean }).__WEB_APP_MODE__ = true;
 	(window as Window & { __APP_DEBUG__?: boolean }).__APP_DEBUG__ = false;
+	captureReferralCodeFromUrl();
 
 	const api = new ApiClient('/api/v2');
 	const store = new AppStore();

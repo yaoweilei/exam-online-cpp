@@ -1,6 +1,6 @@
 import { ApiClient } from '../api/client.js';
 import type { MeContext } from '../api/dto.js';
-import { buildCurrentUser, persistSession } from './session.js';
+import { buildCurrentUser, persistSession, readPendingReferralCode, clearPendingReferralCode } from './session.js';
 import { AppStore } from '../state/store.js';
 
 type LoginMode = 'wechat' | 'phone' | 'password';
@@ -72,7 +72,7 @@ export class LoginModal {
 
 		// Show/hide panels
 		this.modal.querySelectorAll<HTMLElement>('[data-panel]').forEach((el) => {
-			el.style.display = el.dataset.panel === mode ? 'block' : 'none';
+			el.classList.toggle('is-active', el.dataset.panel === mode);
 		});
 
 		this.clearError();
@@ -124,7 +124,10 @@ export class LoginModal {
 			if (stubBtn) {
 				stubBtn.textContent = '🔧 随机测试 ID 登录';
 				stubBtn.onclick = () => {
-					void this.simulateWechatScan(data.state);
+					const testIds = Array.isArray(data.test_ids) ? data.test_ids : [];
+					const selectedId = testIds[Math.floor(Math.random() * testIds.length)]
+						?? `wxstub_${Math.random().toString(36).slice(2, 8)}`;
+					void this.loginWithDevelopmentUser(selectedId);
 				};
 			}
 
@@ -137,7 +140,7 @@ export class LoginModal {
 					button.className = 'login-test-id-item';
 					button.textContent = testId;
 					button.addEventListener('click', () => {
-						void this.simulateWechatScan(data.state, testId);
+						void this.loginWithDevelopmentUser(testId);
 					});
 					testIdList.appendChild(button);
 				}
@@ -146,6 +149,32 @@ export class LoginModal {
 			this.startPolling(data.state);
 		} catch (e) {
 			if (statusEl) statusEl.textContent = '二维码加载失败，请刷新重试';
+		}
+	}
+
+	private async loginWithDevelopmentUser(loginId: string): Promise<void> {
+		const statusEl = this.modal.querySelector<HTMLElement>('#wechat-status');
+		const safeLoginId = loginId.trim();
+
+		if (!safeLoginId) {
+			this.showError('测试 ID 不能为空');
+			return;
+		}
+
+		this.stopPolling();
+		this.clearError();
+		if (statusEl) statusEl.textContent = `正在登录 ${safeLoginId}...`;
+
+		try {
+			const data = await this.api.request<{ token: string; user_id: string; username: string; roles: string[] }>(
+				'/auth/login',
+				{ method: 'POST', body: JSON.stringify({ username: safeLoginId, password: '' }) }
+			);
+			if (statusEl) statusEl.textContent = '';
+			await this.onLoginSuccess(data);
+		} catch (e) {
+			if (statusEl) statusEl.textContent = '';
+			this.showError((e as Error).message || '测试 ID 登录失败');
 		}
 	}
 
@@ -266,7 +295,23 @@ export class LoginModal {
 	// ─── Common ──────────────────────────────────────────────────────────────
 
 	private async onLoginSuccess(payload: { token: string; user_id: string; username: string; roles: string[] }): Promise<void> {
-		const context = (await this.api.getMeContext(payload.token)) as MeContext;
+		let context = (await this.api.getMeContext(payload.token)) as MeContext;
+		const pendingReferralCode = readPendingReferralCode();
+		const hasReferrer = Boolean(context.user?.referral?.hasReferrer ?? context.user?.referral?.has_referrer);
+		const ownReferralCode = (context.user?.referral?.code || context.user?.referral?.referral_code || '').trim().toUpperCase();
+		if (pendingReferralCode) {
+			if (hasReferrer || (ownReferralCode && ownReferralCode === pendingReferralCode)) {
+				clearPendingReferralCode();
+			} else {
+				try {
+					await this.api.claimReferralCode(payload.token, pendingReferralCode);
+					clearPendingReferralCode();
+					context = (await this.api.getMeContext(payload.token)) as MeContext;
+				} catch {
+					// Keep the pending code for a later eligible sign-in.
+				}
+			}
+		}
 		const user = buildCurrentUser(context, payload.token);
 		persistSession(user);
 		this.store.setState({ user });
@@ -280,11 +325,19 @@ export class LoginModal {
 
 	private showError(msg: string): void {
 		const el = this.modal.querySelector<HTMLElement>('#login-error');
-		if (el) { el.textContent = msg; el.style.display = 'block'; }
+		if (el) {
+			el.textContent = msg;
+			el.style.display = 'block';
+			el.classList.add('has-message');
+		}
 	}
 
 	private clearError(): void {
 		const el = this.modal.querySelector<HTMLElement>('#login-error');
-		if (el) { el.textContent = ''; el.style.display = 'none'; }
+		if (el) {
+			el.textContent = '';
+			el.style.display = 'block';
+			el.classList.remove('has-message');
+		}
 	}
 }

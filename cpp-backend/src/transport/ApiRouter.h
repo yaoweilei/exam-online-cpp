@@ -7,6 +7,8 @@
 #include "application/services/AnswerService.h"
 #include "application/services/AuthService.h"
 #include "application/services/BookmarkService.h"
+#include "application/services/ContactChangeChallengeService.h"
+#include "application/services/EmailVerificationService.h"
 #include "application/services/ExamService.h"
 #include "application/services/FuriganaService.h"
 #include "application/services/OrganizationService.h"
@@ -34,6 +36,8 @@ struct AppContext
     application::services::BookmarkService *bookmarkService{nullptr};
     application::services::SubscriptionService *subscriptionService{nullptr};
     application::services::PhoneService *phoneService{nullptr};
+    application::services::EmailVerificationService *emailVerificationService{nullptr};
+    application::services::ContactChangeChallengeService *contactChangeChallengeService{nullptr};
     application::services::WechatService *wechatService{nullptr};
     application::recommendation::RecommendationStrategy *recommendationStrategy{nullptr};
 };

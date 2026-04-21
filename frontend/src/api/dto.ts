@@ -147,6 +147,58 @@ export interface MembershipView {
 	status?: string;
 }
 
+export interface OrganizationInvitationView {
+	invitation_id: string;
+	invite_code: string;
+	organization_id: string;
+	organization_name?: string;
+	channel: 'email' | 'phone';
+	contact: string;
+	email?: string;
+	phone?: string;
+	target_user_id?: string;
+	status: 'pending' | 'accepted' | 'cancelled';
+	roles: RoleId[];
+	member_no?: string;
+	student_no?: string;
+	employee_no?: string;
+	message?: string;
+	created_by: string;
+	created_at: string;
+	expires_at: string;
+	accepted_by?: string;
+	accepted_at?: string;
+	cancelled_by?: string;
+	cancelled_at?: string;
+	delivery_status?: 'pending' | 'sent' | 'failed';
+	delivery_provider?: string;
+	delivery_message_id?: string;
+	delivery_error?: string;
+	delivered_at?: string;
+}
+
+export interface OrganizationAuditLogView {
+	audit_id: string;
+	action: string;
+	summary: string;
+	actor_user_id: string;
+	actor_username?: string;
+	created_at: string;
+	details?: Record<string, unknown>;
+}
+
+export interface PendingOrganizationInvitationView extends OrganizationInvitationView {
+	organization_type?: string;
+	created_by_username?: string;
+	contact_matches: boolean;
+	contact_verified: boolean;
+	can_accept: boolean;
+	is_expired: boolean;
+	accept_block_code?: string;
+	accept_block_message?: string;
+	accept_url?: string;
+}
+
 export interface OrganizationView {
 	organization_id: string;
 	scope_type: 'organization';
@@ -159,6 +211,8 @@ export interface OrganizationView {
 	member_count: number;
 	seats: number;
 	subscription: SubscriptionView;
+	invitations?: OrganizationInvitationView[];
+	audit_logs?: OrganizationAuditLogView[];
 }
 
 export interface PermissionItem {
@@ -186,6 +240,29 @@ export interface UserBalance {
 	updatedAt: string;
 }
 
+export interface ReferralView {
+	code: string;
+	referral_code: string;
+	referred_by_user_id?: string;
+	referredByUserId?: string;
+	referred_by_code?: string;
+	referredByCode?: string;
+	bound_at?: string;
+	boundAt?: string;
+	reward_status: 'none' | 'pending' | 'granted' | 'rejected';
+	rewardStatus?: 'none' | 'pending' | 'granted' | 'rejected';
+	reward_granted_at?: string;
+	rewardGrantedAt?: string;
+	reward_trigger?: string;
+	rewardTrigger?: string;
+	reward_credit_amount?: number;
+	rewardCreditAmount?: number;
+	reward_credit_recipient_user_id?: string;
+	rewardCreditRecipientUserId?: string;
+	has_referrer: boolean;
+	hasReferrer?: boolean;
+}
+
 export interface UserView {
 	id: string;
 	user_id: string;
@@ -198,6 +275,7 @@ export interface UserView {
 	employeeNo?: string;
 	dev_login_id?: string;
 	email: string;
+	email_verified: boolean;
 	phone: string;
 	phone_verified: boolean;
 	status: string;
@@ -226,6 +304,7 @@ export interface UserView {
 	accessible_levels: string[];
 	accessibleLevels: string[];
 	balance: UserBalance;
+	referral: ReferralView;
 }
 
 export interface MeContext {

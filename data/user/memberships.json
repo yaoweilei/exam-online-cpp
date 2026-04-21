@@ -1,1 +1,210 @@
-{}
+{
+  "org_019da90a-c65f-7070-8133-868932764be7:usr_019da90a-c638-758f-8503-6685a003d0ac" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T03:59:08.896Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019da90a-c660-7a41-87b7-6f9739e8f426",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019da90a-c65f-7070-8133-868932764be7",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac"
+  },
+  "org_019da90a-c65f-7070-8133-868932764be7:usr_019da90a-c658-75b6-8472-9e9d63b39f29" : 
+  {
+    "employee_no" : "MEM-20260420115908",
+    "joined_at" : "2026-04-20T03:59:08.912Z",
+    "member_no" : "MEM-20260420115908",
+    "membership_id" : "mem_019da90a-c670-71e2-a78d-3fae1f379c24",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "student"
+    ],
+    "scope_id" : "org_019da90a-c65f-7070-8133-868932764be7",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da90a-c658-75b6-8472-9e9d63b39f29"
+  },
+  "org_019da90a-c6cf-7488-bbf0-01b43595a2fd:usr_019da90a-c638-758f-8503-6685a003d0ac" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T03:59:09.008Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019da90a-c6d0-7a7b-9934-e64a04e99850",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019da90a-c6cf-7488-bbf0-01b43595a2fd",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da90a-c638-758f-8503-6685a003d0ac"
+  },
+  "org_019da91c-746c-7e6a-b8f8-270d1922ec5f:usr_019da91c-7452-71ae-b685-cad070953740" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T04:18:27.565Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019da91c-746d-70da-a0e6-2f7b69fc28e2",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019da91c-746c-7e6a-b8f8-270d1922ec5f",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91c-7452-71ae-b685-cad070953740"
+  },
+  "org_019da91c-746c-7e6a-b8f8-270d1922ec5f:usr_019da91c-7463-71c7-8d1d-4fd751f8efa4" : 
+  {
+    "employee_no" : "MEM-20260420121827",
+    "joined_at" : "2026-04-20T04:18:27.583Z",
+    "member_no" : "MEM-20260420121827",
+    "membership_id" : "mem_019da91c-7480-7bce-8304-21f5270338e7",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "student"
+    ],
+    "scope_id" : "org_019da91c-746c-7e6a-b8f8-270d1922ec5f",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91c-7463-71c7-8d1d-4fd751f8efa4"
+  },
+  "org_019da91c-74e1-79d4-b57a-ec38bfecd9b7:usr_019da91c-7452-71ae-b685-cad070953740" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T04:18:27.682Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019da91c-74e2-7d0d-9eab-ec1e5633796e",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019da91c-74e1-79d4-b57a-ec38bfecd9b7",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91c-7452-71ae-b685-cad070953740"
+  },
+  "org_019da91e-b8ce-7995-a042-492d4a2625d2:usr_019da91e-b8a7-738e-a0fd-d2589bc76180" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T04:20:56.143Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019da91e-b8cf-7870-b9b6-9ebb583dad3f",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019da91e-b8ce-7995-a042-492d4a2625d2",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180"
+  },
+  "org_019da91e-b8ce-7995-a042-492d4a2625d2:usr_019da91e-b8c7-7ff4-8184-9233d372e1dd" : 
+  {
+    "employee_no" : "MEM-20260420122056",
+    "joined_at" : "2026-04-20T04:20:56.160Z",
+    "member_no" : "MEM-20260420122056",
+    "membership_id" : "mem_019da91e-b8e0-7ded-9791-74f519f50ef1",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "student"
+    ],
+    "scope_id" : "org_019da91e-b8ce-7995-a042-492d4a2625d2",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91e-b8c7-7ff4-8184-9233d372e1dd"
+  },
+  "org_019da91e-b944-735a-ae28-568b7586533a:usr_019da91e-b8a7-738e-a0fd-d2589bc76180" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T04:20:56.261Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019da91e-b945-7ec6-b29d-ff1f8b1b1108",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019da91e-b944-735a-ae28-568b7586533a",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91e-b8a7-738e-a0fd-d2589bc76180"
+  },
+  "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a:usr_019da91e-fd6f-7d2b-aa70-b34dc6812055" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T04:21:13.756Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019da91e-fd9c-7578-921d-f513c3f4a950",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055"
+  },
+  "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a:usr_019da91e-fd91-74ff-a782-7cc5e4738d73" : 
+  {
+    "employee_no" : "MEM-20260420122113",
+    "joined_at" : "2026-04-20T04:21:13.775Z",
+    "member_no" : "MEM-20260420122113",
+    "membership_id" : "mem_019da91e-fdaf-7fa3-802a-1eac9c0c2a99",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "student"
+    ],
+    "scope_id" : "org_019da91e-fd9a-7ec9-98d4-d1f83e79356a",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91e-fd91-74ff-a782-7cc5e4738d73"
+  },
+  "org_019da91e-fe1f-7def-a5d6-9beecf4f4bb9:usr_019da91e-fd6f-7d2b-aa70-b34dc6812055" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T04:21:13.889Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019da91e-fe21-7176-99cd-570f0df1ef29",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019da91e-fe1f-7def-a5d6-9beecf4f4bb9",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019da91e-fd6f-7d2b-aa70-b34dc6812055"
+  },
+  "org_019dab7f-726e-73ca-ae5b-d2610c608000:usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-20T15:25:49.552Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019dab7f-7270-7315-aa92-c7e48e539a59",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019dab7f-726e-73ca-ae5b-d2610c608000",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e"
+  }
+}

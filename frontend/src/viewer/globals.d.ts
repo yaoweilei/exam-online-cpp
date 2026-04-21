@@ -11,8 +11,13 @@ interface ApiEnvelope<T> {
 interface LegacyApiClientShape {
 	request<T = unknown>(path: string, options?: RequestInit): Promise<T>;
 	login(username: string, password: string): Promise<unknown>;
-	register(username: string, password: string, email?: string | null): Promise<unknown>;
+	register(username: string, password: string, email?: string | null, referralCode?: string): Promise<unknown>;
 	logout(token: string): Promise<unknown>;
+	sendContactChangeChallenge(token: string, channel: 'email' | 'phone'): Promise<unknown>;
+	sendPhoneVerificationCode(phone: string): Promise<unknown>;
+	verifyPhone(token: string, phone: string, code: string, options?: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string }): Promise<unknown>;
+	sendEmailVerificationCode(token: string, email: string): Promise<unknown>;
+	verifyEmail(token: string, email: string, code: string, options?: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string }): Promise<unknown>;
 	verifyToken(token: string): Promise<unknown>;
 	getExams(options?: { level?: string; year?: string; sort?: string }): Promise<unknown[]>;
 	getExam(examId: string, userId?: string): Promise<unknown>;
@@ -27,6 +32,7 @@ interface LegacyApiClientShape {
 	getLearningCurve(userId: string, days?: number): Promise<unknown>;
 	getRecommendations(userId: string, limit?: number): Promise<unknown>;
 	getUser(userId: string): Promise<unknown>;
+	searchUsers(token: string, query: string, limit?: number): Promise<unknown[]>;
 	getUsersByRole(roleId: string): Promise<unknown[]>;
 	getUserPermissions(userId: string): Promise<unknown>;
 	getAllRoles(): Promise<unknown>;
@@ -35,12 +41,18 @@ interface LegacyApiClientShape {
 	getSubscription(scopeId: string, options?: { scopeType?: 'personal' | 'organization' }): Promise<unknown>;
 	getMe(token: string): Promise<unknown>;
 	getMeContext(token: string): Promise<unknown>;
+	claimReferralCode(token: string, referralCode: string): Promise<unknown>;
+	getMyPendingOrganizationInvitations(token: string): Promise<unknown[]>;
 	getOrganizations(token: string): Promise<unknown[]>;
 	getOrganization(organizationId: string, token: string): Promise<unknown>;
 	createOrganization(token: string, payload: unknown): Promise<unknown>;
 	getOrganizationMembers(organizationId: string, token: string): Promise<unknown[]>;
 	saveOrganizationMember(organizationId: string, token: string, payload: unknown): Promise<unknown>;
 	removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown>;
+	saveOrganizationInvitation(organizationId: string, token: string, payload: unknown): Promise<unknown>;
+	cancelOrganizationInvitation(organizationId: string, invitationId: string, token: string): Promise<unknown>;
+	acceptOrganizationInvitation(token: string, inviteToken: string): Promise<unknown>;
+	updateOrganizationSubscription(organizationId: string, token: string, payload: unknown): Promise<unknown>;
 	addFurigana(text: string): Promise<unknown>;
 	getReading(word: string): Promise<unknown>;
 }

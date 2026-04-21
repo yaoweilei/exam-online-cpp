@@ -66,6 +66,11 @@ export class ApiClient {
 		return this.request(`/users/${userId}`);
 	}
 
+	searchUsers(token: string, query: string, limit = 12): Promise<unknown[]> {
+		const params = new URLSearchParams({ token, q: query, limit: String(limit) });
+		return this.request(`/users/search?${params.toString()}`);
+	}
+
 	getUsersByRole(roleId: string): Promise<unknown[]> {
 		return this.request(`/users/by-role/${roleId}`);
 	}
@@ -96,6 +101,63 @@ export class ApiClient {
 		});
 	}
 
+	sendContactChangeChallenge(token: string, channel: 'email' | 'phone'): Promise<unknown> {
+		return this.request('/auth/contact-change/send-code', {
+			method: 'POST',
+			body: JSON.stringify({ token, channel })
+		});
+	}
+
+	sendPhoneVerificationCode(phone: string): Promise<unknown> {
+		return this.request('/auth/phone/send-code', {
+			method: 'POST',
+			body: JSON.stringify({ phone })
+		});
+	}
+
+	verifyPhone(
+		token: string,
+		phone: string,
+		code: string,
+		options: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string } = {}
+	): Promise<unknown> {
+		return this.request('/auth/phone/verify', {
+			method: 'POST',
+			body: JSON.stringify({
+				token,
+				phone,
+				code,
+				change_challenge_channel: options.changeChallengeChannel || '',
+				change_challenge_code: options.changeChallengeCode || ''
+			})
+		});
+	}
+
+	sendEmailVerificationCode(token: string, email: string): Promise<unknown> {
+		return this.request('/auth/email/send-code', {
+			method: 'POST',
+			body: JSON.stringify({ token, email })
+		});
+	}
+
+	verifyEmail(
+		token: string,
+		email: string,
+		code: string,
+		options: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string } = {}
+	): Promise<unknown> {
+		return this.request('/auth/email/verify', {
+			method: 'POST',
+			body: JSON.stringify({
+				token,
+				email,
+				code,
+				change_challenge_channel: options.changeChallengeChannel || '',
+				change_challenge_code: options.changeChallengeCode || ''
+			})
+		});
+	}
+
 	getSubscription(scopeId: string, options: { scopeType?: 'personal' | 'organization' } = {}): Promise<unknown> {
 		const params = new URLSearchParams();
 		if (options.scopeType) {
@@ -111,6 +173,17 @@ export class ApiClient {
 
 	getMeContext(token: string): Promise<unknown> {
 		return this.request(`/me/context?token=${encodeURIComponent(token)}`);
+	}
+
+	claimReferralCode(token: string, referralCode: string): Promise<unknown> {
+		return this.request('/me/referral/claim', {
+			method: 'POST',
+			body: JSON.stringify({ token, referral_code: referralCode })
+		});
+	}
+
+	getMyPendingOrganizationInvitations(token: string): Promise<unknown[]> {
+		return this.request(`/me/invitations?token=${encodeURIComponent(token)}`);
 	}
 
 	getOrganizations(token: string): Promise<unknown[]> {
@@ -142,6 +215,33 @@ export class ApiClient {
 	removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown> {
 		return this.request(`/organizations/${organizationId}/members/${userId}?token=${encodeURIComponent(token)}`, {
 			method: 'DELETE'
+		});
+	}
+
+	saveOrganizationInvitation(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/invitations`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	cancelOrganizationInvitation(organizationId: string, invitationId: string, token: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/invitations/${invitationId}?token=${encodeURIComponent(token)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	acceptOrganizationInvitation(token: string, inviteToken: string): Promise<unknown> {
+		return this.request('/organizations/invitations/accept', {
+			method: 'POST',
+			body: JSON.stringify({ token, invite_token: inviteToken })
+		});
+	}
+
+	updateOrganizationSubscription(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/subscription/${organizationId}/grant`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, scope_type: 'organization' })
 		});
 	}
 }
