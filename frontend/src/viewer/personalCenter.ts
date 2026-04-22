@@ -14,6 +14,14 @@ import type {
 	ContactVerificationDraft, ContactVerificationKind, SectionDef, SystemFlag,
 	FeatureItem, RoleDef, AvatarPreset, AvatarPalette, AvatarSeed
 } from './personalCenter/types.js';
+import {
+	escapeHtml, svgToDataUri, asRecord, readString, readBoolean, readNumber, readCount, readStringArray,
+	deriveFallbackDisplayName, preferredDisplayName, triggerMonogram
+} from './personalCenter/utils.js';
+import { renderAccessory, renderHair, buildAvatarSvg, buildEmojiAvatarSvg, buildAvatarPresets } from './personalCenter/avatar.js';
+import { renderOutlineIcon } from './personalCenter/icons.js';
+import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } from './personalCenter/normalize.js';
+
 
 (function () {
 	const DEBUG = false;
@@ -165,100 +173,6 @@ import type {
 	let pendingInvitations: PendingOrganizationInvitation[] = [];
 	let pendingInvitationsCacheKey = '';
 	let pendingInvitationsLoading: Promise<void> | null = null;
-
-	function escapeHtml(v: unknown): string {
-		return String(v).replace(/[&<>'"`]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\'': '&#39;', '"': '&quot;', '`': '&#96;' }[c] || c));
-	}
-
-	function svgToDataUri(svg: string): string {
-		return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-	}
-
-	function deriveFallbackDisplayName(ctx: PCContext): string {
-		const username = (ctx.username || '').trim();
-		if (username) {
-			return username;
-		}
-		const rawId = (ctx.id || '').trim();
-		if (!rawId) {
-			return '我的账号';
-		}
-		const normalized = rawId.replace(/^usr_/, '');
-		return `用户${normalized.slice(0, 6)}`;
-	}
-
-	function preferredDisplayName(ctx: PCContext): string {
-		const explicit = (ctx.displayName || '').trim();
-		if (explicit) {
-			return explicit;
-		}
-		return deriveFallbackDisplayName(ctx);
-	}
-
-	function asRecord(value: unknown): Record<string, unknown> | null {
-		return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
-	}
-
-	function readString(value: unknown): string | undefined {
-		return typeof value === 'string' && value.trim() ? value : undefined;
-	}
-
-	function readBoolean(value: unknown): boolean | undefined {
-		return typeof value === 'boolean' ? value : undefined;
-	}
-
-	function readNumber(value: unknown): number | undefined {
-		return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
-	}
-
-	function readCount(value: unknown): number | undefined {
-		if (typeof value === 'number' && Number.isFinite(value)) {
-			return value;
-		}
-		if (typeof value === 'string' && value.trim()) {
-			const parsed = Number(value);
-			return Number.isFinite(parsed) ? parsed : undefined;
-		}
-		return undefined;
-	}
-
-	function readStringArray(value: unknown): string[] | undefined {
-		if (!Array.isArray(value)) {
-			return undefined;
-		}
-		return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
-	}
-
-	function normalizeSubscription(value: unknown): PCSubscription | undefined {
-		const raw = asRecord(value);
-		if (!raw) {
-			return undefined;
-		}
-		return {
-			plan: readString(raw.plan) || 'free',
-			status: readString(raw.status) || 'active',
-			expiresAt: readString(raw.expiresAt) || readString(raw.expires_at) || '',
-			seats: readCount(raw.seats)
-		};
-	}
-
-	function normalizeReferral(value: unknown): PCReferral | undefined {
-		const raw = asRecord(value);
-		if (!raw) {
-			return undefined;
-		}
-		const code = readString(raw.code) || readString(raw.referral_code) || '';
-		return {
-			code,
-			hasReferrer: readBoolean(raw.hasReferrer) ?? readBoolean(raw.has_referrer) ?? Boolean(readString(raw.referredByCode) || readString(raw.referred_by_code)),
-			referredByCode: readString(raw.referredByCode) || readString(raw.referred_by_code),
-			boundAt: readString(raw.boundAt) || readString(raw.bound_at),
-			rewardStatus: readString(raw.rewardStatus) || readString(raw.reward_status) || (code ? 'none' : undefined),
-			rewardGrantedAt: readString(raw.rewardGrantedAt) || readString(raw.reward_granted_at),
-			rewardCreditAmount: readCount(raw.rewardCreditAmount) ?? readCount(raw.reward_credit_amount),
-			rewardCreditRecipientUserId: readString(raw.rewardCreditRecipientUserId) || readString(raw.reward_credit_recipient_user_id)
-		};
-	}
 
 	function normalizeContext(ctx: PCContext | Record<string, unknown>): PCContext {
 		const raw = ctx as Record<string, unknown>;
@@ -438,135 +352,6 @@ import type {
 		return `${Math.max(0, Math.ceil((expiresAtMs - Date.now()) / 86400000))} 天`;
 	}
 
-	function triggerMonogram(ctx: PCContext): string {
-		const text = preferredDisplayName(ctx).trim();
-		if (!text) {
-			return '我';
-		}
-		const [first = '我'] = Array.from(text);
-		return /^[A-Za-z0-9]$/.test(first) ? first.toUpperCase() : first;
-	}
-
-	function renderAccessory(kind: AvatarSeed['accessory'], accent: string, line: string): string {
-		const bubble = (inner: string) =>
-			`<g transform="translate(62 58)">
-				<circle cx="10" cy="10" r="9.8" fill="#fff"/>
-				<circle cx="10" cy="10" r="8.7" fill="none" stroke="${accent}" stroke-width="1.7"/>
-				${inner}
-			</g>`;
-
-		switch (kind) {
-			case 'glasses':
-				return `<g fill="none" stroke="${line}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="40.5" cy="46" r="4.3"/>
-					<circle cx="55.5" cy="46" r="4.3"/>
-					<path d="M44.8 46h6.4"/>
-				</g>`;
-			case 'badge':
-				return bubble(`<circle cx="10" cy="8.2" r="2.6" fill="none" stroke="${accent}" stroke-width="1.5"/><path d="M7.5 13 9.2 10.5 10 12.5 10.8 10.5 12.5 13" fill="none" stroke="${accent}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`);
-			case 'star':
-				return bubble(`<path d="M10 4.1 11.9 7.8 16 8.3 13 11 13.9 15.1 10 13 6.1 15.1 7 11 4 8.3 8.1 7.8Z" fill="${accent}"/>`);
-			case 'book':
-				return bubble(`<g fill="none" stroke="${accent}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 6.4h4.9a2 2 0 0 1 2 2v5H7.5a2.1 2.1 0 0 0-2.3 2.1Z"/><path d="M14.8 6.4H10a2 2 0 0 0-2 2v7.1a2.1 2.1 0 0 1 2.3-2.1h4.5Z"/></g>`);
-			case 'bolt':
-				return bubble(`<path d="M11.2 3.9 7.2 9.6h3.2l-1.7 6.1 5.6-7.3h-3.1Z" fill="${accent}"/>`);
-			case 'leaf':
-				return bubble(`<g fill="none" stroke="${accent}" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"><path d="M14.9 5.4c-5.3 0-8.5 3.5-8.5 8.1 0 1 .2 1.9.5 2.7 5.2-.2 9.2-4.1 9.5-9.2-.4-.1-1-.2-1.5-.2Z"/><path d="M7.1 15.5c2-2 4.5-4 7.2-5.6"/></g>`);
-			case 'ribbon':
-				return `<g fill="none" stroke="${accent}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M34.5 24.5c1.8 0 3.1 1.1 3.1 2.8 0 1.5-.8 2.8-2.9 4.3"/><path d="M61.5 24.5c-1.8 0-3.1 1.1-3.1 2.8 0 1.5.8 2.8 2.9 4.3"/></g>`;
-			case 'none':
-			default:
-				return '';
-		}
-	}
-
-	function renderHair(kind: AvatarSeed['hairStyle'], color: string): string {
-		switch (kind) {
-			case 'part':
-				return `<path d="M30.4 39c.7-11.7 8.5-20 18.2-20 8.2 0 15.9 5.9 18.5 16.3-5.7-3.3-11.4-4.6-16.6-4.6l-3.3 4.4-1.7-4.4c-4.6.5-9.2 3-15.1 8.3Z" fill="${color}"/>`;
-			case 'bob':
-				return `<path d="M28.8 36.8c1-11.3 8.8-19.2 19.2-19.2 10.9 0 19.1 8.1 19.6 19.5-1 4.8-3.1 8-6 10-2.8-5.6-7.4-8.2-13.5-8.2-6.2 0-10.9 2.7-13.9 8.3-3.7-2.3-5.1-5.8-5.4-10.4Z" fill="${color}"/>`;
-			case 'buzz':
-				return `<path d="M31.6 38c2.9-9.7 10.4-15.3 17.5-15.3 9.1 0 16 5.9 18.1 15.6-6.1-2.5-12.1-3.7-18-3.7-5.9 0-11.9 1.2-17.6 3.4Z" fill="${color}"/>`;
-			case 'wave':
-				return `<path d="M27.8 39c1.3-11.7 9.7-20.1 20.3-20.1 9.1 0 16.9 6.2 19.8 16.5-4.4-3-7.7-4.4-10.9-4.4-4.1 0-7.4 1.5-10.1 4.3-2.7-1.7-5.1-2.4-7.6-2.4-3.8 0-7.2 1.8-11.5 6.1Z" fill="${color}"/>`;
-			case 'cap':
-				return `<path d="M28.2 37.2c3.7-9.8 11.5-15.7 21.3-15.7 8.2 0 15.3 3.9 20 10.1L29 37.8Z" fill="${color}"/><path d="M28.8 37.8h41.6c-2 4.7-6.7 7.2-13.8 7.2H40.1c-5.8 0-9.6-2.3-11.3-7.2Z" fill="${color}" opacity="0.95"/>`;
-			case 'short':
-			default:
-				return `<path d="M30.2 39c.6-11.1 8.4-19.4 18.5-19.4 10.7 0 18.4 7.9 19 19.2-4.8-4.9-10.8-7-18.6-7-7.1 0-13.3 2.2-18.9 7.2Z" fill="${color}"/>`;
-		}
-	}
-
-	function buildAvatarSvg(seed: AvatarSeed): string {
-		const gradientId = `bg-${seed.id}`.replace(/[^a-zA-Z0-9_-]/g, '');
-		const shirtId = `shirt-${seed.id}`.replace(/[^a-zA-Z0-9_-]/g, '');
-		return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="${seed.label}">
-			<defs>
-				<linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1">
-					<stop offset="0%" stop-color="#ffffff"/>
-					<stop offset="100%" stop-color="${seed.palette.bg}"/>
-				</linearGradient>
-				<linearGradient id="${shirtId}" x1="0" y1="0" x2="1" y2="1">
-					<stop offset="0%" stop-color="${seed.palette.shirt}"/>
-					<stop offset="100%" stop-color="${seed.palette.accent}"/>
-				</linearGradient>
-			</defs>
-			<rect width="96" height="96" rx="24" fill="url(#${gradientId})"/>
-			<circle cx="78" cy="18" r="11" fill="${seed.palette.accent}" opacity="0.1"/>
-			<circle cx="18" cy="77" r="14" fill="${seed.palette.accent}" opacity="0.08"/>
-			<path d="M14 96c3-17.8 16-31.4 34-31.4S79 78.2 82 96" fill="url(#${shirtId})"/>
-			<path d="M30 96c2.2-10.8 9.2-17.2 18-17.2s15.8 6.4 18 17.2" fill="${seed.palette.shirt}" opacity="0.88"/>
-			<path d="M42 57h12v11.2a6 6 0 0 1-12 0Z" fill="${seed.palette.skin}"/>
-			<circle cx="31.2" cy="43.8" r="3.3" fill="${seed.palette.skin}" opacity="0.92"/>
-			<circle cx="64.8" cy="43.8" r="3.3" fill="${seed.palette.skin}" opacity="0.92"/>
-			<circle cx="48" cy="42.4" r="18.8" fill="${seed.palette.skin}"/>
-			${renderHair(seed.hairStyle, seed.palette.hair)}
-			<path d="M37.6 41.3c1-.8 2.2-1.2 3.5-1.2 1.1 0 2.3.4 3.5 1.2" fill="none" stroke="${seed.palette.line}" stroke-width="1.3" stroke-linecap="round" opacity="0.35"/>
-			<path d="M51.4 41.3c1-.8 2.2-1.2 3.5-1.2 1.1 0 2.3.4 3.5 1.2" fill="none" stroke="${seed.palette.line}" stroke-width="1.3" stroke-linecap="round" opacity="0.35"/>
-			<ellipse cx="40.6" cy="46.1" rx="1.9" ry="2.1" fill="${seed.palette.line}"/>
-			<ellipse cx="55.4" cy="46.1" rx="1.9" ry="2.1" fill="${seed.palette.line}"/>
-			<path d="M48 46.8v3.5" fill="none" stroke="${seed.palette.line}" stroke-width="1.4" stroke-linecap="round" opacity="0.45"/>
-			<path d="M42.8 53.1c1.9 2.3 4 3.1 5.2 3.1 1.4 0 3.4-.8 5.2-3.1" fill="none" stroke="${seed.palette.line}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			<circle cx="37.2" cy="50.8" r="2.1" fill="${seed.palette.accent}" opacity="0.12"/>
-			<circle cx="58.8" cy="50.8" r="2.1" fill="${seed.palette.accent}" opacity="0.12"/>
-			${renderAccessory(seed.accessory, seed.palette.accent, seed.palette.line)}
-		</svg>`;
-	}
-
-	function buildEmojiAvatarSvg(label: string, emoji: string, background: string, accent: string): string {
-		return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="${label}">
-			<rect width="96" height="96" rx="24" fill="${background}"/>
-			<circle cx="76" cy="20" r="10" fill="${accent}" opacity="0.14"/>
-			<circle cx="18" cy="78" r="14" fill="${accent}" opacity="0.1"/>
-			<rect x="12" y="12" width="72" height="72" rx="22" fill="#fff" opacity="0.82"/>
-			<text x="48" y="55" text-anchor="middle" font-size="36" font-family="'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${emoji}</text>
-		</svg>`;
-	}
-
-	function buildAvatarPresets(): AvatarPreset[] {
-		const presets = [
-			{ id: 'student-female', label: '女学生', role: '学生', emoji: '👩‍🎓', background: '#eef4ff', accent: '#5b7cf1' },
-			{ id: 'student-male', label: '男学生', role: '学生', emoji: '👨‍🎓', background: '#edf7ff', accent: '#4e8dda' },
-			{ id: 'teacher-female', label: '女教师', role: '教师', emoji: '👩‍🏫', background: '#fff3ea', accent: '#cb8c4a' },
-			{ id: 'teacher-male', label: '男教师', role: '教师', emoji: '👨‍🏫', background: '#fff6e7', accent: '#b98743' },
-			{ id: 'admin-female', label: '女管理员', role: '管理员', emoji: '👩‍💼', background: '#f4f1ff', accent: '#7f6ad6' },
-			{ id: 'admin-male', label: '男管理员', role: '管理员', emoji: '👨‍💼', background: '#eff4f8', accent: '#71839a' },
-			{ id: 'reviewer', label: '阅卷员', role: '阅卷', emoji: '🧑‍⚖️', background: '#fff0f6', accent: '#c86b93' },
-			{ id: 'superadmin', label: '超级管理员', role: '超管', emoji: '👑', background: '#fff8e9', accent: '#cf9622' }
-		];
-
-		return [
-			{ id: 'default', label: '默认', role: '系统', avatarUrl: '' },
-			...presets.map((preset) => ({
-				id: preset.id,
-				label: preset.label,
-				role: preset.role,
-				avatarUrl: svgToDataUri(buildEmojiAvatarSvg(preset.label, preset.emoji, preset.background, preset.accent))
-			}))
-		];
-	}
-
 	function syncStoredProfilePatch(patch: { avatarUrl?: string; displayName?: string }): void {
 		try {
 			const raw = localStorage.getItem('exam_v2_user');
@@ -594,37 +379,6 @@ import type {
 			localStorage.setItem('exam_v2_user', JSON.stringify(stored));
 		} catch (error) {
 			log('syncStoredProfilePatch failed', error);
-		}
-	}
-
-	function renderOutlineIcon(name: string, className = ''): string {
-		const cls = className ? ` class="${className}"` : '';
-		const svg = (paths: string) =>
-			`<svg${cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
-		switch (name) {
-			case 'wallet':
-				return svg('<path d="M4 8.5h16v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z"/><path d="M7 8V6.8A1.8 1.8 0 0 1 8.8 5h9.2"/><path d="M20 11.5h-4.2a1.8 1.8 0 1 0 0 3.6H20"/>');
-			case 'gift':
-				return svg('<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8v12"/><path d="M4 12h16"/><path d="M12 8c0-2-1-3-2.6-3-1.3 0-2.2.9-2.2 2.1 0 1.2.9 1.9 2.8 1.9H12Z"/><path d="M12 8c0-2 1-3 2.6-3 1.3 0 2.2.9 2.2 2.1 0 1.2-.9 1.9-2.8 1.9H12Z"/>');
-			case 'ticket':
-				return svg('<path d="M6 7.5h12A1.5 1.5 0 0 1 19.5 9v2a2 2 0 0 0 0 4v2a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 17v-2a2 2 0 0 0 0-4V9A1.5 1.5 0 0 1 6 7.5Z"/><path d="M12 9v2"/><path d="M12 13v2"/>');
-			case 'community':
-				return svg('<path d="M5 8.5A3.5 3.5 0 0 1 8.5 5h7A3.5 3.5 0 0 1 19 8.5v4a3.5 3.5 0 0 1-3.5 3.5H11l-3.8 3v-3H8.5A3.5 3.5 0 0 1 5 12.5Z"/><path d="M12 8.5v4"/><path d="M10 10.5h4"/>');
-			case 'folder':
-				return svg('<path d="M4.5 8.5A2.5 2.5 0 0 1 7 6h3l1.6 2H17a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 17 19H7a2.5 2.5 0 0 1-2.5-2.5Z"/>');
-			case 'badge':
-				return svg('<circle cx="12" cy="8" r="3"/><path d="M9 16.5h6"/><path d="M7 19l3-1.5 2-5"/><path d="M17 19l-3-1.5-2-5"/>');
-			case 'chart':
-				return svg('<path d="M5 18.5h14"/><path d="M7.5 15.5v-3"/><path d="M12 15.5v-6"/><path d="M16.5 15.5v-8"/><path d="M7.5 12.5 12 9.5 16.5 7.5"/>');
-			case 'settings':
-				return svg('<circle cx="12" cy="12" r="3"/><path d="M12 4.5v2"/><path d="M12 17.5v2"/><path d="M4.5 12h2"/><path d="M17.5 12h2"/><path d="M6.7 6.7l1.4 1.4"/><path d="M15.9 15.9l1.4 1.4"/><path d="M17.3 6.7l-1.4 1.4"/><path d="M8.1 15.9l-1.4 1.4"/>');
-			case 'brandMark':
-				return svg('<path d="M6 17.8V6.2"/><path d="M6 6.2c2.3 2.1 3.8 4.2 4.6 6.2"/><path d="M10.6 12.4c.9-2.5 2.4-4.6 4.5-6.2"/><path d="M15.1 6.2v11.6"/><path d="M7.8 17.8h5.8"/><path d="M16.9 6.4 18.2 5"/><path d="M17.2 6.7 19 6.4"/>');
-			case 'login':
-				return svg('<circle cx="10" cy="8" r="3"/><path d="M4.8 18.2c1.5-2.8 3.3-4.2 5.2-4.2 1.3 0 2.5.5 3.6 1.6"/><path d="M14.5 12h5"/><path d="M17 9.5 19.5 12 17 14.5"/>');
-			case 'profileMark':
-			default:
-				return svg('<circle cx="12" cy="8" r="3.2"/><path d="M5.5 18.5c1.6-3 3.8-4.5 6.5-4.5s4.9 1.5 6.5 4.5"/>');
 		}
 	}
 
@@ -800,43 +554,6 @@ import type {
 		if (phoneInvitation && !contactVerificationDraft.phone) {
 			contactVerificationDraft.phone = phoneInvitation.contact;
 		}
-	}
-
-	function normalizePendingInvitation(value: unknown): PendingOrganizationInvitation | null {
-		const raw = asRecord(value);
-		if (!raw) {
-			return null;
-		}
-		const invitationId = readString(raw.invitation_id) || '';
-		const inviteToken = readString(raw.invite_token) || readString(raw.invite_code) || '';
-		const organizationId = readString(raw.organization_id) || '';
-		if (!invitationId || !inviteToken || !organizationId) {
-			return null;
-		}
-		return {
-			invitationId,
-			inviteToken,
-			organizationId,
-			organizationName: readString(raw.organization_name) || '未命名组织',
-			organizationType: readString(raw.organization_type),
-			channel: (readString(raw.channel) || 'email') as 'email' | 'phone',
-			contact: readString(raw.contact) || readString(raw.email) || readString(raw.phone) || '',
-			roles: readStringArray(raw.roles) || ['student'],
-			message: readString(raw.message) || '',
-			createdAt: readString(raw.created_at) || '',
-			expiresAt: readString(raw.expires_at) || '',
-			createdByUsername: readString(raw.created_by_username) || readString(raw.created_by),
-			deliveryStatus: readString(raw.delivery_status),
-			deliveryProvider: readString(raw.delivery_provider),
-			deliveredAt: readString(raw.delivered_at),
-			contactMatches: readBoolean(raw.contact_matches) ?? false,
-			contactVerified: readBoolean(raw.contact_verified) ?? false,
-			canAccept: readBoolean(raw.can_accept) ?? false,
-			isExpired: readBoolean(raw.is_expired) ?? false,
-			acceptBlockCode: readString(raw.accept_block_code),
-			acceptBlockMessage: readString(raw.accept_block_message),
-			acceptUrl: readString(raw.accept_url)
-		};
 	}
 
 	async function ensurePendingInvitations(ctx: PCContext): Promise<void> {
