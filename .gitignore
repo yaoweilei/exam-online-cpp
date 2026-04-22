@@ -73,3 +73,5 @@ frontend/node_modules/
 cpp-backend/build/
 cpp-backend/build-*/
 static/app/
+
+build_log.txt

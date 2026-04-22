@@ -1,5 +1,0 @@
-MSBuild version 17.14.40+3e7442088 for .NET Framework
-
-  Checking File Globs
-  exam_online_cpp.vcxproj -> D:\_develop\_side\exam-online-cpp\cpp-backend\build\Release\exam_online_cpp.exe
-  smoke_tests.vcxproj -> D:\_develop\_side\exam-online-cpp\cpp-backend\build\Release\smoke_tests.exe
