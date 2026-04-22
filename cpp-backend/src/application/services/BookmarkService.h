@@ -11,24 +11,13 @@ namespace application::services
 class BookmarkService
 {
   public:
-    explicit BookmarkService(infrastructure::storage::BookmarkRepository &repository) : repository_(repository) {}
+    explicit BookmarkService(infrastructure::storage::BookmarkRepository &repository);
 
-    Json::Value getBookmarks(const std::string &userId) const
-    {
-        return repository_.loadBookmarks(userId);
-    }
+    Json::Value getBookmarks(const std::string &userId) const;
 
-    Json::Value addExamBookmark(const std::string &userId, const std::string &examId)
-    {
-        repository_.addExamBookmark(userId, examId);
-        return repository_.loadBookmarks(userId);
-    }
+    Json::Value addExamBookmark(const std::string &userId, const std::string &examId);
 
-    Json::Value removeExamBookmark(const std::string &userId, const std::string &examId)
-    {
-        repository_.removeExamBookmark(userId, examId);
-        return repository_.loadBookmarks(userId);
-    }
+    Json::Value removeExamBookmark(const std::string &userId, const std::string &examId);
 
   private:
     infrastructure::storage::BookmarkRepository &repository_;

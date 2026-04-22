@@ -22,43 +22,11 @@ class PhoneService
     explicit PhoneService(infrastructure::storage::UserRepository &userRepository,
                                                     SmsService &smsService,
                                                     ContactChangeChallengeService &contactChangeChallengeService)
-                : userRepository_(userRepository), smsService_(smsService), contactChangeChallengeService_(contactChangeChallengeService)
-    {
-    }
+;
 
     // Step 1: generate + send a 6-digit code.
     // Rate-limited: one code per phone per 60 seconds.
-    void sendVerificationCode(const std::string &phone)
-    {
-        validatePhoneFormat(phone);
-
-        std::unique_lock lock(mutex_);
-        const auto now = std::chrono::system_clock::now();
-        auto it = pending_.find(phone);
-        if (it != pending_.end())
-        {
-            const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - it->second.sentAt).count();
-            if (elapsed < 60)
-            {
-                throw common::AppException(
-                    "SMS_RATE_LIMITED",
-                    "Please wait before requesting another code",
-                    drogon::k429TooManyRequests);
-            }
-        }
-
-        const auto code = generateCode();
-        pending_[phone] = PendingCode{
-            .code = code,
-            .sentAt = now,
-            .expiresAt = now + std::chrono::minutes(10)};
-        lock.unlock();
-
-        if (!smsService_.sendCode(phone, code))
-        {
-            throw common::AppException("SMS_SEND_FAILED", "Failed to send SMS", drogon::k500InternalServerError);
-        }
-    }
+    void sendVerificationCode(const std::string &phone);
 
     // Step 2: verify the code and either bind an existing user or create/login a phone user.
     Json::Value verifyAndBind(const std::string &userId,
@@ -66,110 +34,16 @@ class PhoneService
                               const std::string &code,
                               const std::string &referralCode = "",
                               const std::string &changeChallengeChannel = "",
-                              const std::string &changeChallengeCode = "")
-    {
-        validatePhoneFormat(phone);
-
-        std::unique_lock lock(mutex_);
-        auto it = pending_.find(phone);
-        if (it == pending_.end())
-        {
-            throw common::AppException("SMS_CODE_NOT_FOUND", "No code sent to this number, or it has expired", drogon::k400BadRequest);
-        }
-        if (std::chrono::system_clock::now() > it->second.expiresAt)
-        {
-            pending_.erase(it);
-            throw common::AppException("SMS_CODE_EXPIRED", "Verification code has expired", drogon::k400BadRequest);
-        }
-        if (it->second.code != code)
-        {
-            throw common::AppException("SMS_CODE_INVALID", "Verification code is incorrect", drogon::k400BadRequest);
-        }
-        lock.unlock();
-
-        if (userId.empty() || userId == "guest")
-        {
-            std::unique_lock relock(mutex_);
-            it = pending_.find(phone);
-            if (it == pending_.end() || std::chrono::system_clock::now() > it->second.expiresAt || it->second.code != code)
-            {
-                if (it != pending_.end() && std::chrono::system_clock::now() > it->second.expiresAt)
-                {
-                    pending_.erase(it);
-                }
-                throw common::AppException("SMS_CODE_NOT_FOUND", "No code sent to this number, or it has expired", drogon::k400BadRequest);
-            }
-            pending_.erase(it);
-            auto existing = userRepository_.findUserByPhone(phone);
-            if (!existing.isNull())
-            {
-                return existing;
-            }
-            return userRepository_.createPhoneUser(phone, referralCode);
-        }
-
-        const auto currentUser = userRepository_.findUserById(userId);
-        const auto previousPhone = currentUser.get("phone", "").asString();
-        const auto previousPhoneVerified = currentUser.get("phone_verified", false).asBool();
-
-        contactChangeChallengeService_.requireVerifiedChallengeIfNeeded(currentUser, "phone", phone, changeChallengeChannel, changeChallengeCode);
-
-        lock.lock();
-        it = pending_.find(phone);
-        if (it == pending_.end() || std::chrono::system_clock::now() > it->second.expiresAt || it->second.code != code)
-        {
-            if (it != pending_.end() && std::chrono::system_clock::now() > it->second.expiresAt)
-            {
-                pending_.erase(it);
-            }
-            throw common::AppException("SMS_CODE_NOT_FOUND", "No code sent to this number, or it has expired", drogon::k400BadRequest);
-        }
-        pending_.erase(it);
-        lock.unlock();
-
-        const auto boundUser = userRepository_.bindPhone(userId, phone);
-        notifyPreviousPhoneIfChanged(previousPhone, previousPhoneVerified, phone);
-        return boundUser;
-    }
+                              const std::string &changeChallengeCode = "");
 
   private:
     void notifyPreviousPhoneIfChanged(const std::string &previousPhone,
                                       bool previousPhoneVerified,
-                                      const std::string &newPhone)
-    {
-        if (!previousPhoneVerified || previousPhone.empty() || previousPhone == newPhone)
-        {
-            return;
-        }
+                                      const std::string &newPhone);
 
-        SmsMessage message;
-        message.to = previousPhone;
-        message.body = "【Exam Online】提醒：你的账号绑定手机号已变更为 " + newPhone + "。如果这不是你本人操作，请尽快检查账号安全。";
-        (void)smsService_.send(message);
-    }
+    static std::string generateCode();
 
-    static std::string generateCode()
-    {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> dist(100000, 999999);
-        return std::to_string(dist(gen));
-    }
-
-    static void validatePhoneFormat(const std::string &phone)
-    {
-        if (phone.size() < 8 || phone.size() > 15)
-        {
-            throw common::AppException("INVALID_PHONE", "Invalid phone number format", drogon::k422UnprocessableEntity);
-        }
-        for (const char c : phone)
-        {
-            if (c != '+' && (c < '0' || c > '9'))
-            {
-                throw common::AppException("INVALID_PHONE", "Invalid phone number format", drogon::k422UnprocessableEntity);
-            }
-        }
-    }
+    static void validatePhoneFormat(const std::string &phone);
 
     struct PendingCode
     {

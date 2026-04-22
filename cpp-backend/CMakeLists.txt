@@ -30,9 +30,22 @@ if(BUILD_TESTING)
     add_executable(smoke_tests
         tests/smoke_tests.cpp
         src/infrastructure/storage/UserRepository.cpp
+        src/infrastructure/storage/OrganizationRepository.cpp
+        src/infrastructure/storage/ProfileRepository.cpp
+        src/infrastructure/storage/ExamRepository.cpp
         src/application/services/OrganizationService.cpp
         src/application/services/SubscriptionService.cpp
         src/application/services/UserService.cpp
+        src/application/services/ContactChangeChallengeService.cpp
+        src/application/services/WechatService.cpp
+        src/application/services/PhoneService.cpp
+        src/application/services/AnswerService.cpp
+        src/application/services/StatisticsService.cpp
+        src/application/services/EmailVerificationService.cpp
+        src/application/services/AuthService.cpp
+        src/application/services/ExamService.cpp
+        src/application/services/ProfileService.cpp
+        src/application/services/BookmarkService.cpp
     )
     target_include_directories(smoke_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     target_link_libraries(smoke_tests PRIVATE Drogon::Drogon)

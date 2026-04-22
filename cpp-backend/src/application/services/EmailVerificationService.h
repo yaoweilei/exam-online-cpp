@@ -21,137 +21,24 @@ class EmailVerificationService
     explicit EmailVerificationService(infrastructure::storage::UserRepository &userRepository,
                                                                             EmailService &emailService,
                                                                             ContactChangeChallengeService &contactChangeChallengeService)
-                : userRepository_(userRepository), emailService_(emailService), contactChangeChallengeService_(contactChangeChallengeService)
-    {
-    }
+;
 
-    void sendVerificationCode(const std::string &email)
-    {
-        validateEmailFormat(email);
-
-        std::unique_lock lock(mutex_);
-        const auto now = std::chrono::system_clock::now();
-        auto it = pending_.find(email);
-        if (it != pending_.end())
-        {
-            const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - it->second.sentAt).count();
-            if (elapsed < 60)
-            {
-                throw common::AppException("EMAIL_RATE_LIMITED", "Please wait before requesting another code", drogon::k429TooManyRequests);
-            }
-        }
-
-        const auto code = generateCode();
-        pending_[email] = PendingCode{
-            .code = code,
-            .sentAt = now,
-            .expiresAt = now + std::chrono::minutes(10)};
-        lock.unlock();
-
-        EmailMessage message;
-        message.toAddress = email;
-        message.subject = "Exam Online 邮箱验证码";
-        message.textBody = "你的邮箱验证码是 " + code + "，10 分钟内有效。如果这不是你的操作，请忽略本邮件。";
-        message.htmlBody = "<p>你的邮箱验证码是 <strong>" + code + "</strong>，10 分钟内有效。</p><p>如果这不是你的操作，请忽略本邮件。</p>";
-        const auto delivery = emailService_.send(message);
-        if (!delivery.delivered)
-        {
-            throw common::AppException(
-                "EMAIL_SEND_FAILED",
-                delivery.errorMessage.empty() ? "Failed to send email" : delivery.errorMessage,
-                drogon::k500InternalServerError);
-        }
-    }
+    void sendVerificationCode(const std::string &email);
 
     Json::Value verifyAndBind(const std::string &userId,
                               const std::string &email,
                               const std::string &code,
                               const std::string &changeChallengeChannel = "",
-                              const std::string &changeChallengeCode = "")
-    {
-        if (userId.empty() || userId == "guest")
-        {
-            throw common::AppException("AUTH_REQUIRED", "Login is required before verifying email", drogon::k401Unauthorized);
-        }
-
-        validateEmailFormat(email);
-
-        std::unique_lock lock(mutex_);
-        auto it = pending_.find(email);
-        if (it == pending_.end())
-        {
-            throw common::AppException("EMAIL_CODE_NOT_FOUND", "No code sent to this email, or it has expired", drogon::k400BadRequest);
-        }
-        if (std::chrono::system_clock::now() > it->second.expiresAt)
-        {
-            pending_.erase(it);
-            throw common::AppException("EMAIL_CODE_EXPIRED", "Verification code has expired", drogon::k400BadRequest);
-        }
-        if (it->second.code != code)
-        {
-            throw common::AppException("EMAIL_CODE_INVALID", "Verification code is incorrect", drogon::k400BadRequest);
-        }
-        lock.unlock();
-
-        const auto currentUser = userRepository_.findUserById(userId);
-        const auto previousEmail = currentUser.get("email", "").asString();
-        const auto previousEmailVerified = currentUser.get("email_verified", false).asBool();
-
-        contactChangeChallengeService_.requireVerifiedChallengeIfNeeded(currentUser, "email", email, changeChallengeChannel, changeChallengeCode);
-
-        lock.lock();
-        it = pending_.find(email);
-        if (it == pending_.end() || std::chrono::system_clock::now() > it->second.expiresAt || it->second.code != code)
-        {
-            if (it != pending_.end() && std::chrono::system_clock::now() > it->second.expiresAt)
-            {
-                pending_.erase(it);
-            }
-            throw common::AppException("EMAIL_CODE_NOT_FOUND", "No code sent to this email, or it has expired", drogon::k400BadRequest);
-        }
-        pending_.erase(it);
-        lock.unlock();
-
-        const auto boundUser = userRepository_.bindEmail(userId, email);
-        notifyPreviousEmailIfChanged(previousEmail, previousEmailVerified, email);
-        return boundUser;
-    }
+                              const std::string &changeChallengeCode = "");
 
   private:
     void notifyPreviousEmailIfChanged(const std::string &previousEmail,
                                       bool previousEmailVerified,
-                                      const std::string &newEmail)
-    {
-        if (!previousEmailVerified || previousEmail.empty() || previousEmail == newEmail)
-        {
-            return;
-        }
+                                      const std::string &newEmail);
 
-        EmailMessage message;
-        message.toAddress = previousEmail;
-        message.subject = "Exam Online 邮箱变更提醒";
-        message.textBody = "你的账号绑定邮箱已变更为 " + newEmail + "。如果这不是你本人操作，请尽快检查账号安全。";
-        message.htmlBody = "<p>你的账号绑定邮箱已变更为 <strong>" + newEmail + "</strong>。</p><p>如果这不是你本人操作，请尽快检查账号安全。</p>";
-        (void)emailService_.send(message);
-    }
+    static std::string generateCode();
 
-    static std::string generateCode()
-    {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> dist(100000, 999999);
-        return std::to_string(dist(gen));
-    }
-
-    static void validateEmailFormat(const std::string &email)
-    {
-        const auto atPos = email.find('@');
-        const auto dotPos = email.rfind('.');
-        if (email.empty() || atPos == std::string::npos || dotPos == std::string::npos || dotPos <= atPos + 1)
-        {
-            throw common::AppException("INVALID_EMAIL", "Invalid email format", drogon::k422UnprocessableEntity);
-        }
-    }
+    static void validateEmailFormat(const std::string &email);
 
     struct PendingCode
     {

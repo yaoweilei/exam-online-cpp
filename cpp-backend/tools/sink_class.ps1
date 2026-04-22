@@ -205,7 +205,10 @@ while ($i -le $endScan) {
     }
 
     # Did we just enter a function body? (depth went from 1 to 2 via this line)
-    if ($d -eq 1 -and $newDepth -ge 2) {
+    # Also handle inline single-line functions (e.g. `Foo() : init() {}` or `int bar() { return 1; }`)
+    # where the brace opens AND closes on the same line, so newDepth==1 but $foundOpenInThisLine.
+    $isInlineSingleLine = ($d -eq 1 -and $foundOpenInThisLine -and $newDepth -eq 1)
+    if (($d -eq 1 -and $newDepth -ge 2) -or $isInlineSingleLine) {
         # Detect nested type (struct/class/enum/union): no `(` before `{` in accumulated buf
         $bufJoined = ($buf -join ' ')
         $braceIdxInJoined = $bufJoined.IndexOf('{')

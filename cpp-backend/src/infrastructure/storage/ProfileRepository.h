@@ -17,222 +17,31 @@ class ProfileRepository
 {
   public:
     explicit ProfileRepository(std::filesystem::path userRootDir)
-        : profileDir_(std::move(userRootDir) / "profile")
-    {
-        std::filesystem::create_directories(profileDir_);
-    }
+;
 
-    Json::Value loadProfile(const std::string &userId) const
-    {
-        const auto path = profileDir_ / (userId + ".json");
-        std::shared_lock lock(mutex_);
-        if (!std::filesystem::exists(path))
-        {
-            return defaultProfile(userId);
-        }
-        return normalizeProfile(userId, readJsonFile(path));
-    }
+    Json::Value loadProfile(const std::string &userId) const;
 
-    void saveProfile(const std::string &userId, const Json::Value &data)
-    {
-        std::unique_lock lock(mutex_);
-        writeJsonFileAtomic(profileDir_ / (userId + ".json"), normalizeProfile(userId, data));
-    }
+    void saveProfile(const std::string &userId, const Json::Value &data);
 
     bool grantCreditsIfAbsent(const std::string &userId,
                               const std::string &awardKey,
                               int credits,
-                              const std::string &reason)
-    {
-        if (awardKey.empty() || credits <= 0)
-        {
-            return false;
-        }
-
-        std::unique_lock lock(mutex_);
-        const auto path = profileDir_ / (userId + ".json");
-        auto profile = std::filesystem::exists(path) ? normalizeProfile(userId, readJsonFile(path)) : defaultProfile(userId);
-        if (!profile.isMember("credit_awards") || !profile["credit_awards"].isObject())
-        {
-            profile["credit_awards"] = Json::Value(Json::objectValue);
-        }
-        if (profile["credit_awards"].isMember(awardKey))
-        {
-            return false;
-        }
-
-        profile["credits"] = profile.get("credits", 0).asInt() + credits;
-        profile["credits_updated_at"] = common::nowIso8601();
-        profile["last_credit_reason"] = reason;
-
-        Json::Value award(Json::objectValue);
-        award["amount"] = credits;
-        award["reason"] = reason;
-        award["granted_at"] = profile["credits_updated_at"].asString();
-        profile["credit_awards"][awardKey] = award;
-
-        writeJsonFileAtomic(path, profile);
-        return true;
-    }
+                              const std::string &reason);
 
     // Called on every successful login: updates streak_days / last_active_at.
-    void updateStreak(const std::string &userId)
-    {
-        const auto now = common::nowIso8601();
-        const auto todayDate = now.substr(0, 10);  // "YYYY-MM-DD"
-
-        std::unique_lock lock(mutex_);
-        const auto path = profileDir_ / (userId + ".json");
-        auto profile = std::filesystem::exists(path) ? normalizeProfile(userId, readJsonFile(path)) : defaultProfile(userId);
-
-        const auto lastActive = profile.get("last_active_at", "").asString();
-        const auto lastDate = lastActive.size() >= 10 ? lastActive.substr(0, 10) : "";
-
-        // Already touched today — nothing to update
-        if (lastDate == todayDate)
-        {
-            return;
-        }
-
-        int streak = profile.get("streak_days", 0).asInt();
-        int longest = profile.get("longest_streak", 0).asInt();
-
-        if (!lastDate.empty() && isYesterday(todayDate, lastDate))
-        {
-            streak += 1;
-        }
-        else
-        {
-            streak = 1;
-        }
-
-        longest = std::max(longest, streak);
-        profile["streak_days"] = streak;
-        profile["longest_streak"] = longest;
-        profile["last_active_at"] = now;
-
-        writeJsonFileAtomic(path, profile);
-    }
+    void updateStreak(const std::string &userId);
 
   private:
-    static Json::Value defaultProfile(const std::string &userId)
-    {
-        Json::Value p(Json::objectValue);
-        p["user_id"] = userId;
-        p["display_name"] = "";
-        p["avatar_url"] = "";
-        p["locale"] = "zh-CN";
-        p["goal_level"] = "";
-        p["goal_date"] = "";
-        p["daily_target"] = 20;
-        p["streak_days"] = 0;
-        p["longest_streak"] = 0;
-        p["last_active_at"] = "";
-        p["xp"] = 0;
-        p["credits"] = 0;
-        p["credits_updated_at"] = "";
-        p["last_credit_reason"] = "";
-        p["plan"] = "free";
-        p["plan_status"] = "active";
-        p["plan_expires_at"] = "";
-        p["plan_expires"] = "";
-        p["scope_type"] = "personal";
-        p["scope_id"] = userId;
-        p["organization_type"] = "";
-        p["notification_enabled"] = true;
-        return p;
-    }
+    static Json::Value defaultProfile(const std::string &userId);
 
-    static Json::Value normalizeProfile(const std::string &userId, const Json::Value &input)
-    {
-        Json::Value profile = defaultProfile(userId);
-        if (input.isObject())
-        {
-            for (const auto &name : input.getMemberNames())
-            {
-                profile[name] = input[name];
-            }
-        }
+    static Json::Value normalizeProfile(const std::string &userId, const Json::Value &input);
 
-        profile["user_id"] = userId;
-        profile["plan"] = normalizePlan(profile.get("plan", "free").asString());
-        profile["plan_status"] = normalizePlanStatus(profile.get("plan_status", "active").asString());
-        if (!profile.isMember("plan_expires_at") || profile["plan_expires_at"].asString().empty())
-        {
-            profile["plan_expires_at"] = profile.get("plan_expires", "").asString();
-        }
-        profile["plan_expires"] = profile.get("plan_expires_at", "").asString();
-        profile["scope_type"] = profile.get("scope_type", "personal").asString() == "organization" ? "organization" : "personal";
-        profile["scope_id"] = profile.get("scope_id", userId).asString();
-        if (profile["scope_type"].asString() == "organization")
-        {
-            const auto organizationType = profile.get("organization_type", "business").asString();
-            profile["organization_type"] = (organizationType == "school") ? "school" : "business";
-        }
-        else
-        {
-            profile["organization_type"] = "";
-            profile["scope_id"] = profile["scope_id"].asString().empty() ? userId : profile["scope_id"].asString();
-        }
-        return profile;
-    }
+    static std::string normalizePlan(const std::string &plan);
 
-    static std::string normalizePlan(const std::string &plan)
-    {
-        if (plan == "premium")
-        {
-            return "pro";
-        }
-        if (plan == "free" || plan == "pro" || plan == "ultra")
-        {
-            return plan;
-        }
-        return "free";
-    }
-
-    static std::string normalizePlanStatus(const std::string &status)
-    {
-        if (status == "active" || status == "trial" || status == "expired" || status == "canceled")
-        {
-            return status;
-        }
-        return "active";
-    }
+    static std::string normalizePlanStatus(const std::string &status);
 
     // Returns true if `other` (YYYY-MM-DD) is exactly one day before `today` (YYYY-MM-DD).
-    static bool isYesterday(const std::string &today, const std::string &other)
-    {
-        if (today.size() < 10 || other.size() < 10)
-        {
-            return false;
-        }
-        int ty = std::stoi(today.substr(0, 4));
-        int tm = std::stoi(today.substr(5, 2));
-        int td = std::stoi(today.substr(8, 2));
-        const int oy = std::stoi(other.substr(0, 4));
-        const int om = std::stoi(other.substr(5, 2));
-        const int od = std::stoi(other.substr(8, 2));
-
-        // Decrement today by one calendar day
-        td -= 1;
-        if (td == 0)
-        {
-            tm -= 1;
-            if (tm == 0)
-            {
-                tm = 12;
-                ty -= 1;
-            }
-            const int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-            int dim = daysInMonth[tm];
-            if (tm == 2 && ((ty % 4 == 0 && ty % 100 != 0) || ty % 400 == 0))
-            {
-                dim = 29;
-            }
-            td = dim;
-        }
-        return (ty == oy && tm == om && td == od);
-    }
+    static bool isYesterday(const std::string &today, const std::string &other);
 
     std::filesystem::path profileDir_;
     mutable std::shared_mutex mutex_;

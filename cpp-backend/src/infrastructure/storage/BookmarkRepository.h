@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <mutex>
+#include <shared_mutex>
 #include <string>
 
 #include <json/json.h>
