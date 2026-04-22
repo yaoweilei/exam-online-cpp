@@ -1,0 +1,143 @@
+/* ---------------- WeChat Login Modal ---------------- */
+#wechat-login-modal.wechat-hidden {
+	display: none;
+}
+
+#wechat-login-modal.wechat-open {
+	display: block;
+}
+
+#wechat-login-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 6000;
+	font-size: 13px;
+}
+
+#wechat-login-modal .wechat-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.35);
+}
+
+#wechat-login-modal .wechat-panel {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 340px;
+	background: var(--vscode-editor-background, #1e1e1e);
+	color: var(--vscode-foreground, #ddd);
+	border: 1px solid var(--vscode-editorWidget-border, #333);
+	border-radius: 8px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+	display: flex;
+	flex-direction: column;
+}
+
+.wechat-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--vscode-editorWidget-border, #333);
+	font-size: 14px;
+}
+
+.wechat-close {
+	background: transparent;
+	border: 1px solid transparent;
+	color: inherit;
+	cursor: pointer;
+	font-size: 18px;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
+}
+
+.wechat-close:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+.wechat-body {
+	padding: 16px 18px 10px;
+}
+
+.wechat-qr-box {
+	width: 180px;
+	height: 180px;
+	margin: 0 auto 12px;
+	background: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.wechat-qr-placeholder {
+	color: #333;
+	font-size: 12px;
+}
+
+.wechat-status {
+	text-align: center;
+	font-size: 12px;
+	min-height: 20px;
+	color: var(--vscode-descriptionForeground, #bbb);
+}
+
+.wechat-footer {
+	padding: 10px 14px 14px;
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	border-top: 1px solid var(--vscode-editorWidget-border, #333);
+}
+
+.wc-btn {
+	background: var(--vscode-button-secondaryBackground, #333);
+	color: var(--vscode-button-secondaryForeground, #ddd);
+	border: 1px solid var(--vscode-button-border, transparent);
+	padding: 5px 12px;
+	font-size: 12px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.wc-btn:hover {
+	background: var(--vscode-button-secondaryHoverBackground, #444);
+}
+
+@media (max-width: 420px) {
+	#wechat-login-modal .wechat-panel {
+		width: 92%;
+	}
+}
+
+/* 统一宽度：44 个全角字符 ≈ 88ch（1 全角≈2ch）。
+ * 如果将来需要调整，只改这里。
+ */
+:root {
+	/* 统一考试主要文本字号：题干 / 选项 / 阅读文章。若需整体调整只改这里 */
+	--exam-font-size: 16px;
+	/* 调整为 16px */
+	/* 可调页面内容最大宽度（px, 默认为无限制，使用 0 或空表示 auto） */
+	--exam-content-width: 0;
+	/* 新增统一内容槽与垂直间距 */
+	--exam-gutter-x: 10px;
+	--exam-vertical-gap: 16px;
+	/* 页面外边距控制（目前我们只想去掉左边空档，所以 top=0, right/bottom=20, left=0）*/
+	--exam-page-padding-top: 0px;
+	--exam-page-padding-right: 20px;
+	/* 如需也贴右，可改为 0 */
+	--exam-page-padding-bottom: 20px;
+	--exam-page-padding-left: 0px;
+	/* 关键：去掉左侧 20px 空档 */
+	/* 标题/章节标题专用颜色：优先用 editor-foreground（编辑区前景更高对比），否则回退 foreground */
+	--exam-heading-color: var(--vscode-editor-foreground, var(--vscode-foreground));
+}

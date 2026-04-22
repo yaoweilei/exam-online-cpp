@@ -1,0 +1,99 @@
+/* Control Buttons */
+#exam-content {
+	/* 整体容器现在保持 100% 宽度，不再受滑块控制 */
+	position: relative;
+}
+
+/* 统一工作区域（工具按钮 + 分类 + 题目） */
+#exam-workarea {
+	display: flex;
+	flex-direction: column;
+	gap: var(--exam-vertical-gap);
+	position: relative;
+	/* 供 #width-drag-handle 绝对定位 */
+}
+
+/* 仅题目正文区域受宽度控制（左对齐，不居中） */
+#exam-workarea {
+	--exam-content-width-internal: auto;
+}
+
+#exam-workarea.limited {
+	width: var(--exam-content-width-internal, auto);
+	border-right: 1px solid var(--vscode-button-background);
+	transition: width .15s ease-out;
+}
+
+#width-drag-handle {
+	position: absolute;
+	top: 0;
+	right: -4px;
+	/* 覆盖在右侧边线外一点方便抓取 */
+	width: 8px;
+	height: 100%;
+	cursor: col-resize;
+	background: transparent;
+	user-select: none;
+	z-index: 10;
+}
+
+#width-drag-handle::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 3px;
+	width: 2px;
+	height: 100%;
+	background: var(--vscode-button-background);
+	opacity: 0.6;
+	transition: background .15s, opacity .15s;
+}
+
+#width-drag-handle:hover::before,
+body.resizing-width #width-drag-handle::before {
+	opacity: 1;
+	background: var(--vscode-button-hoverBackground);
+}
+
+#exam-workarea.unlimited {
+	width: auto;
+	border-right: none;
+	transition: width .15s ease-out;
+}
+
+/* 移除原来的闪烁背景效果，保持平滑宽度变化 */
+
+.question-list-title {
+	font-size: 16px;
+	color: var(--vscode-button-foreground);
+	margin-bottom: 15px;
+	font-weight: bold;
+}
+
+.question-list-items {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+	gap: 8px;
+}
+
+.question-item {
+	padding: 8px 12px;
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border: 1px solid var(--vscode-dropdown-border);
+	border-radius: 4px;
+	cursor: pointer;
+	text-align: center;
+	font-size: 14px;
+	transition: background-color 0.2s;
+}
+
+.question-item:hover {
+	background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.question-item.active {
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+}
+

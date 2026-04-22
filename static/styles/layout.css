@@ -1,0 +1,137 @@
+
+/* 移除原 88ch 逻辑宽度模式，全部由滑块控制 */
+
+/* 容器统一宽度：用 wrapper 控制，内部元素不再单独设 max-width */
+#exam-content {
+	width: var(--exam-content-width-internal, auto);
+	/* 仅通过变量控制宽度 */
+	min-width: 0;
+	/* 允许缩到任意更小 */
+	position: relative;
+	margin: 0 auto;
+	/* 居中展示受控列 */
+	/* 右边界标尺：细线，随宽度变化 */
+	border-right: 1px solid var(--vscode-button-background);
+	transition: width .12s ease-out;
+}
+
+/* 宽度变化提示（短暂加淡色背景，JS 中可添加后 150ms 移除） */
+#exam-content.width-changing {
+	background: linear-gradient(90deg, rgba(125, 125, 125, 0.07), transparent);
+}
+
+/* 无限制宽度时去掉标尺线 */
+#exam-content.unlimited {
+	border-right: none;
+}
+
+#exam-content.limited {
+	border-right: 1px solid var(--vscode-button-background);
+}
+
+
+/* 动态计算内部使用的实际宽度：JS 会在 root 上把 --exam-content-width-internal 设置为 px 或 none */
+
+/* 宽度控制条 */
+
+/* 基础 slider 样式（外层使用时可以再加 margin/padding） */
+#width-control {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	margin: 0;
+	padding: 0 var(--exam-gutter-x);
+	background: transparent;
+	border: none;
+	font-size: 0;
+}
+
+/* 嵌入题目内容容器内（实际 parent 为 .question-content），下方留更大空隙与题干分离 */
+/* 不再将滑块嵌入题目内容内部 */
+
+#width-control input[type=range] {
+	flex: 1 1 auto;
+	width: 100%;
+	height: 2px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+.pc-inline-url {
+	display: inline-block;
+	max-width: 100%;
+	word-break: break-all;
+	line-height: 1.5;
+}
+	appearance: none;
+	background: transparent;
+	cursor: ew-resize;
+	/* 更细的轨道 */
+	border-radius: 1px;
+}
+
+#width-control input[type=range]::-webkit-slider-runnable-track {
+	height: 2px;
+	background: linear-gradient(to right, var(--vscode-button-background), var(--vscode-button-hoverBackground));
+	border-radius: 1px;
+}
+
+#width-control input[type=range]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 12px;
+	height: 12px;
+	margin-top: -5px;
+	/* 轨道高度减半后微调以垂直居中 */
+	background: var(--vscode-button-foreground);
+	border: 1px solid var(--vscode-button-background);
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+#width-control input[type=range]:focus {
+	outline: none;
+}
+
+#width-control input[type=range]:hover::-webkit-slider-thumb {
+	background: var(--vscode-button-background);
+}
+
+/* Firefox */
+#width-control input[type=range]::-moz-range-track {
+	height: 2px;
+	background: rgba(127, 127, 127, 0.28);
+	border-radius: 1px;
+}
+
+#width-control input[type=range]::-moz-range-progress {
+	height: 2px;
+	background: linear-gradient(to right, var(--vscode-button-background), var(--vscode-button-hoverBackground));
+	border-radius: 1px;
+}
+
+#width-control input[type=range]::-moz-range-thumb {
+	width: 12px;
+	height: 12px;
+	background: var(--vscode-button-foreground);
+	border: 1px solid var(--vscode-button-background);
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+/* 移除数值与按钮的样式（已不再使用） */
+
+/* 顶层主要区块统一使用同样的 4ch 左缩进，形成一条左侧对齐基线 */
+#exam-header,
+#exam-controls,
+#category-navigation,
+#width-control,
+#current-question-container,
+#question-navigation {
+	margin-left: 0;
+}
+
+/* 如果需要整体居中，把上面 margin-left:0 换为 margin:0 auto; 即可。 */
+
+.hidden {
+	display: none !important;
+}
+

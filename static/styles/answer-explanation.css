@@ -1,0 +1,128 @@
+/* Answer Panel Styles */
+#answer-panel {
+	background-color: var(--vscode-panel-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	padding: 20px;
+	margin-top: 20px;
+}
+
+.answer-item {
+	/* 移除背景和内边距，让 correct-answer 直接显示 */
+	margin: 0;
+	padding: 0;
+	background: none;
+}
+
+.correct-answer {
+	color: var(--vscode-testing-iconPassed);
+	font-weight: bold;
+	font-size: 14px;
+	margin-top: 10px;
+	padding: 10px;
+	background-color: var(--vscode-textBlockQuote-background);
+	border-left: 3px solid var(--vscode-textBlockQuote-border);
+	border-radius: 4px;
+}
+
+/* 题目内正确选项高亮（显示答案模式） */
+.option.correct-option {
+	background: rgba(0, 160, 0, 0.1);
+	color: var(--vscode-testing-iconPassed);
+	position: relative;
+}
+
+.option.correct-option .option-text {
+	color: var(--vscode-testing-iconPassed);
+	font-weight: 500;
+}
+
+.option.correct-option::after {
+	content: '✔';
+	color: var(--vscode-testing-iconPassed);
+	font-size: 14px;
+	font-weight: bold;
+	position: absolute;
+	top: 8px;
+	right: 10px;
+}
+
+.answer {
+	margin-top: 8px;
+}
+
+.explanation {
+	margin-top: 24px;
+	padding: 10px;
+	background-color: var(--vscode-textBlockQuote-background);
+	border-left: 3px solid var(--vscode-textBlockQuote-border);
+	border-radius: 4px;
+	font-size: 14px;
+	/* 保留用户输入的换行与多空格（合并超过 1 的空格但保留换行）*/
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+/* 中文解析与答案使用中文字体栈，避免日文字体回退导致粗细不一致 */
+.answer,
+.answer-item,
+.correct-answer,
+.explanation,
+.explanation-text,
+.explanation .explain-label {
+	font-family: var(--font-zh);
+}
+
+/* 题干与解析等多行文本统一格式保留换行 */
+.question-text,
+.explanation-text,
+.multi-line-preserve {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+/* 解析块中行首标签高亮，如: 解析: / 错项说明: / 记忆小贴士: */
+.explanation .explain-label {
+	color: var(--vscode-button-background, #0e639c);
+	font-weight: 600;
+}
+
+/* 解析折叠 (A 版) */
+.explanation-toggle {
+	margin-top: 4px;
+	background: var(--vscode-button-secondaryBackground, #333);
+	color: var(--vscode-button-secondaryForeground, #ddd);
+	border: 1px solid var(--vscode-button-border, transparent);
+	padding: 2px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.explanation-toggle:hover {
+	filter: brightness(1.12);
+}
+
+.explanation-foldable {
+	position: relative;
+}
+
+/* .explanation-foldable:not(.expanded) 可在需要时添加尾部渐隐效果 */
+
+/* Furigana (ruby) styling */
+ruby {
+	ruby-position: over;
+}
+
+ruby rt {
+	font-size: 0.55em;
+	line-height: 1;
+	letter-spacing: 0.5px;
+	color: var(--vscode-descriptionForeground, #aaa);
+	font-weight: 400;
+}
+
+ruby rb {
+	font-weight: 500;
+}
+

@@ -1,0 +1,306 @@
+/* Header Styles */
+#exam-header {
+	background-color: var(--vscode-panel-background);
+	padding: 16px 0 16px 0;
+	/* 水平内边距移除，用统一 gutter */
+	border-radius: 8px;
+	margin: 0;
+	/* 由 flex gap 控制垂直节奏 */
+	border-left: 4px solid var(--vscode-button-background);
+}
+
+#exam-controls {
+	display: flex;
+	gap: 12px;
+	/* 去掉水平 padding，交由 toolbar-grid 自己控制 left 10px */
+	padding: 0;
+	margin: 0;
+}
+
+#exam-controls.toolbar-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	grid-auto-rows: 36px;
+	/* 保持一致的高度 */
+	gap: 8px;
+	width: 360px;
+	max-width: 100%;
+	margin: 0;
+	margin-left: 10px;
+	/* 保持与左边界 10px */
+}
+
+/* 统一 toolbar 中按钮与分类下拉的尺寸与填充，确保视觉一致 */
+#exam-controls.toolbar-grid > * {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 36px;
+	box-sizing: border-box;
+}
+
+#exam-controls.toolbar-grid button,
+#exam-controls.toolbar-grid .category-slot .category-multi-dropdown {
+	padding: 0;
+	/* 去掉额外内边距，使用 label/pseudo 元素控制 */
+}
+
+#exam-controls.toolbar-grid .category-slot {
+	display: flex;
+}
+
+#exam-controls.toolbar-grid .category-multi-dropdown {
+	width: 100%;
+	position: relative;
+}
+
+#exam-controls.toolbar-grid .category-dropdown-label {
+	width: 100%;
+	text-align: center;
+	padding: 0 8px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#exam-controls .btn-secondary,
+#exam-controls button {
+	flex: 0 0 auto;
+	min-width: 0;
+	text-align: center;
+}
+
+#exam-controls .btn-secondary,
+#category-navigation .category-dropdown-label {
+	white-space: nowrap;
+}
+
+/* 确保toolbar中的下拉菜单项也不换行 */
+#exam-controls .category-menu-item {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#exam-header > * {
+	padding: 0 6px 0 6px;
+}
+
+/* 4px 左色条 + 6px = 10px 文本到外边缘 */
+
+#exam-title {
+	/* 统一与题干文字颜色一致：使用标准前景色，而不是按钮前景色 */
+	color: var(--vscode-foreground);
+	margin-bottom: 10px;
+	font-size: 24px;
+}
+
+
+/* Category Navigation Styles */
+#category-navigation {
+	display: none;
+	background-color: var(--vscode-panel-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	padding: 16px;
+	margin: 16px 0;
+}
+
+.category-nav-header {
+	font-size: 16px;
+	font-weight: bold;
+	color: var(--vscode-foreground);
+	margin-bottom: 12px;
+	text-align: center;
+}
+
+.category-nav-content {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.category-nav-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 12px;
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border: 1px solid var(--vscode-dropdown-border);
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.category-nav-item:hover {
+	background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.category-nav-item.active {
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border-color: var(--vscode-button-background);
+}
+
+.category-name {
+	font-weight: 500;
+}
+
+.category-progress {
+	font-size: 12px;
+	opacity: 0.8;
+	background-color: rgba(255, 255, 255, 0.1);
+	padding: 2px 6px;
+	border-radius: 10px;
+}
+
+/* Category Navigation Styles */
+#category-navigation {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 0 var(--exam-gutter-x);
+	margin: 0;
+}
+
+#category-navigation .category-multi-dropdown {
+	width: 90px;
+}
+
+#category-navigation .category-dropdown-label {
+	display: block;
+	width: 100%;
+	text-align: center;
+}
+
+/* 左侧分类组 & 右侧题目导航分离布局 */
+#category-navigation .category-groups {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+}
+
+#category-navigation #question-navigation {
+	margin-left: auto;
+	/* 推到最右 */
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+#category-navigation #question-navigation .question-nav {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+#category-navigation #question-navigation .question-nav button.nav-btn {
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: 1px solid var(--vscode-dropdown-border);
+	padding: 6px 14px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+#category-navigation #question-navigation .question-nav button.nav-btn:disabled {
+	opacity: .5;
+	cursor: default;
+}
+
+/* Multiple dropdown layout */
+#category-navigation .category-multi-dropdown {
+	display: inline-block;
+	margin-right: 12px;
+	position: relative;
+}
+
+#category-navigation .category-multi-dropdown:last-child {
+	margin-right: 0;
+}
+
+/* Dropdown Menu Styles */
+.category-dropdown {
+	position: relative;
+	display: inline-block;
+}
+
+.category-dropdown-label {
+	padding: 8px 16px;
+	/* 默认场景（不在 toolbar-grid 内）保持原样 */
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: 1px solid var(--vscode-dropdown-border);
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.category-dropdown-label::after {
+	content: "▼";
+	font-size: 10px;
+	transition: transform 0.2s;
+}
+
+.category-dropdown.open .category-dropdown-label::after {
+	transform: rotate(180deg);
+}
+
+.category-dropdown-label:hover {
+	background-color: var(--vscode-button-hoverBackground);
+}
+
+.category-dropdown-menu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	background-color: var(--vscode-dropdown-background);
+	border: 1px solid var(--vscode-dropdown-border);
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	min-width: 150px;
+	/* 增加最小宽度以容纳更多内容 */
+	max-width: 250px;
+	/* 设置最大宽度防止过宽 */
+	z-index: 1000;
+	display: none;
+	margin-top: 4px;
+}
+
+.category-dropdown.open .category-dropdown-menu,
+.category-multi-dropdown.open .category-dropdown-menu {
+	display: block;
+}
+
+.category-menu-item {
+	padding: 8px 16px;
+	cursor: pointer;
+	font-size: 14px;
+	color: var(--vscode-dropdown-foreground);
+	transition: background-color 0.2s;
+	white-space: nowrap;
+	/* 防止换行，保持单行显示 */
+	line-height: 1.4;
+	overflow: hidden;
+	/* 隐藏超出部分 */
+	text-overflow: ellipsis;
+	/* 超长文本显示省略号 */
+}
+
+.category-menu-item:hover {
+	background-color: var(--vscode-list-hoverBackground);
+}
+
+.category-menu-item.active {
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+}
+

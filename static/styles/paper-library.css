@@ -1,0 +1,187 @@
+
+/* 试卷内容主体通常为日文，强制使用日文字体栈 */
+#current-question-container,
+#question-navigation,
+#section-navigation,
+.section-info,
+#question-map-overlay,
+#question-map-content,
+.question-map-category,
+.question-map-category-title,
+.question-map-section,
+.question-map-section-label,
+.question-map-section-questions,
+.question-map-item,
+.passage,
+.passage-content,
+.question,
+.question-text,
+.options-container,
+.answer,
+.answer-item,
+.explanation,
+.explanation-text {
+	font-family: var(--font-ja);
+}
+
+/* 单试卷模式下隐藏试卷库与不需要的外围元素 */
+body.single-exam #exam-library-panel {
+	display: none !important;
+}
+
+/* 单试卷模式隐藏试卷库面板 */
+body.single-exam #category-navigation {
+	display: none !important;
+}
+
+/* 单试卷模式隐藏分类导航 */
+
+/* 试卷库相关样式 */
+.exam-list-item {
+	padding: 4px 8px;
+	border: 1px solid var(--vscode-dropdown-border, #555);
+	background: var(--vscode-editor-background, #222);
+	cursor: pointer;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+/* 试卷列表项基础样式 */
+.exam-list-item:hover {
+	background: var(--vscode-button-secondaryHoverBackground, #333);
+}
+
+/* 试卷列表项悬停效果 */
+.exam-locked {
+	padding: 24px 16px;
+	background: rgba(255, 215, 0, 0.06);
+	border: 1px dashed #c99;
+	border-radius: 6px;
+	margin: 18px 8px;
+	font-size: 14px;
+}
+
+/* 锁定试卷的样式 */
+#exam-library-panel {
+	border-bottom: 1px solid var(--vscode-editorWidget-border, #444);
+	padding: 12px 10px;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 12px;
+}
+
+#exam-library-panel span {
+	font-size: 14px;
+	color: var(--vscode-foreground);
+	white-space: nowrap;
+}
+
+#exam-library-panel select {
+	height: 26px;
+	min-width: 100px;
+	padding: 0 24px 0 8px;
+	font: inherit;
+	line-height: 1.2;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border: 1px solid var(--vscode-dropdown-border);
+	border-radius: 4px;
+	font-size: 14px;
+	/* 深色主题：浅色箭头 */
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23cccccc' d='M0 0 L5 6 L10 0 Z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	background-size: 10px 6px;
+	cursor: pointer;
+}
+
+/* 浅色主题：深色箭头 */
+body.light-theme #exam-library-panel select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23333333' d='M0 0 L5 6 L10 0 Z'/%3E%3C/svg%3E");
+}
+
+/* Chrome 特定修复 */
+#exam-library-panel select::-ms-expand {
+	display: none;
+}
+
+#exam-library-panel #exam-level-select {
+	min-width: 80px;
+	text-align: center;
+	text-align-last: center;
+}
+
+#exam-library-panel #exam-year-select {
+	min-width: 100px;
+}
+
+#exam-library-panel #exam-month-select {
+	min-width: 80px;
+}
+
+#exam-library-panel #refresh-exam-list {
+	cursor: pointer;
+	transition: transform 0.3s ease;
+}
+
+#exam-library-panel #refresh-exam-list:hover {
+	transform: rotate(180deg);
+}
+
+/* Tree structure */
+.exam-tree-container {
+	width: 100%;
+}
+
+.exam-tree-level {
+	border: 1px solid var(--vscode-editorWidget-border, #444);
+	border-radius: 4px;
+	margin: 4px 4px 6px;
+	background: rgba(255, 255, 255, 0.02);
+}
+
+.exam-tree-level-header {
+	font-weight: 600;
+	padding: 4px 8px;
+	cursor: pointer;
+	user-select: none;
+	background: var(--vscode-button-secondaryBackground, #333);
+	color: var(--vscode-button-secondaryForeground, #fff);
+	border-radius: 4px 4px 0 0;
+}
+
+.exam-tree-level.collapsed .exam-tree-years {
+	display: none;
+}
+
+.exam-tree-year {
+	margin: 4px 8px 8px;
+	border-left: 2px solid var(--vscode-editorIndentGuide-activeBackground, #666);
+	padding-left: 6px;
+}
+
+.exam-tree-year-header {
+	font-size: 12px;
+	font-weight: 500;
+	padding: 2px 4px;
+	margin-bottom: 4px;
+	cursor: pointer;
+	user-select: none;
+	color: var(--vscode-foreground);
+	opacity: 0.85;
+}
+
+.exam-tree-year.collapsed .exam-tree-exams {
+	display: none;
+}
+
+.exam-tree-exams {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+

@@ -27,7 +27,10 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
-    add_executable(smoke_tests tests/smoke_tests.cpp)
+    add_executable(smoke_tests
+        tests/smoke_tests.cpp
+        src/infrastructure/storage/UserRepository.cpp
+    )
     target_include_directories(smoke_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     target_link_libraries(smoke_tests PRIVATE Drogon::Drogon)
     if(MSVC)

@@ -1,0 +1,326 @@
+/* Current Question Container */
+#current-question-container {
+	margin-bottom: 20px;
+}
+
+.current-question {
+	background-color: var(--vscode-panel-background);
+	border-radius: 8px;
+	padding: 16px 10px 20px 10px;
+	/* 文本距卡片边框左右 10px */
+	border: 1px solid var(--vscode-panel-border);
+}
+
+.section-info {
+	/* 去掉分割线，保留下方间距 */
+	margin-bottom: 16px;
+}
+
+.section-info h3 {
+	font-size: 18px;
+	color: var(--vscode-foreground);
+	margin-bottom: 5px;
+}
+
+.question-number {
+	font-size: 16px;
+	color: var(--vscode-foreground);
+	/* 与题干主文本一致 */
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+/* 内联题号（在题目内容前面） */
+.question-number-inline {
+	font-size: 16px;
+	color: var(--vscode-foreground);
+	font-weight: bold;
+	margin-right: 8px;
+}
+
+.section-description {
+	font-size: 14px;
+	color: var(--vscode-descriptionForeground);
+	font-style: italic;
+}
+
+.question-content {
+	margin-top: 15px;
+}
+
+/* Question Navigation Styles */
+#question-navigation {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 15px;
+	z-index: 100;
+}
+
+.question-nav {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.nav-btn {
+	padding: 8px 16px;
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.2s;
+}
+
+.nav-btn:hover:not(:disabled) {
+	background-color: var(--vscode-button-hoverBackground);
+}
+
+.nav-btn:disabled {
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+.question-counter {
+	display: none;
+}
+
+/* Question Select Styles */
+.question-select-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.question-select-container label {
+	font-size: 14px;
+	color: var(--vscode-descriptionForeground);
+	white-space: nowrap;
+}
+
+.question-select {
+	padding: 6px 10px;
+	background-color: var(--vscode-dropdown-background);
+	color: var(--vscode-dropdown-foreground);
+	border: 1px solid var(--vscode-dropdown-border);
+	border-radius: 4px;
+	font-size: 14px;
+	min-width: 100px;
+}
+
+.question-select:focus {
+	outline: 1px solid var(--vscode-focusBorder);
+}
+
+.btn-primary,
+.btn-secondary {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.2s;
+}
+
+.btn-primary {
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+}
+
+.btn-primary:hover {
+	background-color: var(--vscode-button-hoverBackground);
+}
+
+.btn-secondary {
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+	background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.btn-secondary.active {
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	box-shadow: 0 0 0 2px var(--vscode-button-background), 0 0 8px rgba(0, 122, 204, 0.4);
+}
+
+/* Section Styles */
+.section {
+	background-color: var(--vscode-panel-background);
+	border-radius: 8px;
+	padding: 20px;
+	margin-bottom: 20px;
+	border: 1px solid var(--vscode-panel-border);
+}
+
+/* Question Map Overlay */
+.question-map-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.45);
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	z-index: 9998;
+	padding: 60px 24px 40px 24px;
+	overflow: auto;
+}
+
+.question-map-panel {
+	background: var(--vscode-editor-background);
+	color: var(--vscode-foreground);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 14px;
+	padding: 10px 10px 10px 10px;
+	/* 上下 10px */
+	width: 375px;
+	height: 422px;
+	box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
+	position: relative;
+	display: flex;
+	flex-direction: column;
+}
+
+.question-map-header {
+	flex: 0 0 auto;
+	padding: 0 0 6px 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.question-map-title {
+	text-align: center;
+	font-weight: 600;
+	margin: 0;
+	line-height: 20px;
+}
+
+.question-map-content {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	padding: 4px 0 4px 0;
+}
+
+.question-map-footer {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding-top: 6px;
+	border-top: 1px solid var(--vscode-panel-border);
+}
+
+.question-map-status {
+	font-size: 11px;
+	opacity: .8;
+	line-height: 1.4;
+	white-space: pre-line;
+}
+
+.question-map-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.question-map-footer button {
+	font-size: 12px;
+	border-radius: 20px;
+	padding: 4px 14px;
+	cursor: pointer;
+}
+
+.question-map-submit {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: 1px solid var(--vscode-button-border, var(--vscode-panel-border));
+}
+
+.question-map-close {
+	background: transparent;
+	border: 1px solid var(--vscode-button-border, var(--vscode-panel-border));
+	color: var(--vscode-foreground);
+}
+
+.question-map-submit:hover {
+	filter: brightness(1.08);
+}
+
+.question-map-close:hover {
+	background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.question-map-section {
+	margin-bottom: 18px;
+}
+
+.question-map-section:last-child {
+	margin-bottom: 0;
+}
+
+.question-map-section-title {
+	font-size: 14px;
+	font-weight: 600;
+	margin: 0 0 10px 0;
+	opacity: .9;
+}
+
+.question-map-grid {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 8px 6px;
+}
+
+.question-map-item {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	border-radius: 50%;
+	border: 1px solid var(--vscode-panel-border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 10px;
+	cursor: pointer;
+	user-select: none;
+	position: relative;
+}
+
+.question-map-item:hover {
+	background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.question-map-item.answered {
+	border-color: var(--exam-option-border, rgba(0, 122, 204, 0.38));
+	background: var(--exam-option-bg-selected, rgba(0, 122, 204, 0.98));
+	color: var(--vscode-button-foreground);
+}
+
+.question-map-item.current {
+	outline: 2px solid var(--vscode-button-background);
+	outline-offset: 2px;
+}
+
+.question-map-empty {
+	opacity: .28;
+	border-style: dashed;
+	cursor: default;
+}
+
+.question-map-empty:hover {
+	background: transparent;
+}
+

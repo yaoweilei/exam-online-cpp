@@ -1,0 +1,759 @@
+/* Image Styles */
+.exam-image {
+	/* 图片宽度不再强制逻辑宽度，默认自适应内容容器 */
+	max-width: 100%;
+	height: auto;
+	border-radius: 4px;
+	margin: 10px 0;
+	border: 1px solid var(--vscode-input-border);
+	display: block;
+	margin-left: 0;
+	margin-right: 0;
+	cursor: zoom-in;
+}
+
+/* Image Preview Overlay */
+.image-preview-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.75);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+	opacity: 0;
+	transition: opacity 0.18s ease;
+}
+
+.image-preview-overlay.visible {
+	opacity: 1;
+}
+
+.image-preview-content {
+	position: relative;
+	max-width: 92vw;
+	max-height: 92vh;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+	border-radius: 6px;
+	background: #111;
+	padding: 8px;
+}
+
+/* 问题级多音频列表样式 */
+.question-audio-single {
+	margin: 8px 0 16px 0;
+}
+
+.question-audio-list {
+	margin: 8px 0 16px 0;
+	border: 1px solid #ddd;
+	padding: 8px 10px;
+	border-radius: 4px;
+	background: #fafafa;
+}
+
+.view-host.vscode-dark .question-audio-list {
+	border-color: #444;
+	background: #1e1e1e;
+}
+
+.question-audio-item + .question-audio-item {
+	margin-top: 6px;
+}
+
+.question-audio-label {
+	font-size: 12px;
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+.question-audio-item audio,
+.question-audio-single audio {
+	width: 100%;
+}
+
+.image-preview-content img {
+	max-width: 100%;
+	max-height: 88vh;
+	display: block;
+	border-radius: 4px;
+}
+
+.image-preview-close {
+	position: absolute;
+	top: 4px;
+	right: 6px;
+	background: rgba(0, 0, 0, 0.55);
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	padding: 4px 8px;
+	cursor: pointer;
+	font-size: 12px;
+}
+
+.image-preview-close:hover {
+	background: rgba(0, 0, 0, 0.75);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	body {
+		padding: 10px;
+	}
+
+	.pc-overview-head {
+		flex-direction: column;
+	}
+
+	.pc-summary-stats,
+	.pc-overview-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.pc-info-row {
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.pc-info-row strong {
+		text-align: left;
+	}
+
+	.section {
+		padding: 15px;
+	}
+
+	.question {
+		padding: 10px;
+	}
+}
+
+/* No Content Styles */
+.no-content {
+	text-align: center;
+	padding: 40px 20px;
+	color: var(--vscode-descriptionForeground);
+	font-style: italic;
+	background-color: var(--vscode-input-background);
+	border-radius: 8px;
+	border: 1px solid var(--vscode-input-border);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+	width: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--vscode-scrollbarSlider-background);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--vscode-scrollbarSlider-hoverBackground);
+	border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--vscode-scrollbarSlider-activeBackground);
+}
+
+/* ---- Roles Table (superAdmin view) ---- */
+.roles-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 8px;
+	font-size: 12px;
+}
+
+.roles-table th,
+.roles-table td {
+	border: 1px solid var(--vscode-editorWidget-border, #444);
+	padding: 4px 6px;
+	text-align: left;
+}
+
+.roles-table thead {
+	background: var(--vscode-editorWidget-background, #2a2a2a);
+}
+
+.roles-table tbody tr:nth-child(odd) {
+	background: var(--vscode-editorWidget-background, #1e1e1e);
+}
+
+.roles-table .role-owned {
+	color: var(--vscode-testing-iconPassed, #3fb950);
+	font-weight: bold;
+}
+
+.risk-badge.role-risk-low {
+	background: #2d6433;
+}
+
+.risk-badge.role-risk-medium {
+	background: #79530e;
+}
+
+.risk-badge.role-risk-high {
+	background: #7a1f1f;
+}
+
+.risk-badge.role-risk-critical {
+	background: #8a0033;
+}
+
+/* Inline answer editing */
+.answer {
+	position: relative;
+}
+
+.answer-edit-bar {
+	margin-top: 6px;
+	display: flex;
+	gap: 8px;
+}
+
+.edit-answer-btn {
+	background: var(--vscode-button-secondaryBackground, #333);
+	color: var(--vscode-button-secondaryForeground, #ddd);
+	border: 1px solid var(--vscode-button-border, transparent);
+	padding: 2px 10px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 11px;
+}
+
+.edit-answer-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.answer-edit-form {
+	margin-top: 8px;
+	padding: 10px 12px 12px;
+	background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(38, 38, 38, 0.95));
+	border: 1px solid var(--vscode-editorWidget-border, #444);
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+	color: var(--vscode-button-foreground, #fff);
+}
+
+.answer-edit-form .aef-row {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	font-size: 12px;
+}
+
+.answer-edit-form label {
+	min-width: 64px;
+	font-weight: 600;
+	font-size: 12px;
+	color: inherit;
+}
+
+.answer-edit-form textarea {
+	resize: vertical;
+	font-family: inherit;
+	font-size: 13px;
+	background: #111;
+	color: var(--vscode-button-foreground, #fff);
+	border: 1px solid #555;
+	border-radius: 6px;
+	padding: 6px 8px;
+	line-height: 1.5;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.answer-edit-form textarea:focus {
+	outline: 2px solid var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+	outline-offset: 1px;
+}
+
+.answer-edit-form select,
+.answer-edit-form input[type=text] {
+	background: #111;
+	color: var(--vscode-button-foreground, #fff);
+	border: 1px solid #555;
+	border-radius: 6px;
+	padding: 4px 8px;
+	font-size: 13px;
+	height: 32px;
+}
+
+.answer-edit-form select:focus,
+.answer-edit-form input[type=text]:focus {
+	outline: 2px solid var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+	outline-offset: 1px;
+}
+
+.answer-edit-form .aef-actions {
+	display: flex;
+	gap: 10px;
+}
+
+.answer-edit-form .aef-actions button {
+	background: var(--vscode-button-background, #0e639c);
+	color: var(--vscode-button-foreground, #fff);
+	border: 1px solid var(--vscode-button-border, transparent);
+	padding: 6px 16px;
+	font-size: 12px;
+	border-radius: 6px;
+	cursor: pointer;
+	letter-spacing: .5px;
+	font-weight: 600;
+}
+
+.answer-edit-form .aef-actions button:hover {
+	filter: brightness(1.1);
+}
+
+.answer-edit-form .aef-actions button:active {
+	transform: translateY(1px);
+}
+
+.aef-explanation {
+	min-height: 200px;
+}
+
+/* 约原来的 ~4 倍 (之前 4 行约 80px) */
+
+/* Role Users Grid (superAdmin mock user lists) */
+.role-users-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 12px;
+	margin-top: 14px;
+}
+
+.role-users-block {
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid var(--vscode-editorWidget-border, #333);
+	padding: 8px 8px 10px;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.role-users-head {
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-weight: 600;
+}
+
+.role-users-head .ru-count {
+	font-weight: 400;
+	opacity: 0.7;
+	font-size: 11px;
+}
+
+.role-user-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.role-user-list li {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid var(--vscode-editorWidget-border, #333);
+	padding: 4px 6px;
+	border-radius: 6px;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	position: relative;
+}
+
+.role-user-list li:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+.role-user-list .ru-name {
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.role-user-list .ru-id {
+	font-size: 10px;
+	opacity: 0.6;
+	word-break: break-all;
+}
+
+.ru-more {
+	font-size: 10px;
+	opacity: 0.7;
+	margin-top: 4px;
+}
+
+/* Question List Styles */
+#question-list {
+	display: none;
+	background-color: var(--vscode-panel-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	padding: 20px;
+	margin-top: 20px;
+}
+
+#question-list.hidden {
+	display: none;
+}
+
+.question-list-title {
+	font-size: 18px;
+	color: var(--vscode-foreground);
+	margin-bottom: 15px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.question-list-items {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+	gap: 8px;
+	max-height: 400px;
+	overflow-y: auto;
+.explanation.answer-extras {
+	margin-top: 12px;
+}
+	padding: 10px;
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 6px;
+	background-color: var(--vscode-input-background);
+}
+
+.question-item {
+	padding: 8px 12px;
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border: 1px solid var(--vscode-dropdown-border);
+	border-radius: 4px;
+	cursor: pointer;
+	text-align: center;
+	font-size: 14px;
+	transition: background-color 0.2s;
+	font-weight: 500;
+}
+
+.question-item:hover {
+	background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.question-item.active {
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border-color: var(--vscode-button-background);
+}
+
+.no-content {
+	text-align: center;
+	padding: 40px 20px;
+	color: var(--vscode-descriptionForeground);
+	font-style: italic;
+	background-color: var(--vscode-input-background);
+	border-radius: 8px;
+	border: 1px solid var(--vscode-input-border);
+	font-size: 16px;
+}
+
+
+/* 编辑按钮样式 */
+.edit-btn {
+	margin-left: 10px;
+	padding: 2px 8px;
+	font-size: 11px;
+	background: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border: 1px solid var(--vscode-button-border, transparent);
+	border-radius: 3px;
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+.edit-btn:hover {
+	background: var(--vscode-button-secondaryHoverBackground);
+}
+
+/* 编辑对话框样式 */
+.edit-dialog-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+}
+
+.edit-dialog {
+	background: var(--vscode-editor-background);
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	width: 90%;
+	max-width: 800px;
+	max-height: 80vh;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.edit-dialog-header {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.edit-dialog-header h3 {
+	margin: 0;
+	font-size: 16px;
+}
+
+.edit-dialog-close {
+	background: transparent;
+	border: none;
+	color: var(--vscode-foreground);
+	font-size: 20px;
+	cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 4px;
+}
+
+.edit-dialog-close:hover {
+	background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.edit-dialog-body {
+	padding: 16px;
+	flex: 1;
+	overflow: auto;
+}
+
+.edit-textarea {
+	width: 100%;
+	min-height: 300px;
+	padding: 12px;
+	font-family: inherit;
+	font-size: 14px;
+	line-height: 1.6;
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 4px;
+	resize: vertical;
+}
+
+.edit-textarea:focus {
+	outline: 1px solid var(--vscode-focusBorder);
+}
+
+.edit-dialog-footer {
+	padding: 12px 16px;
+	border-top: 1px solid var(--vscode-panel-border);
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+}
+
+.edit-dialog-cancel,
+.edit-dialog-save {
+	padding: 6px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+}
+
+.edit-dialog-cancel {
+	background: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border: 1px solid var(--vscode-button-border, transparent);
+}
+
+.edit-dialog-cancel:hover {
+	background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.edit-dialog-save {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: 1px solid var(--vscode-button-border, transparent);
+}
+
+.edit-dialog-save:hover {
+	background: var(--vscode-button-hoverBackground);
+}
+
+
+/* 大号编辑对话框 */
+.edit-dialog-large {
+	max-width: 900px;
+}
+
+/* 编辑表单字段 */
+.edit-field {
+	margin-bottom: 16px;
+}
+
+.edit-field label {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 500;
+	font-size: 13px;
+	color: var(--vscode-foreground);
+}
+
+.edit-input,
+.edit-select {
+	width: 100%;
+	padding: 8px 12px;
+	font-family: inherit;
+	font-size: 14px;
+	background: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 4px;
+}
+
+.edit-input:focus,
+.edit-select:focus {
+	outline: 1px solid var(--vscode-focusBorder);
+}
+
+.edit-select {
+	cursor: pointer;
+}
+
+/* 高亮target_words中的词汇 - 使用下划线样式 */
+mark.target-word,
+.target-word {
+	background-color: transparent;
+	text-decoration: underline;
+	text-decoration-color: currentColor;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 2px;
+	font-weight: inherit;
+	padding: 0;
+}
+
+/* ==================== 图片拖拽调整大小 ==================== */
+
+/* 去掉包含图片的passage容器的padding */
+.passage:has(.exam-image-wrapper) {
+	padding: 0 0 0 10px;
+	margin: 0;
+	border-left: 3.0px solid var(--vscode-textBlockQuote-border);
+	background-color: transparent;
+}
+
+.passage-content:has(.exam-image-wrapper) {
+	padding: 0;
+	margin: 0;
+}
+
+/* 图片包装容器 */
+.exam-image-wrapper {
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+	width: 600px; /* 默认宽度 */
+	margin: 0;
+	padding: 0;
+	user-select: none;
+}
+
+/* 图片本身 */
+.exam-image-wrapper .exam-image {
+	width: 100%;
+	height: auto;
+	display: block;
+	border-radius: 2px;
+	border: 1px solid var(--vscode-panel-border);
+}
+
+/* 右下角拖拽手柄 */
+.exam-image-resize-handle {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 20px;
+	height: 20px;
+	cursor: nwse-resize;
+	background: #666666;
+	opacity: 0.6;
+	transition: opacity 0.2s, background-color 0.2s;
+	
+	/* 创建三角形拖拽图案 */
+	background-image: 
+		linear-gradient(135deg, transparent 0%, transparent 40%, #cccccc 40%, #cccccc 45%, transparent 45%),
+		linear-gradient(135deg, transparent 0%, transparent 55%, #cccccc 55%, #cccccc 60%, transparent 60%),
+		linear-gradient(135deg, transparent 0%, transparent 70%, #cccccc 70%, #cccccc 75%, transparent 75%);
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+	border-radius: 0 0 4px 0;
+}
+
+.exam-image-resize-handle:hover {
+	opacity: 0.9;
+	background-color: #888888;
+}
+
+/* 拖拽时的样式 */
+.exam-image-wrapper.resizing {
+	opacity: 0.8;
+}
+
+.exam-image-wrapper.resizing .exam-image {
+	pointer-events: none;
+}
+
+/* 响应式：小屏幕上限制最大宽度 */
+@media (max-width: 768px) {
+	.exam-image-wrapper {
+		max-width: 100%;
+	}
+}
+
+/* 题目内的passage样式（题干相关的补充图片） */
+.question-passage {
+	margin: 0 0 8px 0;
+	padding: 0;
+	background-color: transparent;
+	border: none;
+}
+
+.question-passage .passage {
+	margin: 0;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+}
+
+.question-passage .passage-content {
+	margin: 0;
+	padding: 0;
+}
+
+/* 题目内图片的特殊样式 */
+.question-passage .exam-image-wrapper {
+	max-width: 600px;
+	margin: 0;
+}
+
+/* 当题干后面紧跟question-passage时，减少题干的下边距 */
+.question-text:has(+ .question-passage) {
+	margin-bottom: 5px;
+}

@@ -1,0 +1,303 @@
+/* Toast */
+.pc-toast {
+	position: fixed;
+	left: 50%;
+	bottom: 40px;
+	transform: translateX(-50%) translateY(20px);
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	padding: 8px 16px;
+	border-radius: 20px;
+	font-size: 12px;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity .25s, transform .25s;
+	z-index: 7000;
+}
+
+.pc-toast.show {
+	opacity: 1;
+	transform: translateX(-50%) translateY(0);
+}
+
+/* System Flags & Risk Modal */
+.system-flags h2 {
+	margin: 0 0 12px;
+	font-size: 18px;
+}
+
+.system-flags h3 {
+	margin: 20px 0 8px;
+	font-size: 15px;
+}
+
+.maintenance-card {
+	display: flex;
+	gap: 16px;
+	align-items: flex-start;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid var(--vscode-editorWidget-border, #333);
+	padding: 12px 14px;
+	border-radius: 10px;
+}
+
+.mc-left {
+	flex: 1;
+}
+
+.mc-title {
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.mc-desc {
+	font-size: 12px;
+	opacity: 0.8;
+	line-height: 1.4;
+}
+
+.mc-toggle {
+	background: var(--vscode-button-background, #0e639c);
+	color: var(--vscode-button-foreground, #fff);
+	border: 1px solid var(--vscode-button-border, transparent);
+	padding: 8px 16px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.mc-toggle:hover {
+	filter: brightness(1.1);
+}
+
+.sf-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+.sf-table th,
+.sf-table td {
+	padding: 6px 8px;
+	border-bottom: 1px solid var(--vscode-editorWidget-border, #333);
+	text-align: left;
+}
+
+.sf-table th {
+	background: rgba(255, 255, 255, 0.05);
+	font-weight: 600;
+	font-size: 11px;
+	letter-spacing: .5px;
+}
+
+.sf-table tr:hover {
+	background: rgba(255, 255, 255, 0.04);
+}
+
+.flag-val.on {
+	color: #4caf50;
+	font-weight: 600;
+}
+
+.flag-val.off {
+	color: #999;
+	font-weight: 600;
+}
+
+.risk-badge {
+	display: inline-block;
+	padding: 2px 6px;
+	font-size: 10px;
+	border-radius: 10px;
+	background: #555;
+	color: #fff;
+	text-transform: uppercase;
+}
+
+.risk-high {
+	background: #d13438;
+}
+
+.risk-medium {
+	background: #c19c00;
+}
+
+.risk-low {
+	background: #2e8b57;
+}
+
+.sf-toggle {
+	background: var(--vscode-button-secondaryBackground, #333);
+	color: var(--vscode-button-secondaryForeground, #ddd);
+	border: 1px solid var(--vscode-button-border, transparent);
+	padding: 4px 10px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.sf-toggle:hover {
+	background: var(--vscode-button-secondaryHoverBackground, #444);
+}
+
+.sf-hint {
+	margin-top: 10px;
+	font-size: 11px;
+	opacity: 0.65;
+	line-height: 1.4;
+}
+
+/* Risk Modal */
+#risk-modal.risk-hidden {
+	display: none;
+}
+
+#risk-modal.risk-open {
+	display: block;
+}
+
+#risk-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 6500;
+	font-size: 13px;
+}
+
+#risk-modal .risk-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+	backdrop-filter: blur(2px);
+}
+
+#risk-modal .risk-panel {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 420px;
+	max-width: 92%;
+	background: var(--vscode-editor-background, #1e1e1e);
+	color: var(--vscode-foreground, #ddd);
+	border: 1px solid var(--vscode-editorWidget-border, #333);
+	border-radius: 10px;
+	box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5);
+	display: flex;
+	flex-direction: column;
+}
+
+.risk-header {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--vscode-editorWidget-border, #333);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.risk-close {
+	background: transparent;
+	border: 1px solid transparent;
+	color: inherit;
+	font-size: 18px;
+	width: 32px;
+	height: 32px;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.risk-close:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+.risk-body {
+	padding: 16px 18px 4px;
+	line-height: 1.5;
+}
+
+.risk-footer {
+	padding: 12px 16px 16px;
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+	border-top: 1px solid var(--vscode-editorWidget-border, #333);
+}
+
+.risk-desc {
+	font-size: 13px;
+	margin-bottom: 10px;
+}
+
+.risk-level {
+	font-size: 11px;
+	margin-bottom: 12px;
+	opacity: 0.85;
+}
+
+.risk-tag {
+	display: inline-block;
+	padding: 2px 6px;
+	border-radius: 10px;
+	background: #555;
+	color: #fff;
+	font-size: 10px;
+}
+
+.risk-tag.risk-high {
+	background: #d13438;
+}
+
+.risk-tag.risk-medium {
+	background: #c19c00;
+}
+
+.risk-tag.risk-low {
+	background: #2e8b57;
+}
+
+.risk-input-row {
+	font-size: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.risk-input {
+	background: #222;
+	color: #fff;
+	border: 1px solid #444;
+	border-radius: 4px;
+	padding: 6px 8px;
+}
+
+.risk-input:focus {
+	outline: 1px solid #0e639c;
+}
+
+.risk-btn {
+	background: var(--vscode-button-secondaryBackground, #333);
+	color: var(--vscode-button-secondaryForeground, #ddd);
+	border: 1px solid var(--vscode-button-border, transparent);
+	padding: 6px 14px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 12px;
+}
+
+.risk-btn.primary {
+	background: var(--vscode-button-background, #0e639c);
+	color: var(--vscode-button-foreground, #fff);
+}
+
+.risk-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.risk-btn:not(:disabled):hover {
+	filter: brightness(1.08);
+}
+
+@media (max-width: 520px) {
+	#risk-modal .risk-panel {
+		width: 96%;
+	}
+}
+

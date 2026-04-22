@@ -1,0 +1,182 @@
+/* content/footer 已重构，旧样式移除 */
+
+/* 新行式布局（每个章节/逻辑块单行，题号自动换行） */
+.question-map-line {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-bottom: 10px;
+}
+
+.question-map-line:last-child {
+	margin-bottom: 0;
+}
+
+.question-map-line-label {
+	font-size: 12px;
+	font-weight: 600;
+	opacity: .85;
+	min-width: 0;
+	width: auto;
+	line-height: 30px;
+	text-align: left;
+	padding-right: 6px;
+}
+
+.question-map-line-items {
+	display: grid;
+	grid-template-columns: repeat(8, 30px);
+	gap: 6px;
+}
+
+.question-map-line-items .question-map-item {
+	width: 30px;
+	height: 30px;
+}
+
+/* 缩小绿圈（已答）与当前题指示适配尺寸 */
+.question-map-item.correct {
+	background: rgba(0, 128, 0, 0.20) !important;
+	border-color: var(--vscode-testing-iconPassed, #2f8f2f) !important;
+}
+
+.question-map-item.incorrect {
+	background: rgba(255, 0, 0, 0.18) !important;
+	border-color: #ff5a5a !important;
+}
+
+.question-map-item.current {
+	outline: 2px solid var(--vscode-button-background);
+}
+
+.section-header {
+	border-bottom: 2px solid var(--vscode-button-background);
+	padding-bottom: 10px;
+	margin-bottom: 15px;
+}
+
+.section-title {
+	font-size: 18px;
+	/* 与题干统一使用标准前景色，确保在浅色主题下可见 */
+	color: var(--vscode-foreground) !important;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+
+.section-description {
+	font-size: 14px;
+	color: var(--vscode-descriptionForeground);
+	font-style: italic;
+}
+
+/* Question Styles */
+.question {
+	margin-bottom: 25px;
+	padding: 0;
+	/* 让题干与外层卡片 10px 内边距对齐 */
+	background-color: transparent;
+	/* 使用外层卡片背景即可 */
+	border: none;
+	/* 去掉内层额外边框/色条 */
+	min-width: 0;
+}
+
+.question-text {
+	margin-bottom: 15px;
+	font-size: var(--exam-font-size);
+	line-height: 1.6;
+	color: var(--vscode-foreground);
+	/* 显式使用前景色，避免浅色主题下继承造成不可见 */
+	/* 日文题干使用 MS Gothic */
+	font-family: var(--font-ja);
+}
+
+.target-word {
+	text-decoration: underline;
+	font-weight: bold;
+	color: var(--vscode-textLink-foreground);
+}
+
+/* Options Styles */
+.options-container {
+	display: grid;
+	gap: 8px;
+}
+
+.option {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px 10px;
+	background-color: var(--exam-option-bg, rgba(0, 122, 204, 0.08));
+	border: 1px solid var(--exam-option-border, rgba(0, 122, 204, 0.38));
+	border-radius: 4px;
+	cursor: pointer;
+	position: relative;
+	transition: background-color 0.2s;
+}
+
+/* 显示答案模式下：给用户勾选的选项加标记（与正确答案✔区分） */
+.option.chosen-option::before {
+	content: '☑';
+	position: absolute;
+	top: 8px;
+	right: 28px;
+	font-size: 14px;
+	font-weight: bold;
+	color: currentColor;
+}
+
+.option:hover {
+	background-color: var(--exam-option-bg-hover, rgba(0, 122, 204, 0.28));
+}
+
+.option.selected {
+	background-color: var(--exam-option-bg-selected, rgba(0, 122, 204, 0.98));
+	color: var(--vscode-button-foreground);
+}
+
+/* .option-number 已移除（不再显示左侧编号） */
+
+.option-text {
+	flex: 1;
+}
+
+/* 统一选项字体大小使用变量 */
+.option,
+.option-text {
+	font-size: var(--exam-font-size);
+}
+
+/* 阅读 passage 也使用统一字号（原本继承 16px） */
+.passage {
+	font-size: var(--exam-font-size);
+}
+
+/* Passage Styles */
+.passage {
+	background-color: var(--vscode-textBlockQuote-background);
+	border-left: 3px solid var(--vscode-textBlockQuote-border);
+	padding: 15px;
+	margin: 15px 0;
+	border-radius: 4px;
+	line-height: 2.4;
+	white-space: pre-wrap;
+	word-break: break-word;
+	/* 阅读文章使用 MS Gothic */
+	font-family: var(--font-ja);
+}
+
+/* 阅读正文容器：纯流式换行，允许长英文/URL 断行 */
+.passage .passage-content {
+	word-break: break-word;
+	overflow-wrap: anywhere;
+}
+
+.passage-title {
+	font-weight: bold;
+	margin-bottom: 10px;
+	color: var(--vscode-button-foreground);
+}
+
