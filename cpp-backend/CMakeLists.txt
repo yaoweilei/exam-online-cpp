@@ -30,6 +30,9 @@ if(BUILD_TESTING)
     add_executable(smoke_tests
         tests/smoke_tests.cpp
         src/infrastructure/storage/UserRepository.cpp
+        src/application/services/OrganizationService.cpp
+        src/application/services/SubscriptionService.cpp
+        src/application/services/UserService.cpp
     )
     target_include_directories(smoke_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     target_link_libraries(smoke_tests PRIVATE Drogon::Drogon)

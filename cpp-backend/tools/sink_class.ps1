@@ -99,6 +99,7 @@ $nsCloseLine = $lines[$nsCloseIdx]
 
 $slimMembers = New-Object System.Collections.Generic.List[string]   # lines inside class body (decls + templates + access labels + blank lines + comments)
 $cppDefs = New-Object System.Collections.Generic.List[string]       # full function definitions (qualified)
+$nestedTypes = New-Object System.Collections.Generic.List[string]   # names of nested struct/class/enum to qualify in cpp signatures
 
 $currentAccess = 'private'  # default for class
 $buf = New-Object System.Collections.Generic.List[string]
@@ -205,6 +206,40 @@ while ($i -le $endScan) {
 
     # Did we just enter a function body? (depth went from 1 to 2 via this line)
     if ($d -eq 1 -and $newDepth -ge 2) {
+        # Detect nested type (struct/class/enum/union): no `(` before `{` in accumulated buf
+        $bufJoined = ($buf -join ' ')
+        $braceIdxInJoined = $bufJoined.IndexOf('{')
+        $beforeBraceJoined = if ($braceIdxInJoined -ge 0) { $bufJoined.Substring(0, $braceIdxInJoined) } else { $bufJoined }
+        $isNestedType = ($beforeBraceJoined -notmatch '\(') -or ($beforeBraceJoined -match '^\s*(struct|class|enum|union)\b')
+        if ($isNestedType) {
+            # Capture nested type name from the first matching line
+            foreach ($bl in $buf) {
+                $mm = [regex]::Match($bl, '^\s*(?:struct|class|enum(?:\s+class)?|union)\s+([A-Za-z_][A-Za-z0-9_]*)')
+                if ($mm.Success) { $null = $nestedTypes.Add($mm.Groups[1].Value); break }
+            }
+            # Keep entire nested type definition verbatim in header, including trailing `;` line
+            $d = $newDepth
+            $i++
+            while ($i -le $endScan -and $d -gt 1) {
+                $bln = $lines[$i]
+                $null = $buf.Add($bln)
+                foreach ($ch in $bln.ToCharArray()) {
+                    if ($ch -eq '{') { $d++ }
+                    elseif ($ch -eq '}') { $d-- }
+                }
+                $i++
+            }
+            # The last buf line should contain `};` (struct close + semicolon).
+            # If not (e.g. `}` and `;` on separate lines), include any trailing `;` line.
+            if ($i -le $endScan -and $lines[$i] -match '^\s*;\s*$') {
+                $null = $buf.Add($lines[$i])
+                $i++
+            }
+            foreach ($bl in $buf) { $null = $slimMembers.Add($bl) }
+            $buf.Clear()
+            $d = 1
+            continue
+        }
         # Continue consuming until depth returns to 1
         $d = $newDepth
         $i++
@@ -335,6 +370,16 @@ while ($i -le $endScan) {
                     $null = $cppSigLines.Add($s)
                 }
             }
+            # Qualify nested type references in the signature lines
+            for ($qi = 0; $qi -lt $cppSigLines.Count; $qi++) {
+                $sigLine = $cppSigLines[$qi]
+                foreach ($nt in $nestedTypes) {
+                    $sigLine = [regex]::Replace($sigLine, "(?<![A-Za-z0-9_:])$nt(?![A-Za-z0-9_])", "${ClassName}::$nt")
+                }
+                # Avoid double-qualifying our own ClassName::name
+                $sigLine = [regex]::Replace($sigLine, "${ClassName}::${ClassName}::", "${ClassName}::")
+                $cppSigLines[$qi] = $sigLine
+            }
             foreach ($sl in $cppSigLines) { $null = $cppDefs.Add($sl) }
             $null = $cppDefs.Add('{')
             # Body lines: strip ONE level of class indent (4 spaces) if present
@@ -353,6 +398,11 @@ while ($i -le $endScan) {
 
     # Did we hit a `;` at depth 1 (no brace)? It's a declaration / member field — keep as-is
     if ($d -eq 1 -and $newDepth -eq 1 -and ($ln -match ';\s*$')) {
+        # Capture forward-declared nested types
+        foreach ($bl in $buf) {
+            $mm = [regex]::Match($bl, '^\s*(?:struct|class|enum(?:\s+class)?|union)\s+([A-Za-z_][A-Za-z0-9_]*)\s*;')
+            if ($mm.Success) { $null = $nestedTypes.Add($mm.Groups[1].Value) }
+        }
         foreach ($bl in $buf) { $null = $slimMembers.Add($bl) }
         $buf.Clear()
         $i++
