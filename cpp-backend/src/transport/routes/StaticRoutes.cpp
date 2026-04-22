@@ -89,7 +89,7 @@ void registerStaticRoutes(const AppContext &ctx)
                 return;
             }
             auto response = HttpResponse::newFileResponse(path.string());
-            response->setContentTypeCode(CT_APPLICATION_JAVASCRIPT);
+            response->setContentTypeString("application/javascript; charset=utf-8");
             // 始终禁用 SW 缓存，确保新版本能被快速感知
             applyNoCacheHeaders(response);
             response->addHeader("Service-Worker-Allowed", "/");

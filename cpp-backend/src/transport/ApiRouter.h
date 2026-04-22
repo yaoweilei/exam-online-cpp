@@ -31,6 +31,13 @@
 #include "application/services/AdminStatisticsService.h"
 #include "application/services/CommunityService.h"
 #include "application/services/AuditLogService.h"
+#include "application/services/DailyPracticeService.h"
+#include "application/services/LearningReportService.h"
+#include "application/services/StudyGoalService.h"
+#include "application/services/SyncService.h"
+#include "application/services/ExplanationService.h"
+#include "application/services/LeaderboardService.h"
+#include "application/services/OAuthService.h"
 
 namespace transport
 {
@@ -78,6 +85,20 @@ struct AppContext
     application::services::CommunityService *communityService{nullptr};
     // 审计日志可视化（业务功能 15）
     application::services::AuditLogService *auditLogService{nullptr};
+    // 每日一练（业务功能 16）
+    application::services::DailyPracticeService *dailyPracticeService{nullptr};
+    // 学习报告（业务功能 17）
+    application::services::LearningReportService *learningReportService{nullptr};
+    // 备考目标 / 倒计时（业务功能 18）
+    application::services::StudyGoalService *studyGoalService{nullptr};
+    // 多端同步（业务功能 19）
+    application::services::SyncService *syncService{nullptr};
+    // 题目讲解附件（业务功能 20）
+    application::services::ExplanationService *explanationService{nullptr};
+    // 排行榜（业务功能 21）
+    application::services::LeaderboardService *leaderboardService{nullptr};
+    // 第三方 OAuth（业务功能 22）
+    application::services::OAuthService *oauthService{nullptr};
     application::recommendation::RecommendationStrategy *recommendationStrategy{nullptr};
 };
 

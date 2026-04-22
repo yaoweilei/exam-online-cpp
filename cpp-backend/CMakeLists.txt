@@ -70,6 +70,13 @@ if(BUILD_TESTING)
         src/infrastructure/storage/CommunityRepository.cpp
         src/application/services/CommunityService.cpp
         src/application/services/AuditLogService.cpp
+        src/application/services/DailyPracticeService.cpp
+        src/application/services/LearningReportService.cpp
+        src/application/services/StudyGoalService.cpp
+        src/application/services/SyncService.cpp
+        src/application/services/ExplanationService.cpp
+        src/application/services/LeaderboardService.cpp
+        src/application/services/OAuthService.cpp
     )
     target_include_directories(smoke_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     target_link_libraries(smoke_tests PRIVATE Drogon::Drogon)

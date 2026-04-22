@@ -226,6 +226,12 @@ class QuestionRenderer {
 			questionText.appendChild(feedbackBtn);
 		}
 
+		// 题目讲解按钮（业务功能 20）：受 question_explanations 开关控制，默认开启
+		if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('question_explanations', true)) {
+			const explainBtn = this.createExplanationButton(question);
+			questionText.appendChild(explainBtn);
+		}
+
 		questionDiv.appendChild(questionText);
 
 		// 如果题目有passage（题干相关的补充图片），在题干后、选项前渲染
@@ -630,6 +636,147 @@ class QuestionRenderer {
 				alert('提交失败：' + (err instanceof Error ? err.message : String(err)));
 			}
 		};
+	}
+
+	/**
+	 * 创建「题目讲解」按钮（业务功能 20）
+	 *   - 学生：弹窗查看讲解列表（文本/链接/图片/音频）
+	 *   - 管理员/教师：额外提供新增表单
+	 */
+	createExplanationButton(question: RendererAnyRecord) {
+		const btn = document.createElement('button');
+		btn.className = 'explanation-btn';
+		btn.style.cssText = 'margin-left:6px;font-size:12px;padding:2px 8px;cursor:pointer;border:1px solid #d0d0d0;border-radius:4px;background:#f5fbf6;';
+		btn.innerHTML = '💡 讲解';
+		btn.title = '查看本题讲解附件';
+		btn.onclick = (e) => {
+			e.stopPropagation();
+			this.openExplanationDialog(question);
+		};
+		return btn;
+	}
+
+	/**
+	 * 打开讲解面板（业务功能 20）
+	 *   - 拉取该题已有讲解列表
+	 *   - admin/teacher 角色可见新增表单与删除按钮
+	 */
+	openExplanationDialog(question: RendererAnyRecord) {
+		const examId = this.examViewer._currentExamId || '';
+		if (!examId) {
+			alert('当前没有载入试卷');
+			return;
+		}
+		const overlay = document.createElement('div');
+		overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		const card = document.createElement('div');
+		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
+
+		const canAdmin = this.isAdmin();
+		card.innerHTML = `
+			<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+				<h3 style="margin:0;font-size:16px;">💡 题目讲解（题号：${question.id}）</h3>
+				<button class="exp-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+			</div>
+			<div class="exp-list" style="margin-bottom:14px;min-height:120px;"></div>
+			${canAdmin ? `
+				<form class="exp-form" style="border-top:1px solid #eee;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+					<label style="grid-column:1/-1;font-size:12px;color:#666;">新增讲解</label>
+					<select class="exp-kind" style="padding:6px;border:1px solid #ddd;border-radius:4px;">
+						<option value="text">文本</option>
+						<option value="link">外部链接</option>
+						<option value="image">图片 URL</option>
+						<option value="audio">音频 URL</option>
+					</select>
+					<input class="exp-url" placeholder="URL（链接/图片/音频时填写）" maxlength="1000" style="padding:6px;border:1px solid #ddd;border-radius:4px;" />
+					<textarea class="exp-body" rows="3" maxlength="4000" placeholder="文本内容或备注（最多 4000 字）" style="grid-column:1/-1;padding:6px;border:1px solid #ddd;border-radius:4px;"></textarea>
+					<button type="submit" style="padding:6px 12px;background:#0a7;color:#fff;border:0;border-radius:4px;cursor:pointer;grid-column:1/-1;">提交讲解</button>
+				</form>` : ''}
+		`;
+		overlay.appendChild(card);
+		document.body.appendChild(overlay);
+
+		const close = () => overlay.remove();
+		(card.querySelector('.exp-close') as HTMLButtonElement).onclick = close;
+		overlay.addEventListener('click', (e) => {
+			if (e.target === overlay) close();
+		});
+
+		const listEl = card.querySelector('.exp-list') as HTMLDivElement;
+
+		const renderItems = (items: Array<RendererAnyRecord>) => {
+			if (!items || items.length === 0) {
+				listEl.innerHTML = '<div style="color:#999;padding:12px;">暂无讲解</div>';
+				return;
+			}
+			const escape = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] || c));
+			listEl.innerHTML = items.map((it) => {
+				const kind = String(it.kind || 'text');
+				const body = escape(String(it.body || ''));
+				const url = String(it.url || '');
+				let renderedBody = '';
+				if (kind === 'image' && url) {
+					renderedBody = `<img src="${escape(url)}" alt="" style="max-width:100%;max-height:320px;border:1px solid #eee;border-radius:4px;" />` + (body ? `<div style="font-size:12px;color:#666;margin-top:4px;">${body}</div>` : '');
+				} else if (kind === 'audio' && url) {
+					renderedBody = `<audio controls src="${escape(url)}" style="width:100%;"></audio>` + (body ? `<div style="font-size:12px;color:#666;margin-top:4px;">${body}</div>` : '');
+				} else if (kind === 'link' && url) {
+					renderedBody = `<a href="${escape(url)}" target="_blank" rel="noopener noreferrer" style="color:#1976d2;">${body || escape(url)}</a>`;
+				} else {
+					renderedBody = `<div style="white-space:pre-wrap;">${body}</div>`;
+				}
+				return `<div data-exp-id="${escape(String(it.explanation_id || ''))}" style="padding:10px 6px;border-bottom:1px solid #f0f0f0;">
+					<div style="font-size:11px;color:#888;margin-bottom:4px;">
+						${escape(String(it.author_name || it.author_id || ''))} · ${escape(String(it.created_at || ''))} · ${escape(kind)}
+						${canAdmin ? `<button class="exp-del" data-del="${escape(String(it.explanation_id || ''))}" style="float:right;color:#a33;border:0;background:none;cursor:pointer;font-size:12px;">删除</button>` : ''}
+					</div>
+					${renderedBody}
+				</div>`;
+			}).join('');
+			if (canAdmin) {
+				listEl.querySelectorAll<HTMLButtonElement>('.exp-del').forEach((b) => {
+					b.onclick = async () => {
+						const expId = b.dataset.del || '';
+						if (!expId || !window.confirm('确认删除该讲解？')) return;
+						try {
+							await window.APIClient!.deleteExplanation(examId, String(question.id), expId);
+							await reload();
+						} catch (err) {
+							alert('删除失败：' + (err instanceof Error ? err.message : String(err)));
+						}
+					};
+				});
+			}
+		};
+
+		const reload = async () => {
+			listEl.innerHTML = '<div style="color:#999;padding:12px;">加载中…</div>';
+			try {
+				const data = await window.APIClient!.listExplanationsForQuestion(examId, String(question.id)) as { items?: Array<RendererAnyRecord> } | null;
+				renderItems(data?.items || []);
+			} catch (err) {
+				listEl.innerHTML = `<div style="color:#a33;padding:12px;">加载失败：${err instanceof Error ? err.message : String(err)}</div>`;
+			}
+		};
+
+		void reload();
+
+		if (canAdmin) {
+			(card.querySelector('.exp-form') as HTMLFormElement).addEventListener('submit', async (ev) => {
+				ev.preventDefault();
+				const kind = (card.querySelector('.exp-kind') as HTMLSelectElement).value;
+				const url = (card.querySelector('.exp-url') as HTMLInputElement).value.trim();
+				const body = (card.querySelector('.exp-body') as HTMLTextAreaElement).value.trim();
+				const payload: Record<string, unknown> = { kind, body };
+				if (url) payload.url = url;
+				try {
+					await window.APIClient!.addExplanation(examId, String(question.id), payload);
+					(card.querySelector('.exp-form') as HTMLFormElement).reset();
+					await reload();
+				} catch (err) {
+					alert('提交失败：' + (err instanceof Error ? err.message : String(err)));
+				}
+			});
+		}
 	}
 
 	/**

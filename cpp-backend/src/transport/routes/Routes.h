@@ -45,4 +45,18 @@ void registerAdminStatisticsRoutes(const AppContext &ctx);
 void registerCommunityRoutes(const AppContext &ctx);
 // 审计日志路由（业务功能 15）
 void registerAuditLogRoutes(const AppContext &ctx);
+// 每日一练路由（业务功能 16）
+void registerDailyPracticeRoutes(const AppContext &ctx);
+// 学习报告路由（业务功能 17）
+void registerLearningReportRoutes(const AppContext &ctx);
+// 备考目标 / 倒计时路由（业务功能 18）
+void registerStudyGoalRoutes(const AppContext &ctx);
+// 多端同步路由（业务功能 19）
+void registerSyncRoutes(const AppContext &ctx);
+// 题目讲解附件路由（业务功能 20）
+void registerExplanationRoutes(const AppContext &ctx);
+// 排行榜路由（业务功能 21）
+void registerLeaderboardRoutes(const AppContext &ctx);
+// 第三方 OAuth 路由（业务功能 22）
+void registerOAuthRoutes(const AppContext &ctx);
 }  // namespace transport::routes

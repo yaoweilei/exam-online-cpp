@@ -752,6 +752,112 @@ class APIClient {
 		const suffix = orgId ? `?org_id=${encodeURIComponent(orgId)}` : '';
 		return this.request(`/admin/audit-logs/actions${suffix}`);
 	}
+
+	// ---------------------------------------------------------------------
+	// 每日一练（业务功能 16）
+	// ---------------------------------------------------------------------
+
+	static async getDailyPractice(count?: number): Promise<unknown> {
+		const suffix = count ? `?count=${count}` : '';
+		return this.request(`/me/daily-practice${suffix}`);
+	}
+
+	static async regenerateDailyPractice(count?: number): Promise<unknown> {
+		return this.request('/me/daily-practice/regenerate', {
+			method: 'POST',
+			body: JSON.stringify(count ? { count } : {})
+		});
+	}
+
+	static async completeDailyPracticeItem(questionId: string): Promise<unknown> {
+		return this.request('/me/daily-practice/complete', {
+			method: 'POST',
+			body: JSON.stringify({ question_id: questionId })
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 学习报告（业务功能 17）
+	// ---------------------------------------------------------------------
+
+	static async getLearningReport(period: 'week' | 'month' = 'week'): Promise<unknown> {
+		return this.request(`/me/learning-report?period=${encodeURIComponent(period)}`);
+	}
+
+	// ---------------------------------------------------------------------
+	// 备考目标 / 倒计时（业务功能 18）
+	// ---------------------------------------------------------------------
+
+	static async listStudyGoals(): Promise<unknown> {
+		return this.request('/me/study-goals');
+	}
+
+	static async createStudyGoal(payload: Record<string, unknown>): Promise<unknown> {
+		return this.request('/me/study-goals', {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async updateStudyGoal(goalId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/me/study-goals/${encodeURIComponent(goalId)}`, {
+			method: 'PATCH',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async deleteStudyGoal(goalId: string): Promise<unknown> {
+		return this.request(`/me/study-goals/${encodeURIComponent(goalId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 多端同步（业务功能 19）
+	// ---------------------------------------------------------------------
+
+	static async getSyncState(): Promise<unknown> {
+		return this.request('/me/sync/state');
+	}
+
+	static async pullSync(modules?: string[]): Promise<unknown> {
+		const qs = modules && modules.length > 0 ? `?modules=${encodeURIComponent(modules.join(','))}` : '';
+		return this.request(`/me/sync/pull${qs}`);
+	}
+
+	// ---------------------------------------------------------------------
+	// 题目讲解附件（业务功能 20）
+	// ---------------------------------------------------------------------
+
+	static async listExplanationsForExam(examId: string): Promise<unknown> {
+		return this.request(`/explanations/${encodeURIComponent(examId)}`);
+	}
+
+	static async listExplanationsForQuestion(examId: string, questionId: string): Promise<unknown> {
+		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}`);
+	}
+
+	static async addExplanation(examId: string, questionId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async deleteExplanation(examId: string, questionId: string, explanationId: string): Promise<unknown> {
+		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}/${encodeURIComponent(explanationId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 排行榜（业务功能 21）
+	// ---------------------------------------------------------------------
+
+	static async getLeaderboard(period: 'week' | 'month' | 'all' = 'week', limit: number = 20, force: boolean = false): Promise<unknown> {
+		const qs = `?period=${encodeURIComponent(period)}&limit=${limit}${force ? '&force=1' : ''}`;
+		return this.request(`/leaderboard${qs}`);
+	}
 }
 
 window.APIClient = APIClient;

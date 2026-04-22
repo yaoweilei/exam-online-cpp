@@ -10,7 +10,7 @@ namespace application::services
 // 静态注册表：所有可用的功能开关
 //   - allowOrgOverride / allowUserOverride 决定能否在该层写入；
 //     若 false，则对应层写入时被忽略（管理员页面也应据此隐藏控件）。
-static const std::array<FeatureFlagDef, 14> kRegistry{{
+static const std::array<FeatureFlagDef, 21> kRegistry{{
     {"wrong_questions", "错题本", "错题自动沉淀与复习入口", true, true, true},
     {"streak", "学习连续天数", "每日目标与连续学习天数统计", true, true, true},
     {"exam_timer", "答题计时与限时", "全卷/分段限时和顶部计时条", true, true, true},
@@ -25,9 +25,16 @@ static const std::array<FeatureFlagDef, 14> kRegistry{{
     {"community", "社区讨论", "试卷下发帖/评论/点赞", true, true, true},
     {"audit_log_viewer", "审计日志查看器", "超管/组织管理员查看、筛选与导出审计日志", true, false, false},
     {"pwa", "PWA 离线与安装", "注册 Service Worker、静态资源与 API 缓存、安装到桌面", true, true, true},
+    {"daily_practice", "每日一练", "每日自动混编错题 + SRS 到期题", true, true, true},
+    {"learning_report", "学习报告", "周/月小结：答题/错题/SRS/连续天数", true, true, true},
+    {"study_goal", "备考目标 / 倒计时", "设置考试日期与每日题量目标", true, true, true},
+    {"sync_devices", "多端同步", "跨设备拉取个人数据快照，服务端为准", true, true, true},
+    {"question_explanations", "题目讲解", "题目讲解附件（文本/链接/图/音频）", true, true, true},
+    {"leaderboard", "排行榜", "周/月/总榜：连胜 + 答题量 + 正确率", true, true, true},
+    {"oauth_extra", "第三方 OAuth", "Google / Apple 登录（默认 mock 模式）", true, false, false},
 }};
 
-const std::array<FeatureFlagDef, 14> &FeatureFlagService::registry()
+const std::array<FeatureFlagDef, 21> &FeatureFlagService::registry()
 {
     return kRegistry;
 }

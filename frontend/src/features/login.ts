@@ -59,6 +59,15 @@ export class LoginModal {
 		this.modal.querySelector('#login-btn-phone-verify')?.addEventListener('click', () => {
 			void this.submitPhone();
 		});
+
+		// 业务功能 22：第三方 OAuth 按钮（mock 模式直接跳到回调；生产模式跳到授权页）
+		this.modal.querySelectorAll<HTMLButtonElement>('.login-oauth-btn').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const provider = btn.dataset.oauth || '';
+				if (!provider) return;
+				window.location.href = `/api/v2/auth/oauth/${encodeURIComponent(provider)}/start`;
+			});
+		});
 	}
 
 	private switchMode(mode: LoginMode): void {

@@ -144,6 +144,27 @@ interface LegacyApiClientShape {
 		offset?: number;
 	}): Promise<unknown>;
 	listAuditLogActions(orgId?: string): Promise<unknown>;
+	// 每日一练（业务功能 16）
+	getDailyPractice(count?: number): Promise<unknown>;
+	regenerateDailyPractice(count?: number): Promise<unknown>;
+	completeDailyPracticeItem(questionId: string): Promise<unknown>;
+	// 学习报告（业务功能 17）
+	getLearningReport(period?: 'week' | 'month'): Promise<unknown>;
+	// 备考目标 / 倒计时（业务功能 18）
+	listStudyGoals(): Promise<unknown>;
+	createStudyGoal(payload: Record<string, unknown>): Promise<unknown>;
+	updateStudyGoal(goalId: string, payload: Record<string, unknown>): Promise<unknown>;
+	deleteStudyGoal(goalId: string): Promise<unknown>;
+	// 多端同步（业务功能 19）
+	getSyncState(): Promise<unknown>;
+	pullSync(modules?: string[]): Promise<unknown>;
+	// 题目讲解附件（业务功能 20）
+	listExplanationsForExam(examId: string): Promise<unknown>;
+	listExplanationsForQuestion(examId: string, questionId: string): Promise<unknown>;
+	addExplanation(examId: string, questionId: string, payload: Record<string, unknown>): Promise<unknown>;
+	deleteExplanation(examId: string, questionId: string, explanationId: string): Promise<unknown>;
+	// 排行榜（业务功能 21）
+	getLeaderboard(period?: 'week' | 'month' | 'all', limit?: number, force?: boolean): Promise<unknown>;
 }
 
 // 功能开关解析后的状态（与后端 FeatureFlagService::resolveOne 保持一致）

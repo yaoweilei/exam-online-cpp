@@ -98,6 +98,46 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			gate: (u) => !u.guest && (window.isFeatureEnabled?.('bookmark_folders') ?? true)
 		},
 		{
+			// 业务功能 16：每日一练入口（功能开关：daily_practice）
+			id: 'dailyPractice',
+			title: '每日一练',
+			icon: 'chart',
+			intent: 'openDailyPractice',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('daily_practice') ?? true)
+		},
+		{
+			// 业务功能 17：学习报告入口（功能开关：learning_report）
+			id: 'learningReport',
+			title: '学习报告',
+			icon: 'chart',
+			intent: 'openLearningReport',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('learning_report') ?? true)
+		},
+		{
+			// 业务功能 18：备考目标 / 倒计时入口（功能开关：study_goal）
+			id: 'studyGoal',
+			title: '备考目标',
+			icon: 'badge',
+			intent: 'openStudyGoal',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('study_goal') ?? true)
+		},
+		{
+			// 业务功能 19：多端同步入口（功能开关：sync_devices）
+			id: 'syncDevices',
+			title: '多端同步',
+			icon: 'sync',
+			intent: 'openSyncDevices',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('sync_devices') ?? true)
+		},
+		{
+			// 业务功能 21：排行榜入口（功能开关：leaderboard）
+			id: 'leaderboard',
+			title: '排行榜',
+			icon: 'chart',
+			intent: 'openLeaderboard',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('leaderboard') ?? true)
+		},
+		{
 			// 业务功能 10：数据导出入口（功能开关：data_export）
 			id: 'dataExport',
 			title: '数据导出',
@@ -2130,6 +2170,70 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		}
 	}
 
+	// 业务功能 16：异步刷新"每日一练"横幅
+	//   - 拉取 GET /me/daily-practice，展示「今日 X 道，已完成 Y」与「立即开始」按钮
+	//   - 受 isFeatureEnabled('daily_practice') 控制
+	async function refreshDailyPracticeBanner(ctx: PCContext): Promise<void> {
+		const banner = document.getElementById('pc-daily-banner') as HTMLDivElement | null;
+		if (!banner) return;
+		if (ctx.guest || !ctx.id) {
+			banner.hidden = true;
+			banner.innerHTML = '';
+			return;
+		}
+		if (window.isFeatureEnabled && !window.isFeatureEnabled('daily_practice')) {
+			banner.hidden = true;
+			banner.innerHTML = '';
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.getDailyPractice !== 'function') {
+			banner.hidden = true;
+			return;
+		}
+		try {
+			const data = (await api.getDailyPractice()) as Record<string, unknown> | null;
+			const items = Array.isArray(data?.items) ? (data!.items as Array<Record<string, unknown>>) : [];
+			if (items.length === 0) {
+				banner.hidden = true;
+				banner.innerHTML = '';
+				return;
+			}
+			const completed = Array.isArray(data?.completed_question_ids)
+				? (data!.completed_question_ids as unknown[]).map(String)
+				: [];
+			const date = escapeHtmlSafe(String(data?.date || ''));
+			banner.hidden = false;
+			banner.innerHTML = `
+				<div style="padding:12px 16px;">
+					<div style="display:flex;justify-content:space-between;align-items:center;">
+						<div>
+							<div style="font-weight:600;">🎯 每日一练 · ${date}</div>
+							<div style="font-size:12px;color:#888;margin-top:2px;">今日 ${items.length} 题，已完成 ${completed.length}</div>
+						</div>
+						<div>
+							<button class="risk-btn" data-daily-action="open">立即开始</button>
+							<button class="risk-btn" data-daily-action="regenerate" style="margin-left:6px;">换一批</button>
+						</div>
+					</div>
+				</div>`;
+			banner.onclick = (event: MouseEvent) => {
+				const btn = (event.target as HTMLElement | null)?.closest('button[data-daily-action]') as
+					| HTMLButtonElement
+					| null;
+				if (!btn) return;
+				const action = btn.dataset.dailyAction;
+				if (action === 'open') {
+					void openDailyPracticePanel();
+				} else if (action === 'regenerate') {
+					void regenerateDailyPractice();
+				}
+			};
+		} catch {
+			banner.hidden = true;
+		}
+	}
+
 	// 业务功能 4：执行续考动作
 	//   1. 拉取试卷数据 -> 加载到 viewer
 	//   2. 若有 last_section_index/last_question_index，则跳转到该题
@@ -2322,6 +2426,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			<div class="pc-card" id="pc-resume-banner" data-resume-banner hidden></div>
 			<!-- 业务功能 6：我的作业横幅（异步填充，无作业时保持 hidden） -->
 			<div class="pc-card" id="pc-assignments-banner" data-assignments-banner hidden></div>
+			<!-- 业务功能 16：每日一练横幅（异步填充，无可练习时保持 hidden） -->
+			<div class="pc-card" id="pc-daily-banner" data-daily-banner hidden></div>
+			<!-- 业务功能 18：备考倒计时横幅（异步填充，无目标时保持 hidden） -->
+			<div class="pc-card" id="pc-goal-banner" data-goal-banner hidden></div>
 			<div class="pc-card pc-service-card">
 				<div class="pc-service-grid">
 					${features
@@ -2750,6 +2858,26 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				// 业务功能 15：打开审计日志查看器
 				void openAuditLogPanel();
 				break;
+			case 'openDailyPractice':
+				// 业务功能 16：打开每日一练
+				void openDailyPracticePanel();
+				break;
+			case 'openLearningReport':
+				// 业务功能 17：打开学习报告
+				void openLearningReportPanel();
+				break;
+			case 'openStudyGoal':
+				// 业务功能 18：打开备考目标管理
+				void openStudyGoalPanel();
+				break;
+			case 'openSyncDevices':
+				// 业务功能 19：打开多端同步面板
+				void openSyncDevicesPanel();
+				break;
+			case 'openLeaderboard':
+				// 业务功能 21：打开排行榜面板
+				void openLeaderboardPanel();
+				break;
 			case 'installPwa':
 				// 业务功能 14：触发安装提示；若浏览器尚未派发 beforeinstallprompt 则给出提示
 				void triggerPwaInstall();
@@ -3130,6 +3258,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				void refreshResumeBanner(ctx);
 				// 业务功能 6：异步刷新"我的作业"横幅
 				void refreshAssignmentsBanner(ctx);
+				// 业务功能 16：异步刷新"每日一练"横幅
+				void refreshDailyPracticeBanner(ctx);
+				// 业务功能 18：异步刷新"备考倒计时"横幅
+				void refreshStudyGoalBanner(ctx);
 				break;
 			case 'profile':
 				container.innerHTML = renderProfileCard(ctx);
@@ -4308,8 +4440,735 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		await reloadAuditLogs();
 	}
 
+	// ---------------------------------------------------------------------
+	// 业务功能 16：每日一练面板
+	//   - 列表显示今日 N 道题（来自错题本 + SRS 到期），点击「去做题」按 examId 加载试卷
+	//   - 完成单题后调用 markComplete；底部「换一批」可强制重新生成
+	// ---------------------------------------------------------------------
+	let dailyModal: HTMLDivElement | null = null;
+
+	function ensureDailyModal(): HTMLDivElement {
+		if (dailyModal) return dailyModal;
+		const modal = document.createElement('div');
+		modal.id = 'daily-practice-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:85vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">🎯 每日一练 <span id="dp-date" style="color:#999;font-size:12px;font-weight:normal;"></span></h3>
+					<div>
+						<button id="dp-regen" style="margin-right:8px;padding:6px 12px;cursor:pointer;">换一批</button>
+						<button id="dp-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+					</div>
+				</div>
+				<div id="dp-body" style="min-height:200px;"></div>
+				<div style="margin-top:12px;font-size:11px;color:#999;">每日同一份清单将在 24 小时内保持稳定；可点击「换一批」强制刷新。</div>
+			</div>`;
+		document.body.appendChild(modal);
+		dailyModal = modal;
+		(modal.querySelector('#dp-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		(modal.querySelector('#dp-regen') as HTMLButtonElement).onclick = () => {
+			void regenerateDailyPractice(true);
+		};
+		return modal;
+	}
+
+	function renderDailyItems(items: Array<Record<string, unknown>>, completed: string[]): string {
+		if (items.length === 0) {
+			return '<div style="padding:24px;text-align:center;color:#999;">暂无可练习题目（错题本与 SRS 队列都为空）</div>';
+		}
+		const done = new Set(completed);
+		return items
+			.map((it, idx) => {
+				const qid = String(it.question_id || '');
+				const examId = String(it.exam_id || '');
+				const source = String(it.source || '');
+				const sourceLabel = source === 'wrong_question' ? '错题本' : source === 'srs_due' ? 'SRS 到期' : source;
+				const isDone = done.has(qid);
+				const checkmark = isDone ? '✅' : '⬜';
+				return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #eee;">
+					<div style="flex:1;min-width:0;">
+						<div style="font-size:13px;">${checkmark} 第 ${idx + 1} 题 <span style="color:#888;font-size:11px;">${escapeHtmlSafe(sourceLabel)}</span></div>
+						<div style="font-size:11px;color:#888;margin-top:2px;">试卷 <code>${escapeHtmlSafe(examId)}</code> · 题 <code>${escapeHtmlSafe(qid)}</code></div>
+					</div>
+					<div style="display:flex;gap:6px;">
+						<button class="risk-btn" data-dp-action="open" data-exam-id="${escapeHtmlSafe(examId)}" data-question-id="${escapeHtmlSafe(qid)}">去做题</button>
+						${isDone ? '' : `<button class="risk-btn" data-dp-action="complete" data-question-id="${escapeHtmlSafe(qid)}">标记完成</button>`}
+					</div>
+				</div>`;
+			})
+			.join('');
+	}
+
+	async function reloadDailyPractice(): Promise<void> {
+		const modal = dailyModal!;
+		const body = modal.querySelector('#dp-body') as HTMLDivElement;
+		const dateEl = modal.querySelector('#dp-date') as HTMLSpanElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		const api = window.APIClient;
+		if (!api || typeof api.getDailyPractice !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const data = (await api.getDailyPractice()) as Record<string, unknown> | null;
+			const items = Array.isArray(data?.items) ? (data!.items as Array<Record<string, unknown>>) : [];
+			const completed = Array.isArray(data?.completed_question_ids)
+				? (data!.completed_question_ids as unknown[]).map(String)
+				: [];
+			dateEl.textContent = String(data?.date || '');
+			body.innerHTML = renderDailyItems(items, completed);
+			body.onclick = async (e: MouseEvent) => {
+				const btn = (e.target as HTMLElement | null)?.closest('button[data-dp-action]') as
+					| HTMLButtonElement
+					| null;
+				if (!btn) return;
+				const action = btn.dataset.dpAction;
+				const qid = btn.dataset.questionId || '';
+				const examId = btn.dataset.examId || '';
+				if (action === 'open' && examId) {
+					await resumeExam(examId, null);
+				} else if (action === 'complete' && qid) {
+					try {
+						await api.completeDailyPracticeItem(qid);
+						await reloadDailyPractice();
+						void refreshDailyPracticeBanner(getContext());
+					} catch (err) {
+						showToast(readErrorMessage(err, '标记失败'));
+					}
+				}
+			};
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openDailyPracticePanel(): Promise<void> {
+		const modal = ensureDailyModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		await reloadDailyPractice();
+	}
+
+	async function regenerateDailyPractice(reloadModal: boolean = false): Promise<void> {
+		const api = window.APIClient;
+		if (!api || typeof api.regenerateDailyPractice !== 'function') return;
+		try {
+			await api.regenerateDailyPractice();
+			void refreshDailyPracticeBanner(getContext());
+			if (reloadModal && dailyModal) await reloadDailyPractice();
+			showToast('已重新生成');
+		} catch (err) {
+			showToast(readErrorMessage(err, '重新生成失败'));
+		}
+	}
+
+	// ---------------------------------------------------------------------
+	// 业务功能 17：学习报告面板（周/月小结）
+	//   - 顶部 tab 切换 week/month
+	//   - 卡片展示总题量/正确率/错题增量/SRS 待复习/连续天数
+	//   - 列出周期内最近答题（最多 20 条）
+	// ---------------------------------------------------------------------
+	let learningReportModal: HTMLDivElement | null = null;
+	let learningReportPeriod: 'week' | 'month' = 'week';
+
+	function ensureLearningReportModal(): HTMLDivElement {
+		if (learningReportModal) return learningReportModal;
+		const modal = document.createElement('div');
+		modal.id = 'learning-report-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:820px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">📈 学习报告</h3>
+					<div>
+						<button id="lr-week" style="margin-right:4px;padding:6px 12px;cursor:pointer;">本周</button>
+						<button id="lr-month" style="margin-right:8px;padding:6px 12px;cursor:pointer;">本月</button>
+						<button id="lr-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+					</div>
+				</div>
+				<div id="lr-body" style="min-height:200px;"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		learningReportModal = modal;
+		(modal.querySelector('#lr-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		(modal.querySelector('#lr-week') as HTMLButtonElement).onclick = () => {
+			learningReportPeriod = 'week';
+			void reloadLearningReport();
+		};
+		(modal.querySelector('#lr-month') as HTMLButtonElement).onclick = () => {
+			learningReportPeriod = 'month';
+			void reloadLearningReport();
+		};
+		return modal;
+	}
+
+	function renderLearningReport(data: Record<string, unknown>): string {
+		const ans = (data.answers || {}) as Record<string, unknown>;
+		const wq = (data.wrong_questions || {}) as Record<string, unknown>;
+		const srs = (data.srs || {}) as Record<string, unknown>;
+		const streak = (data.streak || {}) as Record<string, unknown>;
+		const period = String(data.period || '');
+		const since = escapeHtmlSafe(String(data.since || ''));
+		const accuracy = Number(ans.accuracy || 0);
+		const accPct = (accuracy * 100).toFixed(1);
+		const card = (title: string, value: unknown, hint?: string): string => `
+			<div style="flex:1;min-width:130px;border:1px solid #eee;border-radius:6px;padding:12px;">
+				<div style="font-size:12px;color:#888;">${escapeHtmlSafe(title)}</div>
+				<div style="font-size:22px;font-weight:600;margin-top:4px;">${escapeHtmlSafe(String(value ?? 0))}</div>
+				${hint ? `<div style="font-size:11px;color:#aaa;margin-top:2px;">${escapeHtmlSafe(hint)}</div>` : ''}
+			</div>`;
+
+		const papers = Array.isArray(ans.papers) ? (ans.papers as Array<Record<string, unknown>>) : [];
+		const paperRows = papers.length === 0
+			? '<tr><td style="padding:8px;color:#999;" colspan="4">本周期暂无答题记录</td></tr>'
+			: papers
+					.map((p) => {
+						const acc = Number(p.accuracy || 0) * 100;
+						return `<tr>
+							<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px;">${escapeHtmlSafe(String(p.exam_id || ''))}</td>
+							<td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:11px;color:#666;">${escapeHtmlSafe(String(p.saved_at || ''))}</td>
+							<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${Number(p.correct_count || 0)} / ${Number(p.total_questions || 0)}</td>
+							<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${acc.toFixed(1)}%</td>
+						</tr>`;
+					})
+					.join('');
+
+		return `
+			<div style="font-size:11px;color:#999;margin-bottom:8px;">周期：${escapeHtmlSafe(period)} · 起：${since}</div>
+			<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+				${card('完成试卷', ans.exams)}
+				${card('答题数', ans.questions)}
+				${card('正确率', accPct + '%')}
+				${card('答错', ans.wrong)}
+				${card('错题新增', wq.added_in_period, '本期沉淀')}
+				${card('SRS 待复习', srs.due)}
+				${card('当前连胜', streak.current, '天')}
+				${card('最佳连胜', streak.best, '天')}
+			</div>
+			<div style="font-weight:600;margin-bottom:6px;">最近答题</div>
+			<table style="border-collapse:collapse;width:100%;font-size:13px;">
+				<thead><tr style="background:#fafafa;">
+					<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">试卷</th>
+					<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">提交时间</th>
+					<th style="padding:6px 8px;text-align:right;border-bottom:2px solid #ddd;">正确/总题</th>
+					<th style="padding:6px 8px;text-align:right;border-bottom:2px solid #ddd;">正确率</th>
+				</tr></thead>
+				<tbody>${paperRows}</tbody>
+			</table>`;
+	}
+
+	async function reloadLearningReport(): Promise<void> {
+		const modal = learningReportModal!;
+		const body = modal.querySelector('#lr-body') as HTMLDivElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		const api = window.APIClient;
+		if (!api || typeof api.getLearningReport !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const data = (await api.getLearningReport(learningReportPeriod)) as Record<string, unknown> | null;
+			body.innerHTML = renderLearningReport(data || {});
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openLearningReportPanel(): Promise<void> {
+		const modal = ensureLearningReportModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		await reloadLearningReport();
+	}
+
+	// ---------------------------------------------------------------------
+	// 业务功能 18：备考目标 / 倒计时
+	//   - 仪表盘横幅显示最近的目标 + 剩余天数
+	//   - 管理 modal 列出全部目标，可新增/编辑/删除
+	// ---------------------------------------------------------------------
+	function daysUntil(yyyymmdd: string): number {
+		// 以本地日期 00:00 为基准，避免时区抖动
+		const m = yyyymmdd.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+		if (!m) return 0;
+		const target = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+		const today = new Date();
+		const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		return Math.round((target.getTime() - t0.getTime()) / 86400000);
+	}
+
+	async function refreshStudyGoalBanner(ctx: PCContext): Promise<void> {
+		const banner = document.getElementById('pc-goal-banner') as HTMLDivElement | null;
+		if (!banner) return;
+		if (ctx.guest || !ctx.id) {
+			banner.hidden = true;
+			banner.innerHTML = '';
+			return;
+		}
+		if (window.isFeatureEnabled && !window.isFeatureEnabled('study_goal')) {
+			banner.hidden = true;
+			banner.innerHTML = '';
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.listStudyGoals !== 'function') {
+			banner.hidden = true;
+			return;
+		}
+		try {
+			const data = (await api.listStudyGoals()) as { items?: Array<Record<string, unknown>> } | null;
+			const items = Array.isArray(data?.items) ? data!.items : [];
+			if (items.length === 0) {
+				banner.hidden = false;
+				banner.innerHTML = `
+					<div style="display:flex;justify-content:space-between;align-items:center;">
+						<div>🎯 还没有设定备考目标，设定一个让自己更有动力。</div>
+						<button class="pc-btn" data-pc-action="open-goal">立即设定</button>
+					</div>`;
+				const btn = banner.querySelector('[data-pc-action="open-goal"]') as HTMLButtonElement | null;
+				if (btn) btn.onclick = () => void openStudyGoalPanel();
+				return;
+			}
+			// 选取最近未过期目标，否则取首个
+			const future = items.filter((g) => daysUntil(String(g.target_date || '')) >= 0);
+			const pick = (future.length > 0 ? future : items)[0];
+			const days = daysUntil(String(pick.target_date || ''));
+			const dailyTarget = Number(pick.daily_question_target || 0);
+			banner.hidden = false;
+			banner.innerHTML = `
+				<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+					<div>
+						<div style="font-size:12px;color:#888;">备考倒计时</div>
+						<div style="font-size:20px;font-weight:600;margin-top:2px;">${escapeHtmlSafe(String(pick.title || ''))}</div>
+						<div style="font-size:13px;color:#666;margin-top:2px;">距离 ${escapeHtmlSafe(String(pick.target_date || ''))}：
+							<span style="color:${days < 0 ? '#a33' : '#0a7'};font-weight:600;">${days >= 0 ? days + ' 天' : '已过期 ' + Math.abs(days) + ' 天'}</span>
+							${dailyTarget > 0 ? `· 建议每日 ${dailyTarget} 题` : ''}
+						</div>
+					</div>
+					<button class="pc-btn" data-pc-action="open-goal">管理目标</button>
+				</div>`;
+			const btn = banner.querySelector('[data-pc-action="open-goal"]') as HTMLButtonElement | null;
+			if (btn) btn.onclick = () => void openStudyGoalPanel();
+		} catch {
+			banner.hidden = true;
+		}
+	}
+
+	let studyGoalModal: HTMLDivElement | null = null;
+
+	function ensureStudyGoalModal(): HTMLDivElement {
+		if (studyGoalModal) return studyGoalModal;
+		const modal = document.createElement('div');
+		modal.id = 'study-goal-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:720px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">🎯 备考目标管理</h3>
+					<button id="sg-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+				</div>
+				<div id="sg-list" style="margin-bottom:14px;"></div>
+				<form id="sg-form" style="border-top:1px solid #eee;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+					<label style="grid-column:1/-1;font-size:12px;color:#666;">新增目标</label>
+					<input id="sg-title" placeholder="目标标题，如：N1 一战必过" maxlength="80" style="grid-column:1/-1;padding:6px;border:1px solid #ddd;border-radius:4px;" required />
+					<input id="sg-date" type="date" style="padding:6px;border:1px solid #ddd;border-radius:4px;" required />
+					<input id="sg-daily" type="number" min="0" max="1000" placeholder="每日目标题量（可选）" style="padding:6px;border:1px solid #ddd;border-radius:4px;" />
+					<select id="sg-target" style="padding:6px;border:1px solid #ddd;border-radius:4px;">
+						<option value="">考试级别（可选）</option>
+						<option value="N1">N1</option><option value="N2">N2</option>
+						<option value="N3">N3</option><option value="N4">N4</option><option value="N5">N5</option>
+					</select>
+					<button type="submit" style="padding:6px 12px;background:#0a7;color:#fff;border:0;border-radius:4px;cursor:pointer;">添加目标</button>
+				</form>
+			</div>`;
+		document.body.appendChild(modal);
+		studyGoalModal = modal;
+		(modal.querySelector('#sg-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		(modal.querySelector('#sg-form') as HTMLFormElement).addEventListener('submit', (ev) => {
+			ev.preventDefault();
+			void submitStudyGoal();
+		});
+		return modal;
+	}
+
+	async function reloadStudyGoals(): Promise<void> {
+		const list = (studyGoalModal!.querySelector('#sg-list') as HTMLDivElement);
+		list.innerHTML = '<div style="padding:12px;text-align:center;color:#999;">加载中…</div>';
+		const api = window.APIClient;
+		if (!api || typeof api.listStudyGoals !== 'function') {
+			list.innerHTML = '<div style="padding:12px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const data = (await api.listStudyGoals()) as { items?: Array<Record<string, unknown>> } | null;
+			const items = Array.isArray(data?.items) ? data!.items : [];
+			if (items.length === 0) {
+				list.innerHTML = '<div style="padding:12px;color:#999;">暂无目标，添加一个开始备考吧。</div>';
+				return;
+			}
+			list.innerHTML = items
+				.map((g) => {
+					const days = daysUntil(String(g.target_date || ''));
+					const tag = days >= 0
+						? `<span style="color:#0a7;">剩余 ${days} 天</span>`
+						: `<span style="color:#a33;">已过期 ${Math.abs(days)} 天</span>`;
+					return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;border-bottom:1px solid #f0f0f0;">
+						<div>
+							<div style="font-weight:600;">${escapeHtmlSafe(String(g.title || ''))}</div>
+							<div style="font-size:11px;color:#888;">${escapeHtmlSafe(String(g.target_date || ''))} · ${tag}${
+								Number(g.daily_question_target || 0) > 0 ? ` · 每日 ${Number(g.daily_question_target)} 题` : ''
+							}${g.exam_target ? ` · ${escapeHtmlSafe(String(g.exam_target))}` : ''}</div>
+						</div>
+						<button class="pc-btn" data-sg-del="${escapeHtmlSafe(String(g.goal_id || ''))}" style="color:#a33;">删除</button>
+					</div>`;
+				})
+				.join('');
+			list.querySelectorAll<HTMLButtonElement>('[data-sg-del]').forEach((btn) => {
+				btn.onclick = () => void deleteStudyGoal(btn.dataset.sgDel || '');
+			});
+		} catch (err) {
+			list.innerHTML = `<div style="padding:12px;color:#a33;">${escapeHtmlSafe(readErrorMessage(err, '加载失败'))}</div>`;
+		}
+	}
+
+	async function submitStudyGoal(): Promise<void> {
+		const modal = studyGoalModal!;
+		const title = (modal.querySelector('#sg-title') as HTMLInputElement).value.trim();
+		const date = (modal.querySelector('#sg-date') as HTMLInputElement).value;
+		const daily = Number((modal.querySelector('#sg-daily') as HTMLInputElement).value || 0);
+		const target = (modal.querySelector('#sg-target') as HTMLSelectElement).value;
+		if (!title || !date) {
+			showToast('标题与日期必填');
+			return;
+		}
+		const payload: Record<string, unknown> = { title, target_date: date };
+		if (daily > 0) payload.daily_question_target = daily;
+		if (target) payload.exam_target = target;
+		const api = window.APIClient;
+		if (!api || typeof api.createStudyGoal !== 'function') return;
+		try {
+			await api.createStudyGoal(payload);
+			(modal.querySelector('#sg-form') as HTMLFormElement).reset();
+			showToast('目标已添加');
+			await reloadStudyGoals();
+			void refreshStudyGoalBanner(getContext());
+		} catch (err) {
+			showToast(readErrorMessage(err, '添加失败'));
+		}
+	}
+
+	async function deleteStudyGoal(goalId: string): Promise<void> {
+		if (!goalId) return;
+		if (!window.confirm('确定删除该目标？')) return;
+		const api = window.APIClient;
+		if (!api || typeof api.deleteStudyGoal !== 'function') return;
+		try {
+			await api.deleteStudyGoal(goalId);
+			showToast('已删除');
+			await reloadStudyGoals();
+			void refreshStudyGoalBanner(getContext());
+		} catch (err) {
+			showToast(readErrorMessage(err, '删除失败'));
+		}
+	}
+
+	async function openStudyGoalPanel(): Promise<void> {
+		const modal = ensureStudyGoalModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		await reloadStudyGoals();
+	}
+
+	// ---------------------------------------------------------------------
+	// 业务功能 19：多端同步面板
+	//   - 显示服务端各模块 mtime；可选模块勾选 → 拉取覆盖本地缓存（localStorage）
+	//   - localStorage key：sync.snapshot.{userId}.{module} = {modified_at, content}
+	// ---------------------------------------------------------------------
+	let syncDevicesModal: HTMLDivElement | null = null;
+
+	function syncSnapshotKey(userId: string, moduleName: string): string {
+		return `sync.snapshot.${userId}.${moduleName}`;
+	}
+
+	function ensureSyncDevicesModal(): HTMLDivElement {
+		if (syncDevicesModal) return syncDevicesModal;
+		const modal = document.createElement('div');
+		modal.id = 'sync-devices-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:760px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">🔄 多端同步</h3>
+					<div>
+						<button id="sd-refresh" style="margin-right:8px;padding:6px 12px;cursor:pointer;">刷新状态</button>
+						<button id="sd-pull" style="margin-right:8px;padding:6px 12px;background:#0a7;color:#fff;border:0;border-radius:4px;cursor:pointer;">拉取选中</button>
+						<button id="sd-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+					</div>
+				</div>
+				<div style="font-size:12px;color:#888;margin-bottom:8px;">
+					拉取后会以服务端为准覆盖本地缓存（last-write-wins）。本机暂存键：<code>sync.snapshot.&lt;userId&gt;.&lt;module&gt;</code>。
+				</div>
+				<div id="sd-body" style="min-height:160px;"></div>
+				<div id="sd-status" style="margin-top:8px;font-size:12px;color:#666;"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		syncDevicesModal = modal;
+		(modal.querySelector('#sd-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		(modal.querySelector('#sd-refresh') as HTMLButtonElement).onclick = () => void reloadSyncState();
+		(modal.querySelector('#sd-pull') as HTMLButtonElement).onclick = () => void pullSelectedSyncModules();
+		return modal;
+	}
+
+	async function reloadSyncState(): Promise<void> {
+		const modal = syncDevicesModal!;
+		const body = modal.querySelector('#sd-body') as HTMLDivElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		const api = window.APIClient;
+		if (!api || typeof api.getSyncState !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const data = (await api.getSyncState()) as { server_time?: string; modules?: Record<string, { exists?: boolean; modified_at?: string; size?: number }> } | null;
+			const mods = (data?.modules || {}) as Record<string, { exists?: boolean; modified_at?: string; size?: number }>;
+			const names = Object.keys(mods);
+			if (names.length === 0) {
+				body.innerHTML = '<div style="padding:24px;color:#999;">无可同步模块</div>';
+				return;
+			}
+			const rows = names.map((name) => {
+				const m = mods[name] || {};
+				let localCached = '';
+				try {
+					const raw = localStorage.getItem(syncSnapshotKey(userId, name));
+					if (raw) {
+						const obj = JSON.parse(raw) as { modified_at?: string };
+						localCached = obj?.modified_at || '';
+					}
+				} catch { /* ignore */ }
+				const remote = String(m.modified_at || '');
+				const drift = !!remote && !!localCached && remote !== localCached;
+				const cellStyle = drift ? 'color:#a33;font-weight:600;' : 'color:#0a7;';
+				return `<tr>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;">
+						<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+							<input type="checkbox" data-sync-mod="${escapeHtmlSafe(name)}" ${drift || !localCached ? 'checked' : ''} />
+							${escapeHtmlSafe(name)}
+						</label>
+					</td>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;">${m.exists ? '是' : '否'}</td>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px;${cellStyle}">${escapeHtmlSafe(remote)}</td>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px;color:#666;">${escapeHtmlSafe(localCached || '—')}</td>
+				</tr>`;
+			}).join('');
+			body.innerHTML = `
+				<div style="font-size:11px;color:#999;margin-bottom:6px;">服务端时间：${escapeHtmlSafe(String(data?.server_time || ''))}</div>
+				<table style="border-collapse:collapse;width:100%;font-size:13px;">
+					<thead><tr style="background:#fafafa;">
+						<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">模块</th>
+						<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">服务端存在</th>
+						<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">服务端 mtime</th>
+						<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">本机缓存 mtime</th>
+					</tr></thead>
+					<tbody>${rows}</tbody>
+				</table>`;
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function pullSelectedSyncModules(): Promise<void> {
+		const modal = syncDevicesModal!;
+		const status = modal.querySelector('#sd-status') as HTMLDivElement;
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		const checks = Array.from(modal.querySelectorAll<HTMLInputElement>('input[data-sync-mod]:checked'));
+		const mods = checks.map((c) => c.dataset.syncMod || '').filter(Boolean);
+		if (mods.length === 0) {
+			status.textContent = '未选中任何模块';
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.pullSync !== 'function') return;
+		status.textContent = '同步中…';
+		try {
+			const data = (await api.pullSync(mods)) as { modules?: Record<string, { modified_at?: string; content?: unknown }> } | null;
+			const got = (data?.modules || {}) as Record<string, { modified_at?: string; content?: unknown }>;
+			let written = 0;
+			for (const name of Object.keys(got)) {
+				const entry = got[name];
+				try {
+					localStorage.setItem(syncSnapshotKey(userId, name), JSON.stringify({
+						modified_at: entry.modified_at || '',
+						content: entry.content
+					}));
+					written++;
+				} catch { /* localStorage 容量限制时忽略 */ }
+			}
+			status.textContent = `已同步 ${written} 个模块到本地缓存`;
+			showToast('同步完成');
+			await reloadSyncState();
+		} catch (err) {
+			status.textContent = readErrorMessage(err, '同步失败');
+		}
+	}
+
+	async function openSyncDevicesPanel(): Promise<void> {
+		const modal = ensureSyncDevicesModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		await reloadSyncState();
+	}
+
+	// ---------------------------------------------------------------------
+	// 业务功能 21：排行榜面板
+	//   - 周/月/总榜切换
+	//   - 列出连胜、答题量、正确率
+	//   - 高亮当前用户行
+	// ---------------------------------------------------------------------
+	let leaderboardModal: HTMLDivElement | null = null;
+	let leaderboardPeriod: 'week' | 'month' | 'all' = 'week';
+
+	function ensureLeaderboardModal(): HTMLDivElement {
+		if (leaderboardModal) return leaderboardModal;
+		const modal = document.createElement('div');
+		modal.id = 'leaderboard-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:780px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">🏆 排行榜</h3>
+					<div>
+						<button id="lb-week" style="margin-right:4px;padding:6px 12px;cursor:pointer;">本周</button>
+						<button id="lb-month" style="margin-right:4px;padding:6px 12px;cursor:pointer;">本月</button>
+						<button id="lb-all" style="margin-right:8px;padding:6px 12px;cursor:pointer;">总榜</button>
+						<button id="lb-refresh" style="margin-right:8px;padding:6px 12px;cursor:pointer;">强制刷新</button>
+						<button id="lb-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+					</div>
+				</div>
+				<div id="lb-body" style="min-height:240px;"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		leaderboardModal = modal;
+		(modal.querySelector('#lb-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		(modal.querySelector('#lb-week') as HTMLButtonElement).onclick = () => { leaderboardPeriod = 'week'; void reloadLeaderboard(false); };
+		(modal.querySelector('#lb-month') as HTMLButtonElement).onclick = () => { leaderboardPeriod = 'month'; void reloadLeaderboard(false); };
+		(modal.querySelector('#lb-all') as HTMLButtonElement).onclick = () => { leaderboardPeriod = 'all'; void reloadLeaderboard(false); };
+		(modal.querySelector('#lb-refresh') as HTMLButtonElement).onclick = () => void reloadLeaderboard(true);
+		return modal;
+	}
+
+	function renderLeaderboard(data: { items?: Array<Record<string, unknown>>; generated_at?: string; period?: string }, currentUserId: string): string {
+		const items = Array.isArray(data?.items) ? data!.items! : [];
+		if (items.length === 0) {
+			return '<div style="padding:24px;text-align:center;color:#999;">暂无数据</div>';
+		}
+		const rows = items.map((it) => {
+			const isMe = String(it.user_id || '') === currentUserId;
+			const acc = (Number(it.accuracy || 0) * 100).toFixed(1);
+			const bg = isMe ? 'background:#fffbe6;font-weight:600;' : '';
+			const rank = Number(it.rank || 0);
+			const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : String(rank);
+			return `<tr style="${bg}">
+				<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:center;">${medal}</td>
+				<td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlSafe(String(it.display_name || it.user_id || ''))}${isMe ? ' <span style="color:#0a7;font-size:11px;">（我）</span>' : ''}</td>
+				<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${Number(it.streak || 0)}</td>
+				<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${Number(it.questions || 0)}</td>
+				<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${acc}%</td>
+			</tr>`;
+		}).join('');
+		return `
+			<div style="font-size:11px;color:#999;margin-bottom:6px;">周期：${escapeHtmlSafe(String(data?.period || ''))} · 生成于 ${escapeHtmlSafe(String(data?.generated_at || ''))}</div>
+			<table style="border-collapse:collapse;width:100%;font-size:13px;">
+				<thead><tr style="background:#fafafa;">
+					<th style="padding:6px 8px;text-align:center;border-bottom:2px solid #ddd;width:60px;">名次</th>
+					<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">用户</th>
+					<th style="padding:6px 8px;text-align:right;border-bottom:2px solid #ddd;">连胜</th>
+					<th style="padding:6px 8px;text-align:right;border-bottom:2px solid #ddd;">答题量</th>
+					<th style="padding:6px 8px;text-align:right;border-bottom:2px solid #ddd;">正确率</th>
+				</tr></thead>
+				<tbody>${rows}</tbody>
+			</table>`;
+	}
+
+	async function reloadLeaderboard(force: boolean): Promise<void> {
+		const modal = leaderboardModal!;
+		const body = modal.querySelector('#lb-body') as HTMLDivElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		const api = window.APIClient;
+		if (!api || typeof api.getLeaderboard !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const data = (await api.getLeaderboard(leaderboardPeriod, 50, force)) as { items?: Array<Record<string, unknown>>; generated_at?: string; period?: string } | null;
+			const ctx = getContext();
+			body.innerHTML = renderLeaderboard(data || {}, ctx.id || '');
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openLeaderboardPanel(): Promise<void> {
+		const modal = ensureLeaderboardModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		await reloadLeaderboard(false);
+	}
+
 	// 业务功能 14：PWA 安装触发
-	//   - canInstallPwa()/installPwa() 由 features/pwa.ts 注入
 	//   - 浏览器只有在满足启发式后才会派发 beforeinstallprompt（HTTPS、用户交互等）
 	async function triggerPwaInstall(): Promise<void> {
 		const w = window as unknown as {

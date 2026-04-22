@@ -662,4 +662,110 @@ export class ApiClient {
 		const suffix = orgId ? `?org_id=${encodeURIComponent(orgId)}` : '';
 		return this.request(`/admin/audit-logs/actions${suffix}`);
 	}
+
+	// ---------------------------------------------------------------------
+	// 每日一练（业务功能 16）
+	// ---------------------------------------------------------------------
+
+	getDailyPractice(count?: number): Promise<unknown> {
+		const suffix = count ? `?count=${count}` : '';
+		return this.request(`/me/daily-practice${suffix}`);
+	}
+
+	regenerateDailyPractice(count?: number): Promise<unknown> {
+		return this.request('/me/daily-practice/regenerate', {
+			method: 'POST',
+			body: JSON.stringify(count ? { count } : {})
+		});
+	}
+
+	completeDailyPracticeItem(questionId: string): Promise<unknown> {
+		return this.request('/me/daily-practice/complete', {
+			method: 'POST',
+			body: JSON.stringify({ question_id: questionId })
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 学习报告（业务功能 17）
+	// ---------------------------------------------------------------------
+
+	getLearningReport(period: 'week' | 'month' = 'week'): Promise<unknown> {
+		return this.request(`/me/learning-report?period=${encodeURIComponent(period)}`);
+	}
+
+	// ---------------------------------------------------------------------
+	// 备考目标 / 倒计时（业务功能 18）
+	// ---------------------------------------------------------------------
+
+	listStudyGoals(): Promise<unknown> {
+		return this.request('/me/study-goals');
+	}
+
+	createStudyGoal(payload: Record<string, unknown>): Promise<unknown> {
+		return this.request('/me/study-goals', {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	updateStudyGoal(goalId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/me/study-goals/${encodeURIComponent(goalId)}`, {
+			method: 'PATCH',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	deleteStudyGoal(goalId: string): Promise<unknown> {
+		return this.request(`/me/study-goals/${encodeURIComponent(goalId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 多端同步（业务功能 19）
+	// ---------------------------------------------------------------------
+
+	getSyncState(): Promise<unknown> {
+		return this.request('/me/sync/state');
+	}
+
+	pullSync(modules?: string[]): Promise<unknown> {
+		const qs = modules && modules.length > 0 ? `?modules=${encodeURIComponent(modules.join(','))}` : '';
+		return this.request(`/me/sync/pull${qs}`);
+	}
+
+	// ---------------------------------------------------------------------
+	// 题目讲解附件（业务功能 20）
+	// ---------------------------------------------------------------------
+
+	listExplanationsForExam(examId: string): Promise<unknown> {
+		return this.request(`/explanations/${encodeURIComponent(examId)}`);
+	}
+
+	listExplanationsForQuestion(examId: string, questionId: string): Promise<unknown> {
+		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}`);
+	}
+
+	addExplanation(examId: string, questionId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	deleteExplanation(examId: string, questionId: string, explanationId: string): Promise<unknown> {
+		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}/${encodeURIComponent(explanationId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 排行榜（业务功能 21）
+	// ---------------------------------------------------------------------
+
+	getLeaderboard(period: 'week' | 'month' | 'all' = 'week', limit: number = 20, force: boolean = false): Promise<unknown> {
+		const qs = `?period=${encodeURIComponent(period)}&limit=${limit}${force ? '&force=1' : ''}`;
+		return this.request(`/leaderboard${qs}`);
+	}
 }

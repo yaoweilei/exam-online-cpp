@@ -47,5 +47,19 @@ void ApiRouter::registerRoutes() const
     routes::registerCommunityRoutes(context_);
     // 审计日志路由（业务功能 15）
     routes::registerAuditLogRoutes(context_);
+    // 每日一练路由（业务功能 16）
+    routes::registerDailyPracticeRoutes(context_);
+    // 学习报告路由（业务功能 17）
+    routes::registerLearningReportRoutes(context_);
+    // 备考目标 / 倒计时路由（业务功能 18）
+    routes::registerStudyGoalRoutes(context_);
+    // 多端同步路由（业务功能 19）
+    routes::registerSyncRoutes(context_);
+    // 题目讲解附件路由（业务功能 20）
+    routes::registerExplanationRoutes(context_);
+    // 排行榜路由（业务功能 21）
+    routes::registerLeaderboardRoutes(context_);
+    // 第三方 OAuth 路由（业务功能 22）
+    routes::registerOAuthRoutes(context_);
 }
 }  // namespace transport
