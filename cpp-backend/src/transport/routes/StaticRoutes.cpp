@@ -77,6 +77,45 @@ void registerStaticRoutes(const AppContext &ctx)
             callback(response);
         },
         {Get});
+
+    // 业务功能 14（PWA）：Service Worker 必须以根作用域（/sw.js）暴露才能控制全站
+    app().registerHandler(
+        "/sw.js",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            const auto path = ctx.staticDir / "sw.js";
+            if (!std::filesystem::exists(path))
+            {
+                callback(common::fail(req, k404NotFound, "SW_NOT_FOUND", "Service worker not found"));
+                return;
+            }
+            auto response = HttpResponse::newFileResponse(path.string());
+            response->setContentTypeCode(CT_APPLICATION_JAVASCRIPT);
+            // 始终禁用 SW 缓存，确保新版本能被快速感知
+            applyNoCacheHeaders(response);
+            response->addHeader("Service-Worker-Allowed", "/");
+            callback(response);
+        },
+        {Get});
+
+    // 业务功能 14（PWA）：Web App Manifest（根路径暴露）
+    app().registerHandler(
+        "/manifest.webmanifest",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            const auto path = ctx.staticDir / "manifest.webmanifest";
+            if (!std::filesystem::exists(path))
+            {
+                callback(common::fail(req, k404NotFound, "MANIFEST_NOT_FOUND", "Manifest not found"));
+                return;
+            }
+            auto response = HttpResponse::newFileResponse(path.string());
+            response->setContentTypeString("application/manifest+json; charset=utf-8");
+            if (ctx.disableStaticCache)
+            {
+                applyNoCacheHeaders(response);
+            }
+            callback(response);
+        },
+        {Get});
 }
 
 void registerHealthRoutes(const AppContext & /*ctx*/)

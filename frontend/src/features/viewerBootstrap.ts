@@ -341,6 +341,11 @@ async function initExamSelectors(): Promise<void> {
 				throw new Error('试卷数据为空');
 			}
 
+			// 业务功能 3：先把 examId 写到 viewer，loadExamData 末尾据此启动计时
+			const viewerForTimer = globalWindow.examViewer as { _currentExamId?: string | null } | undefined;
+			if (viewerForTimer) {
+				viewerForTimer._currentExamId = examId;
+			}
 			globalWindow.examViewer?.loadExamData(examData);
 		} catch (error) {
 			console.error('[viewerBootstrap] Failed to load exam:', error);

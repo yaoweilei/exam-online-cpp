@@ -19,4 +19,30 @@ void registerSubscriptionRoutes(const AppContext &ctx);
 void registerOrganizationRoutes(const AppContext &ctx);
 void registerContactRoutes(const AppContext &ctx);
 void registerWechatRoutes(const AppContext &ctx);
+// 错题本路由（业务功能 1）
+void registerWrongQuestionRoutes(const AppContext &ctx);
+// 连续天数 / 每日目标路由（业务功能 2）
+void registerStreakRoutes(const AppContext &ctx);
+// 续考草稿路由（业务功能 4）
+void registerDraftRoutes(const AppContext &ctx);
+// 答题计时路由（业务功能 3）
+void registerAttemptTimerRoutes(const AppContext &ctx);
+// 功能开关路由（横切基础设施）
+void registerFeatureFlagRoutes(const AppContext &ctx);
+// 题目反馈路由（业务功能 5）
+void registerFeedbackRoutes(const AppContext &ctx);
+// 班级与作业路由（业务功能 6）
+void registerClassroomRoutes(const AppContext &ctx);
+// SRS 间隔重复路由（业务功能 7）
+void registerSrsRoutes(const AppContext &ctx);
+// 收藏夹/分类路由（业务功能 8）
+void registerBookmarkFolderRoutes(const AppContext &ctx);
+// 用户数据导出路由（业务功能 10）
+void registerDataExportRoutes(const AppContext &ctx);
+// 管理员统计路由（业务功能 11）
+void registerAdminStatisticsRoutes(const AppContext &ctx);
+// 社区讨论路由（业务功能 12）
+void registerCommunityRoutes(const AppContext &ctx);
+// 审计日志路由（业务功能 15）
+void registerAuditLogRoutes(const AppContext &ctx);
 }  // namespace transport::routes

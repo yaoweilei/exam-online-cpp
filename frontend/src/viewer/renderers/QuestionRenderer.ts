@@ -220,6 +220,12 @@ class QuestionRenderer {
 			questionText.appendChild(editBtn);
 		}
 
+		// 题目反馈/纠错按钮（业务功能 5）：受 question_feedback 开关控制，默认开启
+		if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('question_feedback', true)) {
+			const feedbackBtn = this.createFeedbackButton(question);
+			questionText.appendChild(feedbackBtn);
+		}
+
 		questionDiv.appendChild(questionText);
 
 		// 如果题目有passage（题干相关的补充图片），在题干后、选项前渲染
@@ -535,6 +541,95 @@ class QuestionRenderer {
 			this.openEditDialog(type, question);
 		};
 		return btn;
+	}
+
+	/**
+	 * 创建「题目反馈/报错」按钮（业务功能 5）
+	 *   - 普通用户也可见，点击后弹窗提交反馈
+	 *   - 后端入口：POST /api/v2/feedback，需登录
+	 */
+	createFeedbackButton(question: RendererAnyRecord) {
+		const btn = document.createElement("button");
+		btn.className = "feedback-btn";
+		btn.style.cssText = 'margin-left:6px;font-size:12px;padding:2px 8px;cursor:pointer;border:1px solid #d0d0d0;border-radius:4px;background:#fafafa;';
+		btn.innerHTML = "🐛 报错";
+		btn.title = '反馈题目错误或建议';
+		btn.onclick = (e) => {
+			e.stopPropagation();
+			this.openFeedbackDialog(question);
+		};
+		return btn;
+	}
+
+	/**
+	 * 弹出反馈表单（业务功能 5）
+	 *   - 类别下拉 + 描述 textarea
+	 *   - 提交时调用 window.APIClient.submitFeedback
+	 */
+	openFeedbackDialog(question: RendererAnyRecord) {
+		// 必须已登录
+		const userId = this.examViewer.userId;
+		if (!userId || userId === 'guest') {
+			alert('请先登录后再提交反馈');
+			return;
+		}
+
+		// 简单 modal：覆盖层 + 卡片
+		const overlay = document.createElement('div');
+		overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		const card = document.createElement('div');
+		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;min-width:360px;max-width:520px;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
+		card.innerHTML = `
+			<h3 style="margin:0 0 12px;font-size:16px;">反馈题目问题（题号：${question.id}）</h3>
+			<label style="display:block;margin-bottom:6px;font-size:13px;">问题类别</label>
+			<select class="fb-category" style="width:100%;padding:6px;margin-bottom:12px;">
+				<option value="wrong_answer">答案错误</option>
+				<option value="typo">文字错误</option>
+				<option value="translation">翻译/释义问题</option>
+				<option value="audio">音频问题</option>
+				<option value="other" selected>其他</option>
+			</select>
+			<label style="display:block;margin-bottom:6px;font-size:13px;">详细描述（最多 1000 字）</label>
+			<textarea class="fb-desc" rows="5" maxlength="1000" style="width:100%;padding:6px;box-sizing:border-box;" placeholder="请描述您发现的问题…"></textarea>
+			<div style="text-align:right;margin-top:14px;">
+				<button class="fb-cancel" style="margin-right:8px;padding:6px 14px;">取消</button>
+				<button class="fb-submit" style="padding:6px 14px;background:#1976d2;color:#fff;border:0;border-radius:4px;cursor:pointer;">提交</button>
+			</div>
+		`;
+		overlay.appendChild(card);
+		document.body.appendChild(overlay);
+
+		const close = () => overlay.remove();
+		(card.querySelector('.fb-cancel') as HTMLButtonElement).onclick = close;
+		overlay.addEventListener('click', (e) => {
+			if (e.target === overlay) close();
+		});
+
+		(card.querySelector('.fb-submit') as HTMLButtonElement).onclick = async () => {
+			const category = (card.querySelector('.fb-category') as HTMLSelectElement).value;
+			const description = (card.querySelector('.fb-desc') as HTMLTextAreaElement).value.trim();
+			const examId = this.examViewer._currentExamId || '';
+			try {
+				if (!window.APIClient) {
+					alert('客户端未初始化');
+					return;
+				}
+				await window.APIClient.submitFeedback({
+					// 后端会用 session 覆盖 user_id，这里仅作为占位
+					user_id: userId,
+					paper_id: examId,
+					exam_id: examId,
+					question_id: String(question.id),
+					category,
+					description
+				});
+				alert('反馈已提交，感谢您的帮助！');
+				close();
+			} catch (err) {
+				console.error('[QuestionRenderer] submitFeedback failed', err);
+				alert('提交失败：' + (err instanceof Error ? err.message : String(err)));
+			}
+		};
 	}
 
 	/**

@@ -11,6 +11,7 @@
 #include <json/json.h>
 
 #include "application/services/AuthService.h"
+#include "application/services/FeatureFlagService.h"
 #include "common/ApiResponse.h"
 #include "common/AppException.h"
 
@@ -35,6 +36,13 @@ bool hasAnyRole(const Json::Value &roles, std::initializer_list<const char *> ex
 void requireRole(const Json::Value &session,
                  std::initializer_list<const char *> expected,
                  const std::string &errorMessage);
+
+// 功能开关路由护栏：如果 flag 在该 userId 上被禁用，拋出 403 AppException
+//   - errorMessageZh: 中文错误提示，默认“该功能已被管理员关闭”
+void requireFeature(application::services::FeatureFlagService &svc,
+                    const std::string &flagKey,
+                    const std::string &userId,
+                    const std::string &errorMessageZh = "该功能已被管理员关闭");
 
 // ---- Static asset helpers ---------------------------------------------------
 

@@ -18,6 +18,19 @@
 #include "application/services/SubscriptionService.h"
 #include "application/services/UserService.h"
 #include "application/services/WechatService.h"
+#include "application/services/WrongQuestionService.h"
+#include "application/services/StreakService.h"
+#include "application/services/DraftService.h"
+#include "application/services/AttemptTimerService.h"
+#include "application/services/BookmarkFolderService.h"
+#include "application/services/ClassroomService.h"
+#include "application/services/FeatureFlagService.h"
+#include "application/services/FeedbackService.h"
+#include "application/services/SrsService.h"
+#include "application/services/DataExportService.h"
+#include "application/services/AdminStatisticsService.h"
+#include "application/services/CommunityService.h"
+#include "application/services/AuditLogService.h"
 
 namespace transport
 {
@@ -39,6 +52,32 @@ struct AppContext
     application::services::EmailVerificationService *emailVerificationService{nullptr};
     application::services::ContactChangeChallengeService *contactChangeChallengeService{nullptr};
     application::services::WechatService *wechatService{nullptr};
+    // 错题本服务（业务功能 1）
+    application::services::WrongQuestionService *wrongQuestionService{nullptr};
+    // 学习连续天数 / 每日目标（业务功能 2）
+    application::services::StreakService *streakService{nullptr};
+    // 上次未完成草稿（业务功能 4）
+    application::services::DraftService *draftService{nullptr};
+    // 答题计时与分段限时（业务功能 3）
+    application::services::AttemptTimerService *attemptTimerService{nullptr};
+    // 功能开关（横切基础设施）
+    application::services::FeatureFlagService *featureFlagService{nullptr};
+    // 题目反馈/纠错（业务功能 5）
+    application::services::FeedbackService *feedbackService{nullptr};
+    // 班级与作业（业务功能 6）
+    application::services::ClassroomService *classroomService{nullptr};
+    // SRS 间隔重复（业务功能 7）
+    application::services::SrsService *srsService{nullptr};
+    // 收藏夹/分类（业务功能 8）
+    application::services::BookmarkFolderService *bookmarkFolderService{nullptr};
+    // 用户数据导出（业务功能 10）
+    application::services::DataExportService *dataExportService{nullptr};
+    // 管理员统计（业务功能 11）
+    application::services::AdminStatisticsService *adminStatisticsService{nullptr};
+    // 社区讨论（业务功能 12）
+    application::services::CommunityService *communityService{nullptr};
+    // 审计日志可视化（业务功能 15）
+    application::services::AuditLogService *auditLogService{nullptr};
     application::recommendation::RecommendationStrategy *recommendationStrategy{nullptr};
 };
 

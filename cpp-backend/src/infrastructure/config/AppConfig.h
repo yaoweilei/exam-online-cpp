@@ -17,6 +17,7 @@ struct AppConfig
     std::filesystem::path documentRoot{std::filesystem::current_path()};
     std::filesystem::path dataPaperDir;
     std::filesystem::path dataUserDir;
+    std::filesystem::path dataSystemDir;
     std::filesystem::path staticDir;
     std::filesystem::path templatesDir;
     std::filesystem::path furiganaDictPath;
@@ -142,6 +143,7 @@ inline AppConfig loadConfig()
     config.documentRoot = std::filesystem::path(readEnv("DOCUMENT_ROOT", config.baseDir.string()));
     config.dataPaperDir = config.baseDir / "data" / "paper" / "jlpt";
     config.dataUserDir = config.baseDir / "data" / "user";
+    config.dataSystemDir = config.baseDir / "data" / "system";
     config.staticDir = config.baseDir / "static";
     config.templatesDir = config.baseDir / "templates";
     config.furiganaDictPath = config.staticDir / "resource" / "furigana.dict.json";

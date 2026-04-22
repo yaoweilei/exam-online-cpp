@@ -14,6 +14,19 @@
 #include "application/services/AnswerService.h"
 #include "application/services/AuthService.h"
 #include "application/services/BookmarkService.h"
+#include "application/services/WrongQuestionService.h"
+#include "application/services/StreakService.h"
+#include "application/services/DraftService.h"
+#include "application/services/AttemptTimerService.h"
+#include "application/services/BookmarkFolderService.h"
+#include "application/services/ClassroomService.h"
+#include "application/services/FeatureFlagService.h"
+#include "application/services/FeedbackService.h"
+#include "application/services/SrsService.h"
+#include "application/services/DataExportService.h"
+#include "application/services/AdminStatisticsService.h"
+#include "application/services/CommunityService.h"
+#include "application/services/AuditLogService.h"
 #include "application/services/ContactChangeChallengeService.h"
 #include "application/services/EmailVerificationService.h"
 #include "application/services/ExamService.h"
@@ -31,6 +44,16 @@
 #include "infrastructure/config/AppConfig.h"
 #include "infrastructure/storage/AnswerRepository.h"
 #include "infrastructure/storage/BookmarkRepository.h"
+#include "infrastructure/storage/WrongQuestionRepository.h"
+#include "infrastructure/storage/StreakRepository.h"
+#include "infrastructure/storage/DraftRepository.h"
+#include "infrastructure/storage/AssignmentRepository.h"
+#include "infrastructure/storage/AttemptTimerRepository.h"
+#include "infrastructure/storage/BookmarkFolderRepository.h"
+#include "infrastructure/storage/ClassroomRepository.h"
+#include "infrastructure/storage/FeatureFlagRepository.h"
+#include "infrastructure/storage/FeedbackRepository.h"
+#include "infrastructure/storage/SrsRepository.h"
 #include "infrastructure/storage/ExamRepository.h"
 #include "infrastructure/storage/FuriganaRepository.h"
 #include "infrastructure/storage/OrganizationRepository.h"
@@ -112,7 +135,14 @@ int main()
     infrastructure::storage::ProfileRepository profileRepo(cfg.dataUserDir);
     infrastructure::storage::OrganizationRepository organizationRepo(cfg.dataUserDir);
     infrastructure::storage::BookmarkRepository bookmarkRepo(cfg.dataUserDir);
-
+    // 错题本 Repository（业务功能 1）
+    infrastructure::storage::WrongQuestionRepository wrongQuestionRepo(cfg.dataUserDir);
+    // 连续天数 Repository（业务功能 2）
+    infrastructure::storage::StreakRepository streakRepo(cfg.dataUserDir);
+    // 续考草稿 Repository（业务功能 4）
+    infrastructure::storage::DraftRepository draftRepo(cfg.dataUserDir);
+    // 答题计时 Repository（业务功能 3）
+    infrastructure::storage::AttemptTimerRepository attemptTimerRepo(cfg.dataUserDir);
     application::services::SubscriptionService subscriptionService(
         profileRepo,
         organizationRepo,
@@ -139,6 +169,40 @@ int main()
         *emailService,
         cfg.publicWebBaseUrl);
     application::services::BookmarkService bookmarkService(bookmarkRepo);
+    // 错题本 Service（业务功能 1）
+    application::services::WrongQuestionService wrongQuestionService(wrongQuestionRepo);
+    // 连续天数 Service（业务功能 2）
+    application::services::StreakService streakService(streakRepo);
+    // 续考草稿 Service（业务功能 4）
+    application::services::DraftService draftService(draftRepo);
+    // 答题计时 Service（业务功能 3）
+    application::services::AttemptTimerService attemptTimerService(attemptTimerRepo);
+    // 功能开关 Repository + Service（横切基础设施）
+    infrastructure::storage::FeatureFlagRepository featureFlagRepo(cfg.dataSystemDir, organizationRepo, profileRepo);
+    application::services::FeatureFlagService featureFlagService(featureFlagRepo, organizationRepo);
+    // 题目反馈 Repository + Service（业务功能 5）
+    infrastructure::storage::FeedbackRepository feedbackRepo(cfg.dataUserDir);
+    application::services::FeedbackService feedbackService(feedbackRepo);
+    // 班级与作业 Repository + Service（业务功能 6）
+    infrastructure::storage::ClassroomRepository classroomRepo(cfg.dataSystemDir);
+    infrastructure::storage::AssignmentRepository assignmentRepo(cfg.dataSystemDir);
+    application::services::ClassroomService classroomService(classroomRepo, assignmentRepo);
+    // SRS Repository + Service（业务功能 7）
+    infrastructure::storage::SrsRepository srsRepo(cfg.dataUserDir);
+    application::services::SrsService srsService(srsRepo);
+    // 收藏夹/分类 Repository + Service（业务功能 8）
+    infrastructure::storage::BookmarkFolderRepository bookmarkFolderRepo(cfg.dataUserDir);
+    application::services::BookmarkFolderService bookmarkFolderService(bookmarkFolderRepo);
+    // 用户数据导出 Service（业务功能 10）
+    application::services::DataExportService dataExportService(cfg.dataUserDir, cfg.dataSystemDir);
+    // 管理员统计 Service（业务功能 11）
+    application::services::AdminStatisticsService adminStatisticsService(
+        cfg.dataUserDir, cfg.dataSystemDir, cfg.dataPaperDir);
+    // 社区讨论 Repository + Service（业务功能 12）
+    infrastructure::storage::CommunityRepository communityRepo(cfg.dataUserDir);
+    application::services::CommunityService communityService(communityRepo);
+    // 审计日志 Service（业务功能 15）
+    application::services::AuditLogService auditLogService(cfg.dataUserDir, organizationRepo);
     application::services::PhoneService phoneService(userRepo, *smsService, contactChangeChallengeService);
     application::services::EmailVerificationService emailVerificationService(userRepo, *emailService, contactChangeChallengeService);
     application::services::WechatService wechatService(
@@ -167,6 +231,19 @@ int main()
         .emailVerificationService = &emailVerificationService,
         .contactChangeChallengeService = &contactChangeChallengeService,
         .wechatService = &wechatService,
+        .wrongQuestionService = &wrongQuestionService,
+        .streakService = &streakService,
+        .draftService = &draftService,
+        .attemptTimerService = &attemptTimerService,
+        .featureFlagService = &featureFlagService,
+        .feedbackService = &feedbackService,
+        .classroomService = &classroomService,
+        .srsService = &srsService,
+        .bookmarkFolderService = &bookmarkFolderService,
+        .dataExportService = &dataExportService,
+        .adminStatisticsService = &adminStatisticsService,
+        .communityService = &communityService,
+        .auditLogService = &auditLogService,
         .recommendationStrategy = &recommendationStrategy};
 
     transport::ApiRouter router(context);

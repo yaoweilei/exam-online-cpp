@@ -46,6 +46,30 @@ if(BUILD_TESTING)
         src/application/services/ExamService.cpp
         src/application/services/ProfileService.cpp
         src/application/services/BookmarkService.cpp
+        src/infrastructure/storage/WrongQuestionRepository.cpp
+        src/application/services/WrongQuestionService.cpp
+        src/infrastructure/storage/StreakRepository.cpp
+        src/application/services/StreakService.cpp
+        src/infrastructure/storage/DraftRepository.cpp
+        src/application/services/DraftService.cpp
+        src/infrastructure/storage/AttemptTimerRepository.cpp
+        src/application/services/AttemptTimerService.cpp
+        src/infrastructure/storage/FeatureFlagRepository.cpp
+        src/application/services/FeatureFlagService.cpp
+        src/infrastructure/storage/FeedbackRepository.cpp
+        src/application/services/FeedbackService.cpp
+        src/infrastructure/storage/ClassroomRepository.cpp
+        src/infrastructure/storage/AssignmentRepository.cpp
+        src/application/services/ClassroomService.cpp
+        src/infrastructure/storage/SrsRepository.cpp
+        src/application/services/SrsService.cpp
+        src/infrastructure/storage/BookmarkFolderRepository.cpp
+        src/application/services/BookmarkFolderService.cpp
+        src/application/services/DataExportService.cpp
+        src/application/services/AdminStatisticsService.cpp
+        src/infrastructure/storage/CommunityRepository.cpp
+        src/application/services/CommunityService.cpp
+        src/application/services/AuditLogService.cpp
     )
     target_include_directories(smoke_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     target_link_libraries(smoke_tests PRIVATE Drogon::Drogon)

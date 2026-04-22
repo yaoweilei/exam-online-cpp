@@ -74,6 +74,46 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			gate: (u) => !u.guest
 		},
 		{
+			// 业务功能 1：错题本入口（功能开关：wrong_questions）
+			id: 'wrongQuestions',
+			title: '错题本',
+			icon: 'book',
+			intent: 'openWrongQuestions',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('wrong_questions') ?? true)
+		},
+		{
+			// 业务功能 7：SRS 复习入口（功能开关：srs）
+			id: 'srsReview',
+			title: '今日复习',
+			icon: 'book',
+			intent: 'openSrsReview',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('srs') ?? true)
+		},
+		{
+			// 业务功能 8：收藏分类入口（功能开关：bookmark_folders）
+			id: 'bookmarkFolders',
+			title: '收藏夹',
+			icon: 'book',
+			intent: 'openBookmarkFolders',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('bookmark_folders') ?? true)
+		},
+		{
+			// 业务功能 10：数据导出入口（功能开关：data_export）
+			id: 'dataExport',
+			title: '数据导出',
+			icon: 'folder',
+			intent: 'openDataExport',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('data_export') ?? true)
+		},
+		{
+			// 业务功能 12：社区讨论入口（功能开关：community）
+			id: 'community',
+			title: '社区讨论',
+			icon: 'chat',
+			intent: 'openCommunity',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('community') ?? true)
+		},
+		{
 			id: 'redeem',
 			title: '兑换码',
 			icon: 'gift',
@@ -128,6 +168,30 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			icon: 'settings',
 			intent: 'openSystemFlags',
 			gate: (u) => hasAnyRole(u, ['superAdmin'])
+		},
+		{
+			// 业务功能 11：管理员仪表盘（功能开关：admin_dashboard，仅 superAdmin）
+			id: 'adminDashboard',
+			title: '运营仪表盘',
+			icon: 'chart',
+			intent: 'openAdminDashboard',
+			gate: (u) => hasAnyRole(u, ['superAdmin']) && (window.isFeatureEnabled?.('admin_dashboard') ?? true)
+		},
+		{
+			// 业务功能 15：审计日志可视化（功能开关：audit_log_viewer，superAdmin / orgAdmin）
+			id: 'auditLog',
+			title: '审计日志',
+			icon: 'badge',
+			intent: 'openAuditLog',
+			gate: (u) => hasAnyRole(u, ['superAdmin', 'orgAdmin']) && (window.isFeatureEnabled?.('audit_log_viewer') ?? true)
+		},
+		{
+			// 业务功能 14：PWA 安装入口（功能开关：pwa；按钮仅在浏览器触发 beforeinstallprompt 后可用）
+			id: 'installPwa',
+			title: '安装应用',
+			icon: 'gift',
+			intent: 'installPwa',
+			gate: () => (window.isFeatureEnabled?.('pwa') ?? true)
 		}
 	];
 
@@ -1742,6 +1806,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		nameEl.textContent = ctx.guest ? '未登录' : preferredDisplayName(ctx);
 		rolesEl.textContent = ctx.guest ? '登录后查看会员信息' : subtitleParts.join(' · ');
 		overviewEl.innerHTML = renderHeaderOverview(ctx);
+		// 业务功能 2：异步拉取连续天数与每日目标，填充占位
+		void refreshStreakSummary(ctx);
 		if (footerActionsEl) {
 			footerActionsEl.innerHTML = ctx.guest
 				? ''
@@ -1839,7 +1905,269 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				<span>卡券</span>
 				<strong>${coupons} 张</strong>
 			</div>
+			<!-- 业务功能 2：学习连续天数（占位，由 refreshStreakSummary 异步填充） -->
+			<div class="pc-summary-stat" id="pc-streak-stat" data-streak-stat>
+				<span>连续学习</span>
+				<strong>—</strong>
+			</div>
+			<!-- 业务功能 2：今日目标进度 -->
+			<div class="pc-summary-stat" id="pc-goal-stat" data-goal-stat>
+				<span>今日目标</span>
+				<strong>—</strong>
+			</div>
 		</div>`;
+	}
+
+	// 业务功能 2：异步拉取连续天数与今日目标，填充顶部摘要中的两个占位卡片
+	async function refreshStreakSummary(ctx: PCContext): Promise<void> {
+		if (ctx.guest || !ctx.id) {
+			return;
+		}
+		// 业务功能 2 的开关：被关闭则隐藏统计卡，且不发请求
+		if (window.isFeatureEnabled && !window.isFeatureEnabled('streak')) {
+			const root = document.getElementById('pc-streak-stat')?.parentElement;
+			if (root) root.querySelectorAll('#pc-streak-stat, #pc-goal-stat').forEach((el) => ((el as HTMLElement).style.display = 'none'));
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.getStreakSummary !== 'function') {
+			return;  // APIClient 旧版本未注入
+		}
+		try {
+			const data = (await api.getStreakSummary(ctx.id)) as {
+				streak_current?: number;
+				streak_best?: number;
+				today_questions_done?: number;
+				daily_goal_questions?: number;
+				today_progress?: number;
+				today_hit_goal?: boolean;
+			};
+			const streakEl = document.getElementById('pc-streak-stat');
+			const goalEl = document.getElementById('pc-goal-stat');
+			if (streakEl) {
+				const cur = Number(data.streak_current ?? 0);
+				const best = Number(data.streak_best ?? 0);
+				const strong = streakEl.querySelector('strong');
+				if (strong) {
+					strong.innerHTML = `${cur} 天<span style="font-size:11px;color:#999;margin-left:4px;">最高 ${best}</span>`;
+				}
+			}
+			if (goalEl) {
+				const done = Number(data.today_questions_done ?? 0);
+				const goal = Number(data.daily_goal_questions ?? 0);
+				const hit = data.today_hit_goal === true;
+				const color = hit ? '#3a7' : '#a33';
+				const strong = goalEl.querySelector('strong');
+				if (strong) {
+					strong.innerHTML = `<span style="color:${color};">${done}</span> / ${goal} 题`;
+				}
+			}
+		} catch {
+			// 接口异常时保持占位"—"，不打扰用户
+		}
+	}
+
+	// 业务功能 4：异步刷新"上次未完成"横幅；无草稿则保持隐藏
+	async function refreshResumeBanner(ctx: PCContext): Promise<void> {
+		const banner = document.getElementById('pc-resume-banner') as HTMLDivElement | null;
+		if (!banner) return;
+		if (ctx.guest || !ctx.id) {
+			banner.hidden = true;
+			banner.innerHTML = '';
+			return;
+		}
+		// 业务功能 4 的开关：关闭则隐藏横幅，不发请求
+		if (window.isFeatureEnabled && !window.isFeatureEnabled('resume_draft')) {
+			banner.hidden = true;
+			banner.innerHTML = '';
+			return;
+		}
+		const userId = ctx.id;  // 局部窄化，便于后续闭包使用
+		const api = window.APIClient;
+		if (!api || typeof api.getDraft !== 'function') {
+			banner.hidden = true;
+			return;
+		}
+		try {
+			const data = (await api.getDraft(userId)) as
+				| {
+						exam_id?: string;
+						total_questions?: number;
+						answered_count?: number;
+						last_question_index?: number;
+						last_section_index?: number;
+						updated_at?: string;
+				  }
+				| null;
+			if (!data || typeof data !== 'object' || !data.exam_id) {
+				banner.hidden = true;
+				banner.innerHTML = '';
+				return;
+			}
+			const examId = String(data.exam_id);
+			const total = Number(data.total_questions ?? 0);
+			const answered = Number(data.answered_count ?? 0);
+			const updatedAt = String(data.updated_at ?? '');
+			banner.hidden = false;
+			banner.innerHTML = `
+				<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;">
+					<div>
+						<div style="font-weight:600;">上次未完成的考试</div>
+						<div style="font-size:13px;color:#666;margin-top:2px;">
+							试卷 <code>${escapeHtmlSafe(examId)}</code> · 已答 ${answered}${total > 0 ? ` / ${total}` : ''} 题 · 更新于 ${escapeHtmlSafe(
+				updatedAt
+			)}
+						</div>
+					</div>
+					<div style="display:flex;gap:8px;">
+						<button class="risk-btn primary" data-resume-action="continue" data-exam-id="${escapeHtmlSafe(
+							examId
+						)}">继续</button>
+						<button class="risk-btn" data-resume-action="discard">放弃</button>
+					</div>
+				</div>`;
+			// 绑定继续/放弃按钮
+			banner.onclick = (event: MouseEvent) => {
+				const btn = (event.target as HTMLElement | null)?.closest('button[data-resume-action]') as
+					| HTMLButtonElement
+					| null;
+				if (!btn) return;
+				const action = btn.dataset.resumeAction;
+				if (action === 'discard') {
+					btn.disabled = true;
+					api
+						.clearDraft(userId)
+						.then(() => {
+							showToast('已放弃上次未完成');
+							void refreshResumeBanner(ctx);
+						})
+						.catch((err: unknown) => {
+							btn.disabled = false;
+							showToast(readErrorMessage(err, '放弃失败'));
+						});
+				} else if (action === 'continue') {
+					void resumeExam(examId, data);
+				}
+			};
+		} catch {
+			banner.hidden = true;
+		}
+	}
+
+	// 业务功能 6：异步刷新"我的作业"横幅；无作业则保持隐藏
+	//   - 仅显示截止时间最近的 3 条
+	//   - 点击「去做题」按 exam_id 加载试卷并关闭面板
+	async function refreshAssignmentsBanner(ctx: PCContext): Promise<void> {
+		const banner = document.getElementById('pc-assignments-banner') as HTMLDivElement | null;
+		if (!banner) return;
+		if (ctx.guest || !ctx.id) {
+			banner.hidden = true;
+			banner.innerHTML = '';
+			return;
+		}
+		// 业务功能 6 的开关
+		if (window.isFeatureEnabled && !window.isFeatureEnabled('classrooms')) {
+			banner.hidden = true;
+			banner.innerHTML = '';
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.listMyAssignments !== 'function') {
+			banner.hidden = true;
+			return;
+		}
+		try {
+			const data = (await api.listMyAssignments()) as { items?: Array<Record<string, unknown>> } | null;
+			const items = Array.isArray(data?.items) ? (data!.items as Array<Record<string, unknown>>) : [];
+			if (items.length === 0) {
+				banner.hidden = true;
+				banner.innerHTML = '';
+				return;
+			}
+			// 按 due_at 升序，未填 due_at 的排到最后
+			items.sort((a, b) => {
+				const da = String(a.due_at || '');
+				const db = String(b.due_at || '');
+				if (!da && !db) return 0;
+				if (!da) return 1;
+				if (!db) return -1;
+				return da.localeCompare(db);
+			});
+			const top = items.slice(0, 3);
+			const rows = top
+				.map((it) => {
+					const title = escapeHtmlSafe(String(it.title || '未命名作业'));
+					const examId = String(it.exam_id || '');
+					const dueAt = escapeHtmlSafe(String(it.due_at || '不限期'));
+					return `
+						<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px dashed #eee;">
+							<div>
+								<div style="font-size:13px;">${title}</div>
+								<div style="font-size:12px;color:#888;">截止：${dueAt} · 试卷 <code>${escapeHtmlSafe(examId)}</code></div>
+							</div>
+							<button class="risk-btn" data-asg-action="open" data-exam-id="${escapeHtmlSafe(examId)}">去做题</button>
+						</div>`;
+				})
+				.join('');
+			banner.hidden = false;
+			banner.innerHTML = `
+				<div style="padding:12px 16px;">
+					<div style="font-weight:600;">📋 我的作业（${items.length}）</div>
+					${rows}
+				</div>`;
+			// 绑定「去做题」按钮：复用 resumeExam(examId, null) 加载试卷
+			banner.onclick = (event: MouseEvent) => {
+				const btn = (event.target as HTMLElement | null)?.closest('button[data-asg-action="open"]') as
+					| HTMLButtonElement
+					| null;
+				if (!btn) return;
+				const examId = btn.dataset.examId || '';
+				if (!examId) return;
+				void resumeExam(examId, null);
+			};
+		} catch {
+			banner.hidden = true;
+		}
+	}
+
+	// 业务功能 4：执行续考动作
+	//   1. 拉取试卷数据 -> 加载到 viewer
+	//   2. 若有 last_section_index/last_question_index，则跳转到该题
+	//   3. 关闭 PC 抽屉
+	async function resumeExam(
+		examId: string,
+		draft: { last_section_index?: number; last_question_index?: number } | null
+	): Promise<void> {
+		const api = window.APIClient;
+		const viewer = (window as unknown as {
+			examViewer?: {
+				loadExamData: (data: unknown) => void;
+				jumpToQuestion?: (sectionIndex: number, questionIndex: number) => void;
+				_currentExamId?: string | null;
+			};
+		}).examViewer;
+		if (!api || typeof api.getExam !== 'function' || !viewer) {
+			showToast('当前环境无法直接续考，请手动打开试卷');
+			return;
+		}
+		try {
+			const examData = await api.getExam(examId);
+			viewer.loadExamData(examData);
+			viewer._currentExamId = examId;
+			const si = Math.max(0, Number(draft?.last_section_index ?? 0));
+			const qi = Math.max(0, Number(draft?.last_question_index ?? 0));
+			if (typeof viewer.jumpToQuestion === 'function') {
+				try {
+					viewer.jumpToQuestion(si, qi);
+				} catch {
+					// 跳题失败不阻断
+				}
+			}
+			closePanel();
+			showToast('已恢复到上次进度');
+		} catch (err) {
+			showToast(readErrorMessage(err, '续考失败'));
+		}
 	}
 
 	function renderContactVerificationMethod(ctx: PCContext, options: {
@@ -1990,6 +2318,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const lastLogin = escapeHtml(ctx.lastLoginAt || '暂无');
 		const inviteAccessCard = renderInviteEntryCard(organizationInviteTokenDraft);
 		return `<div class="pc-dashboard">
+			<!-- 业务功能 4：上次未完成续考横幅（异步填充，无草稿时保持 hidden） -->
+			<div class="pc-card" id="pc-resume-banner" data-resume-banner hidden></div>
+			<!-- 业务功能 6：我的作业横幅（异步填充，无作业时保持 hidden） -->
+			<div class="pc-card" id="pc-assignments-banner" data-assignments-banner hidden></div>
 			<div class="pc-card pc-service-card">
 				<div class="pc-service-grid">
 					${features
@@ -2394,6 +2726,38 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			case 'joinCommunity':
 				showToast(`功能占位: ${intent}`);
 				break;
+			case 'openWrongQuestions':
+				// 业务功能 1：打开错题本面板
+				void openWrongQuestionsPanel();
+				break;
+			case 'openSrsReview':
+				// 业务功能 7：打开 SRS 间隔重复复习面板
+				void openSrsReviewPanel();
+				break;
+			case 'openBookmarkFolders':
+				// 业务功能 8：打开收藏夹管理面板
+				void openBookmarkFoldersPanel();
+				break;
+			case 'openDataExport':
+				// 业务功能 10：触发数据导出
+				void openDataExportPanel();
+				break;
+			case 'openAdminDashboard':
+				// 业务功能 11：打开管理员仪表盘
+				void openAdminDashboardPanel();
+				break;
+			case 'openAuditLog':
+				// 业务功能 15：打开审计日志查看器
+				void openAuditLogPanel();
+				break;
+			case 'installPwa':
+				// 业务功能 14：触发安装提示；若浏览器尚未派发 beforeinstallprompt 则给出提示
+				void triggerPwaInstall();
+				break;
+			case 'openCommunity':
+				// 业务功能 12：打开社区讨论（个人中心入口先 prompt 试卷 ID）
+				void openCommunityFromPersonalCenter();
+				break;
 			default:
 				showToast(`未识别 intent: ${intent}`);
 				break;
@@ -2762,6 +3126,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				void ensurePendingInvitations(ctx);
 				container.innerHTML = renderDashboard(ctx);
 				attachDashboardHandlers(container);
+				// 业务功能 4：异步刷新"上次未完成"横幅
+				void refreshResumeBanner(ctx);
+				// 业务功能 6：异步刷新"我的作业"横幅
+				void refreshAssignmentsBanner(ctx);
 				break;
 			case 'profile':
 				container.innerHTML = renderProfileCard(ctx);
@@ -2861,6 +3229,1123 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		};
 		window.setTimeout(() => input.focus(), 20);
 	}
+
+	// ===== 错题本（业务功能 1）=====
+	// 错题本面板使用独立的 modal DOM 节点，复用既有 risk-* CSS 样式以避免追加样式表。
+	let wrongQuestionModal: HTMLDivElement | null = null;
+	// 当前筛选状态（保存在闭包内，不持久化）
+	let wqStatus: 'active' | 'mastered' | 'all' = 'active';
+	let wqSort: 'recent' | 'wrong_count' = 'recent';
+
+	function ensureWrongQuestionModal(): HTMLDivElement {
+		if (wrongQuestionModal) {
+			return wrongQuestionModal;
+		}
+		const el = document.createElement('div');
+		el.id = 'wq-modal';
+		el.className = 'risk-hidden';
+		el.innerHTML = `<div class="risk-backdrop" data-wq-act="close"></div>
+			<div class="risk-panel" style="max-width:720px;width:90%;">
+				<div class="risk-header"><strong id="wq-title">错题本</strong><button class="risk-close" data-wq-act="close">×</button></div>
+				<div id="wq-summary" style="padding:8px 16px;font-size:13px;color:#555;"></div>
+				<div id="wq-toolbar" style="display:flex;gap:8px;align-items:center;padding:0 16px 8px 16px;flex-wrap:wrap;font-size:13px;">
+					<label>状态
+						<select id="wq-status">
+							<option value="active">未掌握</option>
+							<option value="mastered">已掌握</option>
+							<option value="all">全部</option>
+						</select>
+					</label>
+					<label>排序
+						<select id="wq-sort">
+							<option value="recent">最近错答</option>
+							<option value="wrong_count">错次最多</option>
+						</select>
+					</label>
+					<button id="wq-reload" class="risk-btn">刷新</button>
+					<button id="wq-reset" class="risk-btn" style="margin-left:auto;color:#a33;">清空错题本</button>
+				</div>
+				<div class="risk-body" id="wq-body" style="max-height:60vh;overflow:auto;"></div>
+				<div class="risk-footer"><button class="risk-btn" data-wq-act="close">关闭</button></div>
+			</div>`;
+		// 关闭按钮（背景或 × 或底部"关闭"按钮）
+		el.addEventListener('click', (event) => {
+			const target = event.target as HTMLElement | null;
+			if (target?.dataset.wqAct === 'close') {
+				el.classList.remove('risk-open');
+				el.classList.add('risk-hidden');
+			}
+		});
+		document.body.appendChild(el);
+		wrongQuestionModal = el;
+		return el;
+	}
+
+	// HTML 转义工具：避免快照里的内容造成 XSS
+	function escapeHtmlSafe(text: string): string {
+		return text
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
+	// 渲染单条错题为 HTML（事件通过事件委托处理）
+	function renderWrongQuestionItem(item: Record<string, unknown>): string {
+		const qid = String(item.question_id ?? '');
+		const examId = String(item.exam_id ?? '');
+		const wrongCount = Number(item.wrong_count ?? 0);
+		const lastWrongAt = String(item.last_wrong_at ?? '');
+		const correctAnswer = String(item.correct_answer ?? '');
+		const lastUserAnswer = String(item.last_user_answer ?? '');
+		const mastered = item.mastered === true;
+		const snap = (item.question_snapshot ?? {}) as Record<string, unknown>;
+		// 题干字段在不同题型里键名不同，按优先级取
+		const stem = String(snap.question ?? snap.stem ?? snap.passage ?? '');
+		const explanation = String(snap.explanation ?? '');
+		const optionsRaw = snap.options;
+		let optionsHtml = '';
+		if (Array.isArray(optionsRaw)) {
+			optionsHtml = `<ol style="margin:4px 0 0 18px;padding:0;color:#444;">${optionsRaw
+				.map((o) => `<li>${escapeHtmlSafe(String(o))}</li>`)
+				.join('')}</ol>`;
+		}
+		const masteredTag = mastered ? ' · <span style="color:#3a7;">已掌握</span>' : '';
+		const masterBtn = mastered
+			? `<button class="risk-btn" data-wq-action="unmaster" data-qid="${escapeHtmlSafe(qid)}">取消掌握</button>`
+			: `<button class="risk-btn" data-wq-action="master" data-qid="${escapeHtmlSafe(qid)}">标记掌握</button>`;
+		return `<div class="wq-item" style="border-top:1px solid #eee;padding:12px 16px;">
+			<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#888;">
+				<span>题目 ID: ${escapeHtmlSafe(qid)} · 试卷 ${escapeHtmlSafe(examId)} · 错 ${wrongCount} 次${masteredTag}</span>
+				<span>${escapeHtmlSafe(lastWrongAt)}</span>
+			</div>
+			<div style="margin-top:6px;">${escapeHtmlSafe(stem) || '<em style="color:#999;">（无题干快照）</em>'}</div>
+			${optionsHtml}
+			<div style="margin-top:6px;font-size:13px;">
+				<span style="color:#3a7;">正确答案：${escapeHtmlSafe(correctAnswer)}</span>
+				<span style="margin-left:12px;color:#a33;">你的答案：${escapeHtmlSafe(lastUserAnswer)}</span>
+			</div>
+			${
+				explanation
+					? `<details style="margin-top:6px;"><summary style="cursor:pointer;color:#36a;">查看解析</summary><div style="margin-top:6px;color:#555;white-space:pre-wrap;">${escapeHtmlSafe(
+							explanation
+					  )}</div></details>`
+					: ''
+			}
+			<div style="margin-top:8px;display:flex;gap:8px;">
+				${masterBtn}
+				<button class="risk-btn" data-wq-action="remove" data-qid="${escapeHtmlSafe(qid)}" style="color:#a33;">移出错题本</button>
+			</div>
+		</div>`;
+	}
+
+	async function reloadWrongQuestions(modal: HTMLDivElement, userId: string): Promise<void> {
+		const api = window.APIClient;
+		const body = modal.querySelector('#wq-body') as HTMLDivElement | null;
+		const summary = modal.querySelector('#wq-summary') as HTMLDivElement | null;
+		if (!api || typeof api.getWrongQuestions !== 'function' || !body) {
+			if (body) body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">接口不可用</div>';
+			return;
+		}
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		try {
+			const result = (await api.getWrongQuestions(userId, { status: wqStatus, sort: wqSort, pageSize: 50 })) as {
+				items?: Record<string, unknown>[];
+				total?: number;
+				summary?: { total?: number; active?: number; mastered?: number };
+			};
+			const items = result.items ?? [];
+			const sm = result.summary ?? {};
+			if (summary) {
+				summary.innerHTML = `共 <b>${sm.total ?? 0}</b> 题 · 待掌握 <b style="color:#a33;">${
+					sm.active ?? 0
+				}</b> · 已掌握 <b style="color:#3a7;">${sm.mastered ?? 0}</b>`;
+			}
+			if (items.length === 0) {
+				body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">暂无错题，继续加油！</div>';
+				return;
+			}
+			body.innerHTML = items.map(renderWrongQuestionItem).join('');
+		} catch (error) {
+			body.innerHTML = `<div style="padding:24px;text-align:center;color:#a33;">加载失败：${escapeHtmlSafe(
+				readErrorMessage(error, '未知错误')
+			)}</div>`;
+		}
+	}
+
+	async function openWrongQuestionsPanel(): Promise<void> {
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		if (!userId) {
+			showToast('请先登录后查看错题本');
+			return;
+		}
+		const modal = ensureWrongQuestionModal();
+		modal.classList.remove('risk-hidden');
+		modal.classList.add('risk-open');
+
+		// 同步下拉框为当前状态
+		const statusSel = modal.querySelector('#wq-status') as HTMLSelectElement | null;
+		const sortSel = modal.querySelector('#wq-sort') as HTMLSelectElement | null;
+		if (statusSel) statusSel.value = wqStatus;
+		if (sortSel) sortSel.value = wqSort;
+
+		// 绑定事件（每次打开重新覆盖 onchange/onclick，避免重复触发）
+		if (statusSel) {
+			statusSel.onchange = () => {
+				wqStatus = (statusSel.value as 'active' | 'mastered' | 'all') || 'active';
+				void reloadWrongQuestions(modal, userId);
+			};
+		}
+		if (sortSel) {
+			sortSel.onchange = () => {
+				wqSort = (sortSel.value as 'recent' | 'wrong_count') || 'recent';
+				void reloadWrongQuestions(modal, userId);
+			};
+		}
+		const reloadBtn = modal.querySelector('#wq-reload') as HTMLButtonElement | null;
+		if (reloadBtn) reloadBtn.onclick = () => void reloadWrongQuestions(modal, userId);
+		const resetBtn = modal.querySelector('#wq-reset') as HTMLButtonElement | null;
+		if (resetBtn) {
+			resetBtn.onclick = () => {
+				confirmRisk('清空错题本', '清空错题本', () => {
+					const api = window.APIClient;
+					if (!api || typeof api.resetWrongQuestions !== 'function') {
+						return;
+					}
+					api
+						.resetWrongQuestions(userId)
+						.then(() => {
+							showToast('错题本已清空');
+							void reloadWrongQuestions(modal, userId);
+						})
+						.catch((err: unknown) => showToast(readErrorMessage(err, '清空失败')));
+				});
+			};
+		}
+
+		// 列表区域的事件委托：处理"移除/标记掌握/取消掌握"
+		const body = modal.querySelector('#wq-body') as HTMLDivElement | null;
+		if (body) {
+			body.onclick = (event: MouseEvent) => {
+				const btn = (event.target as HTMLElement | null)?.closest('button[data-wq-action]') as
+					| HTMLButtonElement
+					| null;
+				if (!btn) return;
+				const qid = btn.dataset.qid || '';
+				const action = btn.dataset.wqAction || '';
+				const api = window.APIClient;
+				if (!api || !qid) return;
+				let promise: Promise<unknown> | null = null;
+				if (action === 'remove' && typeof api.removeWrongQuestion === 'function') {
+					promise = api.removeWrongQuestion(userId, qid);
+				} else if (action === 'master' && typeof api.masterWrongQuestion === 'function') {
+					promise = api.masterWrongQuestion(userId, qid);
+				} else if (action === 'unmaster' && typeof api.unmasterWrongQuestion === 'function') {
+					promise = api.unmasterWrongQuestion(userId, qid);
+				}
+				if (!promise) return;
+				btn.disabled = true;
+				promise
+					.then(() => reloadWrongQuestions(modal, userId))
+					.catch((err: unknown) => {
+						btn.disabled = false;
+						showToast(readErrorMessage(err, '操作失败'));
+					});
+			};
+		}
+
+		await reloadWrongQuestions(modal, userId);
+	}
+
+	// 业务功能 7：SRS 间隔重复复习面板
+	//   - 拉取 due 列表
+	//   - 渲染当前卡（题面 + 答案揭示）+ 0/1/2/3 评分按钮
+	//   - 评分后取下一张；列表空则显示"今日已复习完毕"
+	let srsModal: HTMLDivElement | null = null;
+	function ensureSrsModal(): HTMLDivElement {
+		if (srsModal) return srsModal;
+		const modal = document.createElement('div');
+		modal.className = 'risk-modal risk-hidden';
+		modal.id = 'srs-modal';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:480px;max-width:680px;max-height:80vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">📚 今日复习（间隔重复）</h3>
+					<button id="srs-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+				</div>
+				<div id="srs-body" style="min-height:120px;"></div>
+				<div id="srs-footer" style="margin-top:14px;display:none;text-align:center;">
+					<div style="margin-bottom:8px;color:#666;font-size:12px;">回想一下，你掌握得如何？</div>
+					<button class="srs-grade" data-grade="0" style="margin:0 4px;padding:8px 14px;background:#e74c3c;color:#fff;border:0;border-radius:4px;cursor:pointer;">再来</button>
+					<button class="srs-grade" data-grade="1" style="margin:0 4px;padding:8px 14px;background:#f39c12;color:#fff;border:0;border-radius:4px;cursor:pointer;">困难</button>
+					<button class="srs-grade" data-grade="2" style="margin:0 4px;padding:8px 14px;background:#2ecc71;color:#fff;border:0;border-radius:4px;cursor:pointer;">良好</button>
+					<button class="srs-grade" data-grade="3" style="margin:0 4px;padding:8px 14px;background:#3498db;color:#fff;border:0;border-radius:4px;cursor:pointer;">容易</button>
+				</div>
+			</div>`;
+		document.body.appendChild(modal);
+		srsModal = modal;
+		// 关闭
+		(modal.querySelector('#srs-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		return modal;
+	}
+
+	function renderSrsCard(card: Record<string, unknown> | null): string {
+		if (!card) {
+			return '<div style="padding:24px;text-align:center;color:#3a7;">🎉 今日复习已完成，明天见！</div>';
+		}
+		const snapshot = (card.snapshot as Record<string, unknown>) || {};
+		const question = String(snapshot.question || '(无题面快照)');
+		const correct = String(snapshot.correct_answer || '');
+		const explanation = String(snapshot.explanation || '');
+		const optionsHtml = Array.isArray(snapshot.options)
+			? `<ul style="margin:8px 0;padding-left:20px;">${(snapshot.options as unknown[])
+					.map((o) => `<li>${escapeHtmlSafe(String(o))}</li>`)
+					.join('')}</ul>`
+			: '';
+		return `
+			<div>
+				<div style="font-size:12px;color:#999;margin-bottom:6px;">试卷 <code>${escapeHtmlSafe(String(card.exam_id || ''))}</code> · 题 <code>${escapeHtmlSafe(String(card.question_id || ''))}</code></div>
+				<div style="font-size:14px;margin-bottom:8px;">${escapeHtmlSafe(question)}</div>
+				${optionsHtml}
+				<details style="margin-top:8px;">
+					<summary style="cursor:pointer;color:#1976d2;">查看答案与解析</summary>
+					<div style="margin-top:6px;padding:8px;background:#f5f5f5;border-radius:4px;">
+						<div><strong>答案：</strong>${escapeHtmlSafe(correct)}</div>
+						${explanation ? `<div style="margin-top:4px;color:#666;">${escapeHtmlSafe(explanation)}</div>` : ''}
+					</div>
+				</details>
+			</div>`;
+	}
+
+	async function loadAndRenderSrsCard(modal: HTMLDivElement, userId: string): Promise<void> {
+		const body = modal.querySelector('#srs-body') as HTMLDivElement;
+		const footer = modal.querySelector('#srs-footer') as HTMLDivElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		footer.style.display = 'none';
+		const api = window.APIClient;
+		if (!api || typeof api.listSrsDue !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 SRS API 未注入</div>';
+			return;
+		}
+		try {
+			const data = (await api.listSrsDue(userId, 1)) as { items?: Array<Record<string, unknown>> } | null;
+			const items = Array.isArray(data?.items) ? data!.items : [];
+			const card = items[0] || null;
+			body.innerHTML = renderSrsCard(card);
+			body.dataset.cardId = card ? String(card.card_id || '') : '';
+			footer.style.display = card ? 'block' : 'none';
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openSrsReviewPanel(): Promise<void> {
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		if (!userId) {
+			showToast('请先登录后开始复习');
+			return;
+		}
+		const modal = ensureSrsModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+
+		// 评分按钮事件（每次打开覆盖）
+		const footer = modal.querySelector('#srs-footer') as HTMLDivElement;
+		footer.onclick = async (e: MouseEvent) => {
+			const btn = (e.target as HTMLElement | null)?.closest('button[data-grade]') as HTMLButtonElement | null;
+			if (!btn) return;
+			const grade = Number(btn.dataset.grade ?? -1);
+			const body = modal.querySelector('#srs-body') as HTMLDivElement;
+			const cardId = body.dataset.cardId || '';
+			if (!cardId) return;
+			const api = window.APIClient;
+			if (!api || typeof api.reviewSrsCard !== 'function') return;
+			footer.querySelectorAll<HTMLButtonElement>('button.srs-grade').forEach((b) => (b.disabled = true));
+			try {
+				await api.reviewSrsCard(userId, cardId, grade);
+				await loadAndRenderSrsCard(modal, userId);
+			} catch (err) {
+				showToast(readErrorMessage(err, '评分失败'));
+			} finally {
+				footer.querySelectorAll<HTMLButtonElement>('button.srs-grade').forEach((b) => (b.disabled = false));
+			}
+		};
+
+		await loadAndRenderSrsCard(modal, userId);
+	}
+
+	// 业务功能 8：收藏夹/分类管理面板
+	let bookmarkFoldersModal: HTMLDivElement | null = null;
+	function ensureBookmarkFoldersModal(): HTMLDivElement {
+		if (bookmarkFoldersModal) return bookmarkFoldersModal;
+		const modal = document.createElement('div');
+		modal.id = 'bf-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:80vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">📁 我的收藏夹</h3>
+					<div>
+						<button id="bf-add" style="margin-right:8px;padding:6px 12px;background:#1976d2;color:#fff;border:0;border-radius:4px;cursor:pointer;">+ 新建文件夹</button>
+						<button id="bf-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+					</div>
+				</div>
+				<div id="bf-body" style="min-height:120px;"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		bookmarkFoldersModal = modal;
+		(modal.querySelector('#bf-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		return modal;
+	}
+
+	function renderBookmarkFolders(folders: Array<Record<string, unknown>>): string {
+		if (folders.length === 0) {
+			return '<div style="padding:24px;text-align:center;color:#999;">还没有收藏夹，点右上角新建一个吧～</div>';
+		}
+		return folders
+			.map((f) => {
+				const fid = String(f.folder_id || '');
+				const name = escapeHtmlSafe(String(f.name || '未命名'));
+				const color = String(f.color || '#1976d2');
+				const examIds = Array.isArray(f.exam_ids) ? (f.exam_ids as unknown[]) : [];
+				const examsHtml = examIds.length === 0
+					? '<div style="font-size:12px;color:#999;padding:6px 0;">（暂无试卷）</div>'
+					: examIds
+							.map((ex) => {
+								const id = escapeHtmlSafe(String(ex));
+								return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px dashed #eee;">
+									<code style="font-size:12px;">${id}</code>
+									<button data-bf-action="remove-exam" data-fid="${escapeHtmlSafe(fid)}" data-exam-id="${id}" style="font-size:11px;padding:2px 8px;cursor:pointer;">移除</button>
+								</div>`;
+							})
+							.join('');
+				return `
+					<div style="border:1px solid #eee;border-radius:6px;padding:12px;margin-bottom:10px;border-left:4px solid ${escapeHtmlSafe(color || '#1976d2')};">
+						<div style="display:flex;justify-content:space-between;align-items:center;">
+							<div style="font-weight:600;">${name} <span style="color:#999;font-weight:normal;font-size:12px;">（${examIds.length}）</span></div>
+							<div>
+								<button data-bf-action="rename" data-fid="${escapeHtmlSafe(fid)}" style="margin-right:6px;font-size:12px;padding:2px 8px;cursor:pointer;">重命名</button>
+								<button data-bf-action="delete" data-fid="${escapeHtmlSafe(fid)}" style="font-size:12px;padding:2px 8px;cursor:pointer;color:#a33;">删除</button>
+							</div>
+						</div>
+						<div style="margin-top:8px;">${examsHtml}</div>
+					</div>`;
+			})
+			.join('');
+	}
+
+	async function reloadBookmarkFolders(modal: HTMLDivElement, userId: string): Promise<void> {
+		const body = modal.querySelector('#bf-body') as HTMLDivElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		const api = window.APIClient;
+		if (!api || typeof api.listBookmarkFolders !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const data = (await api.listBookmarkFolders(userId)) as { items?: Array<Record<string, unknown>> } | null;
+			const items = Array.isArray(data?.items) ? data!.items : [];
+			body.innerHTML = renderBookmarkFolders(items);
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openBookmarkFoldersPanel(): Promise<void> {
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		if (!userId) {
+			showToast('请先登录后管理收藏夹');
+			return;
+		}
+		const modal = ensureBookmarkFoldersModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+
+		// 新建按钮（每次重新绑定）
+		const addBtn = modal.querySelector('#bf-add') as HTMLButtonElement;
+		addBtn.onclick = async () => {
+			const name = window.prompt('请输入收藏夹名称（最多 50 字）');
+			if (!name) return;
+			const api = window.APIClient;
+			if (!api || typeof api.createBookmarkFolder !== 'function') return;
+			try {
+				await api.createBookmarkFolder(userId, name.trim());
+				await reloadBookmarkFolders(modal, userId);
+			} catch (err) {
+				showToast(readErrorMessage(err, '创建失败'));
+			}
+		};
+
+		// 列表区域事件委托：重命名/删除/移除试卷
+		const body = modal.querySelector('#bf-body') as HTMLDivElement;
+		body.onclick = async (e: MouseEvent) => {
+			const btn = (e.target as HTMLElement | null)?.closest('button[data-bf-action]') as HTMLButtonElement | null;
+			if (!btn) return;
+			const action = btn.dataset.bfAction || '';
+			const fid = btn.dataset.fid || '';
+			const api = window.APIClient;
+			if (!api || !fid) return;
+			try {
+				if (action === 'rename' && typeof api.updateBookmarkFolder === 'function') {
+					const next = window.prompt('新的文件夹名称');
+					if (!next) return;
+					await api.updateBookmarkFolder(userId, fid, { name: next.trim() });
+				} else if (action === 'delete' && typeof api.removeBookmarkFolder === 'function') {
+					if (!window.confirm('确定要删除这个文件夹吗？')) return;
+					await api.removeBookmarkFolder(userId, fid);
+				} else if (action === 'remove-exam' && typeof api.removeExamFromBookmarkFolder === 'function') {
+					const examId = btn.dataset.examId || '';
+					if (!examId) return;
+					await api.removeExamFromBookmarkFolder(userId, fid, examId);
+				}
+				await reloadBookmarkFolders(modal, userId);
+			} catch (err) {
+				showToast(readErrorMessage(err, '操作失败'));
+			}
+		};
+
+		await reloadBookmarkFolders(modal, userId);
+	}
+
+	// 业务功能 10：数据导出 —— 拉取 JSON 快照并触发浏览器下载
+	async function openDataExportPanel(): Promise<void> {
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		if (!userId) {
+			showToast('请先登录后导出数据');
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.exportUserData !== 'function') {
+			showToast('客户端 API 未注入');
+			return;
+		}
+		showToast('正在准备数据导出…');
+		try {
+			const data = await api.exportUserData(userId);
+			// 直接生成本地 Blob 下载，避免再走一次后端
+			const json = JSON.stringify(data, null, 2);
+			const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			const ts = new Date().toISOString().replace(/[:.]/g, '-');
+			a.href = url;
+			a.download = `exam-online-export-${userId}-${ts}.json`;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			setTimeout(() => URL.revokeObjectURL(url), 1000);
+			showToast('数据已导出');
+		} catch (err) {
+			showToast(readErrorMessage(err, '导出失败'));
+		}
+	}
+
+	// 业务功能 11：管理员仪表盘弹窗
+	let adminDashboardModal: HTMLDivElement | null = null;
+	function ensureAdminDashboardModal(): HTMLDivElement {
+		if (adminDashboardModal) return adminDashboardModal;
+		const modal = document.createElement('div');
+		modal.id = 'admin-dashboard-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:820px;max-height:80vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">📊 运营仪表盘</h3>
+					<div>
+						<button id="ad-refresh" style="margin-right:8px;padding:6px 12px;background:#1976d2;color:#fff;border:0;border-radius:4px;cursor:pointer;">刷新</button>
+						<button id="ad-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+					</div>
+				</div>
+				<div id="ad-body" style="min-height:160px;"></div>
+				<div style="margin-top:12px;font-size:11px;color:#999;">仅 superAdmin 可见；数据按需扫描，可能略有延迟。</div>
+			</div>`;
+		document.body.appendChild(modal);
+		adminDashboardModal = modal;
+		(modal.querySelector('#ad-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		return modal;
+	}
+
+	function renderAdminOverview(data: Record<string, unknown>): string {
+		const users = (data.users || {}) as Record<string, unknown>;
+		const orgs = (data.organizations || {}) as Record<string, unknown>;
+		const content = (data.content || {}) as Record<string, unknown>;
+		const activity = (data.activity || {}) as Record<string, unknown>;
+		const byRole = (users.by_role || {}) as Record<string, number>;
+		const roleRows = Object.keys(byRole)
+			.sort()
+			.map((k) => `<tr><td style="padding:4px 8px;color:#666;">${escapeHtmlSafe(k)}</td><td style="padding:4px 8px;text-align:right;">${Number(byRole[k] || 0)}</td></tr>`)
+			.join('');
+
+		const card = (title: string, value: unknown, hint?: string): string => `
+			<div style="flex:1;min-width:140px;border:1px solid #eee;border-radius:6px;padding:12px;">
+				<div style="font-size:12px;color:#888;">${escapeHtmlSafe(title)}</div>
+				<div style="font-size:22px;font-weight:600;margin-top:4px;">${Number(value || 0)}</div>
+				${hint ? `<div style="font-size:11px;color:#aaa;margin-top:2px;">${escapeHtmlSafe(hint)}</div>` : ''}
+			</div>`;
+
+		return `
+			<div style="font-size:11px;color:#999;margin-bottom:8px;">生成时间：${escapeHtmlSafe(String(data.generated_at || ''))}</div>
+			<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+				${card('用户总数', users.total)}
+				${card('组织总数', orgs.total)}
+				${card('试卷文件', content.exam_files)}
+				${card('答题用户', activity.answer_users, '有答题记录')}
+				${card('答题快照', activity.answer_papers, '所有用户合计')}
+				${card('错题用户', activity.wrong_question_users)}
+				${card('SRS 用户', activity.srs_users)}
+				${card('收藏夹用户', activity.bookmark_folder_users)}
+				${card('反馈试卷', activity.feedback_papers)}
+				${card('反馈条目', activity.feedback_items)}
+			</div>
+			<div>
+				<div style="font-weight:600;margin-bottom:6px;">用户角色分布</div>
+				<table style="border-collapse:collapse;width:100%;font-size:13px;">
+					<tbody>${roleRows || '<tr><td style="padding:6px 8px;color:#999;">（无）</td></tr>'}</tbody>
+				</table>
+			</div>`;
+	}
+
+	async function reloadAdminOverview(modal: HTMLDivElement): Promise<void> {
+		const body = modal.querySelector('#ad-body') as HTMLDivElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		const api = window.APIClient;
+		if (!api || typeof api.getAdminStatisticsOverview !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const data = (await api.getAdminStatisticsOverview()) as Record<string, unknown> | null;
+			body.innerHTML = renderAdminOverview(data || {});
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openAdminDashboardPanel(): Promise<void> {
+		const modal = ensureAdminDashboardModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		(modal.querySelector('#ad-refresh') as HTMLButtonElement).onclick = () => {
+			void reloadAdminOverview(modal);
+		};
+		await reloadAdminOverview(modal);
+	}
+
+	// 业务功能 12：社区讨论面板
+	//   - 入口 1：个人中心 → prompt 输入 paperId
+	//   - 入口 2：window.openCommunityPanel(paperId) 供 ExamViewer 集成
+	let communityModal: HTMLDivElement | null = null;
+	let communityCurrentPaperId: string = '';
+
+	function ensureCommunityModal(): HTMLDivElement {
+		if (communityModal) return communityModal;
+		const modal = document.createElement('div');
+		modal.id = 'community-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:820px;max-height:85vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">💬 社区讨论 <span id="cm-paper" style="color:#999;font-size:12px;font-weight:normal;"></span></h3>
+					<div>
+						<button id="cm-new" style="margin-right:8px;padding:6px 12px;background:#1976d2;color:#fff;border:0;border-radius:4px;cursor:pointer;">+ 发帖</button>
+						<button id="cm-refresh" style="margin-right:8px;padding:6px 12px;cursor:pointer;">刷新</button>
+						<button id="cm-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+					</div>
+				</div>
+				<div id="cm-body" style="min-height:160px;"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		communityModal = modal;
+		(modal.querySelector('#cm-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		return modal;
+	}
+
+	function renderCommunityPosts(posts: Array<Record<string, unknown>>, selfId: string): string {
+		if (posts.length === 0) {
+			return '<div style="padding:24px;text-align:center;color:#999;">还没有讨论，来发第一条吧～</div>';
+		}
+		return posts
+			.map((p) => {
+				const pid = String(p.post_id || '');
+				const title = escapeHtmlSafe(String(p.title || ''));
+				const body = escapeHtmlSafe(String(p.body || ''));
+				const author = escapeHtmlSafe(String(p.author_name || p.author_id || '匿名'));
+				const created = escapeHtmlSafe(String(p.created_at || ''));
+				const likes = Array.isArray(p.likes) ? (p.likes as unknown[]) : [];
+				const likedBySelf = likes.some((u) => String(u) === selfId);
+				const comments = Array.isArray(p.comments) ? (p.comments as Array<Record<string, unknown>>) : [];
+				const isOwner = String(p.author_id || '') === selfId;
+
+				const commentsHtml = comments
+					.map((c) => `
+						<div style="border-top:1px dashed #eee;padding:6px 0;font-size:12px;">
+							<span style="color:#666;font-weight:600;">${escapeHtmlSafe(String(c.author_name || c.author_id || '匿名'))}</span>
+							<span style="color:#aaa;margin-left:6px;">${escapeHtmlSafe(String(c.created_at || ''))}</span>
+							<div style="margin-top:2px;white-space:pre-wrap;">${escapeHtmlSafe(String(c.body || ''))}</div>
+						</div>`)
+					.join('');
+
+				return `
+					<div style="border:1px solid #eee;border-radius:6px;padding:12px;margin-bottom:12px;">
+						<div style="display:flex;justify-content:space-between;align-items:flex-start;">
+							<div style="flex:1;">
+								<div style="font-weight:600;font-size:14px;">${title}</div>
+								<div style="font-size:11px;color:#999;margin-top:2px;">${author} · ${created}</div>
+							</div>
+							${isOwner ? `<button data-cm-action="delete" data-pid="${escapeHtmlSafe(pid)}" style="font-size:12px;padding:2px 8px;cursor:pointer;color:#a33;">删除</button>` : ''}
+						</div>
+						<div style="margin:8px 0;white-space:pre-wrap;font-size:13px;">${body}</div>
+						<div style="display:flex;gap:8px;align-items:center;font-size:12px;">
+							<button data-cm-action="like" data-pid="${escapeHtmlSafe(pid)}" style="padding:2px 10px;cursor:pointer;${likedBySelf ? 'background:#ffebee;color:#c62828;border:1px solid #ef9a9a;' : ''}">
+								${likedBySelf ? '♥' : '♡'} ${likes.length}
+							</button>
+							<span style="color:#999;">评论 ${comments.length}</span>
+						</div>
+						<div style="margin-top:6px;">${commentsHtml}</div>
+						<div style="display:flex;gap:6px;margin-top:8px;">
+							<input type="text" data-cm-comment-input="${escapeHtmlSafe(pid)}" placeholder="写一条评论…" style="flex:1;padding:4px 8px;font-size:12px;border:1px solid #ddd;border-radius:4px;" />
+							<button data-cm-action="comment" data-pid="${escapeHtmlSafe(pid)}" style="padding:4px 12px;font-size:12px;cursor:pointer;">发送</button>
+						</div>
+					</div>`;
+			})
+			.join('');
+	}
+
+	async function reloadCommunity(modal: HTMLDivElement): Promise<void> {
+		const body = modal.querySelector('#cm-body') as HTMLDivElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		const api = window.APIClient;
+		if (!api || typeof api.listCommunityPosts !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const ctx = getContext();
+			const data = (await api.listCommunityPosts(communityCurrentPaperId)) as { posts?: Array<Record<string, unknown>> } | null;
+			const posts = Array.isArray(data?.posts) ? data!.posts : [];
+			body.innerHTML = renderCommunityPosts(posts, ctx.id || '');
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openCommunityPanel(paperId: string): Promise<void> {
+		if (!paperId) {
+			showToast('未指定试卷');
+			return;
+		}
+		communityCurrentPaperId = paperId;
+		const modal = ensureCommunityModal();
+		(modal.querySelector('#cm-paper') as HTMLSpanElement).textContent = `（${paperId}）`;
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+
+		// 发帖
+		(modal.querySelector('#cm-new') as HTMLButtonElement).onclick = async () => {
+			const title = window.prompt('帖子标题（≤80）');
+			if (!title) return;
+			const body = window.prompt('帖子内容（≤2000）');
+			if (!body) return;
+			const api = window.APIClient;
+			if (!api || typeof api.createCommunityPost !== 'function') return;
+			try {
+				await api.createCommunityPost(communityCurrentPaperId, title.trim(), body.trim());
+				await reloadCommunity(modal);
+			} catch (err) {
+				showToast(readErrorMessage(err, '发帖失败'));
+			}
+		};
+
+		// 刷新
+		(modal.querySelector('#cm-refresh') as HTMLButtonElement).onclick = () => {
+			void reloadCommunity(modal);
+		};
+
+		// 列表区域事件委托：删除/点赞/评论
+		const body = modal.querySelector('#cm-body') as HTMLDivElement;
+		body.onclick = async (e: MouseEvent) => {
+			const btn = (e.target as HTMLElement | null)?.closest('button[data-cm-action]') as HTMLButtonElement | null;
+			if (!btn) return;
+			const action = btn.dataset.cmAction || '';
+			const pid = btn.dataset.pid || '';
+			const api = window.APIClient;
+			if (!api || !pid) return;
+			try {
+				if (action === 'delete' && typeof api.deleteCommunityPost === 'function') {
+					if (!window.confirm('确定要删除这条帖子吗？')) return;
+					await api.deleteCommunityPost(communityCurrentPaperId, pid);
+				} else if (action === 'like' && typeof api.toggleCommunityLike === 'function') {
+					await api.toggleCommunityLike(communityCurrentPaperId, pid);
+				} else if (action === 'comment' && typeof api.addCommunityComment === 'function') {
+					const input = body.querySelector(`input[data-cm-comment-input="${pid}"]`) as HTMLInputElement | null;
+					const text = input ? input.value.trim() : '';
+					if (!text) return;
+					await api.addCommunityComment(communityCurrentPaperId, pid, text);
+					if (input) input.value = '';
+				}
+				await reloadCommunity(modal);
+			} catch (err) {
+				showToast(readErrorMessage(err, '操作失败'));
+			}
+		};
+
+		await reloadCommunity(modal);
+	}
+
+	// ---------------------------------------------------------------------
+	// 业务功能 15：审计日志可视化面板
+	//   - superAdmin：可任意指定 org_id
+	//   - orgAdmin：后端会强制限制到本人所属组织
+	//   - 支持筛选：org_id / actor_id / action / since / until
+	//   - 支持分页（offset/limit）与 CSV 导出（前端本地转换）
+	// ---------------------------------------------------------------------
+	let auditLogModal: HTMLDivElement | null = null;
+	const auditLogState: {
+		offset: number;
+		limit: number;
+		lastTotal: number;
+		lastItems: Array<Record<string, unknown>>;
+		actions: string[];
+	} = { offset: 0, limit: 50, lastTotal: 0, lastItems: [], actions: [] };
+
+	function ensureAuditLogModal(): HTMLDivElement {
+		if (auditLogModal) return auditLogModal;
+		const isSuper = hasAnyRole(getContext(), ['superAdmin']);
+		const orgInput = isSuper
+			? `<label style="font-size:12px;color:#666;">组织 ID <input id="al-org" type="text" placeholder="留空=全部" style="margin-left:4px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;width:120px;" /></label>`
+			: '';
+		const modal = document.createElement('div');
+		modal.id = 'audit-log-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:760px;max-width:1080px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">📜 审计日志</h3>
+					<div>
+						<button id="al-export" style="margin-right:8px;padding:6px 12px;cursor:pointer;">导出 CSV</button>
+						<button id="al-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+					</div>
+				</div>
+				<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;padding:10px;background:#f7f7f7;border-radius:6px;font-size:12px;">
+					${orgInput}
+					<label style="font-size:12px;color:#666;">操作 <select id="al-action" style="margin-left:4px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;"><option value="">全部</option></select></label>
+					<label style="font-size:12px;color:#666;">操作者 <input id="al-actor" type="text" placeholder="user_id" style="margin-left:4px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;width:140px;" /></label>
+					<label style="font-size:12px;color:#666;">起始 <input id="al-since" type="datetime-local" style="margin-left:4px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;" /></label>
+					<label style="font-size:12px;color:#666;">截止 <input id="al-until" type="datetime-local" style="margin-left:4px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;" /></label>
+					<label style="font-size:12px;color:#666;">每页 <input id="al-limit" type="number" min="1" max="500" value="50" style="margin-left:4px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;width:70px;" /></label>
+					<button id="al-search" style="padding:6px 14px;background:#1976d2;color:#fff;border:0;border-radius:4px;cursor:pointer;">查询</button>
+					<button id="al-reset" style="padding:6px 12px;cursor:pointer;">重置</button>
+				</div>
+				<div id="al-summary" style="font-size:11px;color:#999;margin-bottom:6px;"></div>
+				<div id="al-body" style="min-height:200px;"></div>
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+					<button id="al-prev" style="padding:6px 14px;cursor:pointer;">← 上一页</button>
+					<span id="al-page" style="font-size:12px;color:#666;"></span>
+					<button id="al-next" style="padding:6px 14px;cursor:pointer;">下一页 →</button>
+				</div>
+			</div>`;
+		document.body.appendChild(modal);
+		auditLogModal = modal;
+		(modal.querySelector('#al-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		(modal.querySelector('#al-search') as HTMLButtonElement).onclick = () => {
+			auditLogState.offset = 0;
+			void reloadAuditLogs();
+		};
+		(modal.querySelector('#al-reset') as HTMLButtonElement).onclick = () => {
+			const orgEl = modal.querySelector('#al-org') as HTMLInputElement | null;
+			if (orgEl) orgEl.value = '';
+			(modal.querySelector('#al-action') as HTMLSelectElement).value = '';
+			(modal.querySelector('#al-actor') as HTMLInputElement).value = '';
+			(modal.querySelector('#al-since') as HTMLInputElement).value = '';
+			(modal.querySelector('#al-until') as HTMLInputElement).value = '';
+			(modal.querySelector('#al-limit') as HTMLInputElement).value = '50';
+			auditLogState.offset = 0;
+			void reloadAuditLogs();
+		};
+		(modal.querySelector('#al-prev') as HTMLButtonElement).onclick = () => {
+			const lim = readAuditLimit();
+			auditLogState.offset = Math.max(0, auditLogState.offset - lim);
+			void reloadAuditLogs();
+		};
+		(modal.querySelector('#al-next') as HTMLButtonElement).onclick = () => {
+			const lim = readAuditLimit();
+			if (auditLogState.offset + lim < auditLogState.lastTotal) {
+				auditLogState.offset += lim;
+				void reloadAuditLogs();
+			}
+		};
+		(modal.querySelector('#al-export') as HTMLButtonElement).onclick = () => {
+			exportAuditLogsCsv();
+		};
+		return modal;
+	}
+
+	function readAuditLimit(): number {
+		const el = auditLogModal?.querySelector('#al-limit') as HTMLInputElement | null;
+		const v = parseInt(el?.value || '50', 10);
+		return Math.min(500, Math.max(1, isNaN(v) ? 50 : v));
+	}
+
+	function readAuditFilters(): {
+		orgId?: string;
+		actorId?: string;
+		action?: string;
+		since?: string;
+		until?: string;
+		limit: number;
+		offset: number;
+	} {
+		const m = auditLogModal!;
+		const orgEl = m.querySelector('#al-org') as HTMLInputElement | null;
+		const action = (m.querySelector('#al-action') as HTMLSelectElement).value.trim();
+		const actor = (m.querySelector('#al-actor') as HTMLInputElement).value.trim();
+		const since = (m.querySelector('#al-since') as HTMLInputElement).value.trim();
+		const until = (m.querySelector('#al-until') as HTMLInputElement).value.trim();
+		const lim = readAuditLimit();
+		auditLogState.limit = lim;
+		// datetime-local 形如 2024-05-01T08:30，转 ISO（保留秒）
+		const toIso = (v: string): string | undefined => (v ? new Date(v).toISOString() : undefined);
+		return {
+			orgId: orgEl ? (orgEl.value.trim() || undefined) : undefined,
+			actorId: actor || undefined,
+			action: action || undefined,
+			since: toIso(since),
+			until: toIso(until),
+			limit: lim,
+			offset: auditLogState.offset
+		};
+	}
+
+	function renderAuditTable(items: Array<Record<string, unknown>>): string {
+		if (items.length === 0) {
+			return '<div style="padding:24px;text-align:center;color:#999;">没有匹配的日志</div>';
+		}
+		const rows = items
+			.map((it) => {
+				const t = escapeHtmlSafe(String(it.created_at || ''));
+				const actor = escapeHtmlSafe(String(it.actor_username || it.actor_user_id || ''));
+				const org = escapeHtmlSafe(String(it.org_id || ''));
+				const action = escapeHtmlSafe(String(it.action || ''));
+				const summary = escapeHtmlSafe(String(it.summary || ''));
+				let detailsStr = '';
+				if (it.details !== undefined && it.details !== null) {
+					try {
+						detailsStr = JSON.stringify(it.details);
+					} catch {
+						detailsStr = String(it.details);
+					}
+				}
+				const detailsCell = detailsStr
+					? `<details><summary style="cursor:pointer;color:#1976d2;">查看</summary><pre style="white-space:pre-wrap;word-break:break-all;background:#f7f7f7;padding:6px;border-radius:4px;font-size:11px;margin:4px 0 0;">${escapeHtmlSafe(detailsStr)}</pre></details>`
+					: '<span style="color:#bbb;">—</span>';
+				return `<tr>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px;white-space:nowrap;">${t}</td>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;">${actor}</td>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;color:#888;font-size:11px;">${org}</td>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;"><code style="background:#f0f4ff;padding:2px 6px;border-radius:3px;font-size:11px;">${action}</code></td>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;">${summary}</td>
+					<td style="padding:6px 8px;border-bottom:1px solid #eee;max-width:240px;">${detailsCell}</td>
+				</tr>`;
+			})
+			.join('');
+		return `<table style="border-collapse:collapse;width:100%;font-size:13px;">
+			<thead><tr style="background:#fafafa;">
+				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">时间</th>
+				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">操作者</th>
+				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">组织</th>
+				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">操作</th>
+				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">摘要</th>
+				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">详情</th>
+			</tr></thead>
+			<tbody>${rows}</tbody>
+		</table>`;
+	}
+
+	async function reloadAuditLogs(): Promise<void> {
+		const modal = auditLogModal!;
+		const body = modal.querySelector('#al-body') as HTMLDivElement;
+		const summary = modal.querySelector('#al-summary') as HTMLDivElement;
+		const pageLabel = modal.querySelector('#al-page') as HTMLSpanElement;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		const api = window.APIClient;
+		if (!api || typeof api.queryAuditLogs !== 'function') {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 API 未注入</div>';
+			return;
+		}
+		try {
+			const params = readAuditFilters();
+			const data = (await api.queryAuditLogs(params)) as Record<string, unknown> | null;
+			const items = Array.isArray(data?.items) ? (data!.items as Array<Record<string, unknown>>) : [];
+			const total = Number(data?.total || 0);
+			auditLogState.lastItems = items;
+			auditLogState.lastTotal = total;
+			summary.textContent = `共 ${total} 条；当前显示 ${items.length} 条`;
+			body.innerHTML = renderAuditTable(items);
+			const pageStart = total === 0 ? 0 : params.offset + 1;
+			const pageEnd = params.offset + items.length;
+			pageLabel.textContent = `${pageStart}-${pageEnd} / ${total}`;
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function reloadAuditActions(): Promise<void> {
+		const api = window.APIClient;
+		if (!api || typeof api.listAuditLogActions !== 'function' || !auditLogModal) return;
+		try {
+			const orgEl = auditLogModal.querySelector('#al-org') as HTMLInputElement | null;
+			const orgId = orgEl?.value.trim() || undefined;
+			const data = (await api.listAuditLogActions(orgId)) as Record<string, unknown> | null;
+			const arr = Array.isArray(data?.actions) ? (data!.actions as unknown[]).map(String) : [];
+			auditLogState.actions = arr;
+			const sel = auditLogModal.querySelector('#al-action') as HTMLSelectElement;
+			const cur = sel.value;
+			sel.innerHTML = '<option value="">全部</option>' +
+				arr.map((a) => `<option value="${escapeHtmlSafe(a)}">${escapeHtmlSafe(a)}</option>`).join('');
+			if (arr.includes(cur)) sel.value = cur;
+		} catch {
+			// 静默：下拉为空也不阻塞查询
+		}
+	}
+
+	function exportAuditLogsCsv(): void {
+		const items = auditLogState.lastItems;
+		if (items.length === 0) {
+			showToast('当前结果为空，无法导出');
+			return;
+		}
+		const headers = ['created_at', 'actor_user_id', 'actor_username', 'org_id', 'action', 'summary', 'details'];
+		const escapeCsv = (v: unknown): string => {
+			let s: string;
+			if (v === null || v === undefined) s = '';
+			else if (typeof v === 'object') {
+				try {
+					s = JSON.stringify(v);
+				} catch {
+					s = String(v);
+				}
+			} else s = String(v);
+			if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+			return s;
+		};
+		const lines: string[] = [headers.join(',')];
+		for (const it of items) {
+			lines.push(headers.map((h) => escapeCsv((it as Record<string, unknown>)[h])).join(','));
+		}
+		// 加 BOM 让 Excel 能正确识别 UTF-8
+		const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		const ts = new Date().toISOString().replace(/[:.]/g, '-');
+		a.download = `audit-logs-${ts}.csv`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		setTimeout(() => URL.revokeObjectURL(url), 1000);
+	}
+
+	async function openAuditLogPanel(): Promise<void> {
+		const modal = ensureAuditLogModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		await reloadAuditActions();
+		await reloadAuditLogs();
+	}
+
+	// 业务功能 14：PWA 安装触发
+	//   - canInstallPwa()/installPwa() 由 features/pwa.ts 注入
+	//   - 浏览器只有在满足启发式后才会派发 beforeinstallprompt（HTTPS、用户交互等）
+	async function triggerPwaInstall(): Promise<void> {
+		const w = window as unknown as {
+			canInstallPwa?: () => boolean;
+			installPwa?: () => Promise<'accepted' | 'dismissed' | 'unavailable'>;
+			isPwaActive?: () => boolean;
+		};
+		if (!w.installPwa) {
+			showToast('当前浏览器不支持 PWA 安装');
+			return;
+		}
+		if (!w.canInstallPwa?.()) {
+			const active = w.isPwaActive?.();
+			showToast(active ? '已安装或暂不可安装；可在浏览器菜单中手动「添加到主屏幕」' : '安装入口尚未就绪，请稍后重试');
+			return;
+		}
+		try {
+			const outcome = await w.installPwa();
+			if (outcome === 'accepted') showToast('已开始安装');
+			else if (outcome === 'dismissed') showToast('已取消安装');
+		} catch (err) {
+			showToast(readErrorMessage(err, '安装失败'));
+		}
+	}
+
+	// 业务功能 12：个人中心入口 → prompt 输入 paperId
+	async function openCommunityFromPersonalCenter(): Promise<void> {
+		const paperId = window.prompt('请输入试卷 ID（如 N4_2025_12）');
+		if (!paperId) return;
+		await openCommunityPanel(paperId.trim());
+	}
+
+	// 暴露给 ExamViewer：window.openCommunityPanel(paperId)
+	(window as unknown as { openCommunityPanel?: (paperId: string) => void }).openCommunityPanel = (paperId: string) => {
+		void openCommunityPanel(paperId);
+	};
 
 	function openWechatModal(): void {
 		openLoginModal();

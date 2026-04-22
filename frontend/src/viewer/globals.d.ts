@@ -55,6 +55,107 @@ interface LegacyApiClientShape {
 	updateOrganizationSubscription(organizationId: string, token: string, payload: unknown): Promise<unknown>;
 	addFurigana(text: string): Promise<unknown>;
 	getReading(word: string): Promise<unknown>;
+	// 错题本（业务功能 1）
+	getWrongQuestions(
+		userId: string,
+		options?: {
+			examId?: string;
+			type?: string;
+			status?: 'all' | 'active' | 'mastered';
+			sort?: 'recent' | 'wrong_count';
+			minWrong?: number;
+			page?: number;
+			pageSize?: number;
+		}
+	): Promise<unknown>;
+	getWrongQuestionSummary(userId: string): Promise<unknown>;
+	sampleWrongQuestions(userId: string, count?: number): Promise<unknown>;
+	removeWrongQuestion(userId: string, questionId: string): Promise<unknown>;
+	masterWrongQuestion(userId: string, questionId: string): Promise<unknown>;
+	unmasterWrongQuestion(userId: string, questionId: string): Promise<unknown>;
+	resetWrongQuestions(userId: string): Promise<unknown>;
+	// 学习连续天数 / 每日目标（业务功能 2）
+	getStreakSummary(userId: string): Promise<unknown>;
+	getStreakHeatmap(userId: string, days?: number): Promise<unknown>;
+	updateStreakDailyGoal(userId: string, dailyQuestions: number): Promise<unknown>;
+	// 续考草稿（业务功能 4）
+	getDraft(userId: string): Promise<unknown>;
+	saveDraft(userId: string, payload: Record<string, unknown>): Promise<unknown>;
+	clearDraft(userId: string): Promise<unknown>;
+	// 答题计时（业务功能 3）
+	getExamTimer(userId: string): Promise<unknown>;
+	startExamTimer(userId: string, payload: Record<string, unknown>): Promise<unknown>;
+	tickExamTimer(userId: string, payload: Record<string, unknown>): Promise<unknown>;
+	finishExamTimer(userId: string): Promise<unknown>;
+	// 功能开关（横切基础设施）
+	getFeatureFlagRegistry(): Promise<unknown>;
+	getMyFeatureFlags(): Promise<unknown>;
+	updateMyFeatureFlags(patch: Record<string, unknown>): Promise<unknown>;
+	updateSystemFeatureFlags(patch: Record<string, unknown>): Promise<unknown>;
+	updateOrgFeatureFlags(orgId: string, patch: Record<string, unknown>): Promise<unknown>;
+	// 题目反馈/纠错（业务功能 5）
+	submitFeedback(payload: Record<string, unknown>): Promise<unknown>;
+	listFeedback(paperId?: string, status?: string): Promise<unknown>;
+	updateFeedback(feedbackId: string, paperId: string, patch: Record<string, unknown>): Promise<unknown>;
+	// 班级与作业（业务功能 6）
+	createClassroom(payload: Record<string, unknown>): Promise<unknown>;
+	listMyClassrooms(): Promise<unknown>;
+	getClassroom(classId: string): Promise<unknown>;
+	updateClassroom(classId: string, patch: Record<string, unknown>): Promise<unknown>;
+	removeClassroom(classId: string): Promise<unknown>;
+	addClassroomMembers(classId: string, userIds: string[]): Promise<unknown>;
+	removeClassroomMember(classId: string, userId: string): Promise<unknown>;
+	createAssignment(classId: string, payload: Record<string, unknown>): Promise<unknown>;
+	listClassroomAssignments(classId: string): Promise<unknown>;
+	listMyAssignments(): Promise<unknown>;
+	updateAssignment(assignmentId: string, patch: Record<string, unknown>): Promise<unknown>;
+	removeAssignment(assignmentId: string): Promise<unknown>;
+	// SRS 间隔重复（业务功能 7）
+	listSrsDue(userId: string, limit?: number): Promise<unknown>;
+	listSrsCards(userId: string): Promise<unknown>;
+	reviewSrsCard(userId: string, cardId: string, grade: number): Promise<unknown>;
+	addSrsCard(userId: string, payload: Record<string, unknown>): Promise<unknown>;
+	removeSrsCard(userId: string, cardId: string): Promise<unknown>;
+	// 收藏夹/分类（业务功能 8）
+	listBookmarkFolders(userId: string): Promise<unknown>;
+	createBookmarkFolder(userId: string, name: string, color?: string): Promise<unknown>;
+	updateBookmarkFolder(userId: string, folderId: string, patch: Record<string, unknown>): Promise<unknown>;
+	removeBookmarkFolder(userId: string, folderId: string): Promise<unknown>;
+	addExamToBookmarkFolder(userId: string, folderId: string, examId: string): Promise<unknown>;
+	removeExamFromBookmarkFolder(userId: string, folderId: string, examId: string): Promise<unknown>;
+	// 数据导出（业务功能 10）
+	exportUserData(userId: string): Promise<unknown>;
+	// 管理员统计（业务功能 11）
+	getAdminStatisticsOverview(): Promise<unknown>;
+	// 社区讨论（业务功能 12）
+	listCommunityPosts(paperId: string): Promise<unknown>;
+	createCommunityPost(paperId: string, title: string, body: string): Promise<unknown>;
+	deleteCommunityPost(paperId: string, postId: string): Promise<unknown>;
+	addCommunityComment(paperId: string, postId: string, body: string): Promise<unknown>;
+	toggleCommunityLike(paperId: string, postId: string): Promise<unknown>;
+	// 审计日志可视化（业务功能 15）
+	queryAuditLogs(params?: {
+		orgId?: string;
+		actorId?: string;
+		action?: string;
+		since?: string;
+		until?: string;
+		limit?: number;
+		offset?: number;
+	}): Promise<unknown>;
+	listAuditLogActions(orgId?: string): Promise<unknown>;
+}
+
+// 功能开关解析后的状态（与后端 FeatureFlagService::resolveOne 保持一致）
+interface FeatureFlagState {
+	key: string;
+	enabled: boolean;
+	source: 'default' | 'system' | 'org' | 'user';
+	locked?: boolean;
+	locked_by?: 'system' | 'org';
+	allow_org_override?: boolean;
+	allow_user_override?: boolean;
+	organization_id?: string;
 }
 
 interface Window {
@@ -62,6 +163,10 @@ interface Window {
 	__WEB_APP_MODE__?: boolean;
 	__LOG_LEVEL__?: string;
 	__FURIGANA_DICT_URL__?: string;
+	// 功能开关：登录后由 FeatureFlagsClient 写入；未登录时为 undefined
+	__FEATURE_FLAGS__?: Record<string, FeatureFlagState>;
+	// 全局帮助函数（在 features/featureFlags.ts 中注册）
+	isFeatureEnabled?: (key: string, defaultIfMissing?: boolean) => boolean;
 	__EXAMS_BY_LEVEL__?: Record<
 		string,
 		Array<{

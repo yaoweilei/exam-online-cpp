@@ -81,6 +81,18 @@ void requireRole(const Json::Value &session,
     }
 }
 
+// 功能开关路由保护：禁用时返回 403 + FEATURE_DISABLED
+void requireFeature(application::services::FeatureFlagService &svc,
+                    const std::string &flagKey,
+                    const std::string &userId,
+                    const std::string &errorMessageZh)
+{
+    if (!svc.isEnabled(flagKey, userId))
+    {
+        throw common::AppException("FEATURE_DISABLED", errorMessageZh, drogon::k403Forbidden);
+    }
+}
+
 void applyNoCacheHeaders(const drogon::HttpResponsePtr &response)
 {
     response->addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");

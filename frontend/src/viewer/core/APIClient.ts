@@ -344,6 +344,414 @@ class APIClient {
 	static async getReading(word: string): Promise<unknown> {
 		return this.request(`/furigana/reading/${encodeURIComponent(word)}`);
 	}
+
+	// ==================== 错题本（业务功能 1） ====================
+
+	// 拉取错题列表
+	static async getWrongQuestions(
+		userId: string,
+		options: {
+			examId?: string;
+			type?: string;
+			status?: 'all' | 'active' | 'mastered';
+			sort?: 'recent' | 'wrong_count';
+			minWrong?: number;
+			page?: number;
+			pageSize?: number;
+		} = {}
+	): Promise<unknown> {
+		const params = new URLSearchParams();
+		if (options.examId) params.append('exam_id', options.examId);
+		if (options.type) params.append('type', options.type);
+		if (options.status) params.append('status', options.status);
+		if (options.sort) params.append('sort', options.sort);
+		if (typeof options.minWrong === 'number') params.append('min_wrong', String(options.minWrong));
+		if (typeof options.page === 'number') params.append('page', String(options.page));
+		if (typeof options.pageSize === 'number') params.append('page_size', String(options.pageSize));
+		const query = params.toString();
+		return this.request(`/wrong-questions/${encodeURIComponent(userId)}${query ? `?${query}` : ''}`);
+	}
+
+	// 仅取统计摘要
+	static async getWrongQuestionSummary(userId: string): Promise<unknown> {
+		return this.request(`/wrong-questions/${encodeURIComponent(userId)}/summary`);
+	}
+
+	// 随机抽取错题用于复习
+	static async sampleWrongQuestions(userId: string, count = 10): Promise<unknown> {
+		return this.request(`/wrong-questions/${encodeURIComponent(userId)}/sample`, {
+			method: 'POST',
+			body: JSON.stringify({ count })
+		});
+	}
+
+	// 删除单题
+	static async removeWrongQuestion(userId: string, questionId: string): Promise<unknown> {
+		return this.request(
+			`/wrong-questions/${encodeURIComponent(userId)}/${encodeURIComponent(questionId)}`,
+			{ method: 'DELETE' }
+		);
+	}
+
+	// 标记已掌握
+	static async masterWrongQuestion(userId: string, questionId: string): Promise<unknown> {
+		return this.request(
+			`/wrong-questions/${encodeURIComponent(userId)}/${encodeURIComponent(questionId)}/master`,
+			{ method: 'POST', body: '{}' }
+		);
+	}
+
+	// 取消已掌握
+	static async unmasterWrongQuestion(userId: string, questionId: string): Promise<unknown> {
+		return this.request(
+			`/wrong-questions/${encodeURIComponent(userId)}/${encodeURIComponent(questionId)}/unmaster`,
+			{ method: 'POST', body: '{}' }
+		);
+	}
+
+	// 清空错题本
+	static async resetWrongQuestions(userId: string): Promise<unknown> {
+		return this.request(`/wrong-questions/${encodeURIComponent(userId)}/reset`, {
+			method: 'POST',
+			body: '{}'
+		});
+	}
+
+	// ==================== 学习连续天数 / 每日目标（业务功能 2） ====================
+
+	static async getStreakSummary(userId: string): Promise<unknown> {
+		return this.request(`/streaks/${encodeURIComponent(userId)}/summary`);
+	}
+
+	static async getStreakHeatmap(userId: string, days = 90): Promise<unknown> {
+		return this.request(`/streaks/${encodeURIComponent(userId)}/heatmap?days=${days}`);
+	}
+
+	static async updateStreakDailyGoal(userId: string, dailyQuestions: number): Promise<unknown> {
+		return this.request(`/streaks/${encodeURIComponent(userId)}/goal`, {
+			method: 'PUT',
+			body: JSON.stringify({ daily_questions: dailyQuestions })
+		});
+	}
+
+	// ==================== 续考草稿（业务功能 4） ====================
+
+	static async getDraft(userId: string): Promise<unknown> {
+		return this.request(`/drafts/${encodeURIComponent(userId)}`);
+	}
+
+	static async saveDraft(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/drafts/${encodeURIComponent(userId)}`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async clearDraft(userId: string): Promise<unknown> {
+		return this.request(`/drafts/${encodeURIComponent(userId)}`, { method: 'DELETE' });
+	}
+
+	// ==================== 答题计时（业务功能 3：分段限时） ====================
+
+	static async getExamTimer(userId: string): Promise<unknown> {
+		return this.request(`/timers/${encodeURIComponent(userId)}`);
+	}
+
+	static async startExamTimer(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/timers/${encodeURIComponent(userId)}/start`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async tickExamTimer(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/timers/${encodeURIComponent(userId)}/tick`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async finishExamTimer(userId: string): Promise<unknown> {
+		return this.request(`/timers/${encodeURIComponent(userId)}/finish`, { method: 'POST' });
+	}
+
+	// ==================== 功能开关（横切基础设施） ====================
+
+	static async getFeatureFlagRegistry(): Promise<unknown> {
+		return this.request('/feature-flags/registry');
+	}
+
+	static async getMyFeatureFlags(): Promise<unknown> {
+		return this.request('/me/feature-flags');
+	}
+
+	static async updateMyFeatureFlags(patch: Record<string, unknown>): Promise<unknown> {
+		return this.request('/me/feature-flags', {
+			method: 'PUT',
+			body: JSON.stringify(patch)
+		});
+	}
+
+	static async updateSystemFeatureFlags(patch: Record<string, unknown>): Promise<unknown> {
+		return this.request('/admin/feature-flags/system', {
+			method: 'PUT',
+			body: JSON.stringify(patch)
+		});
+	}
+
+	static async updateOrgFeatureFlags(orgId: string, patch: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/admin/feature-flags/orgs/${encodeURIComponent(orgId)}`, {
+			method: 'PUT',
+			body: JSON.stringify(patch)
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 题目反馈/纠错 API（业务功能 5）
+	// ---------------------------------------------------------------------
+
+	static async submitFeedback(payload: Record<string, unknown>): Promise<unknown> {
+		return this.request('/feedback', {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async listFeedback(paperId?: string, status?: string): Promise<unknown> {
+		const qs = new URLSearchParams();
+		if (paperId) qs.append('paper_id', paperId);
+		if (status) qs.append('status', status);
+		const suffix = qs.toString() ? `?${qs.toString()}` : '';
+		return this.request(`/feedback${suffix}`);
+	}
+
+	static async updateFeedback(feedbackId: string, paperId: string, patch: Record<string, unknown>): Promise<unknown> {
+		const qs = paperId ? `?paper_id=${encodeURIComponent(paperId)}` : '';
+		return this.request(`/feedback/${encodeURIComponent(feedbackId)}${qs}`, {
+			method: 'PATCH',
+			body: JSON.stringify(patch)
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 班级与作业 API（业务功能 6）
+	// ---------------------------------------------------------------------
+
+	static async createClassroom(payload: Record<string, unknown>): Promise<unknown> {
+		return this.request('/classrooms', { method: 'POST', body: JSON.stringify(payload) });
+	}
+
+	static async listMyClassrooms(): Promise<unknown> {
+		return this.request('/me/classrooms');
+	}
+
+	static async getClassroom(classId: string): Promise<unknown> {
+		return this.request(`/classrooms/${encodeURIComponent(classId)}`);
+	}
+
+	static async updateClassroom(classId: string, patch: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/classrooms/${encodeURIComponent(classId)}`, {
+			method: 'PATCH',
+			body: JSON.stringify(patch)
+		});
+	}
+
+	static async removeClassroom(classId: string): Promise<unknown> {
+		return this.request(`/classrooms/${encodeURIComponent(classId)}`, { method: 'DELETE' });
+	}
+
+	static async addClassroomMembers(classId: string, userIds: string[]): Promise<unknown> {
+		return this.request(`/classrooms/${encodeURIComponent(classId)}/members`, {
+			method: 'POST',
+			body: JSON.stringify({ user_ids: userIds })
+		});
+	}
+
+	static async removeClassroomMember(classId: string, userId: string): Promise<unknown> {
+		return this.request(`/classrooms/${encodeURIComponent(classId)}/members/${encodeURIComponent(userId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	static async createAssignment(classId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/classrooms/${encodeURIComponent(classId)}/assignments`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async listClassroomAssignments(classId: string): Promise<unknown> {
+		return this.request(`/classrooms/${encodeURIComponent(classId)}/assignments`);
+	}
+
+	static async listMyAssignments(): Promise<unknown> {
+		return this.request('/me/assignments');
+	}
+
+	static async updateAssignment(assignmentId: string, patch: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}`, {
+			method: 'PATCH',
+			body: JSON.stringify(patch)
+		});
+	}
+
+	static async removeAssignment(assignmentId: string): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}`, { method: 'DELETE' });
+	}
+
+	// ---------------------------------------------------------------------
+	// SRS 间隔重复 API（业务功能 7）
+	// ---------------------------------------------------------------------
+
+	static async listSrsDue(userId: string, limit = 20): Promise<unknown> {
+		return this.request(`/srs/${encodeURIComponent(userId)}/due?limit=${limit}`);
+	}
+
+	static async listSrsCards(userId: string): Promise<unknown> {
+		return this.request(`/srs/${encodeURIComponent(userId)}/cards`);
+	}
+
+	static async reviewSrsCard(userId: string, cardId: string, grade: number): Promise<unknown> {
+		return this.request(`/srs/${encodeURIComponent(userId)}/review`, {
+			method: 'POST',
+			body: JSON.stringify({ card_id: cardId, grade })
+		});
+	}
+
+	static async addSrsCard(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/srs/${encodeURIComponent(userId)}/cards`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async removeSrsCard(userId: string, cardId: string): Promise<unknown> {
+		return this.request(`/srs/${encodeURIComponent(userId)}/cards/${encodeURIComponent(cardId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 收藏夹/分类 API（业务功能 8）
+	// ---------------------------------------------------------------------
+
+	static async listBookmarkFolders(userId: string): Promise<unknown> {
+		return this.request(`/bookmark-folders/${encodeURIComponent(userId)}`);
+	}
+
+	static async createBookmarkFolder(userId: string, name: string, color?: string): Promise<unknown> {
+		return this.request(`/bookmark-folders/${encodeURIComponent(userId)}`, {
+			method: 'POST',
+			body: JSON.stringify({ name, color: color || '' })
+		});
+	}
+
+	static async updateBookmarkFolder(userId: string, folderId: string, patch: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/bookmark-folders/${encodeURIComponent(userId)}/${encodeURIComponent(folderId)}`, {
+			method: 'PATCH',
+			body: JSON.stringify(patch)
+		});
+	}
+
+	static async removeBookmarkFolder(userId: string, folderId: string): Promise<unknown> {
+		return this.request(`/bookmark-folders/${encodeURIComponent(userId)}/${encodeURIComponent(folderId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	static async addExamToBookmarkFolder(userId: string, folderId: string, examId: string): Promise<unknown> {
+		return this.request(`/bookmark-folders/${encodeURIComponent(userId)}/${encodeURIComponent(folderId)}/exams`, {
+			method: 'POST',
+			body: JSON.stringify({ exam_id: examId })
+		});
+	}
+
+	static async removeExamFromBookmarkFolder(userId: string, folderId: string, examId: string): Promise<unknown> {
+		return this.request(
+			`/bookmark-folders/${encodeURIComponent(userId)}/${encodeURIComponent(folderId)}/exams/${encodeURIComponent(examId)}`,
+			{ method: 'DELETE' }
+		);
+	}
+
+	// ---------------------------------------------------------------------
+	// 数据导出（业务功能 10）
+	// ---------------------------------------------------------------------
+
+	static async exportUserData(userId: string): Promise<unknown> {
+		return this.request(`/data-export/${encodeURIComponent(userId)}`);
+	}
+
+	// ---------------------------------------------------------------------
+	// 管理员统计（业务功能 11）
+	// ---------------------------------------------------------------------
+
+	static async getAdminStatisticsOverview(): Promise<unknown> {
+		return this.request('/admin/statistics/overview');
+	}
+
+	// ---------------------------------------------------------------------
+	// 社区讨论（业务功能 12）
+	// ---------------------------------------------------------------------
+
+	static async listCommunityPosts(paperId: string): Promise<unknown> {
+		return this.request(`/community/${encodeURIComponent(paperId)}`);
+	}
+
+	static async createCommunityPost(paperId: string, title: string, body: string): Promise<unknown> {
+		return this.request(`/community/${encodeURIComponent(paperId)}/posts`, {
+			method: 'POST',
+			body: JSON.stringify({ title, body })
+		});
+	}
+
+	static async deleteCommunityPost(paperId: string, postId: string): Promise<unknown> {
+		return this.request(`/community/${encodeURIComponent(paperId)}/posts/${encodeURIComponent(postId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	static async addCommunityComment(paperId: string, postId: string, body: string): Promise<unknown> {
+		return this.request(`/community/${encodeURIComponent(paperId)}/posts/${encodeURIComponent(postId)}/comments`, {
+			method: 'POST',
+			body: JSON.stringify({ body })
+		});
+	}
+
+	static async toggleCommunityLike(paperId: string, postId: string): Promise<unknown> {
+		return this.request(`/community/${encodeURIComponent(paperId)}/posts/${encodeURIComponent(postId)}/like`, {
+			method: 'POST'
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 审计日志可视化（业务功能 15）
+	// ---------------------------------------------------------------------
+
+	static async queryAuditLogs(params: {
+		orgId?: string;
+		actorId?: string;
+		action?: string;
+		since?: string;
+		until?: string;
+		limit?: number;
+		offset?: number;
+	} = {}): Promise<unknown> {
+		const qs = new URLSearchParams();
+		if (params.orgId) qs.set('org_id', params.orgId);
+		if (params.actorId) qs.set('actor_id', params.actorId);
+		if (params.action) qs.set('action', params.action);
+		if (params.since) qs.set('since', params.since);
+		if (params.until) qs.set('until', params.until);
+		if (params.limit != null) qs.set('limit', String(params.limit));
+		if (params.offset != null) qs.set('offset', String(params.offset));
+		const suffix = qs.toString() ? `?${qs.toString()}` : '';
+		return this.request(`/admin/audit-logs${suffix}`);
+	}
+
+	static async listAuditLogActions(orgId?: string): Promise<unknown> {
+		const suffix = orgId ? `?org_id=${encodeURIComponent(orgId)}` : '';
+		return this.request(`/admin/audit-logs/actions${suffix}`);
+	}
 }
 
 window.APIClient = APIClient;

@@ -54,8 +54,63 @@ interface AnswerManagerExamViewer {
 class AnswerManager {
 	private readonly examViewer: AnswerManagerExamViewer;
 
+	// 业务功能 4：草稿自动保存的节流计时器（避免每次点击都打接口）
+	private draftSaveTimer: number | null = null;
+
 	constructor(examViewer: AnswerManagerExamViewer) {
 		this.examViewer = examViewer;
+	}
+
+	/**
+	 * 业务功能 4：节流保存草稿（自上次触发起 1.5 秒内合并）
+	 * - 仅登录用户保存（guest 不写）
+	 * - 仅有 _currentExamId 时保存
+	 */
+	private scheduleDraftSave(): void {
+		const userId = this.examViewer.userId;
+		const examId = this.examViewer._currentExamId;
+		if (!userId || userId === 'guest' || !examId) {
+			return;
+		}
+		// 功能开关：resume_draft 关闭时不写草稿
+		const isEnabled = (window as Window & { isFeatureEnabled?: (k: string) => boolean }).isFeatureEnabled;
+		if (isEnabled && !isEnabled('resume_draft')) {
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.saveDraft !== 'function') {
+			return;
+		}
+		if (this.draftSaveTimer !== null) {
+			window.clearTimeout(this.draftSaveTimer);
+		}
+		this.draftSaveTimer = window.setTimeout(() => {
+			this.draftSaveTimer = null;
+			try {
+				const allAnswers = this.examViewer.userAnswers || {};
+				// 仅保留已作答的（非 null/undefined），减少体积
+				const answers: Record<string, unknown> = {};
+				let answered = 0;
+				for (const k of Object.keys(allAnswers)) {
+					const v = allAnswers[k];
+					if (v !== null && v !== undefined && v !== '') {
+						answers[k] = v;
+						answered += 1;
+					}
+				}
+				const total = Object.keys(allAnswers).length;
+				void api.saveDraft(userId, {
+					exam_id: examId,
+					total_questions: total,
+					answered_count: answered,
+					last_section_index: this.examViewer.currentSectionIndex,
+					last_question_index: this.examViewer.currentQuestionIndex,
+					answers
+				});
+			} catch {
+				// 草稿保存失败不打扰用户
+			}
+		}, 1500);
 	}
 
 	/**
@@ -90,6 +145,9 @@ class AnswerManager {
 		} catch {
 			// ignore
 		}
+
+		// 业务功能 4：每次答题变更后触发草稿节流保存
+		this.scheduleDraftSave();
 	}
 
 	/**

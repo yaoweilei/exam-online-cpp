@@ -111,6 +111,8 @@ class ExamViewer {
 		this.questionMapManager = new QuestionMapManager(this as any);
 		this.categoryNavigationManager = new CategoryNavigationManager(this as any);
 		this.questionRenderer = new QuestionRenderer(this as any);
+		// 答题计时管理器（业务功能 3）
+		this.examTimerManager = new ExamTimerManager(this as any);
 
 		// ==================== 初始化各个子系统 ====================
 		this.initializeEventListeners();
@@ -154,8 +156,9 @@ class ExamViewer {
 			switch (msg.type) {
 				case 'loadExam':
 					console.log('[ExamViewer] Processing exam load message');
-					this.loadExamData(msg.data);
+					// 业务功能 3：先设置 examId，loadExamData 末尾据此启动计时
 					this._currentExamId = msg.examId || null;
+					this.loadExamData(msg.data);
 					break;
 				case 'error':
 					console.error('[ExamViewer] Backend parsing failed', msg.message);
@@ -252,6 +255,16 @@ class ExamViewer {
 				this.updateNavigation();
 				this.categoryNavigationManager.initCategoryDropdowns();
 				console.log('[ExamViewer] Render completed');
+
+				// 业务功能 3：试卷渲染完成后启动答题计时（仅登录用户 + 有 examId 时）
+				try {
+					if (this._currentExamId && this.examTimerManager) {
+						const limits = this.extractExamTimerLimits();
+						this.examTimerManager.startForExam(this._currentExamId, limits);
+					}
+				} catch (timerErr) {
+					console.warn('[ExamViewer] Failed to start exam timer', timerErr);
+				}
 			} else {
 				console.log('[ExamViewer] No exam data to render');
 			}
@@ -1092,6 +1105,36 @@ class ExamViewer {
 
 	submitAnswers() {
 		this.answerManager.submitAnswers();
+	}
+
+	/**
+	 * 业务功能 3：从当前试卷数据中抽取计时限制
+	 *   - exam_info.total_limit_seconds（整体限时；可选）
+	 *   - exam_info.section_limits_seconds[]（按 section 限时；可选）
+	 *   - 兜底支持 exam_info.duration_minutes（分钟），转换为秒
+	 *   返回 undefined 表示完全不限时
+	 */
+	extractExamTimerLimits(): { totalLimitSeconds?: number; sectionLimitsSeconds?: number[] } | undefined {
+		const info = this.currentExam?.exam_info;
+		if (!info) return undefined;
+		const out: { totalLimitSeconds?: number; sectionLimitsSeconds?: number[] } = {};
+		const directTotal = Number((info as any).total_limit_seconds ?? 0);
+		if (directTotal > 0) {
+			out.totalLimitSeconds = directTotal;
+		} else {
+			const minutes = Number((info as any).duration_minutes ?? 0);
+			if (minutes > 0) {
+				out.totalLimitSeconds = minutes * 60;
+			}
+		}
+		const sectionLimits = (info as any).section_limits_seconds;
+		if (Array.isArray(sectionLimits) && sectionLimits.length > 0) {
+			out.sectionLimitsSeconds = sectionLimits.map((n: unknown) => Math.max(0, Number(n) || 0));
+		}
+		if (out.totalLimitSeconds === undefined && !out.sectionLimitsSeconds) {
+			return undefined;
+		}
+		return out;
 	}
 
 	handleCommand(command: string) {

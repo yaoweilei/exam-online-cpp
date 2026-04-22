@@ -4,6 +4,8 @@ import { bootViewerApp } from './features/viewerBootstrap.js';
 import { restoreSession, clearSession, captureReferralCodeFromUrl } from './features/session.js';
 import { AppStore } from './state/store.js';
 import { LoginModal } from './features/login.js';
+import { refreshFeatureFlags, clearFeatureFlags } from './features/featureFlags.js';
+import { initPwa, ensurePwaRegistration } from './features/pwa.js';
 
 function logAppReady(levels: number): void {
 	if (!(window as Window & { __APP_DEBUG__?: boolean }).__APP_DEBUG__) {
@@ -19,6 +21,9 @@ async function bootstrap(): Promise<void> {
 	(window as Window & { __WEB_APP_MODE__?: boolean }).__WEB_APP_MODE__ = true;
 	(window as Window & { __APP_DEBUG__?: boolean }).__APP_DEBUG__ = false;
 	captureReferralCodeFromUrl();
+
+	// 业务功能 14：尽早初始化 PWA（捕获 beforeinstallprompt 与默认注册）
+	initPwa();
 
 	const api = new ApiClient('/api/v2');
 	const store = new AppStore();
@@ -39,8 +44,13 @@ async function bootstrap(): Promise<void> {
 		const currentUser = store.getState().user;
 		if (currentUser && !currentUser.guest) {
 			appWindow.setUserContext?.(currentUser as unknown as Record<string, unknown>);
+			// 登录后异步拉取功能开关，注入到 window.__FEATURE_FLAGS__
+			void refreshFeatureFlags(api).then(() => ensurePwaRegistration());
 			return;
 		}
+		// 注销 / guest：清空功能开关缓存（前端按默认开启对待）
+		clearFeatureFlags();
+		void ensurePwaRegistration();
 		appWindow.setUserContext?.({ guest: true });
 		appWindow.refreshPersonalCenterTrigger?.();
 	}

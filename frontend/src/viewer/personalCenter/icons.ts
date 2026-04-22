@@ -27,8 +27,14 @@ export function renderOutlineIcon(name: string, className = ''): string {
 			return svg('<path d="M6 17.8V6.2"/><path d="M6 6.2c2.3 2.1 3.8 4.2 4.6 6.2"/><path d="M10.6 12.4c.9-2.5 2.4-4.6 4.5-6.2"/><path d="M15.1 6.2v11.6"/><path d="M7.8 17.8h5.8"/><path d="M16.9 6.4 18.2 5"/><path d="M17.2 6.7 19 6.4"/>');
 		case 'login':
 			return svg('<circle cx="10" cy="8" r="3"/><path d="M4.8 18.2c1.5-2.8 3.3-4.2 5.2-4.2 1.3 0 2.5.5 3.6 1.6"/><path d="M14.5 12h5"/><path d="M17 9.5 19.5 12 17 14.5"/>');
+		case 'book':
+			// 错题本图标（业务功能 1）
+			return svg('<path d="M5 4.5h9.5A3.5 3.5 0 0 1 18 8v11.5H8.5A3.5 3.5 0 0 1 5 16Z"/><path d="M8.5 8.5h6"/><path d="M8.5 12h4"/>');
 		case 'profileMark':
 		default:
 			return svg('<circle cx="12" cy="8" r="3.2"/><path d="M5.5 18.5c1.6-3 3.8-4.5 6.5-4.5s4.9 1.5 6.5 4.5"/>');
+		case 'book':
+			// 错题本图标（业务功能 1）
+			return svg('<path d="M5 4.5h9.5A3.5 3.5 0 0 1 18 8v11.5H8.5A3.5 3.5 0 0 1 5 16Z"/><path d="M8.5 8.5h6"/><path d="M8.5 12h4"/>');
 	}
 }
