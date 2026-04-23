@@ -1,0 +1,106 @@
+/* ============================================================ */
+/* 生词查询弹卡 (VocabLookupManager)                              */
+/* ============================================================ */
+.vocab-lookup-popup {
+	position: absolute;
+	z-index: 9998;
+	background: var(--vscode-editorHoverWidget-background, #252526);
+	color: var(--vscode-editorHoverWidget-foreground, #cccccc);
+	border: 1px solid var(--vscode-editorHoverWidget-border, #454545);
+	border-radius: 6px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+	padding: 10px 12px;
+	font-size: 13px;
+	line-height: 1.5;
+	user-select: text;
+}
+
+.vocab-lookup-head {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	margin-bottom: 6px;
+}
+
+.vocab-lookup-word {
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--vscode-textLink-foreground, #4ec9b0);
+}
+
+.vocab-lookup-reading {
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground, #999);
+}
+
+.vocab-lookup-close {
+	margin-left: auto;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	color: var(--vscode-descriptionForeground, #999);
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+	border-radius: 3px;
+}
+
+.vocab-lookup-close:hover {
+	background: var(--vscode-toolbar-hoverBackground, rgba(255, 255, 255, 0.1));
+}
+
+.vocab-lookup-occ {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground, #999);
+	margin-bottom: 8px;
+}
+
+.vocab-lookup-note-wrap {
+	margin-bottom: 8px;
+}
+
+.vocab-lookup-note {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 4px 6px;
+	font-size: 12px;
+	font-family: inherit;
+	background: var(--vscode-input-background, #3c3c3c);
+	color: var(--vscode-input-foreground, #cccccc);
+	border: 1px solid var(--vscode-input-border, #3c3c3c);
+	border-radius: 3px;
+	resize: vertical;
+	min-height: 36px;
+}
+
+.vocab-lookup-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.vocab-lookup-add {
+	padding: 4px 12px;
+	font-size: 12px;
+	background: var(--vscode-button-background, #0e639c);
+	color: var(--vscode-button-foreground, #fff);
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+.vocab-lookup-add:hover:not(:disabled) {
+	background: var(--vscode-button-hoverBackground, #1177bb);
+}
+
+.vocab-lookup-add:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+.vocab-lookup-status {
+	font-size: 11px;
+	color: var(--vscode-descriptionForeground, #999);
+}
