@@ -257,6 +257,37 @@ bool WrongQuestionRepository::unmarkMastered(const std::string &userId, const st
     return true;
 }
 
+bool WrongQuestionRepository::setAttributionTags(const std::string &userId,
+                                                 const std::string &questionId,
+                                                 const std::vector<std::string> &tags)
+{
+    const auto path = wrongDir_ / (userId + ".json");
+    std::unique_lock lock(mutex_);
+    if (!std::filesystem::exists(path))
+    {
+        return false;
+    }
+    auto doc = readJsonFile(path);
+    const auto idx = findIndex(doc["items"], questionId);
+    if (idx < 0)
+    {
+        return false;
+    }
+    auto &item = doc["items"][static_cast<Json::ArrayIndex>(idx)];
+    Json::Value arr(Json::arrayValue);
+    for (const auto &t : tags)
+    {
+        if (!t.empty())
+        {
+            arr.append(t);
+        }
+    }
+    item["attribution_tags"] = arr;
+    doc["updated_at"] = common::nowIso8601();
+    writeJsonFileAtomic(path, doc);
+    return true;
+}
+
 void WrongQuestionRepository::reset(const std::string &userId)
 {
     // 直接覆写为默认空集合（保留 user_id），不删除文件

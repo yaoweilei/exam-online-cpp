@@ -1,7 +1,9 @@
 #include <string>
+#include <vector>
 
 #include <drogon/HttpAppFramework.h>
 
+#include "application/services/WrongQuestionService.h"
 #include "transport/RouteUtils.h"
 #include "transport/routes/Routes.h"
 
@@ -156,5 +158,50 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
             });
         },
         {Post});
+
+    // 错因归因标签：预设标签列表（前端渲染按钮/图例用）
+    //   GET  /api/v2/wrong-questions/tag-registry
+    app().registerHandler(
+        "/api/v2/wrong-questions/tag-registry",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                Json::Value out(Json::objectValue);
+                out["tags"] = application::services::WrongQuestionService::attributionTagRegistry();
+                return common::ok(req, out);
+            });
+        },
+        {Get});
+
+    // 错因归因标签：为单题覆盖式设置标签
+    //   PUT  /api/v2/wrong-questions/{userId}/{questionId}/tags   body: { "tags": ["careless", ...] }
+    app().registerHandler(
+        "/api/v2/wrong-questions/{1}/{2}/tags",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string userId,
+              std::string questionId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                requireSession(*ctx.authService, req, &body);
+                requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
+                std::vector<std::string> tags;
+                if (body.isMember("tags") && body["tags"].isArray())
+                {
+                    for (const auto &t : body["tags"])
+                    {
+                        if (t.isString())
+                        {
+                            tags.push_back(t.asString());
+                        }
+                    }
+                }
+                const auto ok = ctx.wrongQuestionService->setAttributionTags(userId, questionId, tags);
+                Json::Value out(Json::objectValue);
+                out["updated"] = ok;
+                return common::ok(req, out);
+            });
+        },
+        {Put});
 }
 }  // namespace transport::routes

@@ -417,6 +417,50 @@ class APIClient {
 		});
 	}
 
+	// 错因归因标签（功能 #16）：预设标签注册表 + 覆盖式设置某题的标签
+	static async getWrongQuestionTagRegistry(): Promise<unknown> {
+		return this.request('/wrong-questions/tag-registry');
+	}
+
+	static async setWrongQuestionTags(userId: string, questionId: string, tags: string[]): Promise<unknown> {
+		return this.request(
+			`/wrong-questions/${encodeURIComponent(userId)}/${encodeURIComponent(questionId)}/tags`,
+			{
+				method: 'PUT',
+				body: JSON.stringify({ tags })
+			}
+		);
+	}
+
+	// ==================== 同考点串题（功能 #17） ====================
+
+	static async getRelatedQuestions(examId: string, questionId: string, limit = 10): Promise<unknown> {
+		const params = new URLSearchParams();
+		params.append('exam_id', examId);
+		params.append('question_id', questionId);
+		params.append('limit', String(limit));
+		return this.request(`/related-questions?${params.toString()}`);
+	}
+
+	// ==================== 章节式学习路径（功能 #18） ====================
+
+	static async listChapters(opts: { level?: string; userId?: string } = {}): Promise<unknown> {
+		const params = new URLSearchParams();
+		if (opts.level) params.append('level', opts.level);
+		const uid = opts.userId ?? this.readStoredUserId();
+		if (uid) params.append('user_id', uid);
+		const q = params.toString();
+		return this.request(`/chapters${q ? `?${q}` : ''}`);
+	}
+
+	static async getChapterDetail(chapterId: string, userId?: string): Promise<unknown> {
+		const params = new URLSearchParams();
+		const uid = userId ?? this.readStoredUserId();
+		if (uid) params.append('user_id', uid);
+		const q = params.toString();
+		return this.request(`/chapters/${encodeURIComponent(chapterId)}${q ? `?${q}` : ''}`);
+	}
+
 	// ==================== 学习连续天数 / 每日目标（业务功能 2） ====================
 
 	static async getStreakSummary(userId: string): Promise<unknown> {
@@ -857,6 +901,89 @@ class APIClient {
 	static async getLeaderboard(period: 'week' | 'month' | 'all' = 'week', limit: number = 20, force: boolean = false): Promise<unknown> {
 		const qs = `?period=${encodeURIComponent(period)}&limit=${limit}${force ? '&force=1' : ''}`;
 		return this.request(`/leaderboard${qs}`);
+	}
+
+	// ---------------------------------------------------------------------
+	// 个人生词本（自学者点词查词）
+	// ---------------------------------------------------------------------
+
+	static async listVocab(userId?: string): Promise<unknown> {
+		const uid = userId ?? this.readStoredUserId();
+		if (!uid) {
+			throw new Error('未登录');
+		}
+		return this.request(`/vocab-notebook/${encodeURIComponent(uid)}`);
+	}
+
+	static async addVocabWord(payload: {
+		word: string;
+		reading?: string;
+		note?: string;
+		examId?: string;
+		questionId?: string;
+		userId?: string;
+	}): Promise<unknown> {
+		const uid = payload.userId ?? this.readStoredUserId();
+		if (!uid) {
+			throw new Error('未登录');
+		}
+		return this.request(`/vocab-notebook/${encodeURIComponent(uid)}/words`, {
+			method: 'POST',
+			body: JSON.stringify({
+				word: payload.word,
+				reading: payload.reading ?? '',
+				note: payload.note ?? '',
+				exam_id: payload.examId ?? '',
+				question_id: payload.questionId ?? ''
+			})
+		});
+	}
+
+	static async removeVocabWord(wordId: string, userId?: string): Promise<unknown> {
+		const uid = userId ?? this.readStoredUserId();
+		if (!uid) {
+			throw new Error('未登录');
+		}
+		return this.request(`/vocab-notebook/${encodeURIComponent(uid)}/words/${encodeURIComponent(wordId)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	static async updateVocabNote(wordId: string, note: string, userId?: string): Promise<unknown> {
+		const uid = userId ?? this.readStoredUserId();
+		if (!uid) {
+			throw new Error('未登录');
+		}
+		return this.request(`/vocab-notebook/${encodeURIComponent(uid)}/words/${encodeURIComponent(wordId)}`, {
+			method: 'PATCH',
+			body: JSON.stringify({ note })
+		});
+	}
+
+	// ---------------------------------------------------------------------
+	// 阅读分句译文（B2 众包式双语对照）
+	// ---------------------------------------------------------------------
+
+	static async getTranslations(examId: string): Promise<unknown> {
+		return this.request(`/translations/${encodeURIComponent(examId)}`);
+	}
+
+	static async upsertTranslationSentence(
+		examId: string,
+		passageKey: string,
+		paragraph: number,
+		sentence: number,
+		text: string
+	): Promise<unknown> {
+		return this.request(`/translations/${encodeURIComponent(examId)}/sentences`, {
+			method: 'PUT',
+			body: JSON.stringify({
+				passage_key: passageKey,
+				paragraph,
+				sentence,
+				text
+			})
+		});
 	}
 }
 

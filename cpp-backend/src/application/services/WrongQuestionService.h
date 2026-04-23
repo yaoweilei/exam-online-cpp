@@ -5,6 +5,7 @@
 // - 提供前端使用的列表（带筛选/分页/统计）/移除/掌握/重置接口
 
 #include <string>
+#include <vector>
 
 #include <json/json.h>
 
@@ -45,6 +46,15 @@ class WrongQuestionService
     bool removeOne(const std::string &userId, const std::string &questionId);
     bool markMastered(const std::string &userId, const std::string &questionId);
     bool unmarkMastered(const std::string &userId, const std::string &questionId);
+
+    // 错题归因标签（错因分析）：覆盖式设置该题的所有标签
+    // 已知标签：vocab_blindspot / grammar_unsure / reading_pace / listening_missed / careless / option_trap
+    bool setAttributionTags(const std::string &userId,
+                            const std::string &questionId,
+                            const std::vector<std::string> &tags);
+
+    // 返回预设标签列表（前端下拉/按钮用）
+    static Json::Value attributionTagRegistry();
 
     // 清空整份错题本
     void reset(const std::string &userId);

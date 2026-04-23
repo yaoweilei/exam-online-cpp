@@ -1,6 +1,7 @@
 #include "WrongQuestionService.h"
 
 #include <algorithm>
+#include <array>
 #include <random>
 #include <unordered_map>
 #include <vector>
@@ -180,18 +181,33 @@ Json::Value WrongQuestionService::summary(const std::string &userId) const
     int total = 0;
     int active = 0;
     int mastered = 0;
+    // 按标签聚合（仅统计未掌握的错题）
+    std::unordered_map<std::string, int> tagCounts;
     if (doc.isMember("items") && doc["items"].isArray())
     {
         for (const auto &item : doc["items"])
         {
             ++total;
-            if (item.get("mastered", false).asBool())
+            const bool isMastered = item.get("mastered", false).asBool();
+            if (isMastered)
             {
                 ++mastered;
             }
             else
             {
                 ++active;
+            }
+            if (!isMastered && item.isMember("attribution_tags") &&
+                item["attribution_tags"].isArray())
+            {
+                for (const auto &t : item["attribution_tags"])
+                {
+                    const auto key = t.asString();
+                    if (!key.empty())
+                    {
+                        ++tagCounts[key];
+                    }
+                }
             }
         }
     }
@@ -200,6 +216,12 @@ Json::Value WrongQuestionService::summary(const std::string &userId) const
     out["active"] = active;
     out["mastered"] = mastered;
     out["updated_at"] = doc.get("updated_at", "");
+    Json::Value tagSummary(Json::objectValue);
+    for (const auto &kv : tagCounts)
+    {
+        tagSummary[kv.first] = kv.second;
+    }
+    out["tag_summary"] = tagSummary;
     return out;
 }
 
@@ -350,6 +372,63 @@ Json::Value WrongQuestionService::sample(const std::string &userId, int count) c
     out["items"] = items;
     out["count"] = static_cast<int>(items.size());
     return out;
+}
+
+bool WrongQuestionService::setAttributionTags(const std::string &userId,
+                                              const std::string &questionId,
+                                              const std::vector<std::string> &tags)
+{
+    // 只接受预设标签 key，未知 key 静默丢弃（避免脏数据）
+    static const std::array<const char *, 6> kAllowed{
+        "vocab_blindspot",
+        "grammar_unsure",
+        "reading_pace",
+        "listening_missed",
+        "careless",
+        "option_trap"};
+    std::vector<std::string> sanitized;
+    sanitized.reserve(tags.size());
+    for (const auto &t : tags)
+    {
+        for (const auto *a : kAllowed)
+        {
+            if (t == a)
+            {
+                sanitized.push_back(t);
+                break;
+            }
+        }
+    }
+    return repository_.setAttributionTags(userId, questionId, sanitized);
+}
+
+Json::Value WrongQuestionService::attributionTagRegistry()
+{
+    // 预设的归因维度（中文名 + 说明，用于前端渲染按钮/图例）
+    struct TagDef
+    {
+        const char *key;
+        const char *nameZh;
+        const char *descZh;
+    };
+    static const std::array<TagDef, 6> kDefs{{
+        {"vocab_blindspot", "词汇盲点", "生词或词义没掌握"},
+        {"grammar_unsure", "语法不熟", "句型/活用判断错误"},
+        {"reading_pace", "阅读节奏", "时间不够或读漏关键句"},
+        {"listening_missed", "听力漏听", "关键词没抓住/走神"},
+        {"careless", "粗心", "低级看错题干或填错"},
+        {"option_trap", "选项陷阱", "被相近干扰项骗到"},
+    }};
+    Json::Value arr(Json::arrayValue);
+    for (const auto &d : kDefs)
+    {
+        Json::Value row(Json::objectValue);
+        row["key"] = d.key;
+        row["name"] = d.nameZh;
+        row["description"] = d.descZh;
+        arr.append(row);
+    }
+    return arr;
 }
 
 }  // namespace application::services

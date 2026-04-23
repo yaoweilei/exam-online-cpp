@@ -68,12 +68,14 @@ class QuestionRenderer {
 
 		if (currentSection.passage) {
 			if (!currentSection.questions || !currentSection.questions[this.examViewer.currentQuestionIndex] || !currentSection.questions[this.examViewer.currentQuestionIndex]._groupPassage) {
-				questionContent.appendChild(this.createPassageElement(currentSection.passage));
+				const passageKey = `${currentSection.section_id || ''}:passage`;
+				questionContent.appendChild(this.createPassageElement(currentSection.passage, null, passageKey));
 			}
 		}
 
 		if (currentQuestion._groupPassage) {
-			const passageEl = this.createPassageElement(currentQuestion._groupPassage);
+			const passageKey = `${currentSection.section_id || ''}:${currentQuestion.id ?? ''}`;
+			const passageEl = this.createPassageElement(currentQuestion._groupPassage, null, passageKey);
 			if (currentQuestion._groupIndex || currentQuestion._groupTopic) {
 				const meta = document.createElement("div");
 				meta.className = "passage-group-meta";
@@ -101,9 +103,18 @@ class QuestionRenderer {
 
 	/**
 	 * 创建材料元素
+	 *  passageKey: 用于句级译文（B2）的稳定键，推荐 "{section_id}:{question_id}" 或 "{section_id}:passage"
 	 */
-	createPassageElement(passage: RendererAnyRecord, question: RendererAnyRecord | null = null) {
+	createPassageElement(passage: RendererAnyRecord, question: RendererAnyRecord | null = null, passageKey: string = "") {
 		const passageDiv = DOMUtils.createElementWithClass("div", "passage");
+		if (passageKey) {
+			passageDiv.dataset.passageKey = passageKey;
+		}
+		// examId 也挂在 passage 上，便于句级译文 chip 通过 closest('[data-exam-id]') 找回
+		const viewerExamId = (this.examViewer as { _currentExamId?: string | null })._currentExamId || '';
+		if (viewerExamId) {
+			passageDiv.dataset.examId = viewerExamId;
+		}
 
 		if (passage.title) {
 			const title = DOMUtils.createElementWithClass("div", "passage-title", passage.title);
@@ -123,15 +134,14 @@ class QuestionRenderer {
 	setPassageContent(contentElement: HTMLElement, passage: RendererAnyRecord, question: RendererAnyRecord | null = null) {
 		if (passage.type === "text") {
 			// 优先使用passage自己的target_words，其次使用question的target_words
-			let targetWords = passage.target_words || (question && question.target_words);
-			let formattedText = passage.value;
-			
-			if (targetWords) {
-				formattedText = this.highlightTargetWordsInText(passage.value, targetWords);
-			} else {
-				formattedText = this.formatTextWithTargetWords(passage.value);
-			}
-			DOMUtils.safeSetInnerHTML(contentElement, formattedText, "setPassageContent-text");
+			const targetWords = passage.target_words || (question && question.target_words);
+			const rawText: string = String(passage.value || "");
+			// 按段（\n）和句（。！？!?…）切分，方便：
+			//   1. 自学者按句精读 / 按段把握结构
+			//   2. 解释面板的「答案出处第 N 段第 M 句」按钮可定位高亮
+			// 字段不存在时 spans 仍然渲染，零侵入。
+			const formattedHtml = this.buildSentenceWrappedHtml(rawText, targetWords);
+			DOMUtils.safeSetInnerHTML(contentElement, formattedHtml, "setPassageContent-text");
 		} else if (passage.type === "image") {
 			const wrapper = DOMUtils.createElementWithClass("div", "exam-image-wrapper");
 			const img = DOMUtils.createElementWithClass("img", "exam-image");
@@ -268,9 +278,20 @@ class QuestionRenderer {
 			optionsContainer.appendChild(this.examViewer.audioManager.createAudioPlayerElement(question));
 		}
 
-		// 听力文本只在显示答案时显示
-		if (question.script && this.examViewer.showAnswers) {
-			optionsContainer.appendChild(this.examViewer.audioManager.createScriptElement(question));
+		// 听力文本：
+		//  - 显示答案模式（复盘）下直接展示完整 transcript
+		//  - 否则进入「三段式练习」流程：盲听 → 看原文 → 再盲听，由 AudioManager 控制显隐
+		if (question.script) {
+			if (this.examViewer.showAnswers) {
+				optionsContainer.appendChild(this.examViewer.audioManager.createScriptElement(question));
+			} else if (question.audio) {
+				optionsContainer.appendChild(this.examViewer.audioManager.createPracticeStageElement(question));
+				const scriptEl = this.examViewer.audioManager.createScriptElement(question);
+				// 默认隐藏，由阶段切换控制
+				scriptEl.classList.add('script-stage-hidden');
+				scriptEl.dataset.stageWrap = String(question.id);
+				optionsContainer.appendChild(scriptEl);
+			}
 		}
 
 		return optionsContainer;
@@ -344,6 +365,13 @@ class QuestionRenderer {
 
 			const explanationWrapper = document.createElement("div");
 			explanationWrapper.style.position = "relative";
+
+			// 答案出处回链（B1）：question.explanation_source = { paragraph: N, sentence: M }
+			// 字段不存在时不渲染，零侵入
+			const sourceBtn = this.createExplanationSourceButton(question);
+			if (sourceBtn) {
+				explanationWrapper.appendChild(sourceBtn);
+			}
 
 			// 显示详解：先显示题目解析（explanation），再追加拓展内容（explanation_expand）
 			if (coreText) {
@@ -1037,6 +1065,125 @@ class QuestionRenderer {
 		
 		// 替换匹配的词汇为高亮标记
 		return text.replace(regex, '<span class="target-word">$1</span>');
+	}
+
+	/**
+	 * 创建「📍 答案出处：第 N 段第 M 句」按钮。
+	 * 仅当 question.explanation_source = { paragraph: N, sentence: M } 存在时渲染。
+	 * 编号使用「以 1 起」的人类可读编号；data-pidx/data-sidx 使用「以 0 起」的下标。
+	 * 兼容老字段名：source_paragraph / source_sentence。
+	 */
+	private createExplanationSourceButton(question: RendererAnyRecord): HTMLButtonElement | null {
+		const src =
+			(question.explanation_source as RendererAnyRecord | undefined) ||
+			(question.source as RendererAnyRecord | undefined) ||
+			null;
+		const pRaw = src
+			? src.paragraph ?? src.p ?? src.pidx ?? null
+			: question.source_paragraph ?? null;
+		const sRaw = src
+			? src.sentence ?? src.s ?? src.sidx ?? null
+			: question.source_sentence ?? null;
+		if (pRaw == null && sRaw == null) return null;
+
+		const pHuman = Number.isFinite(Number(pRaw)) ? Number(pRaw) : null;
+		const sHuman = Number.isFinite(Number(sRaw)) ? Number(sRaw) : null;
+		if (pHuman == null && sHuman == null) return null;
+
+		const pIdx = pHuman != null ? pHuman - 1 : null;
+		const sIdx = sHuman != null ? sHuman - 1 : null;
+
+		const btn = document.createElement("button");
+		btn.type = "button";
+		btn.className = "explanation-source-btn";
+		const label =
+			pHuman != null && sHuman != null
+				? `📍 答案出处：第 ${pHuman} 段第 ${sHuman} 句`
+				: pHuman != null
+					? `📍 答案出处：第 ${pHuman} 段`
+					: `📍 答案出处：第 ${sHuman} 句`;
+		btn.textContent = label;
+		btn.title = "点击跳转到原文并高亮";
+
+		btn.addEventListener("click", () => {
+			let target: HTMLElement | null = null;
+			if (pIdx != null && sIdx != null) {
+				target = document.querySelector(
+					`.passage-sentence[data-pidx="${pIdx}"][data-sidx="${sIdx}"]`
+				);
+			}
+			if (!target && pIdx != null) {
+				target = document.querySelector(`.passage-paragraph[data-pidx="${pIdx}"]`);
+			}
+			if (!target) return;
+			try {
+				target.scrollIntoView({ behavior: "smooth", block: "center" });
+			} catch {
+				target.scrollIntoView();
+			}
+			target.classList.add("passage-sentence-flash");
+			window.setTimeout(() => target!.classList.remove("passage-sentence-flash"), 1800);
+		});
+		return btn;
+	}
+
+	/**
+	 * 把整段长文按段（\n）+ 句（。！？!?…）切分，每段包成 <div class="passage-paragraph" data-pidx="N">，
+	 * 每句包成 <span class="passage-sentence" data-pidx="N" data-sidx="M">，再对每句单独应用 target_words / 高亮。
+	 *
+	 * 设计要点：
+	 *  - target_words / **...** / &&...&& 这类替换在「单句」上做，避免跨句匹配，结果与原行为等价
+	 *  - 不会破坏 furigana（FuriganaManager 是按需对显式调用文本做处理，不自动遍历 passage DOM）
+	 *  - data-pidx / data-sidx 给 explanation 出处回链按钮使用
+	 */
+	private buildSentenceWrappedHtml(rawText: string, targetWords: string[] | null): string {
+		if (!rawText) return "";
+		const formatSentence = (s: string): string => {
+			if (!s) return "";
+			// 与原有 setPassageContent 行为保持一致：直接对原始字符串做正则替换，不预先做 HTML escape
+			// （原 formatTextWithTargetWords / highlightTargetWordsInText 也是这么做的）
+			let html = s;
+			if (targetWords && (Array.isArray(targetWords) ? targetWords.length : 0)) {
+				html = this.highlightTargetWordsInText(html, targetWords as string[]);
+			} else {
+				html = this.formatTextWithTargetWords(html);
+			}
+			return html;
+		};
+
+		// 段落切分：按 \n 切，过滤掉纯空行（但保留段内换行作为换行符）
+		const paragraphs = rawText.split(/\n/);
+		const out: string[] = [];
+		paragraphs.forEach((para, pIdx) => {
+			const trimmed = para;
+			if (trimmed.trim() === "") {
+				// 空行变为分段间距占位，不参与编号
+				out.push('<div class="passage-paragraph passage-paragraph-blank"></div>');
+				return;
+			}
+			// 句切分：以 [。！？!?…] 为终止符（含终止符随前一句）；剩余尾巴作为最后一句
+			const sentenceParts: string[] = [];
+			const re = /[^。！？!?…]*[。！？!?…]+|[^。！？!?…]+$/g;
+			let m: RegExpExecArray | null;
+			while ((m = re.exec(trimmed)) !== null) {
+				if (m[0]) sentenceParts.push(m[0]);
+			}
+			if (sentenceParts.length === 0) sentenceParts.push(trimmed);
+
+			const inner = sentenceParts
+				.map((sentenceRaw, sIdx) => {
+					const formatted = formatSentence(sentenceRaw);
+					// 句子 + 「译」chip（B2）。chip 是否显示由 CSS / feature flag 控制；
+					// 点击行为由 TranslationManager 全局委托接管。
+					return (
+						`<span class="passage-sentence" data-pidx="${pIdx}" data-sidx="${sIdx}">${formatted}</span>` +
+						`<button type="button" class="translation-chip" data-pidx="${pIdx}" data-sidx="${sIdx}" title="查看/编辑该句中文译文">译</button>`
+					);
+				})
+				.join("");
+			out.push(`<div class="passage-paragraph" data-pidx="${pIdx}">${inner}</div>`);
+		});
+		return out.join("");
 	}
 }
 // Export to global scope

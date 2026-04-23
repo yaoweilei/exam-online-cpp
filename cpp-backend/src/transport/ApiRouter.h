@@ -27,6 +27,8 @@
 #include "application/services/FeatureFlagService.h"
 #include "application/services/FeedbackService.h"
 #include "application/services/SrsService.h"
+#include "application/services/VocabNotebookService.h"
+#include "application/services/TranslationService.h"
 #include "application/services/DataExportService.h"
 #include "application/services/AdminStatisticsService.h"
 #include "application/services/CommunityService.h"
@@ -38,6 +40,8 @@
 #include "application/services/ExplanationService.h"
 #include "application/services/LeaderboardService.h"
 #include "application/services/OAuthService.h"
+#include "application/services/RelatedQuestionsService.h"
+#include "application/services/ChapterService.h"
 
 namespace transport
 {
@@ -75,6 +79,10 @@ struct AppContext
     application::services::ClassroomService *classroomService{nullptr};
     // SRS 间隔重复（业务功能 7）
     application::services::SrsService *srsService{nullptr};
+    // 个人生词本（自学者点词查词）
+    application::services::VocabNotebookService *vocabNotebookService{nullptr};
+    // 阅读分句译文（B2 众包式）
+    application::services::TranslationService *translationService{nullptr};
     // 收藏夹/分类（业务功能 8）
     application::services::BookmarkFolderService *bookmarkFolderService{nullptr};
     // 用户数据导出（业务功能 10）
@@ -99,6 +107,10 @@ struct AppContext
     application::services::LeaderboardService *leaderboardService{nullptr};
     // 第三方 OAuth（业务功能 22）
     application::services::OAuthService *oauthService{nullptr};
+    // 同考点串题（功能 #17）
+    application::services::RelatedQuestionsService *relatedQuestionsService{nullptr};
+    // 章节式学习路径（功能 #18）
+    application::services::ChapterService *chapterService{nullptr};
     application::recommendation::RecommendationStrategy *recommendationStrategy{nullptr};
 };
 

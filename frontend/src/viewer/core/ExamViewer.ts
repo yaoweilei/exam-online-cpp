@@ -107,6 +107,8 @@ class ExamViewer {
 		// 2. 功能管理器（可能有依赖）
 		this.audioManager = new AudioManager(this as any);
 		this.furiganaManager = new FuriganaManager(this as any);
+		// 生词划词查词 · 个人词本
+		this.vocabLookupManager = new (window as any).VocabLookupManager(this as any);
 		this.answerManager = new AnswerManager(this as any);
 		this.questionMapManager = new QuestionMapManager(this as any);
 		this.categoryNavigationManager = new CategoryNavigationManager(this as any);
@@ -128,6 +130,7 @@ class ExamViewer {
 		this.categoryNavigationManager.initCategoryDropdowns();
 		this.furiganaManager.loadExternalFuriganaDict();
 		this.furiganaManager.initFuriganaDebugBadge();
+		this.vocabLookupManager?.init?.();
 
 		// ==================== 后端通信设置 ====================
 		this.setupBackendCommunication();

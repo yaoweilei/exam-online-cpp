@@ -35,6 +35,10 @@ void registerFeedbackRoutes(const AppContext &ctx);
 void registerClassroomRoutes(const AppContext &ctx);
 // SRS 间隔重复路由（业务功能 7）
 void registerSrsRoutes(const AppContext &ctx);
+// 个人生词本路由（自学者点词查词）
+void registerVocabNotebookRoutes(const AppContext &ctx);
+// 阅读分句译文路由（B2）
+void registerTranslationRoutes(const AppContext &ctx);
 // 收藏夹/分类路由（业务功能 8）
 void registerBookmarkFolderRoutes(const AppContext &ctx);
 // 用户数据导出路由（业务功能 10）
@@ -59,4 +63,8 @@ void registerExplanationRoutes(const AppContext &ctx);
 void registerLeaderboardRoutes(const AppContext &ctx);
 // 第三方 OAuth 路由（业务功能 22）
 void registerOAuthRoutes(const AppContext &ctx);
+// 同考点串题路由（功能 #17）
+void registerRelatedQuestionsRoutes(const AppContext &ctx);
+// 章节式学习路径路由（功能 #18）
+void registerChapterRoutes(const AppContext &ctx);
 }  // namespace transport::routes

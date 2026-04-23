@@ -50,6 +50,13 @@ interface AudioEnhanceState {
 	abEnd: number;
 }
 
+// 听力三段式练习状态：
+//   - 'blind1'  第一遍盲听（transcript 隐藏）
+//   - 'reveal'  第二阶段：看 transcript 跟读 / 精听
+//   - 'blind2'  第三遍盲听验证（transcript 再次隐藏）
+//   - 'done'    完成（默认显示 transcript 供回看）
+type PracticeStage = 'blind1' | 'reveal' | 'blind2' | 'done';
+
 /**
  * 音频管理器 - 负责音频播放和脚本同步
  */
@@ -319,6 +326,121 @@ class AudioManager {
 		}
 
 		return scriptDiv;
+	}
+
+	// ============================================================
+	// 听力三段式练习模式
+	// ============================================================
+	// 状态持久化在 localStorage，key 形如 listening_stage:{questionId}
+	private practiceStageKey(questionKey: string): string {
+		return `listening_stage:${questionKey}`;
+	}
+
+	private getPracticeStage(questionKey: string): PracticeStage {
+		try {
+			const v = window.localStorage?.getItem(this.practiceStageKey(questionKey));
+			if (v === 'blind1' || v === 'reveal' || v === 'blind2' || v === 'done') {
+				return v;
+			}
+		} catch {
+			/* ignore */
+		}
+		return 'blind1';
+	}
+
+	private setPracticeStage(questionKey: string, stage: PracticeStage): void {
+		try {
+			window.localStorage?.setItem(this.practiceStageKey(questionKey), stage);
+		} catch {
+			/* ignore */
+		}
+	}
+
+	/**
+	 * 创建「先盲听 → 看原文 → 再盲听」三段式切换条
+	 * 仅在做题阶段（未显示答案）时使用；显示答案时直接出 transcript。
+	 */
+	createPracticeStageElement(question: AudioQuestion): HTMLDivElement {
+		const questionKey = this.keyOf(question.id);
+		const wrap = document.createElement('div');
+		wrap.className = 'listening-practice-bar';
+		wrap.dataset.questionId = questionKey;
+
+		const label = document.createElement('span');
+		label.className = 'listening-practice-label';
+		label.textContent = '练习模式：';
+		wrap.appendChild(label);
+
+		const stages: { key: PracticeStage; text: string; hint: string }[] = [
+			{ key: 'blind1', text: '1. 盲听', hint: '只听音频，不看原文，捕捉大意' },
+			{ key: 'reveal', text: '2. 看原文', hint: '展开 transcript，对照精听 / 跟读' },
+			{ key: 'blind2', text: '3. 再盲听', hint: '关闭原文，验证是否真听懂' },
+			{ key: 'done', text: '✓ 完成', hint: '保留 transcript 供随时回看' }
+		];
+
+		stages.forEach(({ key, text, hint }) => {
+			const btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = 'listening-stage-btn';
+			btn.dataset.stage = key;
+			btn.dataset.questionId = questionKey;
+			btn.textContent = text;
+			btn.title = hint;
+			btn.addEventListener('click', () => this.applyPracticeStage(questionKey, key));
+			wrap.appendChild(btn);
+		});
+
+		const tip = document.createElement('span');
+		tip.className = 'listening-practice-tip';
+		tip.dataset.questionId = questionKey;
+		wrap.appendChild(tip);
+
+		// 初始化为已保存或默认 blind1
+		// 注意：此时 script 容器还未挂入 DOM（QuestionRenderer 在我们之后 append），
+		// 所以延迟到下一帧再应用，确保能找到 .script-container。
+		const initial = this.getPracticeStage(questionKey);
+		queueMicrotask(() => this.applyPracticeStage(questionKey, initial, /*persist*/ false));
+
+		return wrap;
+	}
+
+	private applyPracticeStage(questionKey: string, stage: PracticeStage, persist = true): void {
+		if (persist) this.setPracticeStage(questionKey, stage);
+
+		// 高亮按钮
+		document
+			.querySelectorAll<HTMLButtonElement>(`.listening-stage-btn[data-question-id="${questionKey}"]`)
+			.forEach((b) => {
+				b.classList.toggle('is-active', b.dataset.stage === stage);
+			});
+
+		// 控制 transcript 显隐
+		const scriptEl = document.querySelector<HTMLDivElement>(
+			`.script-container[data-stage-wrap="${questionKey}"]`
+		);
+		if (scriptEl) {
+			const showScript = stage === 'reveal' || stage === 'done';
+			scriptEl.classList.toggle('script-stage-hidden', !showScript);
+		}
+
+		// 提示文案
+		const tipEl = document.querySelector<HTMLSpanElement>(
+			`.listening-practice-tip[data-question-id="${questionKey}"]`
+		);
+		if (tipEl) {
+			const tips: Record<PracticeStage, string> = {
+				blind1: '先不看原文，专心听 1–2 遍',
+				reveal: '可点击任一句跳转；配合 AB 复读练精听',
+				blind2: '关闭原文再听一遍，验证理解',
+				done: '已完成本题练习，原文可随时查看'
+			};
+			tipEl.textContent = tips[stage];
+		}
+
+		// 进入盲听阶段时若音频在播则不动；若 transcript 切换瞬间高亮可能显得突兀，主动清掉高亮
+		if (stage === 'blind1' || stage === 'blind2') {
+			this.clearActiveScriptLines(questionKey);
+		}
 	}
 
 	/**

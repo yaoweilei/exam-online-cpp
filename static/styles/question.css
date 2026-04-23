@@ -174,6 +174,131 @@
 	overflow-wrap: anywhere;
 }
 
+/* ============================================================ */
+/* 阅读分句结构（B1）                                            */
+/*   - 每段 <div class="passage-paragraph" data-pidx>            */
+/*   - 每句 <span class="passage-sentence" data-pidx data-sidx>  */
+/*   - 解释面板「答案出处」按钮点击后高亮闪烁                     */
+/* ============================================================ */
+.passage-paragraph {
+	display: block;
+	margin: 0 0 0.5em;
+}
+.passage-paragraph.passage-paragraph-blank {
+	height: 0.5em;
+}
+.passage-sentence {
+	display: inline;
+	transition: background-color 0.4s ease;
+	border-radius: 2px;
+}
+.passage-sentence:hover {
+	background-color: color-mix(in srgb, var(--vscode-textLink-foreground) 12%, transparent);
+}
+.passage-sentence-flash {
+	background-color: color-mix(in srgb, var(--vscode-textLink-foreground) 35%, transparent) !important;
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--vscode-textLink-foreground) 40%, transparent);
+}
+
+.explanation-source-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin: 0 0 8px;
+	padding: 4px 10px;
+	font-size: 12px;
+	background: color-mix(in srgb, var(--vscode-textLink-foreground) 12%, transparent);
+	color: var(--vscode-textLink-foreground);
+	border: 1px solid color-mix(in srgb, var(--vscode-textLink-foreground) 35%, transparent);
+	border-radius: 4px;
+	cursor: pointer;
+	transition: all 0.15s;
+}
+.explanation-source-btn:hover {
+	background: color-mix(in srgb, var(--vscode-textLink-foreground) 25%, transparent);
+}
+
+/* ============================================================ */
+/* 句级双语对照（B2）                                            */
+/* ============================================================ */
+.translation-chip {
+	display: inline-block;
+	margin: 0 2px 0 1px;
+	padding: 0 5px;
+	font-size: 10px;
+	line-height: 1.4;
+	color: var(--vscode-descriptionForeground);
+	background: color-mix(in srgb, var(--vscode-foreground) 8%, transparent);
+	border: 1px solid color-mix(in srgb, var(--vscode-foreground) 20%, transparent);
+	border-radius: 8px;
+	cursor: pointer;
+	vertical-align: super;
+	user-select: none;
+	transition: all 0.15s;
+}
+.translation-chip:hover {
+	color: var(--vscode-textLink-foreground);
+	border-color: var(--vscode-textLink-foreground);
+}
+.translation-chip.is-active {
+	background: var(--vscode-textLink-foreground);
+	color: var(--vscode-button-foreground);
+	border-color: var(--vscode-textLink-foreground);
+}
+
+.translation-panel {
+	display: block;
+	margin: 6px 0 4px;
+	padding: 8px 10px;
+	background: color-mix(in srgb, var(--vscode-input-background) 90%, transparent);
+	border-left: 3px solid var(--vscode-textLink-foreground);
+	border-radius: 3px;
+	font-size: 13px;
+}
+.translation-panel-header {
+	color: var(--vscode-descriptionForeground);
+	font-size: 11px;
+	margin-bottom: 4px;
+}
+.translation-textarea {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 6px 8px;
+	font-size: 13px;
+	font-family: inherit;
+	color: var(--vscode-foreground);
+	background: var(--vscode-input-background);
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 3px;
+	resize: vertical;
+	min-height: 2.4em;
+}
+.translation-textarea:focus {
+	outline: 1px solid var(--vscode-focusBorder);
+}
+.translation-panel-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 6px;
+}
+.translation-save-btn {
+	padding: 3px 12px;
+	font-size: 12px;
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+}
+.translation-save-btn:hover {
+	background: var(--vscode-button-hoverBackground);
+}
+.translation-panel-status {
+	color: var(--vscode-descriptionForeground);
+	font-size: 11px;
+}
+
 .passage-title {
 	font-weight: bold;
 	margin-bottom: 10px;

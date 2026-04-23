@@ -30,6 +30,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <string>
+#include <vector>
 
 #include <json/json.h>
 
@@ -70,6 +71,12 @@ class WrongQuestionRepository
 
     // 取消"已掌握"状态（重新进入复习队列）
     bool unmarkMastered(const std::string &userId, const std::string &questionId);
+
+    // 设置/覆盖错题的归因标签（错因分析，如 vocab_blindspot / careless 等）。
+    // 传空数组等同于清空该题的所有标签。返回是否命中该题。
+    bool setAttributionTags(const std::string &userId,
+                            const std::string &questionId,
+                            const std::vector<std::string> &tags);
 
     // 清空整份错题本
     void reset(const std::string &userId);

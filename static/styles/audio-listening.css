@@ -203,3 +203,58 @@
 	font-size: var(--exam-font-size);
 }
 
+/* ============================================================ */
+/* 三段式听力练习模式（盲听 → 看原文 → 再盲听 → 完成）          */
+/* ============================================================ */
+.listening-practice-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 8px 0 4px;
+	padding: 6px 8px;
+	border: 1px dashed var(--vscode-input-border);
+	border-radius: 4px;
+	background: color-mix(in srgb, var(--vscode-input-background) 80%, transparent);
+	font-size: 12px;
+}
+
+.listening-practice-label {
+	color: var(--vscode-descriptionForeground);
+	font-weight: 600;
+	margin-right: 4px;
+}
+
+.listening-stage-btn {
+	padding: 3px 10px;
+	font-size: 12px;
+	border: 1px solid var(--vscode-input-border);
+	background: transparent;
+	color: var(--vscode-foreground);
+	border-radius: 3px;
+	cursor: pointer;
+	transition: all 0.15s;
+}
+
+.listening-stage-btn:hover {
+	background: var(--vscode-list-hoverBackground);
+}
+
+.listening-stage-btn.is-active {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border-color: var(--vscode-button-background);
+}
+
+.listening-practice-tip {
+	margin-left: auto;
+	color: var(--vscode-descriptionForeground);
+	font-size: 11px;
+	font-style: italic;
+}
+
+/* 三段式：盲听阶段隐藏 transcript */
+.script-container.script-stage-hidden {
+	display: none;
+}
+

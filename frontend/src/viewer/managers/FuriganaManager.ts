@@ -150,6 +150,25 @@ class FuriganaManager {
 		return result;
 	}
 
+	/**
+	 * 查词：返回该词条的假名读音；未命中返回空串。
+	 * 用于「点词查词」弹卡：先从字典精确命中；否则尝试 LCP 最长前缀匹配。
+	 */
+	lookupReading(word: string): string {
+		if (!word) return '';
+		const map = this._furiganaMap;
+		if (!map || map.size === 0) return '';
+		const exact = map.get(word);
+		if (exact) return exact;
+		// 最长前缀匹配（用户选词时可能多选 1–2 个汉字）
+		for (let len = Math.min(word.length, 8); len >= 2; len--) {
+			const slice = word.slice(0, len);
+			const r = map.get(slice);
+			if (r) return r;
+		}
+		return '';
+	}
+
 	updateFuriganaStatus(): void {
 		const badge = this._furiganaBadge || (document.getElementById('furigana-debug-badge') as HTMLDivElement | null);
 		if (!badge) return;

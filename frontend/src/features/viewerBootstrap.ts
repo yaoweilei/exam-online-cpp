@@ -49,6 +49,8 @@ const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'NavigationManager', path: '../viewer/managers/NavigationManager.js' },
 	{ name: 'AudioManager', path: '../viewer/managers/AudioManager.js' },
 	{ name: 'FuriganaManager', path: '../viewer/managers/FuriganaManager.js' },
+	{ name: 'TranslationManager', path: '../viewer/managers/TranslationManager.js' },
+	{ name: 'VocabLookupManager', path: '../viewer/managers/VocabLookupManager.js' },
 	{ name: 'AnswerManager', path: '../viewer/managers/AnswerManager.js' },
 	{ name: 'QuestionMapManager', path: '../viewer/managers/QuestionMapManager.js' },
 	{ name: 'CategoryNavigationManager', path: '../viewer/managers/CategoryNavigationManager.js' },
@@ -69,6 +71,8 @@ const REQUIRED_GLOBALS = [
 	'AnswerManager',
 	'QuestionMapManager',
 	'FuriganaManager',
+	'TranslationManager',
+	'VocabLookupManager',
 	'CategoryNavigationManager',
 	'QuestionRenderer',
 	'ExamViewer'
@@ -347,6 +351,12 @@ async function initExamSelectors(): Promise<void> {
 				viewerForTimer._currentExamId = examId;
 			}
 			globalWindow.examViewer?.loadExamData(examData);
+			// B2：并行拉取该试卷的句级译文（失败不阻塞主流程）
+			const translationMgr = (globalWindow as unknown as { TranslationManager?: { loadForExam: (id: string) => Promise<void>; installDelegation: () => void } }).TranslationManager;
+			if (translationMgr) {
+				translationMgr.installDelegation();
+				void translationMgr.loadForExam(examId);
+			}
 		} catch (error) {
 			console.error('[viewerBootstrap] Failed to load exam:', error);
 			const container = document.getElementById('current-question-container');

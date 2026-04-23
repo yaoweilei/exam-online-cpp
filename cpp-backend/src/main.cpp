@@ -23,6 +23,8 @@
 #include "application/services/FeatureFlagService.h"
 #include "application/services/FeedbackService.h"
 #include "application/services/SrsService.h"
+#include "application/services/VocabNotebookService.h"
+#include "application/services/TranslationService.h"
 #include "application/services/DataExportService.h"
 #include "application/services/AdminStatisticsService.h"
 #include "application/services/CommunityService.h"
@@ -34,6 +36,8 @@
 #include "application/services/ExplanationService.h"
 #include "application/services/LeaderboardService.h"
 #include "application/services/OAuthService.h"
+#include "application/services/RelatedQuestionsService.h"
+#include "application/services/ChapterService.h"
 #include "application/services/ContactChangeChallengeService.h"
 #include "application/services/EmailVerificationService.h"
 #include "application/services/ExamService.h"
@@ -61,6 +65,8 @@
 #include "infrastructure/storage/FeatureFlagRepository.h"
 #include "infrastructure/storage/FeedbackRepository.h"
 #include "infrastructure/storage/SrsRepository.h"
+#include "infrastructure/storage/VocabNotebookRepository.h"
+#include "infrastructure/storage/TranslationRepository.h"
 #include "infrastructure/storage/ExamRepository.h"
 #include "infrastructure/storage/FuriganaRepository.h"
 #include "infrastructure/storage/OrganizationRepository.h"
@@ -197,6 +203,12 @@ int main()
     // SRS Repository + Service（业务功能 7）
     infrastructure::storage::SrsRepository srsRepo(cfg.dataUserDir);
     application::services::SrsService srsService(srsRepo);
+    // 个人生词本 Repository + Service（自学者点词查词）
+    infrastructure::storage::VocabNotebookRepository vocabNotebookRepo(cfg.dataUserDir);
+    application::services::VocabNotebookService vocabNotebookService(vocabNotebookRepo);
+    // 阅读分句译文 Repository + Service（B2 众包式双语对照）
+    infrastructure::storage::TranslationRepository translationRepo(cfg.dataSystemDir);
+    application::services::TranslationService translationService(translationRepo);
     // 收藏夹/分类 Repository + Service（业务功能 8）
     infrastructure::storage::BookmarkFolderRepository bookmarkFolderRepo(cfg.dataUserDir);
     application::services::BookmarkFolderService bookmarkFolderService(bookmarkFolderRepo);
@@ -227,6 +239,10 @@ int main()
         {"google", application::services::OAuthClientConfig{}},
         {"apple", application::services::OAuthClientConfig{}}};
     application::services::OAuthService oauthService(userRepo, std::move(oauthProviders));
+    // 同考点串题 Service（功能 #17）—复用 ExamRepository，懒加载反向索引
+    application::services::RelatedQuestionsService relatedQuestionsService(examRepo);
+    // 章节式学习路径 Service（功能 #18）—复用 Exam + Answer Repository
+    application::services::ChapterService chapterService(examRepo, answerRepo);
     application::services::PhoneService phoneService(userRepo, *smsService, contactChangeChallengeService);
     application::services::EmailVerificationService emailVerificationService(userRepo, *emailService, contactChangeChallengeService);
     application::services::WechatService wechatService(
@@ -263,6 +279,8 @@ int main()
         .feedbackService = &feedbackService,
         .classroomService = &classroomService,
         .srsService = &srsService,
+        .vocabNotebookService = &vocabNotebookService,
+        .translationService = &translationService,
         .bookmarkFolderService = &bookmarkFolderService,
         .dataExportService = &dataExportService,
         .adminStatisticsService = &adminStatisticsService,
@@ -275,6 +293,8 @@ int main()
         .explanationService = &explanationService,
         .leaderboardService = &leaderboardService,
         .oauthService = &oauthService,
+        .relatedQuestionsService = &relatedQuestionsService,
+        .chapterService = &chapterService,
         .recommendationStrategy = &recommendationStrategy};
 
     transport::ApiRouter router(context);

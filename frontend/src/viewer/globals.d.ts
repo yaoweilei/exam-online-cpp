@@ -165,6 +165,19 @@ interface LegacyApiClientShape {
 	deleteExplanation(examId: string, questionId: string, explanationId: string): Promise<unknown>;
 	// 排行榜（业务功能 21）
 	getLeaderboard(period?: 'week' | 'month' | 'all', limit?: number, force?: boolean): Promise<unknown>;
+	// 个人生词本
+	listVocab(userId?: string): Promise<unknown>;
+	addVocabWord(payload: { word: string; reading?: string; note?: string; examId?: string; questionId?: string; userId?: string }): Promise<unknown>;
+	removeVocabWord(wordId: string, userId?: string): Promise<unknown>;
+	updateVocabNote(wordId: string, note: string, userId?: string): Promise<unknown>;
+	// 错因归因标签（功能 #16）
+	getWrongQuestionTagRegistry(): Promise<unknown>;
+	setWrongQuestionTags(userId: string, questionId: string, tags: string[]): Promise<unknown>;
+	// 同考点串题（功能 #17）
+	getRelatedQuestions(examId: string, questionId: string, limit?: number): Promise<unknown>;
+	// 章节式学习路径（功能 #18）
+	listChapters(opts?: { level?: string; userId?: string }): Promise<unknown>;
+	getChapterDetail(chapterId: string, userId?: string): Promise<unknown>;
 }
 
 // 功能开关解析后的状态（与后端 FeatureFlagService::resolveOne 保持一致）

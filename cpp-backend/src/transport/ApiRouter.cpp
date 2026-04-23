@@ -37,6 +37,10 @@ void ApiRouter::registerRoutes() const
     routes::registerClassroomRoutes(context_);
     // SRS 间隔重复路由（业务功能 7）
     routes::registerSrsRoutes(context_);
+    // 个人生词本路由（自学者点词查词）
+    routes::registerVocabNotebookRoutes(context_);
+    // 阅读分句译文路由（B2）
+    routes::registerTranslationRoutes(context_);
     // 收藏夹/分类路由（业务功能 8）
     routes::registerBookmarkFolderRoutes(context_);
     // 用户数据导出路由（业务功能 10）
@@ -61,5 +65,9 @@ void ApiRouter::registerRoutes() const
     routes::registerLeaderboardRoutes(context_);
     // 第三方 OAuth 路由（业务功能 22）
     routes::registerOAuthRoutes(context_);
+    // 同考点串题路由（功能 #17）
+    routes::registerRelatedQuestionsRoutes(context_);
+    // 章节式学习路径路由（功能 #18）
+    routes::registerChapterRoutes(context_);
 }
 }  // namespace transport

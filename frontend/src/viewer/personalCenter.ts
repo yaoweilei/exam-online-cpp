@@ -114,6 +114,22 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			gate: (u) => !u.guest && (window.isFeatureEnabled?.('learning_report') ?? true)
 		},
 		{
+			// 个人生词本入口（功能开关：vocab_notebook）
+			id: 'vocabNotebook',
+			title: '生词本',
+			icon: 'book',
+			intent: 'openVocabNotebook',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('vocab_notebook') ?? true)
+		},
+		{
+			// 功能 #18：章节式学习路径入口（功能开关：chapter_path）
+			id: 'chapterPath',
+			title: '学习路径',
+			icon: 'chart',
+			intent: 'openChapterPath',
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('chapter_path') ?? true)
+		},
+		{
 			// 业务功能 18：备考目标 / 倒计时入口（功能开关：study_goal）
 			id: 'studyGoal',
 			title: '备考目标',
@@ -2866,6 +2882,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				// 业务功能 17：打开学习报告
 				void openLearningReportPanel();
 				break;
+			case 'openVocabNotebook':
+				// 个人生词本
+				void openVocabNotebookPanel();
+				break;
+			case 'openChapterPath':
+				// 功能 #18：章节式学习路径
+				void openChapterPathPanel();
+				break;
 			case 'openStudyGoal':
 				// 业务功能 18：打开备考目标管理
 				void openStudyGoalPanel();
@@ -3369,6 +3393,16 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	let wqStatus: 'active' | 'mastered' | 'all' = 'active';
 	let wqSort: 'recent' | 'wrong_count' = 'recent';
 
+	// 功能 #16：错因归因标签注册表（硬编码，与后端 WrongQuestionService::attributionTagRegistry 保持一致）
+	const WQ_TAG_REGISTRY: Array<{ key: string; name: string; description: string }> = [
+		{ key: 'vocab_blindspot', name: '词汇盲点', description: '生词或词义没掌握' },
+		{ key: 'grammar_unsure', name: '语法不熟', description: '句型/活用判断错误' },
+		{ key: 'reading_pace', name: '阅读节奏', description: '时间不够或读漏关键句' },
+		{ key: 'listening_missed', name: '听力漏听', description: '关键词没抓住/走神' },
+		{ key: 'careless', name: '粗心', description: '低级看错题干或填错' },
+		{ key: 'option_trap', name: '选项陷阱', description: '被相近干扰项骗到' }
+	];
+
 	function ensureWrongQuestionModal(): HTMLDivElement {
 		if (wrongQuestionModal) {
 			return wrongQuestionModal;
@@ -3447,7 +3481,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const masterBtn = mastered
 			? `<button class="risk-btn" data-wq-action="unmaster" data-qid="${escapeHtmlSafe(qid)}">取消掌握</button>`
 			: `<button class="risk-btn" data-wq-action="master" data-qid="${escapeHtmlSafe(qid)}">标记掌握</button>`;
-		return `<div class="wq-item" style="border-top:1px solid #eee;padding:12px 16px;">
+		// 功能 #16：归因标签 chips
+		const activeTags = Array.isArray(item.attribution_tags) ? (item.attribution_tags as unknown[]).map(String) : [];
+		const tagsHtml = WQ_TAG_REGISTRY.map((t) => {
+			const on = activeTags.includes(t.key);
+			return `<button type="button" class="wq-tag-chip${on ? ' on' : ''}" data-wq-action="toggleTag" data-qid="${escapeHtmlSafe(qid)}" data-tag="${escapeHtmlSafe(t.key)}" title="${escapeHtmlSafe(t.description)}" style="margin-right:4px;margin-top:4px;padding:2px 8px;font-size:11px;border-radius:10px;border:1px solid ${on ? '#36a' : '#ccc'};background:${on ? '#e6f0ff' : '#fafafa'};color:${on ? '#36a' : '#666'};cursor:pointer;">${escapeHtmlSafe(t.name)}</button>`;
+		}).join('');
+		return `<div class="wq-item" style="border-top:1px solid #eee;padding:12px 16px;" data-wq-item-id="${escapeHtmlSafe(qid)}">
 			<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#888;">
 				<span>题目 ID: ${escapeHtmlSafe(qid)} · 试卷 ${escapeHtmlSafe(examId)} · 错 ${wrongCount} 次${masteredTag}</span>
 				<span>${escapeHtmlSafe(lastWrongAt)}</span>
@@ -3465,8 +3505,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					  )}</div></details>`
 					: ''
 			}
-			<div style="margin-top:8px;display:flex;gap:8px;">
+			<div style="margin-top:6px;font-size:11px;color:#888;">错因归因（点击切换）：<span class="wq-tag-status" data-qid="${escapeHtmlSafe(qid)}"></span></div>
+			<div style="margin-top:2px;">${tagsHtml}</div>
+			<div class="wq-related" data-qid="${escapeHtmlSafe(qid)}" data-exam="${escapeHtmlSafe(examId)}" style="margin-top:6px;"></div>
+			<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
 				${masterBtn}
+				<button class="risk-btn" data-wq-action="related" data-qid="${escapeHtmlSafe(qid)}" data-exam="${escapeHtmlSafe(examId)}">📚 同考点串题</button>
 				<button class="risk-btn" data-wq-action="remove" data-qid="${escapeHtmlSafe(qid)}" style="color:#a33;">移出错题本</button>
 			</div>
 		</div>`;
@@ -3490,9 +3534,19 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			const items = result.items ?? [];
 			const sm = result.summary ?? {};
 			if (summary) {
+				const tagSummary = (sm as Record<string, unknown>).tag_summary as Record<string, number> | undefined;
+				let tagLine = '';
+				if (tagSummary && Object.keys(tagSummary).length > 0) {
+					const parts = WQ_TAG_REGISTRY
+						.filter((t) => tagSummary[t.key])
+						.map((t) => `<span style="margin-right:8px;color:#36a;">${escapeHtmlSafe(t.name)} ${tagSummary[t.key]}</span>`);
+					if (parts.length > 0) {
+						tagLine = `<div style="margin-top:4px;font-size:11px;">归因分布：${parts.join('')}</div>`;
+					}
+				}
 				summary.innerHTML = `共 <b>${sm.total ?? 0}</b> 题 · 待掌握 <b style="color:#a33;">${
 					sm.active ?? 0
-				}</b> · 已掌握 <b style="color:#3a7;">${sm.mastered ?? 0}</b>`;
+				}</b> · 已掌握 <b style="color:#3a7;">${sm.mastered ?? 0}</b>${tagLine}`;
 			}
 			if (items.length === 0) {
 				body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">暂无错题，继续加油！</div>';
@@ -3557,18 +3611,111 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			};
 		}
 
-		// 列表区域的事件委托：处理"移除/标记掌握/取消掌握"
+		// 列表区域的事件委托：处理"移除/标记掌握/取消掌握/切换标签/同考点串题"
 		const body = modal.querySelector('#wq-body') as HTMLDivElement | null;
 		if (body) {
 			body.onclick = (event: MouseEvent) => {
-				const btn = (event.target as HTMLElement | null)?.closest('button[data-wq-action]') as
-					| HTMLButtonElement
+				const btn = (event.target as HTMLElement | null)?.closest('[data-wq-action]') as
+					| HTMLElement
 					| null;
 				if (!btn) return;
 				const qid = btn.dataset.qid || '';
 				const action = btn.dataset.wqAction || '';
 				const api = window.APIClient;
-				if (!api || !qid) return;
+				if (!api || (!qid && action !== 'gotoExam')) return;
+				// 归因标签切换
+				if (action === 'toggleTag') {
+					const tag = btn.dataset.tag || '';
+					if (!tag || typeof api.setWrongQuestionTags !== 'function') return;
+					const itemEl = btn.closest('.wq-item') as HTMLElement | null;
+					if (!itemEl) return;
+					const chips = itemEl.querySelectorAll('button[data-wq-action="toggleTag"]') as NodeListOf<HTMLButtonElement>;
+					const status = itemEl.querySelector(`.wq-tag-status[data-qid="${qid}"]`) as HTMLSpanElement | null;
+					// 前端切换视觉态并收集最终标签集合
+					btn.classList.toggle('on');
+					const onNow = btn.classList.contains('on');
+					btn.style.border = `1px solid ${onNow ? '#36a' : '#ccc'}`;
+					btn.style.background = onNow ? '#e6f0ff' : '#fafafa';
+					btn.style.color = onNow ? '#36a' : '#666';
+					const tags: string[] = [];
+					chips.forEach((c) => {
+						if (c.classList.contains('on') && c.dataset.tag) tags.push(c.dataset.tag);
+					});
+					if (status) status.textContent = '保存中…';
+					api
+						.setWrongQuestionTags(userId, qid, tags)
+						.then(() => {
+							if (status) {
+								status.textContent = '✓ 已保存';
+								setTimeout(() => { if (status) status.textContent = ''; }, 1000);
+							}
+						})
+						.catch((err: unknown) => {
+							if (status) status.textContent = '';
+							showToast(readErrorMessage(err, '保存归因失败'));
+						});
+					return;
+				}
+				// 同考点串题：展开到 .wq-related
+				if (action === 'related') {
+					const examId = btn.dataset.exam || '';
+					if (!examId || typeof api.getRelatedQuestions !== 'function') return;
+					const itemEl = btn.closest('.wq-item') as HTMLElement | null;
+					const holder = itemEl?.querySelector(`.wq-related[data-qid="${qid}"]`) as HTMLDivElement | null;
+					if (!holder) return;
+					if (holder.dataset.loaded === '1') {
+						holder.innerHTML = '';
+						holder.dataset.loaded = '';
+						return;
+					}
+					holder.innerHTML = '<div style="padding:6px 8px;color:#888;font-size:12px;">加载中…</div>';
+					api
+						.getRelatedQuestions(examId, qid, 8)
+						.then((data: unknown) => {
+							const d = (data as { items?: Array<Record<string, unknown>>; target_words?: unknown[] }) || {};
+							const words = Array.isArray(d.target_words) ? d.target_words.map(String) : [];
+							const items = d.items || [];
+							if (items.length === 0) {
+								holder.innerHTML = `<div style="padding:6px 8px;color:#888;font-size:12px;border-left:3px solid #ccd;background:#f7f7fb;">未找到同 target_words 的串题${words.length ? `（考点词：${words.map(escapeHtmlSafe).join('、')}）` : ''}</div>`;
+							} else {
+								const header = `<div style="padding:6px 8px;color:#555;font-size:12px;background:#f2f6ff;border-left:3px solid #36a;">📚 共 ${items.length} 题同考点${words.length ? `（${words.map(escapeHtmlSafe).join('、')}）` : ''}</div>`;
+								const rows = items
+									.map((it) => {
+										const matched = Array.isArray(it.matched_words) ? (it.matched_words as unknown[]).map(String) : [];
+										const stem = String(it.stem || '').slice(0, 80);
+										const exam = String(it.exam_id || '');
+										const id = String(it.question_id || '');
+										return `<div style="padding:6px 8px;border-bottom:1px dashed #eee;font-size:12px;">
+											<div style="display:flex;gap:6px;align-items:center;">
+												<code style="font-size:11px;color:#888;">${escapeHtmlSafe(exam)} · ${escapeHtmlSafe(id)}</code>
+												<span style="font-size:11px;color:#36a;">匹配：${matched.map(escapeHtmlSafe).join('、')}</span>
+												<a href="#" data-wq-action="gotoExam" data-exam="${escapeHtmlSafe(exam)}" style="margin-left:auto;color:#36a;">去做这题 →</a>
+											</div>
+											<div style="margin-top:3px;color:#444;">${escapeHtmlSafe(stem)}</div>
+										</div>`;
+									})
+									.join('');
+								holder.innerHTML = `<div style="border:1px solid #dde;border-radius:4px;background:#fff;">${header}${rows}</div>`;
+							}
+							holder.dataset.loaded = '1';
+						})
+						.catch((err: unknown) => {
+							holder.innerHTML = `<div style="padding:6px 8px;color:#a33;font-size:12px;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+						});
+					return;
+				}
+				// 跳转到指定试卷
+				if (action === 'gotoExam') {
+					const exam = btn.dataset.exam || '';
+					if (!exam) return;
+					event.preventDefault();
+					modal.classList.remove('risk-open');
+					modal.classList.add('risk-hidden');
+					const w = window as unknown as { openExam?: (id: string) => void };
+					if (typeof w.openExam === 'function') w.openExam(exam);
+					else window.location.hash = `#exam=${encodeURIComponent(exam)}`;
+					return;
+				}
 				let promise: Promise<unknown> | null = null;
 				if (action === 'remove' && typeof api.removeWrongQuestion === 'function') {
 					promise = api.removeWrongQuestion(userId, qid);
@@ -3578,11 +3725,11 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					promise = api.unmasterWrongQuestion(userId, qid);
 				}
 				if (!promise) return;
-				btn.disabled = true;
+				if (btn instanceof HTMLButtonElement) btn.disabled = true;
 				promise
 					.then(() => reloadWrongQuestions(modal, userId))
 					.catch((err: unknown) => {
-						btn.disabled = false;
+						if (btn instanceof HTMLButtonElement) btn.disabled = false;
 						showToast(readErrorMessage(err, '操作失败'));
 					});
 			};
@@ -5166,6 +5313,363 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		modal.classList.remove('risk-hidden');
 		modal.style.display = 'flex';
 		await reloadLeaderboard(false);
+	}
+
+	// ============================================================
+	// 个人生词本面板
+	// ============================================================
+	let vocabModal: HTMLDivElement | null = null;
+	let vocabFilter = '';
+
+	function ensureVocabModal(): HTMLDivElement {
+		if (vocabModal) return vocabModal;
+		const el = document.createElement('div');
+		el.id = 'vocab-modal';
+		el.className = 'risk-hidden';
+		el.innerHTML = `<div class="risk-backdrop" data-vocab-act="close"></div>
+			<div class="risk-panel" style="max-width:760px;width:90%;">
+				<div class="risk-header"><strong>生词本</strong><button class="risk-close" data-vocab-act="close">×</button></div>
+				<div id="vocab-summary" style="padding:8px 16px;font-size:13px;color:#777;"></div>
+				<div style="display:flex;gap:8px;align-items:center;padding:0 16px 8px 16px;flex-wrap:wrap;font-size:13px;">
+					<input id="vocab-filter" type="search" placeholder="搜索词形 / 假名 / 笔记..." style="flex:1;min-width:200px;padding:4px 8px;" />
+					<button id="vocab-reload" class="risk-btn">刷新</button>
+				</div>
+				<div class="risk-body" id="vocab-body" style="max-height:62vh;overflow:auto;"></div>
+				<div class="risk-footer"><button class="risk-btn" data-vocab-act="close">关闭</button></div>
+			</div>`;
+		el.addEventListener('click', (event) => {
+			const target = event.target as HTMLElement | null;
+			if (target?.dataset.vocabAct === 'close') {
+				el.classList.remove('risk-open');
+				el.classList.add('risk-hidden');
+			}
+		});
+		document.body.appendChild(el);
+		vocabModal = el;
+		return el;
+	}
+
+	function renderVocabItem(item: Record<string, unknown>): string {
+		const id = String(item.id ?? '');
+		const word = String(item.word ?? '');
+		const reading = String(item.reading ?? '');
+		const note = String(item.note ?? '');
+		const examId = String(item.exam_id ?? '');
+		const questionId = String(item.question_id ?? '');
+		const addedAt = String(item.added_at ?? '');
+		const sourceLine = examId
+			? `<a href="#" data-vocab-act="goto" data-exam="${escapeHtmlSafe(examId)}" data-qid="${escapeHtmlSafe(questionId)}" style="color:#36a;">来自 ${escapeHtmlSafe(examId)}${questionId ? ' · 第 ' + escapeHtmlSafe(questionId) + ' 题' : ''}</a>`
+			: '<span style="color:#999;">无来源</span>';
+		return `<div class="vocab-item" style="border-top:1px solid #eee;padding:10px 16px;" data-vocab-id="${escapeHtmlSafe(id)}">
+			<div style="display:flex;align-items:baseline;gap:10px;">
+				<span style="font-size:18px;font-weight:600;">${escapeHtmlSafe(word)}</span>
+				${reading && reading !== word ? `<span style="color:#888;font-size:12px;">${escapeHtmlSafe(reading)}</span>` : ''}
+				<span style="margin-left:auto;font-size:11px;color:#aaa;">${escapeHtmlSafe(addedAt.slice(0, 10))}</span>
+			</div>
+			<div style="margin-top:4px;font-size:12px;">${sourceLine}</div>
+			<div style="margin-top:4px;">
+				<textarea data-vocab-act="note" data-vocab-id="${escapeHtmlSafe(id)}" rows="2" style="width:100%;box-sizing:border-box;font-size:12px;padding:4px 6px;" placeholder="释义 / 笔记">${escapeHtmlSafe(note)}</textarea>
+			</div>
+			<div style="margin-top:6px;display:flex;gap:8px;">
+				<button class="risk-btn" data-vocab-act="save" data-vocab-id="${escapeHtmlSafe(id)}">保存笔记</button>
+				<button class="risk-btn" data-vocab-act="remove" data-vocab-id="${escapeHtmlSafe(id)}" style="color:#a33;">删除</button>
+				<span class="vocab-item-status" data-vocab-id="${escapeHtmlSafe(id)}" style="font-size:11px;color:#aaa;align-self:center;"></span>
+			</div>
+		</div>`;
+	}
+
+	function filterVocabItems(items: Record<string, unknown>[], filter: string): Record<string, unknown>[] {
+		const f = filter.trim().toLowerCase();
+		if (!f) return items;
+		return items.filter((it) => {
+			return ['word', 'reading', 'note'].some((k) => String(it[k] ?? '').toLowerCase().includes(f));
+		});
+	}
+
+	async function reloadVocabNotebook(modal: HTMLDivElement): Promise<void> {
+		const api = window.APIClient;
+		const body = modal.querySelector('#vocab-body') as HTMLDivElement | null;
+		const summary = modal.querySelector('#vocab-summary') as HTMLDivElement | null;
+		if (!api || typeof api.listVocab !== 'function' || !body) {
+			if (body) body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">接口不可用</div>';
+			return;
+		}
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		try {
+			const data = (await api.listVocab()) as { items?: Record<string, unknown>[] };
+			const all = data.items ?? [];
+			const items = filterVocabItems(all, vocabFilter);
+			if (summary) {
+				summary.innerHTML = `共 <b>${all.length}</b> 个生词${vocabFilter ? ` · 匹配 <b>${items.length}</b>` : ''}`;
+			}
+			if (items.length === 0) {
+				body.innerHTML = `<div style="padding:24px;text-align:center;color:#999;">${
+					all.length === 0 ? '生词本是空的，做题时划选词语点「加入生词本」即可' : '没有匹配的生词'
+				}</div>`;
+				return;
+			}
+			body.innerHTML = items.map(renderVocabItem).join('');
+		} catch (error) {
+			body.innerHTML = `<div style="padding:24px;text-align:center;color:#a33;">加载失败：${escapeHtmlSafe(
+				readErrorMessage(error, '未知错误')
+			)}</div>`;
+		}
+	}
+
+	async function openVocabNotebookPanel(): Promise<void> {
+		const ctx = getContext();
+		if (!ctx.id) {
+			showToast('请先登录后查看生词本');
+			return;
+		}
+		const modal = ensureVocabModal();
+		modal.classList.remove('risk-hidden');
+		modal.classList.add('risk-open');
+
+		const filterInput = modal.querySelector('#vocab-filter') as HTMLInputElement | null;
+		if (filterInput) {
+			filterInput.value = vocabFilter;
+			filterInput.oninput = () => {
+				vocabFilter = filterInput.value;
+				void reloadVocabNotebook(modal);
+			};
+		}
+		const reloadBtn = modal.querySelector('#vocab-reload') as HTMLButtonElement | null;
+		if (reloadBtn) reloadBtn.onclick = () => void reloadVocabNotebook(modal);
+
+		const body = modal.querySelector('#vocab-body') as HTMLDivElement | null;
+		if (body) {
+			body.onclick = (event: MouseEvent) => {
+				const target = (event.target as HTMLElement | null);
+				const btn = target?.closest('button[data-vocab-act], a[data-vocab-act]') as HTMLElement | null;
+				if (!btn) return;
+				const act = btn.dataset.vocabAct || '';
+				const id = btn.dataset.vocabId || '';
+				const api = window.APIClient;
+				if (!api) return;
+				const status = body.querySelector(`.vocab-item-status[data-vocab-id="${id}"]`) as HTMLSpanElement | null;
+				if (act === 'remove' && id && typeof api.removeVocabWord === 'function') {
+					confirmRisk('删除生词', '删除生词', () => {
+						api
+							.removeVocabWord(id)
+							.then(() => reloadVocabNotebook(modal))
+							.catch((err: unknown) => showToast(readErrorMessage(err, '删除失败')));
+					});
+				} else if (act === 'save' && id && typeof api.updateVocabNote === 'function') {
+					const ta = body.querySelector(`textarea[data-vocab-act="note"][data-vocab-id="${id}"]`) as HTMLTextAreaElement | null;
+					const note = ta?.value ?? '';
+					if (status) status.textContent = '保存中...';
+					api
+						.updateVocabNote(id, note)
+						.then(() => {
+							if (status) {
+								status.textContent = '✓ 已保存';
+								setTimeout(() => { if (status) status.textContent = ''; }, 1200);
+							}
+						})
+						.catch((err: unknown) => {
+							if (status) status.textContent = '';
+							showToast(readErrorMessage(err, '保存失败'));
+						});
+				} else if (act === 'goto') {
+					const examId = (btn as HTMLElement).dataset.exam || '';
+					if (examId) {
+						event.preventDefault();
+						modal.classList.remove('risk-open');
+						modal.classList.add('risk-hidden');
+						const w = window as unknown as { openExam?: (id: string) => void };
+						if (typeof w.openExam === 'function') {
+							w.openExam(examId);
+						} else {
+							window.location.hash = `#exam=${encodeURIComponent(examId)}`;
+						}
+					}
+				}
+			};
+		}
+
+		await reloadVocabNotebook(modal);
+	}
+
+	// ============================================================
+	// 功能 #18：章节式学习路径面板
+	// ============================================================
+	let chapterModal: HTMLDivElement | null = null;
+	let chapterFilterLevel = '';  // '' | 'N1' | 'N2' | 'N3' | 'N4' | 'N5'
+	function ensureChapterModal(): HTMLDivElement {
+		if (chapterModal) return chapterModal;
+		const el = document.createElement('div');
+		el.id = 'chapter-modal';
+		el.className = 'risk-hidden';
+		el.innerHTML = `<div class="risk-backdrop" data-cp-act="close"></div>
+			<div class="risk-panel" style="max-width:820px;width:92%;">
+				<div class="risk-header"><strong>学习路径（章节）</strong><button class="risk-close" data-cp-act="close">×</button></div>
+				<div style="padding:8px 16px;font-size:13px;color:#666;">按 JLPT section 聚合跨卷题目，查看各章节的累计进度</div>
+				<div style="display:flex;gap:8px;align-items:center;padding:0 16px 8px 16px;flex-wrap:wrap;font-size:13px;">
+					<label>等级
+						<select id="cp-level">
+							<option value="">全部</option>
+							<option value="N1">N1</option>
+							<option value="N2">N2</option>
+							<option value="N3">N3</option>
+							<option value="N4">N4</option>
+							<option value="N5">N5</option>
+						</select>
+					</label>
+					<button id="cp-reload" class="risk-btn">刷新</button>
+				</div>
+				<div class="risk-body" id="cp-body" style="max-height:62vh;overflow:auto;"></div>
+				<div class="risk-footer"><button class="risk-btn" data-cp-act="close">关闭</button></div>
+			</div>`;
+		el.addEventListener('click', (event) => {
+			const target = event.target as HTMLElement | null;
+			if (target?.dataset.cpAct === 'close') {
+				el.classList.remove('risk-open');
+				el.classList.add('risk-hidden');
+			}
+		});
+		document.body.appendChild(el);
+		chapterModal = el;
+		return el;
+	}
+
+	function renderChapterRow(item: Record<string, unknown>): string {
+		const id = String(item.id ?? '');
+		const name = String(item.section_name ?? '');
+		const type = String(item.section_type ?? '');
+		const lvl = String(item.level ?? '');
+		const total = Number(item.question_count ?? 0);
+		const answered = Number(item.answered ?? 0);
+		const correct = Number(item.correct ?? 0);
+		const progress = total > 0 ? Math.round((answered / total) * 100) : 0;
+		const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : 0;
+		return `<div class="cp-row" style="border-top:1px solid #eee;padding:10px 16px;">
+			<div style="display:flex;align-items:center;gap:10px;">
+				<span style="font-size:11px;padding:2px 6px;background:#eef;border-radius:3px;color:#448;">${escapeHtmlSafe(lvl)}</span>
+				<span style="font-size:11px;padding:2px 6px;background:#efe;border-radius:3px;color:#484;">${escapeHtmlSafe(type)}</span>
+				<span style="font-weight:600;">${escapeHtmlSafe(name)}</span>
+				<span style="margin-left:auto;font-size:11px;color:#888;">${total} 题</span>
+			</div>
+			<div style="margin-top:6px;height:6px;background:#eee;border-radius:3px;overflow:hidden;">
+				<div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#36a,#6c9);"></div>
+			</div>
+			<div style="margin-top:4px;font-size:12px;color:#555;display:flex;gap:12px;">
+				<span>进度 <b>${progress}%</b>（${answered}/${total}）</span>
+				<span>正确率 <b style="color:${accuracy >= 70 ? '#3a7' : accuracy >= 40 ? '#b80' : '#a33'};">${accuracy}%</b></span>
+				<button class="risk-btn" data-cp-act="detail" data-id="${escapeHtmlSafe(id)}" style="margin-left:auto;font-size:11px;padding:2px 8px;">查看题目</button>
+			</div>
+			<div class="cp-detail" data-id="${escapeHtmlSafe(id)}"></div>
+		</div>`;
+	}
+
+	function renderChapterDetail(data: { questions?: Array<Record<string, unknown>> }): string {
+		const rows = (data.questions || [])
+			.map((q) => {
+				const status = String(q.status || '');
+				const exam = String(q.exam_id || '');
+				const id = String(q.question_id || '');
+				const stem = String(q.stem || '');
+				const color = status === 'correct' ? '#3a7' : status === 'wrong' ? '#a33' : '#999';
+				const label = status === 'correct' ? '✓ 对' : status === 'wrong' ? '✗ 错' : status === 'unanswered' ? '— 未答' : '— 未做';
+				return `<div style="padding:6px 10px;border-bottom:1px dashed #eee;font-size:12px;display:flex;gap:8px;align-items:center;">
+					<span style="min-width:52px;color:${color};">${label}</span>
+					<code style="color:#888;">${escapeHtmlSafe(exam)} · ${escapeHtmlSafe(id)}</code>
+					<span style="flex:1;color:#444;">${escapeHtmlSafe(stem).slice(0, 60)}</span>
+					<a href="#" data-cp-act="goto" data-exam="${escapeHtmlSafe(exam)}" style="color:#36a;">去答题</a>
+				</div>`;
+			})
+			.join('');
+		return `<div style="margin-top:8px;border:1px solid #dde;border-radius:4px;background:#fafafd;max-height:360px;overflow:auto;">${rows || '<div style="padding:10px;color:#999;">该章节暂无题目</div>'}</div>`;
+	}
+
+	async function reloadChapters(modal: HTMLDivElement): Promise<void> {
+		const api = window.APIClient;
+		const body = modal.querySelector('#cp-body') as HTMLDivElement | null;
+		if (!api || typeof api.listChapters !== 'function' || !body) {
+			if (body) body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">接口不可用</div>';
+			return;
+		}
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		try {
+			const data = (await api.listChapters({ level: chapterFilterLevel || undefined })) as {
+				items?: Array<Record<string, unknown>>;
+				count?: number;
+			};
+			const items = data.items || [];
+			if (items.length === 0) {
+				body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">暂无章节数据</div>';
+				return;
+			}
+			body.innerHTML = items.map(renderChapterRow).join('');
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;text-align:center;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openChapterPathPanel(): Promise<void> {
+		const ctx = getContext();
+		if (!ctx.id) {
+			showToast('请先登录后查看学习路径');
+			return;
+		}
+		const modal = ensureChapterModal();
+		modal.classList.remove('risk-hidden');
+		modal.classList.add('risk-open');
+
+		const levelSel = modal.querySelector('#cp-level') as HTMLSelectElement | null;
+		if (levelSel) {
+			levelSel.value = chapterFilterLevel;
+			levelSel.onchange = () => {
+				chapterFilterLevel = levelSel.value;
+				void reloadChapters(modal);
+			};
+		}
+		const reloadBtn = modal.querySelector('#cp-reload') as HTMLButtonElement | null;
+		if (reloadBtn) reloadBtn.onclick = () => void reloadChapters(modal);
+
+		const body = modal.querySelector('#cp-body') as HTMLDivElement | null;
+		if (body) {
+			body.onclick = (event: MouseEvent) => {
+				const el = (event.target as HTMLElement | null)?.closest('[data-cp-act]') as HTMLElement | null;
+				if (!el) return;
+				const act = el.dataset.cpAct || '';
+				if (act === 'detail') {
+					const id = el.dataset.id || '';
+					if (!id) return;
+					const row = el.closest('.cp-row') as HTMLElement | null;
+					const holder = row?.querySelector(`.cp-detail[data-id="${id}"]`) as HTMLDivElement | null;
+					if (!holder) return;
+					if (holder.dataset.loaded === '1') {
+						holder.innerHTML = '';
+						holder.dataset.loaded = '';
+						return;
+					}
+					holder.innerHTML = '<div style="padding:6px 10px;color:#888;font-size:12px;">加载中…</div>';
+					const api = window.APIClient;
+					if (!api || typeof api.getChapterDetail !== 'function') return;
+					api
+						.getChapterDetail(id)
+						.then((data: unknown) => {
+							holder.innerHTML = renderChapterDetail(data as { questions?: Array<Record<string, unknown>> });
+							holder.dataset.loaded = '1';
+						})
+						.catch((err: unknown) => {
+							holder.innerHTML = `<div style="padding:6px 10px;color:#a33;font-size:12px;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+						});
+				} else if (act === 'goto') {
+					const exam = el.dataset.exam || '';
+					if (!exam) return;
+					event.preventDefault();
+					modal.classList.remove('risk-open');
+					modal.classList.add('risk-hidden');
+					const w = window as unknown as { openExam?: (id: string) => void };
+					if (typeof w.openExam === 'function') w.openExam(exam);
+					else window.location.hash = `#exam=${encodeURIComponent(exam)}`;
+				}
+			};
+		}
+
+		await reloadChapters(modal);
 	}
 
 	// 业务功能 14：PWA 安装触发
