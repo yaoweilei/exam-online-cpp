@@ -270,3 +270,5 @@ function formatDuration(totalSeconds: number): string {
 	}
 	return `${pad(mm)}:${pad(ss)}`;
 }
+
+window.ExamTimerManager = ExamTimerManager;

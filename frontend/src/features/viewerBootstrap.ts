@@ -6,6 +6,7 @@ interface ViewerModule {
 interface ViewerExamMeta {
 	id: string;
 	display: string;
+	family?: string;
 	level?: string;
 	year?: string;
 	session?: string;
@@ -34,8 +35,10 @@ type ViewerExamApi = {
 };
 
 type ViewerExamListApi = {
-	getExams: (options?: { level?: string; year?: string; sort?: string }) => Promise<unknown[]>;
+	getExams: (options?: { family?: string; level?: string; year?: string; sort?: string }) => Promise<unknown[]>;
 };
+
+type ViewerExamGroups = Record<string, Record<string, ViewerExamMeta[]>>;
 
 const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'Logger', path: '../viewer/utils/Logger.js' },
@@ -47,6 +50,7 @@ const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'UserContextManager', path: '../viewer/core/UserContextManager.js' },
 	{ name: 'StateManager', path: '../viewer/managers/StateManager.js' },
 	{ name: 'NavigationManager', path: '../viewer/managers/NavigationManager.js' },
+	{ name: 'ExamTimerManager', path: '../viewer/managers/ExamTimerManager.js' },
 	{ name: 'AudioManager', path: '../viewer/managers/AudioManager.js' },
 	{ name: 'FuriganaManager', path: '../viewer/managers/FuriganaManager.js' },
 	{ name: 'TranslationManager', path: '../viewer/managers/TranslationManager.js' },
@@ -67,6 +71,7 @@ const REQUIRED_GLOBALS = [
 	'UserContextManager',
 	'StateManager',
 	'NavigationManager',
+	'ExamTimerManager',
 	'AudioManager',
 	'AnswerManager',
 	'QuestionMapManager',
@@ -117,6 +122,7 @@ function normalizeExamMeta(raw: unknown): ViewerExamMeta | null {
 		const match = id.match(/^(N[1-5])[_-]/);
 		level = match?.[1] ?? '';
 	}
+	const family = typeof data.family === 'string' && data.family.trim() ? data.family.trim().toLowerCase() : 'jlpt';
 
 	const year = typeof data.year === 'string' ? data.year : '';
 	const session = typeof data.session === 'string' ? data.session : '';
@@ -129,6 +135,7 @@ function normalizeExamMeta(raw: unknown): ViewerExamMeta | null {
 
 	return {
 		id,
+		family,
 		level,
 		year,
 		session,
@@ -137,13 +144,41 @@ function normalizeExamMeta(raw: unknown): ViewerExamMeta | null {
 	};
 }
 
-function hasGroupedExams(examsByLevel: Record<string, ViewerExamMeta[]>): boolean {
-	return Object.values(examsByLevel).some((items) => Array.isArray(items) && items.length > 0);
+function getDefaultFamily(examsByFamily: ViewerExamGroups): string {
+	if (examsByFamily.jlpt) {
+		return 'jlpt';
+	}
+	return Object.keys(examsByFamily)[0] ?? 'jlpt';
 }
 
-function hasExamsForLevel(examsByLevel: Record<string, ViewerExamMeta[]>, level: string): boolean {
-	const exams = examsByLevel[level];
+function hasGroupedExams(examsByFamily: ViewerExamGroups): boolean {
+	return Object.values(examsByFamily).some((levels) =>
+		Object.values(levels).some((items) => Array.isArray(items) && items.length > 0)
+	);
+}
+
+function hasExamsForFamilyLevel(examsByFamily: ViewerExamGroups, family?: string, level?: string): boolean {
+	if (!family) {
+		return hasGroupedExams(examsByFamily);
+	}
+	const levels = examsByFamily[family];
+	if (!levels) {
+		return false;
+	}
+	if (!level) {
+		return Object.values(levels).some((items) => Array.isArray(items) && items.length > 0);
+	}
+	const exams = levels[level];
 	return Array.isArray(exams) && exams.length > 0;
+}
+
+function getExamsByFamily(): ViewerExamGroups {
+	return window.__EXAMS_BY_FAMILY__ ?? {};
+}
+
+function syncLegacyLevelCache(family: string): void {
+	const examsByFamily = getExamsByFamily();
+	window.__EXAMS_BY_LEVEL__ = examsByFamily[family] ?? {};
 }
 
 async function fetchExamsForFallback(): Promise<ViewerExamMeta[]> {
@@ -174,8 +209,9 @@ async function fetchExamsForFallback(): Promise<ViewerExamMeta[]> {
 }
 
 async function ensureExamsByLevelLoaded(requiredLevel?: string): Promise<void> {
-	const current = window.__EXAMS_BY_LEVEL__ ?? {};
-	if (requiredLevel ? hasExamsForLevel(current, requiredLevel) : hasGroupedExams(current)) {
+	const current = getExamsByFamily();
+	const currentFamily = getDefaultFamily(current);
+	if (requiredLevel ? hasExamsForFamilyLevel(current, currentFamily, requiredLevel) : hasGroupedExams(current)) {
 		return;
 	}
 
@@ -184,15 +220,81 @@ async function ensureExamsByLevelLoaded(requiredLevel?: string): Promise<void> {
 		return;
 	}
 
-	const grouped: Record<string, ViewerExamMeta[]> = {};
+	const grouped: ViewerExamGroups = {};
 	exams.forEach((exam) => {
-		const level = exam.level || 'N1';
-		if (!grouped[level]) {
-			grouped[level] = [];
+		const family = exam.family || 'jlpt';
+		const level = exam.level || 'DEFAULT';
+		if (!grouped[family]) {
+			grouped[family] = {};
 		}
-		grouped[level].push(exam);
+		if (!grouped[family][level]) {
+			grouped[family][level] = [];
+		}
+		grouped[family][level].push(exam);
 	});
-	window.__EXAMS_BY_LEVEL__ = grouped;
+	const defaultFamily = getDefaultFamily(grouped);
+	window.__EXAMS_BY_FAMILY__ = grouped;
+	syncLegacyLevelCache(defaultFamily);
+}
+
+function toFamilyLabel(family: string): string {
+	const labels: Record<string, string> = {
+		jlpt: 'JLPT',
+		eju: 'EJU',
+		cet: 'CET'
+	};
+	return labels[family] || family.toUpperCase();
+}
+
+function buildFamilyOptions(examsByFamily: ViewerExamGroups): string {
+	const families = Object.keys(examsByFamily);
+	if (families.length === 0) {
+		return '<option value="jlpt">JLPT</option>';
+	}
+	return families
+		.sort((a, b) => (a === 'jlpt' ? -1 : b === 'jlpt' ? 1 : a.localeCompare(b)))
+		.map((family) => `<option value="${family}">${toFamilyLabel(family)}</option>`)
+		.join('');
+}
+
+function buildLevelOptions(levelMap: Record<string, ViewerExamMeta[]>): string {
+	const levels = Object.keys(levelMap);
+	if (levels.length === 0) {
+		return '<option value="">-</option>';
+	}
+	return levels
+		.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+		.map((level) => `<option value="${level}">${level}</option>`)
+		.join('');
+}
+
+async function syncFamilyAndLevelSelects(
+	familySelect: HTMLSelectElement,
+	levelSelect: HTMLSelectElement,
+	paperSelect: HTMLSelectElement,
+	options: { dispatchChange?: boolean; preserveCurrentValue?: boolean } = {}
+): Promise<void> {
+	const { dispatchChange = false, preserveCurrentValue = false } = options;
+	await ensureExamsByLevelLoaded();
+	const examsByFamily = getExamsByFamily();
+	const currentFamily = preserveCurrentValue ? familySelect.value : '';
+	familySelect.innerHTML = buildFamilyOptions(examsByFamily);
+	familySelect.value = currentFamily && examsByFamily[currentFamily] ? currentFamily : getDefaultFamily(examsByFamily);
+
+	syncLegacyLevelCache(familySelect.value);
+	const levelMap = window.__EXAMS_BY_LEVEL__ ?? {};
+	const currentLevel = preserveCurrentValue ? levelSelect.value : '';
+	levelSelect.innerHTML = buildLevelOptions(levelMap);
+	if (currentLevel && levelMap[currentLevel]) {
+		levelSelect.value = currentLevel;
+	} else {
+		levelSelect.value = Object.keys(levelMap)[0] ?? '';
+	}
+
+	await syncPaperSelect(levelSelect, paperSelect, {
+		dispatchChange,
+		preserveCurrentValue
+	});
 }
 
 async function syncPaperSelect(
@@ -287,12 +389,14 @@ function buildPaperOptions(exams: ViewerExamMeta[], userProgress: Record<string,
 async function refreshPaperSelectIcons(): Promise<void> {
 	userProgressCache = await fetchUserProgress();
 	const paperSelect = document.getElementById('exam-paper-select') as HTMLSelectElement | null;
+	const familySelect = document.getElementById('exam-family-select') as HTMLSelectElement | null;
 	const levelSelect = document.getElementById('exam-level-select') as HTMLSelectElement | null;
-	if (!paperSelect || !levelSelect) {
+	if (!paperSelect || !levelSelect || !familySelect) {
 		return;
 	}
 
 	const level = levelSelect.value;
+	syncLegacyLevelCache(familySelect.value || getDefaultFamily(getExamsByFamily()));
 	const examsByLevel = window.__EXAMS_BY_LEVEL__ ?? {};
 	const exams = examsByLevel[level] ?? [];
 
@@ -319,10 +423,11 @@ function showBootError(error: unknown): void {
 
 async function initExamSelectors(): Promise<void> {
 	const globalWindow = getGlobalWindow();
+	const familySelect = document.getElementById('exam-family-select') as HTMLSelectElement | null;
 	const levelSelect = document.getElementById('exam-level-select') as HTMLSelectElement | null;
 	const paperSelect = document.getElementById('exam-paper-select') as HTMLSelectElement | null;
 
-	if (!levelSelect || !paperSelect) {
+	if (!familySelect || !levelSelect || !paperSelect) {
 		console.warn('[viewerBootstrap] Exam selectors not found');
 		return;
 	}
@@ -367,6 +472,10 @@ async function initExamSelectors(): Promise<void> {
 		}
 	});
 
+	familySelect.addEventListener('change', () => {
+		void syncFamilyAndLevelSelects(familySelect, levelSelect, paperSelect, { dispatchChange: true });
+	});
+
 	levelSelect.addEventListener('change', () => {
 		void syncPaperSelect(levelSelect, paperSelect, { dispatchChange: true });
 	});
@@ -388,7 +497,7 @@ async function initExamSelectors(): Promise<void> {
 		}
 	});
 
-	await syncPaperSelect(levelSelect, paperSelect, {
+	await syncFamilyAndLevelSelects(familySelect, levelSelect, paperSelect, {
 		dispatchChange: true,
 		preserveCurrentValue: true
 	});

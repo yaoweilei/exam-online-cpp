@@ -16,10 +16,11 @@ void registerExamRoutes(const AppContext &ctx)
         "/api/v2/exams",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto family = req->getParameter("family");
                 const auto level = req->getParameter("level");
                 const auto year = req->getParameter("year");
                 const auto sort = req->getParameter("sort").empty() ? "date_desc" : req->getParameter("sort");
-                return common::ok(req, ctx.examService->listExams(level, year, sort));
+                return common::ok(req, ctx.examService->listExams(family, level, year, sort));
             });
         },
         {Get});

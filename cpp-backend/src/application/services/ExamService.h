@@ -18,7 +18,10 @@ class ExamService
                          application::services::SubscriptionService &subscriptionService)
 ;
 
-    Json::Value listExams(const std::string &level, const std::string &year, const std::string &sort) const;
+    Json::Value listExams(const std::string &family,
+                         const std::string &level,
+                         const std::string &year,
+                         const std::string &sort) const;
 
     Json::Value groupedByLevel() const;
 

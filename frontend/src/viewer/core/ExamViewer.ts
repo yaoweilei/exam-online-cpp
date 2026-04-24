@@ -74,7 +74,7 @@ class ExamViewer {
 	currentExam: ExamViewerExamData | null = null;
 	currentSectionIndex = 0;
 	currentQuestionIndex = 0;
-	currentCategory: string | null = 'vocab';
+	currentCategory: string | null = null;
 	userAnswers: Record<string, unknown> = {};
 	showAnswers = false;
 	showExplanations = false;
@@ -90,7 +90,7 @@ class ExamViewer {
 		this.currentExam = null;
 		this.currentSectionIndex = 0;
 		this.currentQuestionIndex = 0;
-		this.currentCategory = 'vocab';
+		this.currentCategory = null;
 		this.userAnswers = {};
 		this.showAnswers = false;
 		this.showExplanations = false;
@@ -135,6 +135,7 @@ class ExamViewer {
 		// ==================== 后端通信设置 ====================
 		this.setupBackendCommunication();
 		this.userContextManager.addListener(this.onUserContextChanged.bind(this));
+		this.onUserContextChanged(this.userContextManager.getUserContext());
 
 		// ==================== 延迟初始化 ====================
 		setTimeout(() => {
@@ -147,7 +148,9 @@ class ExamViewer {
 	// ==================== 后端通信管理 ====================
 
 	onUserContextChanged(userContext: LegacyAnyRecord) {
-		// 可以在这里添加需要响应用户上下文变更的逻辑
+		this.userId = userContext?.user_id || userContext?.id || 'guest';
+		this.token = userContext?.token || '';
+		this.roles = Array.isArray(userContext?.roles) ? userContext.roles : [];
 	}
 
 	setupBackendCommunication() {
@@ -253,6 +256,7 @@ class ExamViewer {
 				// 恢复显示状态
 				this.showAnswers = prevShowAnswers;
 				this.showExplanations = prevShowExplanations;
+				this.currentCategory = this.getCategories()[0]?.id ?? null;
 				
 				this.renderExam();
 				this.updateNavigation();
@@ -490,12 +494,7 @@ class ExamViewer {
 		// 更新分类
 		const section = this.currentExam.exam_info.sections[sectionIndex];
 		if (section && section.section_type) {
-			const categoryMap: Record<string, string> = {
-				'vocabulary': 'vocab',
-				'reading': 'reading',
-				'listening': 'listening'
-			};
-			this.currentCategory = categoryMap[section.section_type] || this.currentCategory;
+			this.currentCategory = this.resolveCategoryIdForSection(section) || this.currentCategory;
 		}
 
 		// 重新渲染
@@ -620,46 +619,108 @@ class ExamViewer {
 		if (!this.currentExam) { return []; }
 
 		const sections = this.currentExam.exam_info?.sections || [];
-		const categories: Record<'vocabulary' | 'reading' | 'listening', CategoryItem> = {
-			vocabulary: { id: 'vocab', label: '词汇', sectionIndexes: [] as number[] },
-			reading: { id: 'reading', label: '阅读', sectionIndexes: [] as number[] },
-			listening: { id: 'listening', label: '听力', sectionIndexes: [] as number[] }
-		};
+		const orderedCategories: CategoryItem[] = [];
+		const categoryMap = new Map<string, CategoryItem>();
 
-		// 根据 section_type 分类（新逻辑）
 		sections.forEach((section: ExamViewerSection, index: number) => {
-			const sectionType = section.section_type;
-			if (sectionType === 'vocabulary' && categories.vocabulary) {
-				categories.vocabulary.sectionIndexes.push(index);
-			} else if (sectionType === 'reading' && categories.reading) {
-				categories.reading.sectionIndexes.push(index);
-			} else if (sectionType === 'listening' && categories.listening) {
-				categories.listening.sectionIndexes.push(index);
+			const resolved = this.resolveCategoryForSection(section, index);
+			if (!resolved) {
+				return;
 			}
-			// 如果没有 section_type，使用旧的 section_id 逻辑作为后备
-			else if (!sectionType && typeof section.section_id === 'number') {
-				const sectionId = section.section_id;
-				if (sectionId >= 1.01 && sectionId <= 1.06) {
-					categories.vocabulary.sectionIndexes.push(index);
-				} else if (sectionId >= 1.07 && sectionId <= 1.99) {
-					categories.reading.sectionIndexes.push(index);
-				} else if (Math.floor(sectionId) === 2) {
-					categories.listening.sectionIndexes.push(index);
-				}
+			const existing = categoryMap.get(resolved.id);
+			if (existing) {
+				existing.sectionIndexes.push(index);
+				return;
 			}
+			const nextCategory: CategoryItem = {
+				id: resolved.id,
+				label: resolved.label,
+				sectionIndexes: [index]
+			};
+			categoryMap.set(resolved.id, nextCategory);
+			orderedCategories.push(nextCategory);
 		});
 
-		return Object.values(categories);
+		return orderedCategories;
 	}
 
 	getCurrentCategory() {
 		const categories = this.getCategories();
-		const result = categories.find(cat => cat.id === this.currentCategory) || categories[0];
+		const result = categories.find(cat => cat.id === this.currentCategory) || categories[0] || null;
 		this.logger.debug('getCurrentCategory called:', {
 			currentCategory: this.currentCategory,
 			foundCategory: result
 		});
 		return result;
+	}
+
+	resolveCategoryIdForSection(section: ExamViewerSection) {
+		return this.resolveCategoryForSection(section, -1)?.id ?? null;
+	}
+
+	resolveCategoryForSection(section: ExamViewerSection, sectionIndex: number) {
+		const rawType = String(section.section_type || '').trim();
+		const normalizedType = rawType.toLowerCase();
+		if (normalizedType) {
+			return {
+				id: this.normalizeCategoryId(normalizedType),
+				label: this.getCategoryLabel(normalizedType, section.section_name || section.section_title || '')
+			};
+		}
+
+		const numericSectionId = Number(section.section_id);
+		if (Number.isFinite(numericSectionId)) {
+			if (numericSectionId >= 1.01 && numericSectionId <= 1.06) {
+				return { id: 'vocab', label: '词汇/语法' };
+			}
+			if (numericSectionId >= 1.07 && numericSectionId <= 1.99) {
+				return { id: 'reading', label: '阅读' };
+			}
+			if (Math.floor(numericSectionId) === 2) {
+				return { id: 'listening', label: '听力' };
+			}
+		}
+
+		const fallbackLabel = String(section.section_name || section.section_title || '').trim() || `部分 ${sectionIndex + 1}`;
+		return {
+			id: this.normalizeCategoryId(fallbackLabel),
+			label: fallbackLabel
+		};
+	}
+
+	normalizeCategoryId(value: string) {
+		const aliases: Record<string, string> = {
+			vocabulary: 'vocab',
+			vocab: 'vocab',
+			words: 'vocab',
+			reading: 'reading',
+			listening: 'listening',
+			grammar: 'grammar',
+			writing: 'writing',
+			speaking: 'speaking',
+			cloze: 'cloze',
+			integrated: 'integrated'
+		};
+		const lowered = value.toLowerCase();
+		if (aliases[lowered]) {
+			return aliases[lowered];
+		}
+		return lowered.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'general';
+	}
+
+	getCategoryLabel(categoryType: string, fallback: string) {
+		const labels: Record<string, string> = {
+			vocabulary: '词汇/语法',
+			vocab: '词汇/语法',
+			reading: '阅读',
+			listening: '听力',
+			grammar: '语法',
+			writing: '写作',
+			speaking: '口语',
+			cloze: '完形',
+			integrated: '综合'
+		};
+		return labels[categoryType] || fallback || categoryType;
 	}
 
 	updateNavigation() {

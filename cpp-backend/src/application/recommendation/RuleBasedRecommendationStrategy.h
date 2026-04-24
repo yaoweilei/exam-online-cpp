@@ -23,7 +23,7 @@ class RuleBasedRecommendationStrategy : public RecommendationStrategy
     {
         Json::Value out(Json::arrayValue);
         auto weak = statisticsService_.weakPoints(userId);
-        auto exams = examService_.listExams("", "", "date_desc");
+        auto exams = examService_.listExams("", "", "", "date_desc");
         if (!weak.isArray() || !exams.isArray())
         {
             return out;

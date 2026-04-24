@@ -1,6 +1,8 @@
 #include "ChapterService.h"
 
 #include <algorithm>
+#include <cctype>
+#include <set>
 
 namespace application::services
 {
@@ -30,13 +32,60 @@ std::string safeSlug(const std::string &s)
     return out;
 }
 
-// 章节 id = <level>__<section_id>（后者在同一等级内稳定）
-std::string makeChapterId(const std::string &level, const std::string &sectionId)
+std::string lowerCopy(const std::string &input)
+{
+    std::string out = input;
+    std::transform(out.begin(), out.end(), out.begin(), [](unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+    });
+    return out;
+}
+
+std::vector<std::string> readStringArray(const Json::Value &node, const char *key)
+{
+    std::vector<std::string> out;
+    const auto &value = node[key];
+    if (!value.isArray())
+    {
+        return out;
+    }
+    for (const auto &item : value)
+    {
+        if (item.isString() && !item.asString().empty())
+        {
+            out.push_back(item.asString());
+        }
+    }
+    return out;
+}
+
+std::vector<std::string> collectSkillTags(const Json::Value &section, const Json::Value &question)
+{
+    std::set<std::string> skills;
+    for (const auto &item : readStringArray(section, "skill_tags"))
+    {
+        skills.insert(item);
+    }
+    for (const auto &item : readStringArray(question, "skill_tags"))
+    {
+        skills.insert(item);
+    }
+    return {skills.begin(), skills.end()};
+}
+
+std::string makeSkillChapterId(const std::string &family, const std::string &level, const std::string &skillKey)
+{
+    return lowerCopy(safeSlug(family)) + "__" + lowerCopy(safeSlug(level)) + "__skill__" + safeSlug(skillKey);
+}
+
+std::string makeFallbackChapterId(const std::string &family, const std::string &level, const std::string &sectionId)
 {
     std::string out;
-    out.reserve(level.size() + sectionId.size() + 2);
-    for (char c : level) out.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+    out.reserve(family.size() + level.size() + sectionId.size() + 6);
+    out.append(lowerCopy(safeSlug(family)));
     out.append("__");
+    out.append(lowerCopy(safeSlug(level)));
+    out.append("__section__");
     out.append(safeSlug(sectionId));
     return out;
 }
@@ -77,6 +126,10 @@ void ChapterService::buildIndexLocked() const
         if (!examData.isMember("exam_info")) continue;
         const auto &info = examData["exam_info"];
         const auto level = info.get("exam_level", "").asString();
+        const auto family = exams.empty() ? "jlpt" : [&]() {
+            const auto examIt = std::find_if(exams.begin(), exams.end(), [&](const auto &exam) { return exam.id == examId; });
+            return examIt != exams.end() ? examIt->family : std::string("jlpt");
+        }();
         if (!info.isMember("sections")) continue;
 
         for (const auto &section : info["sections"])
@@ -86,19 +139,23 @@ void ChapterService::buildIndexLocked() const
             const auto sectionType = section.get("section_type", "").asString();
             if (sectionId.empty() || sectionName.empty()) continue;
 
-            const auto chapterId = makeChapterId(level, sectionId);
-            auto it = chapters_.find(chapterId);
-            if (it == chapters_.end())
-            {
-                Chapter ch;
-                ch.id = chapterId;
-                ch.level = level;
-                ch.sectionName = sectionName;
-                ch.sectionType = sectionType;
-                auto [ins, _] = chapters_.emplace(chapterId, std::move(ch));
-                orderedIds_.push_back(chapterId);
-                it = ins;
-            }
+            auto ensureChapter = [&](const std::string &chapterId, const std::string &skillKey, const std::string &displayName) {
+                auto it = chapters_.find(chapterId);
+                if (it == chapters_.end())
+                {
+                    Chapter ch;
+                    ch.id = chapterId;
+                    ch.family = family;
+                    ch.level = level;
+                    ch.sectionName = displayName;
+                    ch.sectionType = sectionType;
+                    ch.skillKey = skillKey;
+                    auto [ins, _] = chapters_.emplace(chapterId, std::move(ch));
+                    orderedIds_.push_back(chapterId);
+                    return ins;
+                }
+                return it;
+            };
 
             auto addQuestion = [&](const Json::Value &q) {
                 QuestionRef ref;
@@ -106,7 +163,25 @@ void ChapterService::buildIndexLocked() const
                 ref.questionId = toQuestionIdString(q["id"]);
                 if (ref.questionId.empty()) return;
                 ref.stem = pickStem(q);
-                it->second.questions.push_back(std::move(ref));
+                const auto skills = collectSkillTags(section, q);
+                if (!skills.empty())
+                {
+                    for (const auto &skill : skills)
+                    {
+                        auto skillChapter = ensureChapter(
+                            makeSkillChapterId(family, level, skill),
+                            skill,
+                            skill);
+                        skillChapter->second.questions.push_back(ref);
+                    }
+                    return;
+                }
+
+                auto fallbackChapter = ensureChapter(
+                    makeFallbackChapterId(family, level, sectionId),
+                    {},
+                    sectionName);
+                fallbackChapter->second.questions.push_back(std::move(ref));
             };
 
             if (section.isMember("questions") && section["questions"].isArray())
@@ -166,7 +241,7 @@ ChapterService::loadUserAnswerIndex(const std::string &userId) const
     return index;
 }
 
-Json::Value ChapterService::listChapters(const std::string &level, const std::string &userId) const
+Json::Value ChapterService::listChapters(const std::string &family, const std::string &level, const std::string &userId) const
 {
     std::unique_lock lock(mutex_);
     ensureBuiltLocked();
@@ -178,6 +253,7 @@ Json::Value ChapterService::listChapters(const std::string &level, const std::st
     for (const auto &chapterId : orderedIds_)
     {
         const auto &ch = chapters_.at(chapterId);
+        if (!family.empty() && ch.family != family) continue;
         if (!level.empty() && ch.level != level) continue;
         int answered = 0, correct = 0;
         for (const auto &q : ch.questions)
@@ -195,9 +271,11 @@ Json::Value ChapterService::listChapters(const std::string &level, const std::st
         }
         Json::Value row(Json::objectValue);
         row["id"] = ch.id;
+        row["family"] = ch.family;
         row["level"] = ch.level;
         row["section_name"] = ch.sectionName;
         row["section_type"] = ch.sectionType;
+        row["skill_key"] = ch.skillKey;
         row["question_count"] = static_cast<int>(ch.questions.size());
         row["answered"] = answered;
         row["correct"] = correct;
@@ -225,9 +303,11 @@ Json::Value ChapterService::getChapter(const std::string &chapterId, const std::
 
     Json::Value info(Json::objectValue);
     info["id"] = ch.id;
+    info["family"] = ch.family;
     info["level"] = ch.level;
     info["section_name"] = ch.sectionName;
     info["section_type"] = ch.sectionType;
+    info["skill_key"] = ch.skillKey;
     info["question_count"] = static_cast<int>(ch.questions.size());
     out["chapter"] = info;
 

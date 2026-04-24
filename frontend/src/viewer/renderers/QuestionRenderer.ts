@@ -676,7 +676,7 @@ class QuestionRenderer {
 		btn.className = 'explanation-btn';
 		btn.style.cssText = 'margin-left:6px;font-size:12px;padding:2px 8px;cursor:pointer;border:1px solid #d0d0d0;border-radius:4px;background:#f5fbf6;';
 		btn.innerHTML = '💡 讲解';
-		btn.title = '查看本题讲解附件';
+		btn.title = '查看本题解析摘要和补充讲解附件';
 		btn.onclick = (e) => {
 			e.stopPropagation();
 			this.openExplanationDialog(question);
@@ -699,6 +699,8 @@ class QuestionRenderer {
 		overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
 		const card = document.createElement('div');
 		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
+		const inlineExplanation = String(question.explanation || '').trim();
+		const inlineExpanded = String(question.explanation_expand || '').trim();
 
 		const canAdmin = this.isAdmin();
 		card.innerHTML = `
@@ -706,6 +708,10 @@ class QuestionRenderer {
 				<h3 style="margin:0;font-size:16px;">💡 题目讲解（题号：${question.id}）</h3>
 				<button class="exp-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
 			</div>
+			<div style="margin-bottom:12px;padding:10px 12px;background:#f7fafc;border:1px solid #e6eef5;border-radius:6px;font-size:12px;color:#4f657a;">
+				上方按钮里的“显示答案 / 显示详解”来自题库内置解析；这里展示题库解析摘要，并附带老师补充的讲解附件。
+			</div>
+			<div class="exp-inline" style="margin-bottom:14px;"></div>
 			<div class="exp-list" style="margin-bottom:14px;min-height:120px;"></div>
 			${canAdmin ? `
 				<form class="exp-form" style="border-top:1px solid #eee;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -730,32 +736,55 @@ class QuestionRenderer {
 			if (e.target === overlay) close();
 		});
 
+		const inlineEl = card.querySelector('.exp-inline') as HTMLDivElement;
 		const listEl = card.querySelector('.exp-list') as HTMLDivElement;
+
+		if (inlineExplanation || inlineExpanded) {
+			const parts: string[] = [];
+			if (inlineExplanation) {
+				parts.push(`
+					<div style="margin-bottom:10px;">
+						<div style="font-size:12px;font-weight:600;color:#3b556b;margin-bottom:6px;">题库解析</div>
+						<div style="white-space:pre-wrap;line-height:1.65;background:#fff8e8;border:1px solid #f1dfb4;border-radius:6px;padding:10px 12px;">${this.escapeHtml(inlineExplanation)}</div>
+					</div>
+				`);
+			}
+			if (inlineExpanded) {
+				parts.push(`
+					<div>
+						<div style="font-size:12px;font-weight:600;color:#3b556b;margin-bottom:6px;">拓展详解</div>
+						<div style="white-space:pre-wrap;line-height:1.65;background:#f9fbff;border:1px solid #d9e7fb;border-radius:6px;padding:10px 12px;">${this.escapeHtml(inlineExpanded)}</div>
+					</div>
+				`);
+			}
+			inlineEl.innerHTML = parts.join('');
+		} else {
+			inlineEl.innerHTML = '<div style="padding:10px 12px;border:1px dashed #d7dde5;border-radius:6px;color:#7a8694;font-size:12px;">该题题库内未提供内置解析，只显示附加讲解。</div>';
+		}
 
 		const renderItems = (items: Array<RendererAnyRecord>) => {
 			if (!items || items.length === 0) {
-				listEl.innerHTML = '<div style="color:#999;padding:12px;">暂无讲解</div>';
+				listEl.innerHTML = '<div style="color:#999;padding:12px;">暂无补充讲解附件</div>';
 				return;
 			}
-			const escape = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] || c));
 			listEl.innerHTML = items.map((it) => {
 				const kind = String(it.kind || 'text');
-				const body = escape(String(it.body || ''));
+				const body = this.escapeHtml(String(it.body || ''));
 				const url = String(it.url || '');
 				let renderedBody = '';
 				if (kind === 'image' && url) {
-					renderedBody = `<img src="${escape(url)}" alt="" style="max-width:100%;max-height:320px;border:1px solid #eee;border-radius:4px;" />` + (body ? `<div style="font-size:12px;color:#666;margin-top:4px;">${body}</div>` : '');
+					renderedBody = `<img src="${this.escapeHtml(url)}" alt="" style="max-width:100%;max-height:320px;border:1px solid #eee;border-radius:4px;" />` + (body ? `<div style="font-size:12px;color:#666;margin-top:4px;">${body}</div>` : '');
 				} else if (kind === 'audio' && url) {
-					renderedBody = `<audio controls src="${escape(url)}" style="width:100%;"></audio>` + (body ? `<div style="font-size:12px;color:#666;margin-top:4px;">${body}</div>` : '');
+					renderedBody = `<audio controls src="${this.escapeHtml(url)}" style="width:100%;"></audio>` + (body ? `<div style="font-size:12px;color:#666;margin-top:4px;">${body}</div>` : '');
 				} else if (kind === 'link' && url) {
-					renderedBody = `<a href="${escape(url)}" target="_blank" rel="noopener noreferrer" style="color:#1976d2;">${body || escape(url)}</a>`;
+					renderedBody = `<a href="${this.escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="color:#1976d2;">${body || this.escapeHtml(url)}</a>`;
 				} else {
 					renderedBody = `<div style="white-space:pre-wrap;">${body}</div>`;
 				}
-				return `<div data-exp-id="${escape(String(it.explanation_id || ''))}" style="padding:10px 6px;border-bottom:1px solid #f0f0f0;">
+				return `<div data-exp-id="${this.escapeHtml(String(it.explanation_id || ''))}" style="padding:10px 6px;border-bottom:1px solid #f0f0f0;">
 					<div style="font-size:11px;color:#888;margin-bottom:4px;">
-						${escape(String(it.author_name || it.author_id || ''))} · ${escape(String(it.created_at || ''))} · ${escape(kind)}
-						${canAdmin ? `<button class="exp-del" data-del="${escape(String(it.explanation_id || ''))}" style="float:right;color:#a33;border:0;background:none;cursor:pointer;font-size:12px;">删除</button>` : ''}
+						${this.escapeHtml(String(it.author_name || it.author_id || ''))} · ${this.escapeHtml(String(it.created_at || ''))} · ${this.escapeHtml(kind)}
+						${canAdmin ? `<button class="exp-del" data-del="${this.escapeHtml(String(it.explanation_id || ''))}" style="float:right;color:#a33;border:0;background:none;cursor:pointer;font-size:12px;">删除</button>` : ''}
 					</div>
 					${renderedBody}
 				</div>`;
@@ -1065,6 +1094,10 @@ class QuestionRenderer {
 		
 		// 替换匹配的词汇为高亮标记
 		return text.replace(regex, '<span class="target-word">$1</span>');
+	}
+
+	private escapeHtml(text: string): string {
+		return text.replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char] || char));
 	}
 
 	/**

@@ -1,3 +1,5 @@
+import { requestApi, readStoredToken, readStoredUserId, buildApiUrl } from '../../api/runtime.js';
+
 /**
  * API 客户端（v2）
  * 统一对接 /api/v2 响应契约：
@@ -9,59 +11,19 @@ class APIClient {
 	}
 
 	static readStoredUserId(): string {
-		try {
-			const raw = localStorage.getItem('exam_v2_user');
-			if (!raw) {
-				return '';
-			}
-			const parsed = JSON.parse(raw) as { user_id?: string; id?: string };
-			return parsed.user_id ?? parsed.id ?? '';
-		} catch {
-			return '';
-		}
+		return readStoredUserId();
+	}
+
+	static readStoredToken(): string {
+		return readStoredToken();
 	}
 
 	static buildUrl(path: string): string {
-		if (path.startsWith('http://') || path.startsWith('https://')) {
-			return path;
-		}
-		if (path.startsWith('/api/')) {
-			return path;
-		}
-		const normalized = path.startsWith('/') ? path : `/${path}`;
-		return `${this.base}${normalized}`;
+		return buildApiUrl(path, this.base);
 	}
 
 	static async request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
-		const url = this.buildUrl(path);
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-			...(options.headers || {})
-		};
-		const response = await fetch(url, { ...options, headers });
-		const payload: unknown = await response.json().catch(() => ({}));
-
-		const isEnvelope =
-			typeof payload === 'object' &&
-			payload !== null &&
-			Object.prototype.hasOwnProperty.call(payload, 'code');
-
-		const envelope = isEnvelope ? (payload as Partial<ApiEnvelope<T>>) : null;
-		const data = isEnvelope ? (envelope?.data as T) : (payload as T);
-		const message = envelope?.message || '';
-		const code = envelope?.code || '';
-
-		if (!response.ok || (isEnvelope && code !== 'OK')) {
-			const err = new Error(message || `HTTP ${response.status}`) as Error & {
-				status?: number;
-				payload?: unknown;
-			};
-			err.status = response.status;
-			err.payload = payload;
-			throw err;
-		}
-
-		return data;
+		return requestApi<T>(path, options, this.base);
 	}
 
 	// ==================== 认证 ====================
@@ -148,8 +110,9 @@ class APIClient {
 	}
 
 	// ==================== 试卷 ====================
-	static async getExams(options: { level?: string; year?: string; sort?: string } = {}): Promise<unknown[]> {
+	static async getExams(options: { family?: string; level?: string; year?: string; sort?: string } = {}): Promise<unknown[]> {
 		const params = new URLSearchParams();
+		if (options.family) params.append('family', options.family);
 		if (options.level) params.append('level', options.level);
 		if (options.year) params.append('year', options.year);
 		if (options.sort) params.append('sort', options.sort);
@@ -444,8 +407,9 @@ class APIClient {
 
 	// ==================== 章节式学习路径（功能 #18） ====================
 
-	static async listChapters(opts: { level?: string; userId?: string } = {}): Promise<unknown> {
+	static async listChapters(opts: { family?: string; level?: string; userId?: string } = {}): Promise<unknown> {
 		const params = new URLSearchParams();
+		if (opts.family) params.append('family', opts.family);
 		if (opts.level) params.append('level', opts.level);
 		const uid = opts.userId ?? this.readStoredUserId();
 		if (uid) params.append('user_id', uid);

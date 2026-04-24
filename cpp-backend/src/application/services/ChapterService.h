@@ -1,13 +1,13 @@
 #pragma once
 
 // 章节式学习路径（功能 #18）：
-//   - 把 data/paper/jlpt/{level}/*.json 里各试卷的同名 section 聚合成"章节"
-//   - 章节 key 形式：<level>__<section_name_hash> （section_name 含 section_type 已足够定位主题）
+//   - 优先按 question/section 上的 skill_tags 聚合成"技能路径"
+//   - 若没有 skill_tags，则回退到 family + level + section_id/section_name 的章节聚合
 //   - 对给定用户，统计各章节累计答题/答对数，以评估进度
 //   - 不做"难度编排"，只做「按章节串联所有历届题目」的路径聚合
 //
 // 对外接口：
-//   listChapters(level, userId) -> { items: [{id, level, section_name, section_type, question_count, answered, correct}] }
+//   listChapters(family, level, userId) -> { items: [{id, family, level, section_name, section_type, skill_key, question_count, answered, correct}] }
 //   getChapter(chapterId, userId) -> { chapter, questions: [{exam_id, question_id, stem, status}] }
 
 #include <mutex>
@@ -30,7 +30,7 @@ class ChapterService
                    infrastructure::storage::AnswerRepository &answerRepo);
 
     // 列出指定等级的章节；level 为空时返回所有等级的章节
-    Json::Value listChapters(const std::string &level, const std::string &userId) const;
+    Json::Value listChapters(const std::string &family, const std::string &level, const std::string &userId) const;
 
     // 获取单个章节的题目详情 + 用户作答状态
     Json::Value getChapter(const std::string &chapterId, const std::string &userId) const;
@@ -48,9 +48,11 @@ class ChapterService
     struct Chapter
     {
         std::string id;          // 如 "n2__1.10__reading"
+        std::string family;      // jlpt / eju / cet ...
         std::string level;       // N2
         std::string sectionName; // "問題10 - 内容理解（短文）"
         std::string sectionType; // vocabulary | grammar | reading | listening
+        std::string skillKey;    // grammar.particle / reading.inference ...
         std::vector<QuestionRef> questions;
     };
 

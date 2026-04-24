@@ -10,10 +10,17 @@ application::services::SubscriptionService &subscriptionService)
 {
 }
 
-Json::Value ExamService::listExams(const std::string &level, const std::string &year, const std::string &sort) const
+Json::Value ExamService::listExams(const std::string &family,
+                                   const std::string &level,
+                                   const std::string &year,
+                                   const std::string &sort) const
 {
     auto exams = repository_.listExams();
     exams.erase(std::remove_if(exams.begin(), exams.end(), [&](const domain::ExamSummary &item) {
+                   if (!family.empty() && item.family != family)
+                   {
+                       return true;
+                   }
                    if (!level.empty() && item.level != level)
                    {
                        return true;
@@ -35,13 +42,13 @@ Json::Value ExamService::listExams(const std::string &level, const std::string &
     else if (sort == "level")
     {
         std::sort(exams.begin(), exams.end(), [](const auto &a, const auto &b) {
-            return std::tie(a.level, a.year, a.session) < std::tie(b.level, b.year, b.session);
+            return std::tie(a.family, a.level, a.year, a.session) < std::tie(b.family, b.level, b.year, b.session);
         });
     }
     else
     {
         std::sort(exams.begin(), exams.end(), [](const auto &a, const auto &b) {
-            return std::tie(a.year, a.session) > std::tie(b.year, b.session);
+            return std::tie(a.year, a.session, a.family, a.level) > std::tie(b.year, b.session, b.family, b.level);
         });
     }
 
@@ -58,7 +65,7 @@ Json::Value ExamService::groupedByLevel() const
     Json::Value grouped(Json::objectValue);
     for (const auto &exam : repository_.listExams())
     {
-        grouped[exam.level].append(exam.toJson());
+        grouped[exam.family][exam.level].append(exam.toJson());
     }
     return grouped;
 }

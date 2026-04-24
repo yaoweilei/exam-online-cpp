@@ -141,7 +141,7 @@ inline AppConfig loadConfig()
     config.appEnv = toLowerCopy(readEnv("APP_ENV", config.appEnv));
     config.baseDir = std::filesystem::path(readEnv("BASE_DIR", config.baseDir.string()));
     config.documentRoot = std::filesystem::path(readEnv("DOCUMENT_ROOT", config.baseDir.string()));
-    config.dataPaperDir = config.baseDir / "data" / "paper" / "jlpt";
+    config.dataPaperDir = config.baseDir / "data" / "paper";
     config.dataUserDir = config.baseDir / "data" / "user";
     config.dataSystemDir = config.baseDir / "data" / "system";
     config.staticDir = config.baseDir / "static";

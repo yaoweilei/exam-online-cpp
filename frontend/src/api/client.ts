@@ -1,54 +1,15 @@
-export interface ApiEnvelope<T> {
-	code: string;
-	message: string;
-	data: T;
-	request_id: string;
-	ts: string;
-}
+import { requestApi, readStoredUserId } from './runtime.js';
 
 export class ApiClient {
 	constructor(private readonly baseUrl: string = '/api/v2') {}
 
-	private readStoredUserId(): string {
-		try {
-			const raw = localStorage.getItem('exam_v2_user');
-			if (!raw) return '';
-			const parsed = JSON.parse(raw) as { user_id?: string; id?: string };
-			return parsed.user_id ?? parsed.id ?? '';
-		} catch {
-			return '';
-		}
-	}
-
-	private buildUrl(path: string): string {
-		if (path.startsWith('http://') || path.startsWith('https://')) return path;
-		return `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
-	}
-
 	async request<T>(path: string, options: RequestInit = {}): Promise<T> {
-		const response = await fetch(this.buildUrl(path), {
-			headers: {
-				'Content-Type': 'application/json',
-				...(options.headers ?? {})
-			},
-			...options
-		});
-
-		const payload = (await response.json().catch(() => ({}))) as Partial<ApiEnvelope<T>> & T;
-		const isEnvelope = Object.prototype.hasOwnProperty.call(payload, 'code');
-		const data = isEnvelope ? (payload as ApiEnvelope<T>).data : (payload as T);
-		const code = isEnvelope ? (payload as ApiEnvelope<T>).code : 'OK';
-		const message = isEnvelope ? (payload as ApiEnvelope<T>).message : '';
-
-		if (!response.ok || code !== 'OK') {
-			throw new Error(message || `HTTP ${response.status}`);
-		}
-
-		return data;
+		return requestApi<T>(path, options, this.baseUrl);
 	}
 
-	getExams(options: { level?: string; year?: string; sort?: string } = {}): Promise<unknown[]> {
+	getExams(options: { family?: string; level?: string; year?: string; sort?: string } = {}): Promise<unknown[]> {
 		const params = new URLSearchParams();
+		if (options.family) params.append('family', options.family);
 		if (options.level) params.append('level', options.level);
 		if (options.year) params.append('year', options.year);
 		if (options.sort) params.append('sort', options.sort);
@@ -57,7 +18,7 @@ export class ApiClient {
 	}
 
 	getExam(examId: string, userId?: string): Promise<unknown> {
-		const effectiveUserId = userId ?? this.readStoredUserId();
+		const effectiveUserId = userId ?? readStoredUserId();
 		const query = effectiveUserId ? `?user_id=${encodeURIComponent(effectiveUserId)}` : '';
 		return this.request(`/exams/${examId}${query}`);
 	}

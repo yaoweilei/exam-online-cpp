@@ -11,7 +11,7 @@ using namespace drogon;
 namespace transport::routes
 {
 // 章节式学习路径（功能 #18）路由
-//   GET /api/v2/chapters?level=N2&user_id=xxx        —— 列出章节 + 该用户进度
+//   GET /api/v2/chapters?family=jlpt&level=N2&user_id=xxx        —— 列出章节 + 该用户进度
 //   GET /api/v2/chapters/{chapterId}?user_id=xxx     —— 章节题目详情 + 作答状态
 //   POST /api/v2/chapters/rebuild                     —— 管理员强制重建索引
 void registerChapterRoutes(const AppContext &ctx)
@@ -23,8 +23,9 @@ void registerChapterRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto userId = req->getParameter("user_id");
                 requireFeature(*ctx.featureFlagService, "chapter_path", userId);
+                const auto family = req->getParameter("family");
                 const auto level = req->getParameter("level");
-                return common::ok(req, ctx.chapterService->listChapters(level, userId));
+                return common::ok(req, ctx.chapterService->listChapters(family, level, userId));
             });
         },
         {Get});

@@ -151,7 +151,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			title: '排行榜',
 			icon: 'chart',
 			intent: 'openLeaderboard',
-			gate: (u) => !u.guest && (window.isFeatureEnabled?.('leaderboard') ?? true)
+			gate: () => false
 		},
 		{
 			// 业务功能 10：数据导出入口（功能开关：data_export）
@@ -167,7 +167,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			title: '社区讨论',
 			icon: 'chat',
 			intent: 'openCommunity',
-			gate: (u) => !u.guest && (window.isFeatureEnabled?.('community') ?? true)
+			gate: () => false
 		},
 		{
 			id: 'redeem',
@@ -195,7 +195,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			title: '加入社群',
 			icon: 'community',
 			intent: 'joinCommunity',
-			gate: (u) => !u.guest
+			gate: () => false
 		},
 		{
 			id: 'questions',
@@ -4938,14 +4938,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				<div id="sg-list" style="margin-bottom:14px;"></div>
 				<form id="sg-form" style="border-top:1px solid #eee;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
 					<label style="grid-column:1/-1;font-size:12px;color:#666;">新增目标</label>
-					<input id="sg-title" placeholder="目标标题，如：N1 一战必过" maxlength="80" style="grid-column:1/-1;padding:6px;border:1px solid #ddd;border-radius:4px;" required />
+					<input id="sg-title" placeholder="目标标题，如：CET6 冲刺 / EJU 文综稳定 320+" maxlength="80" style="grid-column:1/-1;padding:6px;border:1px solid #ddd;border-radius:4px;" required />
 					<input id="sg-date" type="date" style="padding:6px;border:1px solid #ddd;border-radius:4px;" required />
 					<input id="sg-daily" type="number" min="0" max="1000" placeholder="每日目标题量（可选）" style="padding:6px;border:1px solid #ddd;border-radius:4px;" />
-					<select id="sg-target" style="padding:6px;border:1px solid #ddd;border-radius:4px;">
-						<option value="">考试级别（可选）</option>
-						<option value="N1">N1</option><option value="N2">N2</option>
-						<option value="N3">N3</option><option value="N4">N4</option><option value="N5">N5</option>
-					</select>
+					<input id="sg-target" placeholder="目标考试或级别（可选），如 N1 / EJU / CET6" maxlength="40" style="padding:6px;border:1px solid #ddd;border-radius:4px;" />
 					<button type="submit" style="padding:6px 12px;background:#0a7;color:#fff;border:0;border-radius:4px;cursor:pointer;">添加目标</button>
 				</form>
 			</div>`;
@@ -5013,7 +5009,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const title = (modal.querySelector('#sg-title') as HTMLInputElement).value.trim();
 		const date = (modal.querySelector('#sg-date') as HTMLInputElement).value;
 		const daily = Number((modal.querySelector('#sg-daily') as HTMLInputElement).value || 0);
-		const target = (modal.querySelector('#sg-target') as HTMLSelectElement).value;
+		const target = (modal.querySelector('#sg-target') as HTMLInputElement).value.trim();
 		if (!title || !date) {
 			showToast('标题与日期必填');
 			return;
@@ -5495,7 +5491,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	// 功能 #18：章节式学习路径面板
 	// ============================================================
 	let chapterModal: HTMLDivElement | null = null;
-	let chapterFilterLevel = '';  // '' | 'N1' | 'N2' | 'N3' | 'N4' | 'N5'
+	let chapterFilterFamily = 'jlpt';
+	let chapterFilterLevel = '';
 	function ensureChapterModal(): HTMLDivElement {
 		if (chapterModal) return chapterModal;
 		const el = document.createElement('div');
@@ -5504,8 +5501,15 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		el.innerHTML = `<div class="risk-backdrop" data-cp-act="close"></div>
 			<div class="risk-panel" style="max-width:820px;width:92%;">
 				<div class="risk-header"><strong>学习路径（章节）</strong><button class="risk-close" data-cp-act="close">×</button></div>
-				<div style="padding:8px 16px;font-size:13px;color:#666;">按 JLPT section 聚合跨卷题目，查看各章节的累计进度</div>
+				<div style="padding:8px 16px;font-size:13px;color:#666;">优先按技能标签聚合；没有技能标签时回退到考试家族内的 section 聚合，适配 JLPT / EJU / CET 等题库。</div>
 				<div style="display:flex;gap:8px;align-items:center;padding:0 16px 8px 16px;flex-wrap:wrap;font-size:13px;">
+					<label>考试
+						<select id="cp-family">
+							<option value="jlpt">JLPT</option>
+							<option value="eju">EJU</option>
+							<option value="cet">CET</option>
+						</select>
+					</label>
 					<label>等级
 						<select id="cp-level">
 							<option value="">全部</option>
@@ -5537,19 +5541,23 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const id = String(item.id ?? '');
 		const name = String(item.section_name ?? '');
 		const type = String(item.section_type ?? '');
+		const family = String(item.family ?? '').toUpperCase();
 		const lvl = String(item.level ?? '');
 		const total = Number(item.question_count ?? 0);
 		const answered = Number(item.answered ?? 0);
 		const correct = Number(item.correct ?? 0);
+		const skillKey = String(item.skill_key ?? '');
 		const progress = total > 0 ? Math.round((answered / total) * 100) : 0;
 		const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : 0;
 		return `<div class="cp-row" style="border-top:1px solid #eee;padding:10px 16px;">
 			<div style="display:flex;align-items:center;gap:10px;">
+				${family ? `<span style="font-size:11px;padding:2px 6px;background:#f4eefc;border-radius:3px;color:#6a45a3;">${escapeHtmlSafe(family)}</span>` : ''}
 				<span style="font-size:11px;padding:2px 6px;background:#eef;border-radius:3px;color:#448;">${escapeHtmlSafe(lvl)}</span>
 				<span style="font-size:11px;padding:2px 6px;background:#efe;border-radius:3px;color:#484;">${escapeHtmlSafe(type)}</span>
 				<span style="font-weight:600;">${escapeHtmlSafe(name)}</span>
 				<span style="margin-left:auto;font-size:11px;color:#888;">${total} 题</span>
 			</div>
+			${skillKey ? `<div style="margin-top:6px;font-size:11px;color:#6b7280;">技能标签：<code>${escapeHtmlSafe(skillKey)}</code></div>` : ''}
 			<div style="margin-top:6px;height:6px;background:#eee;border-radius:3px;overflow:hidden;">
 				<div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#36a,#6c9);"></div>
 			</div>
@@ -5591,7 +5599,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		}
 		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
 		try {
-			const data = (await api.listChapters({ level: chapterFilterLevel || undefined })) as {
+			const data = (await api.listChapters({ family: chapterFilterFamily || undefined, level: chapterFilterLevel || undefined })) as {
 				items?: Array<Record<string, unknown>>;
 				count?: number;
 			};
@@ -5616,6 +5624,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		modal.classList.remove('risk-hidden');
 		modal.classList.add('risk-open');
 
+		const familySel = modal.querySelector('#cp-family') as HTMLSelectElement | null;
+		if (familySel) {
+			familySel.value = chapterFilterFamily;
+			familySel.onchange = () => {
+				chapterFilterFamily = familySel.value;
+				void reloadChapters(modal);
+			};
+		}
 		const levelSel = modal.querySelector('#cp-level') as HTMLSelectElement | null;
 		if (levelSel) {
 			levelSel.value = chapterFilterLevel;

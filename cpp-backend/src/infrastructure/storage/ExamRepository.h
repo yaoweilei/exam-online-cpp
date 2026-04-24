@@ -35,7 +35,7 @@ class ExamRepository
     void deleteExam(const std::string &examId);
 
   private:
-    static std::string lowerLevelFromExamId(const std::string &examId);
+    std::filesystem::path buildStoragePath(const std::string &examId, const Json::Value &payload) const;
 
     std::optional<domain::ExamSummary> parseSummary(const std::filesystem::path &path) const;
 

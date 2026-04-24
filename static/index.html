@@ -21,6 +21,7 @@
 		window.__FURIGANA_DICT_URL__ = "/static/resource/furigana.dict.json";
 		window.__WEB_APP_MODE__ = true;
 		window.__API_BASE__ = "/api/v2";
+		window.__EXAMS_BY_FAMILY__ = {};
 		window.__EXAMS_BY_LEVEL__ = {};
 	</script>
 
@@ -90,6 +91,9 @@
 		</div>
 		<div id="exam-workarea">
 			<div id="exam-library-panel">
+				<select id="exam-family-select" class="btn-secondary" autocomplete="off">
+					<option value="jlpt">JLPT</option>
+				</select>
 				<select id="exam-level-select" class="btn-secondary" autocomplete="off">
 					<option value="N1">N1</option>
 					<option value="N2">N2</option>
@@ -114,9 +118,11 @@
 				<button id="top-prev" class="btn-secondary" title="上一题(←)">上一题</button>
 				<button id="top-next" class="btn-secondary" title="下一题(→)">下一题</button>
 				<button id="toggle-explanations" class="btn-secondary">显示详解</button>
-				<div class="category-slot" data-cat-slot="vocab"></div>
-				<div class="category-slot" data-cat-slot="reading"></div>
-				<div class="category-slot" data-cat-slot="listening"></div>
+				<div class="category-slot"></div>
+				<div class="category-slot"></div>
+				<div class="category-slot"></div>
+				<div class="category-slot"></div>
+				<div class="category-slot"></div>
 			</div>
 
 			<div id="category-navigation" style="display:none"></div>

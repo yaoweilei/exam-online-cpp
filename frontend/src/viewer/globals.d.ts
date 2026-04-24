@@ -19,7 +19,7 @@ interface LegacyApiClientShape {
 	sendEmailVerificationCode(token: string, email: string): Promise<unknown>;
 	verifyEmail(token: string, email: string, code: string, options?: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string }): Promise<unknown>;
 	verifyToken(token: string): Promise<unknown>;
-	getExams(options?: { level?: string; year?: string; sort?: string }): Promise<unknown[]>;
+	getExams(options?: { family?: string; level?: string; year?: string; sort?: string }): Promise<unknown[]>;
 	getExam(examId: string, userId?: string): Promise<unknown>;
 	createExam(examData: unknown): Promise<unknown>;
 	deleteExam(examId: string): Promise<unknown>;
@@ -176,7 +176,7 @@ interface LegacyApiClientShape {
 	// 同考点串题（功能 #17）
 	getRelatedQuestions(examId: string, questionId: string, limit?: number): Promise<unknown>;
 	// 章节式学习路径（功能 #18）
-	listChapters(opts?: { level?: string; userId?: string }): Promise<unknown>;
+	listChapters(opts?: { family?: string; level?: string; userId?: string }): Promise<unknown>;
 	getChapterDetail(chapterId: string, userId?: string): Promise<unknown>;
 }
 
@@ -205,10 +205,24 @@ interface Window {
 		string,
 		Array<{
 			id: string;
+			family?: string;
 			display: string;
 			checked?: boolean;
 			[key: string]: unknown;
 		}>
+	>;
+	__EXAMS_BY_FAMILY__?: Record<
+		string,
+		Record<
+			string,
+			Array<{
+				id: string;
+				family?: string;
+				display: string;
+				checked?: boolean;
+				[key: string]: unknown;
+			}>
+		>
 	>;
 	APIClient?: LegacyApiClientShape;
 	ExamLoader?: unknown;
@@ -224,6 +238,7 @@ interface Window {
 	AudioManager?: unknown;
 	FuriganaManager?: unknown;
 	NavigationManager?: unknown;
+	ExamTimerManager?: unknown;
 	QuestionMapManager?: unknown;
 	CategoryNavigationManager?: unknown;
 	QuestionRenderer?: unknown;

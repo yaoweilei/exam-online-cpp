@@ -61,13 +61,15 @@ class CategoryNavigationManager {
 	initCategoryDropdowns(): void {
 		console.log('[CategoryNavigationManager] initCategoryDropdowns called');
 		const categorySlots = document.querySelectorAll('.category-slot');
+		const categories = this.examViewer.getCategories();
 		console.log('[CategoryNavigationManager] Found category slots:', categorySlots.length);
 
 		categorySlots.forEach((slot, index) => {
 			slot.querySelectorAll('.category-multi-dropdown').forEach((node) => node.remove());
-			const catType = slot.getAttribute('data-cat-slot');
-			console.log(`[CategoryNavigationManager] Processing slot ${index} with type:`, catType);
-			if (!catType) {
+			const category = categories[index];
+			(slot as HTMLElement).style.display = category ? '' : 'none';
+			console.log(`[CategoryNavigationManager] Processing slot ${index} with category:`, category?.id);
+			if (!category) {
 				return;
 			}
 
@@ -76,7 +78,7 @@ class CategoryNavigationManager {
 
 			const label = document.createElement('div');
 			label.className = 'category-dropdown-label';
-			label.textContent = this.getCategoryDisplayName(catType);
+			label.textContent = category.label;
 			label.addEventListener('click', () => {
 				this.toggleCategoryDropdown(dropdown);
 			});
@@ -84,14 +86,14 @@ class CategoryNavigationManager {
 			const menu = document.createElement('div');
 			menu.className = 'category-dropdown-menu';
 
-			const menuItems = this.getCategoryMenuItems(catType);
-			console.log(`[CategoryNavigationManager] Menu items for ${catType}:`, menuItems);
+			const menuItems = this.getCategoryMenuItems(category.id);
+			console.log(`[CategoryNavigationManager] Menu items for ${category.id}:`, menuItems);
 			menuItems.forEach((item) => {
 				const menuItem = document.createElement('div');
 				menuItem.className = 'category-menu-item';
 				menuItem.textContent = item.label;
 				menuItem.addEventListener('click', () => {
-					this.selectCategoryItem(catType, item.value);
+					this.selectCategoryItem(category.id, item.value);
 					this.closeCategoryDropdown(dropdown);
 				});
 				menu.appendChild(menuItem);
@@ -128,19 +130,9 @@ class CategoryNavigationManager {
 		DOMUtils.safeSetInnerHTML(container, '', 'renderCategoryNavigation-clear');
 
 		const categories = this.examViewer.getCategories();
-		const categoryMap = new Map(categories.map((category) => [category.id, category]));
 
-		const order = [
-			{ id: 'vocab', label: '词汇/语法' },
-			{ id: 'reading', label: '阅读' },
-			{ id: 'listening', label: '听力' }
-		];
-
-		order.forEach((definition) => {
-			const data = categoryMap.get(definition.id);
-			if (!data) {
-				return;
-			}
+		categories.forEach((definition) => {
+			const data = definition;
 
 			const wrapper = DOMUtils.createElementWithClass('div', 'category-multi-dropdown');
 			const label = DOMUtils.createElementWithClass('div', 'category-dropdown-label');
@@ -213,12 +205,8 @@ class CategoryNavigationManager {
 	 * 获取分类显示名称
 	 */
 	getCategoryDisplayName(catType: string): string {
-		const names: Record<string, string> = {
-			vocab: '词汇',
-			reading: '阅读',
-			listening: '听力'
-		};
-		return names[catType] || catType;
+		const category = this.examViewer.getCategories().find((entry) => entry.id === catType);
+		return category?.label || catType;
 	}
 
 	/**
@@ -249,7 +237,7 @@ class CategoryNavigationManager {
 					const sectionId = section.section_id;
 					if (typeof sectionId === 'number') {
 						if (sectionId >= 1.01 && sectionId <= 1.06) {
-							label = `词汇${sectionId}`;
+							label = `词汇/语法 ${sectionId}`;
 						} else if (sectionId >= 1.07 && sectionId <= 1.99) {
 							label = `阅读${sectionId}`;
 						} else if (Math.floor(sectionId) === 2) {
