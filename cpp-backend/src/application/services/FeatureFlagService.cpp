@@ -10,7 +10,7 @@ namespace application::services
 // 静态注册表：所有可用的功能开关
 //   - allowOrgOverride / allowUserOverride 决定能否在该层写入；
 //     若 false，则对应层写入时被忽略（管理员页面也应据此隐藏控件）。
-static const std::array<FeatureFlagDef, 25> kRegistry{{
+static const std::array<FeatureFlagDef, 24> kRegistry{{
     {"wrong_questions", "错题本", "错题自动沉淀与复习入口", true, true, true},
     {"streak", "学习连续天数", "每日目标与连续学习天数统计", true, true, true},
     {"exam_timer", "答题计时与限时", "全卷/分段限时和顶部计时条", true, true, true},
@@ -29,7 +29,6 @@ static const std::array<FeatureFlagDef, 25> kRegistry{{
     {"learning_report", "学习报告", "周/月小结：答题/错题/SRS/连续天数", true, true, true},
     {"study_goal", "备考目标 / 倒计时", "设置考试日期与每日题量目标", true, true, true},
     {"sync_devices", "多端同步", "跨设备拉取个人数据快照，服务端为准", true, true, true},
-    {"question_explanations", "题目讲解", "题目讲解附件（文本/链接/图/音频）", true, true, true},
     {"leaderboard", "排行榜", "周/月/总榜：连胜 + 答题量 + 正确率", false, true, true},
     {"oauth_extra", "第三方 OAuth", "Google / Apple 登录（默认 mock 模式）", true, false, false},
     {"vocab_notebook", "个人生词本", "题面/听力原文点词查词并加入个人词本", true, true, true},
@@ -38,7 +37,7 @@ static const std::array<FeatureFlagDef, 25> kRegistry{{
     {"chapter_path", "章节式学习路径", "按 section 聚合跨卷题目形成章节与进度视图", true, true, true},
 }};
 
-const std::array<FeatureFlagDef, 25> &FeatureFlagService::registry()
+const std::array<FeatureFlagDef, 24> &FeatureFlagService::registry()
 {
     return kRegistry;
 }

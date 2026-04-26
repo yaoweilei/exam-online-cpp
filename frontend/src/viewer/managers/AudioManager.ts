@@ -34,6 +34,12 @@ interface AudioManagedExam {
 interface AudioExamViewer {
 	currentExam: AudioManagedExam;
 	currentSectionIndex: number;
+	showReadingKana?: boolean;
+	showReadingZh?: boolean;
+	_currentExamId?: string | null;
+	furiganaManager?: {
+		annotateFurigana?: (text: string) => string;
+	};
 }
 
 type DragLikeEvent = MouseEvent | Touch;
@@ -289,15 +295,19 @@ class AudioManager {
 		scriptDiv.className = 'script-container';
 
 		if (question.script && Array.isArray(question.script)) {
-			question.script.forEach((line) => {
+			const scriptScopeKey = this.buildScriptScopeKey(question);
+			question.script.forEach((line, lineIndex) => {
 				const lineDiv = document.createElement('div');
 				lineDiv.dataset.start = line.start ?? '';
 				lineDiv.dataset.end = line.end ?? '';
 				lineDiv.dataset.questionId = questionKey;
+				lineDiv.dataset.translationScope = scriptScopeKey;
+				lineDiv.dataset.sidx = String(lineIndex);
 
 				if (line.speaker) {
 					const speakerPattern = new RegExp(`^(${line.speaker})[：:]\\s*`);
 					const match = line.text.match(speakerPattern);
+					const displayText = match ? line.text.substring(match[0].length) : line.text;
 					lineDiv.className = 'script-line';
 
 					const speakerSpan = document.createElement('span');
@@ -307,13 +317,13 @@ class AudioManager {
 
 					const textSpan = document.createElement('span');
 					textSpan.className = 'script-text';
-					textSpan.textContent = match ? line.text.substring(match[0].length) : line.text;
+					textSpan.innerHTML = this.renderScriptTextAssist(scriptScopeKey, lineIndex, displayText);
 					lineDiv.appendChild(textSpan);
 				} else {
 					lineDiv.className = 'script-line no-speaker';
 					const textSpan = document.createElement('span');
 					textSpan.className = 'script-text';
-					textSpan.textContent = line.text;
+					textSpan.innerHTML = this.renderScriptTextAssist(scriptScopeKey, lineIndex, line.text);
 					lineDiv.appendChild(textSpan);
 				}
 
@@ -326,6 +336,55 @@ class AudioManager {
 		}
 
 		return scriptDiv;
+	}
+
+	private buildScriptScopeKey(question: AudioQuestion): string {
+		const section = this.examViewer.currentExam?.exam_info?.sections?.[this.examViewer.currentSectionIndex] || {};
+		const sectionId = String((section as Record<string, unknown>).section_id || '');
+		const groupKey = typeof question._groupPassageKey === 'string' ? question._groupPassageKey : '';
+		const base = groupKey || sectionId;
+		return `${base}:q${question.id}:script`;
+	}
+
+	private renderScriptTextAssist(scopeKey: string, lineIndex: number, text: string): string {
+		const showKana = Boolean(this.examViewer.showReadingKana);
+		const showZh = Boolean(this.examViewer.showReadingZh);
+		const sourceHtml = this.escapeHtml(text);
+		if (!showKana && !showZh) {
+			return sourceHtml;
+		}
+
+		const examId = this.examViewer._currentExamId || '';
+		const source = showKana ? this.buildRubyForScope(examId, scopeKey, 0, lineIndex, sourceHtml) || sourceHtml : sourceHtml;
+		const zh = showZh ? this.buildZhForScope(examId, scopeKey, 0, lineIndex) : '';
+		if (!zh) {
+			return source;
+		}
+		return `<span class="text-assist-wrap"><span class="text-assist-source">${source}</span><span class="sentence-zh">${zh}</span></span>`;
+	}
+
+	private buildRubyForScope(examId: string, scopeKey: string, pIdx: number, sIdx: number, formattedText: string): string {
+		const translationMgr = (window as unknown as {
+			TranslationManager?: { getRuby?: (examId: string, passageKey: string, pIdx: number, sIdx: number) => string };
+		}).TranslationManager;
+		const explicitRuby = translationMgr?.getRuby?.(examId, scopeKey, pIdx, sIdx) || '';
+		if (explicitRuby.trim()) {
+			return explicitRuby;
+		}
+		const annotator = this.examViewer.furiganaManager?.annotateFurigana;
+		return typeof annotator === 'function' ? annotator.call(this.examViewer.furiganaManager, formattedText) : '';
+	}
+
+	private buildZhForScope(examId: string, scopeKey: string, pIdx: number, sIdx: number): string {
+		const translationMgr = (window as unknown as {
+			TranslationManager?: { getSentence?: (examId: string, passageKey: string, pIdx: number, sIdx: number) => string };
+		}).TranslationManager;
+		const zh = translationMgr?.getSentence?.(examId, scopeKey, pIdx, sIdx) || '';
+		return zh.trim() ? this.escapeHtml(zh).replace(/\n/g, '<br>') : '';
+	}
+
+	private escapeHtml(text: string): string {
+		return String(text).replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char] || char));
 	}
 
 	// ============================================================

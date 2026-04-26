@@ -14,14 +14,14 @@ namespace infrastructure::storage
 {
 // 段/句级译文众包仓库（B2：阅读分句双语对照）
 //
-// 文档路径：data/system/translations/{examId}.json
+// 文档路径：data/system/translations/jlpt/{level}/{examId}.json
 // 文档形态：
 // {
 //   "exam_id": "N1_2010_07",
 //   "items": {
 //      // passageKey 推荐用 "section_id:question_id"，由前端约定（也可用 "passage:<id>"）
 //      "1.08:54": {
-//         "0.0": { "text": "这是第一段第一句的中文……", "updated_by": "uid", "updated_at": "..." },
+//         "0.0": { "text": "这是第一段第一句的中文……", "ruby": "<ruby>...</ruby>", "updated_by": "uid", "updated_at": "..." },
 //         "1.2": { "text": "...", "updated_by": "uid", "updated_at": "..." }
 //      }
 //   },
@@ -44,11 +44,11 @@ class TranslationRepository
     {
         const auto path = filePath(examId);
         std::shared_lock lock(mutex_);
-        if (!std::filesystem::exists(path))
+        if (std::filesystem::exists(path))
         {
-            return defaultDoc(examId);
+            return readJsonFile(path);
         }
-        return readJsonFile(path);
+        return defaultDoc(examId);
     }
 
     Json::Value upsertSentence(const std::string &examId,
@@ -73,12 +73,22 @@ class TranslationRepository
             doc["items"][passageKey] = Json::Value(Json::objectValue);
         }
 
+        const Json::Value previous = doc["items"][passageKey][sentenceKey];
         Json::Value entry(Json::objectValue);
         entry["text"] = text;
+        if (previous.isObject() && previous.isMember("kana"))
+        {
+            entry["kana"] = previous["kana"];
+        }
+        if (previous.isObject() && previous.isMember("ruby"))
+        {
+            entry["ruby"] = previous["ruby"];
+        }
         entry["updated_by"] = updatedBy;
         entry["updated_at"] = now;
         doc["items"][passageKey][sentenceKey] = entry;
         doc["updated_at"] = now;
+        std::filesystem::create_directories(path.parent_path());
         writeJsonFileAtomic(path, doc);
         return doc;
     }
@@ -86,7 +96,37 @@ class TranslationRepository
   private:
     std::filesystem::path filePath(const std::string &examId) const
     {
-        return translationDir_ / (examId + ".json");
+        return translationDir_ / familyOf(examId) / levelOf(examId) / (examId + ".json");
+    }
+
+    static std::string lowerCopy(std::string value)
+    {
+        for (auto &ch : value)
+        {
+            if (ch >= 'A' && ch <= 'Z')
+            {
+                ch = static_cast<char>(ch - 'A' + 'a');
+            }
+        }
+        return value;
+    }
+
+    static std::string familyOf(const std::string &examId)
+    {
+        if (examId.size() >= 2 && (examId[0] == 'N' || examId[0] == 'n') && examId[1] >= '1' && examId[1] <= '5')
+        {
+            return "jlpt";
+        }
+        return "general";
+    }
+
+    static std::string levelOf(const std::string &examId)
+    {
+        if (examId.size() >= 2 && (examId[0] == 'N' || examId[0] == 'n') && examId[1] >= '1' && examId[1] <= '5')
+        {
+            return lowerCopy(examId.substr(0, 2));
+        }
+        return "unknown";
     }
 
     static Json::Value defaultDoc(const std::string &examId)

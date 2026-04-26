@@ -57,8 +57,6 @@ void registerLearningReportRoutes(const AppContext &ctx);
 void registerStudyGoalRoutes(const AppContext &ctx);
 // 多端同步路由（业务功能 19）
 void registerSyncRoutes(const AppContext &ctx);
-// 题目讲解附件路由（业务功能 20）
-void registerExplanationRoutes(const AppContext &ctx);
 // 排行榜路由（业务功能 21）
 void registerLeaderboardRoutes(const AppContext &ctx);
 // 第三方 OAuth 路由（业务功能 22）

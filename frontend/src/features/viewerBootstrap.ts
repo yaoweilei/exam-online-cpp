@@ -460,7 +460,14 @@ async function initExamSelectors(): Promise<void> {
 			const translationMgr = (globalWindow as unknown as { TranslationManager?: { loadForExam: (id: string) => Promise<void>; installDelegation: () => void } }).TranslationManager;
 			if (translationMgr) {
 				translationMgr.installDelegation();
-				void translationMgr.loadForExam(examId);
+				void translationMgr.loadForExam(examId).then(() => {
+					const viewer = globalWindow.examViewer as
+						| { showReadingZh?: boolean; questionRenderer?: { renderCurrentQuestion?: () => void } }
+						| undefined;
+					if (viewer?.showReadingZh) {
+						viewer.questionRenderer?.renderCurrentQuestion?.();
+					}
+				});
 			}
 		} catch (error) {
 			console.error('[viewerBootstrap] Failed to load exam:', error);

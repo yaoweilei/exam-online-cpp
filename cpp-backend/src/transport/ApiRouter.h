@@ -37,7 +37,6 @@
 #include "application/services/LearningReportService.h"
 #include "application/services/StudyGoalService.h"
 #include "application/services/SyncService.h"
-#include "application/services/ExplanationService.h"
 #include "application/services/LeaderboardService.h"
 #include "application/services/OAuthService.h"
 #include "application/services/RelatedQuestionsService.h"
@@ -101,8 +100,6 @@ struct AppContext
     application::services::StudyGoalService *studyGoalService{nullptr};
     // 多端同步（业务功能 19）
     application::services::SyncService *syncService{nullptr};
-    // 题目讲解附件（业务功能 20）
-    application::services::ExplanationService *explanationService{nullptr};
     // 排行榜（业务功能 21）
     application::services::LeaderboardService *leaderboardService{nullptr};
     // 第三方 OAuth（业务功能 22）

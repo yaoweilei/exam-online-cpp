@@ -158,11 +158,6 @@ interface LegacyApiClientShape {
 	// 多端同步（业务功能 19）
 	getSyncState(): Promise<unknown>;
 	pullSync(modules?: string[]): Promise<unknown>;
-	// 题目讲解附件（业务功能 20）
-	listExplanationsForExam(examId: string): Promise<unknown>;
-	listExplanationsForQuestion(examId: string, questionId: string): Promise<unknown>;
-	addExplanation(examId: string, questionId: string, payload: Record<string, unknown>): Promise<unknown>;
-	deleteExplanation(examId: string, questionId: string, explanationId: string): Promise<unknown>;
 	// 排行榜（业务功能 21）
 	getLeaderboard(period?: 'week' | 'month' | 'all', limit?: number, force?: boolean): Promise<unknown>;
 	// 个人生词本

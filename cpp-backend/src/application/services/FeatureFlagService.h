@@ -44,7 +44,7 @@ class FeatureFlagService
                        infrastructure::storage::OrganizationRepository &orgRepo);
 
     // 已注册 flag 列表
-    static const std::array<FeatureFlagDef, 25> &registry();
+    static const std::array<FeatureFlagDef, 24> &registry();
 
     // 给前端用：注册表 + 当前用户解析结果
     Json::Value listRegistry() const;

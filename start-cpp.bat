@@ -5,6 +5,7 @@ chcp 65001>nul
 
 set BUILD_DIR=cpp-backend\build
 set TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+set POWERSHELL_EXE=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
 
 if "%APP_ENV%"=="" set APP_ENV=development
 if /I "%APP_ENV%"=="production" (
@@ -31,12 +32,14 @@ echo [start-cpp] APP_ENV=%APP_ENV%
 echo [start-cpp] LOG_LEVEL=%LOG_LEVEL%
 echo [start-cpp] LOG_DIR=%LOG_DIR%
 
-if not exist %BUILD_DIR% (
-  cmake -S cpp-backend -B %BUILD_DIR% -DCMAKE_TOOLCHAIN_FILE=%TOOLCHAIN_FILE%
-  if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+if exist "%BUILD_DIR%\CMakeCache.txt" (
+  cmake -S cpp-backend -B "%BUILD_DIR%" -DZ_VCPKG_POWERSHELL_PATH:FILEPATH="%POWERSHELL_EXE%" -DZ_VCPKG_PWSH_PATH:FILEPATH="%POWERSHELL_EXE%"
+) else (
+  cmake -S cpp-backend -B "%BUILD_DIR%" -DCMAKE_TOOLCHAIN_FILE="%TOOLCHAIN_FILE%" -DZ_VCPKG_POWERSHELL_PATH:FILEPATH="%POWERSHELL_EXE%" -DZ_VCPKG_PWSH_PATH:FILEPATH="%POWERSHELL_EXE%"
 )
+if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 
-cmake --build %BUILD_DIR% --config Release
+cmake --build "%BUILD_DIR%" --config Release
 if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 
 if exist "%BUILD_DIR%\Release\exam_online_cpp.exe" (

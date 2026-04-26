@@ -200,6 +200,55 @@
 	box-shadow: 0 0 0 2px color-mix(in srgb, var(--vscode-textLink-foreground) 40%, transparent);
 }
 
+.passage-sentence-wrap {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-start;
+	max-width: 100%;
+	margin: 0 0.08em 0.35em 0;
+	vertical-align: baseline;
+	white-space: normal;
+	line-height: 1.65;
+}
+.passage-sentence-wrap .passage-sentence {
+	display: block;
+	max-width: 100%;
+}
+.text-assist-wrap {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-start;
+	max-width: 100%;
+	vertical-align: top;
+	line-height: 1.55;
+}
+.text-assist-source {
+	display: block;
+	max-width: 100%;
+}
+.sentence-zh {
+	display: block;
+	max-width: 100%;
+	white-space: normal;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+}
+.passage-sentence ruby {
+	ruby-position: over;
+}
+.passage-sentence rt {
+	font-size: 0.52em;
+	line-height: 1;
+	color: color-mix(in srgb, var(--vscode-textLink-foreground) 76%, var(--vscode-foreground));
+}
+.sentence-zh {
+	margin-top: 2px;
+	font-family: var(--font-ui, system-ui, sans-serif);
+	font-size: 0.76em;
+	line-height: 1.45;
+	color: var(--vscode-descriptionForeground);
+}
+
 .explanation-source-btn {
 	display: inline-flex;
 	align-items: center;

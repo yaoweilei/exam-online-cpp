@@ -35,6 +35,7 @@ interface ExamViewerQuestion extends LegacyAnyRecord {
 	audio?: string;
 	script?: LegacyAnyRecord[];
 	_groupPassage?: LegacyAnyRecord;
+	_groupPassageKey?: string;
 	_groupIndex?: string | number;
 	_groupTopic?: string;
 }
@@ -78,6 +79,8 @@ class ExamViewer {
 	userAnswers: Record<string, unknown> = {};
 	showAnswers = false;
 	showExplanations = false;
+	showReadingKana = false;
+	showReadingZh = false;
 	contentWidthPx = 0;
 	private _kbBound = false;
 	_currentExamId: string | null = null;
@@ -94,6 +97,8 @@ class ExamViewer {
 		this.userAnswers = {};
 		this.showAnswers = false;
 		this.showExplanations = false;
+		this.showReadingKana = this.readBooleanPreference('examViewer.showReadingKana', false);
+		this.showReadingZh = this.readBooleanPreference('examViewer.showReadingZh', false);
 		this.contentWidthPx = 0;
 
 		// ==================== 初始化管理器 ====================
@@ -128,6 +133,7 @@ class ExamViewer {
 		this.initWidthControl();
 		this.questionMapManager.initQuestionMap();
 		this.categoryNavigationManager.initCategoryDropdowns();
+		(window as unknown as { TranslationManager?: { installDelegation?: () => void } }).TranslationManager?.installDelegation?.();
 		this.furiganaManager.loadExternalFuriganaDict();
 		this.furiganaManager.initFuriganaDebugBadge();
 		this.vocabLookupManager?.init?.();
@@ -250,18 +256,23 @@ class ExamViewer {
 				// 保存当前的显示状态
 				const prevShowAnswers = this.showAnswers;
 				const prevShowExplanations = this.showExplanations;
+				const prevShowReadingKana = this.showReadingKana;
+				const prevShowReadingZh = this.showReadingZh;
 				
 				this.resetExamState();
 				
 				// 恢复显示状态
 				this.showAnswers = prevShowAnswers;
 				this.showExplanations = prevShowExplanations;
+				this.showReadingKana = prevShowReadingKana;
+				this.showReadingZh = prevShowReadingZh;
 				this.currentCategory = this.getCategories()[0]?.id ?? null;
 				
 				this.renderExam();
 				this.updateNavigation();
 				this.categoryNavigationManager.initCategoryDropdowns();
 				console.log('[ExamViewer] Render completed');
+				this.loadTranslationsForReadingAssist();
 
 				// 业务功能 3：试卷渲染完成后启动答题计时（仅登录用户 + 有 examId 时）
 				try {
@@ -299,9 +310,14 @@ class ExamViewer {
 
 				section.passages.forEach((passage: ExamViewerPassageGroup) => {
 					if (passage.questions && Array.isArray(passage.questions)) {
+						const groupPassageKey =
+							section.section_id !== undefined && passage.id !== undefined
+								? `${section.section_id}:p${passage.id}`
+								: '';
 						// 将文章信息附加到每道题目上
 						passage.questions.forEach((question: ExamViewerQuestion) => {
 							question._groupPassage = passage.passage;
+							question._groupPassageKey = groupPassageKey || `${section.section_id || ''}:${question.id ?? ''}`;
 							// 只有多篇文章时才显示"第X篇"标签
 							if (hasMultiplePassages) {
 								question._groupIndex = passage.id;
@@ -343,6 +359,7 @@ class ExamViewer {
 		this.renderHeader();
 		this.categoryNavigationManager.renderCategoryNavigation();
 		this.renderControls();
+		this.updateReadingAssistButtonStates();
 		this.questionRenderer.renderCurrentQuestion();
 		this.renderQuestionNavigation();
 		this.renderAnswerPanel();
@@ -381,6 +398,7 @@ class ExamViewer {
 			return;
 		}
 		// HTML模板中已经定义了所有需要的按钮
+		this.updateReadingAssistButtonStates();
 	}
 
 	renderQuestionNavigation() {
@@ -763,6 +781,8 @@ class ExamViewer {
 			'#top-next': () => this.navigateToNextQuestion(),
 			'#toggle-answers': () => this.toggleAnswers(),
 			'#toggle-explanations': () => this.toggleExplanations(),
+			'#toggle-reading-kana': () => this.toggleReadingKana(),
+			'#toggle-reading-zh': () => this.toggleReadingZh(),
 			'#open-question-map': () => this.questionMapManager.showQuestionMap()
 		};
 
@@ -820,6 +840,71 @@ class ExamViewer {
 					}
 					break;
 			}
+		});
+	}
+
+	toggleReadingKana(show: boolean | null = null) {
+		this.showReadingKana = show !== null ? show : !this.showReadingKana;
+		this.writeBooleanPreference('examViewer.showReadingKana', this.showReadingKana);
+		this.renderExam();
+		this.loadTranslationsForReadingAssist();
+	}
+
+	toggleReadingZh(show: boolean | null = null) {
+		this.showReadingZh = show !== null ? show : !this.showReadingZh;
+		this.writeBooleanPreference('examViewer.showReadingZh', this.showReadingZh);
+		this.renderExam();
+
+		const translationMgr = (window as unknown as {
+			TranslationManager?: { loadForExam?: (id: string) => Promise<void> };
+		}).TranslationManager;
+		if (this.showReadingZh && this._currentExamId && translationMgr?.loadForExam) {
+			void translationMgr.loadForExam(this._currentExamId).then(() => {
+				this.questionRenderer.renderCurrentQuestion();
+			});
+		}
+	}
+
+	private updateReadingAssistButtonStates() {
+		this.setToggleButtonActive('toggle-reading-kana', this.showReadingKana);
+		this.setToggleButtonActive('toggle-reading-zh', this.showReadingZh);
+	}
+
+	private setToggleButtonActive(id: string, active: boolean) {
+		const btn = document.getElementById(id);
+		if (!btn) return;
+		btn.classList.toggle('active', active);
+		btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+	}
+
+	private readBooleanPreference(key: string, fallback: boolean) {
+		try {
+			const raw = localStorage.getItem(key);
+			if (raw === '1') return true;
+			if (raw === '0') return false;
+		} catch {
+			// localStorage may be unavailable in embedded contexts.
+		}
+		return fallback;
+	}
+
+	private writeBooleanPreference(key: string, value: boolean) {
+		try {
+			localStorage.setItem(key, value ? '1' : '0');
+		} catch {
+			// Ignore persistence failures; the in-memory toggle still works.
+		}
+	}
+
+	private loadTranslationsForReadingAssist() {
+		const translationMgr = (window as unknown as {
+			TranslationManager?: { loadForExam?: (id: string) => Promise<void> };
+		}).TranslationManager;
+		if ((!this.showReadingZh && !this.showReadingKana) || !this._currentExamId || !translationMgr?.loadForExam) {
+			return;
+		}
+		void translationMgr.loadForExam(this._currentExamId).then(() => {
+			this.questionRenderer.renderCurrentQuestion();
 		});
 	}
 

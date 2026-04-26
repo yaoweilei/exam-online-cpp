@@ -59,8 +59,6 @@ void ApiRouter::registerRoutes() const
     routes::registerStudyGoalRoutes(context_);
     // 多端同步路由（业务功能 19）
     routes::registerSyncRoutes(context_);
-    // 题目讲解附件路由（业务功能 20）
-    routes::registerExplanationRoutes(context_);
     // 排行榜路由（业务功能 21）
     routes::registerLeaderboardRoutes(context_);
     // 第三方 OAuth 路由（业务功能 22）

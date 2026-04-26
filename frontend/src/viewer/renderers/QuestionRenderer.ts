@@ -16,9 +16,14 @@ interface RendererExamViewer {
 	currentQuestionIndex: number;
 	showAnswers: boolean;
 	showExplanations: boolean;
+	showReadingKana: boolean;
+	showReadingZh: boolean;
 	userAnswers: Record<string, any>;
 	audioManager: RendererAnyRecord;
 	answerManager: RendererAnyRecord;
+	furiganaManager?: {
+		annotateFurigana?: (text: string) => string;
+	};
 }
 class QuestionRenderer {
 	private readonly examViewer: RendererExamViewer;
@@ -74,7 +79,7 @@ class QuestionRenderer {
 		}
 
 		if (currentQuestion._groupPassage) {
-			const passageKey = `${currentSection.section_id || ''}:${currentQuestion.id ?? ''}`;
+			const passageKey = currentQuestion._groupPassageKey || `${currentSection.section_id || ''}:${currentQuestion.id ?? ''}`;
 			const passageEl = this.createPassageElement(currentQuestion._groupPassage, null, passageKey);
 			if (currentQuestion._groupIndex || currentQuestion._groupTopic) {
 				const meta = document.createElement("div");
@@ -122,7 +127,7 @@ class QuestionRenderer {
 		}
 
 		const content = DOMUtils.createElementWithClass("div", "passage-content");
-		this.setPassageContent(content, passage, question);
+		this.setPassageContent(content, passage, question, passageKey);
 
 		passageDiv.appendChild(content);
 		return passageDiv;
@@ -131,7 +136,12 @@ class QuestionRenderer {
 	/**
 	 * 设置材料内容
 	 */
-	setPassageContent(contentElement: HTMLElement, passage: RendererAnyRecord, question: RendererAnyRecord | null = null) {
+	setPassageContent(
+		contentElement: HTMLElement,
+		passage: RendererAnyRecord,
+		question: RendererAnyRecord | null = null,
+		passageKey: string = ""
+	) {
 		if (passage.type === "text") {
 			// 优先使用passage自己的target_words，其次使用question的target_words
 			const targetWords = passage.target_words || (question && question.target_words);
@@ -140,7 +150,7 @@ class QuestionRenderer {
 			//   1. 自学者按句精读 / 按段把握结构
 			//   2. 解释面板的「答案出处第 N 段第 M 句」按钮可定位高亮
 			// 字段不存在时 spans 仍然渲染，零侵入。
-			const formattedHtml = this.buildSentenceWrappedHtml(rawText, targetWords);
+			const formattedHtml = this.buildSentenceWrappedHtml(rawText, targetWords, passageKey);
 			DOMUtils.safeSetInnerHTML(contentElement, formattedHtml, "setPassageContent-text");
 		} else if (passage.type === "image") {
 			const wrapper = DOMUtils.createElementWithClass("div", "exam-image-wrapper");
@@ -221,7 +231,11 @@ class QuestionRenderer {
 
 		const questionText = DOMUtils.createElementWithClass("div", "question-text");
 		// 使用题目的 id 作为题号
-		const questionTextWithNumber = `<span class="question-number-inline">${question.id}. </span>${this.formatQuestionText(question)}`;
+		const questionBody = this.renderInlineTranslationAssist(
+			this.buildTextScopeKey(question, 'question'),
+			this.formatQuestionText(question)
+		);
+		const questionTextWithNumber = `<span class="question-number-inline">${question.id}. </span>${questionBody}`;
 		DOMUtils.safeSetInnerHTML(questionText, questionTextWithNumber, "createQuestionElement-text");
 
 		// 如果是管理员，添加编辑按钮
@@ -234,12 +248,6 @@ class QuestionRenderer {
 		if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('question_feedback', true)) {
 			const feedbackBtn = this.createFeedbackButton(question);
 			questionText.appendChild(feedbackBtn);
-		}
-
-		// 题目讲解按钮（业务功能 20）：受 question_explanations 开关控制，默认开启
-		if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('question_explanations', true)) {
-			const explainBtn = this.createExplanationButton(question);
-			questionText.appendChild(explainBtn);
 		}
 
 		questionDiv.appendChild(questionText);
@@ -319,7 +327,12 @@ class QuestionRenderer {
 
 		// 格式化选项文本（处理 && 标记）
 		const formattedOption = this.formatOptionText(question, option);
-		textSpan.innerHTML = formattedOption;
+		textSpan.innerHTML = this.shouldSkipReadingChoiceAssist(formattedOption)
+			? formattedOption
+			: this.renderInlineTranslationAssist(
+				this.buildTextScopeKey(question, `option${optionIndex + 1}`),
+				formattedOption
+			);
 
 		// 将文本元素添加到选项容器中
 		optionDiv.appendChild(textSpan);
@@ -667,176 +680,6 @@ class QuestionRenderer {
 	}
 
 	/**
-	 * 创建「题目讲解」按钮（业务功能 20）
-	 *   - 学生：弹窗查看讲解列表（文本/链接/图片/音频）
-	 *   - 管理员/教师：额外提供新增表单
-	 */
-	createExplanationButton(question: RendererAnyRecord) {
-		const btn = document.createElement('button');
-		btn.className = 'explanation-btn';
-		btn.style.cssText = 'margin-left:6px;font-size:12px;padding:2px 8px;cursor:pointer;border:1px solid #d0d0d0;border-radius:4px;background:#f5fbf6;';
-		btn.innerHTML = '💡 讲解';
-		btn.title = '查看本题解析摘要和补充讲解附件';
-		btn.onclick = (e) => {
-			e.stopPropagation();
-			this.openExplanationDialog(question);
-		};
-		return btn;
-	}
-
-	/**
-	 * 打开讲解面板（业务功能 20）
-	 *   - 拉取该题已有讲解列表
-	 *   - admin/teacher 角色可见新增表单与删除按钮
-	 */
-	openExplanationDialog(question: RendererAnyRecord) {
-		const examId = this.examViewer._currentExamId || '';
-		if (!examId) {
-			alert('当前没有载入试卷');
-			return;
-		}
-		const overlay = document.createElement('div');
-		overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
-		const card = document.createElement('div');
-		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
-		const inlineExplanation = String(question.explanation || '').trim();
-		const inlineExpanded = String(question.explanation_expand || '').trim();
-
-		const canAdmin = this.isAdmin();
-		card.innerHTML = `
-			<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-				<h3 style="margin:0;font-size:16px;">💡 题目讲解（题号：${question.id}）</h3>
-				<button class="exp-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
-			</div>
-			<div style="margin-bottom:12px;padding:10px 12px;background:#f7fafc;border:1px solid #e6eef5;border-radius:6px;font-size:12px;color:#4f657a;">
-				上方按钮里的“显示答案 / 显示详解”来自题库内置解析；这里展示题库解析摘要，并附带老师补充的讲解附件。
-			</div>
-			<div class="exp-inline" style="margin-bottom:14px;"></div>
-			<div class="exp-list" style="margin-bottom:14px;min-height:120px;"></div>
-			${canAdmin ? `
-				<form class="exp-form" style="border-top:1px solid #eee;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-					<label style="grid-column:1/-1;font-size:12px;color:#666;">新增讲解</label>
-					<select class="exp-kind" style="padding:6px;border:1px solid #ddd;border-radius:4px;">
-						<option value="text">文本</option>
-						<option value="link">外部链接</option>
-						<option value="image">图片 URL</option>
-						<option value="audio">音频 URL</option>
-					</select>
-					<input class="exp-url" placeholder="URL（链接/图片/音频时填写）" maxlength="1000" style="padding:6px;border:1px solid #ddd;border-radius:4px;" />
-					<textarea class="exp-body" rows="3" maxlength="4000" placeholder="文本内容或备注（最多 4000 字）" style="grid-column:1/-1;padding:6px;border:1px solid #ddd;border-radius:4px;"></textarea>
-					<button type="submit" style="padding:6px 12px;background:#0a7;color:#fff;border:0;border-radius:4px;cursor:pointer;grid-column:1/-1;">提交讲解</button>
-				</form>` : ''}
-		`;
-		overlay.appendChild(card);
-		document.body.appendChild(overlay);
-
-		const close = () => overlay.remove();
-		(card.querySelector('.exp-close') as HTMLButtonElement).onclick = close;
-		overlay.addEventListener('click', (e) => {
-			if (e.target === overlay) close();
-		});
-
-		const inlineEl = card.querySelector('.exp-inline') as HTMLDivElement;
-		const listEl = card.querySelector('.exp-list') as HTMLDivElement;
-
-		if (inlineExplanation || inlineExpanded) {
-			const parts: string[] = [];
-			if (inlineExplanation) {
-				parts.push(`
-					<div style="margin-bottom:10px;">
-						<div style="font-size:12px;font-weight:600;color:#3b556b;margin-bottom:6px;">题库解析</div>
-						<div style="white-space:pre-wrap;line-height:1.65;background:#fff8e8;border:1px solid #f1dfb4;border-radius:6px;padding:10px 12px;">${this.escapeHtml(inlineExplanation)}</div>
-					</div>
-				`);
-			}
-			if (inlineExpanded) {
-				parts.push(`
-					<div>
-						<div style="font-size:12px;font-weight:600;color:#3b556b;margin-bottom:6px;">拓展详解</div>
-						<div style="white-space:pre-wrap;line-height:1.65;background:#f9fbff;border:1px solid #d9e7fb;border-radius:6px;padding:10px 12px;">${this.escapeHtml(inlineExpanded)}</div>
-					</div>
-				`);
-			}
-			inlineEl.innerHTML = parts.join('');
-		} else {
-			inlineEl.innerHTML = '<div style="padding:10px 12px;border:1px dashed #d7dde5;border-radius:6px;color:#7a8694;font-size:12px;">该题题库内未提供内置解析，只显示附加讲解。</div>';
-		}
-
-		const renderItems = (items: Array<RendererAnyRecord>) => {
-			if (!items || items.length === 0) {
-				listEl.innerHTML = '<div style="color:#999;padding:12px;">暂无补充讲解附件</div>';
-				return;
-			}
-			listEl.innerHTML = items.map((it) => {
-				const kind = String(it.kind || 'text');
-				const body = this.escapeHtml(String(it.body || ''));
-				const url = String(it.url || '');
-				let renderedBody = '';
-				if (kind === 'image' && url) {
-					renderedBody = `<img src="${this.escapeHtml(url)}" alt="" style="max-width:100%;max-height:320px;border:1px solid #eee;border-radius:4px;" />` + (body ? `<div style="font-size:12px;color:#666;margin-top:4px;">${body}</div>` : '');
-				} else if (kind === 'audio' && url) {
-					renderedBody = `<audio controls src="${this.escapeHtml(url)}" style="width:100%;"></audio>` + (body ? `<div style="font-size:12px;color:#666;margin-top:4px;">${body}</div>` : '');
-				} else if (kind === 'link' && url) {
-					renderedBody = `<a href="${this.escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="color:#1976d2;">${body || this.escapeHtml(url)}</a>`;
-				} else {
-					renderedBody = `<div style="white-space:pre-wrap;">${body}</div>`;
-				}
-				return `<div data-exp-id="${this.escapeHtml(String(it.explanation_id || ''))}" style="padding:10px 6px;border-bottom:1px solid #f0f0f0;">
-					<div style="font-size:11px;color:#888;margin-bottom:4px;">
-						${this.escapeHtml(String(it.author_name || it.author_id || ''))} · ${this.escapeHtml(String(it.created_at || ''))} · ${this.escapeHtml(kind)}
-						${canAdmin ? `<button class="exp-del" data-del="${this.escapeHtml(String(it.explanation_id || ''))}" style="float:right;color:#a33;border:0;background:none;cursor:pointer;font-size:12px;">删除</button>` : ''}
-					</div>
-					${renderedBody}
-				</div>`;
-			}).join('');
-			if (canAdmin) {
-				listEl.querySelectorAll<HTMLButtonElement>('.exp-del').forEach((b) => {
-					b.onclick = async () => {
-						const expId = b.dataset.del || '';
-						if (!expId || !window.confirm('确认删除该讲解？')) return;
-						try {
-							await window.APIClient!.deleteExplanation(examId, String(question.id), expId);
-							await reload();
-						} catch (err) {
-							alert('删除失败：' + (err instanceof Error ? err.message : String(err)));
-						}
-					};
-				});
-			}
-		};
-
-		const reload = async () => {
-			listEl.innerHTML = '<div style="color:#999;padding:12px;">加载中…</div>';
-			try {
-				const data = await window.APIClient!.listExplanationsForQuestion(examId, String(question.id)) as { items?: Array<RendererAnyRecord> } | null;
-				renderItems(data?.items || []);
-			} catch (err) {
-				listEl.innerHTML = `<div style="color:#a33;padding:12px;">加载失败：${err instanceof Error ? err.message : String(err)}</div>`;
-			}
-		};
-
-		void reload();
-
-		if (canAdmin) {
-			(card.querySelector('.exp-form') as HTMLFormElement).addEventListener('submit', async (ev) => {
-				ev.preventDefault();
-				const kind = (card.querySelector('.exp-kind') as HTMLSelectElement).value;
-				const url = (card.querySelector('.exp-url') as HTMLInputElement).value.trim();
-				const body = (card.querySelector('.exp-body') as HTMLTextAreaElement).value.trim();
-				const payload: Record<string, unknown> = { kind, body };
-				if (url) payload.url = url;
-				try {
-					await window.APIClient!.addExplanation(examId, String(question.id), payload);
-					(card.querySelector('.exp-form') as HTMLFormElement).reset();
-					await reload();
-				} catch (err) {
-					alert('提交失败：' + (err instanceof Error ? err.message : String(err)));
-				}
-			});
-		}
-	}
-
-	/**
 	 * 打开编辑对话框
 	 */
 	openEditDialog(type: string, question: RendererAnyRecord) {
@@ -1100,6 +943,81 @@ class QuestionRenderer {
 		return text.replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char] || char));
 	}
 
+	private getCurrentSection(): RendererAnyRecord | null {
+		const sections = this.examViewer.currentExam?.exam_info?.sections || [];
+		return sections[this.examViewer.currentSectionIndex] || null;
+	}
+
+	private getViewerExamId(): string {
+		return (this.examViewer as { _currentExamId?: string | null })._currentExamId || '';
+	}
+
+	private buildTextScopeKey(question: RendererAnyRecord, kind: string): string {
+		const currentSection = this.getCurrentSection();
+		const sectionId = currentSection?.section_id || '';
+		const base = question._groupPassageKey || sectionId;
+		return `${base}:q${question.id ?? ''}:${kind}`;
+	}
+
+	private shouldSkipReadingChoiceAssist(sourceHtml: string): boolean {
+		const currentSection = this.getCurrentSection();
+		if (!currentSection) {
+			return false;
+		}
+
+		const sectionId = String(currentSection.section_id || '');
+		const sectionName = [
+			currentSection.section_name,
+			currentSection.section_title,
+			currentSection.description
+		].filter(Boolean).join(' ');
+		if (sectionId !== '1.01' && !/(漢字読み|読み方)/.test(sectionName)) {
+			return false;
+		}
+
+		const plain = sourceHtml
+			.replace(/<[^>]*>/g, '')
+			.replace(/^\s*\d+\s*[.．、]\s*/, '')
+			.trim();
+		return plain.length > 0 && !/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(plain);
+	}
+
+	private renderInlineTranslationAssist(scopeKey: string, sourceHtml: string, pIdx: number = 0, sIdx: number = 0): string {
+		const showKana = Boolean(this.examViewer.showReadingKana);
+		const showZh = Boolean(this.examViewer.showReadingZh);
+		if (!showKana && !showZh) {
+			return sourceHtml;
+		}
+
+		const examId = this.getViewerExamId();
+		const source = showKana ? this.buildRubyForScope(examId, scopeKey, pIdx, sIdx, sourceHtml) || sourceHtml : sourceHtml;
+		const zh = showZh ? this.buildZhForScope(examId, scopeKey, pIdx, sIdx) : '';
+		if (!zh) {
+			return source;
+		}
+		return `<span class="text-assist-wrap"><span class="text-assist-source">${source}</span><span class="sentence-zh">${zh}</span></span>`;
+	}
+
+	private buildRubyForScope(examId: string, scopeKey: string, pIdx: number, sIdx: number, formattedText: string): string {
+		const translationMgr = (window as unknown as {
+			TranslationManager?: { getRuby?: (examId: string, passageKey: string, pIdx: number, sIdx: number) => string };
+		}).TranslationManager;
+		const explicitRuby = translationMgr?.getRuby?.(examId, scopeKey, pIdx, sIdx) || '';
+		if (explicitRuby.trim()) {
+			return explicitRuby;
+		}
+		const annotator = this.examViewer.furiganaManager?.annotateFurigana;
+		return typeof annotator === 'function' ? annotator.call(this.examViewer.furiganaManager, formattedText) : '';
+	}
+
+	private buildZhForScope(examId: string, scopeKey: string, pIdx: number, sIdx: number): string {
+		const translationMgr = (window as unknown as {
+			TranslationManager?: { getSentence?: (examId: string, passageKey: string, pIdx: number, sIdx: number) => string };
+		}).TranslationManager;
+		const zh = translationMgr?.getSentence?.(examId, scopeKey, pIdx, sIdx) || '';
+		return zh.trim() ? this.escapeHtml(zh).replace(/\n/g, '<br>') : '';
+	}
+
 	/**
 	 * 创建「📍 答案出处：第 N 段第 M 句」按钮。
 	 * 仅当 question.explanation_source = { paragraph: N, sentence: M } 存在时渲染。
@@ -1169,8 +1087,12 @@ class QuestionRenderer {
 	 *  - 不会破坏 furigana（FuriganaManager 是按需对显式调用文本做处理，不自动遍历 passage DOM）
 	 *  - data-pidx / data-sidx 给 explanation 出处回链按钮使用
 	 */
-	private buildSentenceWrappedHtml(rawText: string, targetWords: string[] | null): string {
+	private buildSentenceWrappedHtml(rawText: string, targetWords: string[] | null, passageKey: string): string {
 		if (!rawText) return "";
+		const examId = (this.examViewer as { _currentExamId?: string | null })._currentExamId || '';
+		const showKana = Boolean(this.examViewer.showReadingKana);
+		const showZh = Boolean(this.examViewer.showReadingZh);
+		const showTranslationChip = this.shouldShowTranslationChips();
 		const formatSentence = (s: string): string => {
 			if (!s) return "";
 			// 与原有 setPassageContent 行为保持一致：直接对原始字符串做正则替换，不预先做 HTML escape
@@ -1206,17 +1128,70 @@ class QuestionRenderer {
 			const inner = sentenceParts
 				.map((sentenceRaw, sIdx) => {
 					const formatted = formatSentence(sentenceRaw);
+					const sentenceHtml = showKana
+						? this.buildSentenceRubyHtml(examId, passageKey, pIdx, sIdx, formatted)
+						: formatted;
+					const sentenceCore = `<span class="passage-sentence" data-pidx="${pIdx}" data-sidx="${sIdx}">${sentenceHtml || formatted}</span>`;
 					// 句子 + 「译」chip（B2）。chip 是否显示由 CSS / feature flag 控制；
 					// 点击行为由 TranslationManager 全局委托接管。
-					return (
-						`<span class="passage-sentence" data-pidx="${pIdx}" data-sidx="${sIdx}">${formatted}</span>` +
-						`<button type="button" class="translation-chip" data-pidx="${pIdx}" data-sidx="${sIdx}" title="查看/编辑该句中文译文">译</button>`
-					);
+					const chip = showTranslationChip
+						? `<button type="button" class="translation-chip" data-pidx="${pIdx}" data-sidx="${sIdx}" title="查看/编辑该句中文译文">译</button>`
+						: '';
+					if (!showKana && !showZh) {
+						return sentenceCore + chip;
+					}
+
+					const layers: string[] = [];
+					layers.push(sentenceCore);
+					if (showZh) {
+						const zhHtml = this.buildSentenceZhHtml(examId, passageKey, pIdx, sIdx);
+						if (zhHtml) {
+							layers.push(`<span class="sentence-zh">${zhHtml}</span>`);
+						}
+					}
+
+					const classes = [
+						'passage-sentence-wrap',
+						showKana ? 'has-kana' : '',
+						showZh ? 'has-zh' : ''
+					].filter(Boolean).join(' ');
+					return `<span class="${classes}" data-pidx="${pIdx}" data-sidx="${sIdx}">${layers.join('')}</span>${chip}`;
 				})
 				.join("");
 			out.push(`<div class="passage-paragraph" data-pidx="${pIdx}">${inner}</div>`);
 		});
 		return out.join("");
+	}
+
+	private buildSentenceRubyHtml(examId: string, passageKey: string, pIdx: number, sIdx: number, formattedSentence: string): string {
+		const translationMgr = (window as unknown as {
+			TranslationManager?: { getRuby?: (examId: string, passageKey: string, pIdx: number, sIdx: number) => string };
+		}).TranslationManager;
+		const explicitRuby = translationMgr?.getRuby?.(examId, passageKey, pIdx, sIdx) || '';
+		if (explicitRuby.trim()) {
+			return explicitRuby;
+		}
+		const annotator = this.examViewer.furiganaManager?.annotateFurigana;
+		return typeof annotator === 'function' ? annotator.call(this.examViewer.furiganaManager, formattedSentence) : '';
+	}
+
+	private shouldShowTranslationChips(): boolean {
+		const w = window as Window & { __TRANSLATION_EDIT_MODE__?: boolean };
+		if (w.__TRANSLATION_EDIT_MODE__ === true) {
+			return true;
+		}
+		if (typeof window.isFeatureEnabled === 'function') {
+			return window.isFeatureEnabled('translation_edit_chips', false) && this.isAdmin();
+		}
+		return false;
+	}
+
+	private buildSentenceZhHtml(examId: string, passageKey: string, pIdx: number, sIdx: number): string {
+		const translationMgr = (window as unknown as {
+			TranslationManager?: { getSentence?: (examId: string, passageKey: string, pIdx: number, sIdx: number) => string };
+		}).TranslationManager;
+		const zh = translationMgr?.getSentence?.(examId, passageKey, pIdx, sIdx) || '';
+		return zh.trim() ? this.escapeHtml(zh).replace(/\n/g, '<br>') : '';
 	}
 }
 // Export to global scope

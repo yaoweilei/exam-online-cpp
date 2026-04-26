@@ -834,31 +834,6 @@ class APIClient {
 	}
 
 	// ---------------------------------------------------------------------
-	// 题目讲解附件（业务功能 20）
-	// ---------------------------------------------------------------------
-
-	static async listExplanationsForExam(examId: string): Promise<unknown> {
-		return this.request(`/explanations/${encodeURIComponent(examId)}`);
-	}
-
-	static async listExplanationsForQuestion(examId: string, questionId: string): Promise<unknown> {
-		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}`);
-	}
-
-	static async addExplanation(examId: string, questionId: string, payload: Record<string, unknown>): Promise<unknown> {
-		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}`, {
-			method: 'POST',
-			body: JSON.stringify(payload)
-		});
-	}
-
-	static async deleteExplanation(examId: string, questionId: string, explanationId: string): Promise<unknown> {
-		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}/${encodeURIComponent(explanationId)}`, {
-			method: 'DELETE'
-		});
-	}
-
-	// ---------------------------------------------------------------------
 	// 排行榜（业务功能 21）
 	// ---------------------------------------------------------------------
 

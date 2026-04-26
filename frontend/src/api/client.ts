@@ -697,31 +697,6 @@ export class ApiClient {
 	}
 
 	// ---------------------------------------------------------------------
-	// 题目讲解附件（业务功能 20）
-	// ---------------------------------------------------------------------
-
-	listExplanationsForExam(examId: string): Promise<unknown> {
-		return this.request(`/explanations/${encodeURIComponent(examId)}`);
-	}
-
-	listExplanationsForQuestion(examId: string, questionId: string): Promise<unknown> {
-		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}`);
-	}
-
-	addExplanation(examId: string, questionId: string, payload: Record<string, unknown>): Promise<unknown> {
-		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}`, {
-			method: 'POST',
-			body: JSON.stringify(payload)
-		});
-	}
-
-	deleteExplanation(examId: string, questionId: string, explanationId: string): Promise<unknown> {
-		return this.request(`/explanations/${encodeURIComponent(examId)}/${encodeURIComponent(questionId)}/${encodeURIComponent(explanationId)}`, {
-			method: 'DELETE'
-		});
-	}
-
-	// ---------------------------------------------------------------------
 	// 排行榜（业务功能 21）
 	// ---------------------------------------------------------------------
 

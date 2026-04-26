@@ -33,7 +33,6 @@
 #include "application/services/LearningReportService.h"
 #include "application/services/StudyGoalService.h"
 #include "application/services/SyncService.h"
-#include "application/services/ExplanationService.h"
 #include "application/services/LeaderboardService.h"
 #include "application/services/OAuthService.h"
 #include "application/services/RelatedQuestionsService.h"
@@ -230,8 +229,6 @@ int main()
     application::services::StudyGoalService studyGoalService(cfg.dataUserDir);
     // 多端同步 Service（业务功能 19）
     application::services::SyncService syncService(cfg.dataUserDir);
-    // 题目讲解附件 Service（业务功能 20）
-    application::services::ExplanationService explanationService(cfg.dataSystemDir);
     // 排行榜 Service（业务功能 21）
     application::services::LeaderboardService leaderboardService(cfg.dataSystemDir, cfg.dataUserDir, userRepo, profileRepo);
     // 第三方 OAuth Service（业务功能 22）—默认 mock 模式，生产可在其他地方加载配置
@@ -290,7 +287,6 @@ int main()
         .learningReportService = &learningReportService,
         .studyGoalService = &studyGoalService,
         .syncService = &syncService,
-        .explanationService = &explanationService,
         .leaderboardService = &leaderboardService,
         .oauthService = &oauthService,
         .relatedQuestionsService = &relatedQuestionsService,

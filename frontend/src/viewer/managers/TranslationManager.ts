@@ -7,10 +7,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 // 阅读分句双语对照（B2）：
-//  - 译文「众包式」存储在后端 data/system/translations/{examId}.json
+//  - 译文「众包式」存储在后端 data/system/translations/jlpt/{level}/{examId}.json
 //  - 客户端按 exam 拉一次到 window.__TRANSLATIONS__[examId]
-//  - QuestionRenderer 在 .passage-sentence 后追加「译」chip；
-//    点击 chip 由本管理器接管展开/编辑/保存。
+//  - 默认由阅读辅助开关显示假名/中文；管理编辑模式下可用「译」chip 编辑保存。
 //
 // passage_key 约定：
 //   "{section_id}:{question_id}"  —  由 QuestionRenderer 在渲染 passage 时通过
@@ -18,6 +17,8 @@
 
 interface TranslationSentenceEntry {
 	text: string;
+	kana?: string;
+	ruby?: string;
 	updated_by?: string;
 	updated_at?: string;
 }
@@ -56,6 +57,26 @@ class TranslationManager {
 		return entry ? entry.text || '' : '';
 	}
 
+	/** 取一句假名层，找不到返回空字符串 */
+	static getKana(examId: string, passageKey: string, pIdx: number, sIdx: number): string {
+		const doc = this.getDoc(examId);
+		const items = doc.items || {};
+		const passage = items[passageKey];
+		if (!passage) return '';
+		const entry = passage[`${pIdx}.${sIdx}`];
+		return entry ? entry.kana || '' : '';
+	}
+
+	/** 取一句 ruby 原文 HTML，找不到返回空字符串 */
+	static getRuby(examId: string, passageKey: string, pIdx: number, sIdx: number): string {
+		const doc = this.getDoc(examId);
+		const items = doc.items || {};
+		const passage = items[passageKey];
+		if (!passage) return '';
+		const entry = passage[`${pIdx}.${sIdx}`];
+		return entry ? entry.ruby || '' : '';
+	}
+
 	/** 加载某 exam 的全部译文到全局 cache */
 	static async loadForExam(examId: string): Promise<void> {
 		if (!examId) return;
@@ -88,7 +109,10 @@ class TranslationManager {
 	}
 
 	private static handleChipClick(chip: HTMLElement): void {
-		const sentenceSpan = chip.previousElementSibling as HTMLElement | null;
+		const previous = chip.previousElementSibling as HTMLElement | null;
+		const sentenceSpan = previous?.classList.contains('passage-sentence')
+			? previous
+			: previous?.querySelector<HTMLElement>('.passage-sentence') || null;
 		if (!sentenceSpan || !sentenceSpan.classList.contains('passage-sentence')) return;
 		const paragraph = sentenceSpan.closest('.passage-paragraph') as HTMLElement | null;
 		if (!paragraph) return;
