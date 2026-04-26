@@ -795,11 +795,11 @@
     },
     "1.04:p1:q23:option2": {
       "0.0": {
-        "text": "2. “Maru”是昵称，我的法定姓名是“Maruyama”。",
+        "text": "2. “小丸”是昵称，户籍上的名字是“丸山”。",
         "kana": "2.「まる」はにっくねえむで、わたしのせいとうななまえは「まるやま」です。",
         "ruby": "2.「まる」はニックネームで、<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>正当</rb><rt>せいとう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>名前</rb><rt>なまえ</rt></ruby>は「<ruby data-auto-furi=\"1\"><rb>丸山</rb><rt>まるやま</rt></ruby>」です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:20:00+08:00"
       }
     },
     "1.04:p1:q23:option3": {
@@ -1443,11 +1443,11 @@
     },
     "1.06:p1:q37:option4": {
       "0.0": {
-        "text": "4.描绘男人的日常生活",
+        "text": "4. 描写男性的日常生活",
         "kana": "4.おとこのにちじょうをえがいた",
         "ruby": "4.<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>日常</rb><rt>にちじょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>描い</rb><rt>えがい</rt></ruby>た",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "1.06:p1:q38:question": {
@@ -2182,11 +2182,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "2.1": {
-        "text": "Kataya（注）译者=表演者，试图接近作者，理解其含义，并仔细追踪原作或乐谱以重现那个世界。",
+        "text": "另一方面，译者＝表演者则试图靠近作者，理解其意图，并细致追踪原作或乐谱，以再现那个世界。",
         "kana": "かたや（ちゅう）、さくしゃによりそうようにしていみをくみ、げんさくやがくふをたんねんにたどってそのせかいをさいげんしてみせるほんやくか＝えんそうか。",
         "ruby": "かたや（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>）、<ruby data-auto-furi=\"1\"><rb>作者</rb><rt>さくしゃ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>寄り</rb><rt>より</rt></ruby>そうようにして<ruby data-auto-furi=\"1\"><rb>意味</rb><rt>いみ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>汲み</rb><rt>くみ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>原作</rb><rt>げんさく</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>楽譜</rb><rt>がくふ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>丹念</rb><rt>たんねん</rt></ruby>にたどってその<ruby data-auto-furi=\"1\"><rb>世界</rb><rt>せかい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>再現</rb><rt>さいげん</rt></ruby>してみせる<ruby data-auto-furi=\"1\"><rb>翻訳</rb><rt>ほんやく</rt></ruby><ruby data-auto-furi=\"1\"><rb>家</rb><rt>か</rt></ruby>＝<ruby data-auto-furi=\"1\"><rb>演奏</rb><rt>えんそう</rt></ruby><ruby data-auto-furi=\"1\"><rb>家</rb><rt>か</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "2.2": {
         "text": "就像一首音乐根据演奏者的不同可能会有完全不同的印象一样，即使是基于相同的乐谱，小说和诗歌也可能有许多不同的翻译，这取决于译者的个性和解释。",
@@ -2770,11 +2770,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "5.0": {
-        "text": "（注1）Marketing Research：市场调查",
+        "text": "（注1）市场调查：市场调研。",
         "kana": "(ちゅう1) まあけてぃんぐちょうさ：しじょうちょうさ",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1) マーケティング<ruby data-auto-furi=\"1\"><rb>調査</rb><rt>ちょうさ</rt></ruby>：<ruby data-auto-furi=\"1\"><rb>市場</rb><rt>しじょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>調査</rb><rt>ちょうさ</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "6.0": {
         "text": "（注2）续订：此处更新。",
@@ -2795,11 +2795,11 @@
     },
     "1.09:p3:q53:option1": {
       "0.0": {
-        "text": "1. 当Juan因为包装的改变而失去了对产品的依恋时。",
+        "text": "1. 因包装改变而失去对产品的依恋时。",
         "kana": "1.ぱっけえじのへんこうにともなって、フアンがしょうひんへのあいちゃくをうしなったとき",
         "ruby": "1.パッケージの<ruby data-auto-furi=\"1\"><rb>変更</rb><rt>へんこう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>伴っ</rb><rt>ともなっ</rt></ruby>て、フアンが<ruby data-auto-furi=\"1\"><rb>商品</rb><rt>しょうひん</rt></ruby>への<ruby data-auto-furi=\"1\"><rb>愛着</rb><rt>あいちゃく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>失っ</rb><rt>うしなっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>時</rb><rt>とき</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "1.09:p3:q53:option2": {
@@ -4212,11 +4212,11 @@
     },
     "2.01:p1:q2:script": {
       "0.0": {
-        "text": "在一家食品公司，一位男经理和一位女员工正在谈论他们正在开发的炒面。此后，这位女士将如何改进她的炒面呢？",
+        "text": "在一家食品公司，一位男经理和一位女员工正在谈论他们正在开发的炒面。此后，这名女性将如何改进她的炒面呢？",
         "kana": "しょくひんのかいしゃで、おとこのかちょうとおんなのひとが、かいはつちゅうのやきそばについてはなしています。おんなのひとは、こののちどのようにやきそばをかいりょうしますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>食品</rb><rt>しょくひん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>課長</rb><rt>かちょう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>開発</rb><rt>かいはつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>中</rb><rt>ちゅう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>焼きそば</rb><rt>やきそば</rt></ruby>について<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は、この<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>どのように<ruby data-auto-furi=\"1\"><rb>焼きそば</rb><rt>やきそば</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>改良</rb><rt>かいりょう</rt></ruby>しますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "上田先生，上田先生负责冷冻炒面的开发，我看到了品尝活动的问卷调查结果。",
@@ -4275,11 +4275,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.9": {
-        "text": "此后，这位女士将如何改进她的炒面？",
+        "text": "此后，这名女性将如何改进她的炒面？",
         "kana": "おんなのひとは、こののちどのようにやきそばをかいりょうしますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は、この<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>どのように<ruby data-auto-furi=\"1\"><rb>焼きそば</rb><rt>やきそば</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>改良</rb><rt>かいりょう</rt></ruby>しますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.01:p1:q3:option1": {
@@ -4414,18 +4414,18 @@
     },
     "2.01:p1:q4:script": {
       "0.0": {
-        "text": "电话里，咖啡馆经理和建筑公司的一个人正在讨论改造店面的事宜。男人会在这个改造计划中解决什么问题？",
+        "text": "电话里，咖啡馆经理和建筑公司的一个人正在讨论改造店面的事宜。男性会在这个改造计划中解决什么问题？",
         "kana": "でんわで、かふぇのてんちょうとけんちくかいしゃのおとこのひとが、みせのりふぉうむについてはなしています。おとこのひとはこんかいのりふぉうむあんのなにをなおしますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>電話</rb><rt>でんわ</rt></ruby>で、カフェの<ruby data-auto-furi=\"1\"><rb>店長</rb><rt>てんちょう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>建築</rb><rt>けんちく</rt></ruby><ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>店</rb><rt>みせ</rt></ruby>のリフォームについて<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>今回</rb><rt>こんかい</rt></ruby>のリフォーム<ruby data-auto-furi=\"1\"><rb>案</rb><rt>あん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>直し</rb><rt>なおし</rt></ruby>ますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
-        "text": "大家好，我是来自Cafe Cherry的本田。我看了你通过电子邮件发送给我的商店装修修改方案。",
+        "text": "您好，我是樱桃咖啡的本田。我看了您通过邮件发来的店铺改装修正方案。",
         "kana": "もしもし、かふぇちぇりいのほんだです。めえるでおくってもらったみせのりふぉうむのしゅうせいあん、はいけんしました。",
         "ruby": "もしもし、カフェチェリーの<ruby data-auto-furi=\"1\"><rb>本田</rb><rt>ほんだ</rt></ruby>です。メールで<ruby data-auto-furi=\"1\"><rb>送っ</rb><rt>おくっ</rt></ruby>てもらった<ruby data-auto-furi=\"1\"><rb>店</rb><rt>みせ</rt></ruby>のリフォームの<ruby data-auto-furi=\"1\"><rb>修正</rb><rt>しゅうせい</rt></ruby><ruby data-auto-furi=\"1\"><rb>案</rb><rt>あん</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>拝見</rb><rt>はいけん</rt></ruby>しました。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:20:00+08:00"
       },
       "0.2": {
         "text": "谢谢你的帮助。根据您之前的要求，我们将地板材质改为木质，但是您觉得这个图像怎么样？",
@@ -4477,11 +4477,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.9": {
-        "text": "这个男人会在这个改造计划中解决什么问题？",
+        "text": "这个男性会在这个改造计划中解决什么问题？",
         "kana": "おとこのひとはこんかいのりふぉうむあんのなにをなおしますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>今回</rb><rt>こんかい</rt></ruby>のリフォーム<ruby data-auto-furi=\"1\"><rb>案</rb><rt>あん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>直し</rb><rt>なおし</rt></ruby>ますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.01:p1:q5:option1": {
@@ -4522,11 +4522,11 @@
     },
     "2.01:p1:q5:script": {
       "0.0": {
-        "text": "我正在与一家生产护理产品的公司的部门经理和一名男子交谈。男人今天应该做什么？",
+        "text": "我正在与一家生产护理产品的公司的部门经理和一名男子交谈。男性今天应该做什么？",
         "kana": "かいごようひんをつくるかいしゃで、かちょうとおとこのひととはなしています。おとこのひとは、きょうなにをしなければなりませんか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>介護</rb><rt>かいご</rt></ruby><ruby data-auto-furi=\"1\"><rb>用品</rb><rt>ようひん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby><ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>課長</rb><rt>かちょう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>今日</rb><rt>きょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしなければなりませんか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "田中先生，我想和您谈谈下个月的护理用品展览会。",
@@ -4672,11 +4672,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.5": {
-        "text": "我明白了，你觉得做这份工作怎么样？",
+        "text": "原来如此，你觉得做这份工作怎么样？",
         "kana": "そうですか、このしごとをされてみていかがですか。",
         "ruby": "そうですか、この<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>をされてみていかがですか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.6": {
         "text": "烟花材料排列在半球内，但只要稍有偏差，天空中就会发生极大的扭曲。准确地包装物品是很困难的，所以当你正确包装东西时的成就感是无价的。",
@@ -4731,18 +4731,18 @@
     },
     "2.02:p1:q2:script": {
       "0.0": {
-        "text": "主持人和一位女士正在太空科学博物馆的一场竞赛中交谈。",
+        "text": "主持人和一名女性正在太空科学博物馆的一场竞赛中交谈。",
         "kana": "うちゅうかがくかんのこんてすとでしかいしゃとおんなのひとがはなしています。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>宇宙</rb><rt>うちゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>科学</rb><rt>かがく</rt></ruby><ruby data-auto-furi=\"1\"><rb>館</rb><rt>かん</rt></ruby>のコンテストで<ruby data-auto-furi=\"1\"><rb>司会</rb><rt>しかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
-        "text": "这位女士说开发太空食品最困难的部分是什么？",
+        "text": "这名女性说开发太空食品最困难的部分是什么？",
         "kana": "おんなのひとはうちゅうしょくのかいはつでもっともたいへんだったことはなにだといっていますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>宇宙</rb><rt>うちゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>食</rb><rt>しょく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>開発</rb><rt>かいはつ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>最も</rb><rt>もっとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>大変</rb><rt>たいへん</rt></ruby>だったことは<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.2": {
         "text": "我是太空食品开发大赛获胜团队的队长中山先生。恭喜。",
@@ -4801,11 +4801,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.10": {
-        "text": "这位女士说开发太空食品最困难的部分是什么？",
+        "text": "这名女性说开发太空食品最困难的部分是什么？",
         "kana": "おんなのひとはうちゅうしょくのかいはつでもっともたいへんだったことはなにだといっていますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>宇宙</rb><rt>うちゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>食</rb><rt>しょく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>開発</rb><rt>かいはつ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>最も</rb><rt>もっとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>大変</rb><rt>たいへん</rt></ruby>だったことは<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.02:p1:q3:option1": {
@@ -4968,11 +4968,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.4": {
-        "text": "我明白了。那么，它多久到达一次？",
+        "text": "原来如此。那么，它多久到达一次？",
         "kana": "そうですか。あの、どのくらいのひんどでとどくんですか？",
         "ruby": "そうですか。あの、どのくらいの<ruby data-auto-furi=\"1\"><rb>頻度</rb><rt>ひんど</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>届く</rb><rt>とどく</rt></ruby>んですか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.5": {
         "text": "您可以选择每月一次、每周一次或每两周一次。",
@@ -5400,11 +5400,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.5": {
-        "text": "我明白了。",
+        "text": "原来如此。",
         "kana": "そうですか。",
         "ruby": "そうですか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.6": {
         "text": "此外，我们正在开发具有创意安排的菜单，让人们想在餐厅拍照，并在互联网上传播。感谢你们，不仅是附近的人来了，还有远道而来的人在网上看到了这篇文章。",
@@ -6669,11 +6669,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.6": {
-        "text": "最后是玩具制造商Kitaya。在这家工厂，您可以看到玩具汽车和火车的制造过程。其受欢迎的原因之一是可以购买到只有在这里才能买到的原创商品。",
+        "text": "最后是玩具制造商北屋。在这家工厂，可以看到玩具汽车和火车的制造过程。还能买到只有这里才有的原创商品，这也是它受欢迎的原因之一。",
         "kana": "さいごはおもちゃめえかあのキタヤ。このこうじょうではくるまやでんしゃのおもちゃをつくるかていがけんがくできます。ここでしかにゅうしゅできないおりじなるしょうひんがこうにゅうかのうなのもにんきのりゆうなんだそうですよ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>最後</rb><rt>さいご</rt></ruby>はおもちゃメーカーのキタヤ。この<ruby data-auto-furi=\"1\"><rb>工場</rb><rt>こうじょう</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>車</rb><rt>くるま</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>電車</rb><rt>でんしゃ</rt></ruby>のおもちゃを<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby><ruby data-auto-furi=\"1\"><rb>過程</rb><rt>かてい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>見学</rb><rt>けんがく</rt></ruby>できます。ここでしか<ruby data-auto-furi=\"1\"><rb>入手</rb><rt>にゅうしゅ</rt></ruby>できないオリジナル<ruby data-auto-furi=\"1\"><rb>商品</rb><rt>しょうひん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>購入</rb><rt>こうにゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>可能</rb><rt>かのう</rt></ruby>なのも<ruby data-auto-furi=\"1\"><rb>人気</rb><rt>にんき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>理由</rb><rt>りゆう</rt></ruby>なんだそうですよ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.7": {
         "text": "嘿，看起来很有趣。下次为什么不带你的孩子去那里呢？",
@@ -6697,11 +6697,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.10": {
-        "text": "噢，不是那样。如果能够使它的味道与我平时喝的有点不同，那将是很有趣的。那是个好地方。您认为哪个更好？ Ryota 最喜欢的车是？",
+        "text": "哦，不是那样。如果能喝到和平时味道稍微不同的饮料，会很有趣。那里不错。你觉得哪个更好？亮太最喜欢车吧？",
         "kana": "あ、そっちじゃなくて。いつものんでるのとちょっとちがうあじにできるなんておもしろそう。いくならそこがいいな。きみはどこがいいとおもう？りょうたがすきなのりもの？",
         "ruby": "あ、そっちじゃなくて。いつも<ruby data-auto-furi=\"1\"><rb>飲ん</rb><rt>のん</rt></ruby>でるのとちょっと<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby><ruby data-auto-furi=\"1\"><rb>味</rb><rt>あじ</rt></ruby>にできるなんて<ruby data-auto-furi=\"1\"><rb>面白</rb><rt>おもしろ</rt></ruby>そう。<ruby data-auto-furi=\"1\"><rb>行く</rb><rt>いく</rt></ruby>ならそこがいいな。<ruby data-auto-furi=\"1\"><rb>君</rb><rt>きみ</rt></ruby>はどこがいいと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>？<ruby data-auto-furi=\"1\"><rb>涼太</rb><rt>りょうた</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>乗り物</rb><rt>のりもの</rt></ruby>？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.11": {
         "text": "嗯，我想我最终会购买原始产品，因为有人向我乞讨。去可以买到纪念品的地方真是太好了，因为你不用担心这个问题。回家后我可以玩它。",
@@ -6718,18 +6718,18 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.13": {
-        "text": "该男子说他想去哪个工厂？",
+        "text": "该男性说他想去哪个工厂？",
         "kana": "おとこのひとはどのこうじょうにいきたいといっていますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はどの<ruby data-auto-furi=\"1\"><rb>工場</rb><rt>こうじょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>行き</rb><rt>いき</rt></ruby>たいと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.14": {
-        "text": "这位女士想去哪家工厂？",
+        "text": "这名女性想去哪家工厂？",
         "kana": "おんなのひとはどのこうじょうにいきたいといっていますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はどの<ruby data-auto-furi=\"1\"><rb>工場</rb><rt>こうじょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>行き</rb><rt>いき</rt></ruby>たいと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.05:p2:q2:option1": {
@@ -6812,11 +6812,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.6": {
-        "text": "最后是玩具制造商Kitaya。在这家工厂，您可以看到玩具汽车和火车的制造过程。其受欢迎的原因之一是可以购买到只有在这里才能买到的原创商品。",
+        "text": "最后是玩具制造商北屋。在这家工厂，可以看到玩具汽车和火车的制造过程。还能买到只有这里才有的原创商品，这也是它受欢迎的原因之一。",
         "kana": "さいごはおもちゃめえかあのキタヤ。このこうじょうではくるまやでんしゃのおもちゃをつくるかていがけんがくできます。ここでしかにゅうしゅできないおりじなるしょうひんがこうにゅうかのうなのもにんきのりゆうなんだそうですよ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>最後</rb><rt>さいご</rt></ruby>はおもちゃメーカーのキタヤ。この<ruby data-auto-furi=\"1\"><rb>工場</rb><rt>こうじょう</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>車</rb><rt>くるま</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>電車</rb><rt>でんしゃ</rt></ruby>のおもちゃを<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby><ruby data-auto-furi=\"1\"><rb>過程</rb><rt>かてい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>見学</rb><rt>けんがく</rt></ruby>できます。ここでしか<ruby data-auto-furi=\"1\"><rb>入手</rb><rt>にゅうしゅ</rt></ruby>できないオリジナル<ruby data-auto-furi=\"1\"><rb>商品</rb><rt>しょうひん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>購入</rb><rt>こうにゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>可能</rb><rt>かのう</rt></ruby>なのも<ruby data-auto-furi=\"1\"><rb>人気</rb><rt>にんき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>理由</rb><rt>りゆう</rt></ruby>なんだそうですよ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.7": {
         "text": "嘿，看起来很有趣。下次为什么不带你的孩子去那里呢？",
@@ -6840,11 +6840,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.10": {
-        "text": "噢，不是那样。如果能够使它的味道与我平时喝的有点不同，那将是很有趣的。那是个好地方。您认为哪个更好？ Ryota 最喜欢的车是？",
+        "text": "哦，不是那样。如果能喝到和平时味道稍微不同的饮料，会很有趣。那里不错。你觉得哪个更好？亮太最喜欢车吧？",
         "kana": "あ、そっちじゃなくて。いつものんでるのとちょっとちがうあじにできるなんておもしろそう。いくならそこがいいな。きみはどこがいいとおもう？りょうたがすきなのりもの？",
         "ruby": "あ、そっちじゃなくて。いつも<ruby data-auto-furi=\"1\"><rb>飲ん</rb><rt>のん</rt></ruby>でるのとちょっと<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby><ruby data-auto-furi=\"1\"><rb>味</rb><rt>あじ</rt></ruby>にできるなんて<ruby data-auto-furi=\"1\"><rb>面白</rb><rt>おもしろ</rt></ruby>そう。<ruby data-auto-furi=\"1\"><rb>行く</rb><rt>いく</rt></ruby>ならそこがいいな。<ruby data-auto-furi=\"1\"><rb>君</rb><rt>きみ</rt></ruby>はどこがいいと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>？<ruby data-auto-furi=\"1\"><rb>涼太</rb><rt>りょうた</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>乗り物</rb><rt>のりもの</rt></ruby>？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.11": {
         "text": "嗯，我想我最终会购买原始产品，因为有人向我乞讨。去可以买到纪念品的地方真是太好了，因为你不用担心这个问题。回家后我可以玩它。",
@@ -6861,20 +6861,20 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.13": {
-        "text": "该男子说他想去哪个工厂？",
+        "text": "该男性说他想去哪个工厂？",
         "kana": "おとこのひとはどのこうじょうにいきたいといっていますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はどの<ruby data-auto-furi=\"1\"><rb>工場</rb><rt>こうじょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>行き</rb><rt>いき</rt></ruby>たいと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.14": {
-        "text": "这位女士想去哪家工厂？",
+        "text": "这名女性想去哪家工厂？",
         "kana": "おんなのひとはどのこうじょうにいきたいといっていますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はどの<ruby data-auto-furi=\"1\"><rb>工場</rb><rt>こうじょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>行き</rb><rt>いき</rt></ruby>たいと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     }
   },
-  "updated_at": "2026-04-25T15:20:00+08:00"
+  "updated_at": "2026-04-26T10:20:00+08:00"
 }

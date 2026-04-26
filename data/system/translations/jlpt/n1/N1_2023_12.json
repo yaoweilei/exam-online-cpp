@@ -291,11 +291,11 @@
     },
     "1.02:p1:q12:option1": {
       "0.0": {
-        "text": "1. Mekimeki",
+        "text": "1. 显著地",
         "kana": "1.めきめき",
         "ruby": "1.めきめき",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "1.02:p1:q12:option2": {
@@ -1227,11 +1227,11 @@
     },
     "1.05:p1:q33:question": {
       "0.0": {
-        "text": "（工作中）\nHayashi：``ABC 银行的董事山下先生是（ ）。他会在接待室等候。”\n经理：“好的。”",
+        "text": "（工作中）\n林：“ABC银行董事山下先生到了。他正在接待室等候。”\n经理：“好的。”",
         "kana": "（かいしゃで）\nはやし「ぶちょう、ABCぎんこうのやましたさんが（  ）。おうせつしつでおまちです。」\nぶちょう「わかりました。」",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>で）\n<ruby data-auto-furi=\"1\"><rb>林</rb><rt>はやし</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>部長</rb><rt>ぶちょう</rt></ruby>、ABC<ruby data-auto-furi=\"1\"><rb>銀行</rb><rt>ぎんこう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>山下</rb><rt>やました</rt></ruby>さんが（  ）。<ruby data-auto-furi=\"1\"><rb>応接</rb><rt>おうせつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>室</rb><rt>しつ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>お待ち</rb><rt>おまち</rt></ruby>です。」\n<ruby data-auto-furi=\"1\"><rb>部長</rb><rt>ぶちょう</rt></ruby>「わかりました。」",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "1.05:p1:q33:option1": {
@@ -1915,11 +1915,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "3.0": {
-        "text": "(注2) Keeper：监视者",
+        "text": "（注2）看守者：监视、守护的人。",
         "kana": "（ちゅう2）ばんにん：かんしするひと",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>2）<ruby data-auto-furi=\"1\"><rb>番人</rb><rt>ばんにん</rt></ruby>：<ruby data-auto-furi=\"1\"><rb>監視</rb><rt>かんし</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "1.08:p1:q45:question": {
@@ -2004,11 +2004,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "6.0": {
-        "text": "感谢您使用LM Denki Oki商店。",
+        "text": "感谢您使用LM电机冲店。",
         "kana": "LMでんきたいぼくてんをごりよういただき、ありがとうございます。",
         "ruby": "LM<ruby data-auto-furi=\"1\"><rb>電気</rb><rt>でんき</rt></ruby><ruby data-auto-furi=\"1\"><rb>大木</rb><rt>たいぼく</rt></ruby><ruby data-auto-furi=\"1\"><rb>店</rb><rt>てん</rt></ruby>をご<ruby data-auto-furi=\"1\"><rb>利用</rb><rt>りよう</rt></ruby>いただき、ありがとうございます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "7.0": {
         "text": "您已经预订的 AS-10 耳机，但由于制造商产能延迟，很难在发布日期（9 月 20 日）交付给所有客户。",
@@ -3051,11 +3051,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "7.0": {
-        "text": "（注3）Nukajoy：一时的快乐，之后的失望。",
+        "text": "（注3）空欢喜：一时高兴，之后却失望。",
         "kana": "（ちゅう3）ぬかよろこび：あとでがっかりするけっかになるいちじてきなよろこび",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>3）ぬか<ruby data-auto-furi=\"1\"><rb>喜び</rb><rt>よろこび</rt></ruby>：あとでがっかりする<ruby data-auto-furi=\"1\"><rb>結果</rb><rt>けっか</rt></ruby>になる<ruby data-auto-furi=\"1\"><rb>一時</rb><rt>いちじ</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>喜び</rb><rt>よろこび</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "8.0": {
         "text": "（注4）谬误：错误",
@@ -4202,11 +4202,11 @@
     },
     "2.01:p1:q1:script": {
       "0.0": {
-        "text": "一家手表公司的销售部里，一个老板和一个男人正在谈话。男人首先应该做什么？",
+        "text": "一家手表公司的销售部里，一个老板和一个男性正在谈话。男性首先应该做什么？",
         "kana": "とけいのかいしゃのえいぎょうぶでじょうしとおとこのひとがはなしています。おとこのひとはこののちまず、なにをしなければなりませんか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>時計</rb><rt>とけい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>営業</rb><rt>えいぎょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>部</rb><rt>ぶ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>上司</rb><rt>じょうし</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>まず、<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしなければなりませんか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "田中先生，我刚刚接到山下食品公司的电话，询问您是否可以加快交货日期，为山下食品公司的周年聚会分发100个台钟。",
@@ -4251,11 +4251,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.7": {
-        "text": "男人首先应该做什么？",
+        "text": "男性首先应该做什么？",
         "kana": "おとこのひとはこののちまず、なにをしなければなりませんか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>まず、<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしなければなりませんか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.01:p1:q2:option1": {
@@ -4418,11 +4418,11 @@
     },
     "2.01:p1:q3:script": {
       "0.0": {
-        "text": "一个男人和一个女人正在一家 IT 公司谈话。女性做什么才能找到兼职工作？",
+        "text": "一名男性和一名女性正在一家 IT 公司谈话。女性做什么才能找到兼职工作？",
         "kana": "ITのかいしゃでおとこのひととおんなのひとがはなしています。おんなのひとはあるばいとのひとをさがすためになにをしますか。",
         "ruby": "ITの<ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はアルバイトの<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探す</rb><rt>さがす</rt></ruby>ために<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしますか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "铃木先生，我正在考虑为我目前正在进行的软件开发项目雇用一名兼职人员。你不认识任何人吗？铃木先生，您去年刚从研究生院毕业吧？",
@@ -4693,11 +4693,11 @@
     },
     "2.02:p1:q1:script": {
       "0.0": {
-        "text": "电视上，一位女记者正在采访一家制作味噌的公司的总裁。社长说这家公司的味噌新制作方法有什么特点？",
+        "text": "电视上，一位女记者正在采访一家制作味噌的公司的社长。社长说这家公司的味噌新制作方法有什么特点？",
         "kana": "てれびでれぽうたあのおんなのひとがみそをつくるかいしゃのしゃちょうにいんたびゅうしています。しゃちょうはこのかいしゃであたらしくはじめたみそのつくりかたのとくちょうはなにだといっていますか。",
         "ruby": "テレビでレポーターの<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>味噌</rb><rt>みそ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby><ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>社長</rb><rt>しゃちょう</rt></ruby>にインタビューしています。<ruby data-auto-furi=\"1\"><rb>社長</rb><rt>しゃちょう</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>新しく</rb><rt>あたらしく</rt></ruby><ruby data-auto-furi=\"1\"><rb>始め</rb><rt>はじめ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>味噌</rb><rt>みそ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>作り方</rb><rt>つくりかた</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>特徴</rb><rt>とくちょう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "听说山川味噌开始制作新味噌了。",
@@ -4735,11 +4735,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.6": {
-        "text": "我学到了一种用与奶酪相同的模具来老化奶酪的方法，并尝试了，但没有成功...当我在寻找东西时，当地一所大学建议了一种方法，可以将扬声器放在桶中，每天24小时听音乐，所以我尝试了一下。",
+        "text": "我了解到有一种方法，是使用和奶酪相同的霉菌来熟成味噌，就试了一下，但没有成功……后来在寻找其他方法时，当地大学建议在桶里放入扬声器，让味噌每天24小时听音乐，于是我试了试。",
         "kana": "ちいずとおなじかびをつかってじゅくせいさせるほうほうをしって、ためしたんですが、うまくいかなくて・・・。あれこれもさくしていたとき、じもとのだいがくからおけにすぴいかあをいれて24じかんおんがくをきかせるほうほうをていあんされ、とりくんでみたんです。",
         "ruby": "チーズと<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby>カビを<ruby data-auto-furi=\"1\"><rb>使っ</rb><rt>つかっ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>熟成</rb><rt>じゅくせい</rt></ruby>させる<ruby data-auto-furi=\"1\"><rb>方法</rb><rt>ほうほう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>知っ</rb><rt>しっ</rt></ruby>て、<ruby data-auto-furi=\"1\"><rb>試し</rb><rt>ためし</rt></ruby>たんですが、<ruby data-auto-furi=\"1\"><rb>上手く</rb><rt>うまく</rt></ruby>いかなくて・・・。あれこれ<ruby data-auto-furi=\"1\"><rb>模索</rb><rt>もさく</rt></ruby>していた<ruby data-auto-furi=\"1\"><rb>時</rb><rt>とき</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>地元</rb><rt>じもと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>大学</rb><rt>だいがく</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>桶</rb><rt>おけ</rt></ruby>にスピーカーを<ruby data-auto-furi=\"1\"><rb>入れ</rb><rt>いれ</rt></ruby>て24<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby><ruby data-auto-furi=\"1\"><rb>音楽</rb><rt>おんがく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>聴か</rb><rt>きか</rt></ruby>せる<ruby data-auto-furi=\"1\"><rb>方法</rb><rt>ほうほう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>提案</rb><rt>ていあん</rt></ruby>され、<ruby data-auto-furi=\"1\"><rb>取り組ん</rb><rt>とりくん</rt></ruby>でみたんです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.7": {
         "text": "看起来很有趣。",
@@ -5080,11 +5080,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.7": {
-        "text": "我明白了。",
+        "text": "原来如此。",
         "kana": "そうですか。",
         "ruby": "そうですか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.8": {
         "text": "停泊在港口的两艘船，身后的地平线展开，鸟儿的位置在画法上有深度和广度。这一点得到了高度认可。",
@@ -5153,11 +5153,11 @@
     },
     "2.02:p1:q5:script": {
       "0.0": {
-        "text": "一位女士和经理正在一家咖啡店谈话。店长说他店里用的咖啡渣是做什么用的？",
+        "text": "一名女性和经理正在一家咖啡店谈话。店长说他店里用的咖啡渣是做什么用的？",
         "kana": "きっさてんでおんなのひととてんちょうがはなしています。てんちょうはじぶんのみせでしようしたこうひいのこながなににつかわれているといっていますか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>喫茶店</rb><rt>きっさてん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>店長</rb><rt>てんちょう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>店長</rb><rt>てんちょう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>店</rb><rt>みせ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>使用</rb><rt>しよう</rt></ruby>したコーヒーの<ruby data-auto-furi=\"1\"><rb>粉</rb><rt>こな</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>使わ</rb><rt>つかわ</rt></ruby>れていると<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "经理，今天的咖啡也很好喝。你知道，咖啡在萃取后会留下很多残留物，对吗？用过的咖啡渣可以做什么？",
@@ -5348,11 +5348,11 @@
     },
     "2.03:p1:q1:script": {
       "0.0": {
-        "text": "一个男人正在广播中讲话。",
+        "text": "一个男性正在广播中讲话。",
         "kana": "らじおでおとこのひとがはなしています。",
         "ruby": "ラジオで<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "餐厅里经常会放背景音乐吧？",
@@ -5519,11 +5519,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.7": {
-        "text": "我明白了。",
+        "text": "原来如此。",
         "kana": "なるほど。",
         "ruby": "なるほど。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.8": {
         "text": "拥有不起作用的蚂蚁是有意义的。",
@@ -6268,20 +6268,20 @@
     },
     "2.04:p1:q7:option3": {
       "0.0": {
-        "text": "我明白了，你接受了。",
+        "text": "原来如此，对方接受了啊。",
         "kana": "そうか、うけいれてくれたんだね。",
         "ruby": "そうか、<ruby data-auto-furi=\"1\"><rb>受け入れ</rb><rt>うけいれ</rt></ruby>てくれたんだね。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.04:p1:q7:script": {
       "0.0": {
-        "text": "我向 Midori Electric 提出了一项新业务的提案，但他们甚至不看它......",
+        "text": "我向绿电机提出了一项新业务方案，但他们连看都不看……",
         "kana": "みどりでんきにしんじぎょうのていあんしょをもっていったけど、めをとおそうともしてくれなくて・・・。",
         "ruby": "ミドリ<ruby data-auto-furi=\"1\"><rb>電気</rb><rt>でんき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>新</rb><rt>しん</rt></ruby><ruby data-auto-furi=\"1\"><rb>事業</rb><rt>じぎょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>提案</rb><rt>ていあん</rt></ruby><ruby data-auto-furi=\"1\"><rb>書</rb><rt>しょ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>持っ</rb><rt>もっ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>行っ</rb><rt>いっ</rt></ruby>たけど、<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>通そ</rb><rt>とおそ</rt></ruby>うともしてくれなくて・・・。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:20:00+08:00"
       },
       "0.1": {
         "text": "1.他看了一下以防万一。",
@@ -6298,11 +6298,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.3": {
-        "text": "3.我明白了，你接受了。",
+        "text": "3. 原来如此，对方接受了啊。",
         "kana": "3.そうか、うけいれてくれたんだね。",
         "ruby": "3.そうか、<ruby data-auto-furi=\"1\"><rb>受け入れ</rb><rt>うけいれ</rt></ruby>てくれたんだね。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.04:p1:q8:option1": {
@@ -6816,32 +6816,32 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.2": {
-        "text": "首先，“Hikari”品种于七月开始收获，八月达到顶峰。其特点是甜味浓郁。",
+        "text": "首先，“光”这个品种从7月开始收获，8月达到高峰。特点是甜味浓郁。",
         "kana": "まず「ひかり」というひんしゅは7つきからしゅうかくされはじめ、8つきにさいせいきをむかえます。あまみがつよいのがとくちょうです。",
         "ruby": "まず「<ruby data-auto-furi=\"1\"><rb>光</rb><rt>ひかり</rt></ruby>」という<ruby data-auto-furi=\"1\"><rb>品種</rb><rt>ひんしゅ</rt></ruby>は7<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>収穫</rb><rt>しゅうかく</rt></ruby>され<ruby data-auto-furi=\"1\"><rb>始め</rb><rt>はじめ</rt></ruby>、8<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>最盛</rb><rt>さいせい</rt></ruby><ruby data-auto-furi=\"1\"><rb>期</rb><rt>き</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>迎え</rb><rt>むかえ</rt></ruby>ます。<ruby data-auto-furi=\"1\"><rb>甘み</rb><rt>あまみ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>強い</rb><rt>つよい</rt></ruby>のが<ruby data-auto-furi=\"1\"><rb>特徴</rb><rt>とくちょう</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.3": {
-        "text": "接下来，“Tsuki”将于九月开始在商店出现。因其新鲜、口感清爽而深受人们喜爱。",
+        "text": "接下来，“月”从9月开始上市。它以新鲜、清爽的口感受到欢迎。",
         "kana": "つづいて、「つき」は9つきにはいるとてんとうにならびはじめます。みずみずしさがにんきでさっぱりとしたあじわいです。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>続い</rb><rt>つづい</rt></ruby>て、「<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>」は9<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>入る</rb><rt>はいる</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>店頭</rb><rt>てんとう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>並び</rb><rt>ならび</rt></ruby><ruby data-auto-furi=\"1\"><rb>始め</rb><rt>はじめ</rt></ruby>ます。みずみずしさが<ruby data-auto-furi=\"1\"><rb>人気</rb><rt>にんき</rt></ruby>でさっぱりとした<ruby data-auto-furi=\"1\"><rb>味わい</rb><rt>あじわい</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.4": {
-        "text": "嗯，“Hoshizora”是一个相当大的梨，从 10 月到 11 月发货。它经常被用作礼物，不仅因为它的味道，而且因为它的美观。",
+        "text": "“星空”是个头相当大的梨，10月到11月出货。它不仅味道好，外观也漂亮，所以常被用作礼品。",
         "kana": "ええ、「ほしぞら」はかなりおおきめのなしで10つきから11つきまでしゅっかされます。あじはもちろん、みばえのよさからぞうとうひんとしてもよくりようされています。",
         "ruby": "えー、「<ruby data-auto-furi=\"1\"><rb>星空</rb><rt>ほしぞら</rt></ruby>」はかなり<ruby data-auto-furi=\"1\"><rb>大きめ</rb><rt>おおきめ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>梨</rb><rt>なし</rt></ruby>で10<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>から11<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>まで<ruby data-auto-furi=\"1\"><rb>出荷</rb><rt>しゅっか</rt></ruby>されます。<ruby data-auto-furi=\"1\"><rb>味</rb><rt>あじ</rt></ruby>はもちろん、<ruby data-auto-furi=\"1\"><rb>見栄え</rb><rt>みばえ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>良</rb><rt>よ</rt></ruby>さから<ruby data-auto-furi=\"1\"><rb>贈答</rb><rt>ぞうとう</rt></ruby><ruby data-auto-furi=\"1\"><rb>品</rb><rt>ひん</rt></ruby>としてもよく<ruby data-auto-furi=\"1\"><rb>利用</rb><rt>りよう</rt></ruby>されています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.5": {
-        "text": "而“Asahi”是从11月底开始收获的品种。它之所以受欢迎，是因为它保存得很好，而且可以在新年期间享用。",
+        "text": "而“朝日”是从11月底开始收获的品种。因为耐保存，可以在新年期间享用，所以很受欢迎。",
         "kana": "そして、「あさひ」ですが、11つきのおわりからしゅうかくされるひんしゅです。ほぞんがきき、おしょうがつにもたのしめるというのでにんきがでてきました。",
         "ruby": "そして、「<ruby data-auto-furi=\"1\"><rb>朝日</rb><rt>あさひ</rt></ruby>」ですが、11<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>終わり</rb><rt>おわり</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>収穫</rb><rt>しゅうかく</rt></ruby>される<ruby data-auto-furi=\"1\"><rb>品種</rb><rt>ひんしゅ</rt></ruby>です。<ruby data-auto-furi=\"1\"><rb>保存</rb><rt>ほぞん</rt></ruby>がきき、<ruby data-auto-furi=\"1\"><rb>お正月</rb><rt>おしょうがつ</rt></ruby>にも<ruby data-auto-furi=\"1\"><rb>楽しめる</rb><rt>たのしめる</rt></ruby>というので<ruby data-auto-furi=\"1\"><rb>人気</rb><rt>にんき</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>出</rb><rt>で</rt></ruby>てきました。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.6": {
         "text": "所有品种都可以从山川市农业协会网站在线订购，所以请利用它。",
@@ -6879,11 +6879,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.11": {
-        "text": "我明白了，没关系。我也很喜欢元旦可以吃它。",
+        "text": "原来如此，那也不错。我也很喜欢新年还能吃到梨。",
         "kana": "そっか、いいよ。ぼくはおしょうがつにたべられるっていうのもいいけど。",
         "ruby": "そっか、いいよ。<ruby data-auto-furi=\"1\"><rb>僕</rb><rt>ぼく</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>お正月</rb><rt>おしょうがつ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>食べ</rb><rt>たべ</rt></ruby>られるっていうのもいいけど。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.12": {
         "text": "嗯，不过长得好看还是不错的。为自己订购一些可以作为礼物赠送的东西是一种奢侈的感觉。",
@@ -6907,11 +6907,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.15": {
-        "text": "问题2. 该男子选择了哪个梨？",
+        "text": "问题2. 该男性选择了哪个梨？",
         "kana": "しつもんに.おとこのひとはどのなしをえらびましたか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>質問</rb><rt>しつもん</rt></ruby>２.<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はどの<ruby data-auto-furi=\"1\"><rb>梨</rb><rt>なし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>選び</rb><rt>えらび</rt></ruby>ましたか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.05:p2:q2:option1": {
@@ -6966,32 +6966,32 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.2": {
-        "text": "首先，“Hikari”品种于七月开始收获，八月达到顶峰。其特点是甜味浓郁。",
+        "text": "首先，“光”这个品种从7月开始收获，8月达到高峰。特点是甜味浓郁。",
         "kana": "まず「ひかり」というひんしゅは7つきからしゅうかくされはじめ、8つきにさいせいきをむかえます。あまみがつよいのがとくちょうです。",
         "ruby": "まず「<ruby data-auto-furi=\"1\"><rb>光</rb><rt>ひかり</rt></ruby>」という<ruby data-auto-furi=\"1\"><rb>品種</rb><rt>ひんしゅ</rt></ruby>は7<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>収穫</rb><rt>しゅうかく</rt></ruby>され<ruby data-auto-furi=\"1\"><rb>始め</rb><rt>はじめ</rt></ruby>、8<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>最盛</rb><rt>さいせい</rt></ruby><ruby data-auto-furi=\"1\"><rb>期</rb><rt>き</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>迎え</rb><rt>むかえ</rt></ruby>ます。<ruby data-auto-furi=\"1\"><rb>甘み</rb><rt>あまみ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>強い</rb><rt>つよい</rt></ruby>のが<ruby data-auto-furi=\"1\"><rb>特徴</rb><rt>とくちょう</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.3": {
-        "text": "接下来，“Tsuki”将于九月开始在商店出现。因其新鲜、口感清爽而深受人们喜爱。",
+        "text": "接下来，“月”从9月开始上市。它以新鲜、清爽的口感受到欢迎。",
         "kana": "つづいて、「つき」は9つきにはいるとてんとうにならびはじめます。みずみずしさがにんきでさっぱりとしたあじわいです。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>続い</rb><rt>つづい</rt></ruby>て、「<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>」は9<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>入る</rb><rt>はいる</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>店頭</rb><rt>てんとう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>並び</rb><rt>ならび</rt></ruby><ruby data-auto-furi=\"1\"><rb>始め</rb><rt>はじめ</rt></ruby>ます。みずみずしさが<ruby data-auto-furi=\"1\"><rb>人気</rb><rt>にんき</rt></ruby>でさっぱりとした<ruby data-auto-furi=\"1\"><rb>味わい</rb><rt>あじわい</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.4": {
-        "text": "嗯，“Hoshizora”是一个相当大的梨，从 10 月到 11 月发货。它经常被用作礼物，不仅因为它的味道，而且因为它的美观。",
+        "text": "“星空”是个头相当大的梨，10月到11月出货。它不仅味道好，外观也漂亮，所以常被用作礼品。",
         "kana": "ええ、「ほしぞら」はかなりおおきめのなしで10つきから11つきまでしゅっかされます。あじはもちろん、みばえのよさからぞうとうひんとしてもよくりようされています。",
         "ruby": "えー、「<ruby data-auto-furi=\"1\"><rb>星空</rb><rt>ほしぞら</rt></ruby>」はかなり<ruby data-auto-furi=\"1\"><rb>大きめ</rb><rt>おおきめ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>梨</rb><rt>なし</rt></ruby>で10<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>から11<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>まで<ruby data-auto-furi=\"1\"><rb>出荷</rb><rt>しゅっか</rt></ruby>されます。<ruby data-auto-furi=\"1\"><rb>味</rb><rt>あじ</rt></ruby>はもちろん、<ruby data-auto-furi=\"1\"><rb>見栄え</rb><rt>みばえ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>良</rb><rt>よ</rt></ruby>さから<ruby data-auto-furi=\"1\"><rb>贈答</rb><rt>ぞうとう</rt></ruby><ruby data-auto-furi=\"1\"><rb>品</rb><rt>ひん</rt></ruby>としてもよく<ruby data-auto-furi=\"1\"><rb>利用</rb><rt>りよう</rt></ruby>されています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.5": {
-        "text": "而“Asahi”是从11月底开始收获的品种。它之所以受欢迎，是因为它保存得很好，而且可以在新年期间享用。",
+        "text": "而“朝日”是从11月底开始收获的品种。因为耐保存，可以在新年期间享用，所以很受欢迎。",
         "kana": "そして、「あさひ」ですが、11つきのおわりからしゅうかくされるひんしゅです。ほぞんがきき、おしょうがつにもたのしめるというのでにんきがでてきました。",
         "ruby": "そして、「<ruby data-auto-furi=\"1\"><rb>朝日</rb><rt>あさひ</rt></ruby>」ですが、11<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>終わり</rb><rt>おわり</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>収穫</rb><rt>しゅうかく</rt></ruby>される<ruby data-auto-furi=\"1\"><rb>品種</rb><rt>ひんしゅ</rt></ruby>です。<ruby data-auto-furi=\"1\"><rb>保存</rb><rt>ほぞん</rt></ruby>がきき、<ruby data-auto-furi=\"1\"><rb>お正月</rb><rt>おしょうがつ</rt></ruby>にも<ruby data-auto-furi=\"1\"><rb>楽しめる</rb><rt>たのしめる</rt></ruby>というので<ruby data-auto-furi=\"1\"><rb>人気</rb><rt>にんき</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>出</rb><rt>で</rt></ruby>てきました。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.6": {
         "text": "所有品种都可以从山川市农业协会网站在线订购，所以请利用它。",
@@ -7029,11 +7029,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.11": {
-        "text": "我明白了，没关系。我也很喜欢元旦可以吃它。",
+        "text": "原来如此，那也不错。我也很喜欢新年还能吃到梨。",
         "kana": "そっか、いいよ。ぼくはおしょうがつにたべられるっていうのもいいけど。",
         "ruby": "そっか、いいよ。<ruby data-auto-furi=\"1\"><rb>僕</rb><rt>ぼく</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>お正月</rb><rt>おしょうがつ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>食べ</rb><rt>たべ</rt></ruby>られるっていうのもいいけど。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.12": {
         "text": "嗯，不过长得好看还是不错的。为自己订购一些可以作为礼物赠送的东西是一种奢侈的感觉。",
@@ -7057,13 +7057,13 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.15": {
-        "text": "问题2. 该男子选择了哪个梨？",
+        "text": "问题2. 该男性选择了哪个梨？",
         "kana": "しつもんに.おとこのひとはどのなしをえらびましたか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>質問</rb><rt>しつもん</rt></ruby>２.<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はどの<ruby data-auto-furi=\"1\"><rb>梨</rb><rt>なし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>選び</rb><rt>えらび</rt></ruby>ましたか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     }
   },
-  "updated_at": "2026-04-25T15:20:00+08:00"
+  "updated_at": "2026-04-26T10:20:00+08:00"
 }

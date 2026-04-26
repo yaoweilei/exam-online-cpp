@@ -849,11 +849,11 @@
     },
     "1.04:p1:q24:option3": {
       "0.0": {
-        "text": "3. Hayashi以超出所有人预期的惊人成绩赢得了马拉松比赛。",
+        "text": "3. 林以超出所有人预期的惊人成绩赢得了马拉松比赛。",
         "kana": "3.まらそんたいかいで、はやしせんしゅはみなのよそうをだっきゃくするすばらしいたいむでゆうしょうした。",
         "ruby": "3.マラソン<ruby data-auto-furi=\"1\"><rb>大会</rb><rt>たいかい</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>林</rb><rt>はやし</rt></ruby><ruby data-auto-furi=\"1\"><rb>選手</rb><rt>せんしゅ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>皆</rb><rt>みな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>予想</rb><rt>よそう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>脱却</rb><rt>だっきゃく</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>素晴らしい</rb><rt>すばらしい</rt></ruby>タイムで<ruby data-auto-furi=\"1\"><rb>優勝</rb><rt>ゆうしょう</rt></ruby>した。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "1.04:p1:q24:option4": {
@@ -1615,11 +1615,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "1.3": {
-        "text": "你想变得擅长模仿Hinadan谈话（注1）吗？",
+        "text": "你是想变得擅长那种像电视谈话节目嘉宾一样的对话方式（注1）吗？",
         "kana": "ひなだんとうくのまねごと（ちゅう1）がじょうずになること?",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>ひな壇</rb><rt>ひなだん</rt></ruby>トークの<ruby data-auto-furi=\"1\"><rb>真似事</rb><rt>まねごと</rt></ruby>（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1）が<ruby data-auto-furi=\"1\"><rb>上手</rb><rt>じょうず</rt></ruby>になること?",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "1.4": {
         "text": "我认为两者是不同的。",
@@ -1671,11 +1671,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "2.6": {
-        "text": "我明白了，它们似乎都在工作面试和工作演示中很有用。",
+        "text": "原来如此。它们似乎在求职面试和工作汇报中都很有用。",
         "kana": "なるほど、どれも就かつのめんせつやしごとのぷれぜんではやくにたちそうですね。",
         "ruby": "なるほど、どれも就<ruby data-auto-furi=\"1\"><rb>活</rb><rt>かつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>面接</rb><rt>めんせつ</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>のプレゼンでは<ruby data-auto-furi=\"1\"><rb>役に立ち</rb><rt>やくにたち</rt></ruby>そうですね。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "2.7": {
         "text": "但这（41）与人与人的关系无关。",
@@ -1790,11 +1790,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "6.0": {
-        "text": "(注1) 模仿Hinadan谈话：像电视名人一样快节奏地说话。",
+        "text": "（注1）模仿电视谈话节目嘉宾的对话：像电视艺人那样快节奏地说话。",
         "kana": "（ちゅう1）ひなだんとうくのまねごと：てれびにでるたれんとのように、てんぽよくはなすこと",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1）<ruby data-auto-furi=\"1\"><rb>ひな壇</rb><rt>ひなだん</rt></ruby>トークの<ruby data-auto-furi=\"1\"><rb>真似事</rb><rt>まねごと</rt></ruby>：テレビに<ruby data-auto-furi=\"1\"><rb>出る</rb><rt>でる</rt></ruby>タレントのように、テンポよく<ruby data-auto-furi=\"1\"><rb>話す</rb><rt>はなす</rt></ruby>こと",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "7.0": {
         "text": "（注2）整齐地：整齐地",
@@ -2102,11 +2102,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "2.0": {
-        "text": "（注）Mononokai：这里，想象中的生物",
+        "text": "（注）妖怪：这里指想象中的生物。",
         "kana": "（ちゅう）もののけ: ここでは、そうぞうじょうのいきもの",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>）<ruby data-auto-furi=\"1\"><rb>物の怪</rb><rt>もののけ</rt></ruby>: ここでは、<ruby data-auto-furi=\"1\"><rb>想像</rb><rt>そうぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>上</rb><rt>じょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>生き物</rb><rt>いきもの</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "1.08:p2:q46:question": {
@@ -3023,11 +3023,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "7.0": {
-        "text": "（注3）返回：Here，你得到的",
+        "text": "（注3）回报：这里指获得的东西。",
         "kana": "（ちゅう3）りたあん：ここでは、えられるもの",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>3）リターン：ここでは、<ruby data-auto-furi=\"1\"><rb>得</rb><rt>え</rt></ruby>られるもの",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "8.0": {
         "text": "(注4) 物有所值：在这里，你可以盈利",
@@ -4352,11 +4352,11 @@
     },
     "2.01:p1:q2:script": {
       "0.0": {
-        "text": "一个想要收养猫的男人和一个猫保护组织的人正在通电话。这之后男人应该先做什么？",
+        "text": "一个想要收养猫的男性和一个猫保护组织的人正在通电话。这之后男性应该先做什么？",
         "kana": "でんわでねこをかいたいおとこのひととねこのほごしゃだんたいのひとがはなしています。おとこのひとはこののち、まずなにをしなければなりませんか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>電話</rb><rt>でんわ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>飼い</rb><rt>かい</rt></ruby>たい<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>保護</rb><rt>ほご</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby><ruby data-auto-furi=\"1\"><rb>団体</rb><rt>だんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>、まず<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしなければなりませんか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "你好，我在你的主页上看到了一张猫的照片。嗯，我想养一只猫。我应该怎么办？",
@@ -4387,18 +4387,18 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.5": {
-        "text": "是的，我明白了。",
+        "text": "是的，原来如此。",
         "kana": "はい、わかりました。",
         "ruby": "はい、<ruby data-auto-furi=\"1\"><rb>分かり</rb><rt>わかり</rt></ruby>ました。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.6": {
-        "text": "男人首先应该做什么？",
+        "text": "男性首先应该做什么？",
         "kana": "おとこのひとはこののちまず、なにをしなければなりませんか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>まず、<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしなければなりませんか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.01:p1:q3:option1": {
@@ -4498,11 +4498,11 @@
     },
     "2.01:p1:q4:script": {
       "0.0": {
-        "text": "一位女士和一位部门经理正在工作中交谈。女人如何修改求婚？",
+        "text": "一名女性和一位部门经理正在工作中交谈。女性如何修改求婚？",
         "kana": "かいしゃでおんなのひととかちょうがはなしています。おんなのひとはきかくしょをどうしゅうせいしますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>課長</rb><rt>かちょう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>企画</rb><rt>きかく</rt></ruby><ruby data-auto-furi=\"1\"><rb>書</rb><rt>しょ</rt></ruby>をどう<ruby data-auto-furi=\"1\"><rb>修正</rb><rt>しゅうせい</rt></ruby>しますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "经理，这是一个新的防晒霜的提案，是在之前的基础上更新的。您能给我们您的意见吗？",
@@ -4554,11 +4554,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.8": {
-        "text": "女人如何修改提案？",
+        "text": "女性如何修改提案？",
         "kana": "おんなのひとはきかくしょをどうしゅうせいしますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>企画</rb><rt>きかく</rt></ruby><ruby data-auto-furi=\"1\"><rb>書</rb><rt>しょ</rt></ruby>をどう<ruby data-auto-furi=\"1\"><rb>修正</rb><rt>しゅうせい</rt></ruby>しますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.01:p1:q5:option1": {
@@ -4599,11 +4599,11 @@
     },
     "2.01:p1:q5:script": {
       "0.0": {
-        "text": "在工厂里，一个男人和一个经理正在谈论工厂参观。男人接下来会做什么？",
+        "text": "在工厂里，一个男性和一个经理正在谈论工厂参观。男性接下来会做什么？",
         "kana": "こうじょうでおとこのひととぶちょうがこうじょうけんがくについてはなしています。おとこのひとはこののち、まずなにをしますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>工場</rb><rt>こうじょう</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>部長</rb><rt>ぶちょう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>工場</rb><rt>こうじょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>見学</rb><rt>けんがく</rt></ruby>について<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>、まず<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "嗯，主任，关于工厂参观，今年小学参观的数量增加了，尤其是一年级和二年级学生的参观有点问题。",
@@ -4683,11 +4683,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.12": {
-        "text": "这个男人首先做什么？",
+        "text": "这个男性首先做什么？",
         "kana": "おとこのひとはこののち、まずなにをしますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>、まず<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.02:p1:q1:option1": {
@@ -4763,11 +4763,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.5": {
-        "text": "我明白了。我想节水型的会更好。",
+        "text": "原来如此。我想节水型的会更好。",
         "kana": "そうですか。せっすいたいぷがいいなとおもっていたんですが。",
         "ruby": "そうですか。<ruby data-auto-furi=\"1\"><rb>節水</rb><rt>せっすい</rt></ruby>タイプがいいなと<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>ていたんですが。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.6": {
         "text": "最近，各厂家都推出了节水机型，减少用水量。我认为决定因素是能否高温漂洗。",
@@ -4777,11 +4777,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.7": {
-        "text": "我明白了。",
+        "text": "原来如此。",
         "kana": "なるほど。",
         "ruby": "なるほど。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.8": {
         "text": "店员说选择产品要注意哪些点？",
@@ -4829,11 +4829,11 @@
     },
     "2.02:p1:q2:script": {
       "0.0": {
-        "text": "一名播音员正在电视上采访一名男子。男人喜欢在足球队踢什么？",
+        "text": "一名播音员正在电视上采访一名男子。男性喜欢在足球队踢什么？",
         "kana": "てれびであなうんさあがおとこのひとにいんたびゅうをしています。おとこのひとはじぶんのさっかあちいむでプレイすることのどんなてんがいいといっていますか？",
         "ruby": "テレビでアナウンサーが<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>にインタビューをしています。<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>のサッカーチームでプレイすることのどんな<ruby data-auto-furi=\"1\"><rb>点</rb><rt>てん</rt></ruby>がいいと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "播音员：我今天在足球场。我们来和内田先生谈谈吧。",
@@ -4871,11 +4871,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.6": {
-        "text": "男人喜欢在足球队踢什么？",
+        "text": "男性喜欢在足球队踢什么？",
         "kana": "おとこのひとはじぶんのさっかあちいむでプレイすることのどんなてんがいいといっていますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>のサッカーチームでプレイすることのどんな<ruby data-auto-furi=\"1\"><rb>点</rb><rt>てん</rt></ruby>がいいと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.02:p1:q3:option1": {
@@ -5101,11 +5101,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.8": {
-        "text": "没错。对我来说，所有演员都是男性。因为无论怎么看，她都只是一个美丽的女人。",
+        "text": "没错。对我来说，所有演员都是男性。因为无论怎么看，她都只是一个美丽的女性。",
         "kana": "そうなんだ。わたしはやっぱりはいゆうがすべてだんせいってところね。だって、どうみてもうつくしいじょせいにしかみえないんだもん。",
         "ruby": "そうなんだ。<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>はやっぱり<ruby data-auto-furi=\"1\"><rb>俳優</rb><rt>はいゆう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>全て</rb><rt>すべて</rt></ruby><ruby data-auto-furi=\"1\"><rb>男性</rb><rt>だんせい</rt></ruby>ってところね。だって、どう<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>ても<ruby data-auto-furi=\"1\"><rb>美しい</rb><rt>うつくしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>女性</rb><rt>じょせい</rt></ruby>にしか<ruby data-auto-furi=\"1\"><rb>見え</rb><rt>みえ</rt></ruby>ないんだもん。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.9": {
         "text": "男留学生说的最令人惊讶的事情是什么？",
@@ -6664,11 +6664,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.8": {
-        "text": "我明白了。",
+        "text": "原来如此。",
         "kana": "そっか。",
         "ruby": "そっか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.9": {
         "text": "或者第 4 门课程怎么样？这条路维护得不太好，很难走，但美丽的森林仍在延续，非常宜人。",
@@ -6788,11 +6788,11 @@
     },
     "2.05:p2:q1:script": {
       "0.0": {
-        "text": "在香水制作工坊里，一位女士和一位男士在听完讲师的讲解后正在交谈。",
+        "text": "在香水制作工坊里，一名女性和一名男性在听完讲师的讲解后正在交谈。",
         "kana": "こうすいをつくるわあくしょっぷでこうしのはなしをきいたのち、おんなのひととおとこのひとがはなしています。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby>ワークショップで<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>話</rb><rt>はなし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>聞い</rb><rt>きい</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "今天大家来尝试一下香水的制作。",
@@ -6823,11 +6823,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.5": {
-        "text": "Number 2 是一款清爽的草本香味，非常适合夏天。穿上它你会感觉神清气爽。",
+        "text": "2号是清爽的草本香味，很适合夏天。喷上后会感觉神清气爽。",
         "kana": "2ばんはなつにぴったりのさわやかなはあぶのかおりです。つけているとすっきりしたきぶんになれます。",
         "ruby": "2<ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>夏</rb><rt>なつ</rt></ruby>にぴったりの<ruby data-auto-furi=\"1\"><rb>爽やか</rb><rt>さわやか</rt></ruby>なハーブの<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>です。つけているとスッキリした<ruby data-auto-furi=\"1\"><rb>気分</rb><rt>きぶん</rt></ruby>になれます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.6": {
         "text": "3号有一种像香料一样令人兴奋和独特的香味。",
@@ -6837,11 +6837,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.7": {
-        "text": "Number 4是一款带有甜美花香的香水。给人一种温柔的印象。",
+        "text": "4号是带有甜美花香的香水，会给人温柔的印象。",
         "kana": "4ばんはあまいはなのかおりのこうすいです。やさしいいんしょうをえんしゅつしてくれます。",
         "ruby": "4<ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>甘い</rb><rt>あまい</rt></ruby><ruby data-auto-furi=\"1\"><rb>花</rb><rt>はな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>です。<ruby data-auto-furi=\"1\"><rb>優しい</rb><rt>やさしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>印象</rb><rt>いんしょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>演出</rb><rt>えんしゅつ</rt></ruby>してくれます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.8": {
         "text": "现在，请您到这里向您所选择的人领取材料。",
@@ -6872,11 +6872,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.12": {
-        "text": "我明白了。我想我会使用与平时不同的东西。",
+        "text": "原来如此。我想我会使用与平时不同的东西。",
         "kana": "そうか。やっぱりぼくもいつもつかっているのとちがうほうにするよ。",
         "ruby": "そうか。やっぱり<ruby data-auto-furi=\"1\"><rb>僕</rb><rt>ぼく</rt></ruby>もいつも<ruby data-auto-furi=\"1\"><rb>使っ</rb><rt>つかっ</rt></ruby>ているのと<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>ほうにするよ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.13": {
         "text": "好吧，我们去拿原料吧。",
@@ -6886,18 +6886,18 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.14": {
-        "text": "这个男人说他用的是什么香水？",
+        "text": "这个男性说他用的是什么香水？",
         "kana": "おとこのひとはなんばんのこうすいにするといっていますか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なん</rt></ruby><ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>にすると<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.15": {
-        "text": "女人说她们用什么香水？",
+        "text": "女性说她们用什么香水？",
         "kana": "おんなのひとはなんばんのこうすいにするといっていますか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なん</rt></ruby><ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>にすると<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     },
     "2.05:p2:q2:option1": {
@@ -6938,11 +6938,11 @@
     },
     "2.05:p2:q2:script": {
       "0.0": {
-        "text": "在香水制作工坊里，一位女士和一位男士在听完讲师的讲解后正在交谈。",
+        "text": "在香水制作工坊里，一名女性和一名男性在听完讲师的讲解后正在交谈。",
         "kana": "こうすいをつくるわあくしょっぷでこうしのはなしをきいたのち、おんなのひととおとこのひとがはなしています。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby>ワークショップで<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>話</rb><rt>はなし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>聞い</rb><rt>きい</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.1": {
         "text": "今天大家来尝试一下香水的制作。",
@@ -6973,11 +6973,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.5": {
-        "text": "Number 2 是一款清爽的草本香味，非常适合夏天。穿上它你会感觉神清气爽。",
+        "text": "2号是清爽的草本香味，很适合夏天。喷上后会感觉神清气爽。",
         "kana": "2ばんはなつにぴったりのさわやかなはあぶのかおりです。つけているとすっきりしたきぶんになれます。",
         "ruby": "2<ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>夏</rb><rt>なつ</rt></ruby>にぴったりの<ruby data-auto-furi=\"1\"><rb>爽やか</rb><rt>さわやか</rt></ruby>なハーブの<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>です。つけているとスッキリした<ruby data-auto-furi=\"1\"><rb>気分</rb><rt>きぶん</rt></ruby>になれます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.6": {
         "text": "3号有一种像香料一样令人兴奋和独特的香味。",
@@ -6987,11 +6987,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.7": {
-        "text": "Number 4是一款带有甜美花香的香水。给人一种温柔的印象。",
+        "text": "4号是带有甜美花香的香水，会给人温柔的印象。",
         "kana": "4ばんはあまいはなのかおりのこうすいです。やさしいいんしょうをえんしゅつしてくれます。",
         "ruby": "4<ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>甘い</rb><rt>あまい</rt></ruby><ruby data-auto-furi=\"1\"><rb>花</rb><rt>はな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>です。<ruby data-auto-furi=\"1\"><rb>優しい</rb><rt>やさしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>印象</rb><rt>いんしょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>演出</rb><rt>えんしゅつ</rt></ruby>してくれます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.8": {
         "text": "现在，请您到这里向您所选择的人领取材料。",
@@ -7022,11 +7022,11 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.12": {
-        "text": "我明白了。我想我会使用与平时不同的东西。",
+        "text": "原来如此。我想我会使用与平时不同的东西。",
         "kana": "そうか。やっぱりぼくもいつもつかっているのとちがうほうにするよ。",
         "ruby": "そうか。やっぱり<ruby data-auto-furi=\"1\"><rb>僕</rb><rt>ぼく</rt></ruby>もいつも<ruby data-auto-furi=\"1\"><rb>使っ</rb><rt>つかっ</rt></ruby>ているのと<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>ほうにするよ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.13": {
         "text": "好吧，我们去拿原料吧。",
@@ -7036,20 +7036,20 @@
         "updated_at": "2026-04-25T15:20:00+08:00"
       },
       "0.14": {
-        "text": "这个男人说他用的是什么香水？",
+        "text": "这个男性说他用的是什么香水？",
         "kana": "おとこのひとはなんばんのこうすいにするといっていますか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なん</rt></ruby><ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>にすると<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       },
       "0.15": {
-        "text": "女人说她们用什么香水？",
+        "text": "女性说她们用什么香水？",
         "kana": "おんなのひとはなんばんのこうすいにするといっていますか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なん</rt></ruby><ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>にすると<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-26T10:05:00+08:00"
       }
     }
   },
-  "updated_at": "2026-04-25T15:20:00+08:00"
+  "updated_at": "2026-04-26T10:05:00+08:00"
 }
