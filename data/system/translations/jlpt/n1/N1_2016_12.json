@@ -5039,6 +5039,20 @@
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>経営</rb><rt>けいえい</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>、アルバイト<ruby data-auto-furi=\"1\"><rb>に対して</rb><rt>にたいして</rt></ruby><ruby data-auto-furi=\"1\"><rb>新た</rb><rt>あらた</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしますか。",
         "updated_by": "codex-mt-seed",
         "updated_at": "2026-04-25T15:20:00+08:00"
+      },
+      "0.11": {
+        "text": "解析",
+        "kana": "かいせき",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>解析</rb><rt>かいせき</rt></ruby>",
+        "updated_by": "codex-fill",
+        "updated_at": "2026-04-27T12:55:00+08:00"
+      },
+      "0.12": {
+        "text": "解析：经营者反馈打工者不稳定，专家建议再研修时加入经营者对经营的见解这个环节。后面又建议可根据员工的熟练程度针对性评价，让员工得到成长，经营者说这个之前就在推进，因此先改进的地方就是加入经营见解的环节。",
+        "kana": "解析：经营者反馈打工者不稳定，专家建议再研修时加入经营者对经营的见解这个环节。后面又建议可根据员工的熟练程度针对性评价，让员工得到成长，经营者说这个之前就在推进，因此先改进的地方就是加入经营见解的环节。",
+        "ruby": "解析：经营者反馈打工者不稳定，专家建议再研修时加入经营者对经营的见解这个环节。后面又建议可根据员工的熟练程度针对性评价，让员工得到成长，经营者说这个之前就在推进，因此先改进的地方就是加入经营见解的环节。",
+        "updated_by": "codex-fill",
+        "updated_at": "2026-04-27T12:55:00+08:00"
       }
     },
     "2.01:p1:q6:option1": {

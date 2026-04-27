@@ -3746,13 +3746,27 @@
         "updated_at": "2026-04-25T22:20:00+08:00"
       },
       "10.0": {
-        "text": "（根据成毛真《去做个不成熟的大人吧！》）",
+        "text": "（根据成毛真《去做个不成熟的大人吧！",
         "kana": "（なるけまこと『おとなげないおとなになれ！",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>成毛</rb><rt>なるけ</rt></ruby><ruby data-auto-furi=\"1\"><rb>眞</rb><rt>まこと</rt></ruby>『<ruby data-auto-furi=\"1\"><rb>大人げ</rb><rt>おとなげ</rt></ruby>ない<ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>になれ！",
         "updated_by": "codex-manual-review",
         "updated_at": "2026-04-25T22:20:00+08:00"
       },
-      "11.0": {
+      "10.1": {
+
+        "text": "》一书）",
+
+        "kana": "』による）",
+
+        "ruby": "』による）",
+
+        "updated_by": "codex-fill",
+
+        "updated_at": "2026-04-27T12:55:00+08:00"
+
+      },
+
+      "11.0": {
         "text": "（注1）落とし所：妥协点。",
         "kana": "（ちゅう1）おとししょ：だきょうてん",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1）<ruby data-auto-furi=\"1\"><rb>落とし</rb><rt>おとし</rt></ruby><ruby data-auto-furi=\"1\"><rb>所</rb><rt>しょ</rt></ruby>：<ruby data-auto-furi=\"1\"><rb>妥協</rb><rt>だきょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>点</rb><rt>てん</rt></ruby>",

@@ -1587,221 +1587,221 @@
     },
     "1.07:p1": {
       "0.0": {
-        "text": "以下是一位前播音员写的关于人际关系和沟通的文字。",
+        "text": "下面是一位前播音员写的关于人际关系与沟通的文章。",
         "kana": "いかは、もとあなうんさあがにんげんかんけいやこみゅにけえしょんについてかいたぶんしょうである。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>以下</rb><rt>いか</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>元</rb><rt>もと</rt></ruby>アナウンサーが<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>関係</rb><rt>かんけい</rt></ruby>やコミュニケーションについて<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>である。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.0": {
-        "text": "作为一名前播音员，我经常被问到：“请教我不会失败的沟通技巧。”",
+        "text": "身为前播音员，我常被人问：“请教我不会失败的沟通技巧吧。”",
         "kana": "もとあなうんさあなのでよく「しっぱいしないこみゅにけえしょんじゅつをおしえてください」ときかれます。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>元</rb><rt>もと</rt></ruby>アナウンサーなのでよく「<ruby data-auto-furi=\"1\"><rb>失敗</rb><rt>しっぱい</rt></ruby>しないコミュニケーション<ruby data-auto-furi=\"1\"><rb>術</rb><rt>じゅつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>教え</rb><rt>おしえ</rt></ruby>てください」ときかれます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.1": {
-        "text": "什么是永不失败的沟通？",
+        "text": "所谓“不会失败的沟通”，到底指什么呢？",
         "kana": "しっぱいしないこみゅにけえしょんとはなんでしょう。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>失敗</rb><rt>しっぱい</rt></ruby>しないコミュニケーションとはなんでしょう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.2": {
-        "text": "能像新闻播音员一样流畅地说话吗？",
+        "text": "是指能像新闻播报员那样把话说得流畅得体吗？",
         "kana": "にゅうすきゃすたあのようになめらかにしゃべれるようになること?",
         "ruby": "ニュースキャスターのように<ruby data-auto-furi=\"1\"><rb>滑らか</rb><rt>なめらか</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>喋れる</rb><rt>しゃべれる</rt></ruby>ようになること?",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.3": {
-        "text": "你是想变得擅长那种像电视谈话节目嘉宾一样的对话方式（注1）吗？",
+        "text": "还是说，要像电视谈话节目上的艺人那样，擅长接话和应对呢（注1）？",
         "kana": "ひなだんとうくのまねごと（ちゅう1）がじょうずになること?",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>ひな壇</rb><rt>ひなだん</rt></ruby>トークの<ruby data-auto-furi=\"1\"><rb>真似事</rb><rt>まねごと</rt></ruby>（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1）が<ruby data-auto-furi=\"1\"><rb>上手</rb><rt>じょうず</rt></ruby>になること?",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.4": {
-        "text": "我认为两者是不同的。",
+        "text": "在我看来，这两者并不一样。",
         "kana": "わたしはどちらもちがうとおもいます。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>はどちらも<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby>ます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.0": {
-        "text": "首先，沟通的目的是什么？",
+        "text": "首先，沟通的目的到底是什么？",
         "kana": "そもそも、こみゅにけえしょんのもくてきはなんでしょうか。",
         "ruby": "そもそも、コミュニケーションの<ruby data-auto-furi=\"1\"><rb>目的</rb><rt>もくてき</rt></ruby>はなんでしょうか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.1": {
-        "text": "没有人讨厌的东西？",
+        "text": "是不想被人讨厌吗？",
         "kana": "だれからもきらわれないこと?",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>誰</rb><rt>だれ</rt></ruby>からも<ruby data-auto-furi=\"1\"><rb>嫌わ</rb><rt>きらわ</rt></ruby>れないこと?",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.2": {
-        "text": "受到关注？",
+        "text": "是想获得关注吗？",
         "kana": "ちゅうもくされること?",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>注目</rb><rt>ちゅうもく</rt></ruby>されること?",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.3": {
-        "text": "被表扬了？",
+        "text": "是想被人夸奖吗？",
         "kana": "ほめられること?",
         "ruby": "ほめられること?",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.4": {
-        "text": "看起来很聪明？",
+        "text": "是想让自己看起来更聪明吗？",
         "kana": "かしこそうにみせること?",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>賢</rb><rt>かしこ</rt></ruby>そうに<ruby data-auto-furi=\"1\"><rb>見せる</rb><rt>みせる</rt></ruby>こと?",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.5": {
-        "text": "让别人做你想做的事？",
+        "text": "还是想让别人按自己的想法去行动呢？",
         "kana": "あいてをおもいどおりにうごかすこと?",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>思い通り</rb><rt>おもいどおり</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>動かす</rb><rt>うごかす</rt></ruby>こと?",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.6": {
-        "text": "原来如此。它们似乎在求职面试和工作汇报中都很有用。",
+        "text": "的确，这些在求职面试或工作汇报时似乎都很有用。",
         "kana": "なるほど、どれも就かつのめんせつやしごとのぷれぜんではやくにたちそうですね。",
         "ruby": "なるほど、どれも就<ruby data-auto-furi=\"1\"><rb>活</rb><rt>かつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>面接</rb><rt>めんせつ</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>のプレゼンでは<ruby data-auto-furi=\"1\"><rb>役に立ち</rb><rt>やくにたち</rt></ruby>そうですね。",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.7": {
-        "text": "但这（41）与人与人的关系无关。",
+        "text": "但这些（41）并不是真正意义上的人与人之间的关系。",
         "kana": "でも、それ（　41　）じんとのかかわりではありません。",
         "ruby": "でも、それ（　41　）<ruby data-auto-furi=\"1\"><rb>人</rb><rt>じん</rt></ruby>との<ruby data-auto-furi=\"1\"><rb>関わり</rb><rt>かかわり</rt></ruby>ではありません。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.0": {
-        "text": "我还是不擅长与人交往。",
+        "text": "我自己至今也不算擅长和人打交道。",
         "kana": "わたしは、いまでもひととかかわることがにがてです。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>今</rb><rt>いま</rt></ruby>でも<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>関わる</rb><rt>かかわる</rt></ruby>ことが<ruby data-auto-furi=\"1\"><rb>苦手</rb><rt>にがて</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.1": {
-        "text": "我唯一遗憾的是我希望我能更多地理解别人的感受。",
+        "text": "我唯一会觉得遗憾的是，自己没能更好地理解对方的感受。",
         "kana": "もっとひとのきもちをわかるようになりたいとくいることばかりです。",
         "ruby": "もっと<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>気持ち</rb><rt>きもち</rt></ruby>をわかるようになりたいと<ruby data-auto-furi=\"1\"><rb>悔いる</rb><rt>くいる</rt></ruby>ことばかりです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.2": {
-        "text": "但是每个人的大脑不一样，所以我不知道怎么回事。",
+        "text": "毕竟每个人的思维方式都不同，所以很难完全预料。",
         "kana": "でも、みんなのうみそがちがうからどうしたってわからないのです。",
         "ruby": "でも、みんな<ruby data-auto-furi=\"1\"><rb>脳みそ</rb><rt>のうみそ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>からどうしたってわからないのです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.3": {
-        "text": "对于你想出的话语，收到意想不到的反应并不罕见。",
+        "text": "自己明明是那样想才说出口的话，却收到出乎意料的反应，这种事并不少见。",
         "kana": "それなりにかんがえていったことばにたいしてよきせぬはんのうがかえってくることもめずらしくありません。",
         "ruby": "それなりに<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>言葉</rb><rt>ことば</rt></ruby><ruby data-auto-furi=\"1\"><rb>に対して</rb><rt>にたいして</rt></ruby><ruby data-auto-furi=\"1\"><rb>予期</rb><rt>よき</rt></ruby>せぬ<ruby data-auto-furi=\"1\"><rb>反応</rb><rt>はんのう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>返っ</rb><rt>かえっ</rt></ruby>てくることも<ruby data-auto-furi=\"1\"><rb>珍しく</rb><rt>めずらしく</rt></ruby>ありません。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.4": {
-        "text": "还有粗心的错误。",
+        "text": "也会有单纯因为自己疏忽而出错的时候。",
         "kana": "うかつなみすもあります。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>迂闊</rb><rt>うかつ</rt></ruby>なミスもあります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.5": {
-        "text": "这取决于对方的精神状况。",
+        "text": "有时还会受到对方当时精神状态的影响。",
         "kana": "あいてのこころのこんでぃしょんにもよります。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>のコンディションにもよります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.6": {
-        "text": "我经常与人互动（42）。",
+        "text": "我就是在这种反复与人磨合的过程中一路走过来的（42）。",
         "kana": "ひととのやりとりは、しょっちゅう（　42　）。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>とのやりとりは、しょっちゅう（　42　）。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.0": {
-        "text": "当对方的反应与你预想的不同时，也是改变关系的好机会。",
+        "text": "当对方的反应和自己预想不一样时，那其实也是改变彼此关系的一个机会。",
         "kana": "あいてのはんのうがよそくとちがったときは、かんけいをへんかさせるこうきでもあります。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>反応</rb><rt>はんのう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>予測</rb><rt>よそく</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>違っ</rb><rt>ちがっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>時</rb><rt>とき</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>関係</rb><rt>かんけい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>させる<ruby data-auto-furi=\"1\"><rb>好機</rb><rt>こうき</rt></ruby>でもあります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.1": {
-        "text": "在纠正差异的过程中，你们可能会变得比以前更亲密。",
+        "text": "在一点点修正彼此落差的过程中，双方反而可能比以前更亲近。",
         "kana": "ずれのしゅうせいのかていでいぜんよりしたしくなることも。",
         "ruby": "ずれの<ruby data-auto-furi=\"1\"><rb>修正</rb><rt>しゅうせい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>過程</rb><rt>かてい</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>以前</rb><rt>いぜん</rt></ruby>より<ruby data-auto-furi=\"1\"><rb>親しく</rb><rt>したしく</rt></ruby>なることも。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.2": {
-        "text": "误解（〈43〉）需要长时间的讨论。",
+        "text": "当然，也会有误解（43）迟迟无法消除，需要反复谈很久的时候。",
         "kana": "ごかいを（　43　）ながいはなしあいがひつようになるでしょう。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>誤解</rb><rt>ごかい</rt></ruby>を（　43　）<ruby data-auto-furi=\"1\"><rb>長い</rb><rt>ながい</rt></ruby><ruby data-auto-furi=\"1\"><rb>話し合い</rb><rt>はなしあい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>必要</rb><rt>ひつよう</rt></ruby>になるでしょう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.3": {
-        "text": "正确解决这个问题需要很大的勇气。",
+        "text": "要把这种问题真正处理好，往往需要相当大的勇气。",
         "kana": "それにちゃんととりくむのはなかなかたんりょくがいいます。",
         "ruby": "それにちゃんと<ruby data-auto-furi=\"1\"><rb>取り組む</rb><rt>とりくむ</rt></ruby>のはなかなか<ruby data-auto-furi=\"1\"><rb>胆力</rb><rt>たんりょく</rt></ruby>がいいます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.4": {
-        "text": "这种繁琐的互动才是与人交往的真正乐趣。",
+        "text": "但正是这种麻烦又费心的往来，才是人与人交往真正有意思的地方。",
         "kana": "このめんどくさいやりとりこそが、ひととのかかわりのだいごみです。",
         "ruby": "このめんどくさいやりとりこそが、<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>との<ruby data-auto-furi=\"1\"><rb>関わり</rb><rt>かかわり</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>醍醐味</rb><rt>だいごみ</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.5": {
-        "text": "尝试掌握“不会失败的对话”以避免沟通中的摩擦（44）。",
+        "text": "如果一味追求“不会失败的说话方式”，只想避开沟通中的摩擦（44），那就本末倒置了。",
         "kana": "まさつをかいひするために「しっぱいしないかいわ」をますたあしようとするのは、むしろこみゅにけえしょんからの（　44　）。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>摩擦</rb><rt>まさつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>回避</rb><rt>かいひ</rt></ruby>するために「<ruby data-auto-furi=\"1\"><rb>失敗</rb><rt>しっぱい</rt></ruby>しない<ruby data-auto-furi=\"1\"><rb>会話</rb><rt>かいわ</rt></ruby>」をマスターしようとするのは、むしろコミュニケーションからの（　44　）。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "5.0": {
-        "text": "如果有更多的人担心如何传达他们的信息，即使这很麻烦或耗时，换句话说，如果有更多的人不放弃、不学习，世界就会变得越来越富有，而不是增加有礼貌地说话的人数（注2）。",
+        "text": "与其只是增加一些说话圆滑的人，我更希望这个世界上能多一些愿意认真琢磨“该如何传达”，哪怕觉得麻烦、花时间也不轻易放弃的人。那样的话，世界才会真正变得更丰厚。",
         "kana": "そつなく（ちゅう2）はなすひとがふえるよりも、めんどくさくてもじかんがかかっても、なんとかしてつたえられないかとなやむひと、つまりあきらめがわるくこりないひとがふえるほうが、よのなかは寬ようでゆたかになるでしょう。",
         "ruby": "そつなく（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>2）<ruby data-auto-furi=\"1\"><rb>話す</rb><rt>はなす</rt></ruby><ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>増える</rb><rt>ふえる</rt></ruby>よりも、めんどくさくても<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>がかかっても、なんとかして<ruby data-auto-furi=\"1\"><rb>伝え</rb><rt>つたえ</rt></ruby>られないかと<ruby data-auto-furi=\"1\"><rb>悩む</rb><rt>なやむ</rt></ruby><ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>、つまり<ruby data-auto-furi=\"1\"><rb>諦め</rb><rt>あきらめ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>悪く</rb><rt>わるく</rt></ruby><ruby data-auto-furi=\"1\"><rb>懲り</rb><rt>こり</rt></ruby>ない<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>増える</rb><rt>ふえる</rt></ruby><ruby data-auto-furi=\"1\"><rb>方</rb><rt>ほう</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>世の中</rb><rt>よのなか</rt></ruby>は寬<ruby data-auto-furi=\"1\"><rb>容</rb><rt>よう</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>豊か</rb><rt>ゆたか</rt></ruby>になるでしょう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "5.1": {
-        "text": "失败万岁。",
+        "text": "所以，我反而想说：失败万岁。",
         "kana": "しっぱいまんさいです。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>失敗</rb><rt>しっぱい</rt></ruby><ruby data-auto-furi=\"1\"><rb>万</rb><rt>まん</rt></ruby><ruby data-auto-furi=\"1\"><rb>歳</rb><rt>さい</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "6.0": {
-        "text": "（注1）模仿电视谈话节目嘉宾的对话：像电视艺人那样快节奏地说话。",
+        "text": "（注1）像电视谈话节目艺人那样的对话：指像电视艺人那样快速接话、应对自如的说话方式。",
         "kana": "（ちゅう1）ひなだんとうくのまねごと：てれびにでるたれんとのように、てんぽよくはなすこと",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1）<ruby data-auto-furi=\"1\"><rb>ひな壇</rb><rt>ひなだん</rt></ruby>トークの<ruby data-auto-furi=\"1\"><rb>真似事</rb><rt>まねごと</rt></ruby>：テレビに<ruby data-auto-furi=\"1\"><rb>出る</rb><rt>でる</rt></ruby>タレントのように、テンポよく<ruby data-auto-furi=\"1\"><rb>話す</rb><rt>はなす</rt></ruby>こと",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.0": {
-        "text": "（注2）整齐地：整齐地",
+        "text": "（注2）きれいに：这里指“漂亮地、圆满地”。",
         "kana": "（ちゅう2）そつなく：ようりょうよく",
         "ruby": "（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>2）そつなく：<ruby data-auto-furi=\"1\"><rb>要領</rb><rt>ようりょう</rt></ruby>よく",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "1.07:p1:q41:option1": {
@@ -2299,123 +2299,123 @@
     },
     "1.09:p1": {
       "1.0": {
-        "text": "以下是一篇关于体育领域领军人物的文字。",
+        "text": "下面是一篇谈体育领域领导者应具备何种专业性的文章。",
         "kana": "いかは、すぽうつのぶんやにおけるりいだあについてかかれたぶんしょうである。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>以下</rb><rt>いか</rt></ruby>は、スポーツの<ruby data-auto-furi=\"1\"><rb>分野</rb><rt>ぶんや</rt></ruby>におけるリーダーについて<ruby data-auto-furi=\"1\"><rb>書か</rb><rt>かか</rt></ruby>れた<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>である。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.0": {
-        "text": "一个领导者必须时刻努力提高自己的专业知识，但在过去，阅读专业书籍、向高人请教、翻译海外前沿信息就足够了（注1）。",
+        "text": "领导者当然必须始终努力提升自己的专业性。过去，只要读专业书、向高人请教，再把海外最前沿的信息翻译整理出来，基本也就够用了（注1）。",
         "kana": "りいだあとよばれるたちばにあるものは、せんもんせいをつねにたかめていくどりょくをおこたってはならないのだが、いぜんなら、せんもんしょをよむとか、よりたかいちしきをもつひとにたずねるとか、あるいはかいがいのさいせんたんのじょうほうをほんやくするなどすれば、あるていどはことたり（ちゅう1）たようにおもう。",
         "ruby": "リーダーと<ruby data-auto-furi=\"1\"><rb>呼ば</rb><rt>よば</rt></ruby>れる<ruby data-auto-furi=\"1\"><rb>立場</rb><rt>たちば</rt></ruby>にある<ruby data-auto-furi=\"1\"><rb>者</rb><rt>もの</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>をつねに<ruby data-auto-furi=\"1\"><rb>高め</rb><rt>たかめ</rt></ruby>ていく<ruby data-auto-furi=\"1\"><rb>努力</rb><rt>どりょく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>怠っ</rb><rt>おこたっ</rt></ruby>てはならないのだが、<ruby data-auto-furi=\"1\"><rb>以前</rb><rt>いぜん</rt></ruby>なら、<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>書</rb><rt>しょ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>読む</rb><rt>よむ</rt></ruby>とか、より<ruby data-auto-furi=\"1\"><rb>高い</rb><rt>たかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>知識</rb><rt>ちしき</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>持つ</rb><rt>もつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>訊ねる</rb><rt>たずねる</rt></ruby>とか、あるいは<ruby data-auto-furi=\"1\"><rb>海外</rb><rt>かいがい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>最先端</rb><rt>さいせんたん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>情報</rb><rt>じょうほう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>翻訳</rb><rt>ほんやく</rt></ruby>するなどすれば、<ruby data-auto-furi=\"1\"><rb>ある程度</rb><rt>あるていど</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>事足り</rb><rt>ことたり</rt></ruby>（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1）たように<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.1": {
-        "text": "即使是所谓的“收据销售”，我们也能够在一定程度上覆盖它（注2）。",
+        "text": "即便是所谓“转手倒卖信息”的做法，也还能在一定程度上行得通（注2）。",
         "kana": "いわゆる「うけうり」であっても、それなりにかばあ（ちゅう2）できたのだ。",
         "ruby": "いわゆる「<ruby data-auto-furi=\"1\"><rb>受け売り</rb><rt>うけうり</rt></ruby>」であっても、それなりにカバー（<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>2）できたのだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.0": {
-        "text": "然而，随着信息技术的进步，任何人只要愿意就可以获得那种程度的“知识”。",
+        "text": "但随着信息技术的发展，这种程度的“知识”，如今只要有心，任何人都能轻易获得。",
         "kana": "しかし、これだけじょうほうかがすすむと、そのていどの「ちしき」は、えようとすればだれもがえることができる。",
         "ruby": "しかし、これだけ<ruby data-auto-furi=\"1\"><rb>情報</rb><rt>じょうほう</rt></ruby><ruby data-auto-furi=\"1\"><rb>化</rb><rt>か</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>進む</rb><rt>すすむ</rt></ruby>と、その<ruby data-auto-furi=\"1\"><rb>程度</rb><rt>ていど</rt></ruby>の「<ruby data-auto-furi=\"1\"><rb>知識</rb><rt>ちしき</rt></ruby>」は、<ruby data-auto-furi=\"1\"><rb>得よ</rb><rt>えよ</rt></ruby>うとすれば<ruby data-auto-furi=\"1\"><rb>誰</rb><rt>だれ</rt></ruby>もが<ruby data-auto-furi=\"1\"><rb>得る</rb><rt>える</rt></ruby>ことができる。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.1": {
-        "text": "告诉大家已经知道的事情是没有意义的。",
+        "text": "把大家本来就知道的事再说一遍，并没有意义。",
         "kana": "だれもがしりえていることをはなしてもいみはない。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>誰</rb><rt>だれ</rt></ruby>もが<ruby data-auto-furi=\"1\"><rb>知り</rb><rt>しり</rt></ruby><ruby data-auto-furi=\"1\"><rb>得</rb><rt>え</rt></ruby>ていることを<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ても<ruby data-auto-furi=\"1\"><rb>意味</rb><rt>いみ</rt></ruby>はない。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.2": {
-        "text": "这不能成为改变他人行为的机会。",
+        "text": "那也不足以成为推动他人行动的契机。",
         "kana": "あいてのこうどうをかえるきっかけにはなりえない。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>行動</rb><rt>こうどう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>変える</rb><rt>かえる</rt></ruby>きっかけにはなり<ruby data-auto-furi=\"1\"><rb>得</rb><rt>え</rt></ruby>ない。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.3": {
-        "text": "也就是说，‘接单’的专业知识已经失效了。",
+        "text": "也就是说，那种“转手搬运”的专业性已经失效了。",
         "kana": "つまり、もはや「うけうり」のせんもんせいはつうようしないということだ。",
         "ruby": "つまり、もはや「<ruby data-auto-furi=\"1\"><rb>受け売り</rb><rt>うけうり</rt></ruby>」の<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>通用</rb><rt>つうよう</rt></ruby>しないということだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.4": {
-        "text": "除非是更深层次的知识，任何人都可以知道，否则不能称为“专业知识”。",
+        "text": "如果不是更深一层、不是谁都能轻易掌握的内容，就称不上真正的“专业性”。",
         "kana": "だれもがしりえるちしきを、よりふかめたものでなければ「せんもんせい」にはならないのである。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>誰</rb><rt>だれ</rt></ruby>もが<ruby data-auto-furi=\"1\"><rb>知り</rb><rt>しり</rt></ruby><ruby data-auto-furi=\"1\"><rb>得る</rb><rt>える</rt></ruby><ruby data-auto-furi=\"1\"><rb>知識</rb><rt>ちしき</rt></ruby>を、より<ruby data-auto-furi=\"1\"><rb>深め</rb><rt>ふかめ</rt></ruby>たものでなければ「<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>」にはならないのである。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.0": {
-        "text": "为了获得这样的专业知识，我认为除非你通过看到和听到别人不知道的事情，或者实际踏入这些领域来获得同理心，否则很难唤起同理心。",
+        "text": "而要获得这种专业性，光靠搜集资料是不够的。我认为，必须真正看见、听见别人所不了解的东西，甚至亲自踏入那个现场，获得切身感受，才能打动别人。",
         "kana": "そうしたせんもんせいをみにつけるためには、じぶんじしんがほかのにんげんがしりえないことをけんぶんしたとか、あるいはじっさいにそうしたりょういきにあしをふみいれたとかして、かくとくしたものでなければ、きょうかんはよびにくくなるのではないだろうか。",
         "ruby": "そうした<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>身</rb><rt>み</rt></ruby>につけるためには、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby><ruby data-auto-furi=\"1\"><rb>自身</rb><rt>じしん</rt></ruby>がほかの<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>知り</rb><rt>しり</rt></ruby><ruby data-auto-furi=\"1\"><rb>得</rb><rt>え</rt></ruby>ないことを<ruby data-auto-furi=\"1\"><rb>見聞</rb><rt>けんぶん</rt></ruby>したとか、あるいは<ruby data-auto-furi=\"1\"><rb>実際</rb><rt>じっさい</rt></ruby>にそうした<ruby data-auto-furi=\"1\"><rb>領域</rb><rt>りょういき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>足</rb><rt>あし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>踏み入れ</rb><rt>ふみいれ</rt></ruby>たとかして、<ruby data-auto-furi=\"1\"><rb>獲得</rb><rt>かくとく</rt></ruby>したものでなければ、<ruby data-auto-furi=\"1\"><rb>共感</rb><rt>きょうかん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>呼び</rb><rt>よび</rt></ruby>にくくなるのではないだろうか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.1": {
-        "text": "我认为未来将需要这种专业知识。",
+        "text": "今后真正被需要的，正是这种专业性。",
         "kana": "そういうせんもんせいが、これからはもとめられるのではないかとわたしはおもうのだ。",
         "ruby": "そういう<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>が、これからは<ruby data-auto-furi=\"1\"><rb>求め</rb><rt>もとめ</rt></ruby>られるのではないかと<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>のだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "5.0": {
-        "text": "（省略）",
+        "text": "（中略）",
         "kana": "(ちゅうりゃく)",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>中略</rb><rt>ちゅうりゃく</rt></ruby>)",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "6.0": {
-        "text": "换句话说，专业知识需要某种支持，重要的是要赋予它现实感。",
+        "text": "换句话说，专业性需要某种支撑，而关键就在于赋予它现实感。",
         "kana": "つまり、せんもんせいにはなんらかのうらづけがひつようになる、りありてぃをかんじさせることがじゅうようになるということである。",
         "ruby": "つまり、<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>にはなんらかの<ruby data-auto-furi=\"1\"><rb>裏付け</rb><rt>うらづけ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>必要</rb><rt>ひつよう</rt></ruby>になる、リアリティを<ruby data-auto-furi=\"1\"><rb>感じ</rb><rt>かんじ</rt></ruby>させることが<ruby data-auto-furi=\"1\"><rb>重要</rb><rt>じゅうよう</rt></ruby>になるということである。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.0": {
-        "text": "换句话说，仅仅“知道”某件事并不构成专业知识。",
+        "text": "也就是说，只是“知道”某件事，并不能算是专业。",
         "kana": "ことばをかえれば、「しっている」だけではせんもんせいにはならないということだ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>言葉</rb><rt>ことば</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>変えれ</rb><rt>かえれ</rt></ruby>ば、「<ruby data-auto-furi=\"1\"><rb>知っ</rb><rt>しっ</rt></ruby>ている」だけでは<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>にはならないということだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.1": {
-        "text": "这意味着你必须“理解”它。",
+        "text": "必须进一步把它变成“理解”。",
         "kana": "「わかって」いなければならないということである。",
         "ruby": "「わかって」いなければならないということである。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.2": {
-        "text": "如果你不把你“知道”的东西翻译成你自己的话，加上你以前的经验，把它转化为“理解”，你就无法提高你的专业知识。",
+        "text": "如果不能把自己“知道”的内容转化成自己的语言，再与既有经验结合，沉淀为“理解”，专业性就不可能提升。",
         "kana": "「しった」ことを、それまでのけいけんなどもつけくわえながらじぶんのなかでじぶんのことばとしておきかえ、「わかる」にへんかんさせなければ、せんもんせいをたかめたことにはならないのだ。",
         "ruby": "「<ruby data-auto-furi=\"1\"><rb>知っ</rb><rt>しっ</rt></ruby>た」ことを、それまでの<ruby data-auto-furi=\"1\"><rb>経験</rb><rt>けいけん</rt></ruby>なども<ruby data-auto-furi=\"1\"><rb>付け加え</rb><rt>つけくわえ</rt></ruby>ながら<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>のなかで<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>言葉</rb><rt>ことば</rt></ruby>として<ruby data-auto-furi=\"1\"><rb>置き換え</rb><rt>おきかえ</rt></ruby>、「わかる」に<ruby data-auto-furi=\"1\"><rb>変換</rb><rt>へんかん</rt></ruby>させなければ、<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>高め</rb><rt>たかめ</rt></ruby>たことにはならないのだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "8.0": {
-        "text": "(注1) 足够：准时",
+        "text": "（注1）事足りる：足够，应付得过去。",
         "kana": "(ちゅう1)ことたりる：まにあう",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1)<ruby data-auto-furi=\"1\"><rb>事足りる</rb><rt>ことたりる</rt></ruby>：<ruby data-auto-furi=\"1\"><rb>間に合う</rb><rt>まにあう</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "9.0": {
-        "text": "（注2）封面：在这里，我们封面",
+        "text": "（注2）上乗せ販売：此处指把现成信息稍作包装后再转手提供。",
         "kana": "(ちゅう2) かばあする: ここでは、ひつようをみたす",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>2) カバーする: ここでは、<ruby data-auto-furi=\"1\"><rb>必要</rb><rt>ひつよう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>満たす</rb><rt>みたす</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "1.09:p1:q49:question": {
@@ -3129,263 +3129,263 @@
     },
     "1.10:p1": {
       "0.0": {
-        "text": "以下是日本美术馆馆长写的一句话。",
+        "text": "下面是一位日本美术馆馆长写的文章。",
         "kana": "いかは、あるにっぽんのびじゅつかんのかんちょうがかいたぶんしょうである。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>以下</rb><rt>いか</rt></ruby>は、ある<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>館長</rb><rt>かんちょう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>である。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.0": {
-        "text": "博物馆是欣赏艺术作品的地方。",
+        "text": "美术馆本来就是欣赏艺术作品的地方。",
         "kana": "びじゅつかんはげいじゅつさくひんをたのしむばしょだ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>芸術</rb><rt>げいじゅつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>作品</rb><rt>さくひん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>楽しむ</rb><rt>たのしむ</rt></ruby><ruby data-auto-furi=\"1\"><rb>場所</rb><rt>ばしょ</rt></ruby>だ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.1": {
-        "text": "然而，与无需先验知识即可享受的娱乐不同，许多人认为①需要特殊知识才能享受艺术。",
+        "text": "然而，与不需要任何预备知识也能享受的娱乐不同，很多人认为，欣赏艺术需要专门知识。",
         "kana": "しかし、よびちしきなしにむしんでたのしめるえんたあていんめんととちがって、ああとをたのしむにはとくべつなちしきがいると①おもっているひとはおおい。",
         "ruby": "しかし、<ruby data-auto-furi=\"1\"><rb>予備</rb><rt>よび</rt></ruby><ruby data-auto-furi=\"1\"><rb>知識</rb><rt>ちしき</rt></ruby>なしに<ruby data-auto-furi=\"1\"><rb>無心</rb><rt>むしん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>楽しめる</rb><rt>たのしめる</rt></ruby>エンターテインメントと<ruby data-auto-furi=\"1\"><rb>違っ</rb><rt>ちがっ</rt></ruby>て、アートを<ruby data-auto-furi=\"1\"><rb>楽しむ</rb><rt>たのしむ</rt></ruby>には<ruby data-auto-furi=\"1\"><rb>特別</rb><rt>とくべつ</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>知識</rb><rt>ちしき</rt></ruby>がいると①<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>多い</rb><rt>おおい</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.2": {
-        "text": "我认为这种想法是一个很大的误区。",
+        "text": "我觉得这种看法是一个很大的误解。",
         "kana": "わたしはそうしたかんがえかたはおおきなごかいだとおもっている。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>はそうした<ruby data-auto-furi=\"1\"><rb>考え方</rb><rt>かんがえかた</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>大きな</rb><rt>おおきな</rt></ruby><ruby data-auto-furi=\"1\"><rb>誤解</rb><rt>ごかい</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>ている。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.0": {
-        "text": "不过，我不明白有这种想法的人的感受。",
+        "text": "不过，我也并非不能理解抱有这种想法的人。",
         "kana": "しかし、そうかんがえるひとのきもちがわからないではない。",
         "ruby": "しかし、そう<ruby data-auto-furi=\"1\"><rb>考える</rb><rt>かんがえる</rt></ruby><ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>気持ち</rb><rt>きもち</rt></ruby>がわからないではない。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.1": {
-        "text": "这是因为在这个国家，没有一个让孩子们熟悉艺术的环境。",
+        "text": "因为在这个国家，孩子从小亲近艺术的环境本来就不够充分。",
         "kana": "なぜなら、このくにではこどものころからああとにしたしむかんきょうがととのっていないからだ。",
         "ruby": "なぜなら、この<ruby data-auto-furi=\"1\"><rb>国</rb><rt>くに</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>頃</rb><rt>ころ</rt></ruby>からアートに<ruby data-auto-furi=\"1\"><rb>親しむ</rb><rt>したしむ</rt></ruby><ruby data-auto-furi=\"1\"><rb>環境</rb><rt>かんきょう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>整っ</rb><rt>ととのっ</rt></ruby>ていないからだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.2": {
-        "text": "孩子们在博物馆里被认为是吵闹的、令人讨厌的，这是无可奈何的。",
+        "text": "孩子在美术馆里常被视为吵闹、碍事，这确实也是现实。",
         "kana": "びじゅつかんではこどもはうるさくてじゃまなそんざいだとされるのはしかたがない。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>はうるさくて<ruby data-auto-furi=\"1\"><rb>邪魔</rb><rt>じゃま</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>存在</rb><rt>そんざい</rt></ruby>だとされるのは<ruby data-auto-furi=\"1\"><rb>仕方</rb><rt>しかた</rt></ruby>がない。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.3": {
-        "text": "然而，另一方面，如果你从小就多次参观过美术馆，并且已经成为熟悉的地方，你就会与艺术品更加亲近。",
+        "text": "但反过来说，如果从小就多次去过美术馆，把那里当成熟悉的地方，人与作品之间的距离自然会缩短。",
         "kana": "しかし、そのぎゃくに、こどものころからびじゅつかんになんどもあしをはこび、なじみのあるばしょになっていれば、げいじゅつさくひんとのきょりはもっとちかづくだろう。",
         "ruby": "しかし、その<ruby data-auto-furi=\"1\"><rb>逆</rb><rt>ぎゃく</rt></ruby>に、<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>頃</rb><rt>ころ</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なん</rt></ruby><ruby data-auto-furi=\"1\"><rb>度</rb><rt>ど</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>足</rb><rt>あし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>運び</rb><rt>はこび</rt></ruby>、なじみのある<ruby data-auto-furi=\"1\"><rb>場所</rb><rt>ばしょ</rt></ruby>になっていれば、<ruby data-auto-furi=\"1\"><rb>芸術</rb><rt>げいじゅつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>作品</rb><rt>さくひん</rt></ruby>との<ruby data-auto-furi=\"1\"><rb>距離</rb><rt>きょり</rt></ruby>はもっと<ruby data-auto-furi=\"1\"><rb>近づく</rb><rt>ちかづく</rt></ruby>だろう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.0": {
-        "text": "那么我们怎样才能帮助孩子们享受博物馆呢？",
+        "text": "那么，怎样才能让孩子们真正享受美术馆呢？",
         "kana": "では、こどもたちにびじゅつかんをたのしんでもらうことはどうすればいいのだろうか。",
         "ruby": "では、<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>たちに<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>楽しん</rb><rt>たのしん</rt></ruby>でもらうことはどうすればいいのだろうか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.1": {
-        "text": "（省略）",
+        "text": "（中略）",
         "kana": "(ちゅうりゃく)",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>中略</rb><rt>ちゅうりゃく</rt></ruby>)",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.0": {
-        "text": "我经常做的事情就是②“寻宝”。",
+        "text": "我经常采用的一种方法，就是“寻宝游戏”。",
         "kana": "わたしがよくやるのは②「たからさがし」だ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>がよくやるのは②「<ruby data-auto-furi=\"1\"><rb>宝探し</rb><rt>たからさがし</rt></ruby>」だ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.1": {
-        "text": "本来我在芝加哥艺术学院的时候，看到同事在练习这个技巧，觉得很有趣，所以自从来到日本的美术馆之后，我就一直在练习。",
+        "text": "这原本是我在芝加哥艺术学院工作时，看同事实践后觉得很有意思，于是来到日本的美术馆后也一直在尝试的方法。",
         "kana": "もともとはしかごびじゅつかんにいたときにどうりょうがじっせんしているのをみておもしろいとおもい、にっぽんのびじゅつかんにきてからもじっせんしている。",
         "ruby": "もともとはシカゴ<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>にいたときに<ruby data-auto-furi=\"1\"><rb>同僚</rb><rt>どうりょう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>実践</rb><rt>じっせん</rt></ruby>しているのを<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>面白い</rb><rt>おもしろい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>来</rb><rt>き</rt></ruby>てからも<ruby data-auto-furi=\"1\"><rb>実践</rb><rt>じっせん</rt></ruby>している。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "5.0": {
-        "text": "“寻宝”的规则很简单。",
+        "text": "“寻宝游戏”的规则非常简单。",
         "kana": "「たからさがし」のるうるはかんたんだ。",
         "ruby": "「<ruby data-auto-furi=\"1\"><rb>宝探し</rb><rt>たからさがし</rt></ruby>」のルールは<ruby data-auto-furi=\"1\"><rb>簡単</rb><rt>かんたん</rt></ruby>だ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "6.0": {
-        "text": "给孩子们美术馆出售的明信片，并让他们寻找展出的作品。",
+        "text": "先把美术馆出售的明信片发给孩子们，让他们去展厅里寻找与明信片对应的作品。",
         "kana": "こどもたちにびじゅつかんではんばいされているぽすとかあどをわたして、てんじされているそのさくひんをさがすようにいう。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>たちに<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>販売</rb><rt>はんばい</rt></ruby>されているポストカードを<ruby data-auto-furi=\"1\"><rb>渡し</rb><rt>わたし</rt></ruby>て、<ruby data-auto-furi=\"1\"><rb>展示</rb><rt>てんじ</rt></ruby>されているその<ruby data-auto-furi=\"1\"><rb>作品</rb><rt>さくひん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探す</rb><rt>さがす</rt></ruby>ように<ruby data-auto-furi=\"1\"><rb>言う</rb><rt>いう</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "6.1": {
-        "text": "然后他们仔细地看着照片，寻找明信片上打印的图片。",
+        "text": "孩子们会一边仔细看着明信片，一边寻找上面印着的那幅作品。",
         "kana": "すると、かれらはえをいっしょうけんめいみて、ぽすとかあどにいんさつされているえをさがす。",
         "ruby": "すると、<ruby data-auto-furi=\"1\"><rb>彼ら</rb><rt>かれら</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>絵</rb><rt>え</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>一生懸命</rb><rt>いっしょうけんめい</rt></ruby><ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>て、ポストカードに<ruby data-auto-furi=\"1\"><rb>印刷</rb><rt>いんさつ</rt></ruby>されている<ruby data-auto-furi=\"1\"><rb>絵</rb><rt>え</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探す</rb><rt>さがす</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.0": {
-        "text": "一旦他们找到工作，让他们在明信片上写下他们的印象。",
+        "text": "找到作品之后，再让他们把自己的感受写在明信片上。",
         "kana": "さくひんをみつけだしたら、そのぽすとかあどにかんそうをかいてもらう。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>作品</rb><rt>さくひん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見つけ出し</rb><rt>みつけだし</rt></ruby>たら、そのポストカードに<ruby data-auto-furi=\"1\"><rb>感想</rb><rt>かんそう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>てもらう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.1": {
-        "text": "你可以写任何东西。",
+        "text": "写什么都可以。",
         "kana": "どんなことをかいてもいい。",
         "ruby": "どんなことを<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>てもいい。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.2": {
-        "text": "如果你想不出印象，就想想图片里的东西。",
+        "text": "如果一时想不出感想，那就写一写画面里看见了什么。",
         "kana": "かんそうがおもいうかばなければ、そのえのなかになにがえがかれているかということでいい。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>感想</rb><rt>かんそう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby><ruby data-auto-furi=\"1\"><rb>浮かば</rb><rt>うかば</rt></ruby>なければ、その<ruby data-auto-furi=\"1\"><rb>絵</rb><rt>え</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>中</rb><rt>なか</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>描か</rb><rt>えがか</rt></ruby>れているかということでいい。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "8.0": {
-        "text": "您所要做的就是让他们写下他们“看到”的内容。",
+        "text": "总之，只要把自己“看到”的东西写下来就行。",
         "kana": "「みた」ものをかいてもらうだけでいいのだ。",
         "ruby": "「<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>た」ものを<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>てもらうだけでいいのだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "8.1": {
-        "text": "无论如何，工作的目的是创造一个“看到”它的机会。",
+        "text": "重点在于先创造一个真正“去看”的机会。",
         "kana": "とにかく、さくひんは「みる」きっかけをつくることがもくてきである。",
         "ruby": "とにかく、<ruby data-auto-furi=\"1\"><rb>作品</rb><rt>さくひん</rt></ruby>は「<ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>」きっかけを<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby>ことが<ruby data-auto-furi=\"1\"><rb>目的</rb><rt>もくてき</rt></ruby>である。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "9.0": {
-        "text": "成年人经常尝试用头脑来理解图片。",
+        "text": "大人往往会试图用头脑去理解作品。",
         "kana": "おとなはともすればえをあたまでりかいしようとする。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>はともすれば<ruby data-auto-furi=\"1\"><rb>絵</rb><rt>え</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>頭</rb><rt>あたま</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>理解</rb><rt>りかい</rt></ruby>しようとする。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "9.1": {
-        "text": "只要将知识与现实相结合就满足了，比如说这幅画很棒，因为它是印象派大师〇〇画的。",
+        "text": "比如“这幅画很了不起，因为它出自印象派大师某某之手”，只要把已有知识和眼前作品对上号，好像就满足了。",
         "kana": "このえはいんしょうはのきょしょう〇〇がえがいたえだからすばらしい、というように、ちしきとじつぶつをいっちさせるだけでまんぞくしてしまう。",
         "ruby": "この<ruby data-auto-furi=\"1\"><rb>絵</rb><rt>え</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>印象派</rb><rt>いんしょうは</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>巨匠</rb><rt>きょしょう</rt></ruby>〇〇が<ruby data-auto-furi=\"1\"><rb>描い</rb><rt>えがい</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>絵</rb><rt>え</rt></ruby>だからすばらしい、というように、<ruby data-auto-furi=\"1\"><rb>知識</rb><rt>ちしき</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>実物</rb><rt>じつぶつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>一致</rb><rt>いっち</rt></ruby>させるだけで<ruby data-auto-furi=\"1\"><rb>満足</rb><rt>まんぞく</rt></ruby>してしまう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "9.2": {
-        "text": "然而，我们真能说我们以这样的视角“看到”了作品吗？",
+        "text": "但仅凭这样的眼光，真的能说自己“看见”了作品吗？",
         "kana": "しかし、そんなみかたがはたしてほんとうにさくひんを「みた」といえるだろうか。",
         "ruby": "しかし、そんな<ruby data-auto-furi=\"1\"><rb>見方</rb><rt>みかた</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>果たして</rb><rt>はたして</rt></ruby><ruby data-auto-furi=\"1\"><rb>本当に</rb><rt>ほんとうに</rt></ruby><ruby data-auto-furi=\"1\"><rb>作品</rb><rt>さくひん</rt></ruby>を「<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>た」と<ruby data-auto-furi=\"1\"><rb>言える</rb><rt>いえる</rt></ruby>だろうか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "10.0": {
-        "text": "孩子们在没有先验知识的情况下看图片。",
+        "text": "孩子们则是在几乎没有预备知识的状态下去看画。",
         "kana": "こどもたちはよびちしきをもたずにえをみる。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>たちは<ruby data-auto-furi=\"1\"><rb>予備</rb><rt>よび</rt></ruby><ruby data-auto-furi=\"1\"><rb>知識</rb><rt>ちしき</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>持た</rb><rt>もた</rt></ruby>ずに<ruby data-auto-furi=\"1\"><rb>絵</rb><rt>え</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "10.1": {
-        "text": "如果你当时不“印象深刻”，那也没关系。",
+        "text": "即使当下没有受到什么触动，也并不要紧。",
         "kana": "そのときに「かんどう」しなくてもかまわない。",
         "ruby": "そのときに「<ruby data-auto-furi=\"1\"><rb>感動</rb><rt>かんどう</rt></ruby>」しなくてもかまわない。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "10.2": {
-        "text": "你所要做的就是用力“看”。",
+        "text": "重要的是，先尽力去“看”。",
         "kana": "いっしょうけんめい「みる」だけでいいのだ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>一生懸命</rb><rt>いっしょうけんめい</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>」だけでいいのだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "10.3": {
-        "text": "专心观看一幅画的体验非常值得参观博物馆。",
+        "text": "专注凝视一幅作品的体验，本身就已经非常值得来一趟美术馆。",
         "kana": "いちまいのえをーせいけんめいにみたというたいけんだけて、びじゅつかんにきたかちはじゅうぶんにある。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>一</rb><rt>いち</rt></ruby><ruby data-auto-furi=\"1\"><rb>枚</rb><rt>まい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>絵</rb><rt>え</rt></ruby>をー<ruby data-auto-furi=\"1\"><rb>生</rb><rt>せい</rt></ruby><ruby data-auto-furi=\"1\"><rb>懸命</rb><rt>けんめい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>たという<ruby data-auto-furi=\"1\"><rb>体験</rb><rt>たいけん</rt></ruby>だけて、<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>来</rb><rt>き</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>価値</rb><rt>かち</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>十分</rb><rt>じゅうぶん</rt></ruby>にある。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.0": {
-        "text": "博物馆的伟大之处在于你可以亲眼看到“真实的东西”。",
+        "text": "美术馆最大的价值之一，就在于你能亲眼看到“真迹”。",
         "kana": "びじゅつかんのすばらしいところは「ほんもの」をそのめでみられることだ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>のすばらしいところは「<ruby data-auto-furi=\"1\"><rb>本物</rb><rt>ほんもの</rt></ruby>」をその<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>られることだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.1": {
-        "text": "当孩子们将手中的明信片与艺术品进行比较时，他们可能会注意到颜色不同。",
+        "text": "孩子们把手中的明信片和眼前作品相互对照时，可能会发现颜色并不一样。",
         "kana": "こどもたちはてにしたぽすとかあどとさくひんをみくらべて「いろがちがう」ときづくかもしれない。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>たちは<ruby data-auto-furi=\"1\"><rb>手</rb><rt>て</rt></ruby>にしたポストカードと<ruby data-auto-furi=\"1\"><rb>作品</rb><rt>さくひん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見比べ</rb><rt>みくらべ</rt></ruby>て「<ruby data-auto-furi=\"1\"><rb>色</rb><rt>いろ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>」と<ruby data-auto-furi=\"1\"><rb>気づく</rb><rt>きづく</rt></ruby>かもしれない。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.2": {
-        "text": "仅此一点就是一个伟大的“发现”。",
+        "text": "仅仅这一点，就已经是一次了不起的“发现”。",
         "kana": "それだけでもりっぱな「はっけん」だ。",
         "ruby": "それだけでも<ruby data-auto-furi=\"1\"><rb>立派</rb><rt>りっぱ</rt></ruby>な「<ruby data-auto-furi=\"1\"><rb>発見</rb><rt>はっけん</rt></ruby>」だ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.3": {
-        "text": "值得一看真品才知道真品和印刷版是不同的。",
+        "text": "也正是亲眼见到真迹之后，才会明白原作和印刷品并不是同一回事。",
         "kana": "ほんものといんさつぶつはちがうのだということがわかるだけでも、じつぶつをみたかいがある。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>本物</rb><rt>ほんもの</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>印刷物</rb><rt>いんさつぶつ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>のだということがわかるだけでも、<ruby data-auto-furi=\"1\"><rb>実物</rb><rt>じつぶつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>甲斐</rb><rt>かい</rt></ruby>がある。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.4": {
-        "text": "我认为教育就是训练一个人的敏感度和智力，使人能够用自己的感性去感受，用自己的头脑去思考。",
+        "text": "我认为，教育就是训练人的感受力与思考力，让人能够凭自己的感性去感受、凭自己的头脑去思考。",
         "kana": "わたしは、きょういくとは、じぶんのかんせいでかんじ、じぶんのあたまでかんがえられるよう、かんせいとちせいをきたえることだとおもっている。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>教育</rb><rt>きょういく</rt></ruby>とは、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>感性</rb><rt>かんせい</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>感じ</rb><rt>かんじ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>頭</rb><rt>あたま</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>られるよう、<ruby data-auto-furi=\"1\"><rb>感性</rb><rt>かんせい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>知性</rb><rt>ちせい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>鍛える</rb><rt>きたえる</rt></ruby>ことだと<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>ている。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.5": {
-        "text": "教育不应该只是教授问题的答案。",
+        "text": "教育不应该只是教人标准答案。",
         "kana": "といにたいするこたえをおしえるのだけがきょういくではないはずだ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>問い</rb><rt>とい</rt></ruby><ruby data-auto-furi=\"1\"><rb>に対する</rb><rt>にたいする</rt></ruby><ruby data-auto-furi=\"1\"><rb>答え</rb><rt>こたえ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>教える</rb><rt>おしえる</rt></ruby>のだけが<ruby data-auto-furi=\"1\"><rb>教育</rb><rt>きょういく</rt></ruby>ではないはずだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.6": {
-        "text": "而且，如果使用得当，博物馆可以成为培养人的敏感性的绝佳学校。",
+        "text": "而美术馆如果用得好，完全可以成为培养这种感受力的绝佳场所。",
         "kana": "そして、びじゅつかんは、うまくつかえば、かんせいをきたえるすばらしいがっこうになりうるばしょだ。",
         "ruby": "そして、<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>は、うまく<ruby data-auto-furi=\"1\"><rb>使え</rb><rt>つかえ</rt></ruby>ば、<ruby data-auto-furi=\"1\"><rb>感性</rb><rt>かんせい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>鍛える</rb><rt>きたえる</rt></ruby>すばらしい<ruby data-auto-furi=\"1\"><rb>学校</rb><rt>がっこう</rt></ruby>になりうる<ruby data-auto-furi=\"1\"><rb>場所</rb><rt>ばしょ</rt></ruby>だ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.7": {
-        "text": "因为博物馆是教导答案有很多的完美场​​所。",
+        "text": "因为这里正是一个能够让人明白“答案并不只有一个”的地方。",
         "kana": "なぜなら、びじゅつかんは「こたえがたくさんある」ことをおしえるのにさいてきなばだからだ。",
         "ruby": "なぜなら、<ruby data-auto-furi=\"1\"><rb>美術館</rb><rt>びじゅつかん</rt></ruby>は「<ruby data-auto-furi=\"1\"><rb>答え</rb><rt>こたえ</rt></ruby>がたくさんある」ことを<ruby data-auto-furi=\"1\"><rb>教える</rb><rt>おしえる</rt></ruby>のに<ruby data-auto-furi=\"1\"><rb>最適</rb><rt>さいてき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>場</rb><rt>ば</rt></ruby>だからだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "12.0": {
-        "text": "随着每个人的“眼睛”达到更高的层次，感受工作的“心”和思考工作的“头脑”也会有所不同。",
+        "text": "随着每个人“观看之眼”的层次提高，对作品的感受之心与思考之脑也会发生变化。",
         "kana": "ひとりひとりみる「め」もいたるえば、そのさくひんをかんじる「こころ」も、そこからかんがえる「あたま」もちがう。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>一人ひとり</rb><rt>ひとりひとり</rt></ruby><ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>」も<ruby data-auto-furi=\"1\"><rb>達</rb><rt>いたる</rt></ruby>えば、その<ruby data-auto-furi=\"1\"><rb>作品</rb><rt>さくひん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>感じる</rb><rt>かんじる</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>」も、そこから<ruby data-auto-furi=\"1\"><rb>考える</rb><rt>かんがえる</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>頭</rb><rt>あたま</rt></ruby>」も<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "12.1": {
-        "text": "答案永远不只有一个。",
+        "text": "答案从来不止一个。",
         "kana": "こたえはけっしてひとつではないのだ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>答え</rb><rt>こたえ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>決して</rb><rt>けっして</rt></ruby><ruby data-auto-furi=\"1\"><rb>一つ</rb><rt>ひとつ</rt></ruby>ではないのだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "1.10:p1:q57:question": {
@@ -3525,116 +3525,116 @@
     },
     "1.11:p1": {
       "1.0": {
-        "text": "当人们感到焦虑或紧张时，就会惊慌失措，或者肢体动作变得笨拙，无法发挥出原有的实力。",
+        "text": "人一旦感到不安或紧张，就会慌乱，动作也会变得僵硬，无法发挥原本的实力。",
         "kana": "ひとはふあんをかんじたりきんちょうしたりすると、あわてたりしんたいのうごきがぎこちなくなったりして、ほんらいのちからがはっきできなくなることがある。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>不安</rb><rt>ふあん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>感じ</rb><rt>かんじ</rt></ruby>たり<ruby data-auto-furi=\"1\"><rb>緊張</rb><rt>きんちょう</rt></ruby>したりすると、<ruby data-auto-furi=\"1\"><rb>慌て</rb><rt>あわて</rt></ruby>たり<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>動き</rb><rt>うごき</rt></ruby>がぎこちなくなったりして、<ruby data-auto-furi=\"1\"><rb>本来</rb><rt>ほんらい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>力</rb><rt>ちから</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>発揮</rb><rt>はっき</rt></ruby>できなくなることがある。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.1": {
-        "text": "在这种情况下，你需要避免负面想法，例如“如果事情进展不顺利怎么办？”",
+        "text": "这时候，首先要避免去想“万一不顺利怎么办”这类消极念头。",
         "kana": "そういうときは、「うまくいかなかったらどうしよう」といったまいなすのしこうをしないようにするひつようがある。",
         "ruby": "そういうときは、「うまくいかなかったらどうしよう」といったマイナスの<ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>をしないようにする<ruby data-auto-furi=\"1\"><rb>必要</rb><rt>ひつよう</rt></ruby>がある。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.2": {
-        "text": "为此，对自己说积极的话是有效的。",
+        "text": "为此，对自己说积极的话会很有效。",
         "kana": "そのためには、じぶんじしんにこうていてきなことばをはっすることがこうかてきだ。",
         "ruby": "そのためには、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby><ruby data-auto-furi=\"1\"><rb>自身</rb><rt>じしん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>肯定</rb><rt>こうてい</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>言葉</rb><rt>ことば</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>発する</rb><rt>はっする</rt></ruby>ことが<ruby data-auto-furi=\"1\"><rb>効果</rb><rt>こうか</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>だ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.3": {
-        "text": "告诉自己，“我确信事情会进展顺利”，或者用语言表达“这就是你想要的样子”的具体形象。",
+        "text": "比如告诉自己“我一定能顺利做到”，或者把自己希望达到的状态具体地用语言表达出来。",
         "kana": "「きっとうまくいく」といいきかせたり、「こうなりたい」というぐたいてきないめえじをことばにしたりする。",
         "ruby": "「きっとうまくいく」と<ruby data-auto-furi=\"1\"><rb>言い聞かせ</rb><rt>いいきかせ</rt></ruby>たり、「こうなりたい」という<ruby data-auto-furi=\"1\"><rb>具体</rb><rt>ぐたい</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>なイメージを<ruby data-auto-furi=\"1\"><rb>言葉</rb><rt>ことば</rt></ruby>にしたりする。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.4": {
-        "text": "你的大脑试图将你所说的话识别为事实，因此你开始认为你的话会实现，你的焦虑就会减轻。",
+        "text": "大脑会试图把自己说出口的话当作事实来接收，因此人会渐渐觉得那真的能够实现，焦虑也会随之减轻。",
         "kana": "のうはじぶんがはっしたことばをしんじつだとにんしきしようとするので、そのことばどおりになるとおもえてきてふあんなきもちがやわらいでいく。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>脳</rb><rt>のう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>発し</rb><rt>はっし</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>言葉</rb><rt>ことば</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>真実</rb><rt>しんじつ</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>認識</rb><rt>にんしき</rt></ruby>しようとするので、その<ruby data-auto-furi=\"1\"><rb>言葉</rb><rt>ことば</rt></ruby>どおりになると<ruby data-auto-furi=\"1\"><rb>思え</rb><rt>おもえ</rt></ruby>てきて<ruby data-auto-furi=\"1\"><rb>不安</rb><rt>ふあん</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>気持ち</rb><rt>きもち</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>和らい</rb><rt>やわらい</rt></ruby>でいく。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.5": {
-        "text": "也就是说，你可以控制自己的心态。",
+        "text": "也就是说，我们可以通过语言来调整自己的心理状态。",
         "kana": "つまり、こころのじょうたいはこんとろうるがかのうなのだ。",
         "ruby": "つまり、<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>状態</rb><rt>じょうたい</rt></ruby>はコントロールが<ruby data-auto-furi=\"1\"><rb>可能</rb><rt>かのう</rt></ruby>なのだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.6": {
-        "text": "如果你的精神状态好转了，你的身体应该能够顺畅地活动，发挥出本来的力量。",
+        "text": "精神状态一旦稳定下来，身体也会更顺畅地运转，从而发挥出原有的力量。",
         "kana": "こころのじょうたいがこうてんすれば、しんたいもすむうずにうごきほんらいのちからがはっきできるはずだ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>状態</rb><rt>じょうたい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>好転</rb><rt>こうてん</rt></ruby>すれば、<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>もスムーズに<ruby data-auto-furi=\"1\"><rb>動き</rb><rt>うごき</rt></ruby><ruby data-auto-furi=\"1\"><rb>本来</rb><rt>ほんらい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>力</rb><rt>ちから</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>発揮</rb><rt>はっき</rt></ruby>できるはずだ。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.0": {
-        "text": "当人们处于焦虑状态时，他们会本能地向下看。",
+        "text": "另外，人处在不安状态时，会本能地低头看向下方。",
         "kana": "ひとはふあんなじょうたいにおちいると、はんしゃてきにしたをむいてしまいます。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>不安</rb><rt>ふあん</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>状態</rb><rt>じょうたい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>陥る</rb><rt>おちいる</rt></ruby>と、<ruby data-auto-furi=\"1\"><rb>反射</rb><rt>はんしゃ</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>下</rb><rt>した</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>向い</rb><rt>むい</rt></ruby>てしまいます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.1": {
-        "text": "这样，人体就会对心灵的微妙运动做出反应。",
+        "text": "可见，人的身体会对心灵细微的变化作出反应。",
         "kana": "このように、にんげんのしんたいというものは、こころのびみょうなうごきにはんのうしているのです。",
         "ruby": "このように、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>というものは、<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>微妙</rb><rt>びみょう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>動き</rb><rt>うごき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>反応</rb><rt>はんのう</rt></ruby>しているのです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.2": {
-        "text": "如果你善用身体和心灵的这种关系，你就能通过操纵身体的动作来控制你的心灵的动作。",
+        "text": "如果善于利用这种身心联动关系，就可以通过调整身体动作，反过来控制内心状态。",
         "kana": "こうしたしんたいとこころのかんけいせいをうまくかつようすると、しんたいのうごきをそうさすることでこころのうごきまでもこんとろうるすることができるようになります。",
         "ruby": "こうした<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>関係</rb><rt>かんけい</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>をうまく<ruby data-auto-furi=\"1\"><rb>活用</rb><rt>かつよう</rt></ruby>すると、<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>動き</rb><rt>うごき</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>操作</rb><rt>そうさ</rt></ruby>することで<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>動き</rb><rt>うごき</rt></ruby>までもコントロールすることができるようになります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.0": {
-        "text": "例如，当你感到无法控制的焦虑时，有意识地尝试向上看。",
+        "text": "例如，当你被难以控制的不安困住时，可以有意识地抬头向上看。",
         "kana": "たとえば、ふあんでしょうがないじょうたいになったときはいしきてきにめせんをあげてみる。",
         "ruby": "たとえば、<ruby data-auto-furi=\"1\"><rb>不安</rb><rt>ふあん</rt></ruby>でしょうがない<ruby data-auto-furi=\"1\"><rb>状態</rb><rt>じょうたい</rt></ruby>になったときは<ruby data-auto-furi=\"1\"><rb>意識</rb><rt>いしき</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>目線</rb><rt>めせん</rt></ruby>をあげてみる。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.1": {
-        "text": "如果您非常紧张并且发现自己呼吸很快，请尝试深呼吸。",
+        "text": "如果紧张得呼吸变快，就试着做几次深呼吸。",
         "kana": "きょくどにきんちょうしてこきゅうがはやくなったとしたら、いきをおおきくすいこんでしんこきゅうをしてみる。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>極度</rb><rt>きょくど</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>緊張</rb><rt>きんちょう</rt></ruby>して<ruby data-auto-furi=\"1\"><rb>呼吸</rb><rt>こきゅう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>早く</rb><rt>はやく</rt></ruby>なったとしたら、<ruby data-auto-furi=\"1\"><rb>息</rb><rt>いき</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>大きく</rb><rt>おおきく</rt></ruby><ruby data-auto-furi=\"1\"><rb>吸い込ん</rb><rt>すいこん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>深呼吸</rb><rt>しんこきゅう</rt></ruby>をしてみる。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.2": {
-        "text": "简单来说，你所要做的就是将身体向与当前身体状态相反的方向移动。",
+        "text": "说到底，就是有意识地让身体朝着与当前状态相反的方向去动作。",
         "kana": "しんぷるにいうならば、いまのしんたいのじょうたいにたいして、すべてはんたいのほうこうにしんたいをうごかせばよいのです。",
         "ruby": "シンプルにいうならば、<ruby data-auto-furi=\"1\"><rb>今</rb><rt>いま</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>状態</rb><rt>じょうたい</rt></ruby><ruby data-auto-furi=\"1\"><rb>に対して</rb><rt>にたいして</rt></ruby>、すべて<ruby data-auto-furi=\"1\"><rb>反対</rb><rt>はんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>方向</rb><rt>ほうこう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>動かせ</rb><rt>うごかせ</rt></ruby>ばよいのです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.3": {
-        "text": "如果你抬头，你的焦虑就会消失，如果你深呼吸，你就会处于平静的状态。",
+        "text": "抬起头，焦虑会缓和；加深呼吸，心情也会趋于平静。",
         "kana": "めせんをあげればふあんはかいしょうされますし、しんこきゅうをすればおちついたじょうたいになります。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>目線</rb><rt>めせん</rt></ruby>をあげれば<ruby data-auto-furi=\"1\"><rb>不安</rb><rt>ふあん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>解消</rb><rt>かいしょう</rt></ruby>されますし、<ruby data-auto-furi=\"1\"><rb>深呼吸</rb><rt>しんこきゅう</rt></ruby>をすれば<ruby data-auto-furi=\"1\"><rb>落ち着い</rb><rt>おちつい</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>状態</rb><rt>じょうたい</rt></ruby>になります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "5.0": {
-        "text": "首先，精神状态通过自律神经系统体现在身体的反应中，但通过扭转这些影响，可以从身体的运动对自律神经系统采取相反的方法。",
+        "text": "原本，心理状态会通过自主神经系统表现在身体反应上；而只要把这个方向反过来，也可以通过身体动作去影响自主神经系统，让内心朝相反方向调整。",
         "kana": "そもそも、こころのじょうたいというものは、じりつしんけいをとおしてしんたいのはんのうへとあらわれてくるものなのですが、こうしたさようをぎゃくてんさせてやることで、しんたいのうごきからじりつしんけいにたいして、ぎゃくのあぷろうちをかけていくことができるのです。",
         "ruby": "そもそも、<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>状態</rb><rt>じょうたい</rt></ruby>というものは、<ruby data-auto-furi=\"1\"><rb>自律</rb><rt>じりつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>神経</rb><rt>しんけい</rt></ruby><ruby data-auto-furi=\"1\"><rb>を通して</rb><rt>をとおして</rt></ruby><ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>反応</rb><rt>はんのう</rt></ruby>へと<ruby data-auto-furi=\"1\"><rb>現れ</rb><rt>あらわれ</rt></ruby>てくるものなのですが、こうした<ruby data-auto-furi=\"1\"><rb>作用</rb><rt>さよう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>逆転</rb><rt>ぎゃくてん</rt></ruby>させてやることで、<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>動き</rb><rt>うごき</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>自律</rb><rt>じりつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>神経</rb><rt>しんけい</rt></ruby><ruby data-auto-furi=\"1\"><rb>に対して</rb><rt>にたいして</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>逆</rb><rt>ぎゃく</rt></ruby>のアプローチをかけていくことができるのです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "6.0": {
-        "text": "（注）自主神经：不顾意志而自动调整身体机能的神经。",
+        "text": "（注）自律神经：不受本人意志控制、会自动调节身体机能的神经。",
         "kana": "(ちゅう) じりつしんけい：いしとはむかんけいに、しんたいのきのうをじどうてきにちょうせつするしんけい",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>) <ruby data-auto-furi=\"1\"><rb>自律</rb><rt>じりつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>神経</rb><rt>しんけい</rt></ruby>：<ruby data-auto-furi=\"1\"><rb>意志</rb><rt>いし</rt></ruby>とは<ruby data-auto-furi=\"1\"><rb>無関係</rb><rt>むかんけい</rt></ruby>に、<ruby data-auto-furi=\"1\"><rb>身体</rb><rt>しんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>機能</rb><rt>きのう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>自動的</rb><rt>じどうてき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>調節</rb><rt>ちょうせつ</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>神経</rb><rt>しんけい</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "1.11:p1:q60:question": {
@@ -3729,235 +3729,235 @@
     },
     "1.12:p1": {
       "0.0": {
-        "text": "将棋和人类之间的竞争不仅仅是在棋盘上展示彼此的能力（注1）。",
+        "text": "将棋与人类之间的胜负，并不只是把彼此的实力摆到棋盘上直接较量（注1）。",
         "kana": "にんげんどうしのしょうぎ、しょうぶというのは、ただばんじょう(ちゅう1)でのうりょくをはっきしあうだけのものではありません。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>同士</rb><rt>どうし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>将棋</rb><rt>しょうぎ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>勝負</rb><rt>しょうぶ</rt></ruby>というのは、ただ<ruby data-auto-furi=\"1\"><rb>盤上</rb><rt>ばんじょう</rt></ruby>(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1)で<ruby data-auto-furi=\"1\"><rb>能力</rb><rt>のうりょく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>発揮</rb><rt>はっき</rt></ruby>し<ruby data-auto-furi=\"1\"><rb>合う</rb><rt>あう</rt></ruby>だけのものではありません。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.1": {
-        "text": "到达那里总是有一个过程。",
+        "text": "在真正走到那一步之前，总会存在一个过程。",
         "kana": "かならずそこにいたるまでのぷろせすがあります。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>必ず</rb><rt>かならず</rt></ruby>そこに<ruby data-auto-furi=\"1\"><rb>至る</rb><rt>いたる</rt></ruby>までのプロセスがあります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.2": {
-        "text": "当你要和一个强大的对手战斗时，你可能会感到压力，或者你可能会感到灰心，失去了学习的欲望，心想：“哦，那是一个很强的对手。”",
+        "text": "当你即将面对强敌时，难免会感到压力，也可能因为一句“对手太强了”而泄气，甚至失去继续钻研的动力。",
         "kana": "つよいあいてとたたかうことになってぷれっしゃあをうけたり、「ああ、きびしいあいてだなあ」といしゅくしてしまってべんきょうのいよくがへったりすることだってあります。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>強い</rb><rt>つよい</rt></ruby><ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>戦う</rb><rt>たたかう</rt></ruby>ことになってプレッシャーを<ruby data-auto-furi=\"1\"><rb>受け</rb><rt>うけ</rt></ruby>たり、「ああ、<ruby data-auto-furi=\"1\"><rb>厳しい</rb><rt>きびしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>だなあ」と<ruby data-auto-furi=\"1\"><rb>萎縮</rb><rt>いしゅく</rt></ruby>してしまって<ruby data-auto-furi=\"1\"><rb>勉強</rb><rt>べんきょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>意欲</rb><rt>いよく</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>減っ</rb><rt>へっ</rt></ruby>たりすることだってあります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.3": {
-        "text": "然而，我与自己的思想作斗争并想：“这不好”，然后我就整理了一切，直到比赛的日子终于到来。",
+        "text": "可我会一边和这样的自己较劲，一边提醒自己“这样不行”，不断整理心态，直到比赛当天终于到来。",
         "kana": "でも、「それじゃだめだ」とじぶんのこころとたたかったり、せいりをつけたりしてさいしゅうてきにたいきょくとうじつをむかえる。",
         "ruby": "でも、「それじゃダメだ」と<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>心</rb><rt>こころ</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>戦っ</rb><rt>たたかっ</rt></ruby>たり、<ruby data-auto-furi=\"1\"><rb>整理</rb><rt>せいり</rt></ruby>をつけたりして<ruby data-auto-furi=\"1\"><rb>最終</rb><rt>さいしゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>対局</rb><rt>たいきょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>当日</rb><rt>とうじつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>迎える</rb><rt>むかえる</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.4": {
-        "text": "当然（注2）上面的战斗也很困难，但我总是提前采取这些步骤。",
+        "text": "当然，到了棋盘上的实战（注2）同样艰难，但在那之前，我总是会先经历这样一番内心过程。",
         "kana": "もちろん (ちゅう2)じょうのたたかいもすごくたいへんなのですが、かならずじぜんにそういうすてっぷをふんでいます。",
         "ruby": "もちろん (<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>2)<ruby data-auto-furi=\"1\"><rb>上</rb><rt>じょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>戦い</rb><rt>たたかい</rt></ruby>もすごく<ruby data-auto-furi=\"1\"><rb>大変</rb><rt>たいへん</rt></ruby>なのですが、<ruby data-auto-furi=\"1\"><rb>必ず</rb><rt>かならず</rt></ruby><ruby data-auto-furi=\"1\"><rb>事前</rb><rt>じぜん</rt></ruby>にそういうステップを<ruby data-auto-furi=\"1\"><rb>踏ん</rb><rt>ふん</rt></ruby>でいます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "1.0": {
-        "text": "人的力量不仅是在与他人的斗争中诞生和发展的，也是在与自己的斗争中产生的。",
+        "text": "人的力量，不仅诞生并成长于与他人的较量之中，也同样产生于与自己的斗争之中。",
         "kana": "にんげんのつよさというのは、たにんとのたたかいはもちろんですが、じぶんじしんとのたたかいによってもうまれ、そだっていくものなのです。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>強</rb><rt>つよ</rt></ruby>さというのは、<ruby data-auto-furi=\"1\"><rb>他人</rb><rt>たにん</rt></ruby>との<ruby data-auto-furi=\"1\"><rb>戦い</rb><rt>たたかい</rt></ruby>はもちろんですが、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby><ruby data-auto-furi=\"1\"><rb>自身</rb><rt>じしん</rt></ruby>との<ruby data-auto-furi=\"1\"><rb>戦い</rb><rt>たたかい</rt></ruby>によっても<ruby data-auto-furi=\"1\"><rb>生まれ</rb><rt>うまれ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>育っ</rb><rt>そだっ</rt></ruby>ていくものなのです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.0": {
-        "text": "另外，人会感到疲倦，注意力不能永远持续。",
+        "text": "而且，人会疲惫，集中力也不可能永远持续。",
         "kana": "それに、にんげんはつかれもかんじるし、しゅうちゅうりょくもえいえんにはつづきません。",
         "ruby": "それに、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>疲れ</rb><rt>つかれ</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>感じる</rb><rt>かんじる</rt></ruby>し、<ruby data-auto-furi=\"1\"><rb>集中</rb><rt>しゅうちゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>りょく</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>永遠</rb><rt>えいえん</rt></ruby>には<ruby data-auto-furi=\"1\"><rb>続き</rb><rt>つづき</rt></ruby>ません。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "2.1": {
-        "text": "我多次判断失误。",
+        "text": "我自己也曾多次出现判断失误。",
         "kana": "はんだんみすだってなんどもします。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>判断</rb><rt>はんだん</rt></ruby>ミスだって<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なん</rt></ruby><ruby data-auto-furi=\"1\"><rb>度</rb><rt>ど</rt></ruby>もします。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.0": {
-        "text": "然而，就是这么一个小人物，却克服了自己的急躁和痛苦，打出了一场让观众感动和惊喜的比赛。",
+        "text": "可正因为人会急躁、会痛苦、会摇摆，所以当一个人克服了这些脆弱，下出令观众惊叹、感动的一局时，那份震撼才格外真实。",
         "kana": "しかし、そんなちっぽけないちにんのにんげんがあせりやくるしさをのりこえて、みているがわがかんどうしたり、あっとおどろくようなしょうぶをしたりする。",
         "ruby": "しかし、そんなちっぽけな<ruby data-auto-furi=\"1\"><rb>一</rb><rt>いち</rt></ruby><ruby data-auto-furi=\"1\"><rb>人</rb><rt>にん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>焦り</rb><rt>あせり</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>苦し</rb><rt>くるし</rt></ruby>さを<ruby data-auto-furi=\"1\"><rb>乗り越え</rb><rt>のりこえ</rt></ruby>て、<ruby data-auto-furi=\"1\"><rb>観</rb><rt>み</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>側</rb><rt>がわ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>感動</rb><rt>かんどう</rt></ruby>したり、あっと<ruby data-auto-furi=\"1\"><rb>驚く</rb><rt>おどろく</rt></ruby>ような<ruby data-auto-furi=\"1\"><rb>勝負</rb><rt>しょうぶ</rt></ruby>をしたりする。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "3.1": {
-        "text": "我认为这才是人类将棋真正的刺激之处。",
+        "text": "我认为，这才是人类将棋真正令人着迷的地方。",
         "kana": "それこそがにんげんのしょうぎのだいごみだとおもうのです。",
         "ruby": "それこそが<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>将棋</rb><rt>しょうぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>醍醐味</rb><rt>だいごみ</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>のです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "4.0": {
-        "text": "（省略）",
+        "text": "（中略）",
         "kana": "(ちゅうりゃく)",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>中略</rb><rt>ちゅうりゃく</rt></ruby>)",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "5.0": {
-        "text": "人们常说计算机不必让你担心或给你压力。",
+        "text": "人们常说，电脑既不会焦虑，也不会承受压力。",
         "kana": "よくいわれることですが、こんぴゅうたあになやみやぷれっしゃあはありません。",
         "ruby": "よく<ruby data-auto-furi=\"1\"><rb>言わ</rb><rt>いわ</rt></ruby>れることですが、コンピューターに<ruby data-auto-furi=\"1\"><rb>悩み</rb><rt>なやみ</rt></ruby>やプレッシャーはありません。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "5.1": {
-        "text": "无论计算机多么强大，它们都无法克服我之前提到的人类流程。",
+        "text": "无论电脑有多强，它终究无法跨越我刚才所说的那种“人类过程”。",
         "kana": "いくらこんぴゅうたあがつよくても、さきほどのべたようなにんげんてきなぷろせすをのりこえてきているわけではない。",
         "ruby": "いくらコンピューターが<ruby data-auto-furi=\"1\"><rb>強く</rb><rt>つよく</rt></ruby>ても、<ruby data-auto-furi=\"1\"><rb>先</rb><rt>さき</rt></ruby>ほど<ruby data-auto-furi=\"1\"><rb>述べ</rb><rt>のべ</rt></ruby>たような<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>なプロセスを<ruby data-auto-furi=\"1\"><rb>乗り越え</rb><rt>のりこえ</rt></ruby>てきているわけではない。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "6.0": {
-        "text": "一台强大的计算机是根据开发者的编程（注3）能力来评价的，以及人类意义上的开发热情。",
+        "text": "一台强大的电脑，归根结底是按照开发者的编程能力（注3），以及从人的角度说的开发热情来被评价的。",
         "kana": "つよいこんぴゅうたあというのは、かいはつしゃのぷろぐらみんぐ(ちゅう3)のうりょく、またにんげんてきないみでいえばかいはつにかけるじょうねつとか、そういうものがひょうかされています。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>強い</rb><rt>つよい</rt></ruby>コンピューターというのは、<ruby data-auto-furi=\"1\"><rb>開発</rb><rt>かいはつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>のプログラミング(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>3)<ruby data-auto-furi=\"1\"><rb>能力</rb><rt>のうりょく</rt></ruby>、また<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>意味</rb><rt>いみ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>言え</rb><rt>いえ</rt></ruby>ば<ruby data-auto-furi=\"1\"><rb>開発</rb><rt>かいはつ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>懸ける</rb><rt>かける</rt></ruby><ruby data-auto-furi=\"1\"><rb>情熱</rb><rt>じょうねつ</rt></ruby>とか、そういうものが<ruby data-auto-furi=\"1\"><rb>評価</rb><rt>ひょうか</rt></ruby>されています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "6.1": {
-        "text": "但是，我认为这是基于与人类将棋的力量不同的轴。",
+        "text": "但我认为，那终究是与人类将棋的力量不同的一条评价轴。",
         "kana": "ただそれは、にんげんのしょうぎのつよさとはべつのじくにあるものだとおもうのです。",
         "ruby": "ただそれは、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>将棋</rb><rt>しょうぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>強</rb><rt>つよ</rt></ruby>さとは<ruby data-auto-furi=\"1\"><rb>別</rb><rt>べつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>軸</rb><rt>じく</rt></ruby>にあるものだと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>のです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.0": {
-        "text": "这些不可调和的完全不同的力量（注4）相互对抗的游戏是将棋玩家（注5）和计算机之间的游戏。",
+        "text": "将棋棋手与电脑之间的对局，正是这样两种根本无法相互替代、性质完全不同的力量（注4）之间的对抗。",
         "kana": "そのあいいれない(ちゅう4)まったくべつもののつよさをきそわせたのが、きし(ちゅう5)たいこんぴゅうたあせんです。",
         "ruby": "その<ruby data-auto-furi=\"1\"><rb>相容れない</rb><rt>あいいれない</rt></ruby>(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>4)まったく<ruby data-auto-furi=\"1\"><rb>別物</rb><rt>べつもの</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>強</rb><rt>つよ</rt></ruby>さを<ruby data-auto-furi=\"1\"><rb>競わ</rb><rt>きそわ</rt></ruby>せたのが、<ruby data-auto-furi=\"1\"><rb>棋士</rb><rt>きし</rt></ruby>(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>5)<ruby data-auto-furi=\"1\"><rb>対</rb><rt>たい</rt></ruby>コンピューター<ruby data-auto-furi=\"1\"><rb>戦</rb><rt>せん</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "7.1": {
-        "text": "因此，即使计算机更强大，人类的力量也不会失去其吸引力或意义。",
+        "text": "因此，就算电脑更强，也不意味着人的力量就失去了魅力或意义。",
         "kana": "そのけっか、こんぴゅうたあのほうがつよかったとしても、にんげんのつよさがみりょくやいみをうしなうわけではないでしょう。",
         "ruby": "その<ruby data-auto-furi=\"1\"><rb>結果</rb><rt>けっか</rt></ruby>、コンピューターのほうが<ruby data-auto-furi=\"1\"><rb>強かっ</rb><rt>つよかっ</rt></ruby>たとしても、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>強</rb><rt>つよ</rt></ruby>さが<ruby data-auto-furi=\"1\"><rb>魅力</rb><rt>みりょく</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>意味</rb><rt>いみ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>失う</rb><rt>うしなう</rt></ruby>わけではないでしょう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "8.0": {
-        "text": "当然，我可以理解如果将棋选手输给电脑，粉丝们会多么失望。",
+        "text": "当然，我也能理解，若将棋棋手输给电脑，棋迷们会有多失落。",
         "kana": "もちろん、きしがこんぴゅうたあにまけたら、ふぁんのほうががっかりするきもちもわかります。",
         "ruby": "もちろん、<ruby data-auto-furi=\"1\"><rb>棋士</rb><rt>きし</rt></ruby>がコンピューターに<ruby data-auto-furi=\"1\"><rb>負け</rb><rt>まけ</rt></ruby>たら、ファンの<ruby data-auto-furi=\"1\"><rb>方</rb><rt>ほう</rt></ruby>がガッカリする<ruby data-auto-furi=\"1\"><rb>気持ち</rb><rt>きもち</rt></ruby>もわかります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "8.1": {
-        "text": "到现在为止，我已经观看了人类之间的精彩战斗，体验了最强将棋选手的伟大。",
+        "text": "毕竟我们至今一直在观看人类之间那些精彩的较量，切身感受过顶尖棋手的伟大。",
         "kana": "いままでにんげんどうしのすばらしいたたかいをみてきて、さいきょうきしのすごさをたいかんしてきた。",
         "ruby": "いままで<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>同士</rb><rt>どうし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>素晴らしい</rb><rt>すばらしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>戦い</rb><rt>たたかい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>観</rb><rt>み</rt></ruby>てきて、<ruby data-auto-furi=\"1\"><rb>最強</rb><rt>さいきょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>棋士</rb><rt>きし</rt></ruby>のすごさを<ruby data-auto-furi=\"1\"><rb>体感</rb><rt>たいかん</rt></ruby>してきた。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "8.2": {
-        "text": "在这种情况下，如果一个叫做软件的新实体出现并被它击败，我认为人类感到失望是很自然的，因为我们是情感生物。",
+        "text": "在这种情况下，若一个名为“软件”的新存在出现并击败了人类，作为情感动物的人会因此失落，我认为再自然不过。",
         "kana": "そういうなかでそふとというあたらしいそんざいがでてきてそれにまかされたら、にんげんはかんじょうのいきものであるいじょう、らくたんするのもとうぜんだとおもうのです。",
         "ruby": "そういう<ruby data-auto-furi=\"1\"><rb>中</rb><rt>なか</rt></ruby>でソフトという<ruby data-auto-furi=\"1\"><rb>新しい</rb><rt>あたらしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>存在</rb><rt>そんざい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>出</rb><rt>で</rt></ruby>てきてそれに<ruby data-auto-furi=\"1\"><rb>負かさ</rb><rt>まかさ</rt></ruby>れたら、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>感情</rb><rt>かんじょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>生き物</rb><rt>いきもの</rt></ruby>である<ruby data-auto-furi=\"1\"><rb>以上</rb><rt>いじょう</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>落胆</rb><rt>らくたん</rt></ruby>するのも<ruby data-auto-furi=\"1\"><rb>当然</rb><rt>とうぜん</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>のです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "9.0": {
-        "text": "有什么让你兴奋和感动的事情？",
+        "text": "但究竟是什么，真正让我们热血沸腾、深受感动呢？",
         "kana": "いままでじぶんがこうふんやかんどうしてきたものはなにだったのだ、と。",
         "ruby": "いままで<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>興奮</rb><rt>こうふん</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>感動</rb><rt>かんどう</rt></ruby>してきたものは<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>だったのだ、と。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "10.0": {
-        "text": "然而，现实中，人和计算机的强弱不是可以衡量的，但我认为各有各的独特之处。",
+        "text": "在现实中，人和电脑的强弱其实并不是能够放在同一尺度上衡量的，我认为双方各有各的独特价值。",
         "kana": "ただじつは、にんげんとこんぴゅうたあのつよさというのははかりにかけるものではなくて、それぞれがこゆうのよさをもっているものだとおもうのです。",
         "ruby": "ただ<ruby data-auto-furi=\"1\"><rb>実は</rb><rt>じつは</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>とコンピューターの<ruby data-auto-furi=\"1\"><rb>強</rb><rt>つよ</rt></ruby>さというのは<ruby data-auto-furi=\"1\"><rb>秤</rb><rt>はかり</rt></ruby>にかけるものではなくて、それぞれが<ruby data-auto-furi=\"1\"><rb>固有</rb><rt>こゆう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>良</rb><rt>よ</rt></ruby>さを<ruby data-auto-furi=\"1\"><rb>持っ</rb><rt>もっ</rt></ruby>ているものだと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>のです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.0": {
-        "text": "人与人，人与计算机，计算机与计算机。",
+        "text": "人与人、人与电脑、电脑与电脑。",
         "kana": "にんげんたいにんげん、にんげんたいこんぴゅうたあ、こんぴゅうたあたいこんぴゅうたあ。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>対</rb><rt>たい</rt></ruby><ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>対</rb><rt>たい</rt></ruby>コンピューター、コンピューター<ruby data-auto-furi=\"1\"><rb>対</rb><rt>たい</rt></ruby>コンピューター。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.1": {
-        "text": "我觉得大致可以分为这三者，但各自都有自己独立的魅力，而且互不抑制。",
+        "text": "大致可以分成这三种对局，而每一种都有各自独立的魅力，并不会彼此抵消。",
         "kana": "おおきくわければこのみっつになるとおもいますが、これらはそれぞれにどくりつしたみりょくがあって、おたがいをそがいするものではありません。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>大きく</rb><rt>おおきく</rt></ruby><ruby data-auto-furi=\"1\"><rb>分けれ</rb><rt>わけれ</rt></ruby>ばこの<ruby data-auto-furi=\"1\"><rb>三つ</rb><rt>みっつ</rt></ruby>になると<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby>ますが、これらはそれぞれに<ruby data-auto-furi=\"1\"><rb>独立</rb><rt>どくりつ</rt></ruby>した<ruby data-auto-furi=\"1\"><rb>魅力</rb><rt>みりょく</rt></ruby>があって、<ruby data-auto-furi=\"1\"><rb>お互い</rb><rt>おたがい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>阻害</rb><rt>そがい</rt></ruby>するものではありません。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "11.2": {
-        "text": "我认为单独考虑这些很重要。",
+        "text": "因此，我认为有必要把它们分别来看待。",
         "kana": "そこをわけてかんがえることがだいじなのではないでしょうか。",
         "ruby": "そこを<ruby data-auto-furi=\"1\"><rb>分け</rb><rt>わけ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>考える</rb><rt>かんがえる</rt></ruby>ことが<ruby data-auto-furi=\"1\"><rb>大事</rb><rt>だいじ</rt></ruby>なのではないでしょうか。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "12.0": {
-        "text": "彻底享受了这三个内容（注6）后，如果你觉得电脑对电脑的战斗最有趣，我认为没有理由不被人类的力量所吸引。",
+        "text": "如果在充分欣赏过这三种对局内容之后（注6），你仍觉得“电脑对电脑”最有意思，那当然也无可厚非。",
         "kana": "このみっつのこんてんつ (ちゅう6）をてっていてきにあじわいつくしたうえで、こんぴゅうたあたいこんぴゅうたあのたいせんがいちばんおもしろいとおもえば、にんげんのつよさにみりょくをかんじなくなってもしかたがないとはおもいます。",
         "ruby": "この<ruby data-auto-furi=\"1\"><rb>三つ</rb><rt>みっつ</rt></ruby>のコンテンツ (<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>6）を<ruby data-auto-furi=\"1\"><rb>徹底的</rb><rt>てっていてき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>味わい</rb><rt>あじわい</rt></ruby><ruby data-auto-furi=\"1\"><rb>尽くし</rb><rt>つくし</rt></ruby>たうえで、コンピューター<ruby data-auto-furi=\"1\"><rb>対</rb><rt>たい</rt></ruby>コンピューターの<ruby data-auto-furi=\"1\"><rb>対戦</rb><rt>たいせん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>一番</rb><rt>いちばん</rt></ruby><ruby data-auto-furi=\"1\"><rb>面白い</rb><rt>おもしろい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>思え</rb><rt>おもえ</rt></ruby>ば、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>強</rb><rt>つよ</rt></ruby>さに<ruby data-auto-furi=\"1\"><rb>魅力</rb><rt>みりょく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>感じ</rb><rt>かんじ</rt></ruby>なくなっても<ruby data-auto-furi=\"1\"><rb>仕方</rb><rt>しかた</rt></ruby>がないとは<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby>ます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "12.1": {
-        "text": "但如果不进行适当的比较，就认为人与人之间的关系的魅力会因为时代的潮流或微小的影响而减弱，那就太可惜了。",
+        "text": "但如果没有好好区分比较，就因为时代趋势或一时的冲击，认定“人与人的对局魅力会就此减弱”，那就太可惜了。",
         "kana": "でもきちんとひかくもせずに、なんとなくじだいのながれやちょっとしたいんぱくとだけで、にんげんたいにんげんのおもしろさのみりょくがうすらいだとおもうのはすごくもったいない。",
         "ruby": "でもきちんと<ruby data-auto-furi=\"1\"><rb>比較</rb><rt>ひかく</rt></ruby>もせずに、なんとなく<ruby data-auto-furi=\"1\"><rb>時代</rb><rt>じだい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>流れ</rb><rt>ながれ</rt></ruby>やちょっとしたインパクトだけで、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>対</rb><rt>たい</rt></ruby><ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>面白</rb><rt>おもしろ</rt></ruby>さの<ruby data-auto-furi=\"1\"><rb>魅力</rb><rt>みりょく</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>薄らい</rb><rt>うすらい</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>のはすごくもったいない。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "13.0": {
-        "text": "（注1）棋盘：这是将棋的棋盘。",
+        "text": "（注1）盤上：此处指将棋盘面。",
         "kana": "(ちゅう1)ばん:ここでは、しょうぎをするだい",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>1)<ruby data-auto-furi=\"1\"><rb>盤</rb><rt>ばん</rt></ruby>:ここでは、<ruby data-auto-furi=\"1\"><rb>将棋</rb><rt>しょうぎ</rt></ruby>をする<ruby data-auto-furi=\"1\"><rb>台</rb><rt>だい</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "14.0": {
-        "text": "（注2）游戏：这里，游戏",
+        "text": "（注2）勝負：此处指对局本身。",
         "kana": "(ちゅう2)たいきょく: ここでは、しょうぶ",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>2)<ruby data-auto-furi=\"1\"><rb>対局</rb><rt>たいきょく</rt></ruby>: ここでは、<ruby data-auto-furi=\"1\"><rb>勝負</rb><rt>しょうぶ</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "15.0": {
-        "text": "(注3) 编程：创建计算机程序。",
+        "text": "（注3）プログラミング：编写计算机程序。",
         "kana": "(ちゅう3)ぷろぐらみんぐ: こんぴゅうたあのぷろぐらむをつくること。",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>3)プログラミング: コンピューターのプログラムを<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby>こと。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "16.0": {
-        "text": "(注4) 不兼容：这里，属性不同。",
+        "text": "（注4）相いれない：此处指“性质不同、无法相容”。",
         "kana": "(ちゅう4)あいいれない: ここでは、せいしつがことなる。",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>4)<ruby data-auto-furi=\"1\"><rb>相容れない</rb><rt>あいいれない</rt></ruby>: ここでは、<ruby data-auto-furi=\"1\"><rb>性質</rb><rt>せいしつ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>異なる</rb><rt>ことなる</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "17.0": {
-        "text": "(注5) 将棋手：以将棋为职业的人。",
+        "text": "（注5）棋士：以将棋为职业的人。",
         "kana": "(ちゅう5)きし: しょくぎょうとしてしょうぎをするひと。",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>5)<ruby data-auto-furi=\"1\"><rb>棋士</rb><rt>きし</rt></ruby>: <ruby data-auto-furi=\"1\"><rb>職業</rb><rt>しょくぎょう</rt></ruby>として<ruby data-auto-furi=\"1\"><rb>将棋</rb><rt>しょうぎ</rt></ruby>をする<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "18.0": {
-        "text": "（注6）内容：这里是匹配的内容",
+        "text": "（注6）コンテンツ：此处指对局这种内容本身。",
         "kana": "(ちゅう6)こんてんつ: ここでは、たいせんのないよう",
         "ruby": "(<ruby data-auto-furi=\"1\"><rb>注</rb><rt>ちゅう</rt></ruby>6)コンテンツ: ここでは、<ruby data-auto-furi=\"1\"><rb>対戦</rb><rt>たいせん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>内容</rb><rt>ないよう</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "1.12:p1:q62:question": {
@@ -4097,11 +4097,11 @@
     },
     "1.13:p1:q65:question": {
       "0.0": {
-        "text": "以下四个组织由玉北市居民组成，正在考虑将来提供以下课程。其中哪些机构可以报读“公民规划课程”？",
+        "text": "下面四个由玉北市市民组成的团体，正在考虑今后开设下列讲座。请问其中哪些团体可以申请“市民策划讲座”？",
         "kana": "つぎの4つのだんたいは、たまきたいちざいじゅうしゃによるだんたいで、こんご、いかのこうざのかいこうをけんとうしている。このなかで「しみんきかくこうざ」におうぼできるのはどのだんたいか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の4つの<ruby data-auto-furi=\"1\"><rb>団体</rb><rt>だんたい</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>玉</rb><rt>たま</rt></ruby><ruby data-auto-furi=\"1\"><rb>北市</rb><rt>きたいち</rt></ruby><ruby data-auto-furi=\"1\"><rb>在住</rb><rt>ざいじゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>による<ruby data-auto-furi=\"1\"><rb>団体</rb><rt>だんたい</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>今後</rb><rt>こんご</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>以下</rb><rt>いか</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>講座</rb><rt>こうざ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>開講</rb><rt>かいこう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>検討</rb><rt>けんとう</rt></ruby>している。この<ruby data-auto-furi=\"1\"><rb>中</rb><rt>なか</rt></ruby>で「<ruby data-auto-furi=\"1\"><rb>市民</rb><rt>しみん</rt></ruby><ruby data-auto-furi=\"1\"><rb>企画</rb><rt>きかく</rt></ruby><ruby data-auto-furi=\"1\"><rb>講座</rb><rt>こうざ</rt></ruby>」に<ruby data-auto-furi=\"1\"><rb>応募</rb><rt>おうぼ</rt></ruby>できるのはどの<ruby data-auto-furi=\"1\"><rb>団体</rb><rt>だんたい</rt></ruby>か。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "1.13:p1:q65:option1": {
@@ -4142,11 +4142,11 @@
     },
     "1.13:p1:q66:question": {
       "0.0": {
-        "text": "田村先生是某个组织的代表，他想第一次申请“公民规划课程”。我正在寻找外部教练，但是在寻找教练时我应该注意什么？",
+        "text": "田村先生是某团体的负责人，想第一次申请“市民策划讲座”。他打算邀请外部讲师，那么在邀请讲师时需要注意什么？",
         "kana": "たむらさんはあるだんたいのだいひょうしゃをつとめており、こんかいはじめて「しみんきかくこうざ」におうぼしたいとかんがえている。がいぶのこうしをさがしているが、こうしについてりゅういしなければならないことはなにか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>田村</rb><rt>たむら</rt></ruby>さんはある<ruby data-auto-furi=\"1\"><rb>団体</rb><rt>だんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>代表</rb><rt>だいひょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>務め</rb><rt>つとめ</rt></ruby>ており、<ruby data-auto-furi=\"1\"><rb>今回</rb><rt>こんかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>初めて</rb><rt>はじめて</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>市民</rb><rt>しみん</rt></ruby><ruby data-auto-furi=\"1\"><rb>企画</rb><rt>きかく</rt></ruby><ruby data-auto-furi=\"1\"><rb>講座</rb><rt>こうざ</rt></ruby>」に<ruby data-auto-furi=\"1\"><rb>応募</rb><rt>おうぼ</rt></ruby>したいと<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>ている。<ruby data-auto-furi=\"1\"><rb>外部</rb><rt>がいぶ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探し</rb><rt>さがし</rt></ruby>ているが、<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>について<ruby data-auto-furi=\"1\"><rb>留意</rb><rt>りゅうい</rt></ruby>しなければならないことは<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>か。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "1.13:p1:q66:option1": {
@@ -4352,53 +4352,53 @@
     },
     "2.01:p1:q2:script": {
       "0.0": {
-        "text": "一个想要收养猫的男性和一个猫保护组织的人正在通电话。这之后男性应该先做什么？",
+        "text": "一名想领养猫的男子正在和猫咪保护团体的工作人员通电话。接下来，这名男子首先该做什么？",
         "kana": "でんわでねこをかいたいおとこのひととねこのほごしゃだんたいのひとがはなしています。おとこのひとはこののち、まずなにをしなければなりませんか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>電話</rb><rt>でんわ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>飼い</rb><rt>かい</rt></ruby>たい<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>保護</rb><rt>ほご</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby><ruby data-auto-furi=\"1\"><rb>団体</rb><rt>だんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>、まず<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしなければなりませんか？",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.1": {
-        "text": "你好，我在你的主页上看到了一张猫的照片。嗯，我想养一只猫。我应该怎么办？",
+        "text": "您好，我是在你们网站上看到猫的照片的。我想养一只猫，请问该怎么做呢？",
         "kana": "もしもし、ほうむぺえじでねこのしゃしんをみました。あの～、ねこをかいたいんですが。どうすればいいですか？",
         "ruby": "もしもし、ホームページで<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>写真</rb><rt>しゃしん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>ました。あの～、<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>飼い</rb><rt>かい</rt></ruby>たいんですが。どうすればいいですか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.2": {
-        "text": "是的，我们的组织充当了无家可归的猫和想要饲养它们的人之间的桥梁。首先，请在我们的主页上填写并提交申请表。申请前请仔细阅读网站介绍页面上的养猫条件。",
+        "text": "好的。我们这个团体的职责，是为无家可归的猫和希望收养它们的人牵线搭桥。首先，请您在我们的网站上填写并提交申请表。在申请之前，也请先仔细阅读网站说明页面上的养猫条件。",
         "kana": "はい、わたしたちのだんたいはかいぬしのいないほごねことかいたいほうのはしわたしをしています。まずはわたしどものほうむぺえじのおうぼふぉうむにごきにゅうご、そうしんいただきます。さいとのしょうかいぺえじでねこのじょうとのじょうけんをよくごらんになってから、おうぼおねがいします。",
         "ruby": "はい、<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>たちの<ruby data-auto-furi=\"1\"><rb>団体</rb><rt>だんたい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>飼い主</rb><rt>かいぬし</rt></ruby>のいない<ruby data-auto-furi=\"1\"><rb>保護</rb><rt>ほご</rt></ruby><ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>飼い</rb><rt>かい</rt></ruby>たい<ruby data-auto-furi=\"1\"><rb>方</rb><rt>ほう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>橋渡し</rb><rt>はしわたし</rt></ruby>をしています。まずは<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>どものホームページの<ruby data-auto-furi=\"1\"><rb>応募</rb><rt>おうぼ</rt></ruby>フォームにご<ruby data-auto-furi=\"1\"><rb>記入</rb><rt>きにゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>後</rb><rt>ご</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>送信</rb><rt>そうしん</rt></ruby>いただきます。サイトの<ruby data-auto-furi=\"1\"><rb>紹介</rb><rt>しょうかい</rt></ruby>ページで<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>譲渡</rb><rt>じょうと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>条件</rb><rt>じょうけん</rt></ruby>をよく<ruby data-auto-furi=\"1\"><rb>ご覧</rb><rt>ごらん</rt></ruby>になってから、<ruby data-auto-furi=\"1\"><rb>応募</rb><rt>おうぼ</rt></ruby><ruby data-auto-furi=\"1\"><rb>お願い</rb><rt>おねがい</rt></ruby>します。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.3": {
-        "text": "啊，原来如此。明白了。嗯，我什么时候可以见到猫？",
+        "text": "原来如此，我明白了。那我什么时候可以见到那只猫呢？",
         "kana": "あ、そうなんですね。わかりました。あの、ねこにはいつあえるんですか？",
         "ruby": "あ、そうなんですね。<ruby data-auto-furi=\"1\"><rb>分かり</rb><rt>わかり</rt></ruby>ました。あの、<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>にはいつ<ruby data-auto-furi=\"1\"><rb>会える</rb><rt>あえる</rt></ruby>んですか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.4": {
-        "text": "如果筛选通过，我们会面谈，但在此之前，请提交文件以确认您的家是否适合养猫。我们还要求您在面对面会议之前参加培训课程。",
+        "text": "如果初步审核通过，我们会安排面谈。不过在那之前，请先提交能够确认您家中是否适合养猫的相关资料。另外，我们也要求您在面谈前参加一次说明讲座。",
         "kana": "しんさがとおればたいめんになりますが、そのまえに、ごじたくがねこをそだてられるかんきょうかどうかかくにんできるしりょうのていしゅつをおねがいします。また、たいめんするまえにはこうしゅうかいのじゅこうをおねがいしています。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>審査</rb><rt>しんさ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>通れ</rb><rt>とおれ</rt></ruby>ば<ruby data-auto-furi=\"1\"><rb>対面</rb><rt>たいめん</rt></ruby>になりますが、その<ruby data-auto-furi=\"1\"><rb>前</rb><rt>まえ</rt></ruby>に、ご<ruby data-auto-furi=\"1\"><rb>自宅</rb><rt>じたく</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>育て</rb><rt>そだて</rt></ruby>られる<ruby data-auto-furi=\"1\"><rb>環境</rb><rt>かんきょう</rt></ruby>かどうか<ruby data-auto-furi=\"1\"><rb>確認</rb><rt>かくにん</rt></ruby>できる<ruby data-auto-furi=\"1\"><rb>資料</rb><rt>しりょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>提出</rb><rt>ていしゅつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>お願い</rb><rt>おねがい</rt></ruby>します。また、<ruby data-auto-furi=\"1\"><rb>対面</rb><rt>たいめん</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>前</rb><rt>まえ</rt></ruby>には<ruby data-auto-furi=\"1\"><rb>講習</rb><rt>こうしゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>会</rb><rt>かい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>受講</rb><rt>じゅこう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>お願い</rb><rt>おねがい</rt></ruby>しています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.5": {
-        "text": "是的，原来如此。",
+        "text": "好的，我知道了。",
         "kana": "はい、わかりました。",
         "ruby": "はい、<ruby data-auto-furi=\"1\"><rb>分かり</rb><rt>わかり</rt></ruby>ました。",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.6": {
-        "text": "男性首先应该做什么？",
+        "text": "这名男子首先该做什么？",
         "kana": "おとこのひとはこののちまず、なにをしなければなりませんか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>はこの<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>まず、<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしなければなりませんか？",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "2.01:p1:q3:option1": {
@@ -5153,81 +5153,81 @@
     },
     "2.02:p1:q5:script": {
       "0.0": {
-        "text": "在一家制鞋公司，一名男子和一名经理正在谈论跑鞋。您将在下一个跑鞋原型中做出哪些改变？",
+        "text": "在一家制鞋公司，一名男员工正在和主管讨论跑鞋。下一版跑鞋样品要改动什么？",
         "kana": "くつをつくるかいしゃで、おとこのひととぶちょうがらんにんぐしゅうずについてはなしています。らんにんぐしゅうずのつぎのしさくひんではなにをかえますか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>靴</rb><rt>くつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby><ruby data-auto-furi=\"1\"><rb>会社</rb><rt>かいしゃ</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>部長</rb><rt>ぶちょう</rt></ruby>がランニングシューズについて<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。ランニングシューズの<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>試作</rb><rt>しさく</rt></ruby><ruby data-auto-furi=\"1\"><rb>品</rb><rt>ひん</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>変え</rb><rt>かえ</rt></ruby>ますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.1": {
-        "text": "总监，我们新产品跑鞋的第一个样机已经完成了。解释材料在这里。",
+        "text": "主管，新款跑鞋的第一版样品已经做好了。相关说明资料在这里。",
         "kana": "ぶちょう、しんしょうひんのらんにんぐしゅうず、1かいめのしさくひんができあがりました。せつめいしりょうはこちらです。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>部長</rb><rt>ぶちょう</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>新</rb><rt>しん</rt></ruby><ruby data-auto-furi=\"1\"><rb>商品</rb><rt>しょうひん</rt></ruby>のランニングシューズ、1<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>試作</rb><rt>しさく</rt></ruby><ruby data-auto-furi=\"1\"><rb>品</rb><rt>ひん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>出来上がり</rb><rt>できあがり</rt></ruby>ました。<ruby data-auto-furi=\"1\"><rb>説明</rb><rt>せつめい</rt></ruby><ruby data-auto-furi=\"1\"><rb>資料</rb><rt>しりょう</rt></ruby>はこちらです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.2": {
-        "text": "我想让我的鞋底变得更硬，因为研究表明鞋底越硬，它们的反应越灵敏，你跑得越快。感觉比我预想的要软。我们可以使用更难一点的方法来收集数据吗？",
+        "text": "嗯。我想把鞋底再做硬一些。根据研究，鞋底越硬，回弹越直接，越有助于提升速度。现在这个感觉比我预想中要软。能不能换成更硬一点的材料，再做一次数据采集？",
         "kana": "くつのそこはかたいほうがはんぱつせいがたかまってはやくはしれるってちょうさけっかからかたくしたいんですよね。さわったかんじはおもったよりやわらかいですね。もうすこしかたさをましたものででえたとってみましょうか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>靴</rb><rt>くつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>底</rb><rt>そこ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>硬い</rb><rt>かたい</rt></ruby><ruby data-auto-furi=\"1\"><rb>方</rb><rt>ほう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>反発</rb><rt>はんぱつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>高まっ</rb><rt>たかまっ</rt></ruby>てはやく<ruby data-auto-furi=\"1\"><rb>走れる</rb><rt>はしれる</rt></ruby>って<ruby data-auto-furi=\"1\"><rb>調査</rb><rt>ちょうさ</rt></ruby><ruby data-auto-furi=\"1\"><rb>結果</rb><rt>けっか</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>硬く</rb><rt>かたく</rt></ruby>したいんですよね。<ruby data-auto-furi=\"1\"><rb>触っ</rb><rt>さわっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>感じ</rb><rt>かんじ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>たより<ruby data-auto-furi=\"1\"><rb>柔らかい</rb><rt>やわらかい</rt></ruby>ですね。<ruby data-auto-furi=\"1\"><rb>もう少し</rb><rt>もうすこし</rt></ruby><ruby data-auto-furi=\"1\"><rb>硬</rb><rt>かた</rt></ruby>さを<ruby data-auto-furi=\"1\"><rb>増し</rb><rt>まし</rt></ruby>たものでデータ<ruby data-auto-furi=\"1\"><rb>取っ</rb><rt>とっ</rt></ruby>てみましょうか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.3": {
-        "text": "没错。布料的颜色搭配又如何呢？我意识到色彩趋势。",
+        "text": "好的。那面料的配色怎么样？我参考了最近的流行趋势。",
         "kana": "そうですね。きじのいろのくみあわせはどうでしょうか？からあとれんどをいしきしました。",
         "ruby": "そうですね。<ruby data-auto-furi=\"1\"><rb>生地</rb><rt>きじ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>色</rb><rt>いろ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>組み合わせ</rb><rt>くみあわせ</rt></ruby>はどうでしょうか？カラートレンドを<ruby data-auto-furi=\"1\"><rb>意識</rb><rt>いしき</rt></ruby>しました。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.4": {
-        "text": "布料的颜色组合有点花哨。嗯，很吸引眼球，但是布料很薄。布料防水吗？",
+        "text": "这个配色稍微有点花。不过确实挺显眼。对了，面料本身很薄，防水性能怎么样？",
         "kana": "きじのいろのくみあわせ、ちょっとはでですね。まあ、めにとまっていいですけど、きじはずいぶんうすいですね。きじのぼうすいかこうはだいじょうぶですか？",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>生地</rb><rt>きじ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>色</rb><rt>いろ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>組み合わせ</rb><rt>くみあわせ</rt></ruby>、ちょっと<ruby data-auto-furi=\"1\"><rb>派手</rb><rt>はで</rt></ruby>ですね。まあ、<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>留まっ</rb><rt>とまっ</rt></ruby>ていいですけど、<ruby data-auto-furi=\"1\"><rb>生地</rb><rt>きじ</rt></ruby>はずいぶん<ruby data-auto-furi=\"1\"><rb>薄い</rb><rt>うすい</rt></ruby>ですね。<ruby data-auto-furi=\"1\"><rb>生地</rb><rt>きじ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>防水</rb><rt>ぼうすい</rt></ruby><ruby data-auto-furi=\"1\"><rb>加工</rb><rt>かこう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>大丈夫</rb><rt>だいじょうぶ</rt></ruby>ですか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.5": {
-        "text": "不能应对大雨，但可以应对小雨。说明材料中提供了详细信息。",
+        "text": "应付大雨还不行，但小雨没有问题。详细说明都写在资料里了。",
         "kana": "つよいあめにはたいおうできませんが、こさめていどなら。せつめいしりょうにしょうさいをのせています。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>強い</rb><rt>つよい</rt></ruby><ruby data-auto-furi=\"1\"><rb>雨</rb><rt>あめ</rt></ruby>には<ruby data-auto-furi=\"1\"><rb>対応</rb><rt>たいおう</rt></ruby>できませんが、<ruby data-auto-furi=\"1\"><rb>小雨</rb><rt>こさめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>程度</rb><rt>ていど</rt></ruby>なら。<ruby data-auto-furi=\"1\"><rb>説明</rb><rt>せつめい</rt></ruby><ruby data-auto-furi=\"1\"><rb>資料</rb><rt>しりょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>詳細</rb><rt>しょうさい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>載せ</rb><rt>のせ</rt></ruby>ています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.6": {
-        "text": "如果防水性太高，空气通道会变差。假设这很好。鞋带孔不是排在一条直线上，而是错开位置，以便鞋带可以系牢。",
+        "text": "如果过分强调防水，透气性就会变差。先按这样吧。还有，鞋带孔没有排成一条直线，而是做成了交错布局，这样鞋带会更不容易松。",
         "kana": "ぼうすいせいをたかめすぎるとくうきのとおりがわるくなるし。これでいいとしましょう。くつのひもをとおすあながまっすぐにならんでませんけど、あなのいちをずらしてしっかりひもがむすべるようにになっているんですね。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>防水</rb><rt>ぼうすい</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>高め</rb><rt>たかめ</rt></ruby>すぎると<ruby data-auto-furi=\"1\"><rb>空気</rb><rt>くうき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>通り</rb><rt>とおり</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>悪く</rb><rt>わるく</rt></ruby>なるし。これでいいとしましょう。<ruby data-auto-furi=\"1\"><rb>靴</rb><rt>くつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>紐</rb><rt>ひも</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>通す</rb><rt>とおす</rt></ruby><ruby data-auto-furi=\"1\"><rb>穴</rb><rt>あな</rt></ruby>がまっすぐに<ruby data-auto-furi=\"1\"><rb>並ん</rb><rt>ならん</rt></ruby>でませんけど、<ruby data-auto-furi=\"1\"><rb>穴</rb><rt>あな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>位置</rb><rt>いち</rt></ruby>をずらしてしっかり<ruby data-auto-furi=\"1\"><rb>紐</rb><rt>ひも</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>結べる</rb><rt>むすべる</rt></ruby>ようにになっているんですね。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.7": {
-        "text": "实验结果，孔位置是这样的。这使得绳子很难解开。",
+        "text": "实验结果显示，孔位这样安排效果最好。这样鞋带确实更不容易散开。",
         "kana": "じっけんのけっか、このようなあなのいちになりました。これですと、ひもがとけにくいです。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>実験</rb><rt>じっけん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>結果</rb><rt>けっか</rt></ruby>、このような<ruby data-auto-furi=\"1\"><rb>穴</rb><rt>あな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>位置</rb><rt>いち</rt></ruby>になりました。これですと、<ruby data-auto-furi=\"1\"><rb>紐</rb><rt>ひも</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>解け</rb><rt>とけ</rt></ruby>にくいです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.8": {
-        "text": "明白了。现在，请创建第二个原型。完成后，提交全体大会。",
+        "text": "明白了。那就按这个方向做第二版样品吧。做好以后再拿来参加整体评审。",
         "kana": "わかりました。では、2かいめのしさくひんのさくせい、おねがいします。できあがったらぜんたいのかいぎにだしてみましょう。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>分かり</rb><rt>わかり</rt></ruby>ました。では、2<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>試作</rb><rt>しさく</rt></ruby><ruby data-auto-furi=\"1\"><rb>品</rb><rt>ひん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>作成</rb><rt>さくせい</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>お願い</rb><rt>おねがい</rt></ruby>します。<ruby data-auto-furi=\"1\"><rb>出来上がっ</rb><rt>できあがっ</rt></ruby>たら<ruby data-auto-furi=\"1\"><rb>全体</rb><rt>ぜんたい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>会議</rb><rt>かいぎ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>出し</rb><rt>だし</rt></ruby>てみましょう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.9": {
-        "text": "是的。",
+        "text": "好的。",
         "kana": "はい。",
         "ruby": "はい。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.10": {
-        "text": "您将在下一个跑鞋原型中改变什么？",
+        "text": "下一版跑鞋样品要改动什么？",
         "kana": "らんにんぐしゅうずのつぎのしさくひんではなにをかえますか？",
         "ruby": "ランニングシューズの<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>試作</rb><rt>しさく</rt></ruby><ruby data-auto-furi=\"1\"><rb>品</rb><rt>ひん</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>変え</rb><rt>かえ</rt></ruby>ますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "2.02:p1:q6:option1": {
@@ -5348,95 +5348,95 @@
     },
     "2.03:p1:q1:script": {
       "0.0": {
-        "text": "导游正在自然公园入口处讲话。",
+        "text": "导游正在自然公园入口处向大家说明。",
         "kana": "しぜんこうえんのいりくちでがいどがはなしています。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>自然</rb><rt>しぜん</rt></ruby><ruby data-auto-furi=\"1\"><rb>公園</rb><rt>こうえん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>入り口</rb><rt>いりくち</rt></ruby>でガイドが<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.1": {
-        "text": "你好。我叫森田，是一名导游。谢谢。",
+        "text": "大家好，我叫森田，今天由我担任导游，请多关照。",
         "kana": "こんにちは。がいどのもりたです。よろしくおねがいします。",
         "ruby": "こんにちは。ガイドの<ruby data-auto-furi=\"1\"><rb>森田</rb><rt>もりた</rt></ruby>です。よろしく<ruby data-auto-furi=\"1\"><rb>お願い</rb><rt>おねがい</rt></ruby>します。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.2": {
-        "text": "嗯，在这个自然公园里你可以遇见珍稀的动植物。",
+        "text": "这座自然公园里生活着许多珍稀的动植物。",
         "kana": "ええ、このしぜんこうえんではめずらしいどうぶつやしょくぶつにであうことができます。",
         "ruby": "えー、この<ruby data-auto-furi=\"1\"><rb>自然</rb><rt>しぜん</rt></ruby><ruby data-auto-furi=\"1\"><rb>公園</rb><rt>こうえん</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>珍しい</rb><rt>めずらしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>動物</rb><rt>どうぶつ</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>植物</rb><rt>しょくぶつ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>出会う</rb><rt>であう</rt></ruby>ことができます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.3": {
-        "text": "尤其是冬天的这个时候，当树叶从树上落下来时，很容易找到野鸟。",
+        "text": "尤其是在现在这样的冬季，树叶落光之后，反而更容易发现野鸟。",
         "kana": "とくにふゆのいまのじきはきぎのはがおちているので、やちょうをさがしやすいです。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>特に</rb><rt>とくに</rt></ruby><ruby data-auto-furi=\"1\"><rb>冬</rb><rt>ふゆ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>今</rb><rt>いま</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>時期</rb><rt>じき</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>木々</rb><rt>きぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>葉</rb><rt>は</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>落ち</rb><rt>おち</rt></ruby>ているので、<ruby data-auto-furi=\"1\"><rb>野鳥</rb><rt>やちょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探し</rb><rt>さがし</rt></ruby>やすいです。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.4": {
-        "text": "散步时聆听野鸟的鸣叫声。",
+        "text": "大家散步时不妨也留意一下野鸟的叫声。",
         "kana": "さんさくしながら、やせいのことりたちのさえずりにみみをかたむけてみましょう。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>散策</rb><rt>さんさく</rt></ruby>しながら、<ruby data-auto-furi=\"1\"><rb>野生</rb><rt>やせい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>小鳥</rb><rt>ことり</rt></ruby>たちのさえずりに<ruby data-auto-furi=\"1\"><rb>耳</rb><rt>みみ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>傾け</rb><rt>かたむけ</rt></ruby>てみましょう。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.5": {
-        "text": "从现在开始，我们将沿着丛林中维护良好的长廊前进，但即使你没有双筒望远镜，你也可以用肉眼发现可爱的人物。",
+        "text": "接下来，我们会沿着林间维护完善的木栈道前进。即使没有望远镜，用肉眼也有机会发现那些可爱的身影。",
         "kana": "これからぞうきばやしのなかにせいびされたゆうほどうをすすみますが、そうがんきょうがなくてもにくがんでかわいいすがたをみつけられます。",
         "ruby": "これから<ruby data-auto-furi=\"1\"><rb>雑木林</rb><rt>ぞうきばやし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>中</rb><rt>なか</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>整備</rb><rt>せいび</rt></ruby>された<ruby data-auto-furi=\"1\"><rb>遊歩道</rb><rt>ゆうほどう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>進み</rb><rt>すすみ</rt></ruby>ますが、<ruby data-auto-furi=\"1\"><rb>双眼鏡</rb><rt>そうがんきょう</rt></ruby>がなくても<ruby data-auto-furi=\"1\"><rb>肉眼</rb><rt>にくがん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>可愛い</rb><rt>かわいい</rt></ruby><ruby data-auto-furi=\"1\"><rb>姿</rb><rt>すがた</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見つけ</rb><rt>みつけ</rt></ruby>られます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.6": {
-        "text": "每种类型都有自己独特的翅膀和喙，所以请看一下。",
+        "text": "不同种类的鸟，翅膀和鸟喙各有特点，大家可以仔细观察。",
         "kana": "しゅるいをみわけるにははねやくちばしがそれぞれとくちょうてきなので、ようすながめてみてください。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>種類</rb><rt>しゅるい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見分ける</rb><rt>みわける</rt></ruby>には<ruby data-auto-furi=\"1\"><rb>羽</rb><rt>はね</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>嘴</rb><rt>くちばし</rt></ruby>がそれぞれ<ruby data-auto-furi=\"1\"><rb>特徴</rb><rt>とくちょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>なので、<ruby data-auto-furi=\"1\"><rb>様子</rb><rt>ようす</rt></ruby><ruby data-auto-furi=\"1\"><rb>眺め</rb><rt>ながめ</rt></ruby>てみてください。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.7": {
-        "text": "如果幸运的话，您甚至可能会遇到受保护的珍稀野生鸟类。",
+        "text": "要是运气好的话，说不定还能看到受保护的珍稀野鸟。",
         "kana": "うんがよければほごのたいしょうになっているきちょうなやちょうにもめぐりあえるかもしれません。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>運</rb><rt>うん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>良けれ</rb><rt>よけれ</rt></ruby>ば<ruby data-auto-furi=\"1\"><rb>保護</rb><rt>ほご</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>対象</rb><rt>たいしょう</rt></ruby>になっている<ruby data-auto-furi=\"1\"><rb>貴重</rb><rt>きちょう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>野鳥</rb><rt>やちょう</rt></ruby>にも<ruby data-auto-furi=\"1\"><rb>巡り会える</rb><rt>めぐりあえる</rt></ruby>かもしれません。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.8": {
-        "text": "导游在说什么？",
+        "text": "导游主要在说什么？",
         "kana": "がいどはなにについてはなしていますか？",
         "ruby": "ガイドは<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>について<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ていますか？",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.9": {
-        "text": "1.如何享受观鸟的乐趣",
+        "text": "1. 如何享受观察野鸟的乐趣",
         "kana": "1.やちょうのかんさつのたのしみかた",
         "ruby": "1.<ruby data-auto-furi=\"1\"><rb>野鳥</rb><rt>やちょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>観察</rb><rt>かんさつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>楽しみ</rb><rt>たのしみ</rt></ruby><ruby data-auto-furi=\"1\"><rb>方</rb><rt>かた</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.10": {
-        "text": "2.自然公园中生长的植物",
+        "text": "2. 自然公园里生长的植物",
         "kana": "2.しぜんこうえんでそだつしょくぶつ",
         "ruby": "2.<ruby data-auto-furi=\"1\"><rb>自然</rb><rt>しぜん</rt></ruby><ruby data-auto-furi=\"1\"><rb>公園</rb><rt>こうえん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>育つ</rb><rt>そだつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>植物</rb><rt>しょくぶつ</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.11": {
-        "text": "3. 自然公园散步注意事项",
+        "text": "3. 在自然公园散步时的注意事项",
         "kana": "3.しぜんこうえんをあるくときのちゅういてん",
         "ruby": "3.<ruby data-auto-furi=\"1\"><rb>自然</rb><rt>しぜん</rt></ruby><ruby data-auto-furi=\"1\"><rb>公園</rb><rt>こうえん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>歩く</rb><rt>あるく</rt></ruby><ruby data-auto-furi=\"1\"><rb>時</rb><rt>とき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>注意</rb><rt>ちゅうい</rt></ruby><ruby data-auto-furi=\"1\"><rb>点</rb><rt>てん</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.12": {
-        "text": "4.野生鸟类保护的需要",
+        "text": "4. 保护野鸟的必要性",
         "kana": "4.やちょうのほごのひつようせい",
         "ruby": "4.<ruby data-auto-furi=\"1\"><rb>野鳥</rb><rt>やちょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>保護</rb><rt>ほご</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>必要</rb><rt>ひつよう</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "2.03:p1:q2:option1": {
@@ -6788,116 +6788,116 @@
     },
     "2.05:p2:q1:script": {
       "0.0": {
-        "text": "在香水制作工坊里，一名女性和一名男性在听完讲师的讲解后正在交谈。",
+        "text": "在香水制作体验工坊里，一名女性和一名男性在听完讲师说明后开始交谈。",
         "kana": "こうすいをつくるわあくしょっぷでこうしのはなしをきいたのち、おんなのひととおとこのひとがはなしています。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>作る</rb><rt>つくる</rt></ruby>ワークショップで<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>話</rb><rt>はなし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>聞い</rb><rt>きい</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>後</rb><rt>のち</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>話し</rb><rt>はなし</rt></ruby>ています。",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.1": {
-        "text": "今天大家来尝试一下香水的制作。",
+        "text": "今天请大家亲手制作一款香水。",
         "kana": "ほんじつはみなさんにこうすいづくりをたいけんしていただきます。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>本日</rb><rt>ほんじつ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>皆さん</rb><rt>みなさん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby><ruby data-auto-furi=\"1\"><rb>作り</rb><rt>づくり</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>体験</rb><rt>たいけん</rt></ruby>していただきます。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.2": {
-        "text": "你面前的桌子上有四种你之前写过的香水。",
+        "text": "各位桌上摆着四种刚才已经试闻过的香味。",
         "kana": "まえのてえぶるにさきほどかいていただいたこうすいが4しゅるいおいてあります。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>前</rb><rt>まえ</rt></ruby>のテーブルに<ruby data-auto-furi=\"1\"><rb>先</rb><rt>さき</rt></ruby>ほど<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>ていただいた<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>が4<ruby data-auto-furi=\"1\"><rb>種類</rb><rt>しゅるい</rt></ruby><ruby data-auto-furi=\"1\"><rb>置い</rb><rt>おい</rt></ruby>てあります。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.3": {
-        "text": "您将被要求选择其中一种香味来创造您自己的香味，但我将再次解释每种香水。",
+        "text": "接下来请大家从中选出一种，作为调配自己香水的基础香型。我再把四种香味简单说明一次。",
         "kana": "このなかからひとつ、すきなかおりをえらんでつくっていただきますが、あらためてかくこうすいについてごせつめいします。",
         "ruby": "この<ruby data-auto-furi=\"1\"><rb>中</rb><rt>なか</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>一つ</rb><rt>ひとつ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>選ん</rb><rt>えらん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>作っ</rb><rt>つくっ</rt></ruby>ていただきますが、<ruby data-auto-furi=\"1\"><rb>改めて</rb><rt>あらためて</rt></ruby><ruby data-auto-furi=\"1\"><rb>各</rb><rt>かく</rt></ruby><ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>についてご<ruby data-auto-furi=\"1\"><rb>説明</rb><rt>せつめい</rt></ruby>します。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.4": {
-        "text": "第一款香水是柠檬的果香。这是一种每个人都会喜欢的香味。",
+        "text": "1号是带有柠檬感觉的果香，属于大多数人都容易接受的香味。",
         "kana": "1ばんのこうすいはれもんのようなくだものけいのかおりです。どなたにもこのまれるかおりです。",
         "ruby": "1<ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>はレモンのような<ruby data-auto-furi=\"1\"><rb>果物</rb><rt>くだもの</rt></ruby><ruby data-auto-furi=\"1\"><rb>系</rb><rt>けい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>です。どなたにも<ruby data-auto-furi=\"1\"><rb>好ま</rb><rt>このま</rt></ruby>れる<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.5": {
-        "text": "2号是清爽的草本香味，很适合夏天。喷上后会感觉神清气爽。",
+        "text": "2号是清爽的草本香，很适合夏天，闻起来会让人觉得神清气爽。",
         "kana": "2ばんはなつにぴったりのさわやかなはあぶのかおりです。つけているとすっきりしたきぶんになれます。",
         "ruby": "2<ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>夏</rb><rt>なつ</rt></ruby>にぴったりの<ruby data-auto-furi=\"1\"><rb>爽やか</rb><rt>さわやか</rt></ruby>なハーブの<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>です。つけているとスッキリした<ruby data-auto-furi=\"1\"><rb>気分</rb><rt>きぶん</rt></ruby>になれます。",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.6": {
-        "text": "3号有一种像香料一样令人兴奋和独特的香味。",
+        "text": "3号带有香料般的刺激感，是一种很有个性的香味。",
         "kana": "3ばんはすぱいすのようなしげきてきでどくとくなかおりです。",
         "ruby": "3<ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>はスパイスのような<ruby data-auto-furi=\"1\"><rb>刺激</rb><rt>しげき</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>独特</rb><rt>どくとく</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>です。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.7": {
-        "text": "4号是带有甜美花香的香水，会给人温柔的印象。",
+        "text": "4号则是带甜味的花香，会给人温柔柔和的印象。",
         "kana": "4ばんはあまいはなのかおりのこうすいです。やさしいいんしょうをえんしゅつしてくれます。",
         "ruby": "4<ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>甘い</rb><rt>あまい</rt></ruby><ruby data-auto-furi=\"1\"><rb>花</rb><rt>はな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>です。<ruby data-auto-furi=\"1\"><rb>優しい</rb><rt>やさしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>印象</rb><rt>いんしょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>演出</rb><rt>えんしゅつ</rt></ruby>してくれます。",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.8": {
-        "text": "现在，请您到这里向您所选择的人领取材料。",
+        "text": "那么，请大家到这边来领取自己所选香型对应的材料。",
         "kana": "では、えらんだほうからこちらにざいりょうをとりにきてください。",
         "ruby": "では、<ruby data-auto-furi=\"1\"><rb>選ん</rb><rt>えらん</rt></ruby>だ<ruby data-auto-furi=\"1\"><rb>方</rb><rt>ほう</rt></ruby>からこちらに<ruby data-auto-furi=\"1\"><rb>材料</rb><rt>ざいりょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>取り</rb><rt>とり</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>来</rb><rt>き</rt></ruby>てください。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.9": {
-        "text": "它们闻起来都很香。你应该选择哪一个？",
+        "text": "每一种都很好闻啊。你打算选哪个？",
         "kana": "どれもいいかおりだったね。どれにする?",
         "ruby": "どれもいい<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>だったね。どれにする?",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.10": {
-        "text": "我无法决定它闻起来是香料还是水果。但我喜欢果香，所以我经常使用它。我想我会这么做的。",
+        "text": "我在果香和香料香之间有点犹豫。不过我平时就常用果香，所以这次还是想试试不一样的。",
         "kana": "すぱいすみたいなかおりかふるうつのかおりかでまような。でもふるうつのかおりがすきでふだんからつかっているんだよね。それにしようかな。",
         "ruby": "スパイスみたいな<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>かフルーツの<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>かで<ruby data-auto-furi=\"1\"><rb>迷う</rb><rt>まよう</rt></ruby>な。でもフルーツの<ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>普段</rb><rt>ふだん</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>使っ</rb><rt>つかっ</rt></ruby>ているんだよね。それにしようかな。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.11": {
-        "text": "我说我感觉神清气爽。我喜欢这种甜甜的香味，但我有类似的香味。",
+        "text": "这样啊。我刚才也觉得草本香很清爽。虽然我也喜欢那种甜甜的花香，但类似的味道我已经有了。",
         "kana": "わたしはきぶんがすっきりっていうのにする。あまいかおりのもよかつたけど、おなじようなのもってるから。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>気分</rb><rt>きぶん</rt></ruby>がスッキリっていうのにする。<ruby data-auto-furi=\"1\"><rb>甘い</rb><rt>あまい</rt></ruby><ruby data-auto-furi=\"1\"><rb>香り</rb><rt>かおり</rt></ruby>のも<ruby data-auto-furi=\"1\"><rb>良</rb><rt>よ</rt></ruby>かつたけど、<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby>ようなの<ruby data-auto-furi=\"1\"><rb>持っ</rb><rt>もっ</rt></ruby>てるから。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.12": {
-        "text": "原来如此。我想我会使用与平时不同的东西。",
+        "text": "原来如此，那我更想选和平时不一样的。",
         "kana": "そうか。やっぱりぼくもいつもつかっているのとちがうほうにするよ。",
         "ruby": "そうか。やっぱり<ruby data-auto-furi=\"1\"><rb>僕</rb><rt>ぼく</rt></ruby>もいつも<ruby data-auto-furi=\"1\"><rb>使っ</rb><rt>つかっ</rt></ruby>ているのと<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>ほうにするよ。",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.13": {
-        "text": "好吧，我们去拿原料吧。",
+        "text": "好，那我们去领材料吧。",
         "kana": "じゃ、ざいりょうをもらいにいこう。",
         "ruby": "じゃ、<ruby data-auto-furi=\"1\"><rb>材料</rb><rt>ざいりょう</rt></ruby>をもらいに<ruby data-auto-furi=\"1\"><rb>行こ</rb><rt>いこ</rt></ruby>う。",
-        "updated_by": "codex-mt-seed",
-        "updated_at": "2026-04-25T15:20:00+08:00"
+        "updated_by": "codex-human-polish",
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.14": {
-        "text": "这个男性说他用的是什么香水？",
+        "text": "男的最后选的是哪一种香味？",
         "kana": "おとこのひとはなんばんのこうすいにするといっていますか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なん</rt></ruby><ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>にすると<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       },
       "0.15": {
-        "text": "女性说她们用什么香水？",
+        "text": "女的最后选的是哪一种香味？",
         "kana": "おんなのひとはなんばんのこうすいにするといっていますか。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>女</rb><rt>おんな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なん</rt></ruby><ruby data-auto-furi=\"1\"><rb>番</rb><rt>ばん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>香水</rb><rt>こうすい</rt></ruby>にすると<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
         "updated_by": "codex-human-polish",
-        "updated_at": "2026-04-26T10:05:00+08:00"
+        "updated_at": "2026-04-27T12:20:00+08:00"
       }
     },
     "2.05:p2:q2:option1": {
@@ -7051,5 +7051,5 @@
       }
     }
   },
-  "updated_at": "2026-04-26T10:05:00+08:00"
+  "updated_at": "2026-04-27T12:20:00+08:00"
 }
