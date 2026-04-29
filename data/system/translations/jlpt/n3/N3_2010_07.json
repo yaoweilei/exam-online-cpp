@@ -121,6 +121,7 @@
     "1.02:p1:q10:question": {
       "0.0": {
         "text": "作为健康检查的一部分，我进行了踢球测试。",
+        "text": "作为健康检查的一部分，我进行了血液检查。",
         "kana": "けんこうしんだんでけつえきけんさをうけた。",
         "ruby": "<ruby data-auto-furi=\"1\"><rb>健康</rb><rt>けんこう</rt></ruby><ruby data-auto-furi=\"1\"><rb>診断</rb><rt>しんだん</rt></ruby>でけつえき<ruby data-auto-furi=\"1\"><rb>検査</rb><rt>けんさ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>受け</rb><rt>うけ</rt></ruby>た。",
         "updated_by": "codex-mt-seed",
