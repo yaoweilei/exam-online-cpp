@@ -1,17 +1,13 @@
 {
-  "elapsed_seconds" : 835,
-  "exam_id" : "N1_2014_12",
+  "elapsed_seconds" : 915,
+  "exam_id" : "N1_2025_12",
   "section_elapsed_seconds" : 
   {
-    "0" : 5,
-    "11" : 620,
-    "6" : 60,
-    "7" : 55,
-    "8" : 95
+    "0" : 915
   },
   "section_limits_seconds" : [],
-  "started_at" : "2026-04-24T23:53:00.866Z",
+  "started_at" : "2026-05-01T13:20:35.372Z",
   "total_limit_seconds" : 0,
-  "updated_at" : "2026-04-25T00:08:35.870Z",
+  "updated_at" : "2026-05-01T14:36:07.815Z",
   "user_id" : "usr_019dbc6a-631f-7deb-a571-819d219d3706"
 }

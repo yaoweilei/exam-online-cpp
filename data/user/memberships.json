@@ -206,5 +206,21 @@
     "scope_type" : "organization",
     "student_no" : "",
     "user_id" : "usr_019dab7d-730c-7ae8-a9f4-6c4f6ece549e"
+  },
+  "org_019ddef9-13ee-7f27-91d7-c609b152b46d:usr_019ddef9-1399-7522-a9d5-4fbcce59e44a" : 
+  {
+    "employee_no" : "EMP-000001",
+    "joined_at" : "2026-04-30T15:19:18.770Z",
+    "member_no" : "EMP-000001",
+    "membership_id" : "mem_019ddef9-13f2-71ae-aa3f-c7e083257957",
+    "organization_type" : "business",
+    "roles" : 
+    [
+      "orgAdmin"
+    ],
+    "scope_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+    "scope_type" : "organization",
+    "student_no" : "",
+    "user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a"
   }
 }

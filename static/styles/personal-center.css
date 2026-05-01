@@ -1,8 +1,9 @@
 /* ---------------- Personal Center (personalCenter.js) --------------- */
 #user-menu-trigger {
-	position: absolute;
-	top: 10px;
-	right: 12px;
+	position: relative;
+	top: auto;
+	right: auto;
+	margin-left: auto;
 	width: 40px;
 	height: 40px;
 	background: #fff;
@@ -19,6 +20,9 @@
 	justify-content: center;
 	box-shadow: none;
 	overflow: hidden;
+	flex: 0 0 auto;
+	align-self: center;
+	z-index: 20;
 }
 
 #user-menu-trigger:hover {

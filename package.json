@@ -1,0 +1,17 @@
+{
+  "name": "exam-online-cpp-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:ui": "playwright test --ui",
+    "e2e:install": "playwright install chromium",
+    "e2e:auto": "powershell -ExecutionPolicy Bypass -File ./run-e2e.ps1",
+    "e2e:auto:headed": "powershell -ExecutionPolicy Bypass -File ./run-e2e.ps1 -Headed",
+    "e2e:auto:ui": "powershell -ExecutionPolicy Bypass -File ./run-e2e.ps1 -Ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

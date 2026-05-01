@@ -73,5 +73,9 @@ frontend/node_modules/
 cpp-backend/build/
 cpp-backend/build-*/
 static/app/
+node_modules/
+playwright-report/
+test-results/
+blob-report/
 
 build_log.txt

@@ -36,10 +36,6 @@ async function bootstrap(): Promise<void> {
 		logoutUser?: () => void;
 	};
 
-	const userBar = document.getElementById('user-bar');
-	const loginEntryBtn = document.getElementById('login-entry-btn');
-	userBar?.setAttribute('style', 'display:none');
-
 	function syncViewerUserState(): void {
 		const currentUser = store.getState().user;
 		if (currentUser && !currentUser.guest) {
@@ -60,7 +56,6 @@ async function bootstrap(): Promise<void> {
 	});
 
 	appWindow.__openLoginModal = () => loginModal.open();
-	loginEntryBtn?.addEventListener('click', () => loginModal.open());
 	appWindow.__onLoginSuccess = () => {
 		syncViewerUserState();
 	};

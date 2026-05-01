@@ -52,20 +52,15 @@
 #width-control input[type=range] {
 	flex: 1 1 auto;
 	width: 100%;
-	height: 2px;
+	height: 16px;
 	-webkit-appearance: none;
 	-moz-appearance: none;
-.pc-inline-url {
-	display: inline-block;
-	max-width: 100%;
-	word-break: break-all;
-	line-height: 1.5;
-}
 	appearance: none;
 	background: transparent;
 	cursor: ew-resize;
-	/* 更细的轨道 */
+	border: none;
 	border-radius: 1px;
+	overflow: visible;
 }
 
 #width-control input[type=range]::-webkit-slider-runnable-track {
@@ -99,12 +94,14 @@
 #width-control input[type=range]::-moz-range-track {
 	height: 2px;
 	background: rgba(127, 127, 127, 0.28);
+	border: none;
 	border-radius: 1px;
 }
 
 #width-control input[type=range]::-moz-range-progress {
 	height: 2px;
-	background: linear-gradient(to right, var(--vscode-button-background), var(--vscode-button-hoverBackground));
+	background: var(--vscode-button-background);
+	border: none;
 	border-radius: 1px;
 }
 
@@ -115,6 +112,14 @@
 	border: 1px solid var(--vscode-button-background);
 	border-radius: 50%;
 	cursor: pointer;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.pc-inline-url {
+	display: inline-block;
+	max-width: 100%;
+	word-break: break-all;
+	line-height: 1.5;
 }
 
 /* 移除数值与按钮的样式（已不再使用） */

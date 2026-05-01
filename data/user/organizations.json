@@ -1353,5 +1353,733 @@
       "status" : "active"
     },
     "updated_at" : "2026-04-20T15:29:47.265Z"
+  },
+  "org_019ddef9-13ee-7f27-91d7-c609b152b46d" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de393-da7d-7a49-a63f-290cad571aac",
+        "created_at" : "2026-05-01T12:46:51.007Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019de393-da79-72b6-8dd0-95f33b856650",
+          "invite_code" : "invite_019de393-da79-7c61-96de-c9087a297ba9"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de393-da79-7226-88b4-79acaaf93942",
+        "created_at" : "2026-05-01T12:46:51.002Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019de393-da79-72b6-8dd0-95f33b856650",
+          "invite_code" : "invite_019de393-da79-7c61-96de-c9087a297ba9",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de393-da63-7fca-833d-df377ad89a3c",
+        "created_at" : "2026-05-01T12:46:50.981Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019de393-da5f-739d-8c2f-0bda58caab2a",
+          "invite_code" : "invite_019de393-da5f-769f-9334-b6ea5f7d33c5"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de393-da5f-7dfd-aafe-a147b790f9b4",
+        "created_at" : "2026-05-01T12:46:50.976Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019de393-da5f-739d-8c2f-0bda58caab2a",
+          "invite_code" : "invite_019de393-da5f-769f-9334-b6ea5f7d33c5",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de393-da52-77ae-bf33-8c8669160878",
+        "created_at" : "2026-05-01T12:46:50.963Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019de0e4-59e8-71c1-8fa9-ff9dedb82ca5",
+          "invite_code" : "invite_019de0e4-59e8-75cb-a3a1-828da88a8379"
+        },
+        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de393-da48-7e84-b425-4d2950e6d767",
+        "created_at" : "2026-05-01T12:46:50.952Z",
+        "details" : 
+        {
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019de0e4-59f9-7417-a17d-83ba0bf2fc53",
+          "invite_code" : "invite_019de0e4-59f9-7342-95bf-ee30d65d5ea1"
+        },
+        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de393-da1c-7be0-a2c5-606b6ebfd557",
+        "created_at" : "2026-05-01T12:46:50.908Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0e4-59fc-7d68-a8d4-4fce1539c0fa",
+        "created_at" : "2026-05-01T00:15:54.877Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019de0e4-59f9-7417-a17d-83ba0bf2fc53",
+          "invite_code" : "invite_019de0e4-59f9-7342-95bf-ee30d65d5ea1"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0e4-59f9-72d6-a0da-c1795e483d5f",
+        "created_at" : "2026-05-01T00:15:54.874Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019de0e4-59f9-7417-a17d-83ba0bf2fc53",
+          "invite_code" : "invite_019de0e4-59f9-7342-95bf-ee30d65d5ea1",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0e4-59eb-79c6-be0c-8de7ddb5306e",
+        "created_at" : "2026-05-01T00:15:54.860Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019de0e4-59e8-71c1-8fa9-ff9dedb82ca5",
+          "invite_code" : "invite_019de0e4-59e8-75cb-a3a1-828da88a8379"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0e4-59e9-720b-80e2-9ad6f567b8cb",
+        "created_at" : "2026-05-01T00:15:54.857Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019de0e4-59e8-71c1-8fa9-ff9dedb82ca5",
+          "invite_code" : "invite_019de0e4-59e8-75cb-a3a1-828da88a8379",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0e4-59e0-76ad-90dc-7c3c5bcaef64",
+        "created_at" : "2026-05-01T00:15:54.848Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019de0db-6c4e-72db-8d11-3690db05cf64",
+          "invite_code" : "invite_019de0db-6c4e-790d-b377-5d753a96980d"
+        },
+        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0e4-59d7-74bf-95af-c5d8ea342478",
+        "created_at" : "2026-05-01T00:15:54.839Z",
+        "details" : 
+        {
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019de0db-6c5d-7e4d-813c-9d94705e4d50",
+          "invite_code" : "invite_019de0db-6c5d-7e2c-9656-9f3effef1ae2"
+        },
+        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0e4-59c1-7fa0-a942-e8cb8344864e",
+        "created_at" : "2026-05-01T00:15:54.818Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0db-6c60-78ec-8167-c91f2c348d13",
+        "created_at" : "2026-05-01T00:06:09.761Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019de0db-6c5d-7e4d-813c-9d94705e4d50",
+          "invite_code" : "invite_019de0db-6c5d-7e2c-9656-9f3effef1ae2"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0db-6c5d-75e0-b520-702a74da3c2f",
+        "created_at" : "2026-05-01T00:06:09.757Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019de0db-6c5d-7e4d-813c-9d94705e4d50",
+          "invite_code" : "invite_019de0db-6c5d-7e2c-9656-9f3effef1ae2",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0db-6c51-7e6b-92d2-9a53d36490e0",
+        "created_at" : "2026-05-01T00:06:09.746Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019de0db-6c4e-72db-8d11-3690db05cf64",
+          "invite_code" : "invite_019de0db-6c4e-790d-b377-5d753a96980d"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0db-6c4e-737c-9015-1bff98f1fd19",
+        "created_at" : "2026-05-01T00:06:09.743Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019de0db-6c4e-72db-8d11-3690db05cf64",
+          "invite_code" : "invite_019de0db-6c4e-790d-b377-5d753a96980d",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0db-6c46-73ad-923f-21e930fa19f1",
+        "created_at" : "2026-05-01T00:06:09.734Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ddef9-1423-7325-accb-a3a1779a6308",
+          "invite_code" : "invite_019ddef9-1423-7637-94b3-d5fe5579e0cf"
+        },
+        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0db-6c3e-723c-be8a-75b7518d56e6",
+        "created_at" : "2026-05-01T00:06:09.726Z",
+        "details" : 
+        {
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019ddef9-1437-7e33-80f5-8e1f0dc71a29",
+          "invite_code" : "invite_019ddef9-1437-78a0-8569-447a6fd8cc05"
+        },
+        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019de0db-6c1d-77c1-8689-59b4e6370bdf",
+        "created_at" : "2026-05-01T00:06:09.694Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ddef9-143a-74ef-8c49-f62907bc9d02",
+        "created_at" : "2026-04-30T15:19:18.843Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ddef9-1437-7e33-80f5-8e1f0dc71a29",
+          "invite_code" : "invite_019ddef9-1437-78a0-8569-447a6fd8cc05"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ddef9-1437-7f6b-a8d2-ae97f412aa18",
+        "created_at" : "2026-04-30T15:19:18.840Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019ddef9-1437-7e33-80f5-8e1f0dc71a29",
+          "invite_code" : "invite_019ddef9-1437-78a0-8569-447a6fd8cc05",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ddef9-1427-7aa5-8a99-624bdd26feab",
+        "created_at" : "2026-04-30T15:19:18.824Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ddef9-1423-7325-accb-a3a1779a6308",
+          "invite_code" : "invite_019ddef9-1423-7637-94b3-d5fe5579e0cf"
+        },
+        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ddef9-1423-7cef-9af9-a842a0791d8d",
+        "created_at" : "2026-04-30T15:19:18.820Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ddef9-1423-7325-accb-a3a1779a6308",
+          "invite_code" : "invite_019ddef9-1423-7637-94b3-d5fe5579e0cf",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ddef9-140b-7cf2-82ef-80471ecccebe",
+        "created_at" : "2026-04-30T15:19:18.795Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ddef9-13f3-7c79-a6f8-3f0e59b7d4e0",
+        "created_at" : "2026-04-30T15:19:18.771Z",
+        "details" : 
+        {
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+      }
+    ],
+    "created_at" : "2026-04-30T15:19:18.766Z",
+    "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+    "invitations" : 
+    [
+      {
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-05-01T12:46:51.001Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-05-01T12:46:51.005Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-05-08T12:46:51.001Z",
+        "invitation_id" : "oinv_019de393-da79-72b6-8dd0-95f33b856650",
+        "invite_code" : "invite_019de393-da79-7c61-96de-c9087a297ba9",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-05-01T12:46:50.975Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-05-01T12:46:50.979Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-05-08T12:46:50.975Z",
+        "invitation_id" : "oinv_019de393-da5f-739d-8c2f-0bda58caab2a",
+        "invite_code" : "invite_019de393-da5f-769f-9334-b6ea5f7d33c5",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-05-01T12:46:50.951Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-05-01T00:15:54.873Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-05-01T00:15:54.876Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-05-08T00:15:54.873Z",
+        "invitation_id" : "oinv_019de0e4-59f9-7417-a17d-83ba0bf2fc53",
+        "invite_code" : "invite_019de0e4-59f9-7342-95bf-ee30d65d5ea1",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-05-01T12:46:50.962Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-05-01T00:15:54.856Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-05-01T00:15:54.859Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-05-08T00:15:54.856Z",
+        "invitation_id" : "oinv_019de0e4-59e8-71c1-8fa9-ff9dedb82ca5",
+        "invite_code" : "invite_019de0e4-59e8-75cb-a3a1-828da88a8379",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-05-01T00:15:54.839Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-05-01T00:06:09.757Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-05-01T00:06:09.760Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-05-08T00:06:09.757Z",
+        "invitation_id" : "oinv_019de0db-6c5d-7e4d-813c-9d94705e4d50",
+        "invite_code" : "invite_019de0db-6c5d-7e2c-9656-9f3effef1ae2",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-05-01T00:15:54.848Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-05-01T00:06:09.742Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-05-01T00:06:09.745Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-05-08T00:06:09.742Z",
+        "invitation_id" : "oinv_019de0db-6c4e-72db-8d11-3690db05cf64",
+        "invite_code" : "invite_019de0db-6c4e-790d-b377-5d753a96980d",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-05-01T00:06:09.726Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-04-30T15:19:18.839Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-04-30T15:19:18.842Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-05-07T15:19:18.839Z",
+        "invitation_id" : "oinv_019ddef9-1437-7e33-80f5-8e1f0dc71a29",
+        "invite_code" : "invite_019ddef9-1437-78a0-8569-447a6fd8cc05",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-05-01T00:06:09.734Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-04-30T15:19:18.819Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-04-30T15:19:18.823Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-05-07T15:19:18.819Z",
+        "invitation_id" : "oinv_019ddef9-1423-7325-accb-a3a1779a6308",
+        "invite_code" : "invite_019ddef9-1423-7637-94b3-d5fe5579e0cf",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      }
+    ],
+    "name" : "Invite Demo Org",
+    "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+    "organization_type" : "business",
+    "scope_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-05-01T12:46:51.016Z"
   }
 }

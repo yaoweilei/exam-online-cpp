@@ -1712,12 +1712,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	}
 
 	function openLoginModal(): void {
-		if (window.__openLoginModal) {
-			window.__openLoginModal();
-			return;
-		}
-		const trigger = document.getElementById('login-entry-btn') as HTMLButtonElement | null;
-		trigger?.click();
+		window.__openLoginModal?.();
 	}
 
 	function ensureRoot(): HTMLDivElement {
@@ -1782,11 +1777,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	async function buildTrigger(): Promise<void> {
 		let trigger = document.getElementById('user-menu-trigger') as HTMLDivElement | null;
+		const triggerHost = document.getElementById('exam-library-panel') || document.getElementById('exam-workarea') || document.body;
 		if (!trigger) {
 			trigger = document.createElement('div');
 			trigger.id = 'user-menu-trigger';
 			trigger.className = 'pc-trigger';
-			(document.getElementById('exam-workarea') || document.body).appendChild(trigger);
+			triggerHost.appendChild(trigger);
 			trigger.onclick = () => {
 				if (getContext().guest) {
 					openLoginModal();
@@ -1794,6 +1790,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					openPanel();
 				}
 			};
+		} else if (trigger.parentElement !== triggerHost) {
+			triggerHost.appendChild(trigger);
 		}
 		const ctx = getContext();
 		trigger.classList.toggle('authenticated', !ctx.guest);
