@@ -266,7 +266,7 @@ class ExamViewer {
 				this.showExplanations = prevShowExplanations;
 				this.showReadingKana = prevShowReadingKana;
 				this.showReadingZh = prevShowReadingZh;
-				this.currentCategory = this.getCategories()[0]?.id ?? null;
+				this.setInitialNavigationPosition();
 				
 				this.renderExam();
 				this.updateNavigation();
@@ -680,6 +680,19 @@ class ExamViewer {
 		const rawType = String(section.section_type || '').trim();
 		const normalizedType = rawType.toLowerCase();
 		if (normalizedType) {
+			if (this.isEjuExam()) {
+				const labels: Record<string, string> = {
+					writing: '記述',
+					reading: '読解',
+					listening_reading: '読聴解',
+					listeningreading: '読聴解',
+					listening: '聴解'
+				};
+				return {
+					id: this.normalizeCategoryId(normalizedType),
+					label: labels[normalizedType] || section.section_name || section.section_title || normalizedType
+				};
+			}
 			return {
 				id: this.normalizeCategoryId(normalizedType),
 				label: this.getCategoryLabel(normalizedType, section.section_name || section.section_title || '')
@@ -713,6 +726,8 @@ class ExamViewer {
 			words: 'vocab',
 			reading: 'reading',
 			listening: 'listening',
+			listening_reading: 'listening_reading',
+			listeningreading: 'listening_reading',
 			grammar: 'grammar',
 			writing: 'writing',
 			speaking: 'speaking',
@@ -732,6 +747,8 @@ class ExamViewer {
 			vocab: '词汇/语法',
 			reading: '阅读',
 			listening: '听力',
+			listening_reading: '读听解',
+			listeningreading: '读听解',
 			grammar: '语法',
 			writing: '写作',
 			speaking: '口语',
@@ -739,6 +756,12 @@ class ExamViewer {
 			integrated: '综合'
 		};
 		return labels[categoryType] || fallback || categoryType;
+	}
+
+	isEjuExam() {
+		const info = (this.currentExam?.exam_info || {}) as LegacyAnyRecord;
+		const family = String(this.currentExam?.family || info.family || '').toLowerCase();
+		return family === 'eju';
 	}
 
 	updateNavigation() {
@@ -1077,6 +1100,17 @@ class ExamViewer {
 
 	selectCategory(categoryId: string) {
 		this.categoryNavigationManager.selectCategory(categoryId);
+	}
+
+	setInitialNavigationPosition() {
+		const sections = this.currentExam?.exam_info?.sections || [];
+		const firstAvailableSectionIndex = sections.findIndex((section: ExamViewerSection) => {
+			return Array.isArray(section.questions) && section.questions.length > 0;
+		});
+		this.currentSectionIndex = firstAvailableSectionIndex >= 0 ? firstAvailableSectionIndex : 0;
+		this.currentQuestionIndex = 0;
+		const section = sections[this.currentSectionIndex];
+		this.currentCategory = section ? this.resolveCategoryIdForSection(section) : (this.getCategories()[0]?.id ?? null);
 	}
 
 	// ==================== 试卷库管理 ====================

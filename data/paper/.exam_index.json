@@ -1,7 +1,787 @@
 {
-  "count" : 160,
+  "count" : 186,
   "items" : 
   [
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2010_01",
+      "family" : "eju",
+      "id" : "2010_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2010_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2010_01",
+      "year" : "2010"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2010_02",
+      "family" : "eju",
+      "id" : "2010_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2010_02.json",
+      "questionCount" : 52,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2010_02",
+      "year" : "2010"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2011_01",
+      "family" : "eju",
+      "id" : "2011_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2011_01.json",
+      "questionCount" : 51,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2011_01",
+      "year" : "2011"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2011_02",
+      "family" : "eju",
+      "id" : "2011_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2011_02.json",
+      "questionCount" : 52,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2011_02",
+      "year" : "2011"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2012_01",
+      "family" : "eju",
+      "id" : "2012_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2012_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2012_01",
+      "year" : "2012"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2012_02",
+      "family" : "eju",
+      "id" : "2012_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2012_02.json",
+      "questionCount" : 53,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2012_02",
+      "year" : "2012"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2013_01",
+      "family" : "eju",
+      "id" : "2013_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2013_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2013_01",
+      "year" : "2013"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2013_02",
+      "family" : "eju",
+      "id" : "2013_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2013_02.json",
+      "questionCount" : 53,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2013_02",
+      "year" : "2013"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2014_01",
+      "family" : "eju",
+      "id" : "2014_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2014_01.json",
+      "questionCount" : 52,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2014_01",
+      "year" : "2014"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2014_02",
+      "family" : "eju",
+      "id" : "2014_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2014_02.json",
+      "questionCount" : 53,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2014_02",
+      "year" : "2014"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2015_01",
+      "family" : "eju",
+      "id" : "2015_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2015_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2015_01",
+      "year" : "2015"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2015_02",
+      "family" : "eju",
+      "id" : "2015_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2015_02.json",
+      "questionCount" : 49,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2015_02",
+      "year" : "2015"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2016_01",
+      "family" : "eju",
+      "id" : "2016_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2016_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2016_01",
+      "year" : "2016"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2016_02",
+      "family" : "eju",
+      "id" : "2016_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2016_02.json",
+      "questionCount" : 53,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2016_02",
+      "year" : "2016"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2017_01",
+      "family" : "eju",
+      "id" : "2017_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2017_01.json",
+      "questionCount" : 52,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2017_01",
+      "year" : "2017"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2017_02",
+      "family" : "eju",
+      "id" : "2017_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2017_02.json",
+      "questionCount" : 52,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2017_02",
+      "year" : "2017"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2018_01",
+      "family" : "eju",
+      "id" : "2018_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2018_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2018_01",
+      "year" : "2018"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2018_02",
+      "family" : "eju",
+      "id" : "2018_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2018_02.json",
+      "questionCount" : 53,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2018_02",
+      "year" : "2018"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2019_01",
+      "family" : "eju",
+      "id" : "2019_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2019_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2019_01",
+      "year" : "2019"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2020_02",
+      "family" : "eju",
+      "id" : "2020_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2020_02.json",
+      "questionCount" : 53,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2020_02",
+      "year" : "2020"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2021_01",
+      "family" : "eju",
+      "id" : "2021_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2021_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2021_01",
+      "year" : "2021"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2021_02",
+      "family" : "eju",
+      "id" : "2021_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2021_02.json",
+      "questionCount" : 51,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2021_02",
+      "year" : "2021"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2022_01",
+      "family" : "eju",
+      "id" : "2022_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2022_01.json",
+      "questionCount" : 52,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2022_01",
+      "year" : "2022"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2022_02",
+      "family" : "eju",
+      "id" : "2022_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2022_02.json",
+      "questionCount" : 53,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2022_02",
+      "year" : "2022"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2023_01",
+      "family" : "eju",
+      "id" : "2023_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2023_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2023_01",
+      "year" : "2023"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : false
+      },
+      "checked" : false,
+      "display" : "2023_02",
+      "family" : "eju",
+      "id" : "2023_02",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2023_02.json",
+      "questionCount" : 53,
+      "session" : "02",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing",
+        "reading.comprehension"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2023_02",
+      "year" : "2023"
+    },
     {
       "access_level" : "free",
       "capabilities" : 
@@ -5897,5 +6677,5 @@
       "year" : "2025"
     }
   ],
-  "updated_at" : "2026-05-01T14:04:44.490Z"
+  "updated_at" : "2026-05-03T13:21:57.118Z"
 }

@@ -32,6 +32,11 @@ echo [start-cpp] APP_ENV=%APP_ENV%
 echo [start-cpp] LOG_LEVEL=%LOG_LEVEL%
 echo [start-cpp] LOG_DIR=%LOG_DIR%
 
+if exist "%BUILD_DIR%\Release\exam_online_cpp.exe" (
+  powershell -NoProfile -ExecutionPolicy Bypass -File cpp-backend/tools/stop_running_backend.ps1 -ExePath "%BUILD_DIR%\Release\exam_online_cpp.exe"
+  if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+)
+
 if exist "%BUILD_DIR%\CMakeCache.txt" (
   cmake -S cpp-backend -B "%BUILD_DIR%" -DZ_VCPKG_POWERSHELL_PATH:FILEPATH="%POWERSHELL_EXE%" -DZ_VCPKG_PWSH_PATH:FILEPATH="%POWERSHELL_EXE%"
 ) else (

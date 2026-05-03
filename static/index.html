@@ -13,7 +13,7 @@
 	<meta name="theme-color" content="#1f1914">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<link href="/static/style.css?v=20260501a" rel="stylesheet">
+	<link href="/static/style.css?v=20260503b" rel="stylesheet">
 </head>
 
 <body>
@@ -21,6 +21,8 @@
 		window.__FURIGANA_DICT_URL__ = "/static/resource/furigana.dict.json";
 		window.__WEB_APP_MODE__ = true;
 		window.__API_BASE__ = "/api/v2";
+		// 可配置展示哪些考试族：["jlpt","eju"]、["jlpt"] 或 ["eju"]。
+		window.__ENABLED_EXAM_FAMILIES__ = ["jlpt", "eju"];
 		window.__EXAMS_BY_FAMILY__ = {};
 		window.__EXAMS_BY_LEVEL__ = {};
 	</script>
@@ -29,7 +31,7 @@
 		<!-- 登录弹窗 -->
 		<div id="login-modal">
 			<div class="login-box">
-				<div class="login-title">JLPT 在线试卷</div>
+				<div class="login-title">在线试卷</div>
 
 				<!-- WeChat 面板 -->
 				<div class="login-panel is-active" data-panel="wechat">
@@ -114,6 +116,7 @@
 				<div class="category-slot"></div>
 				<div class="category-slot"></div>
 				<div class="category-slot"></div>
+				<div class="category-slot"></div>
 			</div>
 
 			<div id="category-navigation" style="display:none"></div>
@@ -128,7 +131,7 @@
 		</div>
 	</div>
 
-	<script type="module" src="/static/app/main.js?v=20260425b"></script>
+	<script type="module" src="/static/app/main.js?v=20260503b"></script>
 
 	<script>
 		(function() {

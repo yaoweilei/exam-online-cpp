@@ -192,6 +192,7 @@ interface Window {
 	__WEB_APP_MODE__?: boolean;
 	__LOG_LEVEL__?: string;
 	__FURIGANA_DICT_URL__?: string;
+	__ENABLED_EXAM_FAMILIES__?: string[] | string;
 	// 功能开关：登录后由 FeatureFlagsClient 写入；未登录时为 undefined
 	__FEATURE_FLAGS__?: Record<string, FeatureFlagState>;
 	// 全局帮助函数（在 features/featureFlags.ts 中注册）

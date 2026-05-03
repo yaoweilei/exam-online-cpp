@@ -52,6 +52,18 @@ std::string safeSegment(std::string text)
     return out;
 }
 
+bool isNestedEjuSourceFile(const std::filesystem::path &rootDir, const std::filesystem::path &path)
+{
+    const auto relativeParent = std::filesystem::relative(path.parent_path(), rootDir);
+    auto it = relativeParent.begin();
+    if (it == relativeParent.end() || lowerCopy(it->string()) != "eju")
+    {
+        return false;
+    }
+    ++it;
+    return it != relativeParent.end();
+}
+
 std::string deduceYear(const Json::Value &examInfo, const std::vector<std::string> &parts)
 {
     const auto explicitYear = readString(examInfo, {"year"});
@@ -257,6 +269,10 @@ void ExamRepository::rebuildIndex()
         {
             continue;
         }
+        if (isNestedEjuSourceFile(rootDir_, entry.path()))
+        {
+            continue;
+        }
 
         auto summary = parseSummary(entry.path());
         if (!summary.has_value())
@@ -397,7 +413,7 @@ std::optional<domain::ExamSummary> ExamRepository::parseSummary(const std::files
             summary.paperType = "mock_exam";
         }
         summary.level = readString(examInfo, {"exam_level", "level"});
-        if (summary.level.empty() && !parts.empty())
+        if (summary.level.empty() && summary.family != "eju" && !parts.empty())
         {
             summary.level = parts.front();
         }

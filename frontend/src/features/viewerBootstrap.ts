@@ -8,6 +8,8 @@ interface ViewerExamMeta {
 	display: string;
 	family?: string;
 	level?: string;
+	subject?: string;
+	paper_type?: string;
 	year?: string;
 	session?: string;
 	checked?: boolean;
@@ -92,6 +94,9 @@ const PROGRESS_ICONS = {
 	full: '●'
 } as const;
 
+const DEFAULT_ENABLED_EXAM_FAMILIES = ['jlpt', 'eju'];
+const LEVELED_EXAM_FAMILIES = new Set(['jlpt']);
+
 let userProgressCache: Record<string, number> = {};
 
 function getGlobalWindow(): Window & Record<string, unknown> {
@@ -126,6 +131,8 @@ function normalizeExamMeta(raw: unknown): ViewerExamMeta | null {
 
 	const year = typeof data.year === 'string' ? data.year : '';
 	const session = typeof data.session === 'string' ? data.session : '';
+	const subject = typeof data.subject === 'string' ? data.subject : '';
+	const paperType = typeof data.paper_type === 'string' ? data.paper_type : '';
 	const display =
 		typeof data.display === 'string' && data.display.trim()
 			? data.display
@@ -137,6 +144,8 @@ function normalizeExamMeta(raw: unknown): ViewerExamMeta | null {
 		id,
 		family,
 		level,
+		subject,
+		paper_type: paperType,
 		year,
 		session,
 		display,
@@ -144,8 +153,45 @@ function normalizeExamMeta(raw: unknown): ViewerExamMeta | null {
 	};
 }
 
+function getEnabledExamFamilies(): string[] {
+	const raw = (window as Window & { __ENABLED_EXAM_FAMILIES__?: unknown }).__ENABLED_EXAM_FAMILIES__;
+	const values = Array.isArray(raw)
+		? raw
+		: typeof raw === 'string'
+			? raw.split(',')
+			: DEFAULT_ENABLED_EXAM_FAMILIES;
+	const normalized = values
+		.map((value) => String(value).trim().toLowerCase())
+		.filter((value) => value.length > 0);
+	return normalized.length > 0 ? [...new Set(normalized)] : DEFAULT_ENABLED_EXAM_FAMILIES;
+}
+
+function isEnabledExamFamily(family: string): boolean {
+	return getEnabledExamFamilies().includes(family.toLowerCase());
+}
+
+function isLeveledExamFamily(family: string): boolean {
+	return LEVELED_EXAM_FAMILIES.has(family.toLowerCase());
+}
+
+function filterEnabledExamGroups(examsByFamily: ViewerExamGroups): ViewerExamGroups {
+	const enabledFamilies = getEnabledExamFamilies();
+	const filtered: ViewerExamGroups = {};
+	enabledFamilies.forEach((family) => {
+		if (examsByFamily[family]) {
+			filtered[family] = examsByFamily[family];
+		}
+	});
+	return filtered;
+}
+
 function getDefaultFamily(examsByFamily: ViewerExamGroups): string {
-	if (examsByFamily.jlpt) {
+	const enabledFamilies = getEnabledExamFamilies();
+	const preferred = enabledFamilies.find((family) => examsByFamily[family]);
+	if (preferred) {
+		return preferred;
+	}
+	if (examsByFamily.jlpt && isEnabledExamFamily('jlpt')) {
 		return 'jlpt';
 	}
 	return Object.keys(examsByFamily)[0] ?? 'jlpt';
@@ -173,7 +219,7 @@ function hasExamsForFamilyLevel(examsByFamily: ViewerExamGroups, family?: string
 }
 
 function getExamsByFamily(): ViewerExamGroups {
-	return window.__EXAMS_BY_FAMILY__ ?? {};
+	return filterEnabledExamGroups(window.__EXAMS_BY_FAMILY__ ?? {});
 }
 
 function syncLegacyLevelCache(family: string): void {
@@ -186,7 +232,9 @@ async function fetchExamsForFallback(): Promise<ViewerExamMeta[]> {
 		const apiClient = window.APIClient as ViewerExamListApi | undefined;
 		if (apiClient?.getExams) {
 			const list = await apiClient.getExams({ sort: 'date_desc' });
-			return (list as unknown[]).map(normalizeExamMeta).filter((item): item is ViewerExamMeta => item !== null);
+			return (list as unknown[])
+				.map(normalizeExamMeta)
+				.filter((item): item is ViewerExamMeta => item !== null && isEnabledExamFamily(item.family || 'jlpt'));
 		}
 	} catch (error) {
 		console.warn('[viewerBootstrap] APIClient.getExams fallback failed:', error);
@@ -201,7 +249,9 @@ async function fetchExamsForFallback(): Promise<ViewerExamMeta[]> {
 
 		const payload = (await response.json()) as Partial<ApiEnvelope<unknown[]>> | unknown[];
 		const rawList = Array.isArray(payload) ? payload : ((payload as Partial<ApiEnvelope<unknown[]>>).data ?? []);
-		return (rawList as unknown[]).map(normalizeExamMeta).filter((item): item is ViewerExamMeta => item !== null);
+		return (rawList as unknown[])
+			.map(normalizeExamMeta)
+			.filter((item): item is ViewerExamMeta => item !== null && isEnabledExamFamily(item.family || 'jlpt'));
 	} catch (error) {
 		console.warn('[viewerBootstrap] fetch /exams fallback failed:', error);
 		return [];
@@ -223,6 +273,9 @@ async function ensureExamsByLevelLoaded(requiredLevel?: string): Promise<void> {
 	const grouped: ViewerExamGroups = {};
 	exams.forEach((exam) => {
 		const family = exam.family || 'jlpt';
+		if (!isEnabledExamFamily(family)) {
+			return;
+		}
 		const level = exam.level || 'DEFAULT';
 		if (!grouped[family]) {
 			grouped[family] = {};
@@ -247,12 +300,12 @@ function toFamilyLabel(family: string): string {
 }
 
 function buildFamilyOptions(examsByFamily: ViewerExamGroups): string {
-	const families = Object.keys(examsByFamily);
+	const families = getEnabledExamFamilies().filter((family) => examsByFamily[family]);
 	if (families.length === 0) {
-		return '<option value="jlpt">JLPT</option>';
+		const fallback = getEnabledExamFamilies()[0] || 'jlpt';
+		return `<option value="${fallback}">${toFamilyLabel(fallback)}</option>`;
 	}
 	return families
-		.sort((a, b) => (a === 'jlpt' ? -1 : b === 'jlpt' ? 1 : a.localeCompare(b)))
 		.map((family) => `<option value="${family}">${toFamilyLabel(family)}</option>`)
 		.join('');
 }
@@ -266,6 +319,16 @@ function buildLevelOptions(levelMap: Record<string, ViewerExamMeta[]>): string {
 		.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
 		.map((level) => `<option value="${level}">${level}</option>`)
 		.join('');
+}
+
+function setLevelSelectMode(levelSelect: HTMLSelectElement, family: string): void {
+	const isLeveled = isLeveledExamFamily(family);
+	levelSelect.disabled = !isLeveled;
+	levelSelect.style.display = isLeveled ? '' : 'none';
+}
+
+function collectFamilyExams(levelMap: Record<string, ViewerExamMeta[]>): ViewerExamMeta[] {
+	return Object.values(levelMap).flatMap((items) => items);
 }
 
 async function syncFamilyAndLevelSelects(
@@ -282,10 +345,13 @@ async function syncFamilyAndLevelSelects(
 	familySelect.value = currentFamily && examsByFamily[currentFamily] ? currentFamily : getDefaultFamily(examsByFamily);
 
 	syncLegacyLevelCache(familySelect.value);
+	setLevelSelectMode(levelSelect, familySelect.value);
 	const levelMap = window.__EXAMS_BY_LEVEL__ ?? {};
 	const currentLevel = preserveCurrentValue ? levelSelect.value : '';
 	levelSelect.innerHTML = buildLevelOptions(levelMap);
-	if (currentLevel && levelMap[currentLevel]) {
+	if (!isLeveledExamFamily(familySelect.value)) {
+		levelSelect.value = '';
+	} else if (currentLevel && levelMap[currentLevel]) {
 		levelSelect.value = currentLevel;
 	} else {
 		levelSelect.value = Object.keys(levelMap)[0] ?? '';
@@ -293,24 +359,26 @@ async function syncFamilyAndLevelSelects(
 
 	await syncPaperSelect(levelSelect, paperSelect, {
 		dispatchChange,
-		preserveCurrentValue
+		preserveCurrentValue,
+		family: familySelect.value
 	});
 }
 
 async function syncPaperSelect(
 	levelSelect: HTMLSelectElement,
 	paperSelect: HTMLSelectElement,
-	options: { dispatchChange?: boolean; preserveCurrentValue?: boolean } = {}
+	options: { dispatchChange?: boolean; preserveCurrentValue?: boolean; family?: string } = {}
 ): Promise<void> {
-	const { dispatchChange = false, preserveCurrentValue = false } = options;
+	const { dispatchChange = false, preserveCurrentValue = false, family = 'jlpt' } = options;
 	const level = levelSelect.value;
-	if (!level) {
+	await ensureExamsByLevelLoaded(isLeveledExamFamily(family) ? level : undefined);
+	const levelMap = window.__EXAMS_BY_LEVEL__ ?? {};
+	const exams = isLeveledExamFamily(family) ? (level ? (levelMap[level] ?? []) : []) : collectFamilyExams(levelMap);
+	if (exams.length === 0) {
 		paperSelect.innerHTML = buildPaperOptions([], userProgressCache);
 		return;
 	}
 
-	await ensureExamsByLevelLoaded(level);
-	const exams = window.__EXAMS_BY_LEVEL__?.[level] ?? [];
 	const currentValue = preserveCurrentValue ? paperSelect.value : '';
 	paperSelect.innerHTML = buildPaperOptions(exams, userProgressCache);
 
@@ -370,7 +438,8 @@ function getProgressIcon(checked: boolean, completion: number): string {
 function buildOptionText(exam: ViewerExamMeta, userProgress: Record<string, number>): string {
 	const completion = userProgress[exam.id] !== undefined ? userProgress[exam.id] : -1;
 	const icon = getProgressIcon(Boolean(exam.checked), completion);
-	return icon ? `${exam.display} ${icon}` : exam.display;
+	const text = exam.display;
+	return icon ? `${text} ${icon}` : text;
 }
 
 function buildPaperOptions(exams: ViewerExamMeta[], userProgress: Record<string, number>): string {
@@ -398,7 +467,7 @@ async function refreshPaperSelectIcons(): Promise<void> {
 	const level = levelSelect.value;
 	syncLegacyLevelCache(familySelect.value || getDefaultFamily(getExamsByFamily()));
 	const examsByLevel = window.__EXAMS_BY_LEVEL__ ?? {};
-	const exams = examsByLevel[level] ?? [];
+	const exams = isLeveledExamFamily(familySelect.value) ? (examsByLevel[level] ?? []) : collectFamilyExams(examsByLevel);
 
 	const currentValue = paperSelect.value;
 	paperSelect.innerHTML = buildPaperOptions(exams, userProgressCache);
@@ -480,11 +549,14 @@ async function initExamSelectors(): Promise<void> {
 	});
 
 	familySelect.addEventListener('change', () => {
-		void syncFamilyAndLevelSelects(familySelect, levelSelect, paperSelect, { dispatchChange: true });
+		void syncFamilyAndLevelSelects(familySelect, levelSelect, paperSelect, {
+			dispatchChange: true,
+			preserveCurrentValue: true
+		});
 	});
 
 	levelSelect.addEventListener('change', () => {
-		void syncPaperSelect(levelSelect, paperSelect, { dispatchChange: true });
+		void syncPaperSelect(levelSelect, paperSelect, { dispatchChange: true, family: familySelect.value });
 	});
 
 	const repairPaperSelect = (): void => {
@@ -493,7 +565,8 @@ async function initExamSelectors(): Promise<void> {
 		}
 		void syncPaperSelect(levelSelect, paperSelect, {
 			dispatchChange: true,
-			preserveCurrentValue: true
+			preserveCurrentValue: true,
+			family: familySelect.value
 		});
 	};
 

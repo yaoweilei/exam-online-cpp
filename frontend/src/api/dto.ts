@@ -2,6 +2,9 @@ export interface ExamSummary {
 	id: string;
 	title: string;
 	questionCount: number;
+	family?: string;
+	subject?: string;
+	paper_type?: string;
 	level: string;
 	year: string;
 	session: string;

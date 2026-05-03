@@ -14,7 +14,7 @@ interface CategorySectionQuestion {
 interface CategorySection {
 	section_name?: string;
 	section_title?: string;
-	section_id?: number;
+	section_id?: string | number;
 	questions?: CategorySectionQuestion[];
 	[key: string]: unknown;
 }
@@ -28,11 +28,14 @@ interface CategoryEntry {
 interface CategoryMenuItem {
 	label: string;
 	value: string;
+	disabled?: boolean;
 }
 
 interface CategoryNavigationExamViewer {
 	currentExam?: {
+		family?: string;
 		exam_info?: {
+			family?: string;
 			sections?: CategorySection[];
 		};
 	} | null;
@@ -91,8 +94,14 @@ class CategoryNavigationManager {
 			menuItems.forEach((item) => {
 				const menuItem = document.createElement('div');
 				menuItem.className = 'category-menu-item';
+				if (item.disabled) {
+					menuItem.classList.add('disabled');
+				}
 				menuItem.textContent = item.label;
 				menuItem.addEventListener('click', () => {
+					if (item.disabled) {
+						return;
+					}
 					this.selectCategoryItem(category.id, item.value);
 					this.closeCategoryDropdown(dropdown);
 				});
@@ -223,6 +232,9 @@ class CategoryNavigationManager {
 		const categories = this.examViewer.getCategories();
 		const category = categories.find((entry) => entry.id === catType);
 		if (category && category.sectionIndexes.length > 0) {
+			if (this.isEjuExam()) {
+				return this.getEjuQuestionMenuItems(category);
+			}
 			category.sectionIndexes.forEach((sectionIndex) => {
 				const section = sections[sectionIndex];
 				if (!section) {
@@ -274,6 +286,50 @@ class CategoryNavigationManager {
 		return items;
 	}
 
+	private getEjuQuestionMenuItems(category: CategoryEntry): CategoryMenuItem[] {
+		const sections = this.examViewer.currentExam?.exam_info?.sections || [];
+		const items: CategoryMenuItem[] = [];
+
+		category.sectionIndexes.forEach((sectionIndex) => {
+			const section = sections[sectionIndex];
+			const questions = section?.questions || [];
+			if (questions.length === 0) {
+				items.push({
+					label: '暂无题目',
+					value: `section-${sectionIndex}-empty`,
+					disabled: true
+				});
+				return;
+			}
+
+			questions.forEach((question, questionIndex) => {
+				items.push({
+					label: this.getEjuQuestionLabel(question, questionIndex),
+					value: `question-${sectionIndex}-${questionIndex}`
+				});
+			});
+		});
+
+		return items;
+	}
+
+	private getEjuQuestionLabel(question: CategorySectionQuestion, questionIndex: number): string {
+		const ejuNo = question.eju_question_no ?? question.eju_answer_no;
+		if (typeof ejuNo === 'number' && Number.isFinite(ejuNo)) {
+			return `${ejuNo}番`;
+		}
+		if (typeof ejuNo === 'string' && ejuNo.trim()) {
+			return `${ejuNo.trim()}番`;
+		}
+		return `${questionIndex + 1}番`;
+	}
+
+	private isEjuExam(): boolean {
+		const exam = this.examViewer.currentExam;
+		const family = String(exam?.family || exam?.exam_info?.family || '').toLowerCase();
+		return family === 'eju';
+	}
+
 	/**
 	 * 切换分类下拉菜单
 	 */
@@ -306,6 +362,20 @@ class CategoryNavigationManager {
 			if (sectionIndex >= 0 && sectionIndex < totalSections) {
 				this.examViewer.stateManager.updateNavigationState(sectionIndex, 0, catType);
 			}
+		} else if (value.startsWith('question-')) {
+			const [, rawSectionIndex, rawQuestionIndex] = value.split('-');
+			const sectionIndex = Number.parseInt(rawSectionIndex || '', 10);
+			const questionIndex = Number.parseInt(rawQuestionIndex || '', 10);
+			const totalSections = this.examViewer.currentExam?.exam_info?.sections?.length || 0;
+			const section = this.examViewer.currentExam?.exam_info?.sections?.[sectionIndex];
+			if (
+				sectionIndex >= 0 &&
+				sectionIndex < totalSections &&
+				questionIndex >= 0 &&
+				questionIndex < (section?.questions?.length || 0)
+			) {
+				this.examViewer.stateManager.updateNavigationState(sectionIndex, questionIndex, catType);
+			}
 		}
 	}
 
@@ -314,7 +384,13 @@ class CategoryNavigationManager {
 	 */
 	selectCategory(categoryId: string): void {
 		this.examViewer.audioManager.stopAllAudio();
-		this.examViewer.stateManager.updateNavigationState(0, 0, categoryId);
+		const category = this.examViewer.getCategories().find((entry) => entry.id === categoryId);
+		const sections = this.examViewer.currentExam?.exam_info?.sections || [];
+		const sectionIndex = category?.sectionIndexes.find((index) => {
+			const section = sections[index];
+			return Array.isArray(section?.questions) && section.questions.length > 0;
+		});
+		this.examViewer.stateManager.updateNavigationState(sectionIndex ?? 0, 0, categoryId);
 	}
 }
 
