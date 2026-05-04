@@ -133,6 +133,13 @@ class APIClient {
 		});
 	}
 
+	static async updateExam(examId: string, examData: unknown): Promise<unknown> {
+		return this.request(`/exams/${encodeURIComponent(examId)}`, {
+			method: 'PUT',
+			body: JSON.stringify(examData)
+		});
+	}
+
 	static async deleteExam(examId: string): Promise<unknown> {
 		return this.request(`/exams/${examId}`, { method: 'DELETE' });
 	}

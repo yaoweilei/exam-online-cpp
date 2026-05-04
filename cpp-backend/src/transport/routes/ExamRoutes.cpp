@@ -38,6 +38,21 @@ void registerExamRoutes(const AppContext &ctx)
         {Get});
 
     app().registerHandler(
+        "/api/v2/exams/{1}",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string examId) {
+            handleRequest(req, std::move(callback), [&]() {
+                auto json = parseJsonBody(req);
+                ctx.examService->createOrUpdateExam(examId, json);
+                Json::Value out(Json::objectValue);
+                out["id"] = examId;
+                return common::ok(req, out, "exam_updated");
+            });
+        },
+        {Put});
+
+    app().registerHandler(
         "/api/v2/exams",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {

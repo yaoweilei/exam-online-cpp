@@ -300,6 +300,12 @@ class QuestionRenderer {
 				scriptEl.dataset.stageWrap = String(question.id);
 				optionsContainer.appendChild(scriptEl);
 			}
+			if (this.isAdmin()) {
+				const scriptToolbar = DOMUtils.createElementWithClass("div", "script-toolbar");
+				scriptToolbar.style.cssText = "display:flex;justify-content:flex-end;margin-top:6px;";
+				scriptToolbar.appendChild(this.createEditButton('script', question));
+				optionsContainer.appendChild(scriptToolbar);
+			}
 		}
 
 		return optionsContainer;
@@ -582,7 +588,9 @@ class QuestionRenderer {
 		const btn = document.createElement("button");
 		btn.className = "edit-btn";
 		btn.innerHTML = "✏️ 编辑";
-		btn.title = type === 'question' ? '编辑题目' : '编辑详解';
+		btn.title = type === 'question'
+			? '编辑题目'
+			: (type === 'script' ? '编辑听力原文 / 时间戳' : '编辑详解');
 		btn.onclick = (e) => {
 			e.stopPropagation();
 			this.openEditDialog(type, question);
@@ -683,7 +691,9 @@ class QuestionRenderer {
 	 * 打开编辑对话框
 	 */
 	openEditDialog(type: string, question: RendererAnyRecord) {
-		const title = type === 'question' ? '编辑题目' : '编辑详解';
+		const title = type === 'question'
+			? '编辑题目'
+			: (type === 'script' ? '编辑听力原文' : '编辑详解');
 
 		// 创建编辑对话框
 		const dialog = document.createElement("div");
@@ -735,6 +745,30 @@ class QuestionRenderer {
 					</div>
 				</div>
 			`;
+		} else if (type === 'script') {
+			const scriptJson = JSON.stringify(question.script || [], null, 2);
+			dialog.innerHTML = `
+				<div class="edit-dialog edit-dialog-large">
+					<div class="edit-dialog-header">
+						<h3>${title} (ID: ${question.id})</h3>
+						<button class="edit-dialog-close">✕</button>
+					</div>
+					<div class="edit-dialog-body">
+						<div class="edit-field">
+							<label>script JSON：</label>
+							<textarea class="edit-textarea edit-script-json" rows="18" spellcheck="false">${scriptJson}</textarea>
+						</div>
+						<div class="edit-help" style="margin-top:8px;color:#666;font-size:12px;line-height:1.6;">
+							每行支持 <code>text</code>，可选 <code>speaker</code>、<code>start</code>、<code>end</code>。<br>
+							示例：<code>[{"speaker":"先生","start":"00:01.20","end":"00:03.50","text":"先生：..." }]</code>
+						</div>
+					</div>
+					<div class="edit-dialog-footer">
+						<button class="edit-dialog-cancel">取消</button>
+						<button class="edit-dialog-save">保存</button>
+					</div>
+				</div>
+			`;
 		} else {
 			// 详解编辑：只有文本框
 			dialog.innerHTML = `
@@ -777,6 +811,7 @@ class QuestionRenderer {
 
 		if (saveBtn) {
 			saveBtn.onclick = () => {
+				let shouldClose = true;
 				if (type === 'question') {
 					const questionInput = dialog.querySelector('.edit-question') as HTMLTextAreaElement | null;
 					const optionInputs = Array.from(dialog.querySelectorAll('.edit-option')) as HTMLInputElement[];
@@ -786,12 +821,18 @@ class QuestionRenderer {
 					const newAnswer = Number.parseInt(answerSelect?.value ?? '1', 10);
 
 					this.saveQuestionEdit(question, newQuestion, newOptions, newAnswer);
+				} else if (type === 'script') {
+					const scriptInput = dialog.querySelector('.edit-script-json') as HTMLTextAreaElement | null;
+					const raw = scriptInput?.value ?? '[]';
+					shouldClose = this.saveScriptEdit(question, raw);
 				} else {
 					const explanationInput = dialog.querySelector('.edit-textarea') as HTMLTextAreaElement | null;
 					const newExplanation = explanationInput?.value ?? '';
 					this.saveEdit('explanation', question, newExplanation);
 				}
-				closeDialog();
+				if (shouldClose) {
+					closeDialog();
+				}
 			};
 		}
 
@@ -808,25 +849,7 @@ class QuestionRenderer {
 		question.question = newQuestion;
 		question.options = newOptions;
 		question.correct_answer = newAnswer;
-
-		// 通知后端保存
-		if (typeof vscode !== 'undefined') {
-			vscode.postMessage({
-				type: 'saveQuestionEdit',
-				data: {
-					examId: this.examViewer._currentExamId,
-					questionId: question.id,
-					question: newQuestion,
-					options: newOptions,
-					correct_answer: newAnswer
-				}
-			});
-		}
-
-		// 重新渲染当前题目
-		this.examViewer.questionRenderer.renderCurrentQuestion();
-
-		console.log(`[QuestionRenderer] Saved question ${question.id}`);
+		void this.persistCurrentExam(`question ${question.id}`);
 	}
 
 	/**
@@ -839,24 +862,80 @@ class QuestionRenderer {
 		} else {
 			question.explanation = newValue;
 		}
+		void this.persistCurrentExam(`${type} ${question.id}`);
+	}
 
-		// 通知后端保存
-		if (typeof vscode !== 'undefined') {
-			vscode.postMessage({
-				type: 'saveQuestionEdit',
-				data: {
-					examId: this.examViewer._currentExamId,
-					questionId: question.id,
-					field: type,
-					value: newValue
-				}
-			});
+	saveScriptEdit(question: RendererAnyRecord, rawJson: string): boolean {
+		let parsed: unknown;
+		try {
+			parsed = JSON.parse(rawJson);
+		} catch (error) {
+			alert(`script JSON 解析失败：${error instanceof Error ? error.message : String(error)}`);
+			return false;
 		}
+		if (!Array.isArray(parsed)) {
+			alert('script 必须是数组');
+			return false;
+		}
+		let normalized: Record<string, string>[];
+		try {
+			normalized = parsed.map((item, index) => {
+				if (!item || typeof item !== 'object') {
+					throw new Error(`第 ${index + 1} 行不是对象`);
+				}
+				const row = item as Record<string, unknown>;
+				const text = typeof row.text === 'string' ? row.text.trim() : '';
+				if (!text) {
+					throw new Error(`第 ${index + 1} 行缺少 text`);
+				}
+				const out: Record<string, string> = { text };
+				if (typeof row.speaker === 'string' && row.speaker.trim()) {
+					out.speaker = row.speaker.trim();
+				}
+				if (typeof row.start === 'string' && row.start.trim()) {
+					out.start = row.start.trim();
+				}
+				if (typeof row.end === 'string' && row.end.trim()) {
+					out.end = row.end.trim();
+				}
+				return out;
+			});
+		} catch (error) {
+			alert(`script 校验失败：${error instanceof Error ? error.message : String(error)}`);
+			return false;
+		}
+		question.script = normalized;
+		void this.persistCurrentExam(`script ${question.id}`);
+		return true;
+	}
 
-		// 重新渲染当前题目
-		this.examViewer.questionRenderer.renderCurrentQuestion();
-
-		console.log(`[QuestionRenderer] Saved ${type} for question ${question.id}`);
+	private async persistCurrentExam(reason: string) {
+		if (!this.examViewer.currentExam) {
+			alert('当前试卷未加载，无法保存');
+			return;
+		}
+		const examId = this.examViewer._currentExamId
+			|| this.examViewer.currentExam?.exam_info?.exam_id
+			|| '';
+		if (!examId) {
+			alert('当前试卷缺少 examId，无法保存');
+			return;
+		}
+		const payload = JSON.parse(JSON.stringify(this.examViewer.currentExam));
+		try {
+			if (window.APIClient?.updateExam) {
+				await window.APIClient.updateExam(examId, payload);
+			} else if (window.APIClient?.createExam) {
+				await window.APIClient.createExam({ ...payload, id: examId });
+			} else {
+				throw new Error('APIClient 未初始化');
+			}
+			this.examViewer.questionRenderer.renderCurrentQuestion();
+			console.log(`[QuestionRenderer] Persisted ${reason}`);
+		} catch (error) {
+			console.error('[QuestionRenderer] persistCurrentExam failed', error);
+			alert(`保存失败：${error instanceof Error ? error.message : String(error)}`);
+		}
 	}
 
 	/**

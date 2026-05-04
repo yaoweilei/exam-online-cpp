@@ -9,7 +9,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2010_01",
@@ -39,7 +39,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2010_02",
@@ -69,7 +69,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2011_01",
@@ -99,7 +99,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2011_02",
@@ -129,7 +129,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2012_01",
@@ -159,7 +159,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2012_02",
@@ -189,7 +189,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2013_01",
@@ -219,7 +219,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2013_02",
@@ -249,7 +249,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2014_01",
@@ -279,7 +279,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2014_02",
@@ -309,7 +309,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2015_01",
@@ -339,7 +339,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2015_02",
@@ -369,7 +369,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2016_01",
@@ -399,7 +399,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2016_02",
@@ -429,7 +429,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2017_01",
@@ -459,7 +459,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2017_02",
@@ -489,7 +489,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2018_01",
@@ -519,7 +519,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2018_02",
@@ -549,7 +549,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2019_01",
@@ -579,7 +579,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2020_02",
@@ -609,7 +609,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2021_01",
@@ -639,7 +639,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2021_02",
@@ -669,7 +669,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2022_01",
@@ -699,7 +699,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2022_02",
@@ -759,7 +759,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2023_02",
@@ -6677,5 +6677,5 @@
       "year" : "2025"
     }
   ],
-  "updated_at" : "2026-05-03T13:21:57.118Z"
+  "updated_at" : "2026-05-04T00:39:02.163Z"
 }
