@@ -17,6 +17,7 @@ interface AudioQuestion {
 	id: string | number;
 	audio?: string;
 	script?: AudioScriptLine[];
+	script_layout_image?: string;
 	[key: string]: unknown;
 }
 
@@ -293,49 +294,88 @@ class AudioManager {
 		const questionKey = this.keyOf(question.id);
 		const scriptDiv = document.createElement('div');
 		scriptDiv.className = 'script-container';
+		scriptDiv.style.cssText = 'margin-top:10px;';
+
+		const layoutImageEl = this.createScriptLayoutImageElement(question);
+		if (layoutImageEl) {
+			scriptDiv.appendChild(layoutImageEl);
+		}
 
 		if (question.script && Array.isArray(question.script)) {
 			const scriptScopeKey = this.buildScriptScopeKey(question);
 			question.script.forEach((line, lineIndex) => {
-				const lineDiv = document.createElement('div');
-				lineDiv.dataset.start = line.start ?? '';
-				lineDiv.dataset.end = line.end ?? '';
-				lineDiv.dataset.questionId = questionKey;
-				lineDiv.dataset.translationScope = scriptScopeKey;
-				lineDiv.dataset.sidx = String(lineIndex);
-
-				if (line.speaker) {
-					const speakerPattern = new RegExp(`^(${line.speaker})[：:]\\s*`);
-					const match = line.text.match(speakerPattern);
-					const displayText = match ? line.text.substring(match[0].length) : line.text;
-					lineDiv.className = 'script-line';
-
-					const speakerSpan = document.createElement('span');
-					speakerSpan.className = 'speaker';
-					speakerSpan.textContent = line.speaker;
-					lineDiv.appendChild(speakerSpan);
-
-					const textSpan = document.createElement('span');
-					textSpan.className = 'script-text';
-					textSpan.innerHTML = this.renderScriptTextAssist(scriptScopeKey, lineIndex, displayText);
-					lineDiv.appendChild(textSpan);
-				} else {
-					lineDiv.className = 'script-line no-speaker';
-					const textSpan = document.createElement('span');
-					textSpan.className = 'script-text';
-					textSpan.innerHTML = this.renderScriptTextAssist(scriptScopeKey, lineIndex, line.text);
-					lineDiv.appendChild(textSpan);
-				}
-
-				lineDiv.addEventListener('click', () => {
-					this.seekToScriptLine(lineDiv, questionKey);
-				});
-
-				scriptDiv.appendChild(lineDiv);
+				const lineEl = this.createScriptLineElement(questionKey, scriptScopeKey, line, lineIndex);
+				scriptDiv.appendChild(lineEl);
 			});
 		}
 
 		return scriptDiv;
+	}
+
+	private createScriptLayoutImageElement(question: AudioQuestion): HTMLDivElement | null {
+		if (!question.script_layout_image) {
+			return null;
+		}
+
+		const wrap = document.createElement('div');
+		wrap.className = 'script-layout-image-wrap';
+		wrap.style.cssText =
+			'padding:10px 12px;border:1px solid #ece6d8;border-radius:10px;background:#fffdf8;box-shadow:0 1px 2px rgba(0,0,0,.03);';
+
+		const caption = document.createElement('div');
+		caption.className = 'script-layout-image-caption';
+		caption.textContent = '原文版式';
+		caption.style.cssText = 'margin-bottom:8px;font-size:12px;font-weight:700;color:#8a4b08;letter-spacing:.02em;';
+		wrap.appendChild(caption);
+
+		const image = document.createElement('img');
+		image.src = question.script_layout_image;
+		image.alt = '听力原文版式';
+		image.loading = 'lazy';
+		image.style.cssText =
+			'display:block;width:100%;max-width:860px;height:auto;margin:0 auto;border-radius:6px;background:#fff;';
+		wrap.appendChild(image);
+		return wrap;
+	}
+
+	private createScriptLineElement(
+		questionKey: string,
+		scriptScopeKey: string,
+		line: AudioScriptLine,
+		lineIndex: number
+	): HTMLSpanElement {
+		const lineEl = document.createElement('span');
+		lineEl.dataset.start = line.start ?? '';
+		lineEl.dataset.end = line.end ?? '';
+		lineEl.dataset.questionId = questionKey;
+		lineEl.dataset.translationScope = scriptScopeKey;
+		lineEl.dataset.sidx = String(lineIndex);
+		lineEl.className = line.speaker ? 'script-line script-segment' : 'script-line no-speaker script-segment';
+		lineEl.style.cssText = '';
+
+		let displayText = line.text;
+		if (line.speaker) {
+			const speakerPattern = new RegExp(`^(${line.speaker})[：:]\\s*`);
+			const match = line.text.match(speakerPattern);
+			displayText = match ? line.text.substring(match[0].length) : line.text;
+		}
+
+		if (line.speaker) {
+			const speakerSpan = document.createElement('span');
+			speakerSpan.className = 'speaker';
+			speakerSpan.textContent = line.speaker;
+			lineEl.appendChild(speakerSpan);
+		}
+
+		const textSpan = document.createElement('span');
+		textSpan.className = 'script-text';
+		textSpan.innerHTML = this.renderScriptTextAssist(scriptScopeKey, lineIndex, displayText);
+		lineEl.appendChild(textSpan);
+
+		lineEl.addEventListener('click', () => {
+			this.seekToScriptLine(lineEl, questionKey);
+		});
+		return lineEl;
 	}
 
 	private buildScriptScopeKey(question: AudioQuestion): string {

@@ -79,7 +79,9 @@ body.single-exam #category-navigation {
 
 #exam-library-panel select {
 	height: 26px;
+	width: 100px;
 	min-width: 100px;
+	max-width: 100px;
 	padding: 0 24px 0 8px;
 	font: inherit;
 	line-height: 1.2;
@@ -110,17 +112,24 @@ body.light-theme #exam-library-panel select {
 }
 
 #exam-library-panel #exam-level-select {
-	min-width: 80px;
+	width: 100px;
+	min-width: 100px;
+	max-width: 100px;
 	text-align: center;
 	text-align-last: center;
 }
 
+#exam-library-panel #exam-paper-select,
 #exam-library-panel #exam-year-select {
+	width: 100px;
 	min-width: 100px;
+	max-width: 100px;
 }
 
 #exam-library-panel #exam-month-select {
-	min-width: 80px;
+	width: 100px;
+	min-width: 100px;
+	max-width: 100px;
 }
 
 #exam-library-panel #refresh-exam-list {

@@ -1,33 +1,44 @@
 /* Header Styles */
 #exam-header {
 	background-color: var(--vscode-panel-background);
-	padding: 16px 0 16px 0;
-	/* 水平内边距移除，用统一 gutter */
+	padding: 16px 10px;
 	border-radius: 8px;
 	margin: 0;
-	/* 由 flex gap 控制垂直节奏 */
-	border-left: 4px solid var(--vscode-button-background);
+	position: relative;
+}
+
+#exam-header::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 4px;
+	border-radius: 8px 0 0 8px;
+	background: var(--vscode-button-background);
+}
+
+#exam-header.is-empty {
+	display: none;
 }
 
 #exam-controls {
 	display: flex;
 	gap: 12px;
-	/* 去掉水平 padding，交由 toolbar-grid 自己控制 left 10px */
-	padding: 0;
+	padding: 0 10px;
 	margin: 0;
 }
 
 #exam-controls.toolbar-grid {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	grid-auto-rows: 36px;
-	/* 保持一致的高度 */
-	gap: 8px;
-	width: 360px;
+	grid-template-columns: repeat(4, 100px);
+	grid-auto-rows: 26px;
+	column-gap: 12px;
+	row-gap: 12px;
+	width: auto;
 	max-width: 100%;
 	margin: 0;
-	margin-left: 10px;
-	/* 保持与左边界 10px */
+	align-items: stretch;
 }
 
 /* 统一 toolbar 中按钮与分类下拉的尺寸与填充，确保视觉一致 */
@@ -36,7 +47,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	height: 36px;
+	height: 26px;
 	box-sizing: border-box;
 }
 
@@ -59,10 +70,37 @@
 	width: 100%;
 	text-align: center;
 	padding: 0 8px;
-	height: 36px;
+	height: 26px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	font-size: 13px;
+}
+
+#toggle-answers { grid-area: answers; }
+#toggle-explanations { grid-area: explanations; }
+#open-question-map { grid-area: questionmap; }
+#top-prev { grid-area: prev; }
+#top-next { grid-area: next; }
+#toggle-reading-kana { grid-area: kana; }
+#toggle-reading-zh { grid-area: zh; }
+#exam-controls .category-slot[data-slot="1"] { grid-area: slot1; }
+#exam-controls .category-slot[data-slot="2"] { grid-area: slot2; }
+#exam-controls .category-slot[data-slot="3"] { grid-area: slot3; }
+#exam-controls .category-slot[data-slot="4"] { grid-area: slot4; }
+
+#exam-controls.toolbar-grid.family-jlpt {
+	grid-template-areas:
+		"questionmap prev next ."
+		"answers explanations kana zh"
+		"slot1 slot2 slot3 .";
+}
+
+#exam-controls.toolbar-grid.family-eju {
+	grid-template-areas:
+		"questionmap prev next ."
+		"answers explanations kana zh"
+		"slot1 slot2 slot3 slot4";
 }
 
 #exam-controls .btn-secondary,
@@ -70,6 +108,25 @@
 	flex: 0 0 auto;
 	min-width: 0;
 	text-align: center;
+	padding: 0 10px;
+	font-size: 13px;
+	line-height: 1.1;
+}
+
+#exam-controls .btn-secondary.active,
+#exam-controls button.active,
+#exam-controls .category-dropdown-label.active {
+	box-shadow: none;
+	transform: none;
+}
+
+#exam-title,
+.exam-title {
+	color: var(--vscode-foreground);
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.35;
 }
 
 #exam-controls .btn-secondary,
@@ -83,20 +140,6 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-
-#exam-header > * {
-	padding: 0 6px 0 6px;
-}
-
-/* 4px 左色条 + 6px = 10px 文本到外边缘 */
-
-#exam-title {
-	/* 统一与题干文字颜色一致：使用标准前景色，而不是按钮前景色 */
-	color: var(--vscode-foreground);
-	margin-bottom: 10px;
-	font-size: 24px;
-}
-
 
 /* Category Navigation Styles */
 #category-navigation {

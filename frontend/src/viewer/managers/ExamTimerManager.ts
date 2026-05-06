@@ -171,53 +171,7 @@ class ExamTimerManager {
 	 * 渲染顶部"计时条" -> 注入到 #exam-header
 	 */
 	private renderBar(): void {
-		const host = document.getElementById('exam-header');
-		if (!host) return;
-		const snap = this.lastSnapshot;
-		if (!snap) return;
-
-		let bar = document.getElementById('exam-timer-bar') as HTMLDivElement | null;
-		if (!bar) {
-			bar = document.createElement('div');
-			bar.id = 'exam-timer-bar';
-			bar.style.cssText = [
-				'display:flex', 'gap:18px', 'align-items:center', 'flex-wrap:wrap',
-				'padding:6px 12px', 'margin:6px 0',
-				'border:1px solid var(--border-color, #ddd)',
-				'border-radius:6px', 'font-size:13px',
-				'background:var(--bg-subtle, #fafafa)'
-			].join(';');
-			// 插到 exam-header 顶部
-			host.insertBefore(bar, host.firstChild);
-		}
-
-		const elapsed = Number(snap.elapsed_seconds ?? 0);
-		const totalLimit = Number(snap.total_limit_seconds ?? 0);
-		const totalRemain = Number(snap.total_remaining_seconds ?? 0);
-		const sectionIdx = this.examViewer.currentSectionIndex;
-		const sectionElapsedMap = snap.section_elapsed_seconds || {};
-		const sectionElapsed = Number(sectionElapsedMap[String(sectionIdx)] ?? 0);
-		const sectionLimits = snap.section_limits_seconds || [];
-		const sectionLimit = sectionIdx >= 0 && sectionIdx < sectionLimits.length
-			? Number(sectionLimits[sectionIdx] ?? 0)
-			: 0;
-		const sectionRemain = sectionLimit > 0 ? Math.max(0, sectionLimit - sectionElapsed) : 0;
-
-		const parts: string[] = [];
-		parts.push(`<span>⏱ 已用时 <strong>${formatDuration(elapsed)}</strong></span>`);
-		if (totalLimit > 0) {
-			const color = totalRemain <= 60 ? '#d33' : 'inherit';
-			parts.push(
-				`<span>全卷剩余 <strong style="color:${color}">${formatDuration(totalRemain)}</strong></span>`
-			);
-		}
-		if (sectionLimit > 0) {
-			const color = sectionRemain <= 60 ? '#d33' : 'inherit';
-			parts.push(
-				`<span>本节剩余 <strong style="color:${color}">${formatDuration(sectionRemain)}</strong></span>`
-			);
-		}
-		bar.innerHTML = parts.join('');
+		this.removeBar();
 	}
 
 	private removeBar(): void {

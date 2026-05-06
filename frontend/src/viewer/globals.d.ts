@@ -22,6 +22,7 @@ interface LegacyApiClientShape {
 	getExams(options?: { family?: string; level?: string; year?: string; sort?: string }): Promise<unknown[]>;
 	getExam(examId: string, userId?: string): Promise<unknown>;
 	createExam(examData: unknown): Promise<unknown>;
+	updateExam(examId: string, examData: unknown): Promise<unknown>;
 	deleteExam(examId: string): Promise<unknown>;
 	submitAnswers(userId: string, examId: string, answers: Record<string, unknown>): Promise<unknown>;
 	getAnswers(userId: string, examId: string): Promise<unknown>;

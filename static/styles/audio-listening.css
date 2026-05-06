@@ -126,18 +126,17 @@
 
 /* 听力脚本行基础样式 */
 .script-line {
-	padding: 4px 2px;
-	border-bottom: 1px solid var(--vscode-input-border);
-	cursor: pointer;
-	line-height: 1.8;
-}
-
-/* Grid 布局：有 speaker 的行使用两列 */
-.script-line {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	column-gap: 1em;
 	align-items: start;
+	margin: 0;
+	padding: 4px 2px;
+	border-bottom: 1px solid var(--vscode-input-border);
+	cursor: pointer;
+	line-height: 1.8;
+	color: var(--vscode-foreground);
+	transition: background-color 0.15s ease;
 }
 
 /* Speaker 样式 */
@@ -155,6 +154,7 @@
 .script-line .script-text {
 	display: block;
 	word-wrap: break-word;
+	color: inherit;
 	/* 听力脚本使用 MS Gothic */
 	font-family: var(--font-ja);
 }
@@ -163,7 +163,7 @@
 .script-line.no-speaker {
 	grid-template-columns: 1fr;
 	background-color: var(--vscode-editor-background);
-	color: var(--vscode-descriptionForeground);
+	color: var(--vscode-foreground);
 	padding: 8px 4px;
 }
 
@@ -181,18 +181,28 @@
 }
 
 .script-line.active {
-	background-color: var(--vscode-list-activeSelectionBackground);
-	color: var(--vscode-list-activeSelectionForeground);
+	background-color: color-mix(in srgb, var(--vscode-list-activeSelectionBackground) 18%, transparent);
 	border-radius: 4px;
-	opacity: 0.7;
+	color: var(--vscode-foreground);
 }
 
 .script-line.active .speaker {
-	color: var(--vscode-list-activeSelectionForeground);
+	color: var(--vscode-textLink-foreground);
 }
 
 .script-line.active .speaker::after {
-	color: var(--vscode-list-activeSelectionForeground);
+	color: var(--vscode-textLink-foreground);
+}
+
+.script-line.active .script-text,
+.script-line.active .text-assist-source,
+.script-line.active ruby,
+.script-line.active rt {
+	color: inherit;
+}
+
+.script-layout-image-wrap {
+	margin-bottom: 10px;
 }
 
 /* Listening 部分字号统一：音频播放器/脚本容器/脚本行/说话人标签 */

@@ -383,6 +383,7 @@ class ExamViewer {
 
 		const examInfo = this.currentExam.exam_info;
 		const headerHTML = this.createExamHeaderHTML(examInfo);
+		container.classList.toggle('is-empty', !headerHTML.trim());
 		DOMUtils.safeSetInnerHTML(container, headerHTML, 'renderExamHeader');
 	}
 
@@ -397,6 +398,9 @@ class ExamViewer {
 		if (!controls) {
 			return;
 		}
+		const family = this.isEjuExam() ? 'family-eju' : 'family-jlpt';
+		controls.classList.remove('family-eju', 'family-jlpt');
+		controls.classList.add(family);
 		// HTML模板中已经定义了所有需要的按钮
 		this.updateReadingAssistButtonStates();
 	}
@@ -743,17 +747,17 @@ class ExamViewer {
 
 	getCategoryLabel(categoryType: string, fallback: string) {
 		const labels: Record<string, string> = {
-			vocabulary: '词汇/语法',
-			vocab: '词汇/语法',
-			reading: '阅读',
-			listening: '听力',
-			listening_reading: '读听解',
-			listeningreading: '读听解',
-			grammar: '语法',
-			writing: '写作',
-			speaking: '口语',
-			cloze: '完形',
-			integrated: '综合'
+			vocabulary: '語彙/文法',
+			vocab: '語彙/文法',
+			reading: '読解',
+			listening: '聴解',
+			listening_reading: '読聴解',
+			listeningreading: '読聴解',
+			grammar: '文法',
+			writing: '作文',
+			speaking: '会話',
+			cloze: '穴埋め',
+			integrated: '総合'
 		};
 		return labels[categoryType] || fallback || categoryType;
 	}

@@ -149,8 +149,8 @@
                   "reading.comprehension"
                 ],
                 "eju_answer_no": 3,
-                "correct_answer": 4,
-                "answer": "4"
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -345,8 +345,8 @@
                   "reading.comprehension"
                 ],
                 "eju_answer_no": 10,
-                "correct_answer": 4,
-                "answer": "4"
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -390,8 +390,8 @@
                   "reading.comprehension"
                 ],
                 "eju_answer_no": 12,
-                "correct_answer": 4,
-                "answer": "4"
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -435,8 +435,8 @@
                   "reading.comprehension"
                 ],
                 "eju_answer_no": 14,
-                "correct_answer": 4,
-                "answer": "4"
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -525,8 +525,8 @@
                   "reading.comprehension"
                 ],
                 "eju_answer_no": 18,
-                "correct_answer": 4,
-                "answer": "4"
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -615,8 +615,8 @@
                   "reading.comprehension"
                 ],
                 "eju_answer_no": 22,
-                "correct_answer": 4,
-                "answer": "4"
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -719,7 +719,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -748,7 +750,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 2,
+                "answer": "2"
               }
             ]
           },
@@ -777,7 +781,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -806,7 +812,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 4,
+                "answer": "4"
               }
             ]
           },
@@ -835,7 +843,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 4,
+                "answer": "4"
               }
             ]
           },
@@ -864,7 +874,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 4,
+                "answer": "4"
               }
             ]
           },
@@ -893,7 +905,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 1,
+                "answer": "1"
               }
             ]
           },
@@ -922,7 +936,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 2,
+                "answer": "2"
               }
             ]
           },
@@ -951,7 +967,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 2,
+                "answer": "2"
               }
             ]
           },
@@ -980,7 +998,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 3,
+                "answer": "3"
               }
             ]
           },
@@ -1009,7 +1029,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 3,
+                "answer": "3"
               }
             ]
           },
@@ -1038,7 +1060,9 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "has_ans": false
+                "has_ans": false,
+                "correct_answer": 2,
+                "answer": "2"
               }
             ]
           }
@@ -1069,8 +1093,8 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "correct_answer": 3,
-            "answer": "3",
+            "correct_answer": 1,
+            "answer": "1",
             "has_ans": true
           },
           {
@@ -1088,8 +1112,8 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "correct_answer": 4,
-            "answer": "4",
+            "correct_answer": 2,
+            "answer": "2",
             "has_ans": true
           },
           {
@@ -1107,7 +1131,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 3,
+            "answer": "3"
           },
           {
             "id": 41,
@@ -1124,7 +1150,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 1,
+            "answer": "1"
           },
           {
             "id": 42,
@@ -1141,7 +1169,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 4,
+            "answer": "4"
           },
           {
             "id": 43,
@@ -1158,8 +1188,8 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "correct_answer": 4,
-            "answer": "4",
+            "correct_answer": 3,
+            "answer": "3",
             "has_ans": true
           },
           {
@@ -1177,7 +1207,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 3,
+            "answer": "3"
           },
           {
             "id": 45,
@@ -1194,7 +1226,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 3,
+            "answer": "3"
           },
           {
             "id": 46,
@@ -1211,7 +1245,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 4,
+            "answer": "4"
           },
           {
             "id": 47,
@@ -1228,7 +1264,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 2,
+            "answer": "2"
           },
           {
             "id": 48,
@@ -1245,8 +1283,8 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "correct_answer": 3,
-            "answer": "3",
+            "correct_answer": 4,
+            "answer": "4",
             "has_ans": true
           },
           {
@@ -1264,8 +1302,8 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "correct_answer": 4,
-            "answer": "4",
+            "correct_answer": 1,
+            "answer": "1",
             "has_ans": true
           },
           {
@@ -1283,7 +1321,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 2,
+            "answer": "2"
           },
           {
             "id": 51,
@@ -1300,7 +1340,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 4,
+            "answer": "4"
           },
           {
             "id": 52,
@@ -1317,7 +1359,9 @@
             "skill_tags": [
               "eju.listening"
             ],
-            "has_ans": false
+            "has_ans": false,
+            "correct_answer": 2,
+            "answer": "2"
           }
         ],
         "passages": [],

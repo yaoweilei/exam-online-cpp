@@ -300,12 +300,13 @@ class QuestionRenderer {
 				scriptEl.dataset.stageWrap = String(question.id);
 				optionsContainer.appendChild(scriptEl);
 			}
-			if (this.isAdmin()) {
-				const scriptToolbar = DOMUtils.createElementWithClass("div", "script-toolbar");
-				scriptToolbar.style.cssText = "display:flex;justify-content:flex-end;margin-top:6px;";
-				scriptToolbar.appendChild(this.createEditButton('script', question));
-				optionsContainer.appendChild(scriptToolbar);
-			}
+		}
+
+		if (this.isAdmin() && (question.audio || question.script)) {
+			const scriptToolbar = DOMUtils.createElementWithClass("div", "script-toolbar");
+			scriptToolbar.style.cssText = "display:flex;justify-content:flex-end;margin-top:6px;";
+			scriptToolbar.appendChild(this.createEditButton('script', question));
+			optionsContainer.appendChild(scriptToolbar);
 		}
 
 		return optionsContainer;
