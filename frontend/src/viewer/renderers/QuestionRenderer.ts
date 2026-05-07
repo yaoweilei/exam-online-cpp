@@ -80,7 +80,7 @@ class QuestionRenderer {
 
 		if (currentQuestion._groupPassage) {
 			const passageKey = currentQuestion._groupPassageKey || `${currentSection.section_id || ''}:${currentQuestion.id ?? ''}`;
-			const passageEl = this.createPassageElement(currentQuestion._groupPassage, null, passageKey);
+			const passageEl = this.createPassageElement(currentQuestion._groupPassage, currentQuestion, passageKey);
 			if (currentQuestion._groupIndex || currentQuestion._groupTopic) {
 				const meta = document.createElement("div");
 				meta.className = "passage-group-meta";
@@ -112,6 +112,7 @@ class QuestionRenderer {
 	 */
 	createPassageElement(passage: RendererAnyRecord, question: RendererAnyRecord | null = null, passageKey: string = "") {
 		const passageDiv = DOMUtils.createElementWithClass("div", "passage");
+		const hidePassageTitle = this.shouldHidePassageTitle(passage, question);
 		if (passageKey) {
 			passageDiv.dataset.passageKey = passageKey;
 		}
@@ -121,9 +122,17 @@ class QuestionRenderer {
 			passageDiv.dataset.examId = viewerExamId;
 		}
 
-		if (passage.title) {
-			const title = DOMUtils.createElementWithClass("div", "passage-title", passage.title);
-			passageDiv.appendChild(title);
+		if ((!hidePassageTitle && passage.title) || this.isAdmin()) {
+			const header = DOMUtils.createElementWithClass("div", "passage-header");
+			header.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;";
+			if (!hidePassageTitle && passage.title) {
+				const title = DOMUtils.createElementWithClass("div", "passage-title", passage.title);
+				header.appendChild(title);
+			}
+			if (this.isAdmin() && passage.type === "text") {
+				header.appendChild(this.createEditButton('passage', passage));
+			}
+			passageDiv.appendChild(header);
 		}
 
 		const content = DOMUtils.createElementWithClass("div", "passage-content");
@@ -228,29 +237,36 @@ class QuestionRenderer {
 	createQuestionElement(question: RendererAnyRecord, sectionIndex: number, questionIndex: number) {
 		const questionDiv = DOMUtils.createElementWithClass("div", "question");
 		questionDiv.id = `question-${question.id}`;
+		const isWriting = this.isWritingQuestion(question);
+		const showQuestionText = this.shouldRenderQuestionText(question);
 
-		const questionText = DOMUtils.createElementWithClass("div", "question-text");
-		// 使用题目的 id 作为题号
-		const questionBody = this.renderInlineTranslationAssist(
-			this.buildTextScopeKey(question, 'question'),
-			this.formatQuestionText(question)
-		);
-		const questionTextWithNumber = `<span class="question-number-inline">${question.id}. </span>${questionBody}`;
-		DOMUtils.safeSetInnerHTML(questionText, questionTextWithNumber, "createQuestionElement-text");
+		if (showQuestionText) {
+			const questionText = DOMUtils.createElementWithClass("div", "question-text");
+			const questionBody = this.renderInlineTranslationAssist(
+				this.buildTextScopeKey(question, 'question'),
+				this.formatQuestionText(question)
+			);
+			const questionPrefix = this.getQuestionNumberPrefix(question);
+			const questionTextWithNumber = questionPrefix
+				? `<span class="question-number-inline">${questionPrefix}</span>${questionBody}`
+				: questionBody;
+			DOMUtils.safeSetInnerHTML(questionText, questionTextWithNumber, "createQuestionElement-text");
 
-		// 如果是管理员，添加编辑按钮
-		if (this.isAdmin()) {
-			const editBtn = this.createEditButton('question', question);
-			questionText.appendChild(editBtn);
+			if (this.isAdmin()) {
+				questionText.appendChild(this.createEditButton('question', question));
+			}
+
+			if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('question_feedback', true)) {
+				questionText.appendChild(this.createFeedbackButton(question));
+			}
+
+			questionDiv.appendChild(questionText);
+		} else if (this.isAdmin()) {
+			const adminToolbar = DOMUtils.createElementWithClass("div", "question-admin-toolbar");
+			adminToolbar.style.cssText = "display:flex;justify-content:flex-start;gap:6px;margin:8px 0;";
+			adminToolbar.appendChild(this.createEditButton('question', question));
+			questionDiv.appendChild(adminToolbar);
 		}
-
-		// 题目反馈/纠错按钮（业务功能 5）：受 question_feedback 开关控制，默认开启
-		if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('question_feedback', true)) {
-			const feedbackBtn = this.createFeedbackButton(question);
-			questionText.appendChild(feedbackBtn);
-		}
-
-		questionDiv.appendChild(questionText);
 
 		// 如果题目有passage（题干相关的补充图片），在题干后、选项前渲染
 		if (question.passage) {
@@ -260,9 +276,13 @@ class QuestionRenderer {
 		}
 
 		const optionsContainer = this.createOptionsContainer(question);
-		questionDiv.appendChild(optionsContainer);
+		if (optionsContainer.childNodes.length > 0) {
+			questionDiv.appendChild(optionsContainer);
+		}
 
-		this.appendAnswerAndExplanation(questionDiv, question);
+		if (!isWriting) {
+			this.appendAnswerAndExplanation(questionDiv, question);
+		}
 
 		return questionDiv;
 	}
@@ -272,8 +292,9 @@ class QuestionRenderer {
 	 */
 	createOptionsContainer(question: RendererAnyRecord) {
 		const optionsContainer = DOMUtils.createElementWithClass("div", "options-container");
+		const shouldRenderOptions = this.hasRenderableOptions(question) && !this.isWritingQuestion(question);
 
-		if (question.options) {
+		if (shouldRenderOptions && Array.isArray(question.options)) {
 			question.options.forEach((option: string, optionIndex: number) => {
 				optionsContainer.appendChild(
 					this.createOptionElement(question, option, optionIndex)
@@ -585,16 +606,16 @@ class QuestionRenderer {
 	/**
 	 * 创建编辑按钮
 	 */
-	createEditButton(type: string, question: RendererAnyRecord) {
+	createEditButton(type: string, target: RendererAnyRecord) {
 		const btn = document.createElement("button");
 		btn.className = "edit-btn";
 		btn.innerHTML = "✏️ 编辑";
 		btn.title = type === 'question'
 			? '编辑题目'
-			: (type === 'script' ? '编辑听力原文 / 时间戳' : '编辑详解');
+			: (type === 'script' ? '编辑听力原文 / 时间戳' : (type === 'passage' ? '编辑文章 / 作文要求' : '编辑详解'));
 		btn.onclick = (e) => {
 			e.stopPropagation();
-			this.openEditDialog(type, question);
+			this.openEditDialog(type, target);
 		};
 		return btn;
 	}
@@ -691,28 +712,47 @@ class QuestionRenderer {
 	/**
 	 * 打开编辑对话框
 	 */
-	openEditDialog(type: string, question: RendererAnyRecord) {
+	openEditDialog(type: string, target: RendererAnyRecord) {
 		const title = type === 'question'
 			? '编辑题目'
-			: (type === 'script' ? '编辑听力原文' : '编辑详解');
+			: (type === 'script' ? '编辑听力原文' : (type === 'passage' ? '编辑文章 / 作文要求' : '编辑详解'));
 
 		// 创建编辑对话框
 		const dialog = document.createElement("div");
 		dialog.className = "edit-dialog-overlay";
 
-		if (type === 'question') {
-			// 题目编辑：包含题干、选项、正确答案
-			const opts = question.options || [];
+		if (type === 'question' && this.isWritingQuestion(target)) {
 			dialog.innerHTML = `
 				<div class="edit-dialog edit-dialog-large">
 					<div class="edit-dialog-header">
-						<h3>${title} (ID: ${question.id})</h3>
+						<h3>${title} (ID: ${target.id ?? ''})</h3>
+						<button class="edit-dialog-close">✕</button>
+					</div>
+					<div class="edit-dialog-body">
+						<div class="edit-field">
+							<label>题目说明：</label>
+							<textarea class="edit-textarea edit-question" rows="8">${target.question || ''}</textarea>
+						</div>
+					</div>
+					<div class="edit-dialog-footer">
+						<button class="edit-dialog-cancel">取消</button>
+						<button class="edit-dialog-save">保存</button>
+					</div>
+				</div>
+			`;
+		} else if (type === 'question') {
+			// 题目编辑：包含题干、选项、正确答案
+			const opts = target.options || [];
+			dialog.innerHTML = `
+				<div class="edit-dialog edit-dialog-large">
+					<div class="edit-dialog-header">
+						<h3>${title} (ID: ${target.id})</h3>
 						<button class="edit-dialog-close">✕</button>
 					</div>
 					<div class="edit-dialog-body">
 						<div class="edit-field">
 							<label>题干：</label>
-							<textarea class="edit-textarea edit-question" rows="3">${question.question || ''}</textarea>
+							<textarea class="edit-textarea edit-question" rows="3">${target.question || ''}</textarea>
 						</div>
 						<div class="edit-field">
 							<label>选项1：</label>
@@ -733,10 +773,10 @@ class QuestionRenderer {
 						<div class="edit-field">
 							<label>正确答案：</label>
 							<select class="edit-select edit-answer">
-								<option value="1" ${question.correct_answer === 1 ? 'selected' : ''}>选项1</option>
-								<option value="2" ${question.correct_answer === 2 ? 'selected' : ''}>选项2</option>
-								<option value="3" ${question.correct_answer === 3 ? 'selected' : ''}>选项3</option>
-								<option value="4" ${question.correct_answer === 4 ? 'selected' : ''}>选项4</option>
+								<option value="1" ${target.correct_answer === 1 ? 'selected' : ''}>选项1</option>
+								<option value="2" ${target.correct_answer === 2 ? 'selected' : ''}>选项2</option>
+								<option value="3" ${target.correct_answer === 3 ? 'selected' : ''}>选项3</option>
+								<option value="4" ${target.correct_answer === 4 ? 'selected' : ''}>选项4</option>
 							</select>
 						</div>
 					</div>
@@ -747,11 +787,11 @@ class QuestionRenderer {
 				</div>
 			`;
 		} else if (type === 'script') {
-			const scriptJson = JSON.stringify(question.script || [], null, 2);
+			const scriptJson = JSON.stringify(target.script || [], null, 2);
 			dialog.innerHTML = `
 				<div class="edit-dialog edit-dialog-large">
 					<div class="edit-dialog-header">
-						<h3>${title} (ID: ${question.id})</h3>
+						<h3>${title} (ID: ${target.id})</h3>
 						<button class="edit-dialog-close">✕</button>
 					</div>
 					<div class="edit-dialog-body">
@@ -770,16 +810,39 @@ class QuestionRenderer {
 					</div>
 				</div>
 			`;
+		} else if (type === 'passage') {
+			dialog.innerHTML = `
+				<div class="edit-dialog edit-dialog-large">
+					<div class="edit-dialog-header">
+						<h3>${title}</h3>
+						<button class="edit-dialog-close">✕</button>
+					</div>
+					<div class="edit-dialog-body">
+						<div class="edit-field">
+							<label>标题：</label>
+							<input type="text" class="edit-input edit-passage-title" value="${target.title || ''}" />
+						</div>
+						<div class="edit-field">
+							<label>正文：</label>
+							<textarea class="edit-textarea edit-passage-value" rows="18">${target.value || ''}</textarea>
+						</div>
+					</div>
+					<div class="edit-dialog-footer">
+						<button class="edit-dialog-cancel">取消</button>
+						<button class="edit-dialog-save">保存</button>
+					</div>
+				</div>
+			`;
 		} else {
 			// 详解编辑：只有文本框
 			dialog.innerHTML = `
 				<div class="edit-dialog">
 					<div class="edit-dialog-header">
-						<h3>${title} (ID: ${question.id})</h3>
+						<h3>${title} (ID: ${target.id})</h3>
 						<button class="edit-dialog-close">✕</button>
 					</div>
 					<div class="edit-dialog-body">
-						<textarea class="edit-textarea">${question.explanation || ''}</textarea>
+						<textarea class="edit-textarea">${target.explanation || ''}</textarea>
 					</div>
 					<div class="edit-dialog-footer">
 						<button class="edit-dialog-cancel">取消</button>
@@ -821,15 +884,19 @@ class QuestionRenderer {
 					const newOptions = optionInputs.map((input) => input.value);
 					const newAnswer = Number.parseInt(answerSelect?.value ?? '1', 10);
 
-					this.saveQuestionEdit(question, newQuestion, newOptions, newAnswer);
+					this.saveQuestionEdit(target, newQuestion, newOptions, newAnswer);
 				} else if (type === 'script') {
 					const scriptInput = dialog.querySelector('.edit-script-json') as HTMLTextAreaElement | null;
 					const raw = scriptInput?.value ?? '[]';
-					shouldClose = this.saveScriptEdit(question, raw);
+					shouldClose = this.saveScriptEdit(target, raw);
+				} else if (type === 'passage') {
+					const passageTitleInput = dialog.querySelector('.edit-passage-title') as HTMLInputElement | null;
+					const passageValueInput = dialog.querySelector('.edit-passage-value') as HTMLTextAreaElement | null;
+					this.savePassageEdit(target, passageTitleInput?.value ?? '', passageValueInput?.value ?? '');
 				} else {
 					const explanationInput = dialog.querySelector('.edit-textarea') as HTMLTextAreaElement | null;
 					const newExplanation = explanationInput?.value ?? '';
-					this.saveEdit('explanation', question, newExplanation);
+					this.saveEdit('explanation', target, newExplanation);
 				}
 				if (shouldClose) {
 					closeDialog();
@@ -846,11 +913,22 @@ class QuestionRenderer {
 	 * 保存题目编辑（包含题干、选项、答案）
 	 */
 	saveQuestionEdit(question: RendererAnyRecord, newQuestion: string, newOptions: string[], newAnswer: number) {
-		// 更新内存中的数据
 		question.question = newQuestion;
-		question.options = newOptions;
-		question.correct_answer = newAnswer;
+		if (this.isWritingQuestion(question)) {
+			delete question.options;
+			delete question.correct_answer;
+			delete question.answer;
+		} else {
+			question.options = newOptions;
+			question.correct_answer = newAnswer;
+		}
 		void this.persistCurrentExam(`question ${question.id}`);
+	}
+
+	savePassageEdit(passage: RendererAnyRecord, newTitle: string, newValue: string) {
+		passage.title = newTitle;
+		passage.value = newValue;
+		void this.persistCurrentExam(`passage ${newTitle || 'untitled'}`);
 	}
 
 	/**
@@ -860,6 +938,11 @@ class QuestionRenderer {
 		// 更新内存中的数据
 		if (type === 'question') {
 			question.question = newValue;
+			if (this.isWritingQuestion(question)) {
+				delete question.options;
+				delete question.correct_answer;
+				delete question.answer;
+			}
 		} else {
 			question.explanation = newValue;
 		}
@@ -923,6 +1006,7 @@ class QuestionRenderer {
 			return;
 		}
 		const payload = JSON.parse(JSON.stringify(this.examViewer.currentExam));
+		this.normalizeWritingSections(payload);
 		try {
 			if (window.APIClient?.updateExam) {
 				await window.APIClient.updateExam(examId, payload);
@@ -955,6 +1039,86 @@ class QuestionRenderer {
 			return line;
 		});
 		return formattedLines.join('\n');
+	}
+
+	private isWritingQuestion(question: RendererAnyRecord | null | undefined): boolean {
+		if (!question) return false;
+		const tags = Array.isArray(question.skill_tags) ? question.skill_tags : [];
+		return tags.includes('eju.writing');
+	}
+
+	private hasRenderableOptions(question: RendererAnyRecord): boolean {
+		return Array.isArray(question.options) && question.options.some((option: unknown) => String(option || '').trim() !== '');
+	}
+
+	private shouldHidePassageTitle(passage: RendererAnyRecord, question: RendererAnyRecord | null): boolean {
+		if (!this.isWritingQuestion(question)) {
+			return false;
+		}
+		return String(passage?.title || '').trim() === '記述問題';
+	}
+
+	private shouldRenderQuestionText(question: RendererAnyRecord): boolean {
+		const text = String(question.question || '').trim();
+		if (!text) {
+			return false;
+		}
+		if (!this.isWritingQuestion(question)) {
+			return true;
+		}
+		const passageText = String(question._groupPassage?.value || '').trim();
+		return !passageText;
+	}
+
+	private getQuestionNumberPrefix(question: RendererAnyRecord): string {
+		const id = Number(question.id);
+		if (!Number.isFinite(id) || id <= 0) {
+			return '';
+		}
+		return `${id}. `;
+	}
+
+	private normalizeWritingSections(examPayload: RendererAnyRecord) {
+		const sections = examPayload?.exam_info?.sections;
+		if (!Array.isArray(sections)) {
+			return;
+		}
+		sections.forEach((section: RendererAnyRecord) => {
+			const sectionTags = Array.isArray(section?.skill_tags) ? section.skill_tags : [];
+			const isWritingSection = section?.section_type === 'writing' || sectionTags.includes('eju.writing');
+			if (!isWritingSection) {
+				return;
+			}
+			const normalizeQuestion = (question: RendererAnyRecord | null | undefined) => {
+				if (!question) {
+					return;
+				}
+				delete question.options;
+				delete question.correct_answer;
+				delete question.answer;
+				question.has_ans = false;
+			};
+			if (Array.isArray(section.questions)) {
+				section.questions.forEach((question: RendererAnyRecord, index: number) => {
+					normalizeQuestion(question);
+					if ((!question.id || Number(question.id) <= 0) && section.questions.length === 1) {
+						question.id = 1;
+					}
+				});
+			}
+			if (Array.isArray(section.passages)) {
+				section.passages.forEach((passageBlock: RendererAnyRecord) => {
+					if (Array.isArray(passageBlock?.questions)) {
+						passageBlock.questions.forEach((question: RendererAnyRecord) => {
+							normalizeQuestion(question);
+							if ((!question.id || Number(question.id) <= 0) && passageBlock.questions.length === 1) {
+								question.id = 1;
+							}
+						});
+					}
+				});
+			}
+		});
 	}
 
 	/**
