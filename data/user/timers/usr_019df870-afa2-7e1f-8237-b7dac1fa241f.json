@@ -1,13 +1,13 @@
 {
-  "elapsed_seconds" : 950,
-  "exam_id" : "2021_01",
+  "elapsed_seconds" : 605,
+  "exam_id" : "2013_02",
   "section_elapsed_seconds" : 
   {
-    "0" : 950
+    "0" : 605
   },
   "section_limits_seconds" : [],
-  "started_at" : "2026-05-07T15:27:10.442Z",
+  "started_at" : "2026-05-08T00:16:38.308Z",
   "total_limit_seconds" : 0,
-  "updated_at" : "2026-05-07T22:38:15.600Z",
+  "updated_at" : "2026-05-08T00:27:52.290Z",
   "user_id" : "usr_019df870-afa2-7e1f-8237-b7dac1fa241f"
 }

@@ -56,6 +56,7 @@ inline void writeJsonFileAtomic(const std::filesystem::path &path, const Json::V
         }
         Json::StreamWriterBuilder builder;
         builder["indentation"] = "  ";
+        builder["emitUTF8"] = true;
         out << Json::writeString(builder, value);
     }
     std::error_code ec;

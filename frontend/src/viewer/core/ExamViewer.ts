@@ -301,12 +301,97 @@ class ExamViewer {
 		}
 
 		this.currentExam.exam_info.sections.forEach((section: ExamViewerSection) => {
-			// 如果 section 有 passages 但没有 questions，需要展平
 			if (section.passages && Array.isArray(section.passages) && section.passages.length > 0) {
-				const sectionQuestions = section.questions ?? (section.questions = []);
+				const sectionTags = Array.isArray((section as LegacyAnyRecord)?.skill_tags) ? (section as LegacyAnyRecord).skill_tags : [];
+				const isWritingSection = section.section_type === 'writing' || sectionTags.includes('eju.writing');
+				if (isWritingSection) {
+					const firstPassage = section.passages[0];
+					const firstSectionQuestion = Array.isArray(section.questions) ? section.questions[0] : undefined;
+					const firstPassageQuestion = Array.isArray(firstPassage?.questions) ? firstPassage.questions[0] : undefined;
+					const canonicalPassage = firstPassage?.passage || firstSectionQuestion?._groupPassage || firstPassageQuestion?._groupPassage;
+					const normalizedQuestion = (firstSectionQuestion || firstPassageQuestion || {
+						id: 1,
+						question: '',
+						has_ans: false,
+						skill_tags: ['eju.writing']
+					}) as ExamViewerQuestion;
+					normalizedQuestion.id = 1;
+					normalizedQuestion.question = String(normalizedQuestion.question || '');
+					normalizedQuestion.has_ans = false;
+					normalizedQuestion.skill_tags = ['eju.writing'];
+					if (canonicalPassage) {
+						normalizedQuestion._groupPassage = canonicalPassage;
+					}
+					normalizedQuestion._groupPassageKey = `${section.section_id || ''}:p1`;
+					section.questions = [normalizedQuestion];
+					if (firstPassage) {
+						firstPassage.id = 1;
+						firstPassage.questions = [normalizedQuestion];
+						section.passages = [firstPassage];
+					}
+					continue;
+				}
 
-				// 遍历每篇文章
 				const hasMultiplePassages = section.passages.length > 1;
+				const existingQuestions = Array.isArray(section.questions) ? section.questions : [];
+				if (existingQuestions.length > 0) {
+					const byId = new Map<string, ExamViewerPassageGroup>();
+					const byAnswerNo = new Map<string, ExamViewerPassageGroup>();
+					section.passages.forEach((passage: ExamViewerPassageGroup) => {
+						const groupPassageKey =
+							section.section_id !== undefined && passage.id !== undefined
+								? `${section.section_id}:p${passage.id}`
+								: '';
+						if (passage.questions && Array.isArray(passage.questions)) {
+							passage.questions.forEach((question: ExamViewerQuestion) => {
+								const idKey = question.id !== undefined ? String(question.id) : '';
+								if (idKey) {
+									byId.set(idKey, passage);
+								}
+								const answerNo = (question as LegacyAnyRecord).eju_answer_no;
+								const answerKey = answerNo !== undefined ? String(answerNo) : '';
+								if (answerKey) {
+									byAnswerNo.set(answerKey, passage);
+								}
+								question._groupPassage = question._groupPassage || passage.passage;
+								question._groupPassageKey = question._groupPassageKey || groupPassageKey || `${section.section_id || ''}:${question.id ?? ''}`;
+							});
+						}
+					});
+
+					existingQuestions.forEach((question: ExamViewerQuestion) => {
+						const idKey = question.id !== undefined ? String(question.id) : '';
+						const answerNo = (question as LegacyAnyRecord).eju_answer_no;
+						const answerKey = answerNo !== undefined ? String(answerNo) : '';
+						const passage = (idKey && byId.get(idKey)) || (answerKey && byAnswerNo.get(answerKey));
+						if (!passage) {
+							return;
+						}
+						const groupPassageKey =
+							section.section_id !== undefined && passage.id !== undefined
+								? `${section.section_id}:p${passage.id}`
+								: '';
+						question._groupPassage = question._groupPassage || passage.passage;
+						question._groupPassageKey = question._groupPassageKey || groupPassageKey || `${section.section_id || ''}:${question.id ?? ''}`;
+						if (hasMultiplePassages) {
+							question._groupIndex = question._groupIndex || passage.id;
+						}
+						question._groupTopic = question._groupTopic || passage.topic;
+						if (passage.audio && !question.audio) {
+							question.audio = passage.audio;
+						}
+						if (passage.script && !question.script) {
+							question.script = passage.script;
+						}
+					});
+
+					console.log(
+						`[ExamViewer] Preprocessed section ${section.section_id}: reused ${existingQuestions.length} section questions with ${section.passages.length} passages`
+					);
+					return;
+				}
+
+				const sectionQuestions: ExamViewerQuestion[] = [];
 
 				section.passages.forEach((passage: ExamViewerPassageGroup) => {
 					if (passage.questions && Array.isArray(passage.questions)) {
@@ -334,6 +419,7 @@ class ExamViewer {
 						});
 					}
 				});
+				section.questions = sectionQuestions;
 
 				console.log(
 					`[ExamViewer] Preprocessed section ${section.section_id}: ${sectionQuestions.length} questions from ${section.passages.length} passages`

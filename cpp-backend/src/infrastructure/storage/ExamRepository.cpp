@@ -305,15 +305,6 @@ std::vector<domain::ExamSummary> ExamRepository::listExams() const
 
 Json::Value ExamRepository::getExamById(const std::string &examId)
 {
-    {
-        std::shared_lock lock(mutex_);
-        auto itCache = examCache_.find(examId);
-        if (itCache != examCache_.end())
-        {
-            return itCache->second;
-        }
-    }
-
     std::filesystem::path path;
     {
         std::shared_lock lock(mutex_);

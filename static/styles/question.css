@@ -174,6 +174,27 @@
 	overflow-wrap: anywhere;
 }
 
+.passage.writing-passage .passage-content {
+	white-space: normal;
+}
+
+.passage.writing-passage .passage-sentence-wrap {
+	display: inline;
+	margin: 0;
+	vertical-align: baseline;
+	line-height: inherit;
+}
+
+.passage.writing-passage .passage-sentence-wrap .passage-sentence,
+.passage.writing-passage .text-assist-source {
+	display: inline;
+	max-width: none;
+}
+
+.passage.writing-passage .translation-chip {
+	vertical-align: baseline;
+}
+
 /* ============================================================ */
 /* 阅读分句结构（B1）                                            */
 /*   - 每段 <div class="passage-paragraph" data-pidx>            */

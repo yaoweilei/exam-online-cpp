@@ -112,6 +112,9 @@ class QuestionRenderer {
 	 */
 	createPassageElement(passage: RendererAnyRecord, question: RendererAnyRecord | null = null, passageKey: string = "") {
 		const passageDiv = DOMUtils.createElementWithClass("div", "passage");
+		if (this.isWritingQuestion(question)) {
+			passageDiv.classList.add("writing-passage");
+		}
 		const hidePassageTitle = this.shouldHidePassageTitle(passage, question);
 		if (passageKey) {
 			passageDiv.dataset.passageKey = passageKey;
@@ -928,6 +931,29 @@ class QuestionRenderer {
 	savePassageEdit(passage: RendererAnyRecord, newTitle: string, newValue: string) {
 		passage.title = newTitle;
 		passage.value = newValue;
+		const currentSection = this.getCurrentSection();
+		const sectionTags = Array.isArray(currentSection?.skill_tags) ? currentSection.skill_tags : [];
+		const isWritingSection = currentSection?.section_type === 'writing' || sectionTags.includes('eju.writing');
+		if (isWritingSection) {
+			if (Array.isArray(currentSection?.passages) && currentSection.passages[0]?.passage) {
+				currentSection.passages[0].passage.title = newTitle;
+				currentSection.passages[0].passage.value = newValue;
+			}
+			if (Array.isArray(currentSection?.questions) && currentSection.questions[0]) {
+				currentSection.questions[0]._groupPassage = {
+					title: newTitle,
+					type: currentSection.questions[0]._groupPassage?.type || passage.type || 'text',
+					value: newValue
+				};
+			}
+			if (Array.isArray(currentSection?.passages) && Array.isArray(currentSection.passages[0]?.questions) && currentSection.passages[0].questions[0]) {
+				currentSection.passages[0].questions[0]._groupPassage = {
+					title: newTitle,
+					type: currentSection.passages[0].questions[0]._groupPassage?.type || passage.type || 'text',
+					value: newValue
+				};
+			}
+		}
 		void this.persistCurrentExam(`passage ${newTitle || 'untitled'}`);
 	}
 
@@ -1005,6 +1031,7 @@ class QuestionRenderer {
 			alert('当前试卷缺少 examId，无法保存');
 			return;
 		}
+		this.normalizeWritingSections(this.examViewer.currentExam);
 		const payload = JSON.parse(JSON.stringify(this.examViewer.currentExam));
 		this.normalizeWritingSections(payload);
 		try {
@@ -1097,26 +1124,48 @@ class QuestionRenderer {
 				delete question.correct_answer;
 				delete question.answer;
 				question.has_ans = false;
+				if (!Array.isArray(question.skill_tags) || !question.skill_tags.includes('eju.writing')) {
+					question.skill_tags = ['eju.writing'];
+				}
 			};
-			if (Array.isArray(section.questions)) {
-				section.questions.forEach((question: RendererAnyRecord, index: number) => {
-					normalizeQuestion(question);
-					if ((!question.id || Number(question.id) <= 0) && section.questions.length === 1) {
-						question.id = 1;
-					}
-				});
-			}
-			if (Array.isArray(section.passages)) {
-				section.passages.forEach((passageBlock: RendererAnyRecord) => {
-					if (Array.isArray(passageBlock?.questions)) {
-						passageBlock.questions.forEach((question: RendererAnyRecord) => {
-							normalizeQuestion(question);
-							if ((!question.id || Number(question.id) <= 0) && passageBlock.questions.length === 1) {
-								question.id = 1;
-							}
-						});
-					}
-				});
+			const firstSectionQuestion = Array.isArray(section.questions) ? section.questions[0] : null;
+			const firstPassageBlock = Array.isArray(section.passages) ? section.passages[0] : null;
+			const firstPassageQuestion = Array.isArray(firstPassageBlock?.questions) ? firstPassageBlock.questions[0] : null;
+			const canonicalPassage = firstPassageBlock?.passage || firstSectionQuestion?._groupPassage || firstPassageQuestion?._groupPassage || {
+				type: 'text',
+				title: section.section_title || section.section_name || '記述問題',
+				value: ''
+			};
+			const normalizedPassage = {
+				title: String(canonicalPassage?.title || section.section_title || section.section_name || '記述問題'),
+				type: canonicalPassage?.type || 'text',
+				value: String(canonicalPassage?.value || '')
+			};
+
+			const primaryQuestion = firstSectionQuestion || firstPassageQuestion || {
+				id: 1,
+				question: '',
+				has_ans: false,
+				skill_tags: ['eju.writing']
+			};
+			normalizeQuestion(primaryQuestion);
+			primaryQuestion.id = Number(primaryQuestion.id) > 0 ? Number(primaryQuestion.id) : 1;
+			primaryQuestion.question = String(primaryQuestion.question || '');
+			primaryQuestion._groupPassage = { ...normalizedPassage };
+			primaryQuestion._groupPassageKey = primaryQuestion._groupPassageKey || `${section.section_id || ''}:p1`;
+			section.questions = [primaryQuestion];
+
+			if (firstPassageBlock) {
+				firstPassageBlock.id = Number(firstPassageBlock.id) > 0 ? Number(firstPassageBlock.id) : 1;
+				firstPassageBlock.passage = { ...normalizedPassage };
+				const mirroredQuestion = firstPassageQuestion || primaryQuestion;
+				normalizeQuestion(mirroredQuestion);
+				mirroredQuestion.id = Number(mirroredQuestion.id) > 0 ? Number(mirroredQuestion.id) : 1;
+				mirroredQuestion.question = String(mirroredQuestion.question || '');
+				mirroredQuestion._groupPassage = { ...normalizedPassage };
+				mirroredQuestion._groupPassageKey = mirroredQuestion._groupPassageKey || primaryQuestion._groupPassageKey;
+				firstPassageBlock.questions = [mirroredQuestion];
+				section.passages = [firstPassageBlock];
 			}
 		});
 	}
