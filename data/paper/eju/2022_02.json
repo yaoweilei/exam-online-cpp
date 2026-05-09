@@ -679,7 +679,7 @@
             "passage": {
               "alt_text": "読聴解 1番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q01.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q01_material.jpg"
             },
             "questions": [
               {
@@ -696,7 +696,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 36\n1 番\n先生 が , ミッ バチ に つい て 話し て いま す 。 ミ ツバ チ が 警戒 音 を 発する と き , 情報 は どの\nよう に 流れ ます か 。 [」\nミツ バチ の 社会 に お ける 情報 の 流れ\n[ご 情報 の 流れ は\nそつ 情報 の 流れ は 双方 向\nを 一 を\n| EE\nに 譜 示 k\nド 各 いで\n中 一 問 を し 回\n「 天 2 苦 | | 一 折 計 鐘 |\nーー あま あーあ\n0 放\n生ま 2\nーー の へ 率 で を 、\nレン ーー か 9ーE へ の 枯 | 机 で の 基 |\n回 中\n(佐々 木 正己 「 第 5 章 ミッ バチ の 社会 シス テム は 「 超 脳 」 だ 1」\n山口 恒夫 臣 修 「 見 虫 は スー パー 脳 』 技 術 評論 社 を 参考 に 作成 )\n7",
+                "question": "先生が, ミツバチについて話しています。 ミツバチが警戒音を発するとき, 情報はどのように流れますか。",
                 "script": [
                   {
                     "end": "00:07.32",
@@ -768,7 +768,7 @@
             "passage": {
               "alt_text": "読聴解 2番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q02.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q02_material.jpg"
             },
             "questions": [
               {
@@ -785,7 +785,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 37\n2 番\n克 生 が , 経営 学 の 授業 で , 消費 者 の 行動 に 影響 を 与え る 要因 に つい て 話し て いま す 。 こ\nク 先 生 が 最後 に する 質問 の 答え は どれ で すか 。 [2」]\n| 消費 者 の 行動 に 影響 を 与え る 要因\nロ 昌 ん 1 社会 的 文化 的 要因\n人 口 動態 の 変化\n人 間 関 係 の 変化\n意識 の 変化 な ど\n| 2 目 一 B 1 技術 的 ・ 環 境 的 要因\n技術 の 発達\nエネ ルギー 問題 な ど ーー 消費 行動 の 変化\n| 3 日 1 纏 的 要因\n経済 動向 や 雇用 情勢 な ど .\n| 4 日 一 Di 牙 着 的 要因\n規制 の 緩和 や 強化\n税制 や 年 金 制 度 の 変更 な ど\n(青木 幸弘 他 著 「 消 費 者 行動 論 」 有斐閣 を 参考 に 作成 )\n昌 庄",
+                "question": "先生が, 経営学の授業で, 消費者の行動に影響を与える要因について話しています。 この先生が最後にする質問の答えはどれですか。",
                 "script": [
                   {
                     "end": "00:11.10",
@@ -862,7 +862,7 @@
             "passage": {
               "alt_text": "読聴解 3番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q03.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q03_material.jpg"
             },
             "questions": [
               {
@@ -879,7 +879,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 38\n3 番\n先生 が , オフ ィ ス の 照明 に つい て 話し て いま す 。 実験 の 結果 に 関し て , この 先生 が 最後\nに する 質問 の 答え は どれ で すか 。 [3s]\nオフ ィ ス の 照明\n天井 の 上 明\n后 定 拓 記 因 ンー\nは ーー im 旧 |\nトー 。 稚 と\n壁 の 務 明\n【 実 験 】\n1. 照明 の 条件 (作業 者 の 手元 の 明る さ は 全て 同じ )\nA: 壁 の み\nB : 壁 と 天井 ( 壁 の ほう が 明る い )\nC : 壁 と 天 左 (天井 の ほう が 明る い )\nD : 天井 の み\n2. 作業 内 容 の 条件\n・ 皿 考 力 が 必要 な 作業\n・ 皿 考 力 が 必要 な い 作 業\n(Erina Kakehashi etal. 「Physiological and Psychological Effects of OLED Lighting Location on Office\nWork Efficiency」「International Journal of Affective Engineering」 Vol17 No2 を 参考 に 作成 )\n1. A\n2.B\n3. で C\n4. D\nー46 一",
+                "question": "先生が, オフィスの照明について話しています。 実験の結果に関して, この先生が最後にする質問の答えはどれですか。",
                 "script": [
                   {
                     "end": "00:07.68",
@@ -931,7 +931,7 @@
             "passage": {
               "alt_text": "読聴解 4番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q04.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q04_material.jpg"
             },
             "questions": [
               {
@@ -1023,7 +1023,7 @@
             "passage": {
               "alt_text": "読聴解 5番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q05.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q05_material.jpg"
             },
             "questions": [
               {
@@ -1040,7 +1040,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 40\n5 番\n先生 が , 現代 の 食事 の 問題 に つい て 説明 し て いま す 。 こ の 先生 は , 子ども の 食事 の 問題\nに は , 図 の 中 の どれ と どれ が 関わ っ て いる と 言っ て いま すか 。 [5s』\n現代 の 食事 の 問題\nー「 こ し ょ く 」 と は ?ー\nA 個 食\n家族 が 同じ テー ブル で それ ぞ れ\n別々 の も の を 食べ る こと\nB 小食 C 孤 食\n食べ る 量 が 少な いこ と , ひと り で 孤独 に\nダイ エッ ト な ど 食べ る こと\nD 固 食\n好き な も の ば か り 食 べ る こと ,\n食べ る も の が 固定 し て いる こと\n1. A と B\n2. B と D\n3. A と C\n4. C と D\nー48ー",
+                "question": "先生が, 現代の食事の問題について説明しています。 この先生は, 子どもの食事の問題には, 図の中のどれとどれが関わっていると言っていますか。",
                 "script": [
                   {
                     "end": "00:08.60",
@@ -1102,7 +1102,7 @@
             "passage": {
               "alt_text": "読聴解 6番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q06.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q06_material.jpg"
             },
             "questions": [
               {
@@ -1119,7 +1119,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 41\n6 番\n女子 学生 と 男子 学生 が , 幸福 度 に つい て 話 を し て いま す 。 こ の 女子 学生 が この あと 調べ\nょ よう と し て いる の は , グラ フ の どの 部 分 に つい て で すか 。 [e」\n。 っ 互\n年 齢 ・ 性 別に みる 幸福 度 画 語\n72 ロロ 女性\n幸 68\n福\n度\n金 66\n均\n0 目 目 旧 旧 旧 旧\n62\n目 旧 目 明 _ 当 還 見 還 、 目 明 _ 還\n0o 工 旦 Tu 菩 コ 一 画 | 一 較 | mm\n15-19 歳 20 代 30 代 。 40 代 50 代 60 代 70 歳 以上\n年 齢\n(桑原 進 他 「 生 活 の 質 に 関す る 調査 (世帯 調査 : 訪問 留置 法 ) の 結果 に つい て 」\n内 閣府 経済 社会 総合 研究 所 を 参考 に 作成)\n三 柏 ニ",
+                "question": "女子学生と男子学生が, 幸福度について話をしています。 この女子学生がこのあと調べようとしているのは, グラフのどの部分についてですか。",
                 "script": [
                   {
                     "end": "00:08.88",
@@ -1230,7 +1230,7 @@
             "passage": {
               "alt_text": "読聴解 7番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q07.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q07_material.jpg"
             },
             "questions": [
               {
@@ -1247,7 +1247,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 42\n7 番\n先生 が , 植物 の 接触 セン サー の 仕組 み に つ いて 話し て いま す 。 こ の 先生 の 説明 に 従っ て ,\nこの 仕組 み が 働 く 順 に 図 を 並べ る と どう な り ま すか 。 [7\n植物 の 反 触 セン サー の 仕組 み\nカル シウム イ \" 全 き @\nに\nの に 細胞 外\n0 生 W00000\nVVVVVVVVVV 目 旧 VvVvvvyvyv\nここ\nMCA 細胞 内\n(永井 理 「 植 物 の 接触 セン サー 分 か っ た 」「 中 日 新聞 」2021 年 11 月 29 日 朝刊 を 参考 に 作成 )\nア . カル シウム イオ ン が 細胞 内 イ . カル シウム イオ ン が\nの 遺伝 子 や 酵素 を 働か せる 移動 する\n款 う\nに イー |\nほら / の @ に\nンー 」\nに 】\nレロ 細胞 が ゆがん で エ . MCA の 中 心 に\n膜 が 引っ 張ら れる すき ま が で きる\n(DiiiiiiHi 目 HMD) 財 間\n1. アー イー ウー エ\n2. イー アー ウー っ エ\n3. ウー エニ イー ア\n4. エマ イー アー ウ\n時",
+                "question": "先生が, 植物の接触センサーの仕組みについて話しています。 この先生の説明に従って, この仕組みが働く順に図を並べるとどうなりますか。",
                 "script": [
                   {
                     "end": "00:08.90",
@@ -1304,7 +1304,7 @@
             "passage": {
               "alt_text": "読聴解 8番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q08.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q08_material.jpg"
             },
             "questions": [
               {
@@ -1321,7 +1321,7 @@
                   "3",
                   "4"
                 ],
-                "question": "",
+                "question": "先生が, 自然の多い農村を訪れる 「農村観光」 について話しています。 先生は資料の どの部分について話していますか。",
                 "script": [
                   {
                     "end": "00:10.06",
@@ -1373,7 +1373,7 @@
             "passage": {
               "alt_text": "読聴解 9番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q09.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q09_material.jpg"
             },
             "questions": [
               {
@@ -1390,7 +1390,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 44\n9 番\n先生 が , 業 が つい た 紙 パ ッ ク の 人 容器 の 工夫 に つい て 説明 し て いま す 。 こ の 先生 が , 特に\n注目 すべ きだ と 言っ て いる の は , 図 の どの 部 分 に つい て で すか 。 Ls』\n。 町\n[xs\nーー: ング\nて\n> 回 |\n昌 間 間 炎 レズ 、 ヘ ン ルイ | 本 ニニ ルル\nジン コル ーー\n由 回 |\n(日 本 経済 新聞 電子 版 2015 年 4 月 27 日 を 参考 に 作成 )\nー52 一",
+                "question": "先生が, ふたがついた紙バパックの容器の工夫について説明しています。 この先生が, 特に注目すべきだと言っているのは, 図のどの部分についてですか。",
                 "script": [
                   {
                     "end": "00:09.46",
@@ -1462,7 +1462,7 @@
             "passage": {
               "alt_text": "読聴解 10番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q10.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q10_material.jpg"
             },
             "questions": [
               {
@@ -1479,7 +1479,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 45\n10 番\n先生 が , 板 の 種類 と その 性 質 に つい て 説明 し て いま す 。 こ の 先生 の 話 に よる と , 簡 と 桶\n』 に は (A) と (B), どちら の 板 を 使う の が いい で すか 。 [ro\nいた めい た まさ めい た\n板 目 板 と 柱 目 板\n図 1 板 と 桶 図 2 切り 出す 方 向 に よる 板 の 種類\nぁ 革 3\n橋 か 守 内 」 ンー ビデ\n[| < で ラジ QY 宅 了 ロ < クタ ク ク\n山 ル > 同 際 時\nドー 1 人\n人 中 | 内 1 [ 』 間\nーー いと めい と 5\nで HH ツー 嘩 ) 純\n(「[ 月 刊 梅 江 製材 所 」 第 77 回 「 丁 目 と 板 目 の 違い に つい て ]」」\nhttps//www.umee-seizaisho.com/special77html/ 佐々 木 半 「 マ イス ター の Q&A」\nhttps//www.sasakivn.com/werkstatt/qa/spiegelschwarten.htm を 参考 に 作成 )\nを る\n1. 樽 に も 桶 に も , (A) が よい 。\n2. 橋 に も 桶 に $, (B) が よい 。\n3. 橋 に は (A), 桶 に は (B) が よい 。\n4. 権 に は (B), 桶 に は (A) が よい 。\nー53 一",
+                "question": "先生が, 板の種類とその性質について説明しています。 この先生の話によると, 椅と桶には (A) と (B), どちらの板を使うのがいいですか。",
                 "script": [
                   {
                     "end": "00:08.76",
@@ -1551,7 +1551,7 @@
             "passage": {
               "alt_text": "読聴解 11番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q11.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q11_material.jpg"
             },
             "questions": [
               {
@@ -1568,7 +1568,7 @@
                   "3",
                   "4"
                 ],
-                "question": "日 本 語 一 46\n11 番\n先生 が 授業 で , 消費 者 の 購 暫 行動 に つい て 話し て いま す 。 こ の 先生 が 最後 に 例 と し て\nげ る 消費 者 の 購買 行動 は どの タイ プ で すか 。 [|\n消費 者 の 購買 行動 の 4 タイプ\n製品 へ の 関心 の 程度\n高 一 一 一 一関 ーーー 一 一 一 一 島\n中 大\nF4 B : バラ エ テ ィ\nラ A : 情報 処理 型 癌 語 生 前\nン シー キン グ 型\n間 覚\nの 差\n知 異\n回 | C : 不 協 和 解 消 弄 D : 習慣 型\n算\n小\n(「Web サ イト の 方 向 性 を 決め る に は 「 購 買 行動 類型 」 が 使え る 」\nhttps://beehaveiinfodex.cojp/entry/webassael を 参考 に 作成 )\n1.。 廊\n2.B\n3. で C\n4. D\nー54ー",
+                "question": "先生が授業で, 消費者の購買行動について話しています。 この先生が最後に例として挙げる消費者の購買行動はどのタイプですか。",
                 "script": [
                   {
                     "end": "00:09.16",
@@ -1645,7 +1645,7 @@
             "passage": {
               "alt_text": "読聴解 12番",
               "type": "image",
-              "url": "/data/image/eju/2022_02/listening_reading_q12.jpg"
+              "url": "/data/image/eju/2022_02/listening_reading_q12_material.jpg"
             },
             "questions": [
               {
@@ -1662,7 +1662,7 @@
                   "3",
                   "4"
                 ],
-                "question": "",
+                "question": "先生が, ナメクジという生き物について話しています。 この先生の話によると, B の 実験の後. ナメクジはどうなりますか。",
                 "script": [
                   {
                     "end": "00:08.50",
