@@ -326,10 +326,10 @@ class ExamViewer {
 					section.questions = [normalizedQuestion];
 					if (firstPassage) {
 						firstPassage.id = 1;
-						firstPassage.questions = [normalizedQuestion];
+						delete firstPassage.questions;
 						section.passages = [firstPassage];
 					}
-					continue;
+					return;
 				}
 
 				const hasMultiplePassages = section.passages.length > 1;

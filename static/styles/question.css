@@ -372,6 +372,6 @@
 .passage-title {
 	font-weight: bold;
 	margin-bottom: 10px;
-	color: var(--vscode-button-foreground);
+	color: var(--vscode-foreground);
 }
 

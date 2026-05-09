@@ -78,7 +78,9 @@ class QuestionRenderer {
 			}
 		}
 
-		if (currentQuestion._groupPassage) {
+		const renderGroupPassageInsideQuestion = this.shouldRenderGroupPassageInsideQuestion(currentQuestion);
+
+		if (currentQuestion._groupPassage && !renderGroupPassageInsideQuestion) {
 			const passageKey = currentQuestion._groupPassageKey || `${currentSection.section_id || ''}:${currentQuestion.id ?? ''}`;
 			const passageEl = this.createPassageElement(currentQuestion._groupPassage, currentQuestion, passageKey);
 			if (currentQuestion._groupIndex || currentQuestion._groupTopic) {
@@ -97,7 +99,8 @@ class QuestionRenderer {
 			this.createQuestionElement(
 				currentQuestion,
 				this.examViewer.currentSectionIndex,
-				this.examViewer.currentQuestionIndex
+				this.examViewer.currentQuestionIndex,
+				renderGroupPassageInsideQuestion ? currentQuestion._groupPassage : null
 			)
 		);
 
@@ -237,7 +240,12 @@ class QuestionRenderer {
 	/**
 	 * 创建题目元素
 	 */
-	createQuestionElement(question: RendererAnyRecord, sectionIndex: number, questionIndex: number) {
+	createQuestionElement(
+		question: RendererAnyRecord,
+		sectionIndex: number,
+		questionIndex: number,
+		inlinePassage: RendererAnyRecord | null = null
+	) {
 		const questionDiv = DOMUtils.createElementWithClass("div", "question");
 		questionDiv.id = `question-${question.id}`;
 		const isWriting = this.isWritingQuestion(question);
@@ -272,9 +280,10 @@ class QuestionRenderer {
 		}
 
 		// 如果题目有passage（题干相关的补充图片），在题干后、选项前渲染
-		if (question.passage) {
+		const passageForQuestion = question.passage || inlinePassage;
+		if (passageForQuestion) {
 			const questionPassageDiv = DOMUtils.createElementWithClass("div", "question-passage");
-			questionPassageDiv.appendChild(this.createPassageElement(question.passage, question));
+			questionPassageDiv.appendChild(this.createPassageElement(passageForQuestion, question));
 			questionDiv.appendChild(questionPassageDiv);
 		}
 
@@ -1034,6 +1043,7 @@ class QuestionRenderer {
 		this.normalizeWritingSections(this.examViewer.currentExam);
 		const payload = JSON.parse(JSON.stringify(this.examViewer.currentExam));
 		this.normalizeWritingSections(payload);
+		this.normalizePassageSectionsForPersist(payload);
 		try {
 			if (window.APIClient?.updateExam) {
 				await window.APIClient.updateExam(examId, payload);
@@ -1098,11 +1108,34 @@ class QuestionRenderer {
 	}
 
 	private getQuestionNumberPrefix(question: RendererAnyRecord): string {
+		if (this.isEjuListeningQuestion(question)) {
+			const ejuNo = Number(question.eju_question_no ?? question.eju_answer_no);
+			if (Number.isFinite(ejuNo) && ejuNo > 0) {
+				return `${ejuNo}番  `;
+			}
+		}
 		const id = Number(question.id);
 		if (!Number.isFinite(id) || id <= 0) {
 			return '';
 		}
 		return `${id}. `;
+	}
+
+	private shouldRenderGroupPassageInsideQuestion(question: RendererAnyRecord): boolean {
+		return this.isEjuListeningReadingQuestion(question)
+			&& question?._groupPassage?.type === 'image';
+	}
+
+	private isEjuListeningQuestion(question: RendererAnyRecord | null | undefined): boolean {
+		if (!question) return false;
+		const tags = Array.isArray(question.skill_tags) ? question.skill_tags : [];
+		return tags.includes('eju.listening_reading') || tags.includes('eju.listening');
+	}
+
+	private isEjuListeningReadingQuestion(question: RendererAnyRecord | null | undefined): boolean {
+		if (!question) return false;
+		const tags = Array.isArray(question.skill_tags) ? question.skill_tags : [];
+		return tags.includes('eju.listening_reading');
 	}
 
 	private normalizeWritingSections(examPayload: RendererAnyRecord) {
@@ -1151,22 +1184,42 @@ class QuestionRenderer {
 			normalizeQuestion(primaryQuestion);
 			primaryQuestion.id = Number(primaryQuestion.id) > 0 ? Number(primaryQuestion.id) : 1;
 			primaryQuestion.question = String(primaryQuestion.question || '');
-			primaryQuestion._groupPassage = { ...normalizedPassage };
+			delete primaryQuestion._groupPassage;
 			primaryQuestion._groupPassageKey = primaryQuestion._groupPassageKey || `${section.section_id || ''}:p1`;
 			section.questions = [primaryQuestion];
 
 			if (firstPassageBlock) {
 				firstPassageBlock.id = Number(firstPassageBlock.id) > 0 ? Number(firstPassageBlock.id) : 1;
 				firstPassageBlock.passage = { ...normalizedPassage };
-				const mirroredQuestion = firstPassageQuestion || primaryQuestion;
-				normalizeQuestion(mirroredQuestion);
-				mirroredQuestion.id = Number(mirroredQuestion.id) > 0 ? Number(mirroredQuestion.id) : 1;
-				mirroredQuestion.question = String(mirroredQuestion.question || '');
-				mirroredQuestion._groupPassage = { ...normalizedPassage };
-				mirroredQuestion._groupPassageKey = mirroredQuestion._groupPassageKey || primaryQuestion._groupPassageKey;
-				firstPassageBlock.questions = [mirroredQuestion];
+				delete firstPassageBlock.questions;
 				section.passages = [firstPassageBlock];
 			}
+		});
+	}
+
+	private normalizePassageSectionsForPersist(examPayload: RendererAnyRecord) {
+		const sections = examPayload?.exam_info?.sections;
+		if (!Array.isArray(sections)) {
+			return;
+		}
+		sections.forEach((section: RendererAnyRecord) => {
+			const sectionTags = Array.isArray(section?.skill_tags) ? section.skill_tags : [];
+			const isWritingSection = section?.section_type === 'writing' || sectionTags.includes('eju.writing');
+			if (isWritingSection || !Array.isArray(section?.passages) || section.passages.length === 0) {
+				return;
+			}
+			delete section.questions;
+			section.passages.forEach((passage: RendererAnyRecord) => {
+				if (!Array.isArray(passage?.questions)) {
+					return;
+				}
+				passage.questions.forEach((question: RendererAnyRecord) => {
+					delete question._groupIndex;
+					delete question._groupPassage;
+					delete question._groupPassageKey;
+					delete question._groupTopic;
+				});
+			});
 		});
 	}
 
