@@ -87,7 +87,7 @@ READING_MANUAL_OVERRIDES: dict[str, dict[int, int | None]] = {
         9: 1,
     },
     "2015_02": {
-        3: None,
+        3: 1,
     },
     "2016_01": {
         1: 3, 2: 4, 3: 1, 4: 2, 5: 4, 6: 1, 7: 3, 8: 3, 9: 3, 10: 1,
@@ -116,8 +116,9 @@ READING_MANUAL_OVERRIDES: dict[str, dict[int, int | None]] = {
         1: 2,
     },
     "2021_02": {
-        21: None,
-        22: None,
+        21: 4,
+        22: 3,
+        23: 1,
     },
 }
 

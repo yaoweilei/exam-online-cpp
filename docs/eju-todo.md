@@ -1,6 +1,6 @@
 # EJU TODO
 
-Last updated: 2026-05-05
+Last updated: 2026-05-11
 
 This document tracks the remaining follow-up work after the recent EJU import, transcript, timestamp, layout, and answer backfill.
 
@@ -13,8 +13,7 @@ This document tracks the remaining follow-up work after the recent EJU import, t
 
 - Some answers are intentionally still blank because the official answer sheet omits them.
   Reading:
-  `2015_02` question `3`
-  `2021_02` questions `21`, `22`
+  none. Previously blank reading answers were filled by checking the source passage and marking the answer basis as text-inferred where the official answer sheet did not publish a key.
   Listening:
   `2019_01` question `5`
   `2021_02` question `4`
@@ -23,8 +22,8 @@ This document tracks the remaining follow-up work after the recent EJU import, t
 
 ## Product Follow-up
 
-- Add a dedicated UI state for omitted official answers.
-  Current state: these questions simply have no `correct_answer`.
+- Add a dedicated UI state for omitted official listening answers.
+  Current state: these listening questions simply have no `correct_answer`.
   Desired state: when `showAnswers` is enabled, render a clear label such as `官方未公布答案` or equivalent instead of just showing no green check.
 
 - Browser-level verification is still incomplete.
