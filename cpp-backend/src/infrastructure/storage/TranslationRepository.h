@@ -4,6 +4,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <string>
+#include <regex>
 
 #include <json/json.h>
 
@@ -14,7 +15,9 @@ namespace infrastructure::storage
 {
 // 段/句级译文众包仓库（B2：阅读分句双语对照）
 //
-// 文档路径：data/system/translations/jlpt/{level}/{examId}.json
+// 文档路径：
+//   - JLPT: data/system/translations/jlpt/{level}/{examId}.json
+//   - EJU:  data/system/translations/eju/japanese/{examId}.json
 // 文档形态：
 // {
 //   "exam_id": "N1_2010_07",
@@ -117,6 +120,10 @@ class TranslationRepository
         {
             return "jlpt";
         }
+        if (std::regex_match(examId, std::regex(R"(^\d{4}_(01|02)$)")))
+        {
+            return "eju";
+        }
         return "general";
     }
 
@@ -125,6 +132,10 @@ class TranslationRepository
         if (examId.size() >= 2 && (examId[0] == 'N' || examId[0] == 'n') && examId[1] >= '1' && examId[1] <= '5')
         {
             return lowerCopy(examId.substr(0, 2));
+        }
+        if (std::regex_match(examId, std::regex(R"(^\d{4}_(01|02)$)")))
+        {
+            return "japanese";
         }
         return "unknown";
     }

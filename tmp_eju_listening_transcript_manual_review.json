@@ -1,0 +1,107 @@
+{
+  "reviewed_at": "2026-05-12",
+  "scope": "Low-confidence EJU listening transcript items excluding known q12 OCR boundary noise.",
+  "fixed_from_pdf_image": [
+    {
+      "exam_id": "2015_02",
+      "question_no": 4,
+      "file": "data/paper/eju/2015_02.json",
+      "evidence_image": "data/image/eju/2015_02/transcript_q04.jpg",
+      "notes": "Corrected OCR character errors in brand support layer text and punctuation."
+    },
+    {
+      "exam_id": "2017_02",
+      "question_no": 10,
+      "file": "data/paper/eju/2017_02.json",
+      "evidence_image": "data/image/eju/2017_02/transcript_q10.jpg",
+      "notes": "Corrected 軸急時 to 緊急時."
+    },
+    {
+      "exam_id": "2019_01",
+      "question_no": 3,
+      "file": "data/paper/eju/2019_01.json",
+      "evidence_image": "data/image/eju/2019_01/transcript_q03.jpg",
+      "notes": "Restored missing phrases and final question text from the transcript image."
+    },
+    {
+      "exam_id": "2019_01",
+      "question_no": 17,
+      "file": "data/paper/eju/2019_01.json",
+      "evidence_image": "data/image/eju/2019_01/transcript_q17.jpg",
+      "notes": "Removed residual OCR punctuation artifacts."
+    },
+    {
+      "exam_id": "2022_01",
+      "question_no": 17,
+      "file": "data/paper/eju/2022_01.json",
+      "evidence_image": "data/image/eju/2022_01/transcript_q17.jpg",
+      "notes": "Corrected repeated OCR confusion around 蛾 and related terms."
+    },
+    {
+      "exam_id": "2022_02",
+      "question_no": 11,
+      "file": "data/paper/eju/2022_02.json",
+      "evidence_image": "data/image/eju/2022_02/transcript_q11.jpg",
+      "notes": "Corrected 特長ゃ機能 to 特徴や機能."
+    }
+  ],
+  "checked_no_change": [
+    {
+      "exam_id": "2023_02",
+      "question_no": 10,
+      "evidence_image": "data/image/eju/2023_02/transcript_q10.jpg",
+      "notes": "JSON matches the transcript image; low similarity came from OCR noise."
+    },
+    {
+      "exam_id": "2023_02",
+      "question_no": 20,
+      "evidence_image": "data/image/eju/2023_02/transcript_q20.jpg",
+      "notes": "JSON matches the transcript image; low similarity came from OCR noise."
+    },
+    {
+      "exam_id": "2023_02",
+      "question_no": 27,
+      "evidence_image": "data/image/eju/2023_02/transcript_q27.jpg",
+      "notes": "JSON matches the transcript image; low similarity came from OCR noise."
+    }
+  ],
+  "published_omissions_no_change": [
+    "2019_01 q5",
+    "2020_02 q5",
+    "2021_02 q4",
+    "2023_02 q1"
+  ],
+  "blocked_missing_source": [
+    {
+      "exam_id": "2023_01",
+      "file": "data/paper/eju/2023_01.json",
+      "status": "No transcript_pdf in source_files and no local 2023 first-session transcript PDF found under downloads/EJU日本语/【2】日本语听力音频+听力原文/听力原文2005-2023.",
+      "listening_scripts_in_json": 0,
+      "listening_questions": 27
+    }
+  ],
+  "verification": [
+    "All data/paper/eju/*.json files parse as JSON after edits.",
+    "Reviewed corrected target scripts for known OCR markers; none remain in the reviewed questions.",
+    "Full OCR re-audit was attempted but timed out; manual image review was used for the remaining low-confidence queue."
+  ],
+  "continued_review_2026_05_13": [
+    {
+      "scope": "Remaining EJU listening years with existing transcript PDFs.",
+      "actions": [
+        "Attached transcript_layout_image references for 2018_01 and 2018_02; both resolved 27 transcript question blocks.",
+        "Ran targeted OCR-artifact scans over all EJU listening scripts.",
+        "Applied high-confidence script-only corrections for obvious OCR artifacts such as abnormal punctuation, bracket noise, misread kana/kanji, and malformed common words.",
+        "Manually checked representative transcript images before applying specific corrections for 2010_02 q23, 2011_01 q26/q27, 2012_01 q11, 2014_01 q10, 2019_01 q25/q26, 2020_02 q26, 2021_01 q16/q18, 2022_01 q5/q12, and 2015_02 q7."
+      ],
+      "blocked": [
+        "2023_01 remains blocked because no transcript PDF is available locally and its 27 listening scripts are empty."
+      ],
+      "verification": [
+        "All data/paper/eju/*.json files parse after the continued edits.",
+        "Targeted OCR-artifact scan has no remaining actionable hits; residual prior hits were normal phrases such as 法則は, 予測の, and 正直.",
+        "git diff --check reported no whitespace errors for data/paper/eju."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2483 @@
+{
+  "exam_id": "2010_02",
+  "items": {
+    "1:p1": {
+      "0.0": {
+        "text": "请从以下两个题目中任选一个，写一篇 400～500 字的文章（含标点符号）。",
+        "kana": "いかのふたつのてえまのうち、どちらかひとつをえらんで400から500じでかいてください（くとうてんをふくむ）。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>以下</rb><rt>いか</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>二つ</rb><rt>ふたつ</rt></ruby>のテーマのうち、どちらか<ruby data-auto-furi=\"1\"><rb>一つ</rb><rt>ひとつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>選ん</rb><rt>えらん</rt></ruby>で400から500<ruby data-auto-furi=\"1\"><rb>字</rb><rt>じ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>てください（<ruby data-auto-furi=\"1\"><rb>句読点</rb><rt>くとうてん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>含む</rb><rt>ふくむ</rt></ruby>）。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "现在，在日本，购买调理好的食品的人、独自用餐的人正在增加，饮食生活正在发生变化。",
+        "kana": "げんざい、にっぽんでは、ちょうりずみしょくひんをかうひとや、ひとりでしょくじをするひとがふえるなど、しょくせいかつがへんかしています。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>現在</rb><rt>げんざい</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>では、<ruby data-auto-furi=\"1\"><rb>調理</rb><rt>ちょうり</rt></ruby><ruby data-auto-furi=\"1\"><rb>済み</rb><rt>ずみ</rt></ruby><ruby data-auto-furi=\"1\"><rb>食品</rb><rt>しょくひん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>買う</rb><rt>かう</rt></ruby><ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>や、ひとりで<ruby data-auto-furi=\"1\"><rb>食事</rb><rt>しょくじ</rt></ruby>をする<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>増える</rb><rt>ふえる</rt></ruby>など、<ruby data-auto-furi=\"1\"><rb>食生活</rb><rt>しょくせいかつ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>しています。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.0": {
+        "text": "关于饮食生活的变化，请说明你所在国家或你所知道地区的情况。",
+        "kana": "しょくせいかつのへんかについて、あなたのくにやしっているちいきのじょうきょうをせつめいしてください。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>食生活</rb><rt>しょくせいかつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>について、あなたの<ruby data-auto-furi=\"1\"><rb>国</rb><rt>くに</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>知っ</rb><rt>しっ</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>地域</rb><rt>ちいき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>状況</rb><rt>じょうきょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>説明</rb><rt>せつめい</rt></ruby>してください。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.0": {
+        "text": "并请列举理由，写出你认为这种情况今后会如何发展。",
+        "kana": "そして、そのじょうきょうはこれからどうなっていくとおもうか、あなたのかんがえを、りゆうをあげてかいてください。",
+        "ruby": "そして、その<ruby data-auto-furi=\"1\"><rb>状況</rb><rt>じょうきょう</rt></ruby>はこれからどうなっていくと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>か、あなたの<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>を、<ruby data-auto-furi=\"1\"><rb>理由</rb><rt>りゆう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>挙げ</rb><rt>あげ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>てください。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "8.0": {
+        "text": "现在，在日本，由于人口集中到城市地区，各方面都出现了影响。",
+        "kana": "げんざい、にっぽんでは、としぶにひとがしゅうちゅうすることで、さまざまなほうめんにえいきょうがでています。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>現在</rb><rt>げんざい</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>では、<ruby data-auto-furi=\"1\"><rb>都市</rb><rt>とし</rt></ruby><ruby data-auto-furi=\"1\"><rb>部</rb><rt>ぶ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>集中</rb><rt>しゅうちゅう</rt></ruby>することで、<ruby data-auto-furi=\"1\"><rb>様々</rb><rt>さまざま</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>方面</rb><rt>ほうめん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>影響</rb><rt>えいきょう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>出</rb><rt>で</rt></ruby>ています。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "9.0": {
+        "text": "关于人口向城市地区集中所带来的影响，请说明你所在国家或你所知道地区的情况。",
+        "kana": "としぶへのひとのしゅうちゅうによるえいきょうについて、あなたのくにやしっているちいきのじょうきょうをせつめいしてください。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>都市</rb><rt>とし</rt></ruby><ruby data-auto-furi=\"1\"><rb>部</rb><rt>ぶ</rt></ruby>への<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>集中</rb><rt>しゅうちゅう</rt></ruby>による<ruby data-auto-furi=\"1\"><rb>影響</rb><rt>えいきょう</rt></ruby>について、あなたの<ruby data-auto-furi=\"1\"><rb>国</rb><rt>くに</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>知っ</rb><rt>しっ</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>地域</rb><rt>ちいき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>状況</rb><rt>じょうきょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>説明</rb><rt>せつめい</rt></ruby>してください。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "10.0": {
+        "text": "并请列举理由，写出你认为这种情况今后会如何发展。",
+        "kana": "そして、そのじょうきょうはこれからどうなっていくとおもうか、あなたのかんがえを、りゆうをあげてかいてください。",
+        "ruby": "そして、その<ruby data-auto-furi=\"1\"><rb>状況</rb><rt>じょうきょう</rt></ruby>はこれからどうなっていくと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>か、あなたの<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>を、<ruby data-auto-furi=\"1\"><rb>理由</rb><rt>りゆう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>挙げ</rb><rt>あげ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>てください。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p1": {
+      "0.0": {
+        "text": "律师工作中心存在的，正是活生生的“人”和“社会”。",
+        "kana": "べんごしのしごとのまんなかにいるのは、たならぬいきた「にんげん」であり、「しゃかい」である。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>弁護士</rb><rt>べんごし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>真ん中</rb><rt>まんなか</rt></ruby>にいるのは、<ruby data-auto-furi=\"1\"><rb>他</rb><rt>た</rt></ruby>ならぬ<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>た「<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>」であり、「<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>」である。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "也就是说，律师这一工作的精髓，归根到底是对“有困难的人”即委托人的需求诚",
+        "kana": "つまり、べんごしというしごとのしんずいは、あくまで、「こまっているひと」＝いらいしゃのにいずにまこと",
+        "ruby": "つまり、<ruby data-auto-furi=\"1\"><rb>弁護士</rb><rt>べんごし</rt></ruby>という<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>真髄</rb><rt>しんずい</rt></ruby>は、あくまで、「<ruby data-auto-furi=\"1\"><rb>困っ</rb><rt>こまっ</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>」＝<ruby data-auto-furi=\"1\"><rb>依頼</rb><rt>いらい</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>のニーズに<ruby data-auto-furi=\"1\"><rb>誠</rb><rt>まこと</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "恳地倾听，并为了回应这些需求，为委托人尽最大努力，绝不是",
+        "kana": "じつにみみをかたむけ、それにこたえるべく、いらいしゃのためにさいぜんをつくすことこそであり、それと",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>実に</rb><rt>じつに</rt></ruby><ruby data-auto-furi=\"1\"><rb>耳</rb><rt>みみ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>傾け</rb><rt>かたむけ</rt></ruby>、それに<ruby data-auto-furi=\"1\"><rb>応える</rb><rt>こたえる</rt></ruby>べく、<ruby data-auto-furi=\"1\"><rb>依頼</rb><rt>いらい</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>のために<ruby data-auto-furi=\"1\"><rb>最善</rb><rt>さいぜん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>尽くす</rb><rt>つくす</rt></ruby>ことこそであり、それと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "谈论与此无关的法律理论等等。",
+        "kana": "むえんなほうりつろんを、うんぬんすることではない。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>無縁</rb><rt>むえん</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>論</rb><rt>ろん</rt></ruby>を、<ruby data-auto-furi=\"1\"><rb>云々</rb><rt>うんぬん</rt></ruby>することではない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.1": {
+        "text": "例如，正如菜刀和砧板是为了做出美味料理",
+        "kana": "たとえば、りょうりほうちょうやまないたが、おいしいりょうり",
+        "ruby": "たとえば、<ruby data-auto-furi=\"1\"><rb>料理</rb><rt>りょうり</rt></ruby><ruby data-auto-furi=\"1\"><rb>包丁</rb><rt>ほうちょう</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>まな板</rb><rt>まないた</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>美味しい</rb><rt>おいしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>料理</rb><rt>りょうり</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.0": {
+        "text": "的工具一样，法律也不过是拯救人（委托人）的工具",
+        "kana": "をつくりだすためのどうぐであるように、ほうりつもまた、ひと（いらいしゃ）をすくうためのどうぐにか",
+        "ruby": "を<ruby data-auto-furi=\"1\"><rb>つくり出す</rb><rt>つくりだす</rt></ruby>ための<ruby data-auto-furi=\"1\"><rb>道具</rb><rt>どうぐ</rt></ruby>であるように、<ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby>もまた、<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>（<ruby data-auto-furi=\"1\"><rb>依頼</rb><rt>いらい</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>）を<ruby data-auto-furi=\"1\"><rb>救う</rb><rt>すくう</rt></ruby>ための<ruby data-auto-furi=\"1\"><rb>道具</rb><rt>どうぐ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>過</rb><rt>か</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.0": {
+        "text": "而已。",
+        "kana": "ぎない。",
+        "ruby": "ぎない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.1": {
+        "text": "就像不应该忘记端出美味料理，却一直看着菜刀和砧板入迷、只顾保养",
+        "kana": "おいしいりょうりをだすのをわすれ、いつまでも、りょうりほうちょうやまないたにみとれ、ていれ",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>美味しい</rb><rt>おいしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>料理</rb><rt>りょうり</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>出す</rb><rt>だす</rt></ruby>のを<ruby data-auto-furi=\"1\"><rb>忘れ</rb><rt>わすれ</rt></ruby>、いつまでも、<ruby data-auto-furi=\"1\"><rb>料理</rb><rt>りょうり</rt></ruby><ruby data-auto-furi=\"1\"><rb>包丁</rb><rt>ほうちょう</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>まな板</rb><rt>まないた</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>見とれ</rb><rt>みとれ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>手入れ</rb><rt>ていれ</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.0": {
+        "text": "一样，法律实务家如果埋没于法律本身及其解释论，把委托人的心情",
+        "kana": "をしているべきでないのとどうよう、ほうりつそのものやそのかいしゃくろんにまいぼつし、いらいしゃのきもちを置",
+        "ruby": "をしているべきでないのと<ruby data-auto-furi=\"1\"><rb>同様</rb><rt>どうよう</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby>そのものやその<ruby data-auto-furi=\"1\"><rb>解釈</rb><rt>かいしゃく</rt></ruby><ruby data-auto-furi=\"1\"><rb>論</rb><rt>ろん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>埋没</rb><rt>まいぼつ</rt></ruby>し、<ruby data-auto-furi=\"1\"><rb>依頼</rb><rt>いらい</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>気持</rb><rt>きもち</rt></ruby>を置",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "7.0": {
+        "text": "抛在一边，我认为这可以说是本末倒置。",
+        "kana": "きさりにしてしまうことは、ほうりつじつむかにとって、いわばほんまつてんとうのことだとおもうのだ。",
+        "ruby": "き<ruby data-auto-furi=\"1\"><rb>去り</rb><rt>さり</rt></ruby>にしてしまうことは、<ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>実務</rb><rt>じつむ</rt></ruby><ruby data-auto-furi=\"1\"><rb>家</rb><rt>か</rt></ruby>にとって、いわば<ruby data-auto-furi=\"1\"><rb>本末転倒</rb><rt>ほんまつてんとう</rt></ruby>のことだと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby>のだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "8.0": {
+        "text": "因此，我认为律师这一实务家不可或缺的资质，与其说是喜欢法律本身，",
+        "kana": "だから、わたしは、べんごしというじつむかにかかせないししつは、ほうりつそのものをすきであると",
+        "ruby": "だから、<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>弁護士</rb><rt>べんごし</rt></ruby>という<ruby data-auto-furi=\"1\"><rb>実務</rb><rt>じつむ</rt></ruby><ruby data-auto-furi=\"1\"><rb>家</rb><rt>か</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>欠か</rb><rt>かか</rt></ruby>せない<ruby data-auto-furi=\"1\"><rb>資質</rb><rt>ししつ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby>そのものを<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>であると",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "9.0": {
+        "text": "不如说是喜欢活生生的“人”和“社会”，至少是对其有兴趣",
+        "kana": "いうことよりも、いきた「にんげん」や「しゃかい」がすきであること、すくなくともかんしんがあると",
+        "ruby": "いうことよりも、<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>た「<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>」や「<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>」が<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>であること、<ruby data-auto-furi=\"1\"><rb>少なくとも</rb><rt>すくなくとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>関心</rb><rt>かんしん</rt></ruby>があると",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "10.0": {
+        "text": "。",
+        "kana": "いうことなのだとおもっている。",
+        "ruby": "いうことなのだと<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>ている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "11.0": {
+        "text": "（道步美《致“讨厌法律”的你》，《法学研讨会》第 53 卷第 4 号，日本评论社）",
+        "kana": "（みちあゆみ『『ほうりつギライ』のあなたへ』『ほうがくせみなあ』だい53かん4ごう　にっぽんひょうろんしゃ）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>道</rb><rt>みち</rt></ruby>あゆみ『『<ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby>ギライ』のあなたへ』『<ruby data-auto-furi=\"1\"><rb>法学</rb><rt>ほうがく</rt></ruby>セミナー』<ruby data-auto-furi=\"1\"><rb>第</rb><rt>だい</rt></ruby>53<ruby data-auto-furi=\"1\"><rb>巻</rb><rt>かん</rt></ruby>4<ruby data-auto-furi=\"1\"><rb>号</rb><rt>ごう</rt></ruby>　<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby><ruby data-auto-furi=\"1\"><rb>評論</rb><rt>ひょうろん</rt></ruby><ruby data-auto-furi=\"1\"><rb>社</rb><rt>しゃ</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p1:q1:question": {
+      "0.0": {
+        "text": "在下面的文章中，作者认为从事律师工作时重要的是什么？",
+        "kana": "つぎのぶんしょうでひっしゃは、べんごしのしごとをするうえでじゅうようなことはなにだとのべていますか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>筆者</rb><rt>ひっしゃ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>弁護士</rb><rt>べんごし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>をする<ruby data-auto-furi=\"1\"><rb>上</rb><rt>うえ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>重要</rb><rt>じゅうよう</rt></ruby>なことは<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>述べ</rb><rt>のべ</rt></ruby>ていますか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p1:q1:option1": {
+      "0.0": {
+        "text": "1. 最重要的是喜欢法律。",
+        "kana": "1. なによりほうりつがすきであること",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>何より</rb><rt>なにより</rt></ruby><ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>であること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p1:q1:option2": {
+      "0.0": {
+        "text": "2. 致力于学习法律。",
+        "kana": "2. ほうりつのべんきょうにちからをそそぐこと",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>勉強</rb><rt>べんきょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>力</rb><rt>ちから</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>注ぐ</rb><rt>そそぐ</rt></ruby>こと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p1:q1:option3": {
+      "0.0": {
+        "text": "3. 向委托人详细讲解法律。",
+        "kana": "3. いらいしゃにほうりつをくわしくおしえること",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>依頼</rb><rt>いらい</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>法律</rb><rt>ほうりつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>詳しく</rb><rt>くわしく</rt></ruby><ruby data-auto-furi=\"1\"><rb>教える</rb><rt>おしえる</rt></ruby>こと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p1:q1:option4": {
+      "0.0": {
+        "text": "4. 优先考虑委托人的心情和利益。",
+        "kana": "4. いらいしゃのきもちやりえきをゆうせんすること",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>依頼</rb><rt>いらい</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>気持</rb><rt>きもち</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>利益</rb><rt>りえき</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>優先</rb><rt>ゆうせん</rt></ruby>すること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p2": {
+      "0.0": {
+        "text": "在西方教育传统中，有很多做法是让年轻人离开父母、住进宿舍接受教育。",
+        "kana": "せいようのきょういくでんとうに、わかものをおやからはなしてりょうにいれてきょういくするというところがおおかった。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>西洋</rb><rt>せいよう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>教育</rb><rt>きょういく</rt></ruby><ruby data-auto-furi=\"1\"><rb>伝統</rb><rt>でんとう</rt></ruby>に、<ruby data-auto-furi=\"1\"><rb>若者</rb><rt>わかもの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>親</rb><rt>おや</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>離し</rb><rt>はなし</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>寮</rb><rt>りょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>入れ</rb><rt>いれ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>教育</rb><rt>きょういく</rt></ruby>するというところが<ruby data-auto-furi=\"1\"><rb>多かっ</rb><rt>おおかっ</rt></ruby>た。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "这种制度如今仍保留在欧美的大学中。",
+        "kana": "このせいどはおうべいのだいがくにいまものこっている。",
+        "ruby": "この<ruby data-auto-furi=\"1\"><rb>制度</rb><rt>せいど</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>欧米</rb><rt>おうべい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>大学</rb><rt>だいがく</rt></ruby>にいまも<ruby data-auto-furi=\"1\"><rb>残っ</rb><rt>のこっ</rt></ruby>ている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "牛津和剑桥实行全宿舍制，规定如果在学院用餐次数未达到一定次数，就不能毕业。",
+        "kana": "オクスフォードやケンプリッジはぜんりょうせいで、あるかいすういじょうかれっじでめしをくわないとそつぎょうできないようになっている。",
+        "ruby": "オクスフォードやケンプリッジは<ruby data-auto-furi=\"1\"><rb>全寮</rb><rt>ぜんりょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>制</rb><rt>せい</rt></ruby>で、ある<ruby data-auto-furi=\"1\"><rb>回数</rb><rt>かいすう</rt></ruby><ruby data-auto-furi=\"1\"><rb>以上</rb><rt>いじょう</rt></ruby>カレッジで<ruby data-auto-furi=\"1\"><rb>飯</rb><rt>めし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>食わ</rb><rt>くわ</rt></ruby>ないと<ruby data-auto-furi=\"1\"><rb>卒業</rb><rt>そつぎょう</rt></ruby>できないようになっている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "在日本，第一高等学校等旧制高校也采用全宿舍制，设施上做不到的地方，也要求至少过一年宿舍生活。",
+        "kana": "にっぽんでも、だいちこうとうがっこうなどのきゅうせいこうこうはぜんりょうせいをとり、しせつじょうそれができないところはいちねんかんだけでもりょうせいかつをすることをかした。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>でも、<ruby data-auto-furi=\"1\"><rb>第一高等学校</rb><rt>だいちこうとうがっこう</rt></ruby>などの<ruby data-auto-furi=\"1\"><rb>旧制</rb><rt>きゅうせい</rt></ruby><ruby data-auto-furi=\"1\"><rb>高校</rb><rt>こうこう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>全寮</rb><rt>ぜんりょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>制</rb><rt>せい</rt></ruby>をとり、<ruby data-auto-furi=\"1\"><rb>施設</rb><rt>しせつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>上</rb><rt>じょう</rt></ruby>それができないところは<ruby data-auto-furi=\"1\"><rb>一</rb><rt>いち</rt></ruby><ruby data-auto-furi=\"1\"><rb>年間</rb><rt>ねんかん</rt></ruby>だけでも<ruby data-auto-furi=\"1\"><rb>寮</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>をすることを<ruby data-auto-furi=\"1\"><rb>課し</rb><rt>かし</rt></ruby>た。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "战后住宅状况也不好，但再后来个人主义发展，人们不太欢迎过宿舍生活。",
+        "kana": "せんごはじゅうたくじじょうもわるかったが、さらにそのごはこじんしゅぎがはったつして、あまりりょうせいかつをするようなことはよろこばれなくなった。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>戦後</rb><rt>せんご</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>住宅</rb><rt>じゅうたく</rt></ruby><ruby data-auto-furi=\"1\"><rb>事情</rb><rt>じじょう</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>悪かっ</rb><rt>わるかっ</rt></ruby>たが、さらに<ruby data-auto-furi=\"1\"><rb>その後</rb><rt>そのご</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>個人</rb><rt>こじん</rt></ruby><ruby data-auto-furi=\"1\"><rb>主義</rb><rt>しゅぎ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>発達</rb><rt>はったつ</rt></ruby>して、あまり<ruby data-auto-furi=\"1\"><rb>寮</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>をするようなことは<ruby data-auto-furi=\"1\"><rb>喜ば</rb><rt>よろこば</rt></ruby>れなくなった。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "确实，因人而异，集体生活也有压抑个人自立的一面。",
+        "kana": "たしかにこじんによって、しゅうだんせいかつがこのじりつをよくあつするようなめんもあろう。",
+        "ruby": "たしかに<ruby data-auto-furi=\"1\"><rb>個人</rb><rt>こじん</rt></ruby>によって、<ruby data-auto-furi=\"1\"><rb>集団</rb><rt>しゅうだん</rt></ruby><ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>個</rb><rt>こ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>自立</rb><rt>じりつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>抑圧</rb><rt>よくあつ</rt></ruby>するような<ruby data-auto-furi=\"1\"><rb>面</rb><rt>めん</rt></ruby>もあろう。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.3": {
+        "text": "不过，这里本来的主旨是从父母身边自立。",
+        "kana": "ただ、ここではおやからのじりつということがほんしである。",
+        "ruby": "ただ、ここでは<ruby data-auto-furi=\"1\"><rb>親</rb><rt>おや</rt></ruby>からの<ruby data-auto-furi=\"1\"><rb>自立</rb><rt>じりつ</rt></ruby>ということが<ruby data-auto-furi=\"1\"><rb>本旨</rb><rt>ほんし</rt></ruby>である。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.4": {
+        "text": "离开出生的地方，离开父母，到有大学的城市去，年轻人就会产生必须成为大人、必须自立的心情。",
+        "kana": "うまれたところからはなれ、おやからはなれ、だいがくのあるとかいにでると、わかものはおとなになってじりつしなければというきぶんになるものである。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>生まれ</rb><rt>うまれ</rt></ruby>たところから<ruby data-auto-furi=\"1\"><rb>離れ</rb><rt>はなれ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>親</rb><rt>おや</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>離れ</rb><rt>はなれ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>大学</rb><rt>だいがく</rt></ruby>のある<ruby data-auto-furi=\"1\"><rb>都会</rb><rt>とかい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>出る</rb><rt>でる</rt></ruby>と、<ruby data-auto-furi=\"1\"><rb>若者</rb><rt>わかもの</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>になって<ruby data-auto-furi=\"1\"><rb>自立</rb><rt>じりつ</rt></ruby>しなければという<ruby data-auto-furi=\"1\"><rb>気分</rb><rt>きぶん</rt></ruby>になるものである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "（中山茂《给即将成为大学生的你》岩波书店）",
+        "kana": "（なかやましげる『だいがくせいになるきみへ』いわなみしょてん）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>中山</rb><rt>なかやま</rt></ruby><ruby data-auto-furi=\"1\"><rb>茂</rb><rt>しげる</rt></ruby>『<ruby data-auto-furi=\"1\"><rb>大学生</rb><rt>だいがくせい</rt></ruby>になるきみへ』<ruby data-auto-furi=\"1\"><rb>岩波書店</rb><rt>いわなみしょてん</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p2:q2:question": {
+      "0.0": {
+        "text": "在下面的文章中，作者最想说明的关于宿舍生活的内容是哪一项？",
+        "kana": "つぎのぶんしょうでひっしゃが、りょうせいかつについてもっともいいたいことはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>筆者</rb><rt>ひっしゃ</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>寮</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>について<ruby data-auto-furi=\"1\"><rb>最も</rb><rt>もっとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>言い</rb><rt>いい</rt></ruby>たいことはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p2:q2:option1": {
+      "0.0": {
+        "text": "1. 宿舍生活不适合现代年轻人。",
+        "kana": "1. りょうせいかつは、げんだいのわかものにはふさわしくない。",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>寮</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>現代</rb><rt>げんだい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>若者</rb><rt>わかもの</rt></ruby>にはふさわしくない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p2:q2:option2": {
+      "0.0": {
+        "text": "2. 宿舍生活具有使年轻人作为大人自立的作用。",
+        "kana": "2. りょうせいかつには、わかものをおとなとしてじりつさせるはたらきがある。",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>寮</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>には、<ruby data-auto-furi=\"1\"><rb>若者</rb><rt>わかもの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>として<ruby data-auto-furi=\"1\"><rb>自立</rb><rt>じりつ</rt></ruby>させる<ruby data-auto-furi=\"1\"><rb>働き</rb><rt>はたらき</rt></ruby>がある。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p2:q2:option3": {
+      "0.0": {
+        "text": "3. 比起宿舍的集体生活，更应该让年轻人一个人生活。",
+        "kana": "3. りょうのしゅうだんせいかつよりも、わかものはいちにんでせいかつさせるべきだ。",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>寮</rb><rt>りょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>集団</rb><rt>しゅうだん</rt></ruby><ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>よりも、<ruby data-auto-furi=\"1\"><rb>若者</rb><rt>わかもの</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>一</rb><rt>いち</rt></ruby><ruby data-auto-furi=\"1\"><rb>人</rb><rt>にん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>させるべきだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p2:q2:option4": {
+      "0.0": {
+        "text": "4. 宿舍生活会进一步促进年轻人的个人主义。",
+        "kana": "4. りょうせいかつは、わかもののこじんしゅぎをいっそうさかんにしてくれる。",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>寮</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>若者</rb><rt>わかもの</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>個人</rb><rt>こじん</rt></ruby><ruby data-auto-furi=\"1\"><rb>主義</rb><rt>しゅぎ</rt></ruby>をいっそう<ruby data-auto-furi=\"1\"><rb>盛ん</rb><rt>さかん</rt></ruby>にしてくれる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p3": {
+      "0.0": {
+        "text": "认为“我很强。",
+        "kana": "「わたしはつよいんだ。",
+        "ruby": "「<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>強い</rb><rt>つよい</rt></ruby>んだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "无论什么敌人来都不会输”的人，乍看之下似乎很强。",
+        "kana": "どんなてきがきてもまけないんだ」とおもっているひとは、いっけん、つよそうにみえます。",
+        "ruby": "どんな<ruby data-auto-furi=\"1\"><rb>敵</rb><rt>てき</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>来</rb><rt>き</rt></ruby>ても<ruby data-auto-furi=\"1\"><rb>負け</rb><rt>まけ</rt></ruby>ないんだ」と<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>一見</rb><rt>いっけん</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>強</rb><rt>つよ</rt></ruby>そうに<ruby data-auto-furi=\"1\"><rb>見え</rb><rt>みえ</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "但是，每当发生什么事，“是赢还是输”这样的意识就会起作用，因此每天都处于战斗状态。",
+        "kana": "しかし、なにかがおこるたびに「かつか、まけるか」といったいしきがはたらくため、まいにちがせんとうたいせいです。",
+        "ruby": "しかし、<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>かが<ruby data-auto-furi=\"1\"><rb>起こる</rb><rt>おこる</rt></ruby>たびに「<ruby data-auto-furi=\"1\"><rb>勝つ</rb><rt>かつ</rt></ruby>か、<ruby data-auto-furi=\"1\"><rb>負ける</rb><rt>まける</rt></ruby>か」といった<ruby data-auto-furi=\"1\"><rb>意識</rb><rt>いしき</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>働く</rb><rt>はたらく</rt></ruby>ため、<ruby data-auto-furi=\"1\"><rb>毎日</rb><rt>まいにち</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>戦闘</rb><rt>せんとう</rt></ruby><ruby data-auto-furi=\"1\"><rb>態勢</rb><rt>たいせい</rt></ruby>です。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.3": {
+        "text": "这样的人生，是紧张的连续。",
+        "kana": "そういうひとのじんせいは、きんちょうのれんぞく。",
+        "ruby": "そういう<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人生</rb><rt>じんせい</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>緊張</rb><rt>きんちょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>連続</rb><rt>れんぞく</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.4": {
+        "text": "绝不能说是强。",
+        "kana": "けっして、つよいとはいえません。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>決して</rb><rt>けっして</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>強い</rb><rt>つよい</rt></ruby>とは<ruby data-auto-furi=\"1\"><rb>言え</rb><rt>いえ</rt></ruby>ません。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "无敌的人共同的一点，是没有敌人、伙伴这样的概念。",
+        "kana": "むてきなひとにきょうつうしているのが、てき、みかたというがいねんがないことです。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>無敵</rb><rt>むてき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>共通</rb><rt>きょうつう</rt></ruby>しているのが、<ruby data-auto-furi=\"1\"><rb>敵</rb><rt>てき</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>味方</rb><rt>みかた</rt></ruby>という<ruby data-auto-furi=\"1\"><rb>概念</rb><rt>がいねん</rt></ruby>がないことです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "即使有人想挑起争斗，如果对方没有把自己当作敌人的心情，争斗就无法成立。",
+        "kana": "あらそおうといどんでいっても、そのあいてにじぶんをてきだとおもうきもちがなければ、あらそいはせいりつしません。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>争お</rb><rt>あらそお</rt></ruby>うと<ruby data-auto-furi=\"1\"><rb>挑ん</rb><rt>いどん</rt></ruby>でいっても、その<ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>敵</rb><rt>てき</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>思う</rb><rt>おもう</rt></ruby><ruby data-auto-furi=\"1\"><rb>気持ち</rb><rt>きもち</rt></ruby>がなければ、<ruby data-auto-furi=\"1\"><rb>争い</rb><rt>あらそい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>成立</rb><rt>せいりつ</rt></ruby>しません。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "即使知道对方没有争斗的意思，还继续攻击的人，大概也几乎没有吧。",
+        "kana": "あいてにあらそうきがないとわかっても、さらにせめてくるひとは、まずいないでしょう。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>争う</rb><rt>あらそう</rt></ruby><ruby data-auto-furi=\"1\"><rb>気</rb><rt>き</rt></ruby>がないとわかっても、さらに<ruby data-auto-furi=\"1\"><rb>攻め</rb><rt>せめ</rt></ruby>てくる<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は、まずいないでしょう。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.3": {
+        "text": "正因如此才是无敌的。",
+        "kana": "だからこそむてきなのです。",
+        "ruby": "だからこそ<ruby data-auto-furi=\"1\"><rb>無敵</rb><rt>むてき</rt></ruby>なのです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.4": {
+        "text": "这样的人可以不知争斗地活下去。",
+        "kana": "そういったひとは、あらそいしらずでいきていけます。",
+        "ruby": "そういった<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>争い</rb><rt>あらそい</rt></ruby><ruby data-auto-furi=\"1\"><rb>知らず</rb><rt>しらず</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>ていけます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.5": {
+        "text": "不与人吵架，也不发生纠纷，悠然度过每天，同时使自己的人生充实起来。",
+        "kana": "ひととけんかしたり、もめたりすることなく、ひょうひょうとまいにちをいきながら、じぶんのじんせいをじゅうじつさせていくことができるのです。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>とケンカしたり、もめたりすることなく、ひょうひょうと<ruby data-auto-furi=\"1\"><rb>毎日</rb><rt>まいにち</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>ながら、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人生</rb><rt>じんせい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>充実</rb><rt>じゅうじつ</rt></ruby>させていくことができるのです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "（中野裕弓《100 人的村庄：不争斗的沟通》讲谈社）",
+        "kana": "（なかのひろしゆみ『100にんのむら　あらそわないこみゅにけえしょん』こうだんしゃ）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>中野</rb><rt>なかの</rt></ruby><ruby data-auto-furi=\"1\"><rb>裕</rb><rt>ひろし</rt></ruby><ruby data-auto-furi=\"1\"><rb>弓</rb><rt>ゆみ</rt></ruby>『100<ruby data-auto-furi=\"1\"><rb>人</rb><rt>にん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>村</rb><rt>むら</rt></ruby>　<ruby data-auto-furi=\"1\"><rb>争わ</rb><rt>あらそわ</rt></ruby>ないコミュニケーション』<ruby data-auto-furi=\"1\"><rb>講談社</rb><rt>こうだんしゃ</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p3:q3:question": {
+      "0.0": {
+        "text": "在下面的文章中，作者说划线部分“无敌的人”是什么样的人？",
+        "kana": "つぎのぶんしょうでひっしゃは、かせんぶ「むてきなひと」とはどんなひとだといっていますか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>筆者</rb><rt>ひっしゃ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>下線</rb><rt>かせん</rt></ruby><ruby data-auto-furi=\"1\"><rb>部</rb><rt>ぶ</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>無敵</rb><rt>むてき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>」とはどんな<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>言っ</rb><rt>いっ</rt></ruby>ていますか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p3:q3:option1": {
+      "0.0": {
+        "text": "1. 相信自己强大的人。",
+        "kana": "1. じぶんのつよさをしんじているひと",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>強</rb><rt>つよ</rt></ruby>さを<ruby data-auto-furi=\"1\"><rb>信じ</rb><rt>しんじ</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p3:q3:option2": {
+      "0.0": {
+        "text": "2. 经常处于战斗状态的人。",
+        "kana": "2. つねにせんとうたいせいにあるひと",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>常に</rb><rt>つねに</rt></ruby><ruby data-auto-furi=\"1\"><rb>戦闘</rb><rt>せんとう</rt></ruby><ruby data-auto-furi=\"1\"><rb>態勢</rb><rt>たいせい</rt></ruby>にある<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p3:q3:option3": {
+      "0.0": {
+        "text": "3. 不把对方看作敌人的人。",
+        "kana": "3. あいてをてきだとおもわないひと",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>相手</rb><rt>あいて</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>敵</rb><rt>てき</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>思わ</rb><rt>おもわ</rt></ruby>ない<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p3:q3:option4": {
+      "0.0": {
+        "text": "4. 只考虑自己的人。",
+        "kana": "4. じぶんのことだけをかんがえているひと",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>のことだけを<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p4": {
+      "0.0": {
+        "text": "“成功的反面是？",
+        "kana": "「せいこうのはんたいは？",
+        "ruby": "「<ruby data-auto-furi=\"1\"><rb>成功</rb><rt>せいこう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>反対</rb><rt>はんたい</rt></ruby>は？",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "在安静下来的小学六年级教室里，讲师提出第一个问题后，",
+        "kana": "しずまりかえったしょうがくろくねんせいのきょうしつで、こうしがさいしょのしつもんをすると、",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>静まり返っ</rb><rt>しずまりかえっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>小学</rb><rt>しょうがく</rt></ruby>６<ruby data-auto-furi=\"1\"><rb>年生</rb><rt>ねんせい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>教室</rb><rt>きょうしつ</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>最初</rb><rt>さいしょ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>質問</rb><rt>しつもん</rt></ruby>をすると、",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "一个男孩子回答“失败”。",
+        "kana": "いちにんのおとこのこが「しっぱい」とこたえた。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>一</rb><rt>いち</rt></ruby><ruby data-auto-furi=\"1\"><rb>人</rb><rt>にん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>男の子</rb><rt>おとこのこ</rt></ruby>が「<ruby data-auto-furi=\"1\"><rb>失敗</rb><rt>しっぱい</rt></ruby>」と<ruby data-auto-furi=\"1\"><rb>答え</rb><rt>こたえ</rt></ruby>た。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "其他孩子似乎也认为正是如此。",
+        "kana": "ほかのこもそのとおりというようすだ。",
+        "ruby": "ほかの<ruby data-auto-furi=\"1\"><rb>子</rb><rt>こ</rt></ruby>もその<ruby data-auto-furi=\"1\"><rb>通り</rb><rt>とおり</rt></ruby>という<ruby data-auto-furi=\"1\"><rb>様子</rb><rt>ようす</rt></ruby>だ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "讲师继续说。",
+        "kana": "こうしはつづける。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>続ける</rb><rt>つづける</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "“是啊。",
+        "kana": "「そうだね。",
+        "ruby": "「そうだね。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.1": {
+        "text": "不过，今天不一样。",
+        "kana": "でも、きょうはちがいます。",
+        "ruby": "でも、<ruby data-auto-furi=\"1\"><rb>今日</rb><rt>きょう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>違い</rb><rt>ちがい</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.2": {
+        "text": "成功的反面，是无所作为。”",
+        "kana": "せいこうのはんたいは、なにもしないことです」。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>成功</rb><rt>せいこう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>反対</rb><rt>はんたい</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>もしないことです」。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.3": {
+        "text": "孩子们",
+        "kana": "こどもたちは",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>たちは",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "显得有些困惑，等着讲师接下来的话。",
+        "kana": "すこしとまどったようすで、こうしのつぎのことばをまっていた。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>少し</rb><rt>すこし</rt></ruby><ruby data-auto-furi=\"1\"><rb>戸惑っ</rb><rt>とまどっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>様子</rb><rt>ようす</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>言葉</rb><rt>ことば</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>待っ</rb><rt>まっ</rt></ruby>ていた。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.1": {
+        "text": "（略）……",
+        "kana": "（りゃく）…",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>略</rb><rt>りゃく</rt></ruby>）…",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.0": {
+        "text": "在课程最开始，讲师肯定“失败”，是必定会做的“仪式”之一。",
+        "kana": "じゅぎょうのさいしょにこうしが「しっぱい」をこうていするのは、かならずやる「ぎしき」のひとつだ。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>授業</rb><rt>じゅぎょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>最初</rb><rt>さいしょ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>が「<ruby data-auto-furi=\"1\"><rb>失敗</rb><rt>しっぱい</rt></ruby>」を<ruby data-auto-furi=\"1\"><rb>肯定</rb><rt>こうてい</rt></ruby>するのは、<ruby data-auto-furi=\"1\"><rb>必ず</rb><rt>かならず</rt></ruby>やる「<ruby data-auto-furi=\"1\"><rb>儀式</rb><rt>ぎしき</rt></ruby>」の<ruby data-auto-furi=\"1\"><rb>一つ</rb><rt>ひとつ</rt></ruby>だ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.1": {
+        "text": "第一次学习",
+        "kana": "はじめてまなぶ",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>初めて</rb><rt>はじめて</rt></ruby><ruby data-auto-furi=\"1\"><rb>学ぶ</rb><rt>まなぶ</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.0": {
+        "text": "的事情，失败总是伴随而来。",
+        "kana": "ことにはしっぱいがつきもの。",
+        "ruby": "ことには<ruby data-auto-furi=\"1\"><rb>失敗</rb><rt>しっぱい</rt></ruby>がつきもの。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.1": {
+        "text": "但是，不害怕并“试着去做”，能做到的事情就会增加",
+        "kana": "でも、おそれず「やってみる」ことで、「できる」ことはふえて",
+        "ruby": "でも、<ruby data-auto-furi=\"1\"><rb>恐れ</rb><rt>おそれ</rt></ruby>ず「やってみる」ことで、「できる」ことは<ruby data-auto-furi=\"1\"><rb>増え</rb><rt>ふえ</rt></ruby>て",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "7.0": {
+        "text": "。",
+        "kana": "いく。",
+        "ruby": "いく。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "7.1": {
+        "text": "工作中也是一样。",
+        "kana": "それはしごとでもおなじ。",
+        "ruby": "それは<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>でも<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "7.2": {
+        "text": "希望他们通过上课，拥有“自己也能做到”的自信。",
+        "kana": "じゅぎょうをうけて、じぶんでもできるというじしんをもってほしい。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>授業</rb><rt>じゅぎょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>受け</rb><rt>うけ</rt></ruby>て、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>でもできるという<ruby data-auto-furi=\"1\"><rb>自信</rb><rt>じしん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>持っ</rb><rt>もっ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>欲しい</rb><rt>ほしい</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "8.0": {
+        "text": "带着这样的想法，课程开始时一定会提出同样的问题。",
+        "kana": "そんなおもいで、じゅぎょうのさいしょはかならず、おなじといをなげかけている。",
+        "ruby": "そんな<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>授業</rb><rt>じゅぎょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>最初</rb><rt>さいしょ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>必ず</rb><rt>かならず</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby><ruby data-auto-furi=\"1\"><rb>問い</rb><rt>とい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>投げかけ</rb><rt>なげかけ</rt></ruby>ている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "9.0": {
+        "text": "（池谷聪《成功的反面是“无所作为”》，《朝日新闻》2007 年 7 月 22 日）",
+        "kana": "（いけがやさとし『せいこうのはんたいは「なにもしない」』あさひしんぶん2007ねんしちがつ22にち）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>池谷</rb><rt>いけがや</rt></ruby><ruby data-auto-furi=\"1\"><rb>聡</rb><rt>さとし</rt></ruby>『<ruby data-auto-furi=\"1\"><rb>成功</rb><rt>せいこう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>反対</rb><rt>はんたい</rt></ruby>は「<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>もしない」』<ruby data-auto-furi=\"1\"><rb>朝日新聞</rb><rt>あさひしんぶん</rt></ruby>2007<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby><ruby data-auto-furi=\"1\"><rb>７月</rb><rt>しちがつ</rt></ruby>22<ruby data-auto-furi=\"1\"><rb>日</rb><rt>にち</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p4:q4:question": {
+      "0.0": {
+        "text": "在下面的文章中，讲师想作为重要的事情教给孩子们的是哪一项？",
+        "kana": "つぎのぶんしょうで、こうしがこどもたちにたいせつなこととしておしえたいことはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>講師</rb><rt>こうし</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>たちに<ruby data-auto-furi=\"1\"><rb>大切</rb><rt>たいせつ</rt></ruby>なこととして<ruby data-auto-furi=\"1\"><rb>教え</rb><rt>おしえ</rt></ruby>たいことはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p4:q4:option1": {
+      "0.0": {
+        "text": "1. 成功。",
+        "kana": "1. せいこうすること",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>成功</rb><rt>せいこう</rt></ruby>すること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p4:q4:option2": {
+      "0.0": {
+        "text": "2. 试着挑战。",
+        "kana": "2. ちょうせんしてみること",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>挑戦</rb><rt>ちょうせん</rt></ruby>してみること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p4:q4:option3": {
+      "0.0": {
+        "text": "3. 什么也不做。",
+        "kana": "3. なにもしないこと",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>もしないこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p4:q4:option4": {
+      "0.0": {
+        "text": "4. 说出自己的意见。",
+        "kana": "4. じぶんのいけんをいうこと",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>意見</rb><rt>いけん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>言う</rb><rt>いう</rt></ruby>こと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p5": {
+      "0.0": {
+        "text": "目前还无法推测每个婴儿第一次变声究竟会在什么时候发生。",
+        "kana": "はじめてのこえがわりが、それぞれのあかちゃんでげんみつにいつおきるのかをおしはかることは、いまのところふかのうである。",
+        "ruby": "はじめての<ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>がわりが、それぞれの<ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>厳密</rb><rt>げんみつ</rt></ruby>にいつ<ruby data-auto-furi=\"1\"><rb>起きる</rb><rt>おきる</rt></ruby>のかを<ruby data-auto-furi=\"1\"><rb>推し</rb><rt>おし</rt></ruby>はかることは、<ruby data-auto-furi=\"1\"><rb>今</rb><rt>いま</rt></ruby>のところ<ruby data-auto-furi=\"1\"><rb>不可能</rb><rt>ふかのう</rt></ruby>である。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "每个婴儿发生的时期有相当大的个体差异。",
+        "kana": "ひとりひとりごとに、おきるじきにはかなりこじんさがある。",
+        "ruby": "ひとりひとりごとに、<ruby data-auto-furi=\"1\"><rb>起きる</rb><rt>おきる</rt></ruby><ruby data-auto-furi=\"1\"><rb>時期</rb><rt>じき</rt></ruby>にはかなり<ruby data-auto-furi=\"1\"><rb>個人</rb><rt>こじん</rt></ruby><ruby data-auto-furi=\"1\"><rb>差</rb><rt>さ</rt></ruby>がある。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "有早到出生后三个月不久的婴儿，也有出生后四个月后半才发生的，并不罕见。",
+        "kana": "せいごさんかげつそうそうというはやいあかちゃんもいれば、せいごよんかげつこうはんというのもまれではない。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>生後</rb><rt>せいご</rt></ruby><ruby data-auto-furi=\"1\"><rb>三</rb><rt>さん</rt></ruby><ruby data-auto-furi=\"1\"><rb>ヵ月</rb><rt>かげつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>早々</rb><rt>そうそう</rt></ruby>という<ruby data-auto-furi=\"1\"><rb>早い</rb><rt>はやい</rt></ruby><ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>もいれば、<ruby data-auto-furi=\"1\"><rb>生後</rb><rt>せいご</rt></ruby><ruby data-auto-furi=\"1\"><rb>四</rb><rt>よん</rt></ruby><ruby data-auto-furi=\"1\"><rb>ヵ月</rb><rt>かげつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>後半</rb><rt>こうはん</rt></ruby>というのもまれではない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.3": {
+        "text": "也就是说，会有一个多月的差异。",
+        "kana": "いちがつあまりもずれがあることになる。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>一月</rb><rt>いちがつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>余り</rb><rt>あまり</rt></ruby>もずれがあることになる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "不过，要调查每个婴儿是否已经变声，相对比较简单。",
+        "kana": "ただ、それぞれのあかちゃんがこえがわりをしているかどうかをしらべてやることは、ひかくてきかんたんだ。",
+        "ruby": "ただ、それぞれの<ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>がわりをしているかどうかを<ruby data-auto-furi=\"1\"><rb>調べ</rb><rt>しらべ</rt></ruby>てやることは、<ruby data-auto-furi=\"1\"><rb>比較的</rb><rt>ひかくてき</rt></ruby><ruby data-auto-furi=\"1\"><rb>簡単</rb><rt>かんたん</rt></ruby>だ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "在婴儿心情好的时候，给他挠痒就可以。",
+        "kana": "さげんのよいときに、あかちゃんをくすぐってやればよい。",
+        "ruby": "さげんの<ruby data-auto-furi=\"1\"><rb>良い</rb><rt>よい</rt></ruby>ときに、<ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>をくすぐってやればよい。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "让他笑出声。",
+        "kana": "わらってこえをたてさせるのだ。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>笑っ</rb><rt>わらっ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>をたてさせるのだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.3": {
+        "text": "如果咽头已经充分扩张，笑声就会通过口腔发出“哈哈哈”的声音。",
+        "kana": "いんとうがじゅうぶんにかくちょうしていると、わらいごえは「ハッハッハッ」とくちをつたってやってくる。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>咽頭</rb><rt>いんとう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>十分</rb><rt>じゅうぶん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>拡張</rb><rt>かくちょう</rt></ruby>していると、<ruby data-auto-furi=\"1\"><rb>笑い声</rb><rt>わらいごえ</rt></ruby>は「ハッハッハッ」と<ruby data-auto-furi=\"1\"><rb>口</rb><rt>くち</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>伝っ</rb><rt>つたっ</rt></ruby>てやってくる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.4": {
+        "text": "如果还没有变声，最多只会在深处发出像猫喉咙咕噜咕噜那样的声音，还算不上笑声。",
+        "kana": "もしまだこえがわりしていないと、「グググッ」とねこがのどをならすようなおとがおくでするのがせいぜいで、わらいごえとはならない。",
+        "ruby": "もしまだ<ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>がわりしていないと、「グググッ」と<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>がのどを<ruby data-auto-furi=\"1\"><rb>鳴らす</rb><rt>ならす</rt></ruby>ような<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>奥</rb><rt>おく</rt></ruby>でするのがせいぜいで、<ruby data-auto-furi=\"1\"><rb>笑い声</rb><rt>わらいごえ</rt></ruby>とはならない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.5": {
+        "text": "只不过是空气从鼻子里漏出来。",
+        "kana": "はなにくうきがぬけるにすぎない。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>鼻</rb><rt>はな</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>空気</rb><rt>くうき</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>抜ける</rb><rt>ぬける</rt></ruby>にすぎない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "（正高信男《0 岁儿童获得语言时》中央公论新社）",
+        "kana": "（ただしこうのぶお『0さいじがことばをかくとくするとき』ちゅうおうこうろんしんしゃ）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>正</rb><rt>ただし</rt></ruby><ruby data-auto-furi=\"1\"><rb>高</rb><rt>こう</rt></ruby><ruby data-auto-furi=\"1\"><rb>信男</rb><rt>のぶお</rt></ruby>『0<ruby data-auto-furi=\"1\"><rb>歳児</rb><rt>さいじ</rt></ruby>がことばを<ruby data-auto-furi=\"1\"><rb>獲得</rb><rt>かくとく</rt></ruby>するとき』<ruby data-auto-furi=\"1\"><rb>中央公論</rb><rt>ちゅうおうこうろん</rt></ruby><ruby data-auto-furi=\"1\"><rb>新</rb><rt>しん</rt></ruby><ruby data-auto-furi=\"1\"><rb>社</rb><rt>しゃ</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p5:q5:question": {
+      "0.0": {
+        "text": "关于下面文章中的“婴儿变声”，哪一项符合内容？",
+        "kana": "つぎのぶんしょうの「あかちゃんのこえがわり」について、ないようとあっているものはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>の「<ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>がわり」について、<ruby data-auto-furi=\"1\"><rb>内容</rb><rt>ないよう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>合っ</rb><rt>あっ</rt></ruby>ているものはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p5:q5:option1": {
+      "0.0": {
+        "text": "1. 变声时期因婴儿而异。",
+        "kana": "1. こえがわりのじきはあかちゃんによってちがう。",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>がわりの<ruby data-auto-furi=\"1\"><rb>時期</rb><rt>じき</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>によって<ruby data-auto-furi=\"1\"><rb>違う</rb><rt>ちがう</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p5:q5:option2": {
+      "0.0": {
+        "text": "2. 可以准确预测婴儿变声的时期。",
+        "kana": "2. あかちゃんのこえがわりのじきはせいかくによそくできる。",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>がわりの<ruby data-auto-furi=\"1\"><rb>時期</rb><rt>じき</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>正確</rb><rt>せいかく</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>予測</rb><rt>よそく</rt></ruby>できる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p5:q5:option3": {
+      "0.0": {
+        "text": "3. 已经变声的婴儿咽头狭窄。",
+        "kana": "3. こえがわりをしたあかちゃんのいんとうはせまい。",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>がわりをした<ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>咽頭</rb><rt>いんとう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>狭い</rb><rt>せまい</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p5:q5:option4": {
+      "0.0": {
+        "text": "4. 已经变声的婴儿会像猫一样发出喉音。",
+        "kana": "4. こえがわりをしたあかちゃんはねこのようにのどをならす。",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>声</rb><rt>こえ</rt></ruby>がわりをした<ruby data-auto-furi=\"1\"><rb>赤ちゃん</rb><rt>あかちゃん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>猫</rb><rt>ねこ</rt></ruby>のようにのどを<ruby data-auto-furi=\"1\"><rb>鳴らす</rb><rt>ならす</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p6": {
+      "0.0": {
+        "text": "今后日本将进入人口减少的时代。",
+        "kana": "これからにっぽんはじんこうげんしょうのじだいにはいります。",
+        "ruby": "これから<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>人口</rb><rt>じんこう</rt></ruby><ruby data-auto-furi=\"1\"><rb>減少</rb><rt>げんしょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>時代</rb><rt>じだい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>入り</rb><rt>はいり</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "劳动年龄人口已经持续减少。",
+        "kana": "ろうどうりょくじんこうはすでにへりつづけています。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>労働</rb><rt>ろうどう</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>りょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>人口</rb><rt>じんこう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>既に</rb><rt>すでに</rt></ruby><ruby data-auto-furi=\"1\"><rb>減り</rb><rt>へり</rt></ruby><ruby data-auto-furi=\"1\"><rb>続け</rb><rt>つづけ</rt></ruby>ています。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "从 2007 年起，“团块世代”将同时迎来退休，这一情况也会叠加出现。",
+        "kana": "2007ねんからは「だんかいのせだい」がいっせいにていねんたいしょくをむかえるじたいがかさなります。",
+        "ruby": "2007<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby>からは「<ruby data-auto-furi=\"1\"><rb>団塊</rb><rt>だんかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>世代</rb><rt>せだい</rt></ruby>」が<ruby data-auto-furi=\"1\"><rb>一斉</rb><rt>いっせい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>定年</rb><rt>ていねん</rt></ruby><ruby data-auto-furi=\"1\"><rb>退職</rb><rt>たいしょく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>迎える</rb><rt>むかえる</rt></ruby><ruby data-auto-furi=\"1\"><rb>事態</rb><rt>じたい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>重なり</rb><rt>かさなり</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.3": {
+        "text": "企业越来越强烈地感到危机：劳动力数量和质量的下降可能动摇经营基础。",
+        "kana": "きぎょうはろうどうりょくのりょうとしつのていかが、けいえいのきばんをゆるがしかねないとききかんをつよめています。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>企業</rb><rt>きぎょう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>労働</rb><rt>ろうどう</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>りょく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>量</rb><rt>りょう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>質</rb><rt>しつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>低下</rb><rt>ていか</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>経営</rb><rt>けいえい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>基盤</rb><rt>きばん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>揺るがし</rb><rt>ゆるがし</rt></ruby>かねないと<ruby data-auto-furi=\"1\"><rb>危機</rb><rt>きき</rt></ruby><ruby data-auto-furi=\"1\"><rb>感</rb><rt>かん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>強め</rb><rt>つよめ</rt></ruby>ています。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "制造业为了渡过眼前的＊＊2007 年问题，已经开始采取措施，把熟练人员的智慧和技能传承给年轻一代。",
+        "kana": "せいぞうぎょうではとうめんする2007ねんもんだいをのりきるため、じゅくれんしゃたちのちえとぎのうをわかいせだいにけいしょうするとりくみをはじめています。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>製造</rb><rt>せいぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>業</rb><rt>ぎょう</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>当面</rb><rt>とうめん</rt></ruby>する2007<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby><ruby data-auto-furi=\"1\"><rb>問題</rb><rt>もんだい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>乗り切る</rb><rt>のりきる</rt></ruby>ため、<ruby data-auto-furi=\"1\"><rb>熟練</rb><rt>じゅくれん</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>たちの<ruby data-auto-furi=\"1\"><rb>知恵</rb><rt>ちえ</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>技能</rb><rt>ぎのう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>若い</rb><rt>わかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>世代</rb><rt>せだい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>継承</rb><rt>けいしょう</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>取り組み</rb><rt>とりくみ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>始め</rb><rt>はじめ</rt></ruby>ています。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "能否顺利交接，将决定企业的命运。",
+        "kana": "うまくばとんたっちできるかがきぎょうのめいうんをわけます。",
+        "ruby": "うまくバトンタッチできるかが<ruby data-auto-furi=\"1\"><rb>企業</rb><rt>きぎょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>命運</rb><rt>めいうん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>分け</rb><rt>わけ</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "日本制造业的优势，在于供应高度＊＊＊部材的中小企业群的存在，以及高质量技术人员培养出的“现场力”。",
+        "kana": "にっぽんのせいぞうぎょうのつよみは、こうどなぶざいをきょうきゅうするちゅうしょうきぎょうぐんのそんざいとしつのたかいぎじゅつしゃたちがつちかってきた「げんばりょく」にあります。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>製造</rb><rt>せいぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>業</rb><rt>ぎょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>強み</rb><rt>つよみ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>高度</rb><rt>こうど</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>部材</rb><rt>ぶざい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>供給</rb><rt>きょうきゅう</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>中小</rb><rt>ちゅうしょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>企業</rb><rt>きぎょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>群</rb><rt>ぐん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>存在</rb><rt>そんざい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>質</rb><rt>しつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>高い</rb><rt>たかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>技術</rb><rt>ぎじゅつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>たちが<ruby data-auto-furi=\"1\"><rb>培っ</rb><rt>つちかっ</rt></ruby>てきた「<ruby data-auto-furi=\"1\"><rb>現場</rb><rt>げんば</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>りょく</rt></ruby>」にあります。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.1": {
+        "text": "今后也必须致力于培养作为优势源泉之一的人才，也就是“造人”。",
+        "kana": "こんごもつよみのげんせんのひとつであるじんざいのいくせい＝ひとづくりにちからをそそがねばなりません。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>今後</rb><rt>こんご</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>強み</rb><rt>つよみ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>源泉</rb><rt>げんせん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>一つ</rb><rt>ひとつ</rt></ruby>である<ruby data-auto-furi=\"1\"><rb>人材</rb><rt>じんざい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>育成</rb><rt>いくせい</rt></ruby>＝ひとづくりに<ruby data-auto-furi=\"1\"><rb>力</rb><rt>ちから</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>注が</rb><rt>そそが</rt></ruby>ねばなりません。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "（《制造是建设国家的基石》，《西日本新闻》2005 年 8 月 14 日）",
+        "kana": "（「ものづくりはくにづくりのいしずえ」にしにほんしんぶん2005ねん8つき14にち）",
+        "ruby": "（「ものづくりは<ruby data-auto-furi=\"1\"><rb>国</rb><rt>くに</rt></ruby>づくりの<ruby data-auto-furi=\"1\"><rb>礎</rb><rt>いしずえ</rt></ruby>」<ruby data-auto-furi=\"1\"><rb>西日本</rb><rt>にしにほん</rt></ruby><ruby data-auto-furi=\"1\"><rb>新聞</rb><rt>しんぶん</rt></ruby>2005<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby>8<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby>14<ruby data-auto-furi=\"1\"><rb>日</rb><rt>にち</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.0": {
+        "text": "＊团块世代：1947 年～1949 年出生的一代。",
+        "kana": "＊だんかいのせだい：1947ねん～1949ねんにうまれたせだい。",
+        "ruby": "＊<ruby data-auto-furi=\"1\"><rb>団塊</rb><rt>だんかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>世代</rb><rt>せだい</rt></ruby>：1947<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby>～1949<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>生まれ</rb><rt>うまれ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>世代</rb><rt>せだい</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.1": {
+        "text": "与其他世代相比，人口特别多。",
+        "kana": "たのせだいとくらべ、じんこうがとくにおおい。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>他</rb><rt>た</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>世代</rb><rt>せだい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>比べ</rb><rt>くらべ</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>人口</rb><rt>じんこう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>特に</rb><rt>とくに</rt></ruby><ruby data-auto-furi=\"1\"><rb>多い</rb><rt>おおい</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.0": {
+        "text": "＊＊2007 年问题：指 2007 年以后，属于团块世代的劳动者同时迎来退休所伴随的各种问题。",
+        "kana": "＊＊2007ねんもんだい：2007ねんいこう、だんかいのせだいにぞくするろうどうしゃがいっせいにていねんたいしょくをむかえることにともなうさまざまなもんだいのこと。",
+        "ruby": "＊＊2007<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby><ruby data-auto-furi=\"1\"><rb>問題</rb><rt>もんだい</rt></ruby>：2007<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby><ruby data-auto-furi=\"1\"><rb>以降</rb><rt>いこう</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>団塊</rb><rt>だんかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>世代</rb><rt>せだい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>属する</rb><rt>ぞくする</rt></ruby><ruby data-auto-furi=\"1\"><rb>労働</rb><rt>ろうどう</rt></ruby><ruby data-auto-furi=\"1\"><rb>者</rb><rt>しゃ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>一斉</rb><rt>いっせい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>定年</rb><rt>ていねん</rt></ruby><ruby data-auto-furi=\"1\"><rb>退職</rb><rt>たいしょく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>迎える</rb><rt>むかえる</rt></ruby>ことに<ruby data-auto-furi=\"1\"><rb>伴う</rb><rt>ともなう</rt></ruby><ruby data-auto-furi=\"1\"><rb>様々</rb><rt>さまざま</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>問題</rb><rt>もんだい</rt></ruby>のこと。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.0": {
+        "text": "＊＊＊部材：成为结构一部分的材料。",
+        "kana": "＊＊＊ぶざい：こうぞうのいちぶとなるざいりょう。",
+        "ruby": "＊＊＊<ruby data-auto-furi=\"1\"><rb>部材</rb><rt>ぶざい</rt></ruby>：<ruby data-auto-furi=\"1\"><rb>構造</rb><rt>こうぞう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>一部</rb><rt>いちぶ</rt></ruby>となる<ruby data-auto-furi=\"1\"><rb>材料</rb><rt>ざいりょう</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p6:q6:question": {
+      "0.0": {
+        "text": "在下面的文章中，作者认为需要什么？",
+        "kana": "つぎのぶんしょうで、ひっしゃはなにがひつようだとかんがえていますか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>筆者</rb><rt>ひっしゃ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>必要</rb><rt>ひつよう</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>ていますか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p6:q6:option1": {
+      "0.0": {
+        "text": "1. 将现场技术切实传给下一代。",
+        "kana": "1. げんばのぎじゅつをつぎのせだいにかくじつにつたえていくこと",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>現場</rb><rt>げんば</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>技術</rb><rt>ぎじゅつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>世代</rb><rt>せだい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>確実</rb><rt>かくじつ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>伝え</rb><rt>つたえ</rt></ruby>ていくこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p6:q6:option2": {
+      "0.0": {
+        "text": "2. 培育大量供应高度部材的制造业。",
+        "kana": "2. こうどなぶざいをきょうきゅうするせいぞうぎょうをかずおおくそだてること",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>高度</rb><rt>こうど</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>部材</rb><rt>ぶざい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>供給</rb><rt>きょうきゅう</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>製造</rb><rt>せいぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>業</rb><rt>ぎょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>数多く</rb><rt>かずおおく</rt></ruby><ruby data-auto-furi=\"1\"><rb>育てる</rb><rt>そだてる</rt></ruby>こと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p6:q6:option3": {
+      "0.0": {
+        "text": "3. 为了经营稳定，延长团块世代的退休年龄。",
+        "kana": "3. けいえいのあんていのため、だんかいのせだいのていねんをえんちょうすること",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>経営</rb><rt>けいえい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>安定</rb><rt>あんてい</rt></ruby>のため、<ruby data-auto-furi=\"1\"><rb>団塊</rb><rt>だんかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>世代</rb><rt>せだい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>定年</rb><rt>ていねん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>延長</rb><rt>えんちょう</rt></ruby>すること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p6:q6:option4": {
+      "0.0": {
+        "text": "4. 中小企业更多增加在现场工作的年轻劳动力。",
+        "kana": "4. ちゅうしょうきぎょうが、げんばではたらくわかいろうどうりょくをもっとふやすこと",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>中小</rb><rt>ちゅうしょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>企業</rb><rt>きぎょう</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>現場</rb><rt>げんば</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>働く</rb><rt>はたらく</rt></ruby><ruby data-auto-furi=\"1\"><rb>若い</rb><rt>わかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>労働</rb><rt>ろうどう</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>りょく</rt></ruby>をもっと<ruby data-auto-furi=\"1\"><rb>増やす</rb><rt>ふやす</rt></ruby>こと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p7": {
+      "0.0": {
+        "text": "收件人：铃木先生/女士",
+        "kana": "あてさき：　すずきさま",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>宛先</rb><rt>あてさき</rt></ruby>：　<ruby data-auto-furi=\"1\"><rb>鈴木</rb><rt>すずき</rt></ruby><ruby data-auto-furi=\"1\"><rb>様</rb><rt>さま</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "主题：关于借来的录像",
+        "kana": "けんめい：　おかりしたびでおのけん",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>件名</rb><rt>けんめい</rt></ruby>：　お<ruby data-auto-furi=\"1\"><rb>借り</rb><rt>かり</rt></ruby>したビデオの<ruby data-auto-furi=\"1\"><rb>件</rb><rt>けん</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "前几天承蒙您多方关照，非常感谢。",
+        "kana": "せんじつはいろいろとありがとうございました。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>先日</rb><rt>せんじつ</rt></ruby>はいろいろとありがとうございました。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "其实在那之后，我收到了加藤先生/女士的邮件，得知加藤先生/女士也和我有同样的问题",
+        "kana": "じつはあのあと、かとうさんからめえるをもらい、かとうさんもわたしとおなじようなもんだいを",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>実は</rb><rt>じつは</rt></ruby>あのあと、<ruby data-auto-furi=\"1\"><rb>加藤</rb><rt>かとう</rt></ruby>さんからメールをもらい、<ruby data-auto-furi=\"1\"><rb>加藤</rb><rt>かとう</rt></ruby>さんも<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby>ような<ruby data-auto-furi=\"1\"><rb>問題</rb><rt>もんだい</rt></ruby>を",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.0": {
+        "text": "。",
+        "kana": "かかえていることがわかりました。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>抱え</rb><rt>かかえ</rt></ruby>ていることがわかりました。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.1": {
+        "text": "所以，关于前几天向您借的视频，我看完",
+        "kana": "それでせんじつおかりしたびでおですが、わたしがみた",
+        "ruby": "それで<ruby data-auto-furi=\"1\"><rb>先日</rb><rt>せんじつ</rt></ruby>お<ruby data-auto-furi=\"1\"><rb>借り</rb><rt>かり</rt></ruby>したビデオですが、<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>た",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.0": {
+        "text": "之后，也想给加藤先生/女士看，可以吗？",
+        "kana": "あとかとうさんにもみせてあげたいとおもいますがよろしいでしょうか。",
+        "ruby": "あと<ruby data-auto-furi=\"1\"><rb>加藤</rb><rt>かとう</rt></ruby>さんにも<ruby data-auto-furi=\"1\"><rb>見せ</rb><rt>みせ</rt></ruby>てあげたいと<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby>ますがよろしいでしょうか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.0": {
+        "text": "本来我想应该先还给铃木先生/女士一次，不过下周",
+        "kana": "ほんらいならすずきさんにいちどおかえししてからのほうがいいとはおもったのですが、らいしゅう",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>本来</rb><rt>ほんらい</rt></ruby>なら<ruby data-auto-furi=\"1\"><rb>鈴木</rb><rt>すずき</rt></ruby>さんに<ruby data-auto-furi=\"1\"><rb>一度</rb><rt>いちど</rt></ruby><ruby data-auto-furi=\"1\"><rb>お返し</rb><rt>おかえし</rt></ruby>してからのほうがいいとは<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>たのですが、<ruby data-auto-furi=\"1\"><rb>来週</rb><rt>らいしゅう</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "7.0": {
+        "text": "正好会见到加藤先生/女士，所以如果可以的话，我想那时交给加藤先生/女士，并请加藤先生/女士",
+        "kana": "ちょうどかとうさんにあいますので、そのときにかとうさんにわたし、かとうさんからお",
+        "ruby": "ちょうど<ruby data-auto-furi=\"1\"><rb>加藤</rb><rt>かとう</rt></ruby>さんに<ruby data-auto-furi=\"1\"><rb>会い</rb><rt>あい</rt></ruby>ますので、そのときに<ruby data-auto-furi=\"1\"><rb>加藤</rb><rt>かとう</rt></ruby>さんに<ruby data-auto-furi=\"1\"><rb>渡し</rb><rt>わたし</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>加藤</rb><rt>かとう</rt></ruby>さんからお",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "8.0": {
+        "text": "归还给您。",
+        "kana": "かえしすることにできればとおもいます。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>返し</rb><rt>かえし</rt></ruby>することにできればと<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "9.0": {
+        "text": "借用了贵重的东西，实在非常抱歉；如果您暂时不需要使用",
+        "kana": "きちょうなものをおかりしてたいへんもうしわけありませんが、もしすぐにはおつかいにならな",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>貴重</rb><rt>きちょう</rt></ruby>なものをお<ruby data-auto-furi=\"1\"><rb>借り</rb><rt>かり</rt></ruby>して<ruby data-auto-furi=\"1\"><rb>大変</rb><rt>たいへん</rt></ruby><ruby data-auto-furi=\"1\"><rb>申し訳</rb><rt>もうしわけ</rt></ruby>ありませんが、もしすぐにはお<ruby data-auto-furi=\"1\"><rb>使い</rb><rt>つかい</rt></ruby>にならな",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "10.0": {
+        "text": "的话，想请您允许我这样处理。",
+        "kana": "いようでしたら、そのようにさせていただきたくおねがいいたします。",
+        "ruby": "いようでしたら、そのようにさせていただきたく<ruby data-auto-furi=\"1\"><rb>お願い</rb><rt>おねがい</rt></ruby>いたします。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "11.0": {
+        "text": "如果不方便，请不要客气，告诉我。",
+        "kana": "ごつごうがわるいばあいはえんりょなくおっしゃってください。",
+        "ruby": "ご<ruby data-auto-furi=\"1\"><rb>都合</rb><rt>つごう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>悪い</rb><rt>わるい</rt></ruby><ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>遠慮なく</rb><rt>えんりょなく</rt></ruby>おっしゃってください。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "12.0": {
+        "text": "拜托您了。",
+        "kana": "よろしくおねがいいたします。",
+        "ruby": "よろしく<ruby data-auto-furi=\"1\"><rb>お願い</rb><rt>おねがい</rt></ruby>いたします。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "13.0": {
+        "text": "本田",
+        "kana": "ほんだ",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>本田</rb><rt>ほんだ</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p7:q7:question": {
+      "0.0": {
+        "text": "下面的文章是本田写的电子邮件。本田写这封邮件的目的是什么？",
+        "kana": "つぎのぶんしょうはほんださんがかいたいいめえるです。ほんださんがめえるをかいたもくてきはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>本田</rb><rt>ほんだ</rt></ruby>さんが<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>たＥメールです。<ruby data-auto-furi=\"1\"><rb>本田</rb><rt>ほんだ</rt></ruby>さんがメールを<ruby data-auto-furi=\"1\"><rb>書い</rb><rt>かい</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>目的</rb><rt>もくてき</rt></ruby>はどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p7:q7:option1": {
+      "0.0": {
+        "text": "1. 想直接把录像还给铃木。",
+        "kana": "1. すずきさんにちょくせつびでおをかえしたい。",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>鈴木</rb><rt>すずき</rt></ruby>さんに<ruby data-auto-furi=\"1\"><rb>直接</rb><rt>ちょくせつ</rt></ruby>ビデオを<ruby data-auto-furi=\"1\"><rb>返し</rb><rt>かえし</rt></ruby>たい。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p7:q7:option2": {
+      "0.0": {
+        "text": "2. 想直接向铃木借录像。",
+        "kana": "2. すずきさんからちょくせつびでおをかりたい。",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>鈴木</rb><rt>すずき</rt></ruby>さんから<ruby data-auto-furi=\"1\"><rb>直接</rb><rt>ちょくせつ</rt></ruby>ビデオを<ruby data-auto-furi=\"1\"><rb>借り</rb><rt>かり</rt></ruby>たい。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p7:q7:option3": {
+      "0.0": {
+        "text": "3. 想请铃木把录像交给加藤。",
+        "kana": "3. すずきさんからかとうさんにびでおをわたしてほしい。",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>鈴木</rb><rt>すずき</rt></ruby>さんから<ruby data-auto-furi=\"1\"><rb>加藤</rb><rt>かとう</rt></ruby>さんにビデオを<ruby data-auto-furi=\"1\"><rb>渡し</rb><rt>わたし</rt></ruby>てほしい。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p7:q7:option4": {
+      "0.0": {
+        "text": "4. 想直接把录像借给加藤。",
+        "kana": "4. かとうさんにちょくせつびでおをかしたい。",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>加藤</rb><rt>かとう</rt></ruby>さんに<ruby data-auto-furi=\"1\"><rb>直接</rb><rt>ちょくせつ</rt></ruby>ビデオを<ruby data-auto-furi=\"1\"><rb>貸し</rb><rt>かし</rt></ruby>たい。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p8": {
+      "0.0": {
+        "text": "社会是人的集合，从如果一个人都没有，社会就不可能存在这一意义上说，可以说人的各种行动及其集合、这些行为的各种结果构成了社会。",
+        "kana": "しゃかいはにんげんのあつまりであり、ひとりのにんげんもいなければしゃかいはそんざいしえないといういみでは、にんげんのしょこうどうとそのあつまり、そのこういのしょけっかがしゃかいをつくっているといえる。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>集まり</rb><rt>あつまり</rt></ruby>であり、ひとりの<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>もいなければ<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>存在</rb><rt>そんざい</rt></ruby>しえないという<ruby data-auto-furi=\"1\"><rb>意味</rb><rt>いみ</rt></ruby>では、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>諸</rb><rt>しょ</rt></ruby><ruby data-auto-furi=\"1\"><rb>行動</rb><rt>こうどう</rt></ruby>とその<ruby data-auto-furi=\"1\"><rb>集まり</rb><rt>あつまり</rt></ruby>、その<ruby data-auto-furi=\"1\"><rb>行為</rb><rt>こうい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>諸</rb><rt>しょ</rt></ruby><ruby data-auto-furi=\"1\"><rb>結果</rb><rt>けっか</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>をつくっていると<ruby data-auto-furi=\"1\"><rb>言える</rb><rt>いえる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "反过来，从如果不习得在每个人出生之前就已存在的道德、规范、语言等各种制度，人就无法作为人行动这一意义上说，又不得不说是社会造就了人。",
+        "kana": "ぎゃくに、にんげんここじんのたんじょうにさきだってそんざいするどうとくやきはん、げんごなどのしょせいどをしゅうとくすることなしにはにんげんはにんげんとしてこうどうすることができないといういみでは、しゃかいがにんげんをつくるといわざるをえない。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>逆</rb><rt>ぎゃく</rt></ruby>に、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>個々人</rb><rt>ここじん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>誕生</rb><rt>たんじょう</rt></ruby>にさきだって<ruby data-auto-furi=\"1\"><rb>存在</rb><rt>そんざい</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>道徳</rb><rt>どうとく</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>規範</rb><rt>きはん</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>言語</rb><rt>げんご</rt></ruby>などの<ruby data-auto-furi=\"1\"><rb>諸</rb><rt>しょ</rt></ruby><ruby data-auto-furi=\"1\"><rb>制度</rb><rt>せいど</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>習得</rb><rt>しゅうとく</rt></ruby>することなしには<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>として<ruby data-auto-furi=\"1\"><rb>行動</rb><rt>こうどう</rt></ruby>することができないという<ruby data-auto-furi=\"1\"><rb>意味</rb><rt>いみ</rt></ruby>では、<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>をつくると<ruby data-auto-furi=\"1\"><rb>言わ</rb><rt>いわ</rt></ruby>ざるをえない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "这两种看法各自都可以成立，无法断定哪一方先行；前者那样的＊视角被称为方法论个人主义或微观方法，后者那样的视角被称为方法论社会主义（方法论集合主义）或宏观方法。",
+        "kana": "このような2つのみかたはおのおのせいりつしうるものであり、どちらがせんこうするとけっちゃくをつけることはできないわけだが、ぜんしゃのような＊ぱあすぺくてぃぶはほうほうろんてきこじんしゅぎあるいはみくろ・あぷろうち、こうしゃのようなぱあすぺくてぃぶはほうほうろんてきしゃかいしゅぎ（ほうほうろんてきしゅうごうしゅぎ）あるいはまくろ・あぷろうちとよばれる。",
+        "ruby": "このような2つの<ruby data-auto-furi=\"1\"><rb>見方</rb><rt>みかた</rt></ruby>はおのおの<ruby data-auto-furi=\"1\"><rb>成立</rb><rt>せいりつ</rt></ruby>しうるものであり、どちらが<ruby data-auto-furi=\"1\"><rb>先行</rb><rt>せんこう</rt></ruby>すると<ruby data-auto-furi=\"1\"><rb>決着</rb><rt>けっちゃく</rt></ruby>をつけることはできないわけだが、<ruby data-auto-furi=\"1\"><rb>前者</rb><rt>ぜんしゃ</rt></ruby>のような＊パースペクティブは<ruby data-auto-furi=\"1\"><rb>方法</rb><rt>ほうほう</rt></ruby><ruby data-auto-furi=\"1\"><rb>論</rb><rt>ろん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>個人</rb><rt>こじん</rt></ruby><ruby data-auto-furi=\"1\"><rb>主義</rb><rt>しゅぎ</rt></ruby>あるいはミクロ・アプローチ、<ruby data-auto-furi=\"1\"><rb>後者</rb><rt>こうしゃ</rt></ruby>のようなパースペクティブは<ruby data-auto-furi=\"1\"><rb>方法</rb><rt>ほうほう</rt></ruby><ruby data-auto-furi=\"1\"><rb>論</rb><rt>ろん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>主義</rb><rt>しゅぎ</rt></ruby>（<ruby data-auto-furi=\"1\"><rb>方法</rb><rt>ほうほう</rt></ruby><ruby data-auto-furi=\"1\"><rb>論</rb><rt>ろん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>集合</rb><rt>しゅうごう</rt></ruby><ruby data-auto-furi=\"1\"><rb>主義</rb><rt>しゅぎ</rt></ruby>）あるいはマクロ・アプローチとよばれる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "（藤村正之《第 2 章 走向充满谜的宇宙》，川崎贤一等编《社会学的宇宙》恒星社厚生阁）",
+        "kana": "（ふじむらまさゆき「2しょう　なぞにみちたこすもすへ」かわさきけんいちたへん『しゃかいがくのうちゅう』こうせいしゃこうせい閣）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>藤村</rb><rt>ふじむら</rt></ruby><ruby data-auto-furi=\"1\"><rb>正之</rb><rt>まさゆき</rt></ruby>「2<ruby data-auto-furi=\"1\"><rb>章</rb><rt>しょう</rt></ruby>　<ruby data-auto-furi=\"1\"><rb>謎</rb><rt>なぞ</rt></ruby>にみちたコスモスへ」<ruby data-auto-furi=\"1\"><rb>川崎</rb><rt>かわさき</rt></ruby><ruby data-auto-furi=\"1\"><rb>賢一</rb><rt>けんいち</rt></ruby><ruby data-auto-furi=\"1\"><rb>他</rb><rt>た</rt></ruby><ruby data-auto-furi=\"1\"><rb>編</rb><rt>へん</rt></ruby>『<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>学</rb><rt>がく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>宇宙</rb><rt>うちゅう</rt></ruby>』<ruby data-auto-furi=\"1\"><rb>恒星</rb><rt>こうせい</rt></ruby><ruby data-auto-furi=\"1\"><rb>社</rb><rt>しゃ</rt></ruby><ruby data-auto-furi=\"1\"><rb>厚生</rb><rt>こうせい</rt></ruby>閣）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "＊视角：观点。",
+        "kana": "＊ぱあすぺくてぃぶ：かんてん",
+        "ruby": "＊パースペクティブ：<ruby data-auto-furi=\"1\"><rb>観点</rb><rt>かんてん</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p8:q8:question": {
+      "0.0": {
+        "text": "下面文章中划线部分“方法论社会主义（方法论集合主义）”是什么样的想法？",
+        "kana": "つぎのぶんしょうのかせんぶ「ほうほうろんてきしゃかいしゅぎ（ほうほうろんてきしゅうごうしゅぎ）」とは、どのようなかんがえかたですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>下線</rb><rt>かせん</rt></ruby><ruby data-auto-furi=\"1\"><rb>部</rb><rt>ぶ</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>方法</rb><rt>ほうほう</rt></ruby><ruby data-auto-furi=\"1\"><rb>論</rb><rt>ろん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>主義</rb><rt>しゅぎ</rt></ruby>（<ruby data-auto-furi=\"1\"><rb>方法</rb><rt>ほうほう</rt></ruby><ruby data-auto-furi=\"1\"><rb>論</rb><rt>ろん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>集合</rb><rt>しゅうごう</rt></ruby><ruby data-auto-furi=\"1\"><rb>主義</rb><rt>しゅぎ</rt></ruby>）」とは、どのような<ruby data-auto-furi=\"1\"><rb>考え方</rb><rt>かんがえかた</rt></ruby>ですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p8:q8:option1": {
+      "0.0": {
+        "text": "1. 认为人造就社会的想法。",
+        "kana": "1. にんげんがしゃかいをつくるというかんがえかた",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>をつくるという<ruby data-auto-furi=\"1\"><rb>考え方</rb><rt>かんがえかた</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p8:q8:option2": {
+      "0.0": {
+        "text": "2. 认为社会造就人的想法。",
+        "kana": "2. しゃかいがにんげんをつくるというかんがえかた",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>をつくるという<ruby data-auto-furi=\"1\"><rb>考え方</rb><rt>かんがえかた</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p8:q8:option3": {
+      "0.0": {
+        "text": "3. 认为 1 和 2 都可以成立的想法。",
+        "kana": "3. 1と2のどちらもせいりつしうるというかんがえかた",
+        "ruby": "3. 1と2のどちらも<ruby data-auto-furi=\"1\"><rb>成立</rb><rt>せいりつ</rt></ruby>しうるという<ruby data-auto-furi=\"1\"><rb>考え方</rb><rt>かんがえかた</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p8:q8:option4": {
+      "0.0": {
+        "text": "4. 认为无法决定人和社会哪一方先成立的想法。",
+        "kana": "4. にんげんとしゃかいのどちらがさきにせいりつするかはきめられないというかんがえかた",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>のどちらが<ruby data-auto-furi=\"1\"><rb>先</rb><rt>さき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>成立</rb><rt>せいりつ</rt></ruby>するかは<ruby data-auto-furi=\"1\"><rb>決め</rb><rt>きめ</rt></ruby>られないという<ruby data-auto-furi=\"1\"><rb>考え方</rb><rt>かんがえかた</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9": {
+      "0.0": {
+        "text": "把这个地球改造成适合生物居住的，正是生物自身。",
+        "kana": "このちきゅうを、せいぶつがすみやすいようにつくりかえてきたのは、せいぶつじしんなのだ。",
+        "ruby": "この<ruby data-auto-furi=\"1\"><rb>地球</rb><rt>ちきゅう</rt></ruby>を、<ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>棲み</rb><rt>すみ</rt></ruby>やすいようにつくりかえてきたのは、<ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>じしんなのだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "在这地表上制造出氧气（O2）的，是生物。",
+        "kana": "このちひょうじょうに、さんそ（O₂）をつくりだしたのはせいぶつである。",
+        "ruby": "この<ruby data-auto-furi=\"1\"><rb>地表</rb><rt>ちひょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>上</rb><rt>じょう</rt></ruby>に、<ruby data-auto-furi=\"1\"><rb>酸素</rb><rt>さんそ</rt></ruby>（O₂）をつくりだしたのは<ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>である。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "人们认为，后来大气上层形成臭氧（O3）层，能够保护 DNA 免受紫外线伤害之后，生物才得以进出陆地。",
+        "kana": "そしてやがてたいきじょうそうにおぞん（O₃）そうができて、しがいせんからDNAをまもってくれるようになってはじめて、せいぶつはりくちにしんしゅつできたとかんがえられている。",
+        "ruby": "そしてやがて<ruby data-auto-furi=\"1\"><rb>大気</rb><rt>たいき</rt></ruby><ruby data-auto-furi=\"1\"><rb>上層</rb><rt>じょうそう</rt></ruby>にオゾン（O₃）<ruby data-auto-furi=\"1\"><rb>層</rb><rt>そう</rt></ruby>ができて、<ruby data-auto-furi=\"1\"><rb>紫外線</rb><rt>しがいせん</rt></ruby>からDNAを<ruby data-auto-furi=\"1\"><rb>守っ</rb><rt>まもっ</rt></ruby>てくれるようになってはじめて、<ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>陸地</rb><rt>りくち</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>進出</rb><rt>しんしゅつ</rt></ruby>できたと<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>られている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.3": {
+        "text": "最初大概是植物吧。",
+        "kana": "それははじめ、しょくぶつだったろう。",
+        "ruby": "それははじめ、<ruby data-auto-furi=\"1\"><rb>植物</rb><rt>しょくぶつ</rt></ruby>だったろう。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.4": {
+        "text": "就这样，在原本尽是岩石的地球上形成了土壤，地球表面被改造成适合生物居住的环境。",
+        "kana": "こうしてがんせきばかりだったちきゅうじょうにどじょうがけいせいされ、ちきゅうひょうめんがせいぶつにすみやすいかんきょうにかいぞうされる。",
+        "ruby": "こうして<ruby data-auto-furi=\"1\"><rb>岩石</rb><rt>がんせき</rt></ruby>ばかりだった<ruby data-auto-furi=\"1\"><rb>地球</rb><rt>ちきゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>上</rb><rt>じょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>土壌</rb><rt>どじょう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>形成</rb><rt>けいせい</rt></ruby>され、<ruby data-auto-furi=\"1\"><rb>地球</rb><rt>ちきゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>表面</rb><rt>ひょうめん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>棲み</rb><rt>すみ</rt></ruby>やすい<ruby data-auto-furi=\"1\"><rb>環境</rb><rt>かんきょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>改造</rb><rt>かいぞう</rt></ruby>される。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.5": {
+        "text": "在其中，生命不断进化，多样的生物诞生，最后人类登场。",
+        "kana": "そのなかでせいめいのしんかがすすみ、たようなせいぶつがうまれて、さいごににんげんがとうじょうする。",
+        "ruby": "そのなかで<ruby data-auto-furi=\"1\"><rb>生命</rb><rt>せいめい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>進化</rb><rt>しんか</rt></ruby>がすすみ、<ruby data-auto-furi=\"1\"><rb>多様</rb><rt>たよう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>がうまれて、<ruby data-auto-furi=\"1\"><rb>最後</rb><rt>さいご</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>登場</rb><rt>とうじょう</rt></ruby>する。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "无数生物如今仍在把这个地球改造成适合自己居住的样子。",
+        "kana": "むすうのせいぶつたちは、いまもこのちきゅうを、じぶんたちがすみやすいようにつくりかえている。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>無数</rb><rt>むすう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>たちは、<ruby data-auto-furi=\"1\"><rb>今</rb><rt>いま</rt></ruby>もこの<ruby data-auto-furi=\"1\"><rb>地球</rb><rt>ちきゅう</rt></ruby>を、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>たちが<ruby data-auto-furi=\"1\"><rb>棲み</rb><rt>すみ</rt></ruby>やすいようにつくりかえている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "（ A ）最后诞生的人类，却不断破坏它。",
+        "kana": "（　A　）さいごにうまれたにんげんは、それをたえずはかいしている。",
+        "ruby": "（　A　）<ruby data-auto-furi=\"1\"><rb>最後</rb><rt>さいご</rt></ruby>にうまれた<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>は、それをたえず<ruby data-auto-furi=\"1\"><rb>破壊</rb><rt>はかい</rt></ruby>している。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "（细谷昂《地球环境》，细谷昂等编《可见的现代：社会学之眼》Academia 出版会）",
+        "kana": "（ほそやのぼる「ちきゅうかんきょう」ほそやのぼるたへん「みえるげんだい──しゃかいがくのめ」アカデミアしゅっぱんかい）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>細谷</rb><rt>ほそや</rt></ruby><ruby data-auto-furi=\"1\"><rb>昂</rb><rt>のぼる</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>地球</rb><rt>ちきゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>環境</rb><rt>かんきょう</rt></ruby>」<ruby data-auto-furi=\"1\"><rb>細谷</rb><rt>ほそや</rt></ruby><ruby data-auto-furi=\"1\"><rb>昂</rb><rt>のぼる</rt></ruby><ruby data-auto-furi=\"1\"><rb>他</rb><rt>た</rt></ruby><ruby data-auto-furi=\"1\"><rb>編</rb><rt>へん</rt></ruby>「<ruby data-auto-furi=\"1\"><rb>見える</rb><rt>みえる</rt></ruby><ruby data-auto-furi=\"1\"><rb>現代</rb><rt>げんだい</rt></ruby>──<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby><ruby data-auto-furi=\"1\"><rb>学</rb><rt>がく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>」アカデミア<ruby data-auto-furi=\"1\"><rb>出版</rb><rt>しゅっぱん</rt></ruby><ruby data-auto-furi=\"1\"><rb>会</rb><rt>かい</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q9:question": {
+      "0.0": {
+        "text": "问题 1 填入（ A ）的内容，哪一项最恰当？",
+        "kana": "とい1　（　A　）にはいるものとしてもっともてきとうなものはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>1　（　A　）に<ruby data-auto-furi=\"1\"><rb>入る</rb><rt>はいる</rt></ruby>ものとして<ruby data-auto-furi=\"1\"><rb>最も</rb><rt>もっとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>適当</rb><rt>てきとう</rt></ruby>なものはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q9:option1": {
+      "0.0": {
+        "text": "1. 然后",
+        "kana": "1. それから",
+        "ruby": "1. それから",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q9:option2": {
+      "0.0": {
+        "text": "2. 因此",
+        "kana": "2. したがって",
+        "ruby": "2. したがって",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q9:option3": {
+      "0.0": {
+        "text": "3. 然而",
+        "kana": "3. ところが",
+        "ruby": "3. ところが",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q9:option4": {
+      "0.0": {
+        "text": "4. 像这样",
+        "kana": "4. このように",
+        "ruby": "4. このように",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q10:question": {
+      "0.0": {
+        "text": "问题 2 作者对人类以外的“生物”作了怎样的说明？",
+        "kana": "とい2　ひっしゃはにんげんいがいの「せいぶつ」について、なんとのべていますか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>2　<ruby data-auto-furi=\"1\"><rb>筆者</rb><rt>ひっしゃ</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby><ruby data-auto-furi=\"1\"><rb>以外</rb><rt>いがい</rt></ruby>の「<ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>」について、<ruby data-auto-furi=\"1\"><rb>何と</rb><rt>なんと</rt></ruby><ruby data-auto-furi=\"1\"><rb>述べ</rb><rt>のべ</rt></ruby>ていますか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q10:option1": {
+      "0.0": {
+        "text": "1. 生物一直把环境改变成自己容易生存的样子。",
+        "kana": "1. せいぶつは、かんきょうをみずからせいぞんしやすいようにかえてきた。",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>環境</rb><rt>かんきょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>自ら</rb><rt>みずから</rt></ruby><ruby data-auto-furi=\"1\"><rb>生存</rb><rt>せいぞん</rt></ruby>しやすいように<ruby data-auto-furi=\"1\"><rb>変え</rb><rt>かえ</rt></ruby>てきた。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q10:option2": {
+      "0.0": {
+        "text": "2. 生物有时会破坏人类的生活环境。",
+        "kana": "2. せいぶつは、にんげんのせいかつかんきょうをこわすことがある。",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>生活</rb><rt>せいかつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>環境</rb><rt>かんきょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>壊す</rb><rt>こわす</rt></ruby>ことがある。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q10:option3": {
+      "0.0": {
+        "text": "3. 生物一直使自身变化以适应环境。",
+        "kana": "3. せいぶつは、かんきょうにあわせてじぶんじしんをへんかさせてきた。",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>環境</rb><rt>かんきょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>合わせ</rb><rt>あわせ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby><ruby data-auto-furi=\"1\"><rb>自身</rb><rt>じしん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>させてきた。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p9:q10:option4": {
+      "0.0": {
+        "text": "4. 生物如果不破坏环境就无法进化。",
+        "kana": "4. せいぶつは、かんきょうをこわさなければしんかすることができない。",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>生物</rb><rt>せいぶつ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>環境</rb><rt>かんきょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>壊さ</rb><rt>こわさ</rt></ruby>なければ<ruby data-auto-furi=\"1\"><rb>進化</rb><rt>しんか</rt></ruby>することができない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10": {
+      "0.0": {
+        "text": "为了探究年幼儿童如何感受时间的长短，我做过各种实验。",
+        "kana": "わたしは、おさないこどもたちがじかんのながさをどうかんじているのかをさぐるため、さまざまなじっけんをしてきました。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>幼い</rb><rt>おさない</rt></ruby><ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>たちが<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>長</rb><rt>なが</rt></ruby>さをどう<ruby data-auto-furi=\"1\"><rb>感じ</rb><rt>かんじ</rt></ruby>ているのかをさぐるため、<ruby data-auto-furi=\"1\"><rb>様々</rb><rt>さまざま</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>実験</rb><rt>じっけん</rt></ruby>をしてきました。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "例如，在一定时间内让孩子们听声音时，声音响起次数多的情况会让他们感觉时间长得多。",
+        "kana": "たとえば、あるいっていのじかんにこどもたちにおとをきいてもらうと、たくさんおとのなったばあいのほうがずっとながくかんじます。",
+        "ruby": "たとえば、ある<ruby data-auto-furi=\"1\"><rb>一定</rb><rt>いってい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>たちに<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>聞い</rb><rt>きい</rt></ruby>てもらうと、たくさん<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>のほうがずっと<ruby data-auto-furi=\"1\"><rb>長く</rb><rt>ながく</rt></ruby><ruby data-auto-furi=\"1\"><rb>感じ</rb><rt>かんじ</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "成年人也有这种倾向，但儿童的程度更大。",
+        "kana": "おとなでもそのけいこうはあるのですが、こどものばあいには、そのていどがおおきいのです。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>でもその<ruby data-auto-furi=\"1\"><rb>傾向</rb><rt>けいこう</rt></ruby>はあるのですが、<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>には、その<ruby data-auto-furi=\"1\"><rb>程度</rb><rt>ていど</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>大きい</rb><rt>おおきい</rt></ruby>のです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "孩子似乎是用那段时间内发生的事情数量来认识时间长短的。",
+        "kana": "こどもは、じかんのながさを、そのじかんないにおきるできごとのかずでにんしきしているようです。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>長</rb><rt>なが</rt></ruby>さを、その<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby><ruby data-auto-furi=\"1\"><rb>内</rb><rt>ない</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>起きる</rb><rt>おきる</rt></ruby>できごとの<ruby data-auto-furi=\"1\"><rb>数</rb><rt>かず</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>認識</rb><rt>にんしき</rt></ruby>しているようです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "事件“很多”填满的时间就是“长”。",
+        "kana": "できごとが「たくさん」つまっているじかんは「ながい」。",
+        "ruby": "できごとが「たくさん」つまっている<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>は「<ruby data-auto-furi=\"1\"><rb>長い</rb><rt>ながい</rt></ruby>」。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.1": {
+        "text": "如果是“more（更多）”，感觉上就是“more”。",
+        "kana": "「モア（MORE＝より）」なら「モア」というかんかくなのです。",
+        "ruby": "「モア（MORE＝より）」なら「モア」という<ruby data-auto-furi=\"1\"><rb>感覚</rb><rt>かんかく</rt></ruby>なのです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.0": {
+        "text": "成年人会进行修正，比如“声音响了很多次，但声音与声音之间的间隔很短”。",
+        "kana": "おとなは、「おとはおおくなったけど、おととおとのまはみじかかった」などとほせいしてとらえます。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>は、「<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>多く</rb><rt>おおく</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>たけど、<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>間</rb><rt>ま</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>短かっ</rb><rt>みじかかっ</rt></ruby>た」などと<ruby data-auto-furi=\"1\"><rb>補正</rb><rt>ほせい</rt></ruby>してとらえます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.0": {
+        "text": "这是在习惯均一的“钟表时间”过程中，自然而然学会修正的结果。",
+        "kana": "それはいちような「とけいのじかん」になれるまに、ほせいするようにしぜんにまなんだけっかです。",
+        "ruby": "それは<ruby data-auto-furi=\"1\"><rb>一様</rb><rt>いちよう</rt></ruby>な「<ruby data-auto-furi=\"1\"><rb>時計</rb><rt>とけい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>」に<ruby data-auto-furi=\"1\"><rb>慣れる</rb><rt>なれる</rt></ruby><ruby data-auto-furi=\"1\"><rb>間</rb><rt>ま</rt></ruby>に、<ruby data-auto-furi=\"1\"><rb>補正</rb><rt>ほせい</rt></ruby>するように<ruby data-auto-furi=\"1\"><rb>自然</rb><rt>しぜん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>学ん</rb><rt>まなん</rt></ruby>だ<ruby data-auto-furi=\"1\"><rb>結果</rb><rt>けっか</rt></ruby>です。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.0": {
+        "text": "（松田文子《孩子的时间是事件时间》，《母之友》2009 年 5 月号，福音馆书店）",
+        "kana": "（まつだふみこ「こどものじかんは、できごとじかん」「ははのとも」2009ねん5つきごう　ふくいんかんしょてん）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>松田</rb><rt>まつだ</rt></ruby><ruby data-auto-furi=\"1\"><rb>文子</rb><rt>ふみこ</rt></ruby>「こどものじかんは、できごと<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>」「<ruby data-auto-furi=\"1\"><rb>母</rb><rt>はは</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>友</rb><rt>とも</rt></ruby>」2009<ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby>5<ruby data-auto-furi=\"1\"><rb>月</rb><rt>つき</rt></ruby><ruby data-auto-furi=\"1\"><rb>号</rb><rt>ごう</rt></ruby>　<ruby data-auto-furi=\"1\"><rb>福音館書店</rb><rt>ふくいんかんしょてん</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q11:question": {
+      "0.0": {
+        "text": "问题 1 作为孩子所感受到的“如果是‘more（更多）’，感觉上就是‘more’”的具体例子，哪一项恰当？",
+        "kana": "とい1　こどもがかんじる「『モア（MORE＝より）』なら『モア』というかんかく」のぐたいれいとして、てきとうなものはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>1　<ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>感じる</rb><rt>かんじる</rt></ruby>「『モア（MORE＝より）』なら『モア』という<ruby data-auto-furi=\"1\"><rb>感覚</rb><rt>かんかく</rt></ruby>」の<ruby data-auto-furi=\"1\"><rb>具体</rb><rt>ぐたい</rt></ruby><ruby data-auto-furi=\"1\"><rb>例</rb><rt>れい</rt></ruby>として、<ruby data-auto-furi=\"1\"><rb>適当</rb><rt>てきとう</rt></ruby>なものはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q11:option1": {
+      "0.0": {
+        "text": "1. 推测 5 秒内铃响 5 次，那么 10 秒内铃会响 10 次。",
+        "kana": "1. 5びょうかんにべるが5かいなったら、10びょうかんにはべるが10かいなるだろうとすいそくする。",
+        "ruby": "1. 5<ruby data-auto-furi=\"1\"><rb>秒間</rb><rt>びょうかん</rt></ruby>にベルが5<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>たら、10<ruby data-auto-furi=\"1\"><rb>秒間</rb><rt>びょうかん</rt></ruby>にはベルが10<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴る</rb><rt>なる</rt></ruby>だろうと<ruby data-auto-furi=\"1\"><rb>推測</rb><rt>すいそく</rt></ruby>する。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q11:option2": {
+      "0.0": {
+        "text": "2. 与 5 秒内铃响 5 次相比，5 秒内铃响 10 次时，感觉时间更长。",
+        "kana": "2. 5びょうかんにべるが5かいなったばあいより10かいなったばあいのほうが、じかんをながくかんじる。",
+        "ruby": "2. 5<ruby data-auto-furi=\"1\"><rb>秒間</rb><rt>びょうかん</rt></ruby>にベルが5<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>より10<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>のほうが、<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>長く</rb><rt>ながく</rt></ruby><ruby data-auto-furi=\"1\"><rb>感じる</rb><rt>かんじる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q11:option3": {
+      "0.0": {
+        "text": "3. 与 5 秒内铃响 5 次相比，10 秒内铃响 10 次时，感觉声音间隔更长。",
+        "kana": "3. 5びょうかんにべるが5かいなったばあいより10びょうかんにべるが10かいなったばあいのほうが、おととおとのかんかくをながくかんじる。",
+        "ruby": "3. 5<ruby data-auto-furi=\"1\"><rb>秒間</rb><rt>びょうかん</rt></ruby>にベルが5<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>より10<ruby data-auto-furi=\"1\"><rb>秒間</rb><rt>びょうかん</rt></ruby>にベルが10<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>のほうが、<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>間隔</rb><rt>かんかく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>長く</rb><rt>ながく</rt></ruby><ruby data-auto-furi=\"1\"><rb>感じる</rb><rt>かんじる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q11:option4": {
+      "0.0": {
+        "text": "4. 与 5 秒内铃响 5 次相比，5 秒内铃响 10 次时，感觉声音间隔更短。",
+        "kana": "4. 5びょうかんにべるが5かいなったばあいより10かいなったばあいのほうが、おととおとのかんかくをみじかいとかんじる。",
+        "ruby": "4. 5<ruby data-auto-furi=\"1\"><rb>秒間</rb><rt>びょうかん</rt></ruby>にベルが5<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>より10<ruby data-auto-furi=\"1\"><rb>回</rb><rt>かい</rt></ruby><ruby data-auto-furi=\"1\"><rb>鳴っ</rb><rt>なっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>のほうが、<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>音</rb><rt>おと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>間隔</rb><rt>かんかく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>短い</rb><rt>みじかい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>感じる</rb><rt>かんじる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q12:question": {
+      "0.0": {
+        "text": "问题 2 哪一项符合本文内容？",
+        "kana": "とい2　このぶんしょうのないようとあっているものはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>2　この<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>内容</rb><rt>ないよう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>合っ</rb><rt>あっ</rt></ruby>ているものはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q12:option1": {
+      "0.0": {
+        "text": "1. 儿童和成年人对时间长短的感受方式没有差异。",
+        "kana": "1. こどもとおとなで、じかんのながさのかんじかたにさいはない。",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>長</rb><rt>なが</rt></ruby>さの<ruby data-auto-furi=\"1\"><rb>感じ</rb><rt>かんじ</rt></ruby><ruby data-auto-furi=\"1\"><rb>方</rb><rt>かた</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>差異</rb><rt>さい</rt></ruby>はない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q12:option2": {
+      "0.0": {
+        "text": "2. 儿童比成年人更倾向于把时间理解得更长。",
+        "kana": "2. こどもはおとなよりもじかんをながくとらえるけいこうがある。",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>子ども</rb><rt>こども</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>よりも<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>長く</rb><rt>ながく</rt></ruby>とらえる<ruby data-auto-furi=\"1\"><rb>傾向</rb><rt>けいこう</rt></ruby>がある。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q12:option3": {
+      "0.0": {
+        "text": "3. 人一旦学会时间感，就无法改变。",
+        "kana": "3. ひとは、いちどまなんだじかんのかんかくをかえることができない。",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>一度</rb><rt>いちど</rt></ruby><ruby data-auto-furi=\"1\"><rb>学ん</rb><rt>まなん</rt></ruby>だ<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>感覚</rb><rt>かんかく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>変える</rb><rt>かえる</rt></ruby>ことができない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p10:q12:option4": {
+      "0.0": {
+        "text": "4. 成年人的时间感受到钟表影响。",
+        "kana": "4. おとなのじかんのかんかくはとけいにえいきょうされている。",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>大人</rb><rt>おとな</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>感覚</rb><rt>かんかく</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>時計</rb><rt>とけい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>影響</rb><rt>えいきょう</rt></ruby>されている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11": {
+      "0.0": {
+        "text": "创造性究竟是什么？",
+        "kana": "そうぞうせいとはいったいなになのか？",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>創造</rb><rt>そうぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>とは<ruby data-auto-furi=\"1\"><rb>一体</rb><rt>いったい</rt></ruby><ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>なのか？",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "这是一个非常困难的问题。",
+        "kana": "これはたいへんむずかしいもんだいである。",
+        "ruby": "これは<ruby data-auto-furi=\"1\"><rb>大変</rb><rt>たいへん</rt></ruby><ruby data-auto-furi=\"1\"><rb>難しい</rb><rt>むずかしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>問題</rb><rt>もんだい</rt></ruby>である。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "不过，回顾迄今为止的许多发现，可以知道下面这样的事情。",
+        "kana": "しかし、これまでのすうおおくのはっけんをかえりみると、つぎのようなことがわかってきた。",
+        "ruby": "しかし、これまでの<ruby data-auto-furi=\"1\"><rb>数</rb><rt>すう</rt></ruby><ruby data-auto-furi=\"1\"><rb>多く</rb><rt>おおく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>発見</rb><rt>はっけん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>顧みる</rb><rt>かえりみる</rt></ruby>と、<ruby data-auto-furi=\"1\"><rb>次</rb><rt>つぎ</rt></ruby>のようなことがわかってきた。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.3": {
+        "text": "也就是说，在发挥创造性方面重要的思考，是把“乍看无关”的东西关联起来的思考作用。",
+        "kana": "すなわち、そうぞうせいをはっきするうえでじゅうようなしこうとは、「いっけん、むかんけい」のものをかんれんさせるしこうのはたらきなのである。",
+        "ruby": "すなわち、<ruby data-auto-furi=\"1\"><rb>創造</rb><rt>そうぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>発揮</rb><rt>はっき</rt></ruby>するうえで<ruby data-auto-furi=\"1\"><rb>重要</rb><rt>じゅうよう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>とは、「<ruby data-auto-furi=\"1\"><rb>一見</rb><rt>いっけん</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>無関係</rb><rt>むかんけい</rt></ruby>」のものを<ruby data-auto-furi=\"1\"><rb>関連</rb><rt>かんれん</rt></ruby>させる<ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>働き</rb><rt>はたらき</rt></ruby>なのである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.4": {
+        "text": "这被称为“发散性思维”。",
+        "kana": "これを「かくさんてきしこう」という。",
+        "ruby": "これを「<ruby data-auto-furi=\"1\"><rb>拡散</rb><rt>かくさん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>」という。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.5": {
+        "text": "所谓发散性思维，是指自发加工给定的课题和信息，自己接连创造出多种多样的信息，并从全新视角找出许多答案的思考。",
+        "kana": "かくさんてきしこうはあたえられたかだいやじょうほうをじはつてきにかこうして、たしゅたようなじょうほうをみずからつぎつぎとつくりだし、まったくあたらしいしてんからおおくのかいとうをみいだしていくしこうのことである。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>拡散</rb><rt>かくさん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>与え</rb><rt>あたえ</rt></ruby>られた<ruby data-auto-furi=\"1\"><rb>課題</rb><rt>かだい</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>情報</rb><rt>じょうほう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>自発</rb><rt>じはつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>加工</rb><rt>かこう</rt></ruby>して、<ruby data-auto-furi=\"1\"><rb>多種</rb><rt>たしゅ</rt></ruby><ruby data-auto-furi=\"1\"><rb>多様</rb><rt>たよう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>情報</rb><rt>じょうほう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>自ら</rb><rt>みずから</rt></ruby><ruby data-auto-furi=\"1\"><rb>次々</rb><rt>つぎつぎ</rt></ruby>とつくりだし、まったく<ruby data-auto-furi=\"1\"><rb>新しい</rb><rt>あたらしい</rt></ruby><ruby data-auto-furi=\"1\"><rb>視点</rb><rt>してん</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>多く</rb><rt>おおく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>解答</rb><rt>かいとう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見出し</rb><rt>みいだし</rt></ruby>ていく<ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>のことである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.6": {
+        "text": "这样的思考过程未必能说是逻辑性、分析性的，有时也会作为非合理、非分析性的灵感产生。",
+        "kana": "このようなしこうかていはかならずしもろんりてき・ぶんせきてきとはいえず、ときにはひごうりてき・ひぶんせきてきないんすぴれえしょんとしてしょうじることもある。",
+        "ruby": "このような<ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby><ruby data-auto-furi=\"1\"><rb>過程</rb><rt>かてい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>必ずしも</rb><rt>かならずしも</rt></ruby><ruby data-auto-furi=\"1\"><rb>論理</rb><rt>ろんり</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>・<ruby data-auto-furi=\"1\"><rb>分析</rb><rt>ぶんせき</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>とはいえず、ときには<ruby data-auto-furi=\"1\"><rb>非合理</rb><rt>ひごうり</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>・<ruby data-auto-furi=\"1\"><rb>非</rb><rt>ひ</rt></ruby><ruby data-auto-furi=\"1\"><rb>分析</rb><rt>ぶんせき</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>なインスピレーションとして<ruby data-auto-furi=\"1\"><rb>生じる</rb><rt>しょうじる</rt></ruby>こともある。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.7": {
+        "text": "但是，在进行创造性思考时，它是重要的。",
+        "kana": "しかし、そうぞうてきなしこうをするうえではじゅうようなものなのである。",
+        "ruby": "しかし、<ruby data-auto-furi=\"1\"><rb>創造</rb><rt>そうぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>をするうえでは<ruby data-auto-furi=\"1\"><rb>重要</rb><rt>じゅうよう</rt></ruby>なものなのである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "与此相对，逻辑性、分析性、系统性地梳理思路并到达答案时发挥作用的思考，被称为“收束性思维”。",
+        "kana": "これにたいして、ろんりてき・ぶんせきてき・けいとうてきにすじみちをたてて、かいとうにたどりつくときにはたらくしこうを「しゅうそくてきしこう」という。",
+        "ruby": "これ<ruby data-auto-furi=\"1\"><rb>に対して</rb><rt>にたいして</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>論理</rb><rt>ろんり</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>・<ruby data-auto-furi=\"1\"><rb>分析</rb><rt>ぶんせき</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>・<ruby data-auto-furi=\"1\"><rb>系統</rb><rt>けいとう</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>筋道</rb><rt>すじみち</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>立て</rb><rt>たて</rt></ruby>て、<ruby data-auto-furi=\"1\"><rb>解答</rb><rt>かいとう</rt></ruby>にたどりつくときに<ruby data-auto-furi=\"1\"><rb>働く</rb><rt>はたらく</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>を「<ruby data-auto-furi=\"1\"><rb>収束</rb><rt>しゅうそく</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>」という。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "它是在解答方法已经明确、只有一个或少数正确答案的问题时发挥作用的思考，例如学力测验或智力测试。",
+        "kana": "がくりょくけんさやちのうてすとのように、かいとうほうがきちんときまっていて、ひとつまたはしょうすうのせいかいしかないようなもんだいをとくときにはたらくしこうである。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>学力</rb><rt>がくりょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>検査</rb><rt>けんさ</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>知能</rb><rt>ちのう</rt></ruby>テストのように、<ruby data-auto-furi=\"1\"><rb>解答</rb><rt>かいとう</rt></ruby><ruby data-auto-furi=\"1\"><rb>法</rb><rt>ほう</rt></ruby>がきちんときまっていて、１つまたは<ruby data-auto-furi=\"1\"><rb>少数</rb><rt>しょうすう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>正解</rb><rt>せいかい</rt></ruby>しかないような<ruby data-auto-furi=\"1\"><rb>問題</rb><rt>もんだい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>解く</rb><rt>とく</rt></ruby>ときに<ruby data-auto-furi=\"1\"><rb>働く</rb><rt>はたらく</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>である。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "这种情况下，对于如何利用给定信息和条件有一定规则，不允许任意加工、修正。",
+        "kana": "このばあい、あたえられたじょうほうやじょうけんのりようのしかたにはいっていのるうるがあり、かつてにかこう・しゅうせいすることはゆるされない。",
+        "ruby": "この<ruby data-auto-furi=\"1\"><rb>場合</rb><rt>ばあい</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>与え</rb><rt>あたえ</rt></ruby>られた<ruby data-auto-furi=\"1\"><rb>情報</rb><rt>じょうほう</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>条件</rb><rt>じょうけん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>利用</rb><rt>りよう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>仕方</rb><rt>しかた</rt></ruby>には<ruby data-auto-furi=\"1\"><rb>一定</rb><rt>いってい</rt></ruby>のルールがあり、かつてに<ruby data-auto-furi=\"1\"><rb>加工</rb><rt>かこう</rt></ruby>・<ruby data-auto-furi=\"1\"><rb>修正</rb><rt>しゅうせい</rt></ruby>することは<ruby data-auto-furi=\"1\"><rb>許さ</rb><rt>ゆるさ</rt></ruby>れない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "（堀野绿《第 9 讲 语言与思考》，堀野绿等《通俗心理学 28 讲：从女性视角出发》福村出版）",
+        "kana": "（ほりのみどり『きゅうこう　げんごとしこう』ほりのみどりた『よくわかるしんりがく28こう　じょせいのしてんから』ふくむらしゅっぱん）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>堀野</rb><rt>ほりの</rt></ruby><ruby data-auto-furi=\"1\"><rb>緑</rb><rt>みどり</rt></ruby>『９<ruby data-auto-furi=\"1\"><rb>講</rb><rt>こう</rt></ruby>　<ruby data-auto-furi=\"1\"><rb>言語</rb><rt>げんご</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>』<ruby data-auto-furi=\"1\"><rb>堀野</rb><rt>ほりの</rt></ruby><ruby data-auto-furi=\"1\"><rb>緑</rb><rt>みどり</rt></ruby><ruby data-auto-furi=\"1\"><rb>他</rb><rt>た</rt></ruby>『よくわかる<ruby data-auto-furi=\"1\"><rb>心理</rb><rt>しんり</rt></ruby><ruby data-auto-furi=\"1\"><rb>学</rb><rt>がく</rt></ruby>28<ruby data-auto-furi=\"1\"><rb>講</rb><rt>こう</rt></ruby>　<ruby data-auto-furi=\"1\"><rb>女性</rb><rt>じょせい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>視点</rb><rt>してん</rt></ruby>から』<ruby data-auto-furi=\"1\"><rb>福村</rb><rt>ふくむら</rt></ruby><ruby data-auto-furi=\"1\"><rb>出版</rb><rt>しゅっぱん</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q13:question": {
+      "0.0": {
+        "text": "问题 1 为了进行创造性构想，要让哪种思考发挥作用？",
+        "kana": "とい1　そうぞうてきなはっそうをするためには、どのしこうをはたらかせますか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>1　<ruby data-auto-furi=\"1\"><rb>創造</rb><rt>そうぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>発想</rb><rt>はっそう</rt></ruby>をするためには、どの<ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>働かせ</rb><rt>はたらかせ</rt></ruby>ますか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q13:option1": {
+      "0.0": {
+        "text": "1. 让发散性思维发挥作用。",
+        "kana": "1. かくさんてきしこうをはたらかせる。",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>拡散</rb><rt>かくさん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>働かせる</rb><rt>はたらかせる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q13:option2": {
+      "0.0": {
+        "text": "2. 让收束性思维发挥作用。",
+        "kana": "2. しゅうそくてきしこうをはたらかせる。",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>収束</rb><rt>しゅうそく</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>働かせる</rb><rt>はたらかせる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q13:option3": {
+      "0.0": {
+        "text": "3. 先让收束性思维，然后让发散性思维发挥作用。",
+        "kana": "3. まず、しゅうそくてきしこうを、それからかくさんてきしこうをはたらかせる。",
+        "ruby": "3. まず、<ruby data-auto-furi=\"1\"><rb>収束</rb><rt>しゅうそく</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>を、それから<ruby data-auto-furi=\"1\"><rb>拡散</rb><rt>かくさん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>働かせる</rb><rt>はたらかせる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q13:option4": {
+      "0.0": {
+        "text": "4. 同时让发散性思维和收束性思维发挥作用。",
+        "kana": "4. かくさんてきしこうもしゅうそくてきしこうもどうじにはたらかせる。",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>拡散</rb><rt>かくさん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>収束</rb><rt>しゅうそく</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby><ruby data-auto-furi=\"1\"><rb>思考</rb><rt>しこう</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>同時に</rb><rt>どうじに</rt></ruby><ruby data-auto-furi=\"1\"><rb>働かせる</rb><rt>はたらかせる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q14:question": {
+      "0.0": {
+        "text": "问题 2 为了进行创造性构想，文中说什么很重要？",
+        "kana": "とい2　そうぞうてきなはっそうをするためには、なにがじゅうようだとのべていますか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>2　<ruby data-auto-furi=\"1\"><rb>創造</rb><rt>そうぞう</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>発想</rb><rt>はっそう</rt></ruby>をするためには、<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>重要</rb><rt>じゅうよう</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>述べ</rb><rt>のべ</rt></ruby>ていますか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q14:option1": {
+      "0.0": {
+        "text": "1. 把看似没有关联的东西联系起来思考。",
+        "kana": "1. つながりのなさそうなものをかんけいづけてかんがえること",
+        "ruby": "1. つながりのなさそうなものを<ruby data-auto-furi=\"1\"><rb>関係</rb><rt>かんけい</rt></ruby>づけて<ruby data-auto-furi=\"1\"><rb>考える</rb><rt>かんがえる</rt></ruby>こと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q14:option2": {
+      "0.0": {
+        "text": "2. 理解事物背景中原本的想法。",
+        "kana": "2. ものごとのはいけいにあるもともとのかんがえをりかいすること",
+        "ruby": "2. ものごとの<ruby data-auto-furi=\"1\"><rb>背景</rb><rt>はいけい</rt></ruby>にあるもともとの<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>理解</rb><rt>りかい</rt></ruby>すること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q14:option3": {
+      "0.0": {
+        "text": "3. 理解事物的逻辑和条理。",
+        "kana": "3. ものごとのろんりやすじみちをりかいすること",
+        "ruby": "3. ものごとの<ruby data-auto-furi=\"1\"><rb>論理</rb><rt>ろんり</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>筋道</rb><rt>すじみち</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>理解</rb><rt>りかい</rt></ruby>すること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p11:q14:option4": {
+      "0.0": {
+        "text": "4. 基于规则利用给定的信息和条件。",
+        "kana": "4. あたえられたじょうほうやじょうけんを、るうるにもとづいてりようすること",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>与え</rb><rt>あたえ</rt></ruby>られた<ruby data-auto-furi=\"1\"><rb>情報</rb><rt>じょうほう</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>条件</rb><rt>じょうけん</rt></ruby>を、ルールに<ruby data-auto-furi=\"1\"><rb>基づい</rb><rt>もとづい</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>利用</rb><rt>りよう</rt></ruby>すること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12": {
+      "0.0": {
+        "text": "海豚和鲸完全是同一类，虽然对海豚有些不好意思，但常常粗略地称为鲸类。",
+        "kana": "いるかとくじらはまったくおなじなかまで、いるかにはもうしわけないが、おおざっぱにくじらるいとよぶことがおおい。",
+        "ruby": "イルカとクジラはまったく<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby>なかまで、イルカには<ruby data-auto-furi=\"1\"><rb>申し訳</rb><rt>もうしわけ</rt></ruby>ないが、<ruby data-auto-furi=\"1\"><rb>大雑把</rb><rt>おおざっぱ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>鯨</rb><rt>くじら</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>呼ぶ</rb><rt>よぶ</rt></ruby>ことが<ruby data-auto-furi=\"1\"><rb>多い</rb><rt>おおい</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "直到最近，人们还不清楚它们的祖先是什么样的动物。",
+        "kana": "さいきんまでかれらのそせんがどのようなどうぶつなのか、はっきりわかっていなかった。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>最近</rb><rt>さいきん</rt></ruby>まで<ruby data-auto-furi=\"1\"><rb>彼ら</rb><rt>かれら</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>祖先</rb><rt>そせん</rt></ruby>がどのような<ruby data-auto-furi=\"1\"><rb>動物</rb><rt>どうぶつ</rt></ruby>なのか、はっきり<ruby data-auto-furi=\"1\"><rb>分かっ</rb><rt>わかっ</rt></ruby>ていなかった。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "可以确定的是，曾在陆地上行走的哺乳类进入了海洋；但要说鲸和海豚是从怎样的类群进化而来的，就并不太明确。",
+        "kana": "かつてりくをあるいていたほにゅうるいがうみにはいったものだということはたしかなのだが、では、どんなぐるうぷからくじらやいるかがしんかしたのかとなると、あまりめいかくではなかったといえる。",
+        "ruby": "かつて<ruby data-auto-furi=\"1\"><rb>陸</rb><rt>りく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>歩い</rb><rt>あるい</rt></ruby>ていた<ruby data-auto-furi=\"1\"><rb>哺乳類</rb><rt>ほにゅうるい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>海</rb><rt>うみ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>入っ</rb><rt>はいっ</rt></ruby>たものだということは<ruby data-auto-furi=\"1\"><rb>確か</rb><rt>たしか</rt></ruby>なのだが、では、どんなグループからクジラやイルカが<ruby data-auto-furi=\"1\"><rb>進化</rb><rt>しんか</rt></ruby>したのかとなると、あまり<ruby data-auto-furi=\"1\"><rb>明確</rb><rt>めいかく</rt></ruby>ではなかったといえる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.3": {
+        "text": "大约五千万到四千万年以上以前在陆地上行走的某种肉食性哺乳类的头部，与大约同一时期古老类型的鲸非常相似，因此曾有人相信，海生的鲸就是从那样的类群中产生的。",
+        "kana": "およそごせんまんからよんせんまんねんいじょうまえにりくじょうをあるいていたあるにくしょくせいのほにゅうるいのとうぶが、ほぼどうじきのふるいたいぷのくじらによくにていることから、そんなぐるうぷから\"かいめん\"のくじらがうみだされたとしんじられていたこともある。",
+        "ruby": "およそ<ruby data-auto-furi=\"1\"><rb>五</rb><rt>ご</rt></ruby><ruby data-auto-furi=\"1\"><rb>千</rb><rt>せん</rt></ruby><ruby data-auto-furi=\"1\"><rb>万</rb><rt>まん</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>四</rb><rt>よん</rt></ruby><ruby data-auto-furi=\"1\"><rb>千</rb><rt>せん</rt></ruby><ruby data-auto-furi=\"1\"><rb>万</rb><rt>まん</rt></ruby><ruby data-auto-furi=\"1\"><rb>年</rb><rt>ねん</rt></ruby><ruby data-auto-furi=\"1\"><rb>以上</rb><rt>いじょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>前</rb><rt>まえ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>陸上</rb><rt>りくじょう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>歩い</rb><rt>あるい</rt></ruby>ていたある<ruby data-auto-furi=\"1\"><rb>肉食</rb><rt>にくしょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>哺乳類</rb><rt>ほにゅうるい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>頭部</rb><rt>とうぶ</rt></ruby>が、ほぼ<ruby data-auto-furi=\"1\"><rb>同</rb><rt>どう</rt></ruby><ruby data-auto-furi=\"1\"><rb>時期</rb><rt>じき</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>古い</rb><rt>ふるい</rt></ruby>タイプのクジラによく<ruby data-auto-furi=\"1\"><rb>似</rb><rt>に</rt></ruby>ていることから、そんなグループから&quot;<ruby data-auto-furi=\"1\"><rb>海綿</rb><rt>かいめん</rt></ruby>&quot;のクジラが<ruby data-auto-furi=\"1\"><rb>生み出さ</rb><rt>うみださ</rt></ruby>れたと<ruby data-auto-furi=\"1\"><rb>信じ</rb><rt>しんじ</rt></ruby>られていたこともある。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "然而，进入 21 世纪前后，研究广泛哺乳类基因的工作相继出现，人们逐渐发现，鲸的基因与牛、鹿、骆驼以及野猪、猪的同类非常接近。",
+        "kana": "ところが、にじゅういちせいきにはいるころから、はばひろいほにゅうるいのいでんしをしらべたしごとがあいつぎ、くじらのいでんしが、うしやしか、らくだやイノシン・ブタのなかまにひじょうにちかいことがわかってきた。",
+        "ruby": "ところが、<ruby data-auto-furi=\"1\"><rb>二</rb><rt>に</rt></ruby><ruby data-auto-furi=\"1\"><rb>十</rb><rt>じゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>一</rb><rt>いち</rt></ruby><ruby data-auto-furi=\"1\"><rb>世紀</rb><rt>せいき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>入る</rb><rt>はいる</rt></ruby><ruby data-auto-furi=\"1\"><rb>頃</rb><rt>ころ</rt></ruby>から、<ruby data-auto-furi=\"1\"><rb>幅広い</rb><rt>はばひろい</rt></ruby><ruby data-auto-furi=\"1\"><rb>哺乳類</rb><rt>ほにゅうるい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>遺伝子</rb><rt>いでんし</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>調べ</rb><rt>しらべ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>相次ぎ</rb><rt>あいつぎ</rt></ruby>、クジラの<ruby data-auto-furi=\"1\"><rb>遺伝子</rb><rt>いでんし</rt></ruby>が、ウシやシカ、ラクダやイノシン・ブタのなかまに<ruby data-auto-furi=\"1\"><rb>非常</rb><rt>ひじょう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>近い</rb><rt>ちかい</rt></ruby>ことが<ruby data-auto-furi=\"1\"><rb>分かっ</rb><rt>わかっ</rt></ruby>てきた。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "这些怎么看都像是吃植物的大型兽类被称为偶蹄类；鲸类虽然为了游泳而改变了形态，但实际上与偶蹄类非常接近，于是“很久以前，古老的偶蹄类游向海中并产生了鲸类”这一学说具有了说服力。",
+        "kana": "これらのいかにもしょくぶつをたべそうなおおがたのししたちを偶ひずめるいとよぶのだが、くじらるいはおよぐためにかたちをかえてしまっているけれども、じっさいには偶ひずめるいにとてもみどりがちかく、おおむかし、ふるい偶ひずめるいがうみにおよぎでてくじらるいをうみだしたというがくせつがせっとくりょくをもったのである。",
+        "ruby": "これらのいかにも<ruby data-auto-furi=\"1\"><rb>植物</rb><rt>しょくぶつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>食べ</rb><rt>たべ</rt></ruby>そうな<ruby data-auto-furi=\"1\"><rb>大型</rb><rt>おおがた</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>獣</rb><rt>しし</rt></ruby>たちを偶<ruby data-auto-furi=\"1\"><rb>蹄</rb><rt>ひずめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>呼ぶ</rb><rt>よぶ</rt></ruby>のだが、<ruby data-auto-furi=\"1\"><rb>鯨</rb><rt>くじら</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>泳ぐ</rb><rt>およぐ</rt></ruby>ために<ruby data-auto-furi=\"1\"><rb>形</rb><rt>かたち</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>変え</rb><rt>かえ</rt></ruby>てしまっているけれども、<ruby data-auto-furi=\"1\"><rb>実際</rb><rt>じっさい</rt></ruby>には偶<ruby data-auto-furi=\"1\"><rb>蹄</rb><rt>ひずめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>にとても<ruby data-auto-furi=\"1\"><rb>緑</rb><rt>みどり</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>近く</rb><rt>ちかく</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>大昔</rb><rt>おおむかし</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>古い</rb><rt>ふるい</rt></ruby>偶<ruby data-auto-furi=\"1\"><rb>蹄</rb><rt>ひずめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>海</rb><rt>うみ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>泳ぎ</rb><rt>およぎ</rt></ruby><ruby data-auto-furi=\"1\"><rb>出</rb><rt>で</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>鯨</rb><rt>くじら</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>生み出し</rb><rt>うみだし</rt></ruby>たという<ruby data-auto-furi=\"1\"><rb>学説</rb><rt>がくせつ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>説得</rb><rt>せっとく</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>りょく</rt></ruby>をもったのである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "像是进一步坐实这一点一样，西亚发现了有后肢的最早期鲸化石，最终明确了它们在许多方面具有与偶蹄类相同的特征。",
+        "kana": "だめをおすかのように、あとあしのあるさいしょきのくじらのかせきがにしあじあからはっけんされて、かれらがおおくのてんで偶ひずめるいとおなじとくちょうをもっていたことがあきらかにされるにいたる。",
+        "ruby": "ダメを<ruby data-auto-furi=\"1\"><rb>押す</rb><rt>おす</rt></ruby>かのように、<ruby data-auto-furi=\"1\"><rb>後肢</rb><rt>あとあし</rt></ruby>のある<ruby data-auto-furi=\"1\"><rb>最初</rb><rt>さいしょ</rt></ruby><ruby data-auto-furi=\"1\"><rb>期</rb><rt>き</rt></ruby>のクジラの<ruby data-auto-furi=\"1\"><rb>化石</rb><rt>かせき</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>西</rb><rt>にし</rt></ruby>アジアから<ruby data-auto-furi=\"1\"><rb>発見</rb><rt>はっけん</rt></ruby>されて、<ruby data-auto-furi=\"1\"><rb>彼ら</rb><rt>かれら</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>多く</rb><rt>おおく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>点</rb><rt>てん</rt></ruby>で偶<ruby data-auto-furi=\"1\"><rb>蹄</rb><rt>ひずめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby><ruby data-auto-furi=\"1\"><rb>特徴</rb><rt>とくちょう</rt></ruby>をもっていたことが<ruby data-auto-furi=\"1\"><rb>明らか</rb><rt>あきらか</rt></ruby>にされるに<ruby data-auto-furi=\"1\"><rb>至る</rb><rt>いたる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.3": {
+        "text": "其中最有力的根据，是脚踝骨。",
+        "kana": "そのなかでももっともゆうりょくなこんきょは、あしくびのほねだ。",
+        "ruby": "そのなかでももっとも<ruby data-auto-furi=\"1\"><rb>有力</rb><rt>ゆうりょく</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>根拠</rb><rt>こんきょ</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>足首</rb><rt>あしくび</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>骨</rb><rt>ほね</rt></ruby>だ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.4": {
+        "text": "我们熟知的偶蹄类脚踝骨，具备两个并列的像滑车一样的关节。",
+        "kana": "わたしたちがよくしる偶ひずめるいのあしくびのほねは、ふたつならんだかっしゃのようなかんせつをそなえている。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>私</rb><rt>わたし</rt></ruby>たちがよく<ruby data-auto-furi=\"1\"><rb>知る</rb><rt>しる</rt></ruby>偶<ruby data-auto-furi=\"1\"><rb>蹄</rb><rt>ひずめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>足首</rb><rt>あしくび</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>骨</rb><rt>ほね</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>二つ</rb><rt>ふたつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>並ん</rb><rt>ならん</rt></ruby>だ<ruby data-auto-furi=\"1\"><rb>滑車</rb><rt>かっしゃ</rt></ruby>のような<ruby data-auto-furi=\"1\"><rb>関節</rb><rt>かんせつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>備え</rb><rt>そなえ</rt></ruby>ている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.5": {
+        "text": "已经证明，这种形状与最古老类型的（当然是有脚的）鲸的脚踝几乎一模一样。",
+        "kana": "このかたちが、もっともふるいたいぷの、（もちろんあしのある）くじらのあしくびと＊＊うりふたつだったことがしょうめいされたのである。",
+        "ruby": "この<ruby data-auto-furi=\"1\"><rb>形</rb><rt>かたち</rt></ruby>が、もっとも<ruby data-auto-furi=\"1\"><rb>古い</rb><rt>ふるい</rt></ruby>タイプの、（もちろん<ruby data-auto-furi=\"1\"><rb>足</rb><rt>あし</rt></ruby>のある）クジラの<ruby data-auto-furi=\"1\"><rb>足首</rb><rt>あしくび</rt></ruby>と＊＊<ruby data-auto-furi=\"1\"><rb>瓜</rb><rt>うり</rt></ruby><ruby data-auto-furi=\"1\"><rb>二つ</rb><rt>ふたつ</rt></ruby>だったことが<ruby data-auto-furi=\"1\"><rb>証明</rb><rt>しょうめい</rt></ruby>されたのである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "（远藤秀纪《解剖男》讲谈社）",
+        "kana": "（えんどうひでき『かいぼうおとこ』こうだんしゃ）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>遠藤</rb><rt>えんどう</rt></ruby><ruby data-auto-furi=\"1\"><rb>秀紀</rb><rt>ひでき</rt></ruby>『<ruby data-auto-furi=\"1\"><rb>解剖</rb><rt>かいぼう</rt></ruby><ruby data-auto-furi=\"1\"><rb>男</rb><rt>おとこ</rt></ruby>』<ruby data-auto-furi=\"1\"><rb>講談社</rb><rt>こうだんしゃ</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "＊海生：生活在海中。",
+        "kana": "＊かいめん：うみにすむ",
+        "ruby": "＊<ruby data-auto-furi=\"1\"><rb>海綿</rb><rt>かいめん</rt></ruby>：<ruby data-auto-furi=\"1\"><rb>海</rb><rt>うみ</rt></ruby>にすむ",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.0": {
+        "text": "＊＊一模一样：非常相似。",
+        "kana": "＊＊うりふたつ：よくにていること",
+        "ruby": "＊＊<ruby data-auto-furi=\"1\"><rb>瓜</rb><rt>うり</rt></ruby><ruby data-auto-furi=\"1\"><rb>二つ</rb><rt>ふたつ</rt></ruby>：よく<ruby data-auto-furi=\"1\"><rb>似</rb><rt>に</rt></ruby>ていること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q15:question": {
+      "0.0": {
+        "text": "问题 1 到 20 世纪为止的研究中，人们认为鲸的祖先是什么样的动物？",
+        "kana": "とい1　にじゅうせいきまでのけんきゅうでは、くじらのそせんはどのようなどうぶつだとかんがえられていましたか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>1　<ruby data-auto-furi=\"1\"><rb>二</rb><rt>に</rt></ruby><ruby data-auto-furi=\"1\"><rb>十</rb><rt>じゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>世紀</rb><rt>せいき</rt></ruby>までの<ruby data-auto-furi=\"1\"><rb>研究</rb><rt>けんきゅう</rt></ruby>では、クジラの<ruby data-auto-furi=\"1\"><rb>祖先</rb><rt>そせん</rt></ruby>はどのような<ruby data-auto-furi=\"1\"><rb>動物</rb><rt>どうぶつ</rt></ruby>だと<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>られていましたか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q15:option1": {
+      "0.0": {
+        "text": "1. 肉食性哺乳类。",
+        "kana": "1. にくしょくせいのほにゅうるい",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>肉食</rb><rt>にくしょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>哺乳類</rb><rt>ほにゅうるい</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q15:option2": {
+      "0.0": {
+        "text": "2. 草食性哺乳类。",
+        "kana": "2. そうしょくせいのほにゅうるい",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>草食</rb><rt>そうしょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>哺乳類</rb><rt>ほにゅうるい</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q15:option3": {
+      "0.0": {
+        "text": "3. 偶蹄类。",
+        "kana": "3. 偶ひずめるい",
+        "ruby": "3. 偶<ruby data-auto-furi=\"1\"><rb>蹄</rb><rt>ひずめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q15:option4": {
+      "0.0": {
+        "text": "4. 海豚。",
+        "kana": "4. いるか",
+        "ruby": "4. イルカ",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q16:question": {
+      "0.0": {
+        "text": "问题 2 被认为是划线部分“最有力的根据”的是哪一项？",
+        "kana": "とい2　かせんぶ「もっともゆうりょくなこんきょ」とされているのは、どれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>2　<ruby data-auto-furi=\"1\"><rb>下線</rb><rt>かせん</rt></ruby><ruby data-auto-furi=\"1\"><rb>部</rb><rt>ぶ</rt></ruby>「もっとも<ruby data-auto-furi=\"1\"><rb>有力</rb><rt>ゆうりょく</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>根拠</rb><rt>こんきょ</rt></ruby>」とされているのは、どれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q16:option1": {
+      "0.0": {
+        "text": "1. 古老类型的鲸与肉食性哺乳类的脚踝骨相似。",
+        "kana": "1. ふるいたいぷのくじらとにくしょくせいのほにゅうるいで、あしくびのほねがにていること",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>古い</rb><rt>ふるい</rt></ruby>タイプのクジラと<ruby data-auto-furi=\"1\"><rb>肉食</rb><rt>にくしょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>哺乳類</rb><rt>ほにゅうるい</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>足首</rb><rt>あしくび</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>骨</rb><rt>ほね</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>似</rb><rt>に</rt></ruby>ていること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q16:option2": {
+      "0.0": {
+        "text": "2. 古老类型的鲸与偶蹄类的脚踝骨相似。",
+        "kana": "2. ふるいたいぷのくじらと偶ひずめるいで、あしくびのほねがにていること",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>古い</rb><rt>ふるい</rt></ruby>タイプのクジラと偶<ruby data-auto-furi=\"1\"><rb>蹄</rb><rt>ひずめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>で、<ruby data-auto-furi=\"1\"><rb>足首</rb><rt>あしくび</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>骨</rb><rt>ほね</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>似</rb><rt>に</rt></ruby>ていること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q16:option3": {
+      "0.0": {
+        "text": "3. 现代鲸中存在与古老类型鲸的脚踝相似的骨。",
+        "kana": "3. ふるいたいぷのくじらのあしくびににたほねが、げんざいのくじらにあること",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>古い</rb><rt>ふるい</rt></ruby>タイプのクジラの<ruby data-auto-furi=\"1\"><rb>足首</rb><rt>あしくび</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>似</rb><rt>に</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>骨</rb><rt>ほね</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>現在</rb><rt>げんざい</rt></ruby>のクジラにあること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p12:q16:option4": {
+      "0.0": {
+        "text": "4. 现代鲸中存在与偶蹄类脚踝相似的骨。",
+        "kana": "④偶ひずめるいのあしくびににたほねが、げんざいのくじらにあること",
+        "ruby": "④偶<ruby data-auto-furi=\"1\"><rb>蹄</rb><rt>ひずめ</rt></ruby><ruby data-auto-furi=\"1\"><rb>類</rb><rt>るい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>足首</rb><rt>あしくび</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>似</rb><rt>に</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>骨</rb><rt>ほね</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>現在</rb><rt>げんざい</rt></ruby>のクジラにあること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13": {
+      "0.0": {
+        "text": "与近代以前的社会是极其缓慢变化的社会相对，近代社会是以无法与之相比的速度变化的社会。",
+        "kana": "きんだいいぜんのしゃかいがごくゆっくりとへんかしていくしゃかいであるのにたいして、きんだいしゃかいはそれとはひかくにならぬそくどでへんかしていくしゃかいだ。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby><ruby data-auto-furi=\"1\"><rb>以前</rb><rt>いぜん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>がごくゆっくりと<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>していく<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>であるのにたいして、<ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby><ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>はそれとは<ruby data-auto-furi=\"1\"><rb>比較</rb><rt>ひかく</rt></ruby>にならぬ<ruby data-auto-furi=\"1\"><rb>速度</rb><rt>そくど</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>していく<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>だ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "带来变化的最大因素是工业生产力的发展，而这种使物质财富增加的变化，被大多数人作为社会的“进步”而欢迎。",
+        "kana": "へんかをもたらすさいだいのよういんはこうぎょうせいさんりょくのはってんであって、ぶっしつてきなとみをぞうだいさせるこのへんかは、だいたすうのひとびとによってしゃかいの「しんぽ」としてかんげいされた。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>をもたらす<ruby data-auto-furi=\"1\"><rb>最大</rb><rt>さいだい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>要因</rb><rt>よういん</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>工業</rb><rt>こうぎょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>生産</rb><rt>せいさん</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>りょく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>発展</rb><rt>はってん</rt></ruby>であって、<ruby data-auto-furi=\"1\"><rb>物質</rb><rt>ぶっしつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>富</rb><rt>とみ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>増大</rb><rt>ぞうだい</rt></ruby>させるこの<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>大</rb><rt>だい</rt></ruby><ruby data-auto-furi=\"1\"><rb>多数</rb><rt>たすう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>人びと</rb><rt>ひとびと</rt></ruby>によって<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>の「<ruby data-auto-furi=\"1\"><rb>進歩</rb><rt>しんぽ</rt></ruby>」として<ruby data-auto-furi=\"1\"><rb>歓迎</rb><rt>かんげい</rt></ruby>された。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.2": {
+        "text": "不是今天和昨天一样、明天和今天一样，而是今天比昨天前进，明天比今天更向前进，这就是近代社会；作为向前推进的力量，个人自由的创意、自由的活动、自由的生活方式被认可并受到欢迎。",
+        "kana": "きのうとおなじようにきょうがあり、きょうとおなじようにあしたがあるのではなく、きのうよりきょうが、きょうよりもあしたがまえへすすむのがきんだいしゃかいであり、まえにすすめるちからとしてこじんのじゆうなそうい、じゆうなかつどう、じゆうないきかたがようにんされ、かんげいされる。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>昨日</rb><rt>きのう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby>ように<ruby data-auto-furi=\"1\"><rb>今日</rb><rt>きょう</rt></ruby>があり、<ruby data-auto-furi=\"1\"><rb>今日</rb><rt>きょう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>同じ</rb><rt>おなじ</rt></ruby>ように<ruby data-auto-furi=\"1\"><rb>明日</rb><rt>あした</rt></ruby>があるのではなく、<ruby data-auto-furi=\"1\"><rb>昨日</rb><rt>きのう</rt></ruby>より<ruby data-auto-furi=\"1\"><rb>今日</rb><rt>きょう</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>今日</rb><rt>きょう</rt></ruby>よりも<ruby data-auto-furi=\"1\"><rb>明日</rb><rt>あした</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>前</rb><rt>まえ</rt></ruby>へ<ruby data-auto-furi=\"1\"><rb>進む</rb><rt>すすむ</rt></ruby>のが<ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby><ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>であり、<ruby data-auto-furi=\"1\"><rb>前</rb><rt>まえ</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>進める</rb><rt>すすめる</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>ちから</rt></ruby>として<ruby data-auto-furi=\"1\"><rb>個人</rb><rt>こじん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>自由</rb><rt>じゆう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>創意</rb><rt>そうい</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>自由</rb><rt>じゆう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>活動</rb><rt>かつどう</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>自由</rb><rt>じゆう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>かたが<ruby data-auto-furi=\"1\"><rb>容認</rb><rt>ようにん</rt></ruby>され、<ruby data-auto-furi=\"1\"><rb>歓迎</rb><rt>かんげい</rt></ruby>される。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.3": {
+        "text": "厌恶停滞、认可变化和进步的近代社会，比起按照社会眼光生活的方式，更认为“抗拒”社会眼光而生活的方式才符合时代。",
+        "kana": "ていたいをきらい、へんかやしんぽをよしとするきんだいしゃかいは、しゃかいのめにしたがっていきるいきかたよりも、しゃかいのめに\"こう\"っていきるいきかたのほうをじだいにふさわしいものとともえるのだ。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>停滞</rb><rt>ていたい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>嫌い</rb><rt>きらい</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>進歩</rb><rt>しんぽ</rt></ruby>をよしとする<ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby><ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby><ruby data-auto-furi=\"1\"><rb>に従って</rb><rt>にしたがって</rt></ruby><ruby data-auto-furi=\"1\"><rb>生きる</rb><rt>いきる</rt></ruby><ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>かたよりも、<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>に&quot;<ruby data-auto-furi=\"1\"><rb>抗</rb><rt>こう</rt></ruby>&quot;って<ruby data-auto-furi=\"1\"><rb>生きる</rb><rt>いきる</rt></ruby><ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>かたのほうを<ruby data-auto-furi=\"1\"><rb>時代</rb><rt>じだい</rt></ruby>にふさわしいものとともえるのだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "而且，在社会目不暇接地变化、进展的状况下，即使说按照社会眼光生活，由于那种眼光本身也在变化、进展，所以也不像前近代那样，社会眼光难以成为稳固的标准。",
+        "kana": "それに、しゃかいがめまぐるしくへんかししんてんしていくじょうきょうかでは、しゃかいのめにしたがうといっても、そのめがへんかししんてんしていくから、ぜんきんだいにおけるように、しゃかいのめがかっこなるきじゅんとはなりにくい。",
+        "ruby": "それに、<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>がめまぐるしく<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>し<ruby data-auto-furi=\"1\"><rb>進展</rb><rt>しんてん</rt></ruby>していく<ruby data-auto-furi=\"1\"><rb>状況</rb><rt>じょうきょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>下</rb><rt>か</rt></ruby>では、<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>従う</rb><rt>したがう</rt></ruby>といっても、その<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>し<ruby data-auto-furi=\"1\"><rb>進展</rb><rt>しんてん</rt></ruby>していくから、<ruby data-auto-furi=\"1\"><rb>前</rb><rt>ぜん</rt></ruby><ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby>におけるように、<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>確固</rb><rt>かっこ</rt></ruby>なる<ruby data-auto-furi=\"1\"><rb>基準</rb><rt>きじゅん</rt></ruby>とはなりにくい。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "（略）……",
+        "kana": "（りゃく）…",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>略</rb><rt>りゃく</rt></ruby>）…",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "前近代的优等生或许能够坚守按照稳固不变的社会眼光生活的稳定方式；与之相比，近代的优等生即使想遵循社会眼光，也因为那一方多样且不确定，其生活方式也不得不变得不稳定。",
+        "kana": "ぜんきんだいのゆうとうせいは、かっこふどうのしゃかいのめにしたがうあんていしたいきかたをけんじできたかもしれないが、それとのひかくでいえば、きんだいのゆうとうせいはしゃかいのめにしたがおうとしても、そちらがたようでふかくじつであるがゆえに、そのいきかたもふあんていとならざるをえないのだ。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>前</rb><rt>ぜん</rt></ruby><ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>優等生</rb><rt>ゆうとうせい</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>確固</rb><rt>かっこ</rt></ruby><ruby data-auto-furi=\"1\"><rb>不動</rb><rt>ふどう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby><ruby data-auto-furi=\"1\"><rb>に従う</rb><rt>にしたがう</rt></ruby><ruby data-auto-furi=\"1\"><rb>安定</rb><rt>あんてい</rt></ruby>した<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>かたを<ruby data-auto-furi=\"1\"><rb>堅持</rb><rt>けんじ</rt></ruby>できたかもしれないが、それとの<ruby data-auto-furi=\"1\"><rb>比較</rb><rt>ひかく</rt></ruby>でいえば、<ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>優等生</rb><rt>ゆうとうせい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>目</rb><rt>め</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>従お</rb><rt>したがお</rt></ruby>うとしても、そちらが<ruby data-auto-furi=\"1\"><rb>多様</rb><rt>たよう</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>不</rb><rt>ふ</rt></ruby><ruby data-auto-furi=\"1\"><rb>確実</rb><rt>かくじつ</rt></ruby>であるがゆえに、その<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>かたも<ruby data-auto-furi=\"1\"><rb>不安定</rb><rt>ふあんてい</rt></ruby>とならざるをえないのだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "（长谷川宏《面向高中生的哲学入门》筑摩书房）",
+        "kana": "（はせがわひろし『こうこうせいのためのてつがくにゅうもん』ちくましょぼう）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>長谷川</rb><rt>はせがわ</rt></ruby><ruby data-auto-furi=\"1\"><rb>宏</rb><rt>ひろし</rt></ruby>『<ruby data-auto-furi=\"1\"><rb>高校生</rb><rt>こうこうせい</rt></ruby>のための<ruby data-auto-furi=\"1\"><rb>哲学</rb><rt>てつがく</rt></ruby><ruby data-auto-furi=\"1\"><rb>入門</rb><rt>にゅうもん</rt></ruby>』<ruby data-auto-furi=\"1\"><rb>筑摩書房</rb><rt>ちくましょぼう</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "＊抗拒：违抗。",
+        "kana": "＊あらがう：さからう",
+        "ruby": "＊<ruby data-auto-furi=\"1\"><rb>抗う</rb><rt>あらがう</rt></ruby>：<ruby data-auto-furi=\"1\"><rb>逆らう</rb><rt>さからう</rt></ruby>",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q17:question": {
+      "0.0": {
+        "text": "问题 1 作为划线部分“这种变化”产生的背景，哪一项最恰当？",
+        "kana": "とい1　かせんぶ「このへんか」がしょうじたはいけいとして、もっともてきとうなものはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>1　<ruby data-auto-furi=\"1\"><rb>下線</rb><rt>かせん</rt></ruby><ruby data-auto-furi=\"1\"><rb>部</rb><rt>ぶ</rt></ruby>「この<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>」が<ruby data-auto-furi=\"1\"><rb>生じ</rb><rt>しょうじ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>背景</rb><rt>はいけい</rt></ruby>として、<ruby data-auto-furi=\"1\"><rb>最も</rb><rt>もっとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>適当</rb><rt>てきとう</rt></ruby>なものはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q17:option1": {
+      "0.0": {
+        "text": "1. 物质财富增加。",
+        "kana": "1. ぶっしつてきなとみがぞうだいしたこと",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>物質</rb><rt>ぶっしつ</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>富</rb><rt>とみ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>増大</rb><rt>ぞうだい</rt></ruby>したこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q17:option2": {
+      "0.0": {
+        "text": "2. 工业生产力发展。",
+        "kana": "2. こうぎょうせいさんりょくがしんちょうしたこと",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>工業</rb><rt>こうぎょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>生産</rb><rt>せいさん</rt></ruby><ruby data-auto-furi=\"1\"><rb>力</rb><rt>りょく</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>伸長</rb><rt>しんちょう</rt></ruby>したこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q17:option3": {
+      "0.0": {
+        "text": "3. 社会进步停止。",
+        "kana": "3. しゃかいのしんぽがとまったこと",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>進歩</rb><rt>しんぽ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>止まっ</rb><rt>とまっ</rt></ruby>たこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q17:option4": {
+      "0.0": {
+        "text": "4. 个人自由被认可。",
+        "kana": "4. こじんのじゆうがようにんされたこと",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>個人</rb><rt>こじん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>自由</rb><rt>じゆう</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>容認</rb><rt>ようにん</rt></ruby>されたこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q18:question": {
+      "0.0": {
+        "text": "问题 2 近代优等生的生活方式不得不变得不稳定的理由是哪一项？",
+        "kana": "とい2　きんだいのゆうとうせいのいきかたがふあんていにならざるをえないりゆうはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>2　<ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>優等生</rb><rt>ゆうとうせい</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>かたが<ruby data-auto-furi=\"1\"><rb>不安定</rb><rt>ふあんてい</rt></ruby>にならざるをえない<ruby data-auto-furi=\"1\"><rb>理由</rb><rt>りゆう</rt></ruby>はどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q18:option1": {
+      "0.0": {
+        "text": "1. 因为近代社会无法后退。",
+        "kana": "1. きんだいしゃかいではこうたいすることができないから",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>近代</rb><rt>きんだい</rt></ruby><ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>後退</rb><rt>こうたい</rt></ruby>することができないから",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q18:option2": {
+      "0.0": {
+        "text": "2. 因为社会看待事物的方式不断变化。",
+        "kana": "2. しゃかいのもののみかたがたえずかわっていくから",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>のものの<ruby data-auto-furi=\"1\"><rb>見方</rb><rt>みかた</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>絶えず</rb><rt>たえず</rt></ruby><ruby data-auto-furi=\"1\"><rb>変わっ</rb><rt>かわっ</rt></ruby>ていくから",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q18:option3": {
+      "0.0": {
+        "text": "3. 因为必须违抗社会而生活。",
+        "kana": "3. しゃかいにさからっていきなければならないから",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>逆らっ</rb><rt>さからっ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>なければならないから",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p13:q18:option4": {
+      "0.0": {
+        "text": "4. 因为必须过自由的生活。",
+        "kana": "4. じゆうないきかたをしなければならないから",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>自由</rb><rt>じゆう</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>生き</rb><rt>いき</rt></ruby>かたをしなければならないから",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14": {
+      "0.0": {
+        "text": "应该如何选择自己的专业领域，以及“在这条路上成为专业人士”这样的目标呢？",
+        "kana": "じぶんのせんもんぶんや、「このみちでぷろをめざす」というもくひょうをどうやってえらべばよいでしょうか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>専門</rb><rt>せんもん</rt></ruby><ruby data-auto-furi=\"1\"><rb>分野</rb><rt>ぶんや</rt></ruby>、「この<ruby data-auto-furi=\"1\"><rb>道</rb><rt>みち</rt></ruby>でプロを<ruby data-auto-furi=\"1\"><rb>目指す</rb><rt>めざす</rt></ruby>」という<ruby data-auto-furi=\"1\"><rb>目標</rb><rt>もくひょう</rt></ruby>をどうやって<ruby data-auto-furi=\"1\"><rb>選べ</rb><rt>えらべ</rt></ruby>ばよいでしょうか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "这是每个人都会烦恼的问题。",
+        "kana": "これはだれにもなやむもんだいです。",
+        "ruby": "これは<ruby data-auto-furi=\"1\"><rb>誰</rb><rt>だれ</rt></ruby>にも<ruby data-auto-furi=\"1\"><rb>悩む</rb><rt>なやむ</rt></ruby><ruby data-auto-furi=\"1\"><rb>問題</rb><rt>もんだい</rt></ruby>です。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "找到自己想做的事情需要时间。",
+        "kana": "じぶんのやりたいことをみつけるにはじかんがかかります。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>のやりたいことをみつけるには<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>がかかります。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "而且，即使一度以为找到了，途中也常常会改变。",
+        "kana": "しかもいちどみつけたとおもっても、とちゅうでしばしばかわります。",
+        "ruby": "しかも<ruby data-auto-furi=\"1\"><rb>一度</rb><rt>いちど</rt></ruby><ruby data-auto-furi=\"1\"><rb>見つけ</rb><rt>みつけ</rt></ruby>たと<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>ても、<ruby data-auto-furi=\"1\"><rb>途中</rb><rt>とちゅう</rt></ruby>でしばしば<ruby data-auto-furi=\"1\"><rb>変わり</rb><rt>かわり</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "像所有人都会想到的那样，“做自己喜欢的事情”是理想的。",
+        "kana": "だれもがかんがえるように「じぶんのすきなものをやる」のがりそうてきです。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>誰</rb><rt>だれ</rt></ruby>もが<ruby data-auto-furi=\"1\"><rb>考える</rb><rt>かんがえる</rt></ruby>ように「<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>なものをやる」のが<ruby data-auto-furi=\"1\"><rb>理想</rb><rt>りそう</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>です。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "但是，即使因为“我喜欢这个”而尝试，也可能会发现自己没有才能，从而放弃。",
+        "kana": "しかし「これがすきだから」とおもってやってみても、じぶんにさいのうがないことにきづいて、だんねんすることもあるでしょう。",
+        "ruby": "しかし「これが<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>だから」と<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>てやってみても、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>才能</rb><rt>さいのう</rt></ruby>がないことに<ruby data-auto-furi=\"1\"><rb>気づい</rb><rt>きづい</rt></ruby>て、<ruby data-auto-furi=\"1\"><rb>断念</rb><rt>だんねん</rt></ruby>することもあるでしょう。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.0": {
+        "text": "或者，进入社会后实际做了那项工作，才发现它和自己想象的完全不同。",
+        "kana": "あるいはしゃかいにでてじっさいにそのしごとをやってみたら、おもっていたのとぜんぜんちがっていたりすることもあります。",
+        "ruby": "あるいは<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>出</rb><rt>で</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>実際</rb><rt>じっさい</rt></ruby>にその<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>をやってみたら、<ruby data-auto-furi=\"1\"><rb>思っ</rb><rt>おもっ</rt></ruby>ていたのと<ruby data-auto-furi=\"1\"><rb>全然</rb><rt>ぜんぜん</rt></ruby><ruby data-auto-furi=\"1\"><rb>違っ</rb><rt>ちがっ</rt></ruby>ていたりすることもあります。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.0": {
+        "text": "你也许会受到打击，但实际上，倒不如说这种情况更常见。",
+        "kana": "しょっくをうけるかもしれませんが、じつはむしろそのほうがよくあることなのです。",
+        "ruby": "ショックを<ruby data-auto-furi=\"1\"><rb>受ける</rb><rt>うける</rt></ruby>かもしれませんが、<ruby data-auto-furi=\"1\"><rb>実は</rb><rt>じつは</rt></ruby>むしろそのほうがよくあることなのです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.0": {
+        "text": "至少年轻时，“自己想做什么”这个对象是会不断变化的。",
+        "kana": "すくなくともわかいうちは、「じぶんがなにをしたいのか」というたいしょうはくるくるかわるものです。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>少なくとも</rb><rt>すくなくとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>若い</rb><rt>わかい</rt></ruby>うちは、「<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>をしたいのか」という<ruby data-auto-furi=\"1\"><rb>対象</rb><rt>たいしょう</rt></ruby>はくるくる<ruby data-auto-furi=\"1\"><rb>変わる</rb><rt>かわる</rt></ruby>ものです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.1": {
+        "text": "因为既不了解社会，也不了解自己，这很自然。",
+        "kana": "しゃかいのことも、じぶんじしんのこともしらないのですからとうぜんです。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>社会</rb><rt>しゃかい</rt></ruby>のことも、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby><ruby data-auto-furi=\"1\"><rb>自身</rb><rt>じしん</rt></ruby>のことも<ruby data-auto-furi=\"1\"><rb>知ら</rb><rt>しら</rt></ruby>ないのですから<ruby data-auto-furi=\"1\"><rb>当然</rb><rt>とうぜん</rt></ruby>です。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "7.0": {
+        "text": "所以我认为，年轻时不要太用脑子把将来的事情都想得过细，而是最好在碰到自己喜欢的事情、自己想做的事情之前，什么都试着做一做、找一找。",
+        "kana": "ですからわかいうちはあまりあたまでさきざきのことまでかんがえずに、じぶんのすきなこと、じぶんがやりたいことにぶつかるまで、なにでもやってみてさがしたほうがいいとおもいます。",
+        "ruby": "ですから<ruby data-auto-furi=\"1\"><rb>若い</rb><rt>わかい</rt></ruby>うちはあまり<ruby data-auto-furi=\"1\"><rb>頭</rb><rt>あたま</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>先々</rb><rt>さきざき</rt></ruby>のことまで<ruby data-auto-furi=\"1\"><rb>考え</rb><rt>かんがえ</rt></ruby>ずに、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>なこと、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>がやりたいことにぶつかるまで、<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>でもやってみて<ruby data-auto-furi=\"1\"><rb>探し</rb><rt>さがし</rt></ruby>たほうがいいと<ruby data-auto-furi=\"1\"><rb>思い</rb><rt>おもい</rt></ruby>ます。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "8.0": {
+        "text": "尝试某种工作后，如果处于自己相较于他人相对优秀的状态，大体上就会喜欢上那件事。",
+        "kana": "なにかのしごとをやってみて、じぶんがほかのひととくらべてそうたいてきにすぐれているというじょうきょうになると、だいたいそれがすきになるものだ、ということです。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>かの<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>をやってみて、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>がほかの<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>比べ</rb><rt>くらべ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>相対</rb><rt>そうたい</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>優れ</rb><rt>すぐれ</rt></ruby>ているという<ruby data-auto-furi=\"1\"><rb>状況</rb><rt>じょうきょう</rt></ruby>になると、だいたいそれが<ruby data-auto-furi=\"1\"><rb>好き</rb><rt>すき</rt></ruby>になるものだ、ということです。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "9.0": {
+        "text": "（榊原英资《你们为了什么而学习》文艺春秋）",
+        "kana": "（さかきばらえいすけ『きみたちはなにのためにまなぶのか』ぶんげいしゅんじゅう）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>榊原</rb><rt>さかきばら</rt></ruby><ruby data-auto-furi=\"1\"><rb>英資</rb><rt>えいすけ</rt></ruby>『<ruby data-auto-furi=\"1\"><rb>君たち</rb><rt>きみたち</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>何</rb><rt>なに</rt></ruby>のために<ruby data-auto-furi=\"1\"><rb>学ぶ</rb><rt>まなぶ</rt></ruby>のか』<ruby data-auto-furi=\"1\"><rb>文藝春秋</rb><rt>ぶんげいしゅんじゅう</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q19:question": {
+      "0.0": {
+        "text": "问题 1 在这篇文章中，作者建议的是哪一项？",
+        "kana": "とい1　このぶんしょうでひっしゃがすすめていることはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>1　この<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>筆者</rb><rt>ひっしゃ</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>勧め</rb><rt>すすめ</rt></ruby>ていることはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q19:option1": {
+      "0.0": {
+        "text": "1. 开始的工作要坚持到最后。",
+        "kana": "1. はじめたしごとはさいごまでやりとおすこと",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>始め</rb><rt>はじめ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>最後</rb><rt>さいご</rt></ruby>までやりとおすこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q19:option2": {
+      "0.0": {
+        "text": "2. 年轻时尝试各种工作。",
+        "kana": "2. わかいうちはいろいろなしごとをしてみること",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>若い</rb><rt>わかい</rt></ruby>うちはいろいろな<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>をしてみること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q19:option3": {
+      "0.0": {
+        "text": "3. 工作之前，充分调查那项工作。",
+        "kana": "3. しごとをするまえに、そのしごとについてよくしらべること",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>をする<ruby data-auto-furi=\"1\"><rb>前</rb><rt>まえ</rt></ruby>に、その<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>についてよく<ruby data-auto-furi=\"1\"><rb>調べる</rb><rt>しらべる</rt></ruby>こと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q19:option4": {
+      "0.0": {
+        "text": "4. 尽快找到适合自己的工作并积累经验。",
+        "kana": "4. じぶんにあったしごとをはやくみつけてけいけんをつむこと",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>合っ</rb><rt>あっ</rt></ruby>た<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>早く</rb><rt>はやく</rt></ruby>みつけて<ruby data-auto-furi=\"1\"><rb>経験</rb><rt>けいけん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>積む</rb><rt>つむ</rt></ruby>こと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q20:question": {
+      "0.0": {
+        "text": "问题 2 划线部分说“也许会受到打击”，文中说会因什么而受到打击？",
+        "kana": "とい2　かせんぶ「しょっくをうけるかもしれません」とありますが、どんなことにしょっくをうけるとのべられていますか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>2　<ruby data-auto-furi=\"1\"><rb>下線</rb><rt>かせん</rt></ruby><ruby data-auto-furi=\"1\"><rb>部</rb><rt>ぶ</rt></ruby>「ショックを<ruby data-auto-furi=\"1\"><rb>受ける</rb><rt>うける</rt></ruby>かもしれません」とありますが、どんなことにショックを<ruby data-auto-furi=\"1\"><rb>受ける</rb><rt>うける</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>述べ</rb><rt>のべ</rt></ruby>られていますか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q20:option1": {
+      "0.0": {
+        "text": "1. 找到想做的工作需要时间。",
+        "kana": "1. やりたいしごとをみつけるのにじかんがかかること",
+        "ruby": "1. やりたい<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>をみつけるのに<ruby data-auto-furi=\"1\"><rb>時間</rb><rt>じかん</rt></ruby>がかかること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q20:option2": {
+      "0.0": {
+        "text": "2. 被迫停止想做的工作。",
+        "kana": "2. やりたいしごとをやめさせられること",
+        "ruby": "2. やりたい<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>をやめさせられること",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q20:option3": {
+      "0.0": {
+        "text": "3. 想做的工作并不适合自己。",
+        "kana": "3. やりたかったしごとがじぶんにあわないこと",
+        "ruby": "3. やりたかった<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>合わ</rb><rt>あわ</rt></ruby>ないこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p14:q20:option4": {
+      "0.0": {
+        "text": "4. 想做的工作不断变化。",
+        "kana": "4. やりたいしごとがどんどんへんかしていってしまうこと",
+        "ruby": "4. やりたい<ruby data-auto-furi=\"1\"><rb>仕事</rb><rt>しごと</rt></ruby>がどんどん<ruby data-auto-furi=\"1\"><rb>変化</rb><rt>へんか</rt></ruby>していってしまうこと",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15": {
+      "0.0": {
+        "text": "鸟类中，有一种不动头就能看见周围 360 度全方位的鸟。",
+        "kana": "とりのなかには、あたまをうごかさずにしゅうい360どすべてがみえるというものがいる。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>鳥</rb><rt>とり</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>中</rb><rt>なか</rt></ruby>には、<ruby data-auto-furi=\"1\"><rb>頭</rb><rt>あたま</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>動かさ</rb><rt>うごかさ</rt></ruby>ずに<ruby data-auto-furi=\"1\"><rb>周囲</rb><rt>しゅうい</rt></ruby>360<ruby data-auto-furi=\"1\"><rb>度</rb><rt>ど</rt></ruby>すべてが<ruby data-auto-furi=\"1\"><rb>見える</rb><rt>みえる</rt></ruby>というものがいる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "0.1": {
+        "text": "那就是山鹬。",
+        "kana": "やましぎである。",
+        "ruby": "ヤマシギである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.0": {
+        "text": "山鹬在本州以北繁殖，在本州、九州、四国、冲绳越冬。",
+        "kana": "やましぎはほんしゅういほくではんしょくし、ほんしゅうやきゅうしゅう、しこく、おきなわでえっとうするしまである。",
+        "ruby": "ヤマシギは<ruby data-auto-furi=\"1\"><rb>本州</rb><rt>ほんしゅう</rt></ruby><ruby data-auto-furi=\"1\"><rb>以北</rb><rt>いほく</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>繁殖</rb><rt>はんしょく</rt></ruby>し、<ruby data-auto-furi=\"1\"><rb>本州</rb><rt>ほんしゅう</rt></ruby>や<ruby data-auto-furi=\"1\"><rb>九州</rb><rt>きゅうしゅう</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>四国</rb><rt>しこく</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>沖縄</rb><rt>おきなわ</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>越冬</rb><rt>えっとう</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>島</rb><rt>しま</rt></ruby>である。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.1": {
+        "text": "在日本全国都能看到它，但白天在树林中静止不动、夜间活动，所以很少被看见。",
+        "kana": "にっぽんぜんこくでみることができるのだが、ひるははやしのなかでじっとしていてよるかつどうするので、みかけることがすくない。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby><ruby data-auto-furi=\"1\"><rb>全国</rb><rt>ぜんこく</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>ことができるのだが、<ruby data-auto-furi=\"1\"><rb>昼</rb><rt>ひる</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>林</rb><rt>はやし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>中</rb><rt>なか</rt></ruby>でじっとしていて<ruby data-auto-furi=\"1\"><rb>夜</rb><rt>よる</rt></ruby><ruby data-auto-furi=\"1\"><rb>活動</rb><rt>かつどう</rt></ruby>するので、<ruby data-auto-furi=\"1\"><rb>見かける</rb><rt>みかける</rt></ruby>ことが<ruby data-auto-furi=\"1\"><rb>少ない</rb><rt>すくない</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "1.2": {
+        "text": "即便如此，在繁殖期，仍能看到它们在黄昏的树林上空一边发出“pichi、pichi”的叫声一边飞行。",
+        "kana": "それでもはんしょくきには、ゆうぐれのはやしのじょうくうを「ぴっち、ぴっち」となきながらとぶすがたをみることができる。",
+        "ruby": "それでも<ruby data-auto-furi=\"1\"><rb>繁殖</rb><rt>はんしょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>期</rb><rt>き</rt></ruby>には、<ruby data-auto-furi=\"1\"><rb>夕暮れ</rb><rt>ゆうぐれ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>林</rb><rt>はやし</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>上空</rb><rt>じょうくう</rt></ruby>を「ピッチ、ピッチ」と<ruby data-auto-furi=\"1\"><rb>鳴き</rb><rt>なき</rt></ruby>ながら<ruby data-auto-furi=\"1\"><rb>飛ぶ</rb><rt>とぶ</rt></ruby><ruby data-auto-furi=\"1\"><rb>姿</rb><rt>すがた</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>ことができる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.0": {
+        "text": "通常，肉食动物的眼睛并排位于前方，能够进行双眼视觉。",
+        "kana": "ふつう、にくしょくどうぶつのめはぜんぽうにならんでいて、りょうめしすることができる。",
+        "ruby": "ふつう、<ruby data-auto-furi=\"1\"><rb>肉食</rb><rt>にくしょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>動物</rb><rt>どうぶつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>前方</rb><rt>ぜんぽう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>並ん</rb><rt>ならん</rt></ruby>でいて、<ruby data-auto-furi=\"1\"><rb>両</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby><ruby data-auto-furi=\"1\"><rb>視</rb><rt>し</rt></ruby>することができる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.1": {
+        "text": "这是因为狩猎时需要准确知道与猎物的距离。",
+        "kana": "かりをするときに、えものとのきょりをせいかくにしるひつようがあるからだ。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>狩り</rb><rt>かり</rt></ruby>をするときに、<ruby data-auto-furi=\"1\"><rb>獲物</rb><rt>えもの</rt></ruby>との<ruby data-auto-furi=\"1\"><rb>距離</rb><rt>きょり</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>正確</rb><rt>せいかく</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>知る</rb><rt>しる</rt></ruby><ruby data-auto-furi=\"1\"><rb>必要</rb><rt>ひつよう</rt></ruby>があるからだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.2": {
+        "text": "然而，草食动物的眼睛位于脸的两侧，能够广泛环视周围。",
+        "kana": "ところが、そうしょくどうぶつのめはかおのりょうがわについていて、しゅういをひろくみわたすことができる。",
+        "ruby": "ところが、<ruby data-auto-furi=\"1\"><rb>草食</rb><rt>そうしょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>動物</rb><rt>どうぶつ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>顔</rb><rt>かお</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>両側</rb><rt>りょうがわ</rt></ruby>についていて、<ruby data-auto-furi=\"1\"><rb>周囲</rb><rt>しゅうい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>広く</rb><rt>ひろく</rt></ruby><ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>わたすことができる。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "2.3": {
+        "text": "大概是因为它们必须时刻注意天敌是否靠近。",
+        "kana": "てんてきがちかづくのを、いつもきにしなければならないからだろう。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>天敵</rb><rt>てんてき</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>近づく</rb><rt>ちかづく</rt></ruby>のを、いつも<ruby data-auto-furi=\"1\"><rb>気</rb><rt>き</rt></ruby>にしなければならないからだろう。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.0": {
+        "text": "山鹬就是这种情况的极端例子。",
+        "kana": "そのきょくたんなれいがやましぎだ。",
+        "ruby": "その<ruby data-auto-furi=\"1\"><rb>極端</rb><rt>きょくたん</rt></ruby>な<ruby data-auto-furi=\"1\"><rb>例</rb><rt>れい</rt></ruby>がヤマシギだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.1": {
+        "text": "山鹬的食物是土中的蚯蚓等。",
+        "kana": "やましぎのたべものは、どちゅうのみみずなどである。",
+        "ruby": "ヤマシギの<ruby data-auto-furi=\"1\"><rb>食べ物</rb><rt>たべもの</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>土中</rb><rt>どちゅう</rt></ruby>のミミズなどである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.2": {
+        "text": "它的喙尖有一种叫作格兰德里小体的感觉器官。",
+        "kana": "くちばしのさきにはグランドリイしたいというかんかくきかんがある。",
+        "ruby": "くちばしの<ruby data-auto-furi=\"1\"><rb>先</rb><rt>さき</rt></ruby>にはグランドリイ<ruby data-auto-furi=\"1\"><rb>氏</rb><rt>し</rt></ruby><ruby data-auto-furi=\"1\"><rb>体</rb><rt>たい</rt></ruby>という<ruby data-auto-furi=\"1\"><rb>感覚</rb><rt>かんかく</rt></ruby><ruby data-auto-furi=\"1\"><rb>器官</rb><rt>きかん</rt></ruby>がある。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.3": {
+        "text": "山鹬把喙插入土中，利用这个感觉器官探寻并捕捉蚯蚓。",
+        "kana": "やましぎはどにくちばしをつきさし、このかんかくきかんをつかってみみずをさぐりとるのである。",
+        "ruby": "ヤマシギは<ruby data-auto-furi=\"1\"><rb>土</rb><rt>ど</rt></ruby>にくちばしを<ruby data-auto-furi=\"1\"><rb>突き</rb><rt>つき</rt></ruby>さし、この<ruby data-auto-furi=\"1\"><rb>感覚</rb><rt>かんかく</rt></ruby><ruby data-auto-furi=\"1\"><rb>器官</rb><rt>きかん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>使っ</rb><rt>つかっ</rt></ruby>てミミズを<ruby data-auto-furi=\"1\"><rb>探り</rb><rt>さぐり</rt></ruby><ruby data-auto-furi=\"1\"><rb>捕る</rb><rt>とる</rt></ruby>のである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "3.4": {
+        "text": "因此寻找食物不需要使用视觉。",
+        "kana": "しょくもつをさがすのに、しかくをつかわないのですむのだ。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>食物</rb><rt>しょくもつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探す</rb><rt>さがす</rt></ruby>のに、<ruby data-auto-furi=\"1\"><rb>視覚</rb><rt>しかく</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>使わ</rb><rt>つかわ</rt></ruby>ないのですむのだ。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.0": {
+        "text": "但是，由于必须低着头探寻食物，普通的眼睛就无法警戒周围。",
+        "kana": "だが、うつむいてしょくもつをさぐらなければならないため、ふつうのめではしゅういをみはることができない。",
+        "ruby": "だが、うつむいて<ruby data-auto-furi=\"1\"><rb>食物</rb><rt>しょくもつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探ら</rb><rt>さぐら</rt></ruby>なければならないため、ふつうの<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>周囲</rb><rt>しゅうい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見張る</rb><rt>みはる</rt></ruby>ことができない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "4.1": {
+        "text": "为了在把喙插入土中时也能警戒周围，大概需要向扩大视野的方向进化吧。",
+        "kana": "どにくちばしをつきさしているときでもしゅういをみはれるようにするには、しやをひろくするほうこうにしんかするひつようがあったのだろう。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>土</rb><rt>ど</rt></ruby>にくちばしを<ruby data-auto-furi=\"1\"><rb>突き</rb><rt>つき</rt></ruby>さしているときでも<ruby data-auto-furi=\"1\"><rb>周囲</rb><rt>しゅうい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見張れる</rb><rt>みはれる</rt></ruby>ようにするには、<ruby data-auto-furi=\"1\"><rb>視野</rb><rt>しや</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>広く</rb><rt>ひろく</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>方向</rb><rt>ほうこう</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>進化</rb><rt>しんか</rt></ruby>する<ruby data-auto-furi=\"1\"><rb>必要</rb><rt>ひつよう</rt></ruby>があったのだろう。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.0": {
+        "text": "山鹬的眼睛位于头部稍后、接近头顶的位置，因此一次就能毫无遗漏地环视周围。",
+        "kana": "やましぎは、めがあたまのややうしろのとうちょうちかくにあるので、いちどにしゅういをあますところなくみわたせるのである。",
+        "ruby": "ヤマシギは、<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>頭</rb><rt>あたま</rt></ruby>のやや<ruby data-auto-furi=\"1\"><rb>後ろ</rb><rt>うしろ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>頭頂</rb><rt>とうちょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>近く</rb><rt>ちかく</rt></ruby>にあるので、<ruby data-auto-furi=\"1\"><rb>一</rb><rt>いち</rt></ruby><ruby data-auto-furi=\"1\"><rb>度</rb><rt>ど</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>周囲</rb><rt>しゅうい</rt></ruby>をあますところなく<ruby data-auto-furi=\"1\"><rb>見渡せる</rb><rt>みわたせる</rt></ruby>のである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "5.1": {
+        "text": "不过遗憾的是，人类甚至无法想象山鹬看到的是怎样的世界。",
+        "kana": "ところがざんねんなことに、にんげんにはやましぎがどのようなせかいをみているのかはそうぞうすらできない。",
+        "ruby": "ところが<ruby data-auto-furi=\"1\"><rb>残念</rb><rt>ざんねん</rt></ruby>なことに、<ruby data-auto-furi=\"1\"><rb>人間</rb><rt>にんげん</rt></ruby>にはヤマシギがどのような<ruby data-auto-furi=\"1\"><rb>世界</rb><rt>せかい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見</rb><rt>み</rt></ruby>ているのかは<ruby data-auto-furi=\"1\"><rb>想像</rb><rt>そうぞう</rt></ruby>すらできない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.0": {
+        "text": "人的眼睛是为了用双眼看物体而形成的。",
+        "kana": "ひとのめは、りょうめでものをみるようにできている。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>人</rb><rt>ひと</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>は、<ruby data-auto-furi=\"1\"><rb>両</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>物</rb><rt>もの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>ようにできている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.1": {
+        "text": "用双眼看物体时，能够立体地，或者说清楚地看出远近。",
+        "kana": "りょうめでものをみるとりったいてきに、あるいはえんきんがはっきりとみえるのである。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>両</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>物</rb><rt>もの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>立体</rb><rt>りったい</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>に、あるいは<ruby data-auto-furi=\"1\"><rb>遠近</rb><rt>えんきん</rt></ruby>がはっきりと<ruby data-auto-furi=\"1\"><rb>見える</rb><rt>みえる</rt></ruby>のである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.2": {
+        "text": "山鹬为了扩大视野，牺牲了双眼视觉。",
+        "kana": "やましぎは、しやをひろげるためにりょうめしをぎせいにしている。",
+        "ruby": "ヤマシギは、<ruby data-auto-furi=\"1\"><rb>視野</rb><rt>しや</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>広げる</rb><rt>ひろげる</rt></ruby>ために<ruby data-auto-furi=\"1\"><rb>両</rb><rt>りょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby><ruby data-auto-furi=\"1\"><rb>視</rb><rt>し</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>犠牲</rb><rt>ぎせい</rt></ruby>にしている。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.3": {
+        "text": "因为只有两只眼睛，所以只能牺牲其中一方。",
+        "kana": "ふたつしかないめだから、どちらかをぎせいにするしかない。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>二つ</rb><rt>ふたつ</rt></ruby>しかない<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>だから、どちらかを<ruby data-auto-furi=\"1\"><rb>犠牲</rb><rt>ぎせい</rt></ruby>にするしかない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "6.4": {
+        "text": "山鹬能够把物体看成立体的范围，只限于前方和后方极窄的范围。",
+        "kana": "やましぎがものをりったいとしてみることができるのは、ぜんぽうとこうほうのごくせまいはんいだけである。",
+        "ruby": "ヤマシギが<ruby data-auto-furi=\"1\"><rb>物</rb><rt>もの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>立体</rb><rt>りったい</rt></ruby>として<ruby data-auto-furi=\"1\"><rb>見る</rb><rt>みる</rt></ruby>ことができるのは、<ruby data-auto-furi=\"1\"><rb>前方</rb><rt>ぜんぽう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>後方</rb><rt>こうほう</rt></ruby>のごく<ruby data-auto-furi=\"1\"><rb>狭い</rb><rt>せまい</rt></ruby><ruby data-auto-furi=\"1\"><rb>範囲</rb><rt>はんい</rt></ruby>だけである。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      },
+      "7.0": {
+        "text": "（柚木修《斑嘴鸭亲子为什么搬家》PHP 研究所）",
+        "kana": "（ゆのきおさむ『カルガモおやこはなぜひっこす』PHPけんきゅうじょ）",
+        "ruby": "（<ruby data-auto-furi=\"1\"><rb>柚木</rb><rt>ゆのき</rt></ruby><ruby data-auto-furi=\"1\"><rb>修</rb><rt>おさむ</rt></ruby>『カルガモ<ruby data-auto-furi=\"1\"><rb>親子</rb><rt>おやこ</rt></ruby>はなぜ<ruby data-auto-furi=\"1\"><rb>引っ越す</rb><rt>ひっこす</rt></ruby>』PHP<ruby data-auto-furi=\"1\"><rb>研究所</rb><rt>けんきゅうじょ</rt></ruby>）",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q21:question": {
+      "0.0": {
+        "text": "问题 1 关于山鹬的生态，哪一项符合文章内容？",
+        "kana": "とい1　やましぎのせいたいについて、ぶんしょうのないようとあっているものはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>1　ヤマシギの<ruby data-auto-furi=\"1\"><rb>生態</rb><rt>せいたい</rt></ruby>について、<ruby data-auto-furi=\"1\"><rb>文章</rb><rt>ぶんしょう</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>内容</rb><rt>ないよう</rt></ruby>と<ruby data-auto-furi=\"1\"><rb>合っ</rb><rt>あっ</rt></ruby>ているものはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q21:option1": {
+      "0.0": {
+        "text": "1. 山鹬在日本只存在于北部地区。",
+        "kana": "1. やましぎは、にっぽんではきたのちいきにしかいない。",
+        "ruby": "1. ヤマシギは、<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>では<ruby data-auto-furi=\"1\"><rb>北</rb><rt>きた</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>地域</rb><rt>ちいき</rt></ruby>にしかいない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q21:option2": {
+      "0.0": {
+        "text": "2. 山鹬不在日本繁殖。",
+        "kana": "2. やましぎは、にっぽんではんしょくしない。",
+        "ruby": "2. ヤマシギは、<ruby data-auto-furi=\"1\"><rb>日本</rb><rt>にっぽん</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>繁殖</rb><rt>はんしょく</rt></ruby>しない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q21:option3": {
+      "0.0": {
+        "text": "3. 山鹬是夜行性的。",
+        "kana": "3. やましぎは、やこうせいである。",
+        "ruby": "3. ヤマシギは、<ruby data-auto-furi=\"1\"><rb>夜行</rb><rt>やこう</rt></ruby><ruby data-auto-furi=\"1\"><rb>性</rb><rt>せい</rt></ruby>である。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q21:option4": {
+      "0.0": {
+        "text": "4. 山鹬吃树果。",
+        "kana": "4. やましぎは、このみをたべる。",
+        "ruby": "4. ヤマシギは、<ruby data-auto-furi=\"1\"><rb>木の実</rb><rt>このみ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>食べる</rb><rt>たべる</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q22:question": {
+      "0.0": {
+        "text": "问题 2 关于山鹬捕食的说明，哪一项最恰当？",
+        "kana": "とい2　やましぎのほしょくにかんするせつめいとして、もっともてきとうなものはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>2　ヤマシギの<ruby data-auto-furi=\"1\"><rb>捕食</rb><rt>ほしょく</rt></ruby><ruby data-auto-furi=\"1\"><rb>に関する</rb><rt>にかんする</rt></ruby><ruby data-auto-furi=\"1\"><rb>説明</rb><rt>せつめい</rt></ruby>として、<ruby data-auto-furi=\"1\"><rb>最も</rb><rt>もっとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>適当</rb><rt>てきとう</rt></ruby>なものはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q22:option1": {
+      "0.0": {
+        "text": "1. 用眼睛准确测量与猎物的距离后狩猎。",
+        "kana": "1. えものとのきょりをめでせいかくにはかってかりをする。",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>獲物</rb><rt>えもの</rt></ruby>との<ruby data-auto-furi=\"1\"><rb>距離</rb><rt>きょり</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>で<ruby data-auto-furi=\"1\"><rb>正確</rb><rt>せいかく</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>測っ</rb><rt>はかっ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>狩り</rb><rt>かり</rt></ruby>をする。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q22:option2": {
+      "0.0": {
+        "text": "2. 广泛环视周围来寻找猎物。",
+        "kana": "2. しゅういをひろくみわたしてえものをさがす。",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>周囲</rb><rt>しゅうい</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>広く</rb><rt>ひろく</rt></ruby><ruby data-auto-furi=\"1\"><rb>見渡し</rb><rt>みわたし</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>獲物</rb><rt>えもの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探す</rb><rt>さがす</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q22:option3": {
+      "0.0": {
+        "text": "3. 发现猎物后用喙刺入。",
+        "kana": "3. えものをみつけてくちばしでつきさす。",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>獲物</rb><rt>えもの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>見つけ</rb><rt>みつけ</rt></ruby>てくちばしで<ruby data-auto-furi=\"1\"><rb>突き</rb><rt>つき</rt></ruby>さす。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q22:option4": {
+      "0.0": {
+        "text": "4. 用喙尖寻找猎物。",
+        "kana": "4. くちばしのさきをつかってえものをさがす。",
+        "ruby": "4. くちばしの<ruby data-auto-furi=\"1\"><rb>先</rb><rt>さき</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>使っ</rb><rt>つかっ</rt></ruby>て<ruby data-auto-furi=\"1\"><rb>獲物</rb><rt>えもの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探す</rb><rt>さがす</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q23:question": {
+      "0.0": {
+        "text": "问题 3 山鹬的眼睛为什么位于头部稍后、接近头顶的位置？",
+        "kana": "とい3　やましぎのめが、あたまのややうしろのとうちょうちかくにあるのはなぜですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>3　ヤマシギの<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>頭</rb><rt>あたま</rt></ruby>のやや<ruby data-auto-furi=\"1\"><rb>後ろ</rb><rt>うしろ</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>頭頂</rb><rt>とうちょう</rt></ruby><ruby data-auto-furi=\"1\"><rb>近く</rb><rt>ちかく</rt></ruby>にあるのはなぜですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q23:option1": {
+      "0.0": {
+        "text": "1. 为了在寻找食物时也注意周围。",
+        "kana": "1. しょくもつをさがしているまもしゅういにきをくばるため",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>食物</rb><rt>しょくもつ</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探し</rb><rt>さがし</rt></ruby>ている<ruby data-auto-furi=\"1\"><rb>間</rb><rt>ま</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>周囲</rb><rt>しゅうい</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>気</rb><rt>き</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>配る</rb><rt>くばる</rt></ruby>ため",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q23:option2": {
+      "0.0": {
+        "text": "2. 为了从广阔范围寻找作为食物的昆虫。",
+        "kana": "2. えさとなるこんちゅうをひろいはんいからさがすため",
+        "ruby": "2. えさとなる<ruby data-auto-furi=\"1\"><rb>昆虫</rb><rt>こんちゅう</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>広い</rb><rt>ひろい</rt></ruby><ruby data-auto-furi=\"1\"><rb>範囲</rb><rt>はんい</rt></ruby>から<ruby data-auto-furi=\"1\"><rb>探す</rb><rt>さがす</rt></ruby>ため",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q23:option3": {
+      "0.0": {
+        "text": "3. 为了向天敌显得自己很强。",
+        "kana": "3. てんてきにたいし、じぶんをつよくみせるため",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>天敵</rb><rt>てんてき</rt></ruby><ruby data-auto-furi=\"1\"><rb>に対し</rb><rt>にたいし</rt></ruby>、<ruby data-auto-furi=\"1\"><rb>自分</rb><rt>じぶん</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>強く</rb><rt>つよく</rt></ruby><ruby data-auto-furi=\"1\"><rb>見せる</rb><rt>みせる</rt></ruby>ため",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q23:option4": {
+      "0.0": {
+        "text": "4. 为了寻找猎物时眼睛不会碍事。",
+        "kana": "4. えものをさがすときめがじゃまにならないようにするため",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>獲物</rb><rt>えもの</rt></ruby>を<ruby data-auto-furi=\"1\"><rb>探す</rb><rt>さがす</rt></ruby>とき<ruby data-auto-furi=\"1\"><rb>眼</rb><rt>め</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>邪魔</rb><rt>じゃま</rt></ruby>にならないようにするため",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q24:question": {
+      "0.0": {
+        "text": "问题 4 作为山鹬视觉的特征，哪一项最恰当？",
+        "kana": "とい4　やましぎのしかくのとくちょうとして、もっともてきとうなものはどれですか。",
+        "ruby": "<ruby data-auto-furi=\"1\"><rb>問</rb><rt>とい</rt></ruby>4　ヤマシギの<ruby data-auto-furi=\"1\"><rb>視覚</rb><rt>しかく</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>特徴</rb><rt>とくちょう</rt></ruby>として、<ruby data-auto-furi=\"1\"><rb>最も</rb><rt>もっとも</rt></ruby><ruby data-auto-furi=\"1\"><rb>適当</rb><rt>てきとう</rt></ruby>なものはどれですか。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q24:option1": {
+      "0.0": {
+        "text": "1. 不仅能看见周围 360 度，而且判断远近的能力也高。",
+        "kana": "1. しゅうい360どがみえるうえに、えんきんのはんだんのうりょくもたかい。",
+        "ruby": "1. <ruby data-auto-furi=\"1\"><rb>周囲</rb><rt>しゅうい</rt></ruby>360<ruby data-auto-furi=\"1\"><rb>度</rb><rt>ど</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>見える</rb><rt>みえる</rt></ruby><ruby data-auto-furi=\"1\"><rb>上</rb><rt>うえ</rt></ruby>に、<ruby data-auto-furi=\"1\"><rb>遠近</rb><rt>えんきん</rt></ruby>の<ruby data-auto-furi=\"1\"><rb>判断</rb><rt>はんだん</rt></ruby><ruby data-auto-furi=\"1\"><rb>能力</rb><rt>のうりょく</rt></ruby>も<ruby data-auto-furi=\"1\"><rb>高い</rb><rt>たかい</rt></ruby>。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q24:option2": {
+      "0.0": {
+        "text": "2. 后方看得很清楚，但前方看不清楚。",
+        "kana": "2. うしろのほうはよくみえるが、まえのほうはよくみえない。",
+        "ruby": "2. <ruby data-auto-furi=\"1\"><rb>後ろ</rb><rt>うしろ</rt></ruby>のほうはよく<ruby data-auto-furi=\"1\"><rb>見える</rb><rt>みえる</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>前</rb><rt>まえ</rt></ruby>のほうはよく<ruby data-auto-furi=\"1\"><rb>見え</rb><rt>みえ</rt></ruby>ない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q24:option3": {
+      "0.0": {
+        "text": "3. 能看见广阔范围，但只能平面地看见。",
+        "kana": "3. ひろいはんいがみえるが、へいめんてきにしかみえない。",
+        "ruby": "3. <ruby data-auto-furi=\"1\"><rb>広い</rb><rt>ひろい</rt></ruby><ruby data-auto-furi=\"1\"><rb>範囲</rb><rt>はんい</rt></ruby>が<ruby data-auto-furi=\"1\"><rb>見える</rb><rt>みえる</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>平面</rb><rt>へいめん</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>にしか<ruby data-auto-furi=\"1\"><rb>見え</rb><rt>みえ</rt></ruby>ない。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    },
+    "2:p15:q24:option4": {
+      "0.0": {
+        "text": "4. 视野很广，但能立体观看的范围有限。",
+        "kana": "4. しやはひろいが、りったいてきにみえるはんいはげんていされる。",
+        "ruby": "4. <ruby data-auto-furi=\"1\"><rb>視野</rb><rt>しや</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>広い</rb><rt>ひろい</rt></ruby>が、<ruby data-auto-furi=\"1\"><rb>立体</rb><rt>りったい</rt></ruby><ruby data-auto-furi=\"1\"><rb>的</rb><rt>てき</rt></ruby>に<ruby data-auto-furi=\"1\"><rb>見える</rb><rt>みえる</rt></ruby><ruby data-auto-furi=\"1\"><rb>範囲</rb><rt>はんい</rt></ruby>は<ruby data-auto-furi=\"1\"><rb>限定</rb><rt>げんてい</rt></ruby>される。",
+        "updated_by": "codex-eju-human-review",
+        "updated_at": "2026-05-13T00:00:00+08:00"
+      }
+    }
+  },
+  "updated_at": "2026-05-13T00:00:00+08:00"
+}

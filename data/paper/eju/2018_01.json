@@ -225,7 +225,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 2,
             "passage": {
               "title": "この国際交流ラウンジが実施していることはどれですか。",
               "type": "text",
@@ -267,7 +267,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 3,
             "passage": {
               "title": "筆者は、下線部「てんぷらの原理」とはどのようなものだと説明していますか。",
               "type": "text",
@@ -309,7 +309,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 4,
             "passage": {
               "title": "次の文章で、筆者が言いたいことはどれですか。",
               "type": "text",
@@ -351,7 +351,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 5,
             "passage": {
               "title": "筆者が説明している新旧商品の入れ替わりは、どの順序で起こりますか。",
               "type": "text",
@@ -393,7 +393,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 6,
             "passage": {
               "title": "筆者は、子どもに新しい絵本を与えるとき、どのようにするのがいいと述べていますか。",
               "type": "text",
@@ -435,7 +435,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 7,
             "passage": {
               "title": "筆者は、写真の著作権を持っているのはどのような人だと言っていますか。",
               "type": "text",
@@ -476,7 +476,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 8,
             "passage": {
               "title": "次の文章の内容と合っているものはどれですか。",
               "type": "text",
@@ -518,7 +518,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 9,
             "passage": {
               "title": "次の文章で筆者は、都市の再開発がうまくいかない理由は何だと言っていますか。",
               "type": "text",
@@ -560,7 +560,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 10,
             "passage": {
               "title": "次の文章で筆者が最も言いたいことはどれですか。",
               "type": "text",
@@ -602,7 +602,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 11,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -675,7 +675,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 12,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -747,7 +747,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 13,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -820,7 +820,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 14,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -893,7 +893,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 15,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -966,7 +966,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 16,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -1039,7 +1039,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 17,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -1222,7 +1222,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 35
+                "source_page": 35,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q01.jpg"
               }
             ],
             "topic": "1番"
@@ -1295,7 +1296,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 36
+                "source_page": 36,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q02.jpg"
               }
             ],
             "topic": "2番"
@@ -1388,7 +1390,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 37
+                "source_page": 37,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q03.jpg"
               }
             ],
             "topic": "3番"
@@ -1533,7 +1536,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 38
+                "source_page": 38,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q04.jpg"
               }
             ],
             "topic": "4番"
@@ -1616,7 +1620,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 39
+                "source_page": 39,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q05.jpg"
               }
             ],
             "topic": "5番"
@@ -1678,12 +1683,12 @@
                   {
                     "end": "13:01.14",
                     "start": "12:48.72",
-                    "text": "「ランダム問題」 は、選挙における当選者の予測のように、まだ答えがひとつに決まっていないが、答えの箇囲つまり答えとなる候補は決まっているという問題です。"
+                    "text": "「ランダム問題」 は、選挙における当選者の予測のように、まだ答えがひとつに決まっていないが、答えの範囲つまり答えとなる候補は決まっているという問題です。"
                   },
                   {
                     "end": "13:11.08",
                     "start": "13:02.26",
-                    "text": "最後に、現時点で答えがひとつに定まっておらず、答えの範閉も確定していない問題を 「不確定問題」 と呼びがます。"
+                    "text": "最後に、現時点で答えがひとつに定まっておらず、答えの範囲も確定していない問題を 「不確定問題」 と呼びます。"
                   },
                   {
                     "end": "13:17.44",
@@ -1704,7 +1709,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 40
+                "source_page": 40,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q06.jpg"
               }
             ],
             "topic": "6番"
@@ -1761,7 +1767,7 @@
                   {
                     "end": "14:40.82",
                     "start": "14:31.98",
-                    "text": "一方チンバンジーは、ヒトとは逆で、小さな図形を先に認識することが.、図2 を使った実験で明らかになりました。"
+                    "text": "一方チンバンジーは、ヒトとは逆で、小さな図形を先に認識することが、図2 を使った実験で明らかになりました。"
                   },
                   {
                     "end": "14:52.42",
@@ -1777,7 +1783,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 41
+                "source_page": 41,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q07.jpg"
               }
             ],
             "topic": "7番"
@@ -1860,7 +1867,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 42
+                "source_page": 42,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q08.jpg"
               }
             ],
             "topic": "8番"
@@ -1953,7 +1961,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 43
+                "source_page": 43,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q09.jpg"
               }
             ],
             "topic": "9番"
@@ -2062,7 +2071,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 44
+                "source_page": 44,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q10.jpg"
               }
             ],
             "topic": "10番"
@@ -2165,7 +2175,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 45
+                "source_page": 45,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q11.jpg"
               }
             ],
             "topic": "11番"
@@ -2243,7 +2254,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 46
+                "source_page": 46,
+                "script_layout_image": "/data/image/eju/2018_01/transcript_q12.jpg"
               }
             ],
             "topic": "12番"
@@ -2351,7 +2363,7 @@
                 "end": "28:06.10",
                 "speaker": "男子学生",
                 "start": "28:05.28",
-                "text": "男子学生：え.、どうしてですか?"
+                "text": "男子学生：え、どうしてですか?"
               },
               {
                 "end": "28:11.46",
@@ -2400,7 +2412,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q13.jpg"
           },
           {
             "answer": "3",
@@ -2491,7 +2504,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q14.jpg"
           },
           {
             "answer": "1",
@@ -2577,7 +2591,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q15.jpg"
           },
           {
             "answer": "2",
@@ -2683,7 +2698,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q16.jpg"
           },
           {
             "answer": "2",
@@ -2774,7 +2790,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q17.jpg"
           },
           {
             "answer": "4",
@@ -2860,7 +2877,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q18.jpg"
           },
           {
             "answer": "4",
@@ -2946,7 +2964,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q19.jpg"
           },
           {
             "answer": "1",
@@ -2978,7 +2997,7 @@
                 "end": "19:27.36",
                 "speaker": "女子学生",
                 "start": "13:14.54",
-                "text": "女子学生：今度のレポボポートのテーマ、決めた?"
+                "text": "女子学生：今度のレポボートのテーマ、決めた?"
               },
               {
                 "end": "22:39.84",
@@ -2990,7 +3009,7 @@
                 "end": "34:14.20",
                 "speaker": "男子学生",
                 "start": "23:03.46",
-                "text": "男子学生：あのね、新聞で読んだんだけど.、人の行動って、メディアで報道されている情報に左右きれやすいんだって。"
+                "text": "男子学生：あのね、新聞で読んだんだけど、人の行動って、メディアで報道されている情報に左右きれやすいんだって。"
               },
               {
                 "end": "34:15.10",
@@ -3032,7 +3051,7 @@
                 "end": "41:50.78",
                 "speaker": "女子学生",
                 "start": "41:45.12",
-                "text": "女子学生：そういうのも、新聞やテレビで.、いろんなところで起きた犯罪のニュースが報道されているせいかな。"
+                "text": "女子学生：そういうのも、新聞やテレビで、いろんなところで起きた犯罪のニュースが報道されているせいかな。"
               },
               {
                 "end": "41:52.94",
@@ -3075,7 +3094,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q20.jpg"
           },
           {
             "answer": "2",
@@ -3156,7 +3176,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q21.jpg"
           },
           {
             "answer": "2",
@@ -3187,7 +3208,7 @@
               {
                 "end": "44:40.30",
                 "start": "44:32.52",
-                "text": "みなさんは、講演を聞いて.、その講演をした人によい印象をもったり、悪い印象をもったりすることがあると思います。"
+                "text": "みなさんは、講演を聞いて、その講演をした人によい印象をもったり、悪い印象をもったりすることがあると思います。"
               },
               {
                 "end": "44:43.58",
@@ -3197,7 +3218,7 @@
               {
                 "end": "44:55.16",
                 "start": "44:44.68",
-                "text": "話す内容はもちろんですが、他にも.、上態度や顔、服装などの見た日や、声の質など、いろいろな要因が関係していますね。"
+                "text": "話す内容はもちろんですが、他にも、上態度や顔、服装などの見た日や、声の質など、いろいろな要因が関係していますね。"
               },
               {
                 "end": "45:03.34",
@@ -3252,7 +3273,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q22.jpg"
           },
           {
             "answer": "4",
@@ -3405,7 +3427,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q23.jpg"
           },
           {
             "answer": "4",
@@ -3486,7 +3509,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q24.jpg"
           },
           {
             "answer": "2",
@@ -3587,7 +3611,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q25.jpg"
           },
           {
             "answer": "4",
@@ -3678,7 +3703,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q26.jpg"
           },
           {
             "answer": "3",
@@ -3764,7 +3790,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_01/transcript_q27.jpg"
           }
         ],
         "section_id": "4",

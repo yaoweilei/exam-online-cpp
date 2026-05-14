@@ -225,7 +225,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 2,
             "passage": {
               "title": "次の案内の内容と合っているものはどれですか。",
               "type": "text",
@@ -267,7 +267,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 3,
             "passage": {
               "title": "負の設計について、筆者の考えと合っているものはどれですか。",
               "type": "text",
@@ -309,7 +309,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 4,
             "passage": {
               "title": "次の文章は、＊サンゴとサンゴ礁について述べたものです。下線部「これはおかしい、謎だ」とありますが、何がおかしいのですか。",
               "type": "text",
@@ -351,7 +351,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 5,
             "passage": {
               "title": "下線部「このような体験」の例として、最も適当なものはどれですか。",
               "type": "text",
@@ -393,7 +393,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 6,
             "passage": {
               "title": "次の文章の内容と合っているものはどれですか。",
               "type": "text",
@@ -435,7 +435,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 7,
             "passage": {
               "title": "次の文章で、＊クワキウトルやヌートカの社会において階層化を引き起こした要因として、筆者があげているものの最も適当な組み合わせはどれですか。",
               "type": "text",
@@ -477,7 +477,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 8,
             "passage": {
               "title": "次の文章で、筆者は、困難を乗り越える方法は何だと述べていますか。",
               "type": "text",
@@ -519,7 +519,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 9,
             "passage": {
               "title": "次の文章で、筆者が最も言いたいことはどれですか。",
               "type": "text",
@@ -561,7 +561,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 10,
             "passage": {
               "title": "次の文章の（　A　）に入るものとして、最も適当なものはどれですか。",
               "type": "text",
@@ -603,7 +603,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 11,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -676,7 +676,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 12,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -749,7 +749,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 13,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -822,7 +822,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 14,
             "passage": {
               "title": "次の文章は、辞書に記載されることはについて書かれています。読んで、後の問いに答えなさい。",
               "type": "text",
@@ -895,7 +895,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 15,
             "passage": {
               "title": "建築素材について書かれた次の文章を読んで、後の問いに答えなさい。",
               "type": "text",
@@ -968,7 +968,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 16,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -1041,7 +1041,7 @@
             "topic": "読解問題"
           },
           {
-            "id": 1,
+            "id": 17,
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
@@ -1183,7 +1183,7 @@
                   {
                     "end": "10:15.88",
                     "start": "00:04.34",
-                    "text": "1番先生が聞き上手になるためのボイントについて話しています。"
+                    "text": "1番先生が聞き上手になるためのポイントについて話しています。"
                   },
                   {
                     "end": "28:06.12",
@@ -1214,7 +1214,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 39
+                "source_page": 39,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q01.jpg"
               }
             ],
             "topic": "1番"
@@ -1355,7 +1356,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 40
+                "source_page": 40,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q02.jpg"
               }
             ],
             "topic": "2番"
@@ -1404,7 +1406,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 41
+                "source_page": 41,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q03.jpg"
               }
             ],
             "topic": "3番"
@@ -1507,7 +1510,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 42
+                "source_page": 42,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q04.jpg"
               }
             ],
             "topic": "4番"
@@ -1544,7 +1548,7 @@
                   {
                     "end": "04:42.42",
                     "start": "04:40.30",
-                    "text": "この先生によると、雅楽では.、打貯器、誤便。"
+                    "text": "この先生によると、雅楽では、打貯器、誤便。"
                   },
                   {
                     "end": "05:59.40",
@@ -1595,7 +1599,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 43
+                "source_page": 43,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q05.jpg"
               }
             ],
             "topic": "5番"
@@ -1632,7 +1637,7 @@
                   {
                     "end": "10:23.96",
                     "start": "10:16.98",
-                    "text": "この先生が、創造的だととらえているのは.、資料のどの例ですか。"
+                    "text": "この先生が、創造的だととらえているのは、資料のどの例ですか。"
                   },
                   {
                     "end": "36:11.70",
@@ -1657,12 +1662,12 @@
                   {
                     "end": "54:07.94",
                     "start": "54:07.48",
-                    "text": "あるデパートで調査を行ったところ、このうち、実際に客がジャケットを買ったのは、店員が、組み合わせて着るものの長きとの関係で説明した場合でした。"
+                    "text": "あるデパートで調査を行ったところ、このうち、実際に客がジャケットを買ったのは、店員が、組み合わせて着るものの長さとの関係で説明した場合でした。"
                   },
                   {
                     "end": "54:08.06",
                     "start": "54:07.94",
-                    "text": "この店員は、ジャケットの 「長き」 の問題を、組み合わせるものとの 「バランス」 という別の問題に変化をるせたわけです。"
+                    "text": "この店員は、ジャケットの 「長さ」 の問題を、組み合わせるものとの 「バランス」 という別の問題に変化をるせたわけです。"
                   },
                   {
                     "end": "54:47.00",
@@ -1688,7 +1693,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 44
+                "source_page": 44,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q06.jpg"
               }
             ],
             "topic": "6番"
@@ -1735,7 +1741,7 @@
                   {
                     "end": "38:08.33",
                     "start": "34:35.21",
-                    "text": "ここに同じ長きのひも A と B があります。"
+                    "text": "ここに同じ長さのひも A と B があります。"
                   },
                   {
                     "end": "39:39.13",
@@ -1775,13 +1781,14 @@
                   {
                     "end": "53:43.77",
                     "start": "44:41.59",
-                    "text": "これは、効稚園児が見たままで判断するのに対し、小学生以上になると.、「同じものから作ったものは同じ」 という別の課題で獲得した知識を、間違って使ってしまった結果だと考えられます。"
+                    "text": "これは、効稚園児が見たままで判断するのに対し、小学生以上になると、「同じものから作ったものは同じ」 という別の課題で獲得した知識を、間違って使ってしまった結果だと考えられます。"
                   }
                 ],
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 45
+                "source_page": 45,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q07.jpg"
               }
             ],
             "topic": "7番"
@@ -1932,7 +1939,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 46
+                "source_page": 46,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q08.jpg"
               }
             ],
             "topic": "8番"
@@ -1989,7 +1997,7 @@
                   {
                     "end": "35:58.38",
                     "start": "35:45.52",
-                    "text": "また.、火を使うことで、土器と呼ばれる土で作られた入れ物を作り出しました。"
+                    "text": "また、火を使うことで、土器と呼ばれる土で作られた入れ物を作り出しました。"
                   },
                   {
                     "end": "43:15.62",
@@ -2025,7 +2033,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 47
+                "source_page": 47,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q09.jpg"
               }
             ],
             "topic": "9番"
@@ -2103,7 +2112,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 48
+                "source_page": 48,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q10.jpg"
               }
             ],
             "topic": "10番"
@@ -2181,7 +2191,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 49
+                "source_page": 49,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q11.jpg"
               }
             ],
             "topic": "11番"
@@ -2264,7 +2275,8 @@
                 "skill_tags": [
                   "eju.listening_reading"
                 ],
-                "source_page": 50
+                "source_page": 50,
+                "script_layout_image": "/data/image/eju/2018_02/transcript_q12.jpg"
               }
             ],
             "topic": "12番"
@@ -2427,7 +2439,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q13.jpg"
           },
           {
             "answer": "3",
@@ -2518,7 +2531,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q14.jpg"
           },
           {
             "answer": "4",
@@ -2635,7 +2649,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q15.jpg"
           },
           {
             "answer": "4",
@@ -2666,7 +2681,7 @@
               {
                 "end": "31:54.44",
                 "start": "29:25.28",
-                "text": "みなきんは、よく、批判的思考力を身につけろ、と言われると思いますが、身につけた批判的思考力がいつも発揮できるとは限りません。"
+                "text": "みなさんは、よく、批判的思考力を身につけろ、と言われると思いますが、身につけた批判的思考力がいつも発揮できるとは限りません。"
               },
               {
                 "end": "31:55.46",
@@ -2721,7 +2736,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q16.jpg"
           },
           {
             "answer": "1",
@@ -2812,7 +2828,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q17.jpg"
           },
           {
             "answer": "4",
@@ -2965,7 +2982,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q18.jpg"
           },
           {
             "answer": "2",
@@ -3061,7 +3079,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q19.jpg"
           },
           {
             "answer": "4",
@@ -3184,7 +3203,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q20.jpg"
           },
           {
             "answer": "1",
@@ -3275,7 +3295,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q21.jpg"
           },
           {
             "answer": "3",
@@ -3361,7 +3382,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q22.jpg"
           },
           {
             "answer": "4",
@@ -3472,7 +3494,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q23.jpg"
           },
           {
             "answer": "2",
@@ -3503,7 +3526,7 @@
               {
                 "end": "09:02.70",
                 "start": "08:59.20",
-                "text": "みなきんは、ミジンコという生物を知っていますか。"
+                "text": "みなさんは、ミジンコという生物を知っていますか。"
               },
               {
                 "end": "10:31.94",
@@ -3573,7 +3596,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q24.jpg"
           },
           {
             "answer": "2",
@@ -3669,7 +3693,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q25.jpg"
           },
           {
             "answer": "1",
@@ -3750,7 +3775,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q26.jpg"
           },
           {
             "answer": "2",
@@ -3836,7 +3862,8 @@
             ],
             "skill_tags": [
               "eju.listening"
-            ]
+            ],
+            "script_layout_image": "/data/image/eju/2018_02/transcript_q27.jpg"
           }
         ],
         "section_id": "4",
