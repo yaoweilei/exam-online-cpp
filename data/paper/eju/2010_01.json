@@ -21,54 +21,24 @@
               }
             ],
             "id": 1,
-            "passage": {
-              "title": "記述問題",
-              "type": "text",
-              "value": "以下の二つのテーマのうち、どちらか一つを選んで400字から500字で書いてください（句読点を含む）。\n\n1.\n　最近、インターネット上でもニュースを読むことができるようになりました。このような中で 「 ニュースは新聞で読むほうが世の中の動きがよくわかる 」という意見があります。これについて、ニュースをインターネット上で読むことと新聞で読むことを比較し、あなたの意見を書いてください。\n\n2.\n　ある大学では、入学試験の方法として「 学科試験を廃止し、面接試験だけで合格者を決めよう」という案が出ています。このような方法の長所と短所を説明し、あなたの意見を書いてください。"
-            },
             "model_essays": [
               {
-                "topic_number": 1,
-                "topic_summary": "网络新闻和报纸新闻",
-                "sample_essay": "　近年、インターネットでニュースを読む人が増えている。私は、ニュースはインターネットと新聞を目的によって使い分けるのがよいと考える。\n\n　確かに、インターネットのニュースは速く、必要な情報をすぐに調べられる。例えば、災害や交通情報を知りたいとき、スマートフォンで確認すればすぐ行動できる。この点は、現代社会でも大きな意味を持つ。\n\n　しかし、新聞には、一つの出来事を背景から整理して読むことができるというよさがある。例えば、政治や経済の問題は、短い記事だけでは原因や影響が理解しにくい。だからこそ、目の前の結果だけで判断してはいけない。\n\n　したがって、私は、速報性が必要なときはインターネットを使い、社会の動きを深く知りたいときは新聞を読むべきだと思う。速く知る情報と、落ち着いて考える情報を分けて読むことで、ニュースをより正確に理解できる。受け取る手段を選ぶ力も、これからの社会では重要になる。また、自分だけでなく周囲への影響も考えることで、より現実的な判断ができる。身近な問題として考え続ける姿勢も忘れてはならない。",
-                "highlights": [
-                  "内容：围绕「网络新闻和报纸新闻」展开，没有偏离题目。",
-                  "结构：四段之间有让步、转折和总结，读者容易追踪。",
-                  "表达：使用中级学习者可掌握的句型，避免过度复杂导致语法错误。",
-                  "任务完成度：对利弊、双方立场、原因或解决方向都有明确回应。"
-                ],
-                "why_this_works": "这篇按「观点论述型」处理。范文没有追求复杂词汇，而是把重点放在可评分的四件事上：明确立场、回应题目两面、给出具体例、用结论收束。对自学者来说，最值得模仿的是段落功能，而不是逐字背诵。先学会这一版的骨架，再把例子替换成自己的经历，能比较稳定地写出 400～500 字的答案。",
-                "self_study_notes": [
-                  "先用 30 秒判断题型：利弊、双观点、原因预测、说明加观点。",
-                  "写作前列三点：一方理由、另一方问题、自己的结论。",
-                  "每段只做一件事：开头表态，第二段举例，第三段转折，第四段总结。",
-                  "自学练习时先替换例子，不要一开始就改整篇结构。"
-                ],
                 "editorial_explanation": {
-                  "editorial_level": "publication_oriented_learning_draft",
                   "character_count_no_spaces": 451,
+                  "common_mistakes": [
+                    "只写赞成或反对，完全没有回应题目中的另一方观点。",
+                    "例子太空泛，只写「便利です」「大切です」，没有具体场景。",
+                    "结尾突然换观点，和开头立场不一致。",
+                    "为了写高级句而使用不确定的长句，导致语法和逻辑同时变弱。"
+                  ],
+                  "editorial_level": "publication_oriented_learning_draft",
                   "prompt_type": "观点论述型",
-                  "structure_breakdown": [
-                    {
-                      "part": "導入",
-                      "purpose": "题目背景压缩成一句话，并立刻给出自己的判断。",
-                      "learner_point": "不要复述整段题目；用「近年〜。私は〜と考える」快速进入论述。"
-                    },
-                    {
-                      "part": "第一论点",
-                      "purpose": "先承认题目中一方观点的合理性。",
-                      "learner_point": "EJU 很看重是否回应题目要求，先写一方可以避免跑题。"
-                    },
-                    {
-                      "part": "第二论点",
-                      "purpose": "补充另一方或问题点，让文章有比较和转折。",
-                      "learner_point": "用「しかし」「一方で」展开，不要只重复自己的喜好。"
-                    },
-                    {
-                      "part": "结论",
-                      "purpose": "回到自己的立场，提出判断标准。",
-                      "learner_point": "结尾不要只写「以上です」，要总结“我为什么这样判断”。"
-                    }
+                  "reusable_expressions": [
+                    "私は、A には価値があるが、B も考えるべきだと考える。",
+                    "確かに、〜という利点がある。",
+                    "しかし、〜だけでは十分ではない。",
+                    "例えば、〜という場合がある。",
+                    "したがって、〜することが大切だ。"
                   ],
                   "scoring_focus": [
                     "内容：围绕「网络新闻和报纸新闻」展开，没有偏离题目。",
@@ -76,64 +46,65 @@
                     "表达：使用中级学习者可掌握的句型，避免过度复杂导致语法错误。",
                     "任务完成度：对利弊、双方立场、原因或解决方向都有明确回应。"
                   ],
-                  "reusable_expressions": [
-                    "私は、A には価値があるが、B も考えるべきだと考える。",
-                    "確かに、〜という利点がある。",
-                    "しかし、〜だけでは十分ではない。",
-                    "例えば、〜という場合がある。",
-                    "したがって、〜することが大切だ。"
+                  "structure_breakdown": [
+                    {
+                      "learner_point": "不要复述整段题目；用「近年〜。私は〜と考える」快速进入论述。",
+                      "part": "導入",
+                      "purpose": "题目背景压缩成一句话，并立刻给出自己的判断。"
+                    },
+                    {
+                      "learner_point": "EJU 很看重是否回应题目要求，先写一方可以避免跑题。",
+                      "part": "第一论点",
+                      "purpose": "先承认题目中一方观点的合理性。"
+                    },
+                    {
+                      "learner_point": "用「しかし」「一方で」展开，不要只重复自己的喜好。",
+                      "part": "第二论点",
+                      "purpose": "补充另一方或问题点，让文章有比较和转折。"
+                    },
+                    {
+                      "learner_point": "结尾不要只写「以上です」，要总结“我为什么这样判断”。",
+                      "part": "结论",
+                      "purpose": "回到自己的立场，提出判断标准。"
+                    }
                   ],
-                  "common_mistakes": [
-                    "只写赞成或反对，完全没有回应题目中的另一方观点。",
-                    "例子太空泛，只写「便利です」「大切です」，没有具体场景。",
-                    "结尾突然换观点，和开头立场不一致。",
-                    "为了写高级句而使用不确定的长句，导致语法和逻辑同时变弱。"
-                  ],
-                  "why_this_works_publication": "这篇按「观点论述型」处理。范文没有追求复杂词汇，而是把重点放在可评分的四件事上：明确立场、回应题目两面、给出具体例、用结论收束。对自学者来说，最值得模仿的是段落功能，而不是逐字背诵。先学会这一版的骨架，再把例子替换成自己的经历，能比较稳定地写出 400～500 字的答案。"
-                }
-              },
-              {
-                "topic_number": 2,
-                "topic_summary": "大学入试只用面试",
-                "sample_essay": "　近年、大学入試の方法を変えようとする動きがある。私は、面接試験だけで合格者を決める方法には慎重であるべきだと考える。\n\n　確かに、面接では、学科試験だけでは分からない人柄や意欲を見ることができる。例えば、将来学びたいことを自分の言葉で説明できる学生は、入学後も主体的に学ぶ可能性が高い。この例からも、その意義は大きいと言える。\n\n　しかし、面接だけでは、評価が面接官の印象に左右されやすく、公平性を保つのが難しい。例えば、緊張しやすい学生は、十分な知識があっても実力を出せないことがある。この点を考えると、反対側の考えにも十分な理由がある。\n\n　したがって、面接は必要だが、学科試験や書類と組み合わせて多面的に評価するのが望ましい。受験生の個性を見ることは大切だが、大学で学ぶ基礎力も確認しなければならない。複数の方法を組み合わせることで、より公平な入試に近づく。また、自分だけでなく周囲への影響も考えることで、より現実的な判断ができる。身近な問題として考え続ける姿勢も忘れてはならない。",
+                  "why_this_works_publication": "这篇按「观点论述型」处理。范文没有追求复杂词汇，而是把重点放在可评分的四件事上：明确立场、回应题目两面、给出具体例、用结论收束。对自学者来说，最值得模仿的是段落功能，而不是逐字背诵。先学会这一版的骨架，再把例子替换成自己的经历，能比较稳定地写出 400～500 字的答案。",
+                  "step5_review": "why_this_works rewritten to be topic-specific during publication sampling review."
+                },
                 "highlights": [
-                  "内容：围绕「大学入试只用面试」展开，没有偏离题目。",
+                  "内容：围绕「网络新闻和报纸新闻」展开，没有偏离题目。",
                   "结构：四段之间有让步、转折和总结，读者容易追踪。",
                   "表达：使用中级学习者可掌握的句型，避免过度复杂导致语法错误。",
                   "任务完成度：对利弊、双方立场、原因或解决方向都有明确回应。"
                 ],
-                "why_this_works": "这篇按「利弊比较型」处理。范文没有追求复杂词汇，而是把重点放在可评分的四件事上：明确立场、回应题目两面、给出具体例、用结论收束。对自学者来说，最值得模仿的是段落功能，而不是逐字背诵。先学会这一版的骨架，再把例子替换成自己的经历，能比较稳定地写出 400～500 字的答案。",
+                "sample_essay": "　近年、インターネットでニュースを読む人が増えている。私は、ニュースはインターネットと新聞を目的によって使い分けるのがよいと考える。\n\n　確かに、インターネットのニュースは速く、必要な情報をすぐに調べられる。例えば、災害や交通情報を知りたいとき、スマートフォンで確認すればすぐ行動できる。この点は、現代社会でも大きな意味を持つ。\n\n　しかし、新聞には、一つの出来事を背景から整理して読むことができるというよさがある。例えば、政治や経済の問題は、短い記事だけでは原因や影響が理解しにくい。だからこそ、目の前の結果だけで判断してはいけない。\n\n　したがって、私は、速報性が必要なときはインターネットを使い、社会の動きを深く知りたいときは新聞を読むべきだと思う。速く知る情報と、落ち着いて考える情報を分けて読むことで、ニュースをより正確に理解できる。受け取る手段を選ぶ力も、これからの社会では重要になる。また、自分だけでなく周囲への影響も考えることで、より現実的な判断ができる。身近な問題として考え続ける姿勢も忘れてはならない。",
                 "self_study_notes": [
                   "先用 30 秒判断题型：利弊、双观点、原因预测、说明加观点。",
                   "写作前列三点：一方理由、另一方问题、自己的结论。",
                   "每段只做一件事：开头表态，第二段举例，第三段转折，第四段总结。",
                   "自学练习时先替换例子，不要一开始就改整篇结构。"
                 ],
+                "topic_number": 1,
+                "topic_summary": "网络新闻和报纸新闻",
+                "why_this_works": "这篇适合作为「网络新闻和报纸新闻」题的参考，关键在于它先把题目压缩成一个明确判断：近年、インターネットでニュースを読む人が増えている。 中间段落围绕自己的立场展开理由和例子，让观点不是一句空泛的赞成或反对。 结尾没有突然换观点，而是回到主题本身，说明应如何看待「网络新闻和报纸新闻」。自学时不要逐字背诵，而要模仿这种段落分工：先表态，再处理对立观点或现实原因，最后收束到自己的结论。"
+              },
+              {
                 "editorial_explanation": {
-                  "editorial_level": "publication_oriented_learning_draft",
                   "character_count_no_spaces": 435,
+                  "common_mistakes": [
+                    "只写赞成或反对，完全没有回应题目中的另一方观点。",
+                    "例子太空泛，只写「便利です」「大切です」，没有具体场景。",
+                    "结尾突然换观点，和开头立场不一致。",
+                    "为了写高级句而使用不确定的长句，导致语法和逻辑同时变弱。"
+                  ],
+                  "editorial_level": "publication_oriented_learning_draft",
                   "prompt_type": "利弊比较型",
-                  "structure_breakdown": [
-                    {
-                      "part": "導入",
-                      "purpose": "题目背景压缩成一句话，并立刻给出自己的判断。",
-                      "learner_point": "不要复述整段题目；用「近年〜。私は〜と考える」快速进入论述。"
-                    },
-                    {
-                      "part": "第一论点",
-                      "purpose": "先承认题目中一方观点的合理性。",
-                      "learner_point": "EJU 很看重是否回应题目要求，先写一方可以避免跑题。"
-                    },
-                    {
-                      "part": "第二论点",
-                      "purpose": "补充另一方或问题点，让文章有比较和转折。",
-                      "learner_point": "用「しかし」「一方で」展开，不要只重复自己的喜好。"
-                    },
-                    {
-                      "part": "结论",
-                      "purpose": "回到自己的立场，提出判断标准。",
-                      "learner_point": "结尾不要只写「以上です」，要总结“我为什么这样判断”。"
-                    }
+                  "reusable_expressions": [
+                    "私は、A には価値があるが、B も考えるべきだと考える。",
+                    "確かに、〜という利点がある。",
+                    "しかし、〜だけでは十分ではない。",
+                    "例えば、〜という場合がある。",
+                    "したがって、〜することが大切だ。"
                   ],
                   "scoring_focus": [
                     "内容：围绕「大学入试只用面试」展开，没有偏离题目。",
@@ -141,23 +112,54 @@
                     "表达：使用中级学习者可掌握的句型，避免过度复杂导致语法错误。",
                     "任务完成度：对利弊、双方立场、原因或解决方向都有明确回应。"
                   ],
-                  "reusable_expressions": [
-                    "私は、A には価値があるが、B も考えるべきだと考える。",
-                    "確かに、〜という利点がある。",
-                    "しかし、〜だけでは十分ではない。",
-                    "例えば、〜という場合がある。",
-                    "したがって、〜することが大切だ。"
+                  "structure_breakdown": [
+                    {
+                      "learner_point": "不要复述整段题目；用「近年〜。私は〜と考える」快速进入论述。",
+                      "part": "導入",
+                      "purpose": "题目背景压缩成一句话，并立刻给出自己的判断。"
+                    },
+                    {
+                      "learner_point": "EJU 很看重是否回应题目要求，先写一方可以避免跑题。",
+                      "part": "第一论点",
+                      "purpose": "先承认题目中一方观点的合理性。"
+                    },
+                    {
+                      "learner_point": "用「しかし」「一方で」展开，不要只重复自己的喜好。",
+                      "part": "第二论点",
+                      "purpose": "补充另一方或问题点，让文章有比较和转折。"
+                    },
+                    {
+                      "learner_point": "结尾不要只写「以上です」，要总结“我为什么这样判断”。",
+                      "part": "结论",
+                      "purpose": "回到自己的立场，提出判断标准。"
+                    }
                   ],
-                  "common_mistakes": [
-                    "只写赞成或反对，完全没有回应题目中的另一方观点。",
-                    "例子太空泛，只写「便利です」「大切です」，没有具体场景。",
-                    "结尾突然换观点，和开头立场不一致。",
-                    "为了写高级句而使用不确定的长句，导致语法和逻辑同时变弱。"
-                  ],
-                  "why_this_works_publication": "这篇按「利弊比较型」处理。范文没有追求复杂词汇，而是把重点放在可评分的四件事上：明确立场、回应题目两面、给出具体例、用结论收束。对自学者来说，最值得模仿的是段落功能，而不是逐字背诵。先学会这一版的骨架，再把例子替换成自己的经历，能比较稳定地写出 400～500 字的答案。"
-                }
+                  "why_this_works_publication": "这篇按「利弊比较型」处理。范文没有追求复杂词汇，而是把重点放在可评分的四件事上：明确立场、回应题目两面、给出具体例、用结论收束。对自学者来说，最值得模仿的是段落功能，而不是逐字背诵。先学会这一版的骨架，再把例子替换成自己的经历，能比较稳定地写出 400～500 字的答案。",
+                  "step5_review": "why_this_works rewritten to be topic-specific during publication sampling review."
+                },
+                "highlights": [
+                  "内容：围绕「大学入试只用面试」展开，没有偏离题目。",
+                  "结构：四段之间有让步、转折和总结，读者容易追踪。",
+                  "表达：使用中级学习者可掌握的句型，避免过度复杂导致语法错误。",
+                  "任务完成度：对利弊、双方立场、原因或解决方向都有明确回应。"
+                ],
+                "sample_essay": "　近年、大学入試の方法を変えようとする動きがある。私は、面接試験だけで合格者を決める方法には慎重であるべきだと考える。\n\n　確かに、面接では、学科試験だけでは分からない人柄や意欲を見ることができる。例えば、将来学びたいことを自分の言葉で説明できる学生は、入学後も主体的に学ぶ可能性が高い。この例からも、その意義は大きいと言える。\n\n　しかし、面接だけでは、評価が面接官の印象に左右されやすく、公平性を保つのが難しい。例えば、緊張しやすい学生は、十分な知識があっても実力を出せないことがある。この点を考えると、反対側の考えにも十分な理由がある。\n\n　したがって、面接は必要だが、学科試験や書類と組み合わせて多面的に評価するのが望ましい。受験生の個性を見ることは大切だが、大学で学ぶ基礎力も確認しなければならない。複数の方法を組み合わせることで、より公平な入試に近づく。また、自分だけでなく周囲への影響も考えることで、より現実的な判断ができる。身近な問題として考え続ける姿勢も忘れてはならない。",
+                "self_study_notes": [
+                  "先用 30 秒判断题型：利弊、双观点、原因预测、说明加观点。",
+                  "写作前列三点：一方理由、另一方问题、自己的结论。",
+                  "每段只做一件事：开头表态，第二段举例，第三段转折，第四段总结。",
+                  "自学练习时先替换例子，不要一开始就改整篇结构。"
+                ],
+                "topic_number": 2,
+                "topic_summary": "大学入试只用面试",
+                "why_this_works": "这篇适合作为「大学入试只用面试」题的参考，关键在于它先把题目压缩成一个明确判断：近年、大学入試の方法を変えようとする動きがある。 中间段落先承认一种观点的合理性，再指出它的限制或另一种看法的价值，这样能回应题目要求的“两面”。 结尾没有突然换观点，而是回到主题本身，说明应如何看待「大学入试只用面试」。自学时不要逐字背诵，而要模仿这种段落分工：先表态，再处理对立观点或现实原因，最后收束到自己的结论。"
               }
-            ]
+            ],
+            "passage": {
+              "title": "記述問題",
+              "type": "text",
+              "value": "以下の二つのテーマのうち、どちらか一つを選んで400字から500字で書いてください（句読点を含む）。\n\n1.\n　最近、インターネット上でもニュースを読むことができるようになりました。このような中で 「 ニュースは新聞で読むほうが世の中の動きがよくわかる 」という意見があります。これについて、ニュースをインターネット上で読むことと新聞で読むことを比較し、あなたの意見を書いてください。\n\n2.\n　ある大学では、入学試験の方法として「 学科試験を廃止し、面接試験だけで合格者を決めよう」という案が出ています。このような方法の長所と短所を説明し、あなたの意見を書いてください。"
+            }
           }
         ],
         "questions": [
@@ -194,6 +196,21 @@
                 "answer": "4",
                 "correct_answer": 4,
                 "eju_answer_no": 1,
+                "explanation": "【讲解】\n作者先否定一种误解：去看陌生的世界就是“未知との遭遇”。他认为真正的问题不在外部地点，而在“自分が同じ”所以世界看起来也一样。后文明确说，“未知との遭遇”本质上是遇见新的自己，而不是遇见未知环境。因此答案是4。\n\n第1项正是作者批评的误解。第2项只说注意到周围变化，不是核心。第3项说世界整体变化，但文章强调这是“自己变了以后”世界才不同，重点仍在自我变化。",
+                "explanation_expand": "【补充解析】\n这题要看作者如何重新定义关键词。原文“つまり”后的句子几乎就是答案：未知との遭遇とは、本質的には新しい自分との遭遇。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "それが「面白い」。",
+                    "つまり「未知との遭遇」とは、本質的には新しい自分との遭遇であって、未知の環境との遭遇ではない。",
+                    "そこを誤解するから、若者はえてして自分を変えず、周囲を変えようとする。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 1,
                 "options": [
@@ -205,21 +222,7 @@
                 "question": "次の文章で、筆者の考える「未知との遭遇」とはどのようなものですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「次の文章で、筆者の考える「未知との遭遇」とはどのようなものですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. それが「面白い」。\n2. つまり「未知との遭遇」とは、本質的には新しい自分との遭遇であって、未知の環境との遭遇ではない。\n3. そこを誤解するから、若者はえてして自分を変えず、周囲を変えようとする。\n\n【为什么选4】\n第4项「変化した自分に出会うこと」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「知らない世界を見ること」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「変化した自分に出会うこと」不一致。\n- 2. 「自分の周囲の変化に気づくこと」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「変化した自分に出会うこと」不一致。\n- 3. 「世界全体の変化を感じること」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「変化した自分に出会うこと」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「変化した自分に出会うこと」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "それが「面白い」。",
-                    "つまり「未知との遭遇」とは、本質的には新しい自分との遭遇であって、未知の環境との遭遇ではない。",
-                    "そこを誤解するから、若者はえてして自分を変えず、周囲を変えようとする。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -236,6 +239,21 @@
                 "answer": "1",
                 "correct_answer": 1,
                 "eju_answer_no": 2,
+                "explanation": "【讲解】\n作者反对由某个执笔者、权威或文部省单方面规定词语定义。他说“ことばは生きもの”，不是靠权威统一、整理、裁定正误的，而是在各种用法混杂流动中自然稳定下来。因此答案是1。\n\n第2、3、4项都把定义交给辞书、学者或文部省来决定，正好和作者观点相反。",
+                "explanation_expand": "【补充解析】\n文章前半批评“按自己的学说给词下定义”，后半提出作者观点。读到“昔からいわれるとおり”后，要把它看作作者总结：语言会自然变化、自然落定。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "昔からいわれるとおり、ことばは生きものである。",
+                    "どこかの権威によって統一されたり、整理されたりするものではないし、正しいとか正しくないとか裁定されるものではない。",
+                    "いろいろなものがいり混って、ごちゃごちゃと動いてゆくうちに、おのずから落ち着いてくるものなのだ。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 2,
                 "options": [
@@ -247,21 +265,7 @@
                 "question": "次の文章で筆者は、ことばの「定義」について何と述べていますか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「次の文章で筆者は、ことばの「定義」について何と述べていますか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. その項目の執筆者が、自分の説に従ってそのことばを定義し、その定義だけしか書いてくれないのは、辞書としてはたいへん困る。\n2. ひいた人はそういう定義だと思ってしまうが、その定義は世の中に通用しているものとはちがうのである。\n3. 執筆者は自分の主張が正しいと信じ、その体系で「世直し」をしようと思っている。\n\n【为什么选1】\n第1项「ことばの「定義」は、自然に決まっていくものだ。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 2. 「ことばの「定義」は、辞書が正しく決めなければならない。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「ことばの「定義」は、自然に決まっていくものだ。」不一致。\n- 3. 「ことばの「定義」は、権威ある学者が書くものだ。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「ことばの「定義」は、自然に決まっていくものだ。」不一致。\n- 4. 「ことばの「定義」は、文部省が統一すべきだ。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「ことばの「定義」は、自然に決まっていくものだ。」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「ことばの「定義」は、自然に決まっていくものだ。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "その項目の執筆者が、自分の説に従ってそのことばを定義し、その定義だけしか書いてくれないのは、辞書としてはたいへん困る。",
-                    "ひいた人はそういう定義だと思ってしまうが、その定義は世の中に通用しているものとはちがうのである。",
-                    "執筆者は自分の主張が正しいと信じ、その体系で「世直し」をしようと思っている。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -278,6 +282,21 @@
                 "answer": "3",
                 "correct_answer": 3,
                 "eju_answer_no": 3,
+                "explanation": "【讲解】\n这种管状防虫剂里装的是合成的雌蛾性信息素。它不是直接杀死害虫，而是让田地里充满这种气味，扰乱雄蛾和雌蛾之间的交信，使它们不能交尾，从而抑制繁殖。因此答案是3。\n\n第1项的“不能动”、第2项的“驱除虫卵”、第4项的“减少雌蛾数量”都不是文中说明的作用。",
+                "explanation_expand": "【补充解析】\n这类科普说明题要分清“手段”和“效果”：手段是释放信息素，直接效果是扰乱交信、妨碍交尾，最终效果才是抑制繁殖。选项3抓住了直接机制。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "性フェロモンを畑一帯に充満させることで、オスとメスの間の交信をかき乱し、交尾させないようにできる。",
+                    "害虫の繁殖を抑えられるうえ、果実への残留もない。",
+                    "食の安全に関心が高まるなか、殺虫剤を減らす防除技術として注目が高まっている。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 3,
                 "options": [
@@ -289,21 +308,7 @@
                 "question": "次の文章は、ガという害虫の被害を防ぐための防虫剤について述べています。この防虫剤は果物の木に取り付けるチューブ状の物ですが、その特徴はどれですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「次の文章は、ガという害虫の被害を防ぐための防虫剤について述べています。この防虫剤は果物の木に取り付けるチューブ状の物ですが、その特徴はどれですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 性フェロモンを畑一帯に充満させることで、オスとメスの間の交信をかき乱し、交尾させないようにできる。\n2. 害虫の繁殖を抑えられるうえ、果実への残留もない。\n3. 食の安全に関心が高まるなか、殺虫剤を減らす防除技術として注目が高まっている。\n\n【为什么选3】\n第3项「害虫の生殖行動を妨げる。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「害虫が動けないようにする。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「害虫の生殖行動を妨げる。」不一致。\n- 2. 「害虫の卵を駆除する。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「害虫の生殖行動を妨げる。」不一致。\n- 4. 「害虫のメスの数を減らす。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「害虫の生殖行動を妨げる。」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「害虫の生殖行動を妨げる。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "性フェロモンを畑一帯に充満させることで、オスとメスの間の交信をかき乱し、交尾させないようにできる。",
-                    "害虫の繁殖を抑えられるうえ、果実への残留もない。",
-                    "食の安全に関心が高まるなか、殺虫剤を減らす防除技術として注目が高まっている。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -320,6 +325,21 @@
                 "answer": "1",
                 "correct_answer": 1,
                 "eju_answer_no": 4,
+                "explanation": "【讲解】\n通知要求：想报名的人先把申请书交到留学生中心事务室，期限是7月9日正午；同一天17点还必须参加分班考试，不参加就不能上课。所以正确流程是提交申请书后参加考试，答案是1。\n\n第2项错在申请书不是在考试教室提交。第3项错在春季课程参加者也必须考试。第4项错在申请截止是9日正午，不是下午5点。",
+                "explanation_expand": "【补充解析】\n通知题最容易错在时间和地点。这里“正午まで”和“17時から”是两个不同事项：一个是申请截止，一个是分班考试时间。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "＜日本語夏期集中コース＞",
+                    "申込方法：受講申込書に必要事項を記入のうえ、留学生センター事務室に提出してください。",
+                    "申込期限：7月9日（金）正午まで"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "内容理解题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 4,
                 "options": [
@@ -331,21 +351,7 @@
                 "question": "次の文章は、日本語のコースについてのお知らせです。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是内容理解题。题干问的是「次の文章は、日本語のコースについてのお知らせです。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. ＜日本語夏期集中コース＞\n2. 申込方法：受講申込書に必要事項を記入のうえ、留学生センター事務室に提出してください。\n3. 申込期限：7月9日（金）正午まで\n\n【为什么选1】\n第1项「受講したい人は、事務室に申込書を提出してからテストを受けなければならない。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 2. 「受講したい人は、事務室で申込書をもらい、テストを受ける教室でそれを提出する。」与原文在对象、范围、程度或因果上有偏差，不能像「受講したい人は、事務室に申込書を提出してからテストを受けなければならない。」那样稳定对应定位句。\n- 3. 「受講したい人で、春のコースを受けた人は、テストは免除される。」与原文在对象、范围、程度或因果上有偏差，不能像「受講したい人は、事務室に申込書を提出してからテストを受けなければならない。」那样稳定对应定位句。\n- 4. 「受講したい人は、9日の午後5時までに申込書を提出して、テストを受けなければならない。」与原文在对象、范围、程度或因果上有偏差，不能像「受講したい人は、事務室に申込書を提出してからテストを受けなければならない。」那样稳定对应定位句。\n\n【拿分提醒】\n内容理解题不要只看关键词重合，要确认选项是否保留了原文的对象、动作和判断方向。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「受講したい人は、事務室に申込書を提出してからテストを受けなければならない。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：内容理解题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "内容理解题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "＜日本語夏期集中コース＞",
-                    "申込方法：受講申込書に必要事項を記入のうえ、留学生センター事務室に提出してください。",
-                    "申込期限：7月9日（金）正午まで"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -362,6 +368,20 @@
                 "answer": "3",
                 "correct_answer": 3,
                 "eju_answer_no": 5,
+                "explanation": "【讲解】\n作者最想说的是：思考只有以某种形式表达出来才有意义。即使脑中想得再深，如果不向别人表达，那种想法就等于不存在。因此答案是3。\n\n第1、2项把沉默或轻易发言的问题绝对化，和作者意思不合。第4项说只要想过就有价值，正好与“表現しないかぎり、ないに等しい”相反。",
+                "explanation_expand": "【补充解析】\n文章先写“沉默看起来深思熟虑”，再用“しかし”转向真正主张。主旨题要抓转折后作者明确下判断的句子。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "たしかに、「沈黙は金」の日本社会では、黙っていることのほうが、気軽に意見をいうよりも「賢く」見えることがないわけではありません。",
+                    "しかし、頭の中で、どんなにすごいことを考えていたとしても、それを他の人に表現しないかぎり、その考えは、ないに等しいのです。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 5,
                 "options": [
@@ -373,20 +393,7 @@
                 "question": "次の文章で筆者が最も言いたいことはどれですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「次の文章で筆者が最も言いたいことはどれですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. たしかに、「沈黙は金」の日本社会では、黙っていることのほうが、気軽に意見をいうよりも「賢く」見えることがないわけではありません。\n2. しかし、頭の中で、どんなにすごいことを考えていたとしても、それを他の人に表現しないかぎり、その考えは、ないに等しいのです。\n\n【为什么选3】\n第3项「考えたことは、人に伝えなければ意味がない。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「軽々しく口を開かず、よく考えたほうがいい。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「考えたことは、人に伝えなければ意味がない。」不一致。\n- 2. 「気軽に意見をいう人は、思慮が浅い。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「考えたことは、人に伝えなければ意味がない。」不一致。\n- 4. 「考えたということは、それだけで価値がある。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「考えたことは、人に伝えなければ意味がない。」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「考えたことは、人に伝えなければ意味がない。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "たしかに、「沈黙は金」の日本社会では、黙っていることのほうが、気軽に意見をいうよりも「賢く」見えることがないわけではありません。",
-                    "しかし、頭の中で、どんなにすごいことを考えていたとしても、それを他の人に表現しないかぎり、その考えは、ないに等しいのです。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -403,6 +410,21 @@
                 "answer": "4",
                 "correct_answer": 4,
                 "eju_answer_no": 6,
+                "explanation": "【讲解】\n作者说外部压力不一定只是坏东西，同样的压力也可能变成提高意欲的力量。关键在于自己的心如何解释它；即使是讨厌的工作，如果能赋予自己的意义，也会变得有趣。因此答案是4。\n\n第1项说消除外部压力，文中主张的是转换压力。第2项说真正丰富人生的是负面压力，太绝对。第3项说不能只靠解释判断好坏，但作者恰恰强调心的解释会改变压力的性质。",
+                "explanation_expand": "【补充解析】\n这篇的关键词是“意味付け”和“転換”。不要把压力简单理解成坏事；作者真正强调的是把外部力量转化为自己的力量。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "嫌な仕事にストレスを感じることは多い。",
+                    "けれども、その仕事に自分なりの意味付けをすれば、楽しく感じられるようになるだろう。",
+                    "外部からの力を自らの力に転換する工夫が、人生を豊かにする。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 6,
                 "options": [
@@ -414,21 +436,7 @@
                 "question": "次の文章で筆者が最も言いたいことはどれですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「次の文章で筆者が最も言いたいことはどれですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 嫌な仕事にストレスを感じることは多い。\n2. けれども、その仕事に自分なりの意味付けをすれば、楽しく感じられるようになるだろう。\n3. 外部からの力を自らの力に転換する工夫が、人生を豊かにする。\n\n【为什么选4】\n第4项「嫌なことでも価値を見いだせば、楽しめるようになるのだ。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「意欲を高めるためには、外部からの圧力をなくすことが必要だ。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「嫌なことでも価値を見いだせば、楽しめるようになるのだ。」不一致。\n- 2. 「人生を本当に豊かにするのは、実はマイナスの圧力だ。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「嫌なことでも価値を見いだせば、楽しめるようになるのだ。」不一致。\n- 3. 「自分の解釈だけで物事の良し悪しを決めてはいけない。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「嫌なことでも価値を見いだせば、楽しめるようになるのだ。」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「嫌なことでも価値を見いだせば、楽しめるようになるのだ。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "嫌な仕事にストレスを感じることは多い。",
-                    "けれども、その仕事に自分なりの意味付けをすれば、楽しく感じられるようになるだろう。",
-                    "外部からの力を自らの力に転換する工夫が、人生を豊かにする。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -445,32 +453,33 @@
                 "answer": "2",
                 "correct_answer": 2,
                 "eju_answer_no": 7,
+                "explanation": "【讲解】\n文章对比过去和现在的修复观。过去重视“修过哪里看不出来”；现在则重视阻止损坏继续发展，并考虑将来再次修理。因此答案是2。\n\n第1项只是修复前会知道过去修理的好坏，不是现在重视的目标。第3项是过去的标准。第4项文中说旧材料未必能得到，也未必适合，现在反而会借助科学加工。",
+                "explanation_expand": "【补充解析】\n看到“従来”和“現在は”时，要把答案放在“現在は”后面。选项3很像常识中的修复目标，但它是旧标准，不是本题问的现在重点。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "実はここで、百年以上も前に修理した職人の仕事の良し悪しがわかるのだそうだ。",
+                    "従来、修復作業は、どこを直したか判らないような仕上がりがよいとされていた。",
+                    "現在は傷みの進行を食い止めることが大切なのだという。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "指示・含义题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 7,
                 "options": [
                   "1. 昔の職人の修理方法をチェックすること",
-                  "2. これは上傷んでいないようにすること",
+                  "2. これ以上傷んでいかないようにすること",
                   "3. 直した場所がわからないように仕上げること",
                   "4. 昔どおりの素材を使って直すこと"
                 ],
                 "question": "次の文章は美術品の修復に関する記事です。修復作業で、現在重視されていることは何だと言っていますか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是指示・含义题。题干问的是「次の文章は美術品の修復に関する記事です。修復作業で、現在重視されていることは何だと言っていますか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 実はここで、百年以上も前に修理した職人の仕事の良し悪しがわかるのだそうだ。\n2. 従来、修復作業は、どこを直したか判らないような仕上がりがよいとされていた。\n3. 現在は傷みの進行を食い止めることが大切なのだという。\n\n【为什么选2】\n第2项「これは上傷んでいないようにすること」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「昔の職人の修理方法をチェックすること」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 3. 「直した場所がわからないように仕上げること」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 4. 「昔どおりの素材を使って直すこと」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n\n【拿分提醒】\n下线部和指示语题要把前后文连起来读，把抽象表达还原成具体内容，再比较选项是否完整。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「これは上傷んでいないようにすること」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：指示・含义题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "指示・含义题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "実はここで、百年以上も前に修理した職人の仕事の良し悪しがわかるのだそうだ。",
-                    "従来、修復作業は、どこを直したか判らないような仕上がりがよいとされていた。",
-                    "現在は傷みの進行を食い止めることが大切なのだという。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -487,6 +496,20 @@
                 "answer": "4",
                 "correct_answer": 4,
                 "eju_answer_no": 8,
+                "explanation": "【讲解】\n作者说野鸟的分类和生态研究已经有进展，但从保护野鸟来看，还需要各个种类的数量数据，例如准确有多少只、整体是在减少还是增加。遗憾的是这些信息还不充分。因此今后最需要的是掌握野鸟的准确数量，答案是4。\n\n第1项没有谈到。第2项只说种类和生息地，不是作者强调的“数量的なデータ”。第3项是已经在推进的研究，不是“还不足、今后需要”的部分。",
+                "explanation_expand": "【补充解析】\n本题的判断点在“しかし”。前面是已有成果，后面是作者指出的不足。答案要对应“もう一つ重要なのは数量的なデータ”。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "しかし、野鳥保護を考えたとき、その鳥の生態とともに、もう一つ重要なのは個々の種類についての数量的なデータではないだろうか。",
+                    "例えば、「この種類は、正確には何羽程度生息しているのだろうか」といった基本的なものから、それらを総合して「野鳥は減っているのか、あるいは増えているのか」などについて正確な情報が重要であるが、残念ながら、これらについては、まだまだ十分な情報が集められているとは言えない。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 8,
                 "options": [
@@ -498,20 +521,7 @@
                 "question": "次の文章で筆者は今後、何が最も必要だと言っていますか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「次の文章で筆者は今後、何が最も必要だと言っていますか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. しかし、野鳥保護を考えたとき、その鳥の生態とともに、もう一つ重要なのは個々の種類についての数量的なデータではないだろうか。\n2. 例えば、「この種類は、正確には何羽程度生息しているのだろうか」といった基本的なものから、それらを総合して「野鳥は減っているのか、あるいは増えているのか」などについて正確な情報が重要であるが、残念ながら、これらについては、まだまだ十分な情報が集められているとは言えない。\n\n【为什么选4】\n第4项「野鳥の正確な数の把握」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「野鳥保護の明確な定義」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「野鳥の正確な数の把握」不一致。\n- 2. 「野鳥の種類と生息地についての情報」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「野鳥の正確な数の把握」不一致。\n- 3. 「野鳥の分類や生態についての研究」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「野鳥の正確な数の把握」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「野鳥の正確な数の把握」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "しかし、野鳥保護を考えたとき、その鳥の生態とともに、もう一つ重要なのは個々の種類についての数量的なデータではないだろうか。",
-                    "例えば、「この種類は、正確には何羽程度生息しているのだろうか」といった基本的なものから、それらを総合して「野鳥は減っているのか、あるいは増えているのか」などについて正確な情報が重要であるが、残念ながら、これらについては、まだまだ十分な情報が集められているとは言えない。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -528,6 +538,21 @@
                 "answer": "1",
                 "correct_answer": 1,
                 "eju_answer_no": 9,
+                "explanation": "【讲解】\n作者认为第二语言不会比第一语言更好。说得更直接一点，母语能力弱的人虽然也能学外语，但外语能力只会在其母语能力的基础上更弱。因为驾驭语言的能力在根本处是相通的。因此答案是1。\n\n第2项说方法合适就能超过第一语言，文中否定。第3项谈学多种外语提高母语，文中没有。第4项说外语能力和母语能力无关，正好与作者观点相反。",
+                "explanation_expand": "【补充解析】\n这里“決して決して上手くはならない”语气很强，说明作者判断非常明确。选项1保留了“不超过第一语言”的核心。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "第二言語すなわち最初に身につけた言語の次に身につける言語、多くの場合外国",
+                    "語は、この第一言語よりも、決して決して上手くはならない。",
+                    "単刀直入に申すならば、日"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 9,
                 "options": [
@@ -539,21 +564,7 @@
                 "question": "次の文章で筆者は、言語能力について何と言っていますか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「次の文章で筆者は、言語能力について何と言っていますか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 第二言語すなわち最初に身につけた言語の次に身につける言語、多くの場合外国\n2. 語は、この第一言語よりも、決して決して上手くはならない。\n3. 単刀直入に申すならば、日\n\n【为什么选1】\n第1项「第一言語を超えるほどには第二言語はうまくならない。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 2. 「方法を選べば第一言語より第二言語のほうがうまくなる。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「第一言語を超えるほどには第二言語はうまくならない。」不一致。\n- 3. 「より多くの外国語を学んだほうが母語はうまくなる。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「第一言語を超えるほどには第二言語はうまくならない。」不一致。\n- 4. 「外国語の能力と母語の能力の間には関連がない。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「第一言語を超えるほどには第二言語はうまくならない。」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「第一言語を超えるほどには第二言語はうまくならない。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "第二言語すなわち最初に身につけた言語の次に身につける言語、多くの場合外国",
-                    "語は、この第一言語よりも、決して決して上手くはならない。",
-                    "単刀直入に申すならば、日"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -570,6 +581,21 @@
                 "answer": "2",
                 "correct_answer": 2,
                 "eju_answer_no": 10,
+                "explanation": "【讲解】\n作者承认脑容量和语言活动有不可分的关系，脑的形态特征也可能是形成语言神经网络的必要条件之一。但是，他认为脑的形态本身不能直接证明语言功能，也不是充分条件；仅凭形态推定功能过于大胆。因此不能只根据脑容量确定语言获得时期，答案是2。\n\n第1项把一种推定资料当成确定结论。第3项说还要继续调查脑容量，但作者问题在于“只看形态不够”。第4项说完全无关，又否定过头；文中说有不可分关系。",
+                "explanation_expand": "【补充解析】\n注意“必要条件”和“十分条件”的区别。脑容量可能必要，但不够充分；所以答案要表达“不能只凭它特定”。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "頭蓋骨から推定される人類の脳の容積は年代とともに徐々に増大してゆき、今日のような脳のサイズに至っている。",
+                    "中でもこの脳の容積が急激に増大して現代人のそれに近づく時期が、人類が言語を獲得した時期を推定するうえで有力な資料になるとされている。",
+                    "ヒトの脳はチンパンジーなどの類人猿にくらべて格段に大きなサイズをもち、これと言語活動とは不可分の関係にあることはわかる。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 10,
                 "options": [
@@ -581,21 +607,7 @@
                 "question": "次の文章では、人類が言語を獲得した時期について述べています。筆者は、脳の容積と言語獲得との関係について、どのように考えていますか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「次の文章では、人類が言語を獲得した時期について述べています。筆者は、脳の容積と言語獲得との関係について、どのように考えていますか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 頭蓋骨から推定される人類の脳の容積は年代とともに徐々に増大してゆき、今日のような脳のサイズに至っている。\n2. 中でもこの脳の容積が急激に増大して現代人のそれに近づく時期が、人類が言語を獲得した時期を推定するうえで有力な資料になるとされている。\n3. ヒトの脳はチンパンジーなどの類人猿にくらべて格段に大きなサイズをもち、これと言語活動とは不可分の関係にあることはわかる。\n\n【为什么选2】\n第2项「言語獲得の時期は、脳の容積だけを根拠にして特定することはできない。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「人類は、脳の容積が急激に大きくなった時期に言語を獲得した。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「言語獲得の時期は、脳の容積だけを根拠にして特定することはできない。」不一致。\n- 3. 「脳の容積についてもっと調べなければ、言語獲得の時期はわからない。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「言語獲得の時期は、脳の容積だけを根拠にして特定することはできない。」不一致。\n- 4. 「脳の容積と言語の獲得との間には、あらゆる意味において関係はない。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「言語獲得の時期は、脳の容積だけを根拠にして特定することはできない。」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「言語獲得の時期は、脳の容積だけを根拠にして特定することはできない。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "頭蓋骨から推定される人類の脳の容積は年代とともに徐々に増大してゆき、今日のような脳のサイズに至っている。",
-                    "中でもこの脳の容積が急激に増大して現代人のそれに近づく時期が、人類が言語を獲得した時期を推定するうえで有力な資料になるとされている。",
-                    "ヒトの脳はチンパンジーなどの類人猿にくらべて格段に大きなサイズをもち、これと言語活動とは不可分の関係にあることはわかる。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -605,13 +617,28 @@
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
-              "value": "所有権があいまいな資源は、劣化しやすい。逆に、だれのものかがはっきりしている資\n源は劣化しにくい。\n森がだれのものか明らかでなく、だれでも自由に\"焼却を作ることができるなら、農民\nに森を大切にしようとする動機は生じない。手間をかけて元の森に回復させたところで、自分が次も耕作できるとは限らない。おそらく他のだれかが、そこを焼いてしまうだろう。\nそれなら、畑の地方が下がったら、そこは放棄して他に移動するほうが合理的である。\nしかし、森の所有権が個人に与えられて、持ち主以外の利用を排除することができれば、\n人口が増えても資源劣化は生じにくい。「自分の森」ならば大切に使われるからだ。そし\nて、森の所有者が焼却だけでは長期的には食べていけないということになれば、所有者は\n生産方式を変えるなどの工夫をして、森を守ろうとするだろう。\n（藤倉良他『文系のための環境科学入門』有斐閣）\n＊焼却：畑の地方が衰えると別の森に移り、その森を焼いて畑を作る農法"
+              "value": "所有権があいまいな資源は、劣化しやすい。逆に、だれのものかがはっきりしている資\n源は劣化しにくい。\n森がだれのものか明らかでなく、だれでも自由に\"焼畑を作ることができるなら、農民\nに森を大切にしようとする動機は生じない。手間をかけて元の森に回復させたところで、自分が次も耕作できるとは限らない。おそらく他のだれかが、そこを焼いてしまうだろう。\nそれなら、畑の地力が下がったら、そこは放棄して他に移動するほうが合理的である。\nしかし、森の所有権が個人に与えられて、持ち主以外の利用を排除することができれば、\n人口が増えても資源劣化は生じにくい。「自分の森」ならば大切に使われるからだ。そし\nて、森の所有者が焼畑だけでは長期的には食べていけないということになれば、所有者は\n生産方式を変えるなどの工夫をして、森を守ろうとするだろう。\n（藤倉良他『文系のための環境科学入門』有斐閣）\n＊焼畑：畑の地力が衰えると別の森に移り、その森を焼いて畑を作る農法"
             },
             "questions": [
               {
                 "answer": "2",
                 "correct_answer": 2,
                 "eju_answer_no": 11,
+                "explanation": "【讲解】\n“放弃那里去别处更合理”的原因在前面：如果森的所有权不明确，即使自己花力气把地力恢复，也不能保证下次还能由自己耕作，很可能被别人烧掉使用。既然努力可能白费，放弃并移动就成了个人层面的合理选择。因此答案是2。\n\n第1、3、4项都不是原文逻辑。这里的“合理”不是道德正确，而是从个人收益看不值得投入。",
+                "explanation_expand": "【补充解析】\n原因题要看下线句前两句。作者不是赞成破坏森林，而是在解释为什么所有权模糊会让个人没有保护动机。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "おそらく他のだれかが、そこを焼いてしまうだろう。",
+                    "それなら、畑の地力が下がったら、そこは放棄して他に移動するほうが合理的である。",
+                    "しかし、森の所有権が個人に与えられて、持ち主以外の利用を排除することができれば、"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "理由・原因题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 11,
                 "options": [
@@ -623,52 +650,39 @@
                 "question": "問1　下線部「そこは放棄して他に移動するほうが合理的」なのはなぜですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是理由・原因题。题干问的是「問1　下線部「そこは放棄して他に移動するほうが合理的」なのはなぜですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. おそらく他のだれかが、そこを焼いてしまうだろう。\n2. それなら、畑の地方が下がったら、そこは放棄して他に移動するほうが合理的である。\n3. しかし、森の所有権が個人に与えられて、持ち主以外の利用を排除することができれば、\n\n【为什么选2】\n第2项「労力を費やしても無駄になるから」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「みんなの賛成が得られるから」即使和文章某处有关，也不能直接解释题干中的现象；它偏向背景、结果或旁支信息。\n- 3. 「倫理的に正しいから」即使和文章某处有关，也不能直接解释题干中的现象；它偏向背景、结果或旁支信息。\n- 4. 「昔ながらの方法を守れるから」即使和文章某处有关，也不能直接解释题干中的现象；它偏向背景、结果或旁支信息。\n\n【拿分提醒】\n理由题要找能直接回答“为什么”的句子。背景、例子和结果都可能像答案，但不能替代原因本身。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「労力を費やしても無駄になるから」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：理由・原因题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "理由・原因题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "おそらく他のだれかが、そこを焼いてしまうだろう。",
-                    "それなら、畑の地方が下がったら、そこは放棄して他に移動するほうが合理的である。",
-                    "しかし、森の所有権が個人に与えられて、持ち主以外の利用を排除することができれば、"
-                  ]
-                }
+                ]
               },
               {
                 "answer": "3",
                 "correct_answer": 3,
                 "eju_answer_no": 12,
+                "explanation": "【讲解】\n文章开头就提出结论：所有权暧昧的资源容易劣化，所有者明确的资源不容易劣化。后文用森林说明，如果给个人所有权，并能排除他人随意使用，人就会把它当“自己的森林”来珍惜使用。因此答案是3。\n\n第1项的自由利用会导致劣化。第2项人口控制不是作者方案。第4项的禁止烧畑不是本文提出的核心机制。",
+                "explanation_expand": "【补充解析】\n本题不要被“焼畑”细节带偏。作者真正讨论的是资源管理原则：明确“谁的东西”，让使用者有长期维护的动机。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "所有権があいまいな資源は、劣化しやすい。",
+                    "逆に、だれのものかがはっきりしている資源は劣化しにくい。",
+                    "「自分の森」ならば大切に使われるからだ。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 12,
                 "options": [
                   "1. 資源を自由に利用できるようにする。",
                   "2. 人口が増え過ぎないようにする。",
                   "3. その資源がだれのものかを明確にする。",
-                  "4. 焼却を規制して森を守る。"
+                  "4. 焼畑を規制して森を守る。"
                 ],
                 "question": "問2　この文章で筆者は、どのようにすれば人々が資源を守ろうとすると述べていますか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「問2　この文章で筆者は、どのようにすれば人々が資源を守ろうとすると述べていますか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 源は劣化しにくい。\n2. 森がだれのものか明らかでなく、だれでも自由に\"焼却を作ることができるなら、農民\n3. に森を大切にしようとする動機は生じない。\n\n【为什么选3】\n第3项「その資源がだれのものかを明確にする。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「資源を自由に利用できるようにする。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「その資源がだれのものかを明確にする。」不一致。\n- 2. 「人口が増え過ぎないようにする。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「その資源がだれのものかを明確にする。」不一致。\n- 4. 「焼却を規制して森を守る。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「その資源がだれのものかを明確にする。」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「その資源がだれのものかを明確にする。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "源は劣化しにくい。",
-                    "森がだれのものか明らかでなく、だれでも自由に\"焼却を作ることができるなら、農民",
-                    "に森を大切にしようとする動機は生じない。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -685,6 +699,20 @@
                 "answer": "4",
                 "correct_answer": 4,
                 "eju_answer_no": 13,
+                "explanation": "【讲解】\nA前面说明沟通为什么困难：每个人都有自己的理解框架，同一句话可能被不同解释。A后面马上给出上司对部下说“考えておいてくれ”的具体例子，所以这里应填“たとえば”。答案是4。\n\n“とはいえ”表示让步转折，“一方”表示对比，“そこで”表示因此采取行动，都不适合引出例子。",
+                "explanation_expand": "【补充解析】\n连接词题先判断后文功能。后文不是新论点，而是把前文抽象说明具体化，所以用“例如”。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "そこにコミュニケーションの難しさがあるのです。",
+                    "（　A　）．上司が部下に「考えておいてくれ」と言ったとします。",
+                    "上司のコンテクストでは、「検討しろ」という命令を意味しているのかもしれません。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "空所补充题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis"
+                },
                 "has_ans": true,
                 "id": 13,
                 "options": [
@@ -696,26 +724,26 @@
                 "question": "問1　（　A　）に入るものとして最も適当なものはどれですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是空所补充题。题干问的是「問1　（　A　）に入るものとして最も適当なものはどれですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. そこにコミュニケーションの難しさがあるのです。\n2. （　A　）．上司が部下に「考えておいてくれ」と言ったとします。\n3. 上司のコンテクストでは、「検討しろ」という命令を意味しているのかもしれません。\n\n【为什么选4】\n第4项「たとえば」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「とはいえ」放入空格后，和前后文的语气或因果衔接不自然。本文需要的是能承接上下文判断方向的表达。\n- 2. 「一方」放入空格后，和前后文的语气或因果衔接不自然。本文需要的是能承接上下文判断方向的表达。\n- 3. 「そこで」放入空格后，和前后文的语气或因果衔接不自然。本文需要的是能承接上下文判断方向的表达。\n\n【拿分提醒】\n空所题要先读空格前后的连接关系，尤其注意「つまり」「しかし」「このように」等提示语。正确项必须能让前后文语气和逻辑自然衔接。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「たとえば」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：空所补充题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "空所补充题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "そこにコミュニケーションの難しさがあるのです。",
-                    "（　A　）．上司が部下に「考えておいてくれ」と言ったとします。",
-                    "上司のコンテクストでは、「検討しろ」という命令を意味しているのかもしれません。"
-                  ]
-                }
+                ]
               },
               {
                 "answer": "1",
                 "correct_answer": 1,
                 "eju_answer_no": 14,
+                "explanation": "【讲解】\n“物理上信息传到了，但意义没有传到”指的是：部下确实听到了上司说“考えておいてくれ”，但上司想表达的是“去检讨”，部下却可能理解成“判断是否值得检讨”。两人对同一句话的解释不同，所以答案是1。\n\n第2项说没听到命令，和“物理的に情報が伝わっている”相反。第3项说部下不懂却没确认，文中重点不是不懂，而是解释框架不同。第4项说无视，也不是原文。",
+                "explanation_expand": "【补充解析】\n这题考“情報”和“意味”的区别。声音、文字到达对方，只是信息传递；双方理解一致，才是意义传递。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "」という議論になってしまいます。",
+                    "物理的に情報が伝わっていても、その意味が伝わらなかったからです。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "指示・含义题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 14,
                 "options": [
@@ -727,20 +755,7 @@
                 "question": "問2　下線部「物理的に情報が伝わっていても、その意味が伝わらなかったからです」というのはどういうことですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是指示・含义题。题干问的是「問2　下線部「物理的に情報が伝わっていても、その意味が伝わらなかったからです」というのはどういうことですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 」という議論になってしまいます。\n2. 物理的に情報が伝わっていても、その意味が伝わらなかったからです。\n\n【为什么选1】\n第1项「部下は上司の命令を聞いたが、二人の解釈は異なっていた。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 2. 「部下は上司が命令したことを知らなかった。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 3. 「部下は上司の命令の意味がわからなかったのに確認しなかった。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 4. 「部下は上司の命令を聞いたが、無視した。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n\n【拿分提醒】\n下线部和指示语题要把前后文连起来读，把抽象表达还原成具体内容，再比较选项是否完整。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「部下は上司の命令を聞いたが、二人の解釈は異なっていた。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：指示・含义题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "指示・含义题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "」という議論になってしまいます。",
-                    "物理的に情報が伝わっていても、その意味が伝わらなかったからです。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -750,13 +765,28 @@
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
-              "value": "内発的動機というのは、外から強制されたわけではなく、その人自身が「おもしろそう」と思って何かをしよう、したいと思う気持ちです。このような気持ちから発する行為に対して報酬を与えると、報酬を与えられた人のその後の内発的な動機付けに影響するでしょうか。また、報酬の与え方によって影響の仕方に違いが出るでしょうか。これらのことを調べるために行われた実験を紹介します。\n実験の対象となったのは幼稚園の園児で、みんな絵を描くのが好きな子どもたちです。絵の時間に子どもたちに色鉛筆を与えると、みんな喜んで絵を描きます。この子どもたちを三つのグループに分けました。一つめのグループには、「じょうずに絵を描いたら＊ご褒美をあげる」と予告しておき、絵を描いた後にこのグループの子どもたち全員にご褒美をあげました。二つめのグループには、ご褒美について何も予告しなかったけれども、最後にグループ内の子どもたち全員にご褒美をあげました。三つめのグループには、何も予告せず、何のご褒美もあげませんでした。\n数日後の絵の時間に、ご褒美の予告をせずに子どもたちに色鉛筆を与えたところ、進んで絵を描いた子は、一つめのグループでは、二つめ三つめのグループの場合の半分くらいしかいませんでした。つまり、(1)二つめのグループの子どもたちの内発的動機は、(2)他の二つのグループに比べて低くなっていたと言えます。\n（山岸俊男『社会的ジレンマ』PHP研究所　を参考に作成）\n＊ご褒美：ほめて与える品物"
+              "value": "内発的動機というのは、外から強制されたわけではなく、その人自身が「おもしろそう」と思って何かをしよう、したいと思う気持ちです。このような気持ちから発する行為に対して報酬を与えると、報酬を与えられた人のその後の内発的な動機付けに影響するでしょうか。また、報酬の与え方によって影響の仕方に違いが出るでしょうか。これらのことを調べるために行われた実験を紹介します。\n実験の対象となったのは幼稚園の園児で、みんな絵を描くのが好きな子どもたちです。絵の時間に子どもたちに色鉛筆を与えると、みんな喜んで絵を描きます。この子どもたちを三つのグループに分けました。一つめのグループには、「じょうずに絵を描いたら＊ご褒美をあげる」と予告しておき、絵を描いた後にこのグループの子どもたち全員にご褒美をあげました。二つめのグループには、ご褒美について何も予告しなかったけれども、最後にグループ内の子どもたち全員にご褒美をあげました。三つめのグループには、何も予告せず、何のご褒美もあげませんでした。\n数日後の絵の時間に、ご褒美の予告をせずに子どもたちに色鉛筆を与えたところ、進んで絵を描いた子は、一つめのグループでは、二つめ三つめのグループの場合の半分くらいしかいませんでした。つまり、(1)一つめのグループの子どもたちの内発的動機は、(2)他の二つのグループに比べて低くなっていたと言えます。\n（山岸俊男『社会的ジレンマ』PHP研究所　を参考に作成）\n＊ご褒美：ほめて与える品物"
             },
             "questions": [
               {
                 "answer": "4",
                 "correct_answer": 4,
                 "eju_answer_no": 15,
+                "explanation": "【讲解】\n三个组第一次画画时，真正不同的是“画之前有没有被预告会给奖励”。第一组事先被告知画得好会有奖，画完也得到奖励；第二组没有预告但最后得到奖励；第三组没有预告也没有奖励。题目问第一组和另外两组的共同差异，所以答案是4。\n\n第2项不能选，因为第二组也得到了奖励。第3项也不对，因为第一、第二组都是全员得到奖励。第1项文中没有作为分组条件。",
+                "explanation_expand": "【补充解析】\n实验题要把分组条件列成表：预告有无、奖励有无。第一组与其他两组唯一共同差别是“预告”。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "この子どもたちを三つのグループに分けました。",
+                    "一つめのグループには、「じょうずに絵を描いたら＊ご褒美をあげる」と予告しておき、絵を描いた後にこのグループの子どもたち全員にご褒美をあげました。",
+                    "二つめのグループには、ご褒美について何も予告しなかったけれども、最後にグループ内の子どもたち全員にご褒美をあげました。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "指示・含义题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 15,
                 "options": [
@@ -768,26 +798,26 @@
                 "question": "問1　下線部(1)「一つめのグループの子どもたち」と(2)「他の二つのグループ」では、最初に絵を描かせたとき、どのような点で違いがありましたか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是指示・含义题。题干问的是「問1　下線部(1)「一つめのグループの子どもたち」と(2)「他の二つのグループ」では、最初に絵を描かせたとき、どのような点で違いがありましたか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. この子どもたちを三つのグループに分けました。\n2. 一つめのグループには、「じょうずに絵を描いたら＊ご褒美をあげる」と予告しておき、絵を描いた後にこのグループの子どもたち全員にご褒美をあげました。\n3. 二つめのグループには、ご褒美について何も予告しなかったけれども、最後にグループ内の子どもたち全員にご褒美をあげました。\n\n【为什么选4】\n第4项「絵を描く前に、後でご褒美をあげると言われたかどうか。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「上手な絵を描いたかどうか。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 2. 「ご褒美をもらったかどうか。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 3. 「ご褒美をもらった子が、グループの中の全員だったかどうか。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n\n【拿分提醒】\n下线部和指示语题要把前后文连起来读，把抽象表达还原成具体内容，再比较选项是否完整。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「絵を描く前に、後でご褒美をあげると言われたかどうか。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：指示・含义题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "指示・含义题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "この子どもたちを三つのグループに分けました。",
-                    "一つめのグループには、「じょうずに絵を描いたら＊ご褒美をあげる」と予告しておき、絵を描いた後にこのグループの子どもたち全員にご褒美をあげました。",
-                    "二つめのグループには、ご褒美について何も予告しなかったけれども、最後にグループ内の子どもたち全員にご褒美をあげました。"
-                  ]
-                }
+                ]
               },
               {
                 "answer": "1",
                 "correct_answer": 1,
                 "eju_answer_no": 16,
+                "explanation": "【讲解】\n数日后再给孩子色铅笔且不预告奖励时，主动画画的孩子在第一组只有另外两组的一半左右。第一组的条件是“事先预告奖励，并实际给予奖励”。因此内发性动机降低的是1。\n\n3虽然实际给了奖励，但没有预告，结果没有像第一组那样降低。4没有预告也没有奖励，也没有降低。2不是实验中设置的情况。",
+                "explanation_expand": "【补充解析】\n这道题延续上一题。实验结论不是“有奖励就一定降低兴趣”，而是“预告奖励后再给奖励”会让孩子把原本有趣的活动看成是为了奖励而做。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "内発的動機というのは、外から強制されたわけではなく、その人自身が「おもしろそう」と思って何かをしよう、したいと思う気持ちです。",
+                    "このような気持ちから発する行為に対して報酬を与えると、報酬を与えられた人のその後の内発的な動機付けに影響するでしょうか。",
+                    "また、報酬の与え方によって影響の仕方に違いが出るでしょうか。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "内容理解题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis"
+                },
                 "has_ans": true,
                 "id": 16,
                 "options": [
@@ -799,21 +829,7 @@
                 "question": "問2　この実験で、内発的動機が低くなったのは、どの場合ですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是内容理解题。题干问的是「問2　この実験で、内発的動機が低くなったのは、どの場合ですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 内発的動機というのは、外から強制されたわけではなく、その人自身が「おもしろそう」と思って何かをしよう、したいと思う気持ちです。\n2. このような気持ちから発する行為に対して報酬を与えると、報酬を与えられた人のその後の内発的な動機付けに影響するでしょうか。\n3. また、報酬の与え方によって影響の仕方に違いが出るでしょうか。\n\n【为什么选1】\n第1项「報酬を予告して、実際に与える。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 2. 「報酬を予告するが、実際には与えない。」与原文在对象、范围、程度或因果上有偏差，不能像「報酬を予告して、実際に与える。」那样稳定对应定位句。\n- 3. 「報酬を予告しないが、実際には与える。」与原文在对象、范围、程度或因果上有偏差，不能像「報酬を予告して、実際に与える。」那样稳定对应定位句。\n- 4. 「報酬を予告しないし、実際にも与えない。」与原文在对象、范围、程度或因果上有偏差，不能像「報酬を予告して、実際に与える。」那样稳定对应定位句。\n\n【拿分提醒】\n内容理解题不要只看关键词重合，要确认选项是否保留了原文的对象、动作和判断方向。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「報酬を予告して、実際に与える。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：内容理解题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "内容理解题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "内発的動機というのは、外から強制されたわけではなく、その人自身が「おもしろそう」と思って何かをしよう、したいと思う気持ちです。",
-                    "このような気持ちから発する行為に対して報酬を与えると、報酬を与えられた人のその後の内発的な動機付けに影響するでしょうか。",
-                    "また、報酬の与え方によって影響の仕方に違いが出るでしょうか。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -823,13 +839,29 @@
             "passage": {
               "title": "次の文章を読んで後の問いに答えなさい。",
               "type": "text",
-              "value": "不味い\n毒があって味がまずい種類の動物は、そのことを強調して示すために、警告色と呼ばれる派手な色をしていることが多い。また、毒がなくて無害な種が、実際に毒があってまずい種に似せる。ベイツ型擬態というものがある。これらはなぜ信用されるのだろうか？\n…（略）…\n毒があってまずいことを知らせる警告色は、赤、黄色、黒といった綿や斑点であることが多い。これらの色素を作りだすにもコストがかかる。こういった化学物質の多くはカロチノイド系であるが、これらを合成するのは、それほど簡単なことではない。ベイツ型擬態で、毒のあるものに擬態している種類も、実際に毒はないものの色を出す化学物質は自ら作っているのであり、ただで楽々とまねしているわけではないのだ。\nベイツ型擬態の場合など、本当には毒ではないのだから、敵は、それを自分けることができた方がよいだろう。しかし、非常によく似たものを見分けるには、また、見分ける側にこびれているのか。そして、「中途半端に見分けて失敗したときのコストは、さらに大きくなるだろう」と「一応、どれも信用する」という無難な手をとっているのかもしれない。\n（長谷川真理子『科学の日　科学のこころ』岩波書店）"
+              "value": "不味い\n毒があって味がまずい種類の動物は、そのことを強調して示すために、警告色と呼ばれる派手な色をしていることが多い。また、毒がなくて無害な種が、実際に毒があってまずい種に似せる。ベイツ型擬態というものがある。これらはなぜ信用されるのだろうか？\n…（略）…\n毒があってまずいことを知らせる警告色は、赤、黄色、黒といった縞や斑点であることが多い。これらの色素を作りだすにもコストがかかる。こういった化学物質の多くはカロチノイド系であるが、これらを合成するのは、それほど簡単なことではない。ベイツ型擬態で、毒のあるものに擬態している種類も、実際に毒はないものの色を出す化学物質は自ら作っているのであり、ただで楽々とまねしているわけではないのだ。\nベイツ型擬態の場合など、本当には毒ではないのだから、敵は、それを見分けることができた方がよいだろう。しかし、非常によく似たものを見分けるには、見分ける側にもコストがかかるのだろう。そして、「中途半端に見分けて失敗したときのコストは、さらに大きくなるだろう」と「一応、どれも信用する」という無難な手をとっているのかもしれない。\n（長谷川真理子『科学の日　科学のこころ』岩波書店）"
             },
             "questions": [
               {
                 "answer": "2",
                 "correct_answer": 2,
                 "eju_answer_no": 17,
+                "explanation": "【讲解】\n文章说贝茨型拟态中，无毒种虽然没有毒，但会自己制造产生相似颜色的化学物质，并不是免费轻松地模仿。所以它们模仿的是有毒动物的警告色，答案是2。\n\n第1项说利用有毒动物体外物质，文中没有。第3项说产生难吃的化学物质，文章只说颜色物质。第4项说实际制造毒物，和“実際に毒はない”相反。",
+                "explanation_expand": "【补充解析】\n关键是区分“毒”和“警告色”。无毒动物模仿的是外观信号，不是毒性本身。\n误选项若把被否定的内容当成结论，就会和原文方向相反。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "こういった化学物質の多くはカロチノイド系であるが、これらを合成するのは、それほど簡単なことではない。",
+                    "ベイツ型擬態で、毒のあるものに擬態している種類も、実際に毒はないものの色を出す化学物質は自ら作っているのであり、ただで楽々とまねしているわけではないのだ。",
+                    "ベイツ型擬態の場合など、本当には毒ではないのだから、敵は、それを見分けることができた方がよいだろう。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "内容理解题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_style_review": "Reading supplemental explanation reviewed in Step 5; repeated template wording removed and guidance made item-specific.",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 17,
                 "options": [
@@ -841,26 +873,27 @@
                 "question": "問1　実際に毒がない動物は、毒がある動物をどのようにまねしていますか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是内容理解题。题干问的是「問1　実際に毒がない動物は、毒がある動物をどのようにまねしていますか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. こういった化学物質の多くはカロチノイド系であるが、これらを合成するのは、それほど簡単なことではない。\n2. ベイツ型擬態で、毒のあるものに擬態している種類も、実際に毒はないものの色を出す化学物質は自ら作っているのであり、ただで楽々とまねしているわけではないのだ。\n3. ベイツ型擬態の場合など、本当には毒ではないのだから、敵は、それを自分けることができた方がよいだろう。\n\n【为什么选2】\n第2项「毒のある動物と似た色の化学物質を合成する。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「毒のある動物が体外に出す化学物質を利用する。」与原文在对象、范围、程度或因果上有偏差，不能像「毒のある動物と似た色の化学物質を合成する。」那样稳定对应定位句。\n- 3. 「味がまずく感じられる化学物質を出す。」与原文在对象、范围、程度或因果上有偏差，不能像「毒のある動物と似た色の化学物質を合成する。」那样稳定对应定位句。\n- 4. 「実際に毒のある化学物質を作り出す。」与原文在对象、范围、程度或因果上有偏差，不能像「毒のある動物と似た色の化学物質を合成する。」那样稳定对应定位句。\n\n【拿分提醒】\n内容理解题不要只看关键词重合，要确认选项是否保留了原文的对象、动作和判断方向。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「毒のある動物と似た色の化学物質を合成する。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：内容理解题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "内容理解题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "こういった化学物質の多くはカロチノイド系であるが、これらを合成するのは、それほど簡単なことではない。",
-                    "ベイツ型擬態で、毒のあるものに擬態している種類も、実際に毒はないものの色を出す化学物質は自ら作っているのであり、ただで楽々とまねしているわけではないのだ。",
-                    "ベイツ型擬態の場合など、本当には毒ではないのだから、敵は、それを自分けることができた方がよいだろう。"
-                  ]
-                }
+                ]
               },
               {
                 "answer": "4",
                 "correct_answer": 4,
                 "eju_answer_no": 18,
+                "explanation": "【讲解】\n“姑且都相信”是从捕食者角度说的。因为警告色的动物可能真的有毒，也可能是无毒拟态；要精确区分相似的对象需要成本，判断错的代价更大，所以捕食者可能采取稳妥做法：看到警告色就都当作有毒。答案是4。\n\n第1、2项说任何颜色的动物，范围过大。第3项说非警告色动物也有毒，文中没有这个意思。",
+                "explanation_expand": "【补充解析】\n这里的“どれも”不是世界上所有动物，而是前文提到的“看起来像警告色的那些”。代词范围要按上下文限定。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "毒があって味がまずい種類の動物は、そのことを強調して示すために、警告色と呼ばれる派手な色をしていることが多い。",
+                    "また、毒がなくて無害な種が、実際に毒があってまずい種に似せる。",
+                    "「中途半端に見分けて失敗したときのコストは、さらに大きくなるだろう」と「一応、どれも信用する」という無難な手をとっているのかもしれない。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "指示・含义题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 18,
                 "options": [
@@ -872,21 +905,7 @@
                 "question": "問2　下線部「一応、どれも信用する」の意味として、最も適当なるのはどれですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是指示・含义题。题干问的是「問2　下線部「一応、どれも信用する」の意味として、最も適当なるのはどれですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 不味い\n2. 毒があって味がまずい種類の動物は、そのことを強調して示すために、警告色と呼ばれる派手な色をしていることが多い。\n3. また、毒がなくて無害な種が、実際に毒があってまずい種に似せる。\n\n【为什么选4】\n第4项「警告色の動物はすべて毒があると思う。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「どんな色の動物も毒がないと思う。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 2. 「どんな色の動物も毒があると思う。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 3. 「警告色ではない動物も毒があると思う。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n\n【拿分提醒】\n下线部和指示语题要把前后文连起来读，把抽象表达还原成具体内容，再比较选项是否完整。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「警告色の動物はすべて毒があると思う。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：指示・含义题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "指示・含义题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "不味い",
-                    "毒があって味がまずい種類の動物は、そのことを強調して示すために、警告色と呼ばれる派手な色をしていることが多い。",
-                    "また、毒がなくて無害な種が、実際に毒があってまずい種に似せる。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -903,6 +922,21 @@
                 "answer": "1",
                 "correct_answer": 1,
                 "eju_answer_no": 19,
+                "explanation": "【讲解】\n作者主张让顾客在店里停留更久，因为很多人是在店内边看边决定购买，甚至这次不买也可能因感动而带来下次购买。对这种店铺设计最不容易起作用的，是已经决定好只买什么、买完马上走的人，因为他们不靠店内浏览来决定。答案是1。\n\n第2项正是这种店铺设计有效的人。第3项虽然当下没买，但作者说这也没关系，可能连到下次。第4项已经产生兴趣，也正是作者期待的效果。",
+                "explanation_expand": "【补充解析】\n题目问“不太有效”的对象，要反向看作者机制。机制是“停留时间 -> 感动机会 -> 购买或下次购买”。不愿停留的人就最不受影响。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "一般に買い物の決断というのは、消費の現場でなされることが多い。",
+                    "何を買うか、あらかじめ決めている人は少数派で、実際に店に行って、あれこれ見て、手にとってみて、よし、これにしようと決める人が多い。",
+                    "そして売上げは、「客が店にいる時間が長ければ長いほど大きくなる」といわれている。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 19,
                 "options": [
@@ -914,26 +948,27 @@
                 "question": "問1　筆者の考えている店づくりが、あまり効果的でないのはどのような人たちですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「問1　筆者の考えている店づくりが、あまり効果的でないのはどのような人たちですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 一般に買い物の決断というのは、消費の現場でなされることが多い。\n2. 何を買うか、あらかじめ決めている人は少数派で、実際に店に行って、あれこれ見て、手にとってみて、よし、これにしようと決める人が多い。\n3. そして売上げは、「客が店にいる時間が長ければ長いほど大きくなる」といわれている。\n\n【为什么选1】\n第1项「あらかじめ決めているものだけを買ってすぐ帰る人」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 2. 「店で、あれこれ見てから買う人」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「あらかじめ決めているものだけを買ってすぐ帰る人」不一致。\n- 3. 「長居をしても何も買わずに帰る人」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「あらかじめ決めているものだけを買ってすぐ帰る人」不一致。\n- 4. 「「こんな商品があるんだ。面白いな」などと思う人」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「あらかじめ決めているものだけを買ってすぐ帰る人」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「あらかじめ決めているものだけを買ってすぐ帰る人」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "一般に買い物の決断というのは、消費の現場でなされることが多い。",
-                    "何を買うか、あらかじめ決めている人は少数派で、実際に店に行って、あれこれ見て、手にとってみて、よし、これにしようと決める人が多い。",
-                    "そして売上げは、「客が店にいる時間が長ければ長いほど大きくなる」といわれている。"
-                  ]
-                }
+                ]
               },
               {
                 "answer": "4",
                 "correct_answer": 4,
                 "eju_answer_no": 20,
+                "explanation": "【讲解】\n文章的核心观点是，购买决定多在店内发生，顾客停留越久，越容易被商品打动，进而形成这次或下次购买。最后一句也说，让客人能慢慢看、慢慢买的店铺建设很重要。因此答案是4。\n\n第1项只看事先决定购买的顾客，和文章说少数派相反。第2项强调来客数量，不是本文重点。第3项说购买后满意带来复购，文章强调的是购买前在店内被打动。",
+                "explanation_expand": "【补充解析】\n注意“顧客満足度ではなく顧客感動度”。作者不只谈买完以后满意，而是谈逛店过程中产生的感动如何变成未来销售。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "そして売上げは、「客が店にいる時間が長ければ長いほど大きくなる」といわれている。",
+                    "つまり、消費の意思決定はお店でなされることが多く、そのお店になるべく長くいてもらうようにすれば、売上げが伸びる、ということだ。",
+                    "もちろん長居をしても何も買わずに帰る人もいる。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 20,
                 "options": [
@@ -945,21 +980,7 @@
                 "question": "問2　この文章で述べられているのは、どのような考え方ですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「問2　この文章で述べられているのは、どのような考え方ですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. そして売上げは、「客が店にいる時間が長ければ長いほど大きくなる」といわれている。\n2. つまり、消費の意思決定はお店でなされることが多く、そのお店になるべく長くいてもらうようにすれば、売上げが伸びる、ということだ。\n3. もちろん長居をしても何も買わずに帰る人もいる。\n\n【为什么选4】\n第4项「店に長くいて商品に心を動かされた客が、商品を買うことが多い。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「何を買うかをすでに決めている客が多ければ、売上げがあがる。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「店に長くいて商品に心を動かされた客が、商品を買うことが多い。」不一致。\n- 2. 「店に来る客の数が多いほうが、商品を買う客の数も多くなる。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「店に長くいて商品に心を動かされた客が、商品を買うことが多い。」不一致。\n- 3. 「買った商品に満足すれば、客はまたその店で買い物をする。」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「店に長くいて商品に心を動かされた客が、商品を買うことが多い。」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「店に長くいて商品に心を動かされた客が、商品を買うことが多い。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "そして売上げは、「客が店にいる時間が長ければ長いほど大きくなる」といわれている。",
-                    "つまり、消費の意思決定はお店でなされることが多く、そのお店になるべく長くいてもらうようにすれば、売上げが伸びる、ということだ。",
-                    "もちろん長居をしても何も買わずに帰る人もいる。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -976,6 +997,21 @@
                 "answer": "1",
                 "correct_answer": 1,
                 "eju_answer_no": 21,
+                "explanation": "【讲解】\n“これが間違っていると言いたいわけではない”中的“これ”，承接前文“プロだからこそ常に外部からの厳しい評価を受ける必要がある”，也就是对专业人士进行批评和评价这件事。作者不是说批评本身错误，而是说批评前应了解专业人士如何处理问题、有什么困难。因此答案是1。\n\n2“专业人士一定正确”是作者否定的内容。第3项只是说明为什么需要评价，不如第1项概括下线处所指。第4项是后文作者希望我们了解的内容，不是“これ”。",
+                "explanation_expand": "【补充解析】\n指示词题要往前找最近、且能被“間違っている”评价的对象。这里能被说成对或错的是“批评专业人士”这件行为。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "テレビが結果的に誤った報道をしてしまったのは、少しでも早くニュースを伝えたかったからではないか。",
+                    "不正確な情報を流すことはとがめられるとしても、その背景にある思いや願いを無視することは身勝手すぎないか。",
+                    "新聞に大きく取り上げられないのは、その人にとっては大事な記事でも、読者一般に対してはそうでもないということではないか。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "指示・含义题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 21,
                 "options": [
@@ -987,26 +1023,26 @@
                 "question": "問1　下線部(1)「これ」とは何ですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是指示・含义题。题干问的是「問1　下線部(1)「これ」とは何ですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. テレビが結果的に誤った報道をしてしまったのは、少しでも早くニュースを伝えたかったからではないか。\n2. 不正確な情報を流すことはとがめられるとしても、その背景にある思いや願いを無視することは身勝手すぎないか。\n3. 新聞に大きく取り上げられないのは、その人にとっては大事な記事でも、読者一般に対してはそうでもないということではないか。\n\n【为什么选1】\n第1项「プロを批判すること」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 2. 「プロが必ず正しいこと」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 3. 「プロが厳しい評価を受ける必要があること」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 4. 「プロが当該の問題に取り組むこと」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n\n【拿分提醒】\n下线部和指示语题要把前后文连起来读，把抽象表达还原成具体内容，再比较选项是否完整。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「プロを批判すること」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：指示・含义题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "指示・含义题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "テレビが結果的に誤った報道をしてしまったのは、少しでも早くニュースを伝えたかったからではないか。",
-                    "不正確な情報を流すことはとがめられるとしても、その背景にある思いや願いを無視することは身勝手すぎないか。",
-                    "新聞に大きく取り上げられないのは、その人にとっては大事な記事でも、読者一般に対してはそうでもないということではないか。"
-                  ]
-                }
+                ]
               },
               {
                 "answer": "3",
                 "correct_answer": 3,
                 "eju_answer_no": 22,
+                "explanation": "【讲解】\n“从单纯愤怒中解放”指的是，不再只从个人立场或表面现象批评媒体，而是试着理解媒体发信侧的意图、限制和背景。例如错误报道可能是为了尽快传达消息，报道篇幅小也可能和读者整体需求或当天新闻安排有关。因此答案是3。\n\n第1项不是让人相信错误信息。第2项不是按自己方便解释。第4项也不是无视媒体，而是更冷静地理解和评价。",
+                "explanation_expand": "【补充解析】\n作者不是要取消批评，而是提高批评质量。理解对方背景后，批评会更冷静、更现实，而不是停留在“为什么不按我的想法来”的愤怒。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "あるいは当日の他のビッグニュースとの関係ではないか。",
+                    "このように、メディアの発信側の意図に迫ってみることで、（2）単純な怒りからは解放されていくのだ。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "指示・含义题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 22,
                 "options": [
@@ -1018,20 +1054,7 @@
                 "question": "問2　下線部(2)「単純な怒りからは解放されていく」というのは、どういうことですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是指示・含义题。题干问的是「問2　下線部(2)「単純な怒りからは解放されていく」というのは、どういうことですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. あるいは当日の他のビッグニュースとの関係ではないか。\n2. このように、メディアの発信側の意図に迫ってみることで、（2）単純な怒りからは解放されていくのだ。\n\n【为什么选3】\n第3项「個人的、表面的な見方でメディアを批判することがなくなる。」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「メディアの不正確な情報を信用するようになる。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 2. 「メディアの情報を自分の都合に合わせて解釈するようになる。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n- 4. 「メディアの情報を無視するようになる。」只抓住了前后文的一部分，不能完整说明题干表达在文中的具体含义。\n\n【拿分提醒】\n下线部和指示语题要把前后文连起来读，把抽象表达还原成具体内容，再比较选项是否完整。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「個人的、表面的な見方でメディアを批判することがなくなる。」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：指示・含义题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "指示・含义题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "あるいは当日の他のビッグニュースとの関係ではないか。",
-                    "このように、メディアの発信側の意図に迫ってみることで、（2）単純な怒りからは解放されていくのだ。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -1048,6 +1071,21 @@
                 "answer": "2",
                 "correct_answer": 2,
                 "eju_answer_no": 23,
+                "explanation": "【讲解】\nA要填“发现的问题”的例子。文章解释这种问题是慢性化后容易被忽视的问题，改善它可以让状况变好。“工厂不良品发生率高”正是长期存在、需要发现并改善的问题，所以答案是2。\n\n第1、3、4项都是突发事件或马上显现的问题，更接近第一类“発生する問題”。",
+                "explanation_expand": "【补充解析】\n三类问题的区别是：突发麻烦=发生的问题；长期存在但被习惯忽视=发现的问题；为了新成长主动设定=创造的问题。A要符合第二类。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "1つは発生する問題、いわゆるトラブルです。",
+                    "顧客からクレームが発生した、工場のラインが止まった、など突発的に起こる問題です。",
+                    "これらは放置しておくわけにはいかないから、必ず問題として取り上げられ、対処が進められます。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "空所补充题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 23,
                 "options": [
@@ -1059,26 +1097,27 @@
                 "question": "問1　（　A　）に入るものとして最も適当なものはどれですか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是空所补充题。题干问的是「問1　（　A　）に入るものとして最も適当なものはどれですか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. 1つは発生する問題、いわゆるトラブルです。\n2. 顧客からクレームが発生した、工場のラインが止まった、など突発的に起こる問題です。\n3. これらは放置しておくわけにはいかないから、必ず問題として取り上げられ、対処が進められます。\n\n【为什么选2】\n第2项「工場の不良品の発生率が高い」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「お客様の注文内容を間違えた」放入空格后，和前后文的语气或因果衔接不自然。本文需要的是能承接上下文判断方向的表达。\n- 3. 「工場で事故が発生した」放入空格后，和前后文的语气或因果衔接不自然。本文需要的是能承接上下文判断方向的表达。\n- 4. 「急に注文が増えた商品の生産が追いつかない」放入空格后，和前后文的语气或因果衔接不自然。本文需要的是能承接上下文判断方向的表达。\n\n【拿分提醒】\n空所题要先读空格前后的连接关系，尤其注意「つまり」「しかし」「このように」等提示语。正确项必须能让前后文语气和逻辑自然衔接。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「工場の不良品の発生率が高い」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：空所补充题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "空所补充题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "1つは発生する問題、いわゆるトラブルです。",
-                    "顧客からクレームが発生した、工場のラインが止まった、など突発的に起こる問題です。",
-                    "これらは放置しておくわけにはいかないから、必ず問題として取り上げられ、対処が進められます。"
-                  ]
-                }
+                ]
               },
               {
                 "answer": "2",
                 "correct_answer": 2,
                 "eju_answer_no": 24,
+                "explanation": "【讲解】\n作者说“发生的问题”必须处理，但处理后只是恢复现状，属于守的问题；“发现的问题”和“创造的问题”能改变现状，属于攻的问题。企业真正必须重视的是攻的问题。因此重要度关系应是：发生的问题 < 发现的问题 = 创造的问题，答案是2。\n\n第1项没有体现守与攻的差别。第3、4项把守的问题放得更重要，和“守りの問題を解決することに徹していても、そこには成長はありません”相反。",
+                "explanation_expand": "【补充解析】\n这里的“重要”不是说发生的问题可以不处理，而是从企业成长角度看，攻的问题更关键。EJU经常考这种“必须处理”和“真正带来成长”的区别。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "…（略）…",
+                    "2つ目の「発見する問題」と3つ目の「創る問題」は、取り組むことで現状を変えることができます。",
+                    "つまり攻めの問題といえます。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "内容理解题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 24,
                 "options": [
@@ -1090,26 +1129,27 @@
                 "question": "問2　「発生する問題」「発見する問題」「創る問題」の重要度を適切に示しているのは、どれですか。（A＜B：AよりBのほうが重要、A＝B：AとBの重要度は同じ）",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是内容理解题。题干问的是「問2　「発生する問題」「発見する問題」「創る問題」の重要度を適切に示しているのは、どれですか。（A＜B：AよりBのほうが重要、A＝B：AとBの重要度は同じ）」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. …（略）…\n2. 2つ目の「発見する問題」と3つ目の「創る問題」は、取り組むことで現状を変えることができます。\n3. つまり攻めの問題といえます。\n\n【为什么选2】\n第2项「発生する問題＜発見する問題＝創る問題」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 1. 「発生する問題＝発見する問題＝創る問題」与原文在对象、范围、程度或因果上有偏差，不能像「発生する問題＜発見する問題＝創る問題」那样稳定对应定位句。\n- 3. 「発生する問題＞発見する問題＝創る問題」与原文在对象、范围、程度或因果上有偏差，不能像「発生する問題＜発見する問題＝創る問題」那样稳定对应定位句。\n- 4. 「発生する問題＞発見する問題＞創る問題」与原文在对象、范围、程度或因果上有偏差，不能像「発生する問題＜発見する問題＝創る問題」那样稳定对应定位句。\n\n【拿分提醒】\n内容理解题不要只看关键词重合，要确认选项是否保留了原文的对象、动作和判断方向。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「発生する問題＜発見する問題＝創る問題」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：内容理解题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "内容理解题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "…（略）…",
-                    "2つ目の「発見する問題」と3つ目の「創る問題」は、取り組むことで現状を変えることができます。",
-                    "つまり攻めの問題といえます。"
-                  ]
-                }
+                ]
               },
               {
                 "answer": "1",
                 "correct_answer": 1,
                 "eju_answer_no": 25,
+                "explanation": "【讲解】\n文章最后总结，今后需要的是能开拓未来的人才：不只是维持现有事业框架，而是思考现在该做什么、打破现状、不断创造新可能性。也就是能挑战攻的问题、改革现状的人才。答案是1。\n\n第2项的合作、第3项的一般问题分析文中没有作为最终要求。第4项强调维持现状，正好与“現状を打破し”相反。",
+                "explanation_expand": "【补充解析】\n最后一段通常是主旨收束。本题要把“攻めの問題”“現状を打破”“新しい可能性”连起来看，答案1最完整。",
+                "explanation_source": {
+                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
+                  "evidence_sentences": [
+                    "…（略）…",
+                    "2つ目の「発見する問題」と3つ目の「創る問題」は、取り組むことで現状を変えることができます。",
+                    "つまり攻めの問題といえます。"
+                  ],
+                  "generated_by": "codex_eju_reading_explanation_human_teacher_review_v1",
+                  "prompt_type": "作者观点题",
+                  "review_pass": "2010_01 reading explanations rewritten question by question from source text",
+                  "style_reference": "human teacher style: passage logic, concrete location, answer reasoning, specific distractor analysis",
+                  "step5_option_wording": "Expanded compact reading distractor labels into publication-style option references."
+                },
                 "has_ans": true,
                 "id": 25,
                 "options": [
@@ -1121,21 +1161,7 @@
                 "question": "問3　筆者は、これからの人材に求められることは何だと述べていますか。",
                 "skill_tags": [
                   "reading.comprehension"
-                ],
-                "explanation": "【题目解析】\n这题是作者观点题。题干问的是「問3　筆者は、これからの人材に求められることは何だと述べていますか。」。先根据题干确定要找的是含义、原因、作者判断还是内容一致，再回到原文定位，不要只凭选项里的关键词作答。\n\n【原文定位】\n1. …（略）…\n2. 2つ目の「発見する問題」と3つ目の「創る問題」は、取り組むことで現状を変えることができます。\n3. つまり攻めの問題といえます。\n\n【为什么选1】\n第1项「攻めの問題に取り組み、現状を改革する力」与定位句的核心信息一致。它保留了原文中的对象、判断方向和逻辑关系，没有把局部例子扩大成全文结论，也没有改换原因和结果，所以是最稳妥的答案。\n\n【误选项为什么不对】\n- 2. 「問題解決のために、人と協力して取り組む力」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「攻めの問題に取り組み、現状を改革する力」不一致。\n- 3. 「直面した問題を分析し、解決法を見つける力」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「攻めの問題に取り組み、現状を改革する力」不一致。\n- 4. 「小さい問題も見過ごさずに対応し、現状を維持する力」容易把局部例子或被作者提到的他人意见当成结论，和作者最终强调的「攻めの問題に取り組み、現状を改革する力」不一致。\n\n【拿分提醒】\n作者观点题要区分“文中出现过的例子”和“作者最终认可的判断”。尤其要看转折后、结尾处和评价性表达。",
-                "explanation_expand": "【补充解析】\n本题的关键不是寻找单个相同词，而是确认选项是否准确改写了原文。正确项「攻めの問題に取り組み、現状を改革する力」和定位句之间属于意义对应：表达可能不同，但对象、动作、原因和态度保持一致。\n\n【解题步骤】\n1. 先判断题型：作者观点题。\n2. 用题干关键词回到原文，不跨段随意找答案。\n3. 把正确项拆成“对象、动作、判断、原因/结果”几个部分。\n4. 逐项排除对象替换、范围扩大、因果倒置和把例子当结论的选项。\n\n【自学者复盘】\n建议把定位句和正确项并排写下来，标出相同信息；再把误项的错误点写成一句话。这样复盘比只记答案更有效，也能减少下次被相似表达干扰。",
-                "explanation_source": {
-                  "generated_by": "codex_eju_reading_explanation_v4_editorial_review",
-                  "style_reference": "JLPT reading explanation format",
-                  "prompt_type": "作者观点题",
-                  "review_pass": "Japanese comprehension check + Chinese editorial polish (systematic pass)",
-                  "evidence_method": "selected by overlap with the correct option and surrounding context, then rewritten with conservative wording",
-                  "evidence_sentences": [
-                    "…（略）…",
-                    "2つ目の「発見する問題」と3つ目の「創る問題」は、取り組むことで現状を変えることができます。",
-                    "つまり攻めの問題といえます。"
-                  ]
-                }
+                ]
               }
             ],
             "topic": "読解問題"
@@ -1166,6 +1192,14 @@
                 "correct_answer": 4,
                 "eju_answer_no": 1,
                 "eju_question_no": 1,
+                "explanation": "【题目解析】\n这题问男学生要试哪一种改善失眠的方法。材料列出四条睡眠建议，对话中女学生逐条帮他判断，最后落在“睡不着时先离开被窝做点别的事”。\n\n【为什么选4】\n选4是因为男学生的问题不是在床上读书、起床时间不固定，也不是太饿或太饱，而是进被窝后一直想着要睡，反而睡不着。女学生建议他不要勉强睡，可以起来轻微活动或喝点东西换换心情，这正对应第4条：20分钟还睡不着就先离开被窝转换心情。\n\n【误选项为什么错】\n1说床只用于睡觉，男学生已经说被窝是睡前才铺、只用来睡觉；2说睡前不要太饿或太饱，对话中也排除了；3说每天固定时间起床，他周末也6点起床跑步，已经做到。\n\n【拿分提醒】\n建议类题目要听“已满足的建议”和“最后要尝试的建议”。不能看到材料里有熟悉的健康建议就直接选。",
+                "explanation_expand": "【补充解析】\n这题的解题线是逐项排除：床的使用没问题、起床时间没问题、饥饿问题也不是原因；剩下的是“睡不着还躺着硬睡”，所以试第4条。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 26,
                 "options": [
@@ -1256,7 +1290,7 @@
                     "end": "00:54.90",
                     "speaker": "男子学生",
                     "start": "00:49.14",
-                    "text": "男子学生：腹は減ってではいないけど、とにかく、布団に入ってから寝付くまでの時間が辛くて ……。"
+                    "text": "男子学生：腹は減ってはいないけど、とにかく、布団に入ってから寝付くまでの時間が辛くて ……。"
                   },
                   {
                     "end": "00:58.90",
@@ -1312,6 +1346,14 @@
                 "correct_answer": 3,
                 "eju_answer_no": 2,
                 "eju_question_no": 2,
+                "explanation": "【题目解析】\n这题问老师最后举的アニマル・セラピー例子属于表中哪一类。表的两个判断轴是地点在设施还是自宅，动物是访问带去还是在当地饲养。\n\n【为什么选3】\n选3是因为例子是老人福祉设施为了治疗，在设施场地内养了两只狗。地点是设施，不是患者自宅；方式是饲养，不是带动物去访问。因此对应“施設 × 飼育”的第3格。\n\n【误选项为什么错】\n1是设施内访问，适合把动物带到设施探访的情况；2是到自宅访问；4是患者自宅饲养。例子明确说“老人福祉施設の敷地内で飼っています”，所以不能选其他格。\n\n【拿分提醒】\n二维表题要分别判断两个轴。只听到老人设施还不够，还要听动物是访问还是饲养。",
+                "explanation_expand": "【补充解析】\n本题可直接做成坐标：場所=施設，活動=飼育。两个坐标交叉处就是3。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 27,
                 "options": [
@@ -1381,6 +1423,14 @@
                 "correct_answer": 3,
                 "eju_answer_no": 3,
                 "eju_question_no": 3,
+                "explanation": "【题目解析】\n这题问フライドポテト在调理法四面体图中的位置。图把火作为热源，把油、水、空气作为传热介质；一道菜用到哪些介质，就落在哪些点或面之间。\n\n【为什么选3】\n选3是因为フライドポテト先把土豆煮熟，煮的时候用水传热；之后再用油炸，炸的时候用油传热。因此它使用水和油两种介质，并且都受到火加热，位置应在火、水、油构成的面上，对应图中3。\n\n【误选项为什么错】\n1更靠近火和油的组合，缺少“水”；2在背面或接近空气相关的位置，不符合煮和炸；4落在火和水线上，更像只用水加热。题目中的“ゆでてから揚げる”必须同时反映出来。\n\n【拿分提醒】\n调理法图不要只根据菜名“油炸土豆”选油。音频特意说先煮再炸，说明要包含水和油。",
+                "explanation_expand": "【补充解析】\n做这类图形题，先把动作转成介质：ゆでる=水，焼く=空气，揚げる=油。本题是水+油，所以找水、油、火之间的区域。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 28,
                 "options": [
@@ -1429,7 +1479,7 @@
                   {
                     "end": "00:54.58",
                     "start": "00:48.94",
-                    "text": "また、エビのスフレという料理は、エビをゆでてからオォオープンで焼きます。"
+                    "text": "また、エビのスフレという料理は、エビをゆでてからオーブンで焼きます。"
                   },
                   {
                     "end": "01:06.88",
@@ -1475,6 +1525,14 @@
                 "correct_answer": 1,
                 "eju_answer_no": 4,
                 "eju_question_no": 4,
+                "explanation": "【题目解析】\n这题问女留学生想尝试交流会中的哪个係。她不想做最后的演讲，讨论记录如果要写报告也没信心，讨论领导也觉得更难。\n\n【为什么选1】\n选1是因为男学生最后建议她做案内係，也就是校园见学时的学内案内。这个工作可以事先准备，还能自由介绍学校里自己喜欢的地方，女留学生说会考虑试试。资料中1对应学内案内。\n\n【误选项为什么错】\n2グループリーダー她觉得更难；3记录係如果只是录音还可以，但后面可能要整理报告，她没信心；4各校代表スピーチ一开始就被她婉拒。\n\n【拿分提醒】\n对话题要看人物态度变化。她问过记录係，但不代表选择记录係，真正接受的是后面的案内係。",
+                "explanation_expand": "【补充解析】\n当选项都是职责时，可以把每个职责旁写上态度：スピーチ×、記録△后转×、リーダー×、案内○。答案就很清楚。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 29,
                 "options": [
@@ -1511,7 +1569,7 @@
                     "end": "00:24.42",
                     "speaker": "男子学生",
                     "start": "00:21.86",
-                    "text": "男子学生：キャンパバス見学もディスカッションも人手が足りないんだ。"
+                    "text": "男子学生：キャンパス見学もディスカッションも人手が足りないんだ。"
                   },
                   {
                     "end": "00:26.38",
@@ -1633,6 +1691,14 @@
                 "correct_answer": 4,
                 "eju_answer_no": 5,
                 "eju_question_no": 5,
+                "explanation": "【题目解析】\n这题问数千年后森林限界部分会变成哪张图。老师说明现在较高处是岩石多、针叶树不适合，生长的是ハイマツ；将来土壤形成后，针叶树会上移。\n\n【为什么选4】\n选4是因为老师说数千年后岩场也会逐渐形成土壤，针叶树能在那里生长，森林限界会上升；ハイマツ则会作为低木生长在针叶树林中。图4正表现出针叶树向上扩展，矮小的ハイマツ混在针叶树林下层。\n\n【误选项为什么错】\n1像是ハイマツ退到更低处，和“针叶树上移、ハイマツ在林中低木化”不合；2只有针叶树林，看不到ハイマツ；3几乎只剩ハイマツ，和针叶树能生长相反。\n\n【拿分提醒】\n自然变化题要听“现在的原因”和“将来的条件变化”。本题不是气候改变，而是岩场逐渐形成土壤。",
+                "explanation_expand": "【补充解析】\n关键句是“針葉樹が育ち、森林限界もあがる”“ハイマツは針葉樹林の中に低木として生育”。这两点必须同时出现在图里。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 30,
                 "options": [
@@ -1661,7 +1727,7 @@
                   {
                     "end": "00:39.32",
                     "start": "00:26.32",
-                    "text": "森林限界というのは、それより高いところには森林は見られないという森林の上限ですが、この山の森林限界は、山の気候の条件から考えられる高きより、300 メートルも低いのです。"
+                    "text": "森林限界というのは、それより高いところには森林は見られないという森林の上限ですが、この山の森林限界は、山の気候の条件から考えられる高さより、300 メートルも低いのです。"
                   },
                   {
                     "end": "00:44.68",
@@ -1671,7 +1737,7 @@
                   {
                     "end": "00:57.74",
                     "start": "00:47.10",
-                    "text": "森林限界付近に育つ木は針葉樹なのですが、これより高いところの地質は岩がゴロゴロしていて、針葉樹の生育に適さをないのです。"
+                    "text": "森林限界付近に育つ木は針葉樹なのですが、これより高いところの地質は岩がゴロゴロしていて、針葉樹の生育に適さないのです。"
                   },
                   {
                     "end": "01:06.32",
@@ -1681,7 +1747,7 @@
                   {
                     "end": "01:20.80",
                     "start": "01:07.74",
-                    "text": "この山の岩は氷河の作用によってできたと考えられますが、あと数千年もすれば、ここにも徐々に土壌が形成され、針茎樹が育ち、森林限界もあがるでしょう。"
+                    "text": "この山の岩は氷河の作用によってできたと考えられますが、あと数千年もすれば、ここにも徐々に土壌が形成され、針葉樹が育ち、森林限界もあがるでしょう。"
                   },
                   {
                     "end": "01:28.48",
@@ -1712,6 +1778,14 @@
                 "correct_answer": 3,
                 "eju_answer_no": 6,
                 "eju_question_no": 6,
+                "explanation": "【题目解析】\n这题问老师接下来要详讲教科书哪一部分。老师先回顾方言是和地域相关的语言变种，然后转到同一方言内部，老人和年轻人的用法也会不同。\n\n【为什么选3】\n选3是因为老师说年轻一代受マスコミ和共通语影响，会把共通语引入方言，形成新的语言变种；今天要看这种实际情况。目录中3对应“新しく生まれる方言”。\n\n【误选项为什么错】\n1是语言行为中的场面切换，不是本段中心；2是语言接触中的多语言并用；4是语言意识中的规范。老师讲的是方言变化中新变种的产生。\n\n【拿分提醒】\n目录定位题要听老师从旧知识转到新内容的位置。“先週説明した通り”后面才是今天要讲的主题。",
+                "explanation_expand": "【补充解析】\n这里不是单纯讲地域差，也不是年龄差本身，而是年龄差和共通语影响带来的新方言，所以定位到“新しく生まれる方言”。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 31,
                 "options": [
@@ -1745,7 +1819,7 @@
                   {
                     "end": "00:44.24",
                     "start": "00:34.98",
-                    "text": "きて、実はこの方言の中でも、お年寄りの使う変種と若者の使う変種との問に違いが見られる場合があります。"
+                    "text": "さて、実はこの方言の中でも、お年寄りの使う変種と若者の使う変種との間に違いが見られる場合があります。"
                   },
                   {
                     "end": "00:47.84",
@@ -1786,6 +1860,14 @@
                 "correct_answer": 2,
                 "eju_answer_no": 7,
                 "eju_question_no": 7,
+                "explanation": "【题目解析】\n这题问男学生要从哪里把图表项目分成两类。分类标准是“想结婚但做不到的理由”和“出于自己意愿不结婚的理由”。\n\n【为什么选2】\n选2是因为男学生把“いい相手がいない”归为想结婚但做不到的理由，把“自由や気楽さを失いたくない”“趣味や娯楽を楽しみたい”“仕事に打ち込みたい”等归为自己选择不结婚的理由。图中第2条分界线正好把“適当な相手にめぐり会わない”以上和“自由や気楽さを失いたくない”以下分开。\n\n【误选项为什么错】\n1会把“適当な相手にめぐり会わない”也放到下方，和男学生判断相反；3、4分得太靠下，会把明显属于自己意愿的项目混进上方。\n\n【拿分提醒】\n图表分组题要抓分类原则，不要只看柱子长短。",
+                "explanation_expand": "【补充解析】\n日语里“したい”“したくない”通常直接表达个人意愿。本题男学生也用这个线索判断，因此分界要放在“自由や気楽さを失いたくない”之前。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 32,
                 "options": [
@@ -1894,7 +1976,7 @@
                     "end": "01:07.90",
                     "speaker": "男子学生",
                     "start": "01:06.64",
-                    "text": "男子学生：「できない理山」 の方じゃない?"
+                    "text": "男子学生：「できない理由」 の方じゃない?"
                   },
                   {
                     "end": "01:08.74",
@@ -1932,13 +2014,21 @@
                 "correct_answer": 1,
                 "eju_answer_no": 8,
                 "eju_question_no": 8,
+                "explanation": "【题目解析】\n这题问图中的线B表示什么。上图是降雨时间变化，下图两条线分别表示岩山和森林斜面的雨水流出量。\n\n【为什么选1】\n选1是因为老师说岩山在雨一开始时流出量马上增加，雨停后又急速减少。图中B线随着降雨迅速升高、之后快速下降，变化尖锐，表示岩山斜面雨水急剧流出。\n\n【误选项为什么错】\n2说岩山缓慢流出，不符合B线的陡升陡降；3把急剧流出归给森林，和老师说明相反；4是森林的特点，更接近A线那种缓慢上升、缓慢释放。\n\n【拿分提醒】\n双线图题要先用老师描述的形状对线。岩山=反应快，森林=反应慢、蓄水后慢慢放。",
+                "explanation_expand": "【补充解析】\n森林有枝叶和土壤蓄水，所以流出曲线更平缓；岩面蓄不住水，所以B线呈现快速变化。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 33,
                 "options": [
-                  "1",
-                  "2",
-                  "3",
-                  "4"
+                  "1. 岩山の斜面では、雨水が急激に流出すること",
+                  "2. 岩山の斜面では、雨水がゆっくり流出すること",
+                  "3. 森林の斜面では、雨水が急激に流出すること",
+                  "4. 森林の斜面では、雨水がゆっくり流出すること"
                 ],
                 "question": "先生が、雨水の流出量について話しています。線Bはどういうことを表していますか。",
                 "script": [
@@ -1960,22 +2050,22 @@
                   {
                     "end": "00:31.80",
                     "start": "00:23.54",
-                    "text": "では、. 山の和斜面に雨が降ったときの流出景を、斜面が森林の場合と岩の場合とで比較してみましょう。"
+                    "text": "では、山の斜面に雨が降ったときの流出量を、斜面が森林の場合と岩の場合とで比較してみましょう。"
                   },
                   {
                     "end": "00:44.94",
                     "start": "00:32.74",
-                    "text": "プリントの上のグラフは降雨時を表し、下のグラフの2 本の折れ線はそれぞれ、斜面が岩の場合と森林の場合の流出其を表しています。"
+                    "text": "プリントの上のグラフは降雨時を表し、下のグラフの2 本の折れ線はそれぞれ、斜面が岩の場合と森林の場合の流出量を表しています。"
                   },
                   {
                     "end": "00:56.36",
                     "start": "00:46.86",
-                    "text": "涯山では、雨が降り始めるとすぐに流出量が増え雨がやむと流出是も急速に減ることがグラフからもわかります。"
+                    "text": "岩山では、雨が降り始めるとすぐに流出量が増え雨がやむと流出量も急速に減ることがグラフからもわかります。"
                   },
                   {
                     "end": "01:08.06",
                     "start": "00:57.90",
-                    "text": "一方、森林では雨が降り始めると徐々に流出量が増え、用がやんでからも少しずつ水を放出しています。"
+                    "text": "一方、森林では雨が降り始めると徐々に流出量が増え、雨がやんでからも少しずつ水を放出しています。"
                   },
                   {
                     "end": "01:21.56",
@@ -1985,7 +2075,7 @@
                   {
                     "end": "01:30.46",
                     "start": "01:22.86",
-                    "text": "森林は由水をゆっくりと川に流出きせ、川の水が急激に増えるのを防ぐというわけです。"
+                    "text": "森林は雨水をゆっくりと川に流出させ、川の水が急激に増えるのを防ぐというわけです。"
                   }
                 ],
                 "script_layout_image": "/data/image/eju/2010_01/transcript_q08.jpg",
@@ -2011,13 +2101,21 @@
                 "correct_answer": 2,
                 "eju_answer_no": 9,
                 "eju_question_no": 9,
+                "explanation": "【题目解析】\n这题问资料中四只雌性子猴的优劣顺序。老师给出两条规则：A家系整体高于B家系；同一母亲的孩子中，年龄越小順位越高。\n\n【为什么选2】\n选2是因为家系规则先决定A家的所有雌性都在B家之上，所以a1、a2都排在b1、b2前。再看同一家系内部，妹妹比姐姐順位高，因此A家是a2高于a1，B家是b2高于b1。合起来就是a2 → a1 → b2 → b1。\n\n【误选项为什么错】\n1把同一家系内姐姐排在妹妹前，违反第二条规则；3、4把B家排在A家前，违反第一条规则。\n\n【拿分提醒】\n顺序题要按规则优先级处理。先排家系，再排同一家系内部，不能混着比较。",
+                "explanation_expand": "【补充解析】\n这题最好写两层括号：A家全部 > B家全部；每家内部妹妹 > 姐姐。展开后就是选项2。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 34,
                 "options": [
-                  "1",
-                  "2",
-                  "3",
-                  "4"
+                  "1. a1 → a2 → b1 → b2",
+                  "2. a2 → a1 → b2 → b1",
+                  "3. b1 → b2 → a1 → a2",
+                  "4. b2 → b1 → a2 → a1"
                 ],
                 "question": "先生が動物学の講義で、ニホンザルの、群れの中の優劣について説明しています。この先生の説明によると、資料のそれぞれの子どもの順位はどうなりますか。",
                 "script": [
@@ -2054,7 +2152,7 @@
                   {
                     "end": "00:51.38",
                     "start": "00:43.98",
-                    "text": "ーつ目の法則は、家系、つまり、血縁関係のあるグループの間に優劣があることです。"
+                    "text": "一つ目の法則は、家系、つまり、血縁関係のあるグループの間に優劣があることです。"
                   },
                   {
                     "end": "00:59.80",
@@ -2105,6 +2203,14 @@
                 "correct_answer": 1,
                 "eju_answer_no": 10,
                 "eju_question_no": 10,
+                "explanation": "【题目解析】\n这题问某自治体水环境改善计划中哪一阶段做得不充分。计划执行时，设置水鸟栖息空间遭到周边居民反对，回顾后发现事前没有充分听取居民意见。\n\n【为什么选1】\n选1是因为图中第1阶段“基礎調査”包含水质、水量、周边环境调查，以及从专家和関係者那里收集信息。周边居民正是相关者，提前听取他们意见属于基础调查阶段。\n\n【误选项为什么错】\n2是改善方针的检讨，3是目标水环境的检讨，4是达成目标所需对策的检讨。居民意见没有先收集，问题发生在最初的信息收集，而不是后面的目标或对策讨论。\n\n【拿分提醒】\n流程图题要看问题本质发生在哪一步。本题不是目标错了，而是事前调查和意见收集不充分。",
+                "explanation_expand": "【补充解析】\n“前もって十分に聞いておかなかった”对应图中“関係者からの情報収集”。这句话一出现，就应回到第1阶段。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 35,
                 "options": [
@@ -2153,7 +2259,7 @@
                   {
                     "end": "01:04.68",
                     "start": "00:53.68",
-                    "text": "市内を流れる川の汚れがひどくなったので、この自治体は、図の流れに治って川の水質改善計画書を作成し、その計画を実行することにしました。"
+                    "text": "市内を流れる川の汚れがひどくなったので、この自治体は、図の流れに沿って川の水質改善計画書を作成し、その計画を実行することにしました。"
                   },
                   {
                     "end": "01:09.90",
@@ -2163,7 +2269,7 @@
                   {
                     "end": "01:17.94",
                     "start": "01:11.22",
-                    "text": "川辺に水鳥が生息できる空間を作ろうとした際、そこの周辺住民に反対きれたのです。"
+                    "text": "川辺に水鳥が生息できる空間を作ろうとした際、そこの周辺住民に反対されたのです。"
                   },
                   {
                     "end": "01:25.12",
@@ -2199,6 +2305,14 @@
                 "correct_answer": 1,
                 "eju_answer_no": 11,
                 "eju_question_no": 11,
+                "explanation": "【题目解析】\n这题问互联网普及后出现的新型人际关系在图中哪里。图的纵轴是亲密或疏远，横轴是脸是否见惯。\n\n【为什么选1】\n选1是因为互联网中可能和从未见过脸的人建立亲密关系。这种关系是“見慣れない”但“親密な関係”，位于左上象限，也就是1。\n\n【误选项为什么错】\n2是见惯且亲密，像传统熟人朋友；3是没见惯且疏远；4是见惯但疏远，老师已经用通勤电车乘客作为例子说明过。互联网例子不是4，而是另一个新关系。\n\n【拿分提醒】\n象限题先把两个轴翻译成判断句：见过脸吗？没见过。亲密吗？可以亲密。两个判断交叉就是答案。",
+                "explanation_expand": "【补充解析】\n老师先举通勤电车是“见惯但不亲密”的现代关系；接着举互联网，是“没见惯但亲密”的关系。两个例子正好相反，不要混淆。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 36,
                 "options": [
@@ -2237,7 +2351,7 @@
                   {
                     "end": "01:03.48",
                     "start": "00:51.44",
-                    "text": "しかし、都市化が進み、毎朝、同じ通勤電車で出会う乗客同士のように、顔は知っていてゃ親しくはない、といった人間関係が生じました。"
+                    "text": "しかし、都市化が進み、毎朝、同じ通勤電車で出会う乗客同士のように、顔は知っていても親しくはない、といった人間関係が生じました。"
                   },
                   {
                     "end": "01:07.46",
@@ -2252,7 +2366,7 @@
                   {
                     "end": "01:22.32",
                     "start": "01:11.92",
-                    "text": "インターネット上では、顔を見たこともない人とのコミュユニケーションが可能で、そこで、親しい人間関係が作られることも決して珍しくありません。"
+                    "text": "インターネット上では、顔を見たこともない人とのコミュニケーションが可能で、そこで、親しい人間関係が作られることも決して珍しくありません。"
                   },
                   {
                     "end": "01:30.68",
@@ -2283,6 +2397,14 @@
                 "correct_answer": 2,
                 "eju_answer_no": 12,
                 "eju_question_no": 12,
+                "explanation": "【题目解析】\n这题问非常口图标中“手伸到墙外”的设计工夫属于哪一项。老师先定义四项：视认性、理解度、记忆度、调和性。\n\n【为什么选2】\n选2是因为手的位置让人一看就明白“可以从这里出去”。这是让初次看到的人也能直观理解图标传达的信息，属于理解度。\n\n【误选项为什么错】\n1视认性重在看得清；3记忆度重在简单、容易记住；4调和性重在不让人产生不快感。手的位置不是为了单纯醒目、好记或舒服，而是为了准确传达“出口”。\n\n【拿分提醒】\n术语定义题要用老师刚给出的定义套例子。不要凭中文直觉把“清楚”误当成视认性。",
+                "explanation_expand": "【补充解析】\n本题关键词是“的確に伝わる”。传达内容能否被理解，正是理解度。",
+                "explanation_source": {
+                  "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+                  "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+                  "generated_at": "2026-05-28T00:00:00+08:00",
+                  "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+                },
                 "has_ans": true,
                 "id": 37,
                 "options": [
@@ -2326,7 +2448,7 @@
                   {
                     "end": "00:53.74",
                     "start": "00:39.82",
-                    "text": "次に、初めて見た人でも、絵が伝えている情報を直感的に理解できる 「理解度」、それから、「記憶度」 といって、一度見たら忘れないようなシンブルさきさも重視されます。"
+                    "text": "次に、初めて見た人でも、絵が伝えている情報を直感的に理解できる 「理解度」、それから、「記憶度」 といって、一度見たら忘れないようなシンプルさも重視されます。"
                   },
                   {
                     "end": "00:59.88",
@@ -2387,6 +2509,14 @@
             "correct_answer": 1,
             "eju_answer_no": 13,
             "eju_question_no": 13,
+            "explanation": "【题目解析】\n这题问女学生建议男学生做什么。男学生因为还没计划好而提不起劲，女学生则建议他先坐到桌前、翻笔记、写出疑问点，总之先行动起来。\n\n【为什么选1】\n选1是因为女学生的核心建议是：即使没有心情，也先实际动起来，心情会跟着行动产生。她用心理学课学到的内容来支持这个建议，最后男学生决定去图书馆。\n\n【误选项为什么错】\n2制定计划是男学生拿来拖延的理由，不是女学生最终建议；3上心理学课只是她引用的知识来源；4赶上截止日期是背景压力，不是具体建议。\n\n【拿分提醒】\n建议题要区分“理由”和“行动”。女学生不是让他先想好全部计划，而是让他通过行动进入状态。",
+            "explanation_expand": "【补充解析】\n这类题常考行为启动：やる気が出ないからやらない，而是先做一点，やる気才会出来。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 38,
             "options": [
@@ -2435,7 +2565,7 @@
                 "end": "00:25.08",
                 "speaker": "男子学生",
                 "start": "00:23.42",
-                "text": "男子学生：僕は何だかやる気が出なくてき。"
+                "text": "男子学生：僕は何だかやる気が出なくて。"
               },
               {
                 "end": "00:27.72",
@@ -2535,6 +2665,14 @@
             "correct_answer": 2,
             "eju_answer_no": 14,
             "eju_question_no": 14,
+            "explanation": "【题目解析】\n这题问老师对睡眠的看法。老师否定了每天固定睡同样时长、必须睡8小时这类观念，强调人对睡眠有适应能力。\n\n【为什么选2】\n选2是因为老师说没有必要神经质地规定睡眠时间长短，8小时只是很多人睡这么久，并不是理想或必须。年轻人还能用深睡眠的质量弥补时间不足。\n\n【误选项为什么错】\n1把8小时当理想，正好被老师否定；3固定时间段睡觉不是老师主张；4适应社会习惯也不是答案，老师只是说固定睡眠是一部分社会中的生活方式。\n\n【拿分提醒】\n听观点题要注意老师否定常识的位置。大家常听说“8小时睡眠”，但本题老师说它没有充分根据。",
+            "explanation_expand": "【补充解析】\n答案不是鼓励熬夜，而是说不必把睡眠时长绝对化。题目问的是老师的论点，不能拿一般健康常识代替音频内容。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 39,
             "options": [
@@ -2578,7 +2716,7 @@
               {
                 "end": "01:05.04",
                 "start": "00:56.00",
-                "text": "特に若い人は熟議しやすいですから、. 時間的不足を深い眠り、つまり、質で補うことができます。"
+                "text": "特に若い人は熟睡しやすいですから、時間的不足を深い眠り、つまり、質で補うことができます。"
               },
               {
                 "end": "01:10.92",
@@ -2617,6 +2755,14 @@
             "correct_answer": 4,
             "eju_answer_no": 15,
             "eju_question_no": 15,
+            "explanation": "【题目解析】\n这题问老师认为真正“わかる”需要什么。老师用新相机举例，说读说明书可能让人觉得懂了，但不一定马上会用。\n\n【为什么选4】\n选4是因为老师强调要实际操作、实际拍照，碰到实物去试，才能真正掌握。仅靠头脑理解不能算真正明白。\n\n【误选项为什么错】\n1读说明书只是可能产生“懂了”的感觉；2问别人没有被老师作为关键；3理解机器结构也仍偏向头脑理解。老师强调的是实际做。\n\n【拿分提醒】\n抽象概念题要抓例子最后归纳。相机例子不是问相机，而是说明“懂”必须落实到能操作。",
+            "explanation_expand": "【补充解析】\n自学时也可以套用这题：会解释不等于会使用。真正理解往往需要亲自试错。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 40,
             "options": [
@@ -2665,7 +2811,7 @@
               {
                 "end": "00:47.48",
                 "start": "00:38.00",
-                "text": "新しいカメラを使いこなそうと思ったら、説明書を読むより、いろいろな揉作を試しながら、実際に撮ってみることが一番です。"
+                "text": "新しいカメラを使いこなそうと思ったら、説明書を読むより、いろいろな操作を試しながら、実際に撮ってみることが一番です。"
               },
               {
                 "end": "00:52.88",
@@ -2695,7 +2841,7 @@
               {
                 "end": "01:17.56",
                 "start": "01:14.58",
-                "text": "2. 人に関いてみること"
+                "text": "2. 人に聞いてみること"
               },
               {
                 "end": "01:24.12",
@@ -2719,6 +2865,14 @@
             "correct_answer": 4,
             "eju_answer_no": 16,
             "eju_question_no": 16,
+            "explanation": "【题目解析】\n这题问女学生现在最辛苦的事。一开始男学生提到一个人住的自由、早起、生病、家务等，但女学生把这些都降为一般困难，最后说当前最难的是拒绝上门推销。\n\n【为什么选4】\n选4是因为她说现在最头疼的是各种人来推销，而且很缠人，一旦稍微听他们说，就会继续劝。她需要有勇气明确说不需要。\n\n【误选项为什么错】\n1早上没人叫醒只是前面顺带提到；2生病孤单是男学生推测；3做饭、打扫、洗衣她说这些谁都要自己做，不是最辛苦。\n\n【拿分提醒】\n对话题要听“それよりも今は”。这个表达会把前面的候选全部推开，后面才是答案。",
+            "explanation_expand": "【补充解析】\n本题不是问一人暮らし一般有什么难，而是问她“现在最”觉得难的事，因此选访问販売。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 41,
             "options": [
@@ -2755,7 +2909,7 @@
                 "end": "00:20.62",
                 "speaker": "男子学生",
                 "start": "00:19.76",
-                "text": "男子学生：うらやましいよょ。"
+                "text": "男子学生：うらやましいよ。"
               },
               {
                 "end": "00:25.08",
@@ -2821,13 +2975,13 @@
                 "end": "00:50.50",
                 "speaker": "女子学生",
                 "start": "00:47.18",
-                "text": "女子学生：少しでも話を聞いてしまったら、いろいろ言ってできて。"
+                "text": "女子学生：少しでも話を聞いてしまったら、いろいろ言ってきて。"
               },
               {
                 "end": "00:54.66",
                 "speaker": "女子学生",
                 "start": "00:51.32",
-                "text": "女子学生：だから、要らないものは要らないって、男気を持って言わないとね。"
+                "text": "女子学生：だから、要らないものは要らないって、勇気を持って言わないとね。"
               },
               {
                 "end": "01:01.00",
@@ -2867,6 +3021,14 @@
             "correct_answer": 2,
             "eju_answer_no": 17,
             "eju_question_no": 17,
+            "explanation": "【题目解析】\n这题问发芽实验说明了什么。实验比较三种种子：鸟吃后排出的无果肉种子、带果肉种子、人工去掉果肉的种子。\n\n【为什么选2】\n选2是因为结果显示，带果肉的种子几乎不发芽，而两种没有果肉的种子都容易发芽。由此可知，关键不是是否被鸟吃过，而是果肉被去除后更容易发芽。\n\n【误选项为什么错】\n1鸟是否消化果肉不是实验结论重点；3说果肉帮助发芽，与结果相反；4说人工去果肉也不发芽，也与“果肉のない種はどちらも芽が出やすい”相反。\n\n【拿分提醒】\n实验题要找变量。被鸟吃过和人工处理的共同点都是没有果肉，这个共同点决定结论。",
+            "explanation_expand": "【补充解析】\n如果两个处理结果一样，就要看它们共享了什么条件。本题共享条件是果肉没有了，所以结论应围绕果肉去除。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 42,
             "options": [
@@ -2890,7 +3052,7 @@
               {
                 "end": "00:25.08",
                 "start": "00:15.94",
-                "text": "ある種類の鳥は、植物の実を食べた後、種をはほとんど消化することなく基と一緒に排出しています。"
+                "text": "ある種類の鳥は、植物の実を食べた後、種はほとんど消化することなく糞と一緒に排出しています。"
               },
               {
                 "end": "00:34.36",
@@ -2959,6 +3121,14 @@
             "correct_answer": 2,
             "eju_answer_no": 18,
             "eju_question_no": 18,
+            "explanation": "【题目解析】\n这题问为了扩大交流范围，老师建议首先做什么。老师说和不同年龄、职业的人交流很重要，但第一步并不难，可以从身边人开始。\n\n【为什么选2】\n选2是因为老师建议对常去商店的店员、上学路上常见的人说一句“今天天气真好”之类的问候。也就是先试着向身边的人打招呼。\n\n【误选项为什么错】\n1增加外出不是老师的核心建议；3尽量见陌生人太笼统，也比老师建议的第一步更大；4和各种年龄的人深入交往是目标，不是“首先”要做的事。\n\n【拿分提醒】\n题干问“まず”，答案要选最初的具体行动，而不是最终目标。",
+            "explanation_expand": "【补充解析】\n老师的思路是从小行动开始：先打一声招呼，重复见面后可能发展成简短交谈，再逐渐扩大交流。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 43,
             "options": [
@@ -3041,6 +3211,14 @@
             "correct_answer": 4,
             "eju_answer_no": 19,
             "eju_question_no": 19,
+            "explanation": "【题目解析】\n这题问面对媒体信息，接收者应该怎样做。老师指出信息化社会的信息并非全都可靠，因此需要批判性地看待。\n\n【为什么选4】\n选4是因为老师建议不要只相信一个媒体，而要从多角度看信息，比如比较不同报纸对同一话题的不同分析。也就是比较不同媒体的信息。\n\n【误选项为什么错】\n1站在报道方视角分析不是老师的做法；2调查信息源没有被作为主要建议；3只从自己信服的媒体获取信息，反而会失去多角度。\n\n【拿分提醒】\n媒体素养题要抓“多角的な視点”。这不是怀疑一切，而是通过比较多个视角来判断。",
+            "explanation_expand": "【补充解析】\n本题的老师讲法很清楚：同一话题，不同报纸有不同分析。把这些信息放在一起看，才不容易被单一视角带走。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 44,
             "options": [
@@ -3069,7 +3247,7 @@
               {
                 "end": "00:34.20",
                 "start": "00:26.98",
-                "text": "ですから、新聞やテレビ、インターネットなどからの情報を常に批判的に見るカが必要になります。"
+                "text": "ですから、新聞やテレビ、インターネットなどからの情報を常に批判的に見る力が必要になります。"
               },
               {
                 "end": "00:45.70",
@@ -3128,6 +3306,14 @@
             "correct_answer": 3,
             "eju_answer_no": 20,
             "eju_question_no": 20,
+            "explanation": "【题目解析】\n这题问老师关注语言的哪种作用。老师先说语言不只是沟通，也不只是把心情传给别人，然后举日记和自言自语作为例子。\n\n【为什么选3】\n选3是因为老师强调，把内心积累的复杂感情说出来或写出来，会让心情变轻松，语言具有一种净化、释放感情的作用。\n\n【误选项为什么错】\n1是信息传递，老师说这只是大家首先想到的功能；2让别人理解自己的心情也不是本题重点；4使他人振作没有出现在论点中。\n\n【拿分提醒】\n抽象功能题要看例子是否有听众。日记和自言自语没有明确对象，说明重点不是对外传达，而是对内释放。",
+            "explanation_expand": "【补充解析】\n关键词是“気分が晴れる”“浄化作用”。看到这些表达，就应想到感情释放。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 45,
             "options": [
@@ -3141,7 +3327,7 @@
               {
                 "end": "00:07.80",
                 "start": "00:02.86",
-                "text": "20番先生が 「言葉の働きる」 について話しています。"
+                "text": "20番先生が 「言葉の働き」 について話しています。"
               },
               {
                 "end": "00:15.06",
@@ -3151,7 +3337,7 @@
               {
                 "end": "00:25.72",
                 "start": "00:15.06",
-                "text": "言葉の働きというと、コミュニケーションということがまず頭に浮かぶでしょうが、言工で気持ちの全てが表現できるというわけではありません。"
+                "text": "言葉の働きというと、コミュニケーションということがまず頭に浮かぶでしょうが、言葉で気持ちの全てが表現できるというわけではありません。"
               },
               {
                 "end": "00:33.10",
@@ -3171,7 +3357,7 @@
               {
                 "end": "01:01.02",
                 "start": "00:53.44",
-                "text": "言業にすることによって気分が晴れる、そのような浄化作用が言葉にはあると思います。"
+                "text": "言葉にすることによって気分が晴れる、そのような浄化作用が言葉にはあると思います。"
               },
               {
                 "end": "01:06.10",
@@ -3196,7 +3382,7 @@
               {
                 "end": "01:33.38",
                 "start": "01:29.42",
-                "text": "3. 感情を解放をきせる働き"
+                "text": "3. 感情を解放させる働き"
               },
               {
                 "end": "01:39.62",
@@ -3215,6 +3401,14 @@
             "correct_answer": 3,
             "eju_answer_no": 21,
             "eju_question_no": 21,
+            "explanation": "【题目解析】\n这题问老师主要说明鲸的什么特点。老师从鲸体型大说起，但主要内容是某些鲸一年往返南极海和赤道附近海域约两万公里。\n\n【为什么选3】\n选3是因为整段围绕鲸为什么大范围移动展开：赤道附近适合育儿但食物少，南极食物多但冬季结冰、不适合育儿，因此鲸在两个海域之间迁徙。\n\n【误选项为什么错】\n1说离开海不能呼吸，音频实际说鲸在水下不能呼吸；2说在南极育儿，与老师说明相反，南极食物多但冬天不适合育儿；4体型最大只是开头背景，不是主旨。\n\n【拿分提醒】\n主旨题要看老师展开说明的内容比例。开头一句不一定是答案，后面反复解释的才是中心。",
+            "explanation_expand": "【补充解析】\n这题的中心词是“往復する習性”。后面的海温、食物、育儿条件都在解释为什么要广范围移动。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 46,
             "options": [
@@ -3258,7 +3452,7 @@
               {
                 "end": "00:53.40",
                 "start": "00:47.82",
-                "text": "しかし、えきとなる生物は少ないので、ずっとここにいるわけにはいきません。"
+                "text": "しかし、えさとなる生物は少ないので、ずっとここにいるわけにはいきません。"
               },
               {
                 "end": "01:03.56",
@@ -3268,7 +3462,7 @@
               {
                 "end": "01:10.20",
                 "start": "01:04.82",
-                "text": "また、中乳類である鯨は、水の下では呼吸ができないのです。"
+                "text": "また、哺乳類である鯨は、水の下では呼吸ができないのです。"
               },
               {
                 "end": "01:16.62",
@@ -3283,7 +3477,7 @@
               {
                 "end": "01:29.98",
                 "start": "01:26.84",
-                "text": "2. えさが豊客な南極の海で了ナ育てをすること"
+                "text": "2. えさが豊富な南極の海で子育てをすること"
               },
               {
                 "end": "01:36.44",
@@ -3307,6 +3501,14 @@
             "correct_answer": 2,
             "eju_answer_no": 22,
             "eju_question_no": 22,
+            "explanation": "【题目解析】\n这题问地方议员今后想做什么。他原本以为进入政治世界就能改变社会，但成为议员后发现只靠政治改变社会很难。\n\n【为什么选2】\n选2是因为他后来意识到，和面对现实问题的居民一起解决身边问题，能形成地区改革的力量。今后想和希望改善地区的居民一起出主意，建设更宜居的环境。\n\n【误选项为什么错】\n1改善政治世界只是他早期想法，不是今后具体活动；3节能环保没有被作为主题；4和周边地区交流也不是中心，周边影响只是结果。\n\n【拿分提醒】\n人物经历题要分清“过去的想法”和“现在的方针”。答案通常在“今後”后面。",
+            "explanation_expand": "【补充解析】\n本题的关键不是宏观政治，而是居民参与。议员要做的是和住民共同处理本地问题。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 47,
             "options": [
@@ -3330,7 +3532,7 @@
               {
                 "end": "00:24.18",
                 "start": "00:14.80",
-                "text": "私は、かなり前から社会に対していろいろな孔盾を感じていて、政治の世界に入れば世の中をより良くできると思っていました。"
+                "text": "私は、かなり前から社会に対していろいろな矛盾を感じていて、政治の世界に入れば世の中をより良くできると思っていました。"
               },
               {
                 "end": "00:34.68",
@@ -3394,6 +3596,14 @@
             "correct_answer": 1,
             "eju_answer_no": 23,
             "eju_question_no": 23,
+            "explanation": "【题目解析】\n这题问老师提醒训练时要注意什么。老师说肌肉训练不是每天做就好，训练后肌肉功能会下降，需要营养和休息后才会比以前更强。\n\n【为什么选1】\n选1是因为老师强调训练与训练之间的间隔。间隔太长，肌肉不会提高；恢复前又训练，则会造成负担、反而有害。一般隔2、3天更有效。\n\n【误选项为什么错】\n2训练内容、3训练后营养、4训练强度都可能重要，但这段话的重点是训练频率和间隔。营养和休养是解释间隔必要性的原因。\n\n【拿分提醒】\n听建议题时要抓反复出现的对比：毎日ではなく、2、3日間をあける。这个对比直接指向间隔。",
+            "explanation_expand": "【补充解析】\n本题背后的逻辑是超回復：训练造成暂时下降，恢复后变强。下一次训练应放在恢复后，而不是每天机械重复。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 48,
             "options": [
@@ -3427,7 +3637,7 @@
               {
                 "end": "00:33.04",
                 "start": "00:26.50",
-                "text": "そしてその人後、栄養と休養をとることで、前より少し強くなるという過程をたどります。"
+                "text": "そしてその後、栄養と休養をとることで、前より少し強くなるという過程をたどります。"
               },
               {
                 "end": "00:42.92",
@@ -3442,7 +3652,7 @@
               {
                 "end": "00:56.98",
                 "start": "00:49.76",
-                "text": "したがってトレーニングは、、毎日ではなく、2、3日間をあけると効果的だということがわかっています。"
+                "text": "したがってトレーニングは、毎日ではなく、2、3日間をあけると効果的だということがわかっています。"
               },
               {
                 "end": "01:11.96",
@@ -3457,7 +3667,7 @@
               {
                 "end": "01:22.26",
                 "start": "01:19.72",
-                "text": "1. トレーニングをする問隔"
+                "text": "1. トレーニングをする間隔"
               },
               {
                 "end": "01:28.58",
@@ -3472,7 +3682,7 @@
               {
                 "end": "01:40.40",
                 "start": "01:37.88",
-                "text": "4. トレーニングの強き"
+                "text": "4. トレーニングの強さ"
               }
             ],
             "script_layout_image": "/data/image/eju/2010_01/transcript_q23.jpg",
@@ -3486,6 +3696,14 @@
             "correct_answer": 2,
             "eju_answer_no": 24,
             "eju_question_no": 24,
+            "explanation": "【题目解析】\n这题问老师建议女留学生调查什么。她想将来把日本动画介绍到自己国家，老师把这归入コンテンツ産業，并说明整体市场增长可能放缓，但分领域情况不同。\n\n【为什么选2】\n选2是因为女留学生关心的是アニメーション産業，老师建议她从自己感兴趣领域在日本的实际情况开始查。因此应调查日本动画产业的现状。\n\n【误选项为什么错】\n1日本内容产业整体只是老师解释背景；3、4是自己国家的情况，但老师说的是“日本での実情”。\n\n【拿分提醒】\n咨询题要抓建议的范围：兴趣领域 + 日本的实际情况。两个限定都要保留。",
+            "explanation_expand": "【补充解析】\n如果只听到“コンテンツ産業”会选得太大；如果只听到“自分の国に紹介”又会误选本国。老师真正建议的是先查日本动画产业。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 49,
             "options": [
@@ -3622,6 +3840,14 @@
             "correct_answer": 4,
             "eju_answer_no": 25,
             "eju_question_no": 25,
+            "explanation": "【题目解析】\n这题问消费者苦情会给企业带来什么影响。老师先纠正“苦情只是抱怨”的看法，指出其中可能含有对企业很有价值的信息。\n\n【为什么选4】\n选4是因为苦情如果被管理和共享，可能成为新商品开发、商品改良的线索，也能解决问题，让消费者反而对商品或服务产生好感。也就是说，会连接到商品改良和形象提升。\n\n【误选项为什么错】\n1只说形象变好，少了商品改良这一重要影响；2价格下降没有提到；3员工干劲提高也不是老师重点。\n\n【拿分提醒】\n观点题要抓老师给出的双重效果。本题既有内部改良，也有外部好感，答案要能覆盖两点。",
+            "explanation_expand": "【补充解析】\n苦情在这里不是负担，而是信息资源。前提是企业不能隐藏，而要管理、共享并用于改善。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 50,
             "options": [
@@ -3660,12 +3886,12 @@
               {
                 "end": "00:50.60",
                 "start": "00:42.88",
-                "text": "ですから、企業に対して苦情があったときに、それを上司や別の部軒に隠そうとするのは間違っています。"
+                "text": "ですから、企業に対して苦情があったときに、それを上司や別の部署に隠そうとするのは間違っています。"
               },
               {
                 "end": "00:55.70",
                 "start": "00:52.06",
-                "text": "むしろ、情報として管理 ・ 基有すべきです。"
+                "text": "むしろ、情報として管理 ・ 共有すべきです。"
               },
               {
                 "end": "01:10.30",
@@ -3680,7 +3906,7 @@
               {
                 "end": "01:23.78",
                 "start": "01:19.58",
-                "text": "1. 企業や商品に対するイメージを上くする。"
+                "text": "1. 企業や商品に対するイメージをよくする。"
               },
               {
                 "end": "01:30.58",
@@ -3695,7 +3921,7 @@
               {
                 "end": "01:43.72",
                 "start": "01:39.06",
-                "text": "4. 商品の改良やヤイメージの向上につながる。"
+                "text": "4. 商品の改良やイメージの向上につながる。"
               }
             ],
             "script_layout_image": "/data/image/eju/2010_01/transcript_q25.jpg",
@@ -3709,6 +3935,14 @@
             "correct_answer": 1,
             "eju_answer_no": 26,
             "eju_question_no": 26,
+            "explanation": "【题目解析】\n这题问怎样思考的人更容易达成目标。老师说明，能达成目标的人即使失败，也倾向于把原因放在自己的努力或能力上。\n\n【为什么选1】\n选1是因为把失败原因看作自己这边的问题，才会进一步思考自己该怎么做，进而采取更具体的努力去克服问题。\n\n【误选项为什么错】\n2把原因归到自己以外，如运气不好、目标太高，会让人觉得自己无法解决；3降低目标、4每次失败就改目标，都不是老师说的达成目标者的思考方式。\n\n【拿分提醒】\n心理学题要注意这里不是责备自己，而是把问题看作自己可以改善的部分。",
+            "explanation_expand": "【补充解析】\n答案的核心是“可控制感”。如果认为原因在自己的努力和方法，就能调整行动；如果全推给外部，就很难继续改进。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 51,
             "options": [
@@ -3737,7 +3971,7 @@
               {
                 "end": "00:38.74",
                 "start": "00:26.64",
-                "text": "ある調査によると、目標を達成できた人の考え方は、成功しても失敗しても、. その原因を自分の努力や能力に求める場合が多いようです。"
+                "text": "ある調査によると、目標を達成できた人の考え方は、成功しても失敗しても、その原因を自分の努力や能力に求める場合が多いようです。"
               },
               {
                 "end": "00:56.90",
@@ -3762,7 +3996,7 @@
               {
                 "end": "01:33.24",
                 "start": "01:28.08",
-                "text": "1. 失敗の原因は自分にあったとえる人"
+                "text": "1. 失敗の原因は自分にあったと考える人"
               },
               {
                 "end": "01:42.12",
@@ -3791,6 +4025,14 @@
             "correct_answer": 3,
             "eju_answer_no": 27,
             "eju_question_no": 27,
+            "explanation": "【题目解析】\n这题问老师如何说明康乃馨中某种植物ホルモン的作用。老师说花枯萎是成熟和老化的进行，而エチレン参与这个过程。\n\n【为什么选3】\n选3是因为エチレン多时花会早枯；通过选择エチレン较少的品种并交配，可以培育出能持续开放20天的康乃馨。也就是说，这种激素少，花就能开更久。\n\n【误选项为什么错】\n1大花、2花多、4颜色鲜艳都不是这段话说明的改良方向。老师讲的是开花持续时间，而不是大小、数量或颜色。\n\n【拿分提醒】\n生物说明题要抓因果方向：多会怎样，少会怎样。这里是エチレン多则早枯，少则持久。",
+            "explanation_expand": "【补充解析】\n品种改良不只改变外观。本题特别强调通过调整激素量来延长开花时间，所以答案应落在“長い期間咲く”。",
+            "explanation_source": {
+              "generated_by": "codex_eju_listening_teacher_style_v5_standard_2010_01",
+              "style_reference": "data/paper/eju/eju_answer_explan_standard.md",
+              "generated_at": "2026-05-28T00:00:00+08:00",
+              "review_pass": "strict standard rewrite: question, evidence, correct answer, wrong options, transfer method"
+            },
             "has_ans": true,
             "id": 52,
             "options": [
@@ -3804,7 +4046,7 @@
               {
                 "end": "00:11.52",
                 "start": "00:03.36",
-                "text": "27番先生が、生物学の授業でて、カーネーションという花の品種改良について説明しています。"
+                "text": "27番先生が、生物学の授業で、カーネーションという花の品種改良について説明しています。"
               },
               {
                 "end": "00:19.28",
@@ -3814,12 +4056,12 @@
               {
                 "end": "00:26.46",
                 "start": "00:21.74",
-                "text": "較芸用の植物のほとんどは、品種改良によって、人工的に変えられています。"
+                "text": "観賞用の植物のほとんどは、品種改良によって、人工的に変えられています。"
               },
               {
                 "end": "00:34.70",
                 "start": "00:27.48",
-                "text": "品種改良と言うと見た日の変化を思い浮かべることが多いですが、形や色のほかにもさまざまな改良があります。"
+                "text": "品種改良と言うと見た目の変化を思い浮かべることが多いですが、形や色のほかにもさまざまな改良があります。"
               },
               {
                 "end": "00:44.82",
