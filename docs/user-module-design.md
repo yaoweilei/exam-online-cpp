@@ -297,10 +297,10 @@ final_permission = role_permission
 
 现有代码中已存在以下雏形：
 
-- 用户服务：[cpp-backend/src/application/services/UserService.h](D:/_develop/_side/exam-online-cpp/cpp-backend/src/application/services/UserService.h)
-- 订阅服务：[cpp-backend/src/application/services/SubscriptionService.h](D:/_develop/_side/exam-online-cpp/cpp-backend/src/application/services/SubscriptionService.h)
-- 用户仓储：[cpp-backend/src/infrastructure/storage/UserRepository.h](D:/_develop/_side/exam-online-cpp/cpp-backend/src/infrastructure/storage/UserRepository.h)
-- 用户资料仓储：[cpp-backend/src/infrastructure/storage/ProfileRepository.h](D:/_develop/_side/exam-online-cpp/cpp-backend/src/infrastructure/storage/ProfileRepository.h)
+- 用户服务：[backend/src/application/services/UserService.h](D:/_develop/_side/exam-online-cpp/backend/src/application/services/UserService.h)
+- 订阅服务：[backend/src/application/services/SubscriptionService.h](D:/_develop/_side/exam-online-cpp/backend/src/application/services/SubscriptionService.h)
+- 用户仓储：[backend/src/infrastructure/storage/UserRepository.h](D:/_develop/_side/exam-online-cpp/backend/src/infrastructure/storage/UserRepository.h)
+- 用户资料仓储：[backend/src/infrastructure/storage/ProfileRepository.h](D:/_develop/_side/exam-online-cpp/backend/src/infrastructure/storage/ProfileRepository.h)
 - 个人中心前端：[frontend/src/viewer/personalCenter.ts](D:/_develop/_side/exam-online-cpp/frontend/src/viewer/personalCenter.ts)
 
 本设计稿的作用是为这些模块后续统一改造提供约束。

@@ -241,7 +241,7 @@ async function fetchExamsForFallback(): Promise<ViewerExamMeta[]> {
 	}
 
 	try {
-		const apiBase = window.__API_BASE__ || '/api/v2';
+		const apiBase = window.__API_BASE__ || '/api/v1';
 		const response = await fetch(`${apiBase}/exams?sort=date_desc`);
 		if (!response.ok) {
 			return [];
@@ -401,7 +401,7 @@ async function fetchUserProgress(): Promise<Record<string, number>> {
 			return {};
 		}
 
-		const apiBase = window.__API_BASE__ || '/api/v2';
+		const apiBase = window.__API_BASE__ || '/api/v1';
 		const resp = await fetch(`${apiBase}/progress/${userId}/exams`);
 		if (!resp.ok) {
 			return {};

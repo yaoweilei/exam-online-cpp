@@ -103,5 +103,28 @@
         "git diff --check reported no whitespace errors for data/paper/eju."
       ]
     }
-  ]
+  ],
+  "continued_review_2026_05_15": {
+    "scope": "Full EJU listening transcript sweep for all locally sourced years.",
+    "coverage": {
+      "total_listening_questions": 702,
+      "checked_with_existing_transcript_images": 675,
+      "blocked_missing_source": {
+        "exam_id": "2023_01",
+        "listening_questions": 27,
+        "reason": "No transcript_pdf in data/paper/eju/2023_01.json and no transcript_layout_image/script entries are available locally."
+      }
+    },
+    "actions": [
+      "Added tools/audit_eju_listening_transcripts.py to OCR-audit transcript crops against JSON script text.",
+      "Ran full OCR audit over all EJU listening questions and used the result as a triage queue.",
+      "Manually reviewed strict residual OCR-artifact hits and applied high-confidence transcript corrections across 25 data/paper/eju files.",
+      "Corrected common OCR artifacts including きれ/きせ misreads for され/させ, Japanese term confusions such as 言工/言業 to 言葉, 紫殖 to 繁殖, 渋藻 to 渋滞, 抵取 to 摂取, and question-specific context errors."
+    ],
+    "verification": [
+      "All data/paper/eju/*.json files parse after edits.",
+      "All locally sourced listening years except 2023_01 have 27 script entries and 27 transcript_layout_image references.",
+      "Residual strict scan contains no actionable OCR artifact after manual review; remaining matches are normal Japanese strings or regex false positives such as 見つけさせ and 本好き人間."
+    ]
+  }
 }

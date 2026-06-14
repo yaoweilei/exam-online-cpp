@@ -248,7 +248,6 @@ class QuestionRenderer {
 	) {
 		const questionDiv = DOMUtils.createElementWithClass("div", "question");
 		questionDiv.id = `question-${question.id}`;
-		const isWriting = this.isWritingQuestion(question);
 		const showQuestionText = this.shouldRenderQuestionText(question);
 
 		if (showQuestionText) {
@@ -292,9 +291,7 @@ class QuestionRenderer {
 			questionDiv.appendChild(optionsContainer);
 		}
 
-		if (!isWriting) {
-			this.appendAnswerAndExplanation(questionDiv, question);
-		}
+		this.appendAnswerAndExplanation(questionDiv, question);
 
 		return questionDiv;
 	}
@@ -383,13 +380,23 @@ class QuestionRenderer {
 			this.examViewer.answerManager.selectOption(question.id, optionIndex + 1);
 		});
 
+		let selectedAnswer: unknown = this.examViewer.userAnswers?.[question.id];
+		try {
+			selectedAnswer = this.examViewer.answerManager?.getAnswerComposite?.(
+				this.examViewer.currentSectionIndex,
+				String(question.id)
+			);
+		} catch {
+			// Keep legacy direct lookup fallback.
+		}
+
 		// 如果用户已经选择了这个选项，添加 "selected" 类名以高亮显示
-		if (this.examViewer.userAnswers[question.id] === optionIndex + 1) {
+		if (selectedAnswer === optionIndex + 1) {
 			optionDiv.classList.add("selected");
 		}
 
 		// 显示答案模式下，给用户勾选的选项加一个显式标记（区分于正确答案的✔）
-		if (this.examViewer.showAnswers && this.examViewer.userAnswers[question.id] === optionIndex + 1) {
+		if (this.examViewer.showAnswers && selectedAnswer === optionIndex + 1) {
 			optionDiv.classList.add("chosen-option");
 		}
 
@@ -410,10 +417,13 @@ class QuestionRenderer {
 		// if (this.examViewer.showAnswers && question.correct_answer) {
 		// 	questionDiv.appendChild(this.createAnswerElement(question));
 		// }
+		const writingAnswerParts = this.isWritingQuestion(question)
+			? this.buildWritingAnswerParts(question)
+			: { core: '', expand: '' };
 
 		if (this.examViewer.showExplanations) {
-			const coreText = ((question.explanation || "") || "").trim();
-			const expandText = ((question.explanation_expand || "") || "").trim();
+			const coreText = ((question.explanation || writingAnswerParts.core || "") || "").trim();
+			const expandText = ((question.explanation_expand || writingAnswerParts.expand || "") || "").trim();
 			if (!coreText && !expandText) return;
 
 			const explanationWrapper = document.createElement("div");
@@ -447,7 +457,7 @@ class QuestionRenderer {
 			questionDiv.appendChild(explanationWrapper);
 		} else if (this.examViewer.showAnswers) {
 			// 显示答案：展示题目解析（explanation），用于快速回看
-			const answerText = ((question.explanation || "") || "").trim();
+			const answerText = ((question.explanation || writingAnswerParts.core || "") || "").trim();
 			if (!answerText) return;
 
 			const explanationWrapper = document.createElement("div");
@@ -467,11 +477,83 @@ class QuestionRenderer {
 		}
 	}
 
+	private buildWritingAnswerParts(question: RendererAnyRecord): { core: string; expand: string } {
+		const section = this.getCurrentSection();
+		const passageBlock = Array.isArray(section?.passages) ? section.passages[0] : null;
+		const essays = question.model_essays || passageBlock?.model_essays || section?.model_essays;
+		if (!Array.isArray(essays) || essays.length === 0) {
+			return { core: '', expand: '' };
+		}
+
+		const formatList = (items: unknown, fallback: string[] = []): string => {
+			const list = Array.isArray(items) ? items : fallback;
+			return list
+				.map((item) => String(item || '').trim())
+				.filter(Boolean)
+				.map((item) => `- ${item}`)
+				.join('\n');
+		};
+
+		const formatEssay = (essay: RendererAnyRecord): string => {
+			const topicNumber = Number(essay.topic_number);
+			const topicTitle = [
+				Number.isFinite(topicNumber) && topicNumber > 0 ? `テーマ${topicNumber}` : 'テーマ',
+				String(essay.topic_summary || '').trim()
+			].filter(Boolean).join('：');
+			const sample = String(essay.sample_essay || '').trim();
+			if (!sample) {
+				return '';
+			}
+
+			const editorial = essay.editorial_explanation || {};
+			const parts = [
+				`【${topicTitle} 参考答案】`,
+				sample
+			];
+			const why = String(essay.why_this_works || editorial.why_this_works_publication || '').trim();
+			if (why) {
+				parts.push(`【写作思路】\n${why}`);
+			}
+			const scoringFocus = formatList(editorial.scoring_focus, essay.highlights);
+			if (scoringFocus) {
+				parts.push(`【评分要点】\n${scoringFocus}`);
+			}
+			const reusableExpressions = formatList(editorial.reusable_expressions);
+			if (reusableExpressions) {
+				parts.push(`【可复用表达】\n${reusableExpressions}`);
+			}
+			const commonMistakes = formatList(editorial.common_mistakes);
+			if (commonMistakes) {
+				parts.push(`【常见问题】\n${commonMistakes}`);
+			}
+			return parts.join('\n\n');
+		};
+
+		const formattedEssays = essays
+			.map((essay: RendererAnyRecord) => ({
+				topicNumber: Number(essay.topic_number),
+				text: formatEssay(essay)
+			}))
+			.filter((essay) => essay.text);
+		const core = formattedEssays.find((essay) => essay.topicNumber === 1)?.text || formattedEssays[0]?.text || '';
+		const expand = formattedEssays.find((essay) => essay.topicNumber === 2)?.text
+			|| formattedEssays.filter((essay) => essay.text !== core).map((essay) => essay.text).join('\n\n');
+		return { core, expand };
+	}
+
 	/**
 	 * 在“显示答案”模式下输出用户勾选的选项（文本），方便回看。
 	 */
 	getChosenAnswerSummaryText(question: RendererAnyRecord) {
-		const chosenIndex = this.examViewer.userAnswers?.[question.id];
+		let chosenIndex = this.examViewer.userAnswers?.[question.id];
+		try {
+			chosenIndex = this.examViewer.answerManager?.getAnswerComposite?.(
+				this.examViewer.currentSectionIndex,
+				String(question.id)
+			);
+		} catch {
+			// Keep legacy direct lookup fallback.
+		}
 		if (!chosenIndex) {
 			return "【你选择的选项】\n（未作答）";
 		}
@@ -635,7 +717,7 @@ class QuestionRenderer {
 	/**
 	 * 创建「题目反馈/报错」按钮（业务功能 5）
 	 *   - 普通用户也可见，点击后弹窗提交反馈
-	 *   - 后端入口：POST /api/v2/feedback，需登录
+	 *   - 后端入口：POST /api/v1/feedback，需登录
 	 */
 	createFeedbackButton(question: RendererAnyRecord) {
 		const btn = document.createElement("button");

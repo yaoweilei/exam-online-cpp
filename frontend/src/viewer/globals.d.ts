@@ -13,6 +13,7 @@ interface LegacyApiClientShape {
 	login(username: string, password: string): Promise<unknown>;
 	register(username: string, password: string, email?: string | null, referralCode?: string): Promise<unknown>;
 	logout(token: string): Promise<unknown>;
+	changePassword(token: string, currentPassword: string, newPassword: string): Promise<unknown>;
 	sendContactChangeChallenge(token: string, channel: 'email' | 'phone'): Promise<unknown>;
 	sendPhoneVerificationCode(phone: string): Promise<unknown>;
 	verifyPhone(token: string, phone: string, code: string, options?: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string }): Promise<unknown>;
@@ -43,6 +44,8 @@ interface LegacyApiClientShape {
 	getMe(token: string): Promise<unknown>;
 	getMeContext(token: string): Promise<unknown>;
 	claimReferralCode(token: string, referralCode: string): Promise<unknown>;
+	getMyWallet(token: string): Promise<unknown>;
+	redeemCode(token: string, code: string): Promise<unknown>;
 	getMyPendingOrganizationInvitations(token: string): Promise<unknown[]>;
 	getOrganizations(token: string): Promise<unknown[]>;
 	getOrganization(organizationId: string, token: string): Promise<unknown>;
@@ -54,6 +57,17 @@ interface LegacyApiClientShape {
 	cancelOrganizationInvitation(organizationId: string, invitationId: string, token: string): Promise<unknown>;
 	acceptOrganizationInvitation(token: string, inviteToken: string): Promise<unknown>;
 	updateOrganizationSubscription(organizationId: string, token: string, payload: unknown): Promise<unknown>;
+	updateUserSubscription(userId: string, token: string, payload: unknown): Promise<unknown>;
+	createPaymentOrder(token: string, payload: unknown): Promise<unknown>;
+	getPaymentOrder(token: string, orderId: string): Promise<unknown>;
+	listPaymentLedger(token: string, userId?: string): Promise<unknown>;
+	requestPaymentRefund(token: string, payload: unknown): Promise<unknown>;
+	getInstitutionDashboard(token: string, orgId?: string): Promise<unknown>;
+	getInstitutionPlans(): Promise<unknown>;
+	getInstitutionClassGradebook(token: string, classId: string): Promise<unknown>;
+	getInstitutionStudentProfile(token: string, studentId: string): Promise<unknown>;
+	createLessonPrep(token: string, payload: unknown): Promise<unknown>;
+	previewInstitutionImport(token: string, payload: unknown): Promise<unknown>;
 	addFurigana(text: string): Promise<unknown>;
 	getReading(word: string): Promise<unknown>;
 	// 错题本（业务功能 1）

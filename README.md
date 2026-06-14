@@ -4,7 +4,7 @@
 
 - 后端：C++20 + Drogon
 - 前端：TypeScript + 浏览器原生 ES Module
-- 接口：`/api/v2`
+- 接口：`/api/v1`
 - 数据存储：JSON 文件
 
 旧的 Python 后端、旧前端兼容启动链路、旧静态脚本残留都已经清理掉了。
@@ -15,7 +15,7 @@
 - 前端入口是 [frontend/src/main.ts](D:/_develop/_side/exam-online-cpp/frontend/src/main.ts)
 - 前端查看器主模块位于 [frontend/src/viewer](D:/_develop/_side/exam-online-cpp/frontend/src/viewer)
 - 编译产物输出到 [static/app](D:/_develop/_side/exam-online-cpp/static/app)
-- 后端接口统一挂在 `/api/v2`
+- 后端接口统一挂在 `/api/v1`
 - 用户模块设计稿见 [docs/user-module-design.md](D:/_develop/_side/exam-online-cpp/docs/user-module-design.md)
 - 用户模块式样书见 [docs/user-module-spec.md](D:/_develop/_side/exam-online-cpp/docs/user-module-spec.md)
 - 用户模块接口式样书见 [docs/user-module-api-spec.md](D:/_develop/_side/exam-online-cpp/docs/user-module-api-spec.md)
@@ -57,7 +57,7 @@ cd ..
 首次运行建议执行：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File cpp-backend/tools/migrate_user_baseline.ps1 -BaseDir .
+powershell -ExecutionPolicy Bypass -File backend/tools/migrate_user_baseline.ps1 -BaseDir .
 ```
 
 ### 3. 启动项目
@@ -78,9 +78,9 @@ start-cpp.bat
 手动构建运行：
 
 ```powershell
-cmake -S cpp-backend -B cpp-backend/build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-cmake --build cpp-backend/build --config Release
-cpp-backend/build/Release/exam_online_cpp.exe
+cmake -S backend -B backend/build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --build backend/build --config Release
+backend/build/Release/exam_online_cpp.exe
 ```
 
 如果要让组织邀请走真实邮件或短信，先复制 `.env.example` 到 `.env` 或直接设置环境变量，再按下面两组配置打开对应 provider：
@@ -93,7 +93,7 @@ cpp-backend/build/Release/exam_online_cpp.exe
 启动后访问：
 
 - 首页：[http://127.0.0.1:8000](http://127.0.0.1:8000)
-- API：`http://127.0.0.1:8000/api/v2`
+- API：`http://127.0.0.1:8000/api/v1`
 
 生产环境推荐：
 
@@ -114,7 +114,7 @@ start-cpp.bat
 健康检查接口：
 
 - [http://127.0.0.1:8000/healthz](http://127.0.0.1:8000/healthz)
-- `GET /api/v2/health`
+- `GET /api/v1/health`
 
 ## 本地回归
 
@@ -130,7 +130,7 @@ powershell -ExecutionPolicy Bypass -File .\run-local-regression.ps1
 - `ctest` 运行 `smoke_tests`
 - 启动本地后端
 - 运行组织安全回归脚本 `test_org_security.ps1`
-- 运行推荐奖励集成回归脚本 `cpp-backend/tests/integration_flow_smoke.ps1`
+- 运行推荐奖励集成回归脚本 `backend/tests/integration_flow_smoke.ps1`
 - 最后停止后端进程
 
 如果要顺手验证奖励配置链路，可以传非默认奖励值：
@@ -152,7 +152,7 @@ powershell -ExecutionPolicy Bypass -File .\run-local-regression.ps1 -ReferralRew
 如果你想直接手测一遍完整的组织邀请流程，后端启动后可以执行：
 
 ```powershell
-pwsh -ExecutionPolicy Bypass -File .\cpp-backend\tools\prepare_org_invite_demo.ps1 -BaseDir .
+pwsh -ExecutionPolicy Bypass -File .\backend\tools\prepare_org_invite_demo.ps1 -BaseDir .
 ```
 
 这个脚本会自动准备并复用一套本地演示数据：
@@ -175,7 +175,7 @@ pwsh -ExecutionPolicy Bypass -File .\cpp-backend\tools\prepare_org_invite_demo.p
 
 ```text
 exam-online-cpp/
-├── cpp-backend/                 # C++ 后端工程
+├── backend/                 # C++ 后端工程
 │   ├── src/
 │   │   ├── transport/           # HTTP 路由与接口暴露
 │   │   ├── application/         # 服务层、用例层、推荐策略
@@ -272,7 +272,7 @@ exam-online-cpp/
 
 ### 1. C++ 服务启动时
 
-服务启动入口在 [main.cpp](D:/_develop/_side/exam-online-cpp/cpp-backend/src/main.cpp)。
+服务启动入口在 [main.cpp](D:/_develop/_side/exam-online-cpp/backend/src/main.cpp)。
 
 启动时会先创建这些仓储对象：
 
@@ -283,19 +283,19 @@ exam-online-cpp/
 
 对应行为：
 
-- [ExamRepository.h](D:/_develop/_side/exam-online-cpp/cpp-backend/src/infrastructure/storage/ExamRepository.h)
+- [ExamRepository.h](D:/_develop/_side/exam-online-cpp/backend/src/infrastructure/storage/ExamRepository.h)
   - 构造时会执行 `rebuildIndex()`
   - 扫描 `data/paper/jlpt` 下的试卷 JSON
   - 构建内存索引
   - 生成 `.exam_index.json`
-- [UserRepository.h](D:/_develop/_side/exam-online-cpp/cpp-backend/src/infrastructure/storage/UserRepository.h)
+- [UserRepository.h](D:/_develop/_side/exam-online-cpp/backend/src/infrastructure/storage/UserRepository.h)
   - 启动时执行 `ensureBaseline()`
   - 检查并补齐 `users.json`、`roles.json`
   - 恢复用户 WAL
-- [AnswerRepository.h](D:/_develop/_side/exam-online-cpp/cpp-backend/src/infrastructure/storage/AnswerRepository.h)
+- [AnswerRepository.h](D:/_develop/_side/exam-online-cpp/backend/src/infrastructure/storage/AnswerRepository.h)
   - 启动时准备 `data/user/answers`
   - 恢复答题 WAL
-- [FuriganaRepository.h](D:/_develop/_side/exam-online-cpp/cpp-backend/src/infrastructure/storage/FuriganaRepository.h)
+- [FuriganaRepository.h](D:/_develop/_side/exam-online-cpp/backend/src/infrastructure/storage/FuriganaRepository.h)
   - 启动时调用 `reload()`
   - 把振假名字典读入内存
 
@@ -314,7 +314,7 @@ exam-online-cpp/
 
 前端启动时：
 
-- [main.ts](D:/_develop/_side/exam-online-cpp/frontend/src/main.ts) 会先请求 `/api/v2/exams?sort=date_desc`
+- [main.ts](D:/_develop/_side/exam-online-cpp/frontend/src/main.ts) 会先请求 `/api/v1/exams?sort=date_desc`
 - [exams.ts](D:/_develop/_side/exam-online-cpp/frontend/src/features/exams.ts) 把返回结果按等级分组
 - 结果写入前端 store 和 `window.__EXAMS_BY_LEVEL__`
 
@@ -327,10 +327,10 @@ exam-online-cpp/
 
 后续数据按需加载：
 
-- 选择试卷时，再请求 `/api/v2/exams/{exam_id}`
+- 选择试卷时，再请求 `/api/v1/exams/{exam_id}`
   - 这时后端才读取该试卷详细 JSON
   - 首次读取后会放入后端缓存
-- 查看用户进度时，请求 `/api/v2/progress/{user_id}/exams`
+- 查看用户进度时，请求 `/api/v1/progress/{user_id}/exams`
 - 提交答案时，写入 `data/user/answers/...`
 - 用户和角色信息按对应接口读取 `data/user/*.json`
 
@@ -344,13 +344,13 @@ exam-online-cpp/
 
 后端主入口：
 
-- [main.cpp](D:/_develop/_side/exam-online-cpp/cpp-backend/src/main.cpp)
+- [main.cpp](D:/_develop/_side/exam-online-cpp/backend/src/main.cpp)
 
 后端按分层组织：
 
 - `transport`
   - 负责注册 HTTP 路由
-  - 当前核心路由在 [ApiRouter.cpp](D:/_develop/_side/exam-online-cpp/cpp-backend/src/transport/ApiRouter.cpp)
+  - 当前核心路由在 [ApiRouter.cpp](D:/_develop/_side/exam-online-cpp/backend/src/transport/ApiRouter.cpp)
   - 根页面和资源目录都走配置里的 `staticDir`，不再依赖进程当前工作目录
 - `application`
   - 封装考试、答题、认证、统计、用户、推荐、振假名等服务
@@ -367,7 +367,7 @@ exam-online-cpp/
 
 当前 API 根前缀：
 
-- `/api/v2`
+- `/api/v1`
 
 ## 前端结构说明
 
@@ -477,7 +477,7 @@ exam-online-cpp/
 
 下面这些目录属于可再生成内容：
 
-- `cpp-backend/build`
+- `backend/build`
 - `frontend/node_modules`
 - `static/app`
 
@@ -499,14 +499,14 @@ exam-online-cpp/
 
 详细接口清单见：
 
-- [api-v2.md](D:/_develop/_side/exam-online-cpp/cpp-backend/docs/api-v2.md)
+- [api-v1.md](D:/_develop/_side/exam-online-cpp/backend/docs/api-v1.md)
 
 ## 常用命令
 
 初始化用户基线：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File cpp-backend/tools/migrate_user_baseline.ps1 -BaseDir .
+powershell -ExecutionPolicy Bypass -File backend/tools/migrate_user_baseline.ps1 -BaseDir .
 ```
 
 构建前端：
@@ -520,25 +520,25 @@ cd ..
 运行 C++ 测试：
 
 ```powershell
-ctest --test-dir cpp-backend/build -C Release --output-on-failure
+ctest --test-dir backend/build -C Release --output-on-failure
 ```
 
 运行 API 合约烟雾测试：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File cpp-backend/tests/contract_v2_smoke.ps1
+powershell -ExecutionPolicy Bypass -File backend/tests/contract_v1_smoke.ps1
 ```
 
 运行集成烟雾测试：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File cpp-backend/tests/integration_flow_smoke.ps1
+powershell -ExecutionPolicy Bypass -File backend/tests/integration_flow_smoke.ps1
 ```
 
 运行性能基线测试：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File cpp-backend/tests/perf_read_score.ps1
+powershell -ExecutionPolicy Bypass -File backend/tests/perf_read_score.ps1
 ```
 
 ## 当前仓库不再包含的内容
@@ -552,5 +552,5 @@ powershell -ExecutionPolicy Bypass -File cpp-backend/tests/perf_read_score.ps1
 
 如果你后续继续扩展，建议直接沿现在这套结构走：
 
-- 后端扩展：`cpp-backend/src/application`、`domain`、`transport`
+- 后端扩展：`backend/src/application`、`domain`、`transport`
 - 前端扩展：`frontend/src/features`、`frontend/src/viewer`

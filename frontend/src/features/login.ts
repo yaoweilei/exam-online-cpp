@@ -49,6 +49,20 @@ export class LoginModal {
 		this.modal.querySelector('#login-btn-password')?.addEventListener('click', () => {
 			void this.submitPassword();
 		});
+		this.modal.querySelector('#login-btn-register')?.addEventListener('click', () => {
+			void this.submitRegister();
+		});
+		this.modal.querySelector('#login-btn-reset-send-code')?.addEventListener('click', () => {
+			void this.sendPasswordResetCode();
+		});
+		this.modal.querySelector('#login-btn-reset-password')?.addEventListener('click', () => {
+			void this.submitPasswordReset();
+		});
+		this.modal.querySelectorAll<HTMLElement>('[data-password-view]').forEach((el) => {
+			el.addEventListener('click', () => {
+				this.switchPasswordView(el.dataset.passwordView || 'login');
+			});
+		});
 
 		// Phone send code
 		this.modal.querySelector('#login-btn-send-code')?.addEventListener('click', () => {
@@ -65,7 +79,7 @@ export class LoginModal {
 			btn.addEventListener('click', () => {
 				const provider = btn.dataset.oauth || '';
 				if (!provider) return;
-				window.location.href = `/api/v2/auth/oauth/${encodeURIComponent(provider)}/start`;
+				window.location.href = `/api/v1/auth/oauth/${encodeURIComponent(provider)}/start`;
 			});
 		});
 	}
@@ -190,7 +204,7 @@ export class LoginModal {
 	private async simulateWechatScan(state: string, testId?: string): Promise<void> {
 		const code = testId ?? ('stub_' + Math.random().toString(36).slice(2, 8));
 		try {
-			await fetch(`/api/v2/auth/wechat/callback?code=${code}&state=${state}`);
+			await fetch(`/api/v1/auth/wechat/callback?code=${code}&state=${state}`);
 		} catch {
 			// callback returns HTML page, fetch may "fail" due to content-type, that's ok
 		}
@@ -247,6 +261,85 @@ export class LoginModal {
 		}
 	}
 
+	private switchPasswordView(view: string): void {
+		this.modal.querySelectorAll<HTMLElement>('[data-password-view]').forEach((el) => {
+			el.classList.toggle('active', el.dataset.passwordView === view);
+		});
+		this.modal.querySelectorAll<HTMLElement>('[data-password-panel]').forEach((el) => {
+			el.classList.toggle('is-active', el.dataset.passwordPanel === view);
+		});
+		this.clearError();
+	}
+
+	private validatePassword(password: string, confirm?: string): string {
+		if (password.length < 8) return '密码至少需要 8 位';
+		if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) return '密码需要同时包含字母和数字';
+		if (confirm !== undefined && password !== confirm) return '两次输入的密码不一致';
+		return '';
+	}
+
+	private async submitRegister(): Promise<void> {
+		const username = (this.modal.querySelector<HTMLInputElement>('#register-username'))?.value.trim() ?? '';
+		const email = (this.modal.querySelector<HTMLInputElement>('#register-email'))?.value.trim() ?? '';
+		const password = (this.modal.querySelector<HTMLInputElement>('#register-password'))?.value ?? '';
+		const confirm = (this.modal.querySelector<HTMLInputElement>('#register-password-confirm'))?.value ?? '';
+		if (!username) { this.showError('请输入用户名'); return; }
+		const passwordError = this.validatePassword(password, confirm);
+		if (passwordError) { this.showError(passwordError); return; }
+		try {
+			const data = await this.api.request<{ token: string; user_id: string; username: string; roles: string[] }>(
+				'/auth/register',
+				{ method: 'POST', body: JSON.stringify({ username, email, password }) }
+			);
+			await this.onLoginSuccess(data);
+		} catch (e) {
+			this.showError((e as Error).message || '注册失败，请换一个用户名后重试');
+		}
+	}
+
+	private async sendPasswordResetCode(): Promise<void> {
+		const loginId = (this.modal.querySelector<HTMLInputElement>('#reset-login-id'))?.value.trim() ?? '';
+		if (!loginId) { this.showError('请输入用户名、邮箱、手机号或学号'); return; }
+		const btn = this.modal.querySelector<HTMLButtonElement>('#login-btn-reset-send-code');
+		if (btn) btn.disabled = true;
+		try {
+			await this.api.request('/auth/password/reset/send-code', {
+				method: 'POST',
+				body: JSON.stringify({ login_id: loginId })
+			});
+			this.showError('验证码已发送（有效期10分钟）');
+			let countdown = 60;
+			const timer = setInterval(() => {
+				if (btn) btn.textContent = `重新发送 (${--countdown}s)`;
+				if (countdown <= 0) {
+					clearInterval(timer);
+					if (btn) { btn.disabled = false; btn.textContent = '发送验证码'; }
+				}
+			}, 1000);
+		} catch (e) {
+			if (btn) btn.disabled = false;
+			this.showError((e as Error).message || '验证码发送失败');
+		}
+	}
+
+	private async submitPasswordReset(): Promise<void> {
+		const loginId = (this.modal.querySelector<HTMLInputElement>('#reset-login-id'))?.value.trim() ?? '';
+		const code = (this.modal.querySelector<HTMLInputElement>('#reset-code'))?.value.trim() ?? '';
+		const newPassword = (this.modal.querySelector<HTMLInputElement>('#reset-new-password'))?.value ?? '';
+		if (!loginId || !code) { this.showError('请输入账号和验证码'); return; }
+		const passwordError = this.validatePassword(newPassword);
+		if (passwordError) { this.showError(passwordError); return; }
+		try {
+			const data = await this.api.request<{ token: string; user_id: string; username: string; roles: string[] }>(
+				'/auth/password/reset',
+				{ method: 'POST', body: JSON.stringify({ login_id: loginId, code, new_password: newPassword }) }
+			);
+			await this.onLoginSuccess(data);
+		} catch (e) {
+			this.showError((e as Error).message || '密码重置失败');
+		}
+	}
+
 	// ─── Phone ───────────────────────────────────────────────────────────────
 
 	private async sendPhoneCode(): Promise<void> {
@@ -287,15 +380,14 @@ export class LoginModal {
 				'/auth/phone/verify',
 				{ method: 'POST', body: JSON.stringify({ user_id: 'guest', phone, code }) }
 			);
-			// After binding, do a proper login via phone-as-username pattern
-			// For now, show success and reload so session is restored from profile
-			this.showError('手机号绑定成功！请使用用户名登录');
 			if (data.user_id) {
 				// auto-login as the bound user if token available
 				if (data.token) {
 					await this.onLoginSuccess({ token: data.token, user_id: data.user_id, username: data.username ?? phone, roles: data.roles ?? [] });
+					return;
 				}
 			}
+			this.showError('手机号验证成功，但没有返回登录凭证，请刷新后重试');
 		} catch (e) {
 			this.showError((e as Error).message || '验证失败');
 		}

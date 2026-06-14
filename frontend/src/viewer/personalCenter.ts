@@ -184,6 +184,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			gate: (u) => !u.guest
 		},
 		{
+			id: 'paymentLedger',
+			title: '支付流水',
+			icon: 'wallet',
+			intent: 'openPaymentLedger',
+			gate: (u) => !u.guest
+		},
+		{
 			id: 'profile',
 			title: '个人信息',
 			icon: 'profileMark',
@@ -810,6 +817,640 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			return `${days} 天后到期，请尽快续期`;
 		}
 		return `${days} 天后到期`;
+	}
+
+	type PersonalPlan = 'free' | 'pro' | 'ultra';
+
+	const personalPlanOptions: Array<{
+		id: PersonalPlan;
+		name: string;
+		price: string;
+		desc: string;
+		features: string[];
+	}> = [
+		{
+			id: 'free',
+			name: 'FREE',
+			price: '免费',
+			desc: '适合先体验基础刷题。',
+			features: ['N5 / N4 访问', '基础做题记录', '基础个人资料']
+		},
+		{
+			id: 'pro',
+			name: 'PRO',
+			price: '¥19 / 30天起',
+			desc: '适合日常自学和系统复盘。',
+			features: ['开放 N3 / N2', '错题与弱项复盘', '推荐与收藏能力']
+		},
+		{
+			id: 'ultra',
+			name: 'ULTRA',
+			price: '¥39 / 30天起',
+			desc: '适合冲刺和深度训练。',
+			features: ['开放 N1', '专项训练权益', '数据导出与高级能力']
+		}
+	];
+
+	function normalizePersonalPlan(value: string | undefined): PersonalPlan {
+		return value === 'pro' || value === 'ultra' ? value : 'free';
+	}
+
+	function addDaysIsoDate(baseDate: Date, days: number): string {
+		const next = new Date(baseDate.getTime());
+		next.setDate(next.getDate() + days);
+		return next.toISOString().slice(0, 10);
+	}
+
+	function nextSubscriptionExpiry(ctx: PCContext, days: number): string {
+		if (days <= 0) {
+			return '';
+		}
+		const raw = (ctx.subscription?.expiresAt || ctx.planExpiresAt || '').trim();
+		const current = raw ? new Date(raw) : null;
+		const now = new Date();
+		const base = current && !Number.isNaN(current.getTime()) && current.getTime() > now.getTime()
+			? current
+			: now;
+		return addDaysIsoDate(base, days);
+	}
+
+	let rechargeModal: HTMLDivElement | null = null;
+
+	function ensureRechargeModal(): HTMLDivElement {
+		if (rechargeModal) return rechargeModal;
+		const modal = document.createElement('div');
+		modal.id = 'pc-recharge-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">续费 / 升级套餐</h3>
+					<button id="recharge-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+				</div>
+				<div id="recharge-body"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		rechargeModal = modal;
+		(modal.querySelector('#recharge-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (event) => {
+			if (event.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		return modal;
+	}
+
+	function renderRechargePanel(ctx: PCContext): string {
+		const currentPlan = normalizePersonalPlan(ctx.subscription?.plan);
+		const currentStatus = ctx.subscription?.status || 'active';
+		const currentExpiry = ctx.subscription?.expiresAt || ctx.planExpiresAt || '';
+		const cards = personalPlanOptions
+			.map((plan) => {
+				const checked = plan.id === currentPlan ? ' checked' : '';
+				const featureList = plan.features.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+				return `<label style="display:block;border:1px solid ${plan.id === currentPlan ? '#1976d2' : '#e0e0e0'};border-radius:8px;padding:12px;margin-bottom:10px;cursor:pointer;">
+					<div style="display:flex;gap:10px;align-items:flex-start;">
+						<input type="radio" name="recharge-plan" value="${plan.id}"${checked} style="margin-top:4px;" />
+						<div style="flex:1;">
+							<div style="display:flex;justify-content:space-between;gap:12px;">
+								<strong>${escapeHtml(plan.name)}</strong>
+								<span style="color:#1976d2;font-weight:600;">${escapeHtml(plan.price)}</span>
+							</div>
+							<div style="font-size:12px;color:#666;margin-top:3px;">${escapeHtml(plan.desc)}</div>
+							<ul style="margin:8px 0 0 18px;padding:0;font-size:12px;color:#555;line-height:1.7;">${featureList}</ul>
+						</div>
+					</div>
+				</label>`;
+			})
+			.join('');
+		return `<div style="font-size:13px;color:#333;">
+			<div style="border:1px solid #eee;border-radius:8px;padding:12px;margin-bottom:14px;background:#fafafa;">
+				<div>当前套餐：<strong>${escapeHtml(planLabel(currentPlan))}</strong> / ${escapeHtml(currentStatus)}</div>
+				<div style="margin-top:4px;color:#666;">到期时间：${escapeHtml(currentExpiry || '长期有效')}</div>
+			</div>
+			<form id="recharge-form">
+				${cards}
+				<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+					<label style="font-size:12px;color:#666;">续费时长
+						<select id="recharge-days" style="display:block;width:100%;margin-top:4px;padding:7px;border:1px solid #ddd;border-radius:4px;">
+							<option value="30">30 天</option>
+							<option value="90">90 天</option>
+							<option value="365" selected>365 天</option>
+						</select>
+					</label>
+					<label style="font-size:12px;color:#666;">支付渠道
+						<select id="recharge-provider" style="display:block;width:100%;margin-top:4px;padding:7px;border:1px solid #ddd;border-radius:4px;">
+							<option value="stripe" selected>Stripe</option>
+							<option value="wechat">微信支付</option>
+							<option value="alipay">支付宝</option>
+						</select>
+					</label>
+				</div>
+				<div id="recharge-preview" style="margin-top:12px;padding:10px;border-radius:6px;background:#f5f9ff;color:#345;font-size:12px;"></div>
+				<div style="margin-top:10px;color:#999;font-size:11px;line-height:1.6;">
+					付费套餐会先创建支付订单；只有支付渠道回调确认成功后，系统才会发放套餐权益并写入流水。
+				</div>
+				<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+					<button type="button" id="recharge-cancel" style="padding:7px 12px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;">取消</button>
+					<button type="submit" id="recharge-submit" style="padding:7px 14px;border:0;background:#1976d2;color:#fff;border-radius:4px;cursor:pointer;">创建支付订单</button>
+				</div>
+			</form>
+		</div>`;
+	}
+
+	function updateRechargePreview(modal: HTMLDivElement, ctx: PCContext): void {
+		const plan = normalizePersonalPlan((modal.querySelector('input[name="recharge-plan"]:checked') as HTMLInputElement | null)?.value);
+		const days = Number((modal.querySelector('#recharge-days') as HTMLSelectElement | null)?.value || 365);
+		const preview = modal.querySelector('#recharge-preview') as HTMLDivElement | null;
+		if (!preview) return;
+		if (plan === 'free') {
+			preview.textContent = '将切换为 FREE：套餐长期有效，但高级访问权益会回到基础范围。';
+			return;
+		}
+		const provider = (modal.querySelector('#recharge-provider') as HTMLSelectElement | null)?.value || 'stripe';
+		preview.textContent = `将创建 ${planLabel(plan)} ${days} 天支付订单，渠道为 ${provider}。支付成功后到期时间预计为 ${nextSubscriptionExpiry(ctx, days)}，仍有效的套餐会从当前到期日顺延。`;
+	}
+
+	async function submitRecharge(modal: HTMLDivElement, ctx: PCContext): Promise<void> {
+		const token = activeToken(ctx);
+		const userId = ctx.id || '';
+		const api = window.APIClient;
+		if (!token || !userId) {
+			showToast('请先登录后续费');
+			return;
+		}
+		if (!api || typeof api.createPaymentOrder !== 'function') {
+			showToast('支付接口暂不可用');
+			return;
+		}
+		const plan = normalizePersonalPlan((modal.querySelector('input[name="recharge-plan"]:checked') as HTMLInputElement | null)?.value);
+		const days = Number((modal.querySelector('#recharge-days') as HTMLSelectElement | null)?.value || 365);
+		const provider = (modal.querySelector('#recharge-provider') as HTMLSelectElement | null)?.value || 'stripe';
+		const submit = modal.querySelector('#recharge-submit') as HTMLButtonElement | null;
+		if (submit) {
+			submit.disabled = true;
+			submit.textContent = '处理中…';
+		}
+		try {
+			if (plan === 'free') {
+				if (typeof api.updateUserSubscription !== 'function') {
+					showToast('订阅接口暂不可用');
+					return;
+				}
+				const payload = { plan, status: 'active', expires_at: '' };
+				const updated = await api.updateUserSubscription(userId, token, payload);
+				const subscription = normalizeSubscription(updated) || normalizeSubscription(payload);
+				if (subscription) {
+					setContext({
+						...ctx,
+						subscription,
+						planExpiresAt: subscription.expiresAt,
+						guest: false
+					});
+				}
+				await refreshCurrentContextFromApi();
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+				showToast('已切换为 FREE');
+				renderSections();
+				renderSectionContent();
+				return;
+			}
+			const order = asRecord(await api.createPaymentOrder(token, {
+				plan,
+				days,
+				provider,
+				currency: 'cny'
+			})) || {};
+			const providerPayload = asRecord(order.provider_payload);
+			const paymentUrl = readString(providerPayload?.payment_url);
+			if (paymentUrl) {
+				window.open(paymentUrl, '_blank', 'noopener');
+				showToast('支付订单已创建，请在新窗口完成支付');
+			} else {
+				showToast(readString(providerPayload?.message) || readString(providerPayload?.error) || '支付订单已创建，渠道尚未返回支付链接');
+			}
+			const preview = modal.querySelector('#recharge-preview') as HTMLDivElement | null;
+			if (preview) {
+				preview.textContent = `订单 ${readString(order.id) || ''} 已创建，状态：${readString(order.status) || 'pending'}。支付成功后将通过回调自动发放套餐。`;
+			}
+		} catch (error) {
+			showToast(readErrorMessage(error, '支付订单创建失败'));
+		} finally {
+			if (submit) {
+				submit.disabled = false;
+				submit.textContent = '创建支付订单';
+			}
+		}
+	}
+
+	async function openRechargePanel(): Promise<void> {
+		const ctx = getContext();
+		if (ctx.guest || !ctx.id) {
+			showToast('请先登录后续费');
+			return;
+		}
+		const modal = ensureRechargeModal();
+		const body = modal.querySelector('#recharge-body') as HTMLDivElement | null;
+		if (!body) return;
+		body.innerHTML = renderRechargePanel(ctx);
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		updateRechargePreview(modal, ctx);
+		modal.querySelectorAll('input[name="recharge-plan"], #recharge-days, #recharge-provider').forEach((el) => {
+			(el as HTMLInputElement | HTMLSelectElement).onchange = () => updateRechargePreview(modal, ctx);
+		});
+		const cancel = modal.querySelector('#recharge-cancel') as HTMLButtonElement | null;
+		if (cancel) {
+			cancel.onclick = () => {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			};
+		}
+		const form = modal.querySelector('#recharge-form') as HTMLFormElement | null;
+		if (form) {
+			form.onsubmit = (event) => {
+				event.preventDefault();
+				void submitRecharge(modal, ctx);
+			};
+		}
+	}
+
+	type WalletCoupon = {
+		id: string;
+		code: string;
+		title: string;
+		kind: string;
+		description: string;
+		status: string;
+		redeemedAt: string;
+		effectSummary: string;
+	};
+
+	type WalletView = {
+		balance?: PCBalance;
+		subscription?: PCSubscription;
+		coupons: WalletCoupon[];
+		couponCount: number;
+	};
+
+	type PaymentLedgerEntry = {
+		id: string;
+		orderId: string;
+		type: string;
+		amountCents: number;
+		currency: string;
+		summary: string;
+		createdAt: string;
+	};
+
+	let walletModal: HTMLDivElement | null = null;
+
+	function normalizeWalletCoupon(value: unknown): WalletCoupon | null {
+		const raw = asRecord(value);
+		if (!raw) {
+			return null;
+		}
+		const id = readString(raw.id) || readString(raw.normalized_code) || readString(raw.code);
+		const code = readString(raw.code) || id;
+		if (!id && !code) {
+			return null;
+		}
+		const stableCode = code || id || '';
+		return {
+			id: id || stableCode,
+			code: stableCode,
+			title: readString(raw.title) || '兑换卡券',
+			kind: readString(raw.kind) || 'coupon',
+			description: readString(raw.description) || '',
+			status: readString(raw.status) || 'used',
+			redeemedAt: readString(raw.redeemedAt) || readString(raw.redeemed_at) || '',
+			effectSummary: readString(raw.effectSummary) || readString(raw.effect_summary) || ''
+		};
+	}
+
+	function normalizeWallet(value: unknown): WalletView {
+		const raw = asRecord(value) || {};
+		const balanceRecord = asRecord(raw.balance);
+		const coupons = Array.isArray(raw.coupons)
+			? raw.coupons.map(normalizeWalletCoupon).filter((item): item is WalletCoupon => Boolean(item))
+			: [];
+		return {
+			balance: balanceRecord
+				? {
+						credits: readNumber(balanceRecord.credits) ?? 0,
+						updatedAt: readString(balanceRecord.updatedAt) || readString(balanceRecord.updated_at) || ''
+				  }
+				: undefined,
+			subscription: normalizeSubscription(raw.subscription),
+			coupons,
+			couponCount: readNumber(raw.couponCount) ?? readNumber(raw.coupon_count) ?? coupons.length
+		};
+	}
+
+	function normalizePaymentLedgerEntry(value: unknown): PaymentLedgerEntry | null {
+		const raw = asRecord(value);
+		if (!raw) {
+			return null;
+		}
+		const id = readString(raw.id);
+		if (!id) {
+			return null;
+		}
+		return {
+			id,
+			orderId: readString(raw.order_id) || readString(raw.orderId) || '',
+			type: readString(raw.type) || '',
+			amountCents: readNumber(raw.amount_cents) ?? readNumber(raw.amountCents) ?? 0,
+			currency: readString(raw.currency) || 'cny',
+			summary: readString(raw.summary) || '',
+			createdAt: readString(raw.created_at) || readString(raw.createdAt) || ''
+		};
+	}
+
+	function formatPaymentAmount(amountCents: number, currency: string): string {
+		const symbol = currency.toLowerCase() === 'usd' ? '$' : '¥';
+		const sign = amountCents < 0 ? '-' : '';
+		return `${sign}${symbol}${(Math.abs(amountCents) / 100).toFixed(2)}`;
+	}
+
+	function applyWalletToContext(wallet: WalletView): void {
+		const ctx = getContext();
+		setContext({
+			...ctx,
+			balance: wallet.balance || ctx.balance,
+			subscription: wallet.subscription || ctx.subscription,
+			planExpiresAt: wallet.subscription?.expiresAt || ctx.planExpiresAt,
+			couponCount: wallet.couponCount
+		});
+		void renderIdentity();
+		renderSections();
+		renderSectionContent({ preserveScroll: true });
+	}
+
+	function couponKindLabel(kind: string): string {
+		switch (kind) {
+			case 'credits':
+				return '积分券';
+			case 'subscription':
+				return '套餐卡';
+			default:
+				return '卡券';
+		}
+	}
+
+	function ensureWalletModal(): HTMLDivElement {
+		if (walletModal) return walletModal;
+		const modal = document.createElement('div');
+		modal.id = 'pc-wallet-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 id="wallet-title" style="margin:0;font-size:16px;"></h3>
+					<button id="wallet-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+				</div>
+				<div id="wallet-body"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		walletModal = modal;
+		(modal.querySelector('#wallet-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (event) => {
+			if (event.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		return modal;
+	}
+
+	async function loadWallet(ctx: PCContext): Promise<WalletView> {
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.getMyWallet !== 'function') {
+			return {
+				balance: ctx.balance,
+				subscription: ctx.subscription,
+				coupons: [],
+				couponCount: ctx.couponCount ?? 0
+			};
+		}
+		return normalizeWallet(await api.getMyWallet(token));
+	}
+
+	function renderRedeemPanel(ctx: PCContext, wallet: WalletView): string {
+		const credits = wallet.balance?.credits ?? ctx.balance?.credits ?? 0;
+		const coupons = wallet.couponCount ?? ctx.couponCount ?? 0;
+		return `<div style="font-size:13px;color:#333;">
+			<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+				<div style="border:1px solid #eee;border-radius:8px;padding:12px;background:#fafafa;">
+					<div style="color:#666;font-size:12px;">学习积分</div>
+					<strong style="font-size:20px;">${credits}</strong>
+				</div>
+				<div style="border:1px solid #eee;border-radius:8px;padding:12px;background:#fafafa;">
+					<div style="color:#666;font-size:12px;">已兑换卡券</div>
+					<strong style="font-size:20px;">${coupons} 张</strong>
+				</div>
+			</div>
+			<form id="wallet-redeem-form">
+				<label style="display:block;font-size:12px;color:#666;">兑换码
+					<input id="wallet-redeem-code" autocomplete="off" placeholder="例如 WELCOME-100" style="display:block;width:100%;box-sizing:border-box;margin-top:6px;padding:9px;border:1px solid #ddd;border-radius:4px;font-size:14px;text-transform:uppercase;" />
+				</label>
+				<div id="wallet-redeem-result" style="display:none;margin-top:12px;padding:10px;border-radius:6px;background:#f5f9ff;color:#345;font-size:12px;"></div>
+				<div style="margin-top:10px;color:#999;font-size:11px;line-height:1.6;">
+					兑换码会记录到当前账号，已使用过的兑换码不能重复兑换。运营兑换码配置在 data/system/redeem_codes.json。
+				</div>
+				<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+					<button type="button" id="wallet-show-coupons" style="padding:7px 12px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;">查看卡券包</button>
+					<button type="submit" id="wallet-redeem-submit" style="padding:7px 14px;border:0;background:#1976d2;color:#fff;border-radius:4px;cursor:pointer;">确认兑换</button>
+				</div>
+			</form>
+		</div>`;
+	}
+
+	function renderCouponsPanel(wallet: WalletView): string {
+		const cards = wallet.coupons.length
+			? wallet.coupons
+					.slice()
+					.sort((a, b) => (b.redeemedAt || '').localeCompare(a.redeemedAt || ''))
+					.map((coupon) => `<div style="border:1px solid #e3e8ef;border-radius:8px;padding:12px;margin-bottom:10px;background:#fff;">
+						<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+							<div>
+								<strong>${escapeHtml(coupon.title)}</strong>
+								<div style="font-size:12px;color:#777;margin-top:4px;">${escapeHtml(coupon.code)} · ${escapeHtml(couponKindLabel(coupon.kind))}</div>
+							</div>
+							<span style="font-size:12px;color:#1976d2;font-weight:600;">${escapeHtml(coupon.status === 'used' ? '已使用' : coupon.status)}</span>
+						</div>
+						${coupon.description ? `<div style="font-size:12px;color:#555;margin-top:8px;line-height:1.6;">${escapeHtml(coupon.description)}</div>` : ''}
+						${coupon.effectSummary ? `<div style="font-size:12px;color:#345;margin-top:8px;padding:8px;border-radius:6px;background:#f5f9ff;">${escapeHtml(coupon.effectSummary)}</div>` : ''}
+						<div style="font-size:11px;color:#999;margin-top:8px;">兑换时间：${escapeHtml(formatDateTime(coupon.redeemedAt))}</div>
+					</div>`)
+					.join('')
+			: `<div style="border:1px dashed #d8dee6;border-radius:8px;padding:18px;text-align:center;color:#777;background:#fafafa;">暂无已兑换卡券</div>`;
+		return `<div style="font-size:13px;color:#333;">
+			<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+				<div>当前共有 <strong>${wallet.couponCount}</strong> 张卡券记录</div>
+				<button type="button" id="wallet-open-redeem" style="padding:6px 10px;border:1px solid #1976d2;background:#fff;color:#1976d2;border-radius:4px;cursor:pointer;">兑换新卡券</button>
+			</div>
+			${cards}
+		</div>`;
+	}
+
+	async function submitRedeem(modal: HTMLDivElement, ctx: PCContext): Promise<void> {
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		const input = modal.querySelector('#wallet-redeem-code') as HTMLInputElement | null;
+		const submit = modal.querySelector('#wallet-redeem-submit') as HTMLButtonElement | null;
+		const result = modal.querySelector('#wallet-redeem-result') as HTMLDivElement | null;
+		const code = (input?.value || '').trim();
+		if (!token) {
+			showToast('请先登录后兑换');
+			return;
+		}
+		if (!code) {
+			showToast('请输入兑换码');
+			input?.focus();
+			return;
+		}
+		if (!api || typeof api.redeemCode !== 'function') {
+			showToast('兑换接口暂不可用');
+			return;
+		}
+		if (submit) {
+			submit.disabled = true;
+			submit.textContent = '兑换中…';
+		}
+		try {
+			const response = asRecord(await api.redeemCode(token, code)) || {};
+			const wallet = normalizeWallet(response.wallet);
+			applyWalletToContext(wallet);
+			const redemption = normalizeWalletCoupon(response.redemption);
+			if (result) {
+				result.style.display = 'block';
+				result.textContent = redemption?.effectSummary || '兑换成功';
+			}
+			if (input) input.value = '';
+			showToast('兑换成功');
+		} catch (error) {
+			showToast(readErrorMessage(error, '兑换失败'));
+		} finally {
+			if (submit) {
+				submit.disabled = false;
+				submit.textContent = '确认兑换';
+			}
+		}
+	}
+
+	async function openRedeemPanel(): Promise<void> {
+		const ctx = getContext();
+		if (ctx.guest || !ctx.id) {
+			showToast('请先登录后兑换');
+			return;
+		}
+		const modal = ensureWalletModal();
+		const title = modal.querySelector('#wallet-title') as HTMLElement | null;
+		const body = modal.querySelector('#wallet-body') as HTMLDivElement | null;
+		if (!body) return;
+		if (title) title.textContent = '兑换码';
+		body.innerHTML = '<div style="padding:18px;color:#777;">正在加载账户信息…</div>';
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		try {
+			const wallet = await loadWallet(ctx);
+			applyWalletToContext(wallet);
+			body.innerHTML = renderRedeemPanel(getContext(), wallet);
+			(modal.querySelector('#wallet-show-coupons') as HTMLButtonElement | null)?.addEventListener('click', () => {
+				void openCouponsPanel();
+			});
+			const form = modal.querySelector('#wallet-redeem-form') as HTMLFormElement | null;
+			if (form) {
+				form.onsubmit = (event) => {
+					event.preventDefault();
+					void submitRedeem(modal, getContext());
+				};
+			}
+			(modal.querySelector('#wallet-redeem-code') as HTMLInputElement | null)?.focus();
+		} catch (error) {
+			body.innerHTML = `<div style="padding:18px;color:#a33;">${escapeHtml(readErrorMessage(error, '账户信息加载失败'))}</div>`;
+		}
+	}
+
+	async function openCouponsPanel(): Promise<void> {
+		const ctx = getContext();
+		if (ctx.guest || !ctx.id) {
+			showToast('请先登录后查看卡券包');
+			return;
+		}
+		const modal = ensureWalletModal();
+		const title = modal.querySelector('#wallet-title') as HTMLElement | null;
+		const body = modal.querySelector('#wallet-body') as HTMLDivElement | null;
+		if (!body) return;
+		if (title) title.textContent = '卡券包';
+		body.innerHTML = '<div style="padding:18px;color:#777;">正在加载卡券包…</div>';
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		try {
+			const wallet = await loadWallet(ctx);
+			applyWalletToContext(wallet);
+			body.innerHTML = renderCouponsPanel(wallet);
+			(modal.querySelector('#wallet-open-redeem') as HTMLButtonElement | null)?.addEventListener('click', () => {
+				void openRedeemPanel();
+			});
+		} catch (error) {
+			body.innerHTML = `<div style="padding:18px;color:#a33;">${escapeHtml(readErrorMessage(error, '卡券包加载失败'))}</div>`;
+		}
+	}
+
+	async function openPaymentLedgerPanel(): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (ctx.guest || !ctx.id || !token) {
+			showToast('请先登录后查看支付流水');
+			return;
+		}
+		const modal = ensureWalletModal();
+		const title = modal.querySelector('#wallet-title') as HTMLElement | null;
+		const body = modal.querySelector('#wallet-body') as HTMLDivElement | null;
+		if (!body) return;
+		if (title) title.textContent = '支付流水';
+		body.innerHTML = '<div style="padding:18px;color:#777;">正在加载支付流水…</div>';
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		try {
+			if (!api || typeof api.listPaymentLedger !== 'function') {
+				throw new Error('支付流水接口暂不可用');
+			}
+			const rawRows = await api.listPaymentLedger(token);
+			const rows = Array.isArray(rawRows)
+				? rawRows.map(normalizePaymentLedgerEntry).filter((item): item is PaymentLedgerEntry => Boolean(item))
+				: [];
+			body.innerHTML = rows.length
+				? rows
+						.slice()
+						.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+						.map((entry) => `<div style="border:1px solid #e3e8ef;border-radius:8px;padding:12px;margin-bottom:10px;background:#fff;">
+							<div style="display:flex;justify-content:space-between;gap:12px;">
+								<strong>${escapeHtml(entry.summary || entry.type)}</strong>
+								<span style="font-weight:600;color:${entry.amountCents < 0 ? '#a33' : '#1976d2'};">${escapeHtml(formatPaymentAmount(entry.amountCents, entry.currency))}</span>
+							</div>
+							<div style="font-size:12px;color:#777;margin-top:6px;">${escapeHtml(entry.type)} · ${escapeHtml(entry.orderId)}</div>
+							<div style="font-size:11px;color:#999;margin-top:6px;">${escapeHtml(formatDateTime(entry.createdAt))}</div>
+						</div>`)
+						.join('')
+				: '<div style="border:1px dashed #d8dee6;border-radius:8px;padding:18px;text-align:center;color:#777;background:#fafafa;">暂无支付流水</div>';
+		} catch (error) {
+			body.innerHTML = `<div style="padding:18px;color:#a33;">${escapeHtml(readErrorMessage(error, '支付流水加载失败'))}</div>`;
+		}
 	}
 
 	function invitationStatusLabel(status: string): string {
@@ -2582,6 +3223,18 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					<div class="pc-info-row"><span>到期时间</span><strong>${escapeHtml(ctx.subscription?.expiresAt || '长期')}</strong></div>
 				</div>
 			</div>
+			<div class="pc-card pc-info-card">
+				<div class="pc-service-header">账号安全</div>
+				<form class="pc-profile-edit-row" data-password-change-form>
+					<label class="pc-profile-edit-label" for="pc-current-password">修改密码</label>
+					<div class="pc-profile-edit-inline">
+						<input class="pc-profile-input" id="pc-current-password" type="password" autocomplete="current-password" placeholder="当前密码" />
+						<input class="pc-profile-input" id="pc-new-password" type="password" autocomplete="new-password" placeholder="新密码：至少8位，含字母和数字" />
+						<button class="pc-inline-btn" type="submit">更新密码</button>
+					</div>
+					<div class="pc-avatar-picker-note">更新后可以继续使用当前登录状态；忘记密码时请在登录弹窗里使用“找回密码”。</div>
+				</form>
+			</div>
 			${renderContactVerificationCard(ctx)}
 		</div>`;
 	}
@@ -2616,7 +3269,17 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			? '企业管理员现在会直接看到组织成员、席位和套餐摘要。'
 			: '教师和阅卷角色先保留业务入口；企业管理员进入组织后，会自动出现成员管理视图。';
 
-		return `<div class="pc-profile-stack"><div class="pc-card pc-info-card"><div class="pc-service-header">管理面板</div><div class="pc-info-list"><div class="pc-info-row"><span>当前空间</span><strong>${escapeHtml(scopeLabel(ctx))}</strong></div>${organizationRow}<div class="pc-info-row"><span>当前角色</span><strong>${roleText}</strong></div></div><div class="pc-admin-note">${escapeHtml(roleNote)}</div></div>${organizationPanel}${hasAnyRole(ctx, ['superAdmin']) ? renderSystemFlags() : ''}</div>`;
+		return `<div class="pc-profile-stack"><div class="pc-card pc-info-card"><div class="pc-service-header">管理面板</div><div class="pc-info-list"><div class="pc-info-row"><span>当前空间</span><strong>${escapeHtml(scopeLabel(ctx))}</strong></div>${organizationRow}<div class="pc-info-row"><span>当前角色</span><strong>${roleText}</strong></div></div><div class="pc-admin-note">${escapeHtml(roleNote)}</div></div>${renderInstitutionWorkbenchShell(ctx)}${organizationPanel}${hasAnyRole(ctx, ['superAdmin']) ? renderSystemFlags() : ''}</div>`;
+	}
+
+	function renderInstitutionWorkbenchShell(ctx: PCContext): string {
+		if (!hasAnyRole(ctx, ['teacher', 'reviewer', 'orgAdmin', 'systemAdmin', 'superAdmin'])) {
+			return '';
+		}
+		return `<div class="pc-card pc-info-card" id="pc-institution-workbench">
+			<div class="pc-service-header">机构教学工作台</div>
+			<div class="pc-admin-note">正在加载班级、作业、席位、成绩册与学员档案...</div>
+		</div>`;
 	}
 
 	async function saveSelectedAvatar(avatarUrl: string): Promise<void> {
@@ -2750,6 +3413,31 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return false;
 	}
 
+	async function changeCurrentPassword(currentPassword: string, newPassword: string, form: HTMLFormElement): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		if (!token || !api || typeof api.changePassword !== 'function') {
+			showToast('修改密码接口暂不可用');
+			return;
+		}
+		if (!currentPassword || !newPassword) {
+			showToast('请输入当前密码和新密码');
+			return;
+		}
+		if (newPassword.length < 8 || !/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+			showToast('新密码至少 8 位，并且需要同时包含字母和数字');
+			return;
+		}
+		try {
+			await api.changePassword(token, currentPassword, newPassword);
+			form.reset();
+			showToast('密码已更新');
+		} catch (error) {
+			log('change password failed', error);
+			showToast(readErrorMessage(error, '密码更新失败'));
+		}
+	}
+
 	function attachProfileHandlers(container: HTMLElement): void {
 		container.onclick = (event: MouseEvent) => {
 			const target = event.target as HTMLElement | null;
@@ -2773,6 +3461,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			event.preventDefault();
 			const form = event.target as HTMLFormElement | null;
 			if (!form) {
+				return;
+			}
+			if (form.hasAttribute('data-password-change-form')) {
+				const currentPassword = (form.querySelector('#pc-current-password') as HTMLInputElement | null)?.value || '';
+				const newPassword = (form.querySelector('#pc-new-password') as HTMLInputElement | null)?.value || '';
+				void changeCurrentPassword(currentPassword, newPassword, form);
 				return;
 			}
 			handleContactVerificationSubmit(form);
@@ -2842,11 +3536,20 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				renderSections();
 				renderSectionContent();
 				break;
-			case 'openRecharge':
 			case 'openRedeem':
+				void openRedeemPanel();
+				break;
 			case 'openCoupons':
+				void openCouponsPanel();
+				break;
+			case 'openPaymentLedger':
+				void openPaymentLedgerPanel();
+				break;
 			case 'joinCommunity':
 				showToast(`功能占位: ${intent}`);
+				break;
+			case 'openRecharge':
+				void openRechargePanel();
 				break;
 			case 'openWrongQuestions':
 				// 业务功能 1：打开错题本面板
@@ -3060,10 +3763,351 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return true;
 	}
 
+	function institutionNumber(value: unknown, fallback = 0): number {
+		return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+	}
+
+	function renderInstitutionDashboard(data: Record<string, unknown>): string {
+		const summary = asRecord(data.summary) || {};
+		const seat = asRecord(data.seat_summary) || {};
+		const planCatalog = asRecord(data.plan_catalog) || {};
+		const activePlan = asRecord(data.active_institution_plan) || {};
+		const capabilities = asRecord(data.capabilities) || {};
+		const lockedFeatures = Array.isArray(data.locked_features) ? data.locked_features.filter((item): item is string => typeof item === 'string') : [];
+		const assignments = Array.isArray(data.assignments) ? data.assignments : [];
+		const risks = Array.isArray(data.renewal_risks) ? data.renewal_risks : [];
+		const teachers = Array.isArray(data.teacher_effectiveness) ? data.teacher_effectiveness : [];
+		const classes = Array.isArray(data.classes) ? data.classes : [];
+		const assignmentRows = assignments.slice(0, 6).map((item) => {
+			const raw = asRecord(item) || {};
+			const title = readString(raw.title) || '未命名作业';
+			const submitted = institutionNumber(raw.submitted_count);
+			const total = institutionNumber(raw.student_count);
+			const avg = institutionNumber(raw.average_score, -1);
+			return `<div class="pc-info-row"><span>${escapeHtml(title)}</span><strong>${submitted}/${total}${avg >= 0 ? ` · ${avg.toFixed(1)}%` : ''}</strong></div>`;
+		}).join('');
+		const riskRows = risks.slice(0, 5).map((item) => {
+			const raw = asRecord(item) || {};
+			const student = asRecord(raw.student) || {};
+			return `<div class="pc-info-row"><span>${escapeHtml(readString(student.display_name) || readString(student.username) || readString(student.id) || '学员')}</span><strong>${escapeHtml(readString(raw.level) || 'low')} · ${escapeHtml(readString(raw.reason) || '')}</strong></div>`;
+		}).join('');
+		const teacherRows = teachers.slice(0, 5).map((item) => {
+			const raw = asRecord(item) || {};
+			const teacher = asRecord(raw.teacher) || {};
+			return `<div class="pc-info-row"><span>${escapeHtml(readString(teacher.display_name) || readString(teacher.username) || '老师')}</span><strong>${institutionNumber(raw.class_count)} 班 · ${institutionNumber(raw.assignment_count)} 作业</strong></div>`;
+		}).join('');
+		const classOptions = classes.map((item) => {
+			const raw = asRecord(item) || {};
+			const id = readString(raw.class_id);
+			const name = readString(raw.name) || id;
+			return id ? `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>` : '';
+		}).join('');
+		const canImport = capabilities.bulk_import === true;
+		const canPrep = capabilities.lesson_prep === true;
+		return `<div class="pc-admin-note">机构工作台已经接入班级、作业、成绩册、席位、学员档案和备课工具。</div>
+			<div class="pc-info-list">
+				<div class="pc-info-row"><span>当前机构套餐</span><strong>${escapeHtml(readString(activePlan.name) || readString(activePlan.id) || '标准版')}</strong></div>
+				<div class="pc-info-row"><span>班级 / 学员 / 作业</span><strong>${institutionNumber(summary.class_count)} / ${institutionNumber(summary.student_count)} / ${institutionNumber(summary.assignment_count)}</strong></div>
+				<div class="pc-info-row"><span>席位</span><strong>${institutionNumber(seat.used_seats)} / ${institutionNumber(seat.purchased_seats)} 已用</strong></div>
+				<div class="pc-info-row"><span>平均作业得分</span><strong>${institutionNumber(summary.average_assignment_score, -1) >= 0 ? `${institutionNumber(summary.average_assignment_score).toFixed(1)}%` : '暂无'}</strong></div>
+			</div>
+			${renderInstitutionCapabilityPanel(capabilities, lockedFeatures)}
+			<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px;">
+				<div class="pc-card pc-info-card"><div class="pc-service-header">作业完成</div><div class="pc-info-list">${assignmentRows || '<div class="pc-admin-note">暂无作业</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">续费风险</div><div class="pc-info-list">${capabilities.renewal_risk === true ? (riskRows || '<div class="pc-admin-note">暂无风险学员</div>') : '<div class="pc-admin-note">当前套餐未开通续费风险。</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">老师教学概览</div><div class="pc-info-list">${capabilities.teacher_effectiveness === true ? (teacherRows || '<div class="pc-admin-note">暂无老师数据</div>') : '<div class="pc-admin-note">当前套餐未开通老师教学看板。</div>'}</div></div>
+			</div>
+			${renderInstitutionPlanCatalog(planCatalog)}
+			<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+				<select data-inst-class style="padding:7px;border:1px solid #ddd;border-radius:4px;">${classOptions || '<option value="">暂无班级</option>'}</select>
+				<button class="pc-inline-btn" type="button" data-inst-create-class>创建班级</button>
+				<button class="pc-inline-btn" type="button" data-inst-add-members>添加学员</button>
+				<button class="pc-inline-btn" type="button" data-inst-create-assignment>布置作业</button>
+				<button class="pc-inline-btn" type="button" data-inst-gradebook>打开成绩册</button>
+				<button class="pc-inline-btn" type="button" data-inst-import ${canImport ? '' : 'disabled'}>批量导入预览</button>
+				<button class="pc-inline-btn" type="button" data-inst-prep ${canPrep ? '' : 'disabled'}>备课组卷</button>
+			</div>
+			<div class="pc-admin-note">自动批改来自学生提交答案后的统计结果；成绩册会自动聚合提交状态、正确率和平均分。</div>
+			<div id="pc-institution-detail" style="margin-top:12px;"></div>`;
+	}
+
+	function institutionFeatureLabel(key: string): string {
+		const labels: Record<string, string> = {
+			classrooms: '班级管理',
+			assignments: '布置作业',
+			auto_grading: '自动批改',
+			gradebook: '成绩册',
+			student_profiles: '学员档案',
+			institution_dashboard: '机构看板',
+			teacher_effectiveness: '老师教学看板',
+			renewal_risk: '续费风险',
+			bulk_import: '批量导入',
+			lesson_prep: '备课组卷',
+			export_handouts: '导出讲义',
+			multi_teacher: '多老师协作',
+			audit_logs: '审计日志',
+			multi_campus: '多校区',
+			custom_success_support: '专属成功支持'
+		};
+		return labels[key] || key;
+	}
+
+	function renderInstitutionCapabilityPanel(capabilities: Record<string, unknown>, lockedFeatures: string[]): string {
+		const core = ['classrooms', 'assignments', 'auto_grading', 'gradebook', 'student_profiles'];
+		const advanced = ['institution_dashboard', 'teacher_effectiveness', 'renewal_risk', 'bulk_import', 'lesson_prep', 'export_handouts', 'multi_teacher', 'audit_logs', 'multi_campus', 'custom_success_support'];
+		const renderList = (items: string[]) => items
+			.map((key) => {
+				const on = capabilities[key] === true;
+				return `<span class="pc-tag${on ? '' : ' muted'}" title="${on ? '已开通' : '当前套餐未开通'}">${escapeHtml(institutionFeatureLabel(key))}${on ? '' : '（未开通）'}</span>`;
+			})
+			.join('');
+		return `<div class="pc-card pc-info-card" style="margin-top:12px;">
+			<div class="pc-service-header">当前套餐功能</div>
+			<div class="pc-admin-note">核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。</div>
+			<div style="margin-top:8px;"><strong>核心教学</strong><div class="pc-tag-list" style="margin-top:6px;">${renderList(core)}</div></div>
+			<div style="margin-top:10px;"><strong>高级管理</strong><div class="pc-tag-list" style="margin-top:6px;">${renderList(advanced)}</div></div>
+			${lockedFeatures.length ? `<div class="pc-admin-note">当前锁定：${lockedFeatures.map(institutionFeatureLabel).map(escapeHtml).join('、')}</div>` : ''}
+		</div>`;
+	}
+
+	function renderInstitutionPlanCatalog(planCatalog: Record<string, unknown>): string {
+		const plans = Array.isArray(planCatalog.plans) ? planCatalog.plans : [];
+		if (plans.length === 0) {
+			return '';
+		}
+		const cards = plans.map((item) => {
+			const raw = asRecord(item) || {};
+			const features = asRecord(raw.features) || {};
+			const enabled = Object.keys(features).filter((key) => features[key] === true).slice(0, 7);
+			const recommended = readBoolean(raw.recommended);
+			return `<div style="border:1px solid ${recommended ? '#1976d2' : '#e3e8ef'};border-radius:8px;padding:12px;background:#fff;">
+				<div style="display:flex;justify-content:space-between;gap:8px;">
+					<strong>${escapeHtml(readString(raw.name) || '')}${recommended ? ' · 推荐' : ''}</strong>
+					<span style="color:#1976d2;font-weight:600;">¥${institutionNumber(raw.monthly_price)}/月</span>
+				</div>
+				<div style="font-size:12px;color:#777;margin-top:4px;">${escapeHtml(readString(raw.target) || '')}</div>
+				<div style="font-size:12px;color:#555;margin-top:8px;">${institutionNumber(raw.included_seats)} 席 · 超出 ¥${institutionNumber(raw.extra_seat_price)}/人/月 · 年付 ¥${institutionNumber(raw.yearly_price)}</div>
+				<div style="font-size:12px;color:#555;margin-top:8px;line-height:1.6;">${enabled.map(institutionFeatureLabel).map(escapeHtml).join('、')}</div>
+			</div>`;
+		}).join('');
+		return `<div class="pc-card pc-info-card" style="margin-top:12px;">
+			<div class="pc-service-header">机构套餐价格</div>
+			<div class="pc-admin-note">价格和权益来自 data/system/institution_plans.json，可随时调整。核心教学能力各档都有，高级管理能力随席位规模开放。</div>
+			<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px;">${cards}</div>
+		</div>`;
+	}
+
+	async function refreshInstitutionWorkbench(ctx: PCContext): Promise<void> {
+		const root = document.getElementById('pc-institution-workbench');
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!root || !token || !api || typeof api.getInstitutionDashboard !== 'function') {
+			return;
+		}
+		try {
+			const data = asRecord(await api.getInstitutionDashboard(token, ctx.organizationId)) || {};
+			root.innerHTML = `<div class="pc-service-header">机构教学工作台</div>${renderInstitutionDashboard(data)}`;
+		} catch (error) {
+			root.innerHTML = `<div class="pc-service-header">机构教学工作台</div><div class="pc-admin-note">${escapeHtml(readErrorMessage(error, '机构工作台加载失败'))}</div>`;
+		}
+	}
+
+	async function openInstitutionGradebook(container: HTMLElement): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		const select = container.querySelector('[data-inst-class]') as HTMLSelectElement | null;
+		const classId = select?.value || '';
+		const detail = container.querySelector('#pc-institution-detail') as HTMLElement | null;
+		if (!token || !classId || !detail || !api || typeof api.getInstitutionClassGradebook !== 'function') {
+			showToast('请选择班级');
+			return;
+		}
+		detail.innerHTML = '<div class="pc-admin-note">正在加载成绩册...</div>';
+		try {
+			const data = asRecord(await api.getInstitutionClassGradebook(token, classId)) || {};
+			const students = Array.isArray(data.students) ? data.students : [];
+			detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">班级成绩册</div><div class="pc-info-list">${students.map((item) => {
+				const raw = asRecord(item) || {};
+				const student = asRecord(raw.student) || {};
+				const record = asRecord(raw.answers) || {};
+				const name = readString(student.display_name) || readString(student.username) || readString(student.id) || '学员';
+				const score = institutionNumber(record.average_score, -1);
+				const studentId = readString(student.id);
+				return `<div class="pc-info-row"><span>${escapeHtml(name)}</span><strong>${score >= 0 ? `${score.toFixed(1)}%` : '暂无'} · ${institutionNumber(record.attempt_count)} 次 <button class="pc-inline-btn" type="button" data-inst-student="${escapeHtml(studentId)}">档案</button></strong></div>`;
+			}).join('') || '<div class="pc-admin-note">暂无学员</div>'}</div></div>`;
+		} catch (error) {
+			detail.innerHTML = `<div class="pc-admin-note">${escapeHtml(readErrorMessage(error, '成绩册加载失败'))}</div>`;
+		}
+	}
+
+	async function createInstitutionClass(container: HTMLElement): Promise<void> {
+		const ctx = getContext();
+		const api = window.APIClient;
+		if (!api || typeof api.createClassroom !== 'function') {
+			showToast('班级接口暂不可用');
+			return;
+		}
+		const name = (window.prompt('班级名称', 'EJU 日语冲刺班') || '').trim();
+		if (!name) return;
+		const description = (window.prompt('班级说明（可选）', '') || '').trim();
+		try {
+			const created = asRecord(await api.createClassroom({
+				name,
+				description,
+				org_id: ctx.organizationId || ''
+			})) || {};
+			const createdId = readString(created.class_id);
+			showToast('班级已创建');
+			await refreshInstitutionWorkbench(getContext());
+			const root = document.getElementById('pc-institution-workbench') || container;
+			const select = root.querySelector('[data-inst-class]') as HTMLSelectElement | null;
+			if (select && createdId) {
+				const existing = Array.from(select.options).some((option) => option.value === createdId);
+				if (!existing) {
+					const option = document.createElement('option');
+					option.value = createdId;
+					option.textContent = readString(created.name) || name;
+					select.appendChild(option);
+				}
+				select.value = createdId;
+			}
+		} catch (error) {
+			showToast(readErrorMessage(error, '班级创建失败'));
+		}
+	}
+
+	async function addInstitutionMembers(container: HTMLElement): Promise<void> {
+		const api = window.APIClient;
+		const select = container.querySelector('[data-inst-class]') as HTMLSelectElement | null;
+		const classId = select?.value || '';
+		if (!classId) {
+			showToast('请选择班级');
+			return;
+		}
+		if (!api || typeof api.addClassroomMembers !== 'function') {
+			showToast('班级成员接口暂不可用');
+			return;
+		}
+		const raw = window.prompt('输入学员 userId，多个用逗号或换行分隔', '') || '';
+		const userIds = raw.split(/[\s,，;；]+/).map((item) => item.trim()).filter(Boolean);
+		if (userIds.length === 0) return;
+		try {
+			await api.addClassroomMembers(classId, userIds);
+			showToast(`已添加 ${userIds.length} 名学员`);
+			await refreshInstitutionWorkbench(getContext());
+		} catch (error) {
+			showToast(readErrorMessage(error, '添加学员失败'));
+		}
+	}
+
+	async function createInstitutionAssignment(container: HTMLElement): Promise<void> {
+		const api = window.APIClient;
+		const select = container.querySelector('[data-inst-class]') as HTMLSelectElement | null;
+		const classId = select?.value || '';
+		if (!classId) {
+			showToast('请选择班级');
+			return;
+		}
+		if (!api || typeof api.createAssignment !== 'function') {
+			showToast('作业接口暂不可用');
+			return;
+		}
+		const examId = (window.prompt('试卷 ID，例如 eju_2023_02', '') || '').trim();
+		if (!examId) return;
+		const title = (window.prompt('作业标题', `${examId} 练习`) || '').trim() || `${examId} 练习`;
+		const dueAt = (window.prompt('截止时间（可选，例如 2026-07-01）', '') || '').trim();
+		try {
+			await api.createAssignment(classId, {
+				exam_id: examId,
+				title,
+				description: '系统布置作业',
+				due_at: dueAt
+			});
+			showToast('作业已布置');
+			await refreshInstitutionWorkbench(getContext());
+		} catch (error) {
+			showToast(readErrorMessage(error, '作业布置失败'));
+		}
+	}
+
+	async function openInstitutionStudentProfile(container: HTMLElement, studentId: string): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		const detail = container.querySelector('#pc-institution-detail') as HTMLElement | null;
+		if (!token || !studentId || !detail || !api || typeof api.getInstitutionStudentProfile !== 'function') return;
+		detail.innerHTML = '<div class="pc-admin-note">正在加载学员档案...</div>';
+		try {
+			const data = asRecord(await api.getInstitutionStudentProfile(token, studentId)) || {};
+			const student = asRecord(data.student) || {};
+			const record = asRecord(data.learning_record) || {};
+			const weaknesses = Array.isArray(data.weaknesses) ? data.weaknesses : [];
+			detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">学员档案：${escapeHtml(readString(student.display_name) || readString(student.username) || studentId)}</div><div class="pc-info-list"><div class="pc-info-row"><span>练习次数</span><strong>${institutionNumber(record.attempt_count)}</strong></div><div class="pc-info-row"><span>平均分</span><strong>${institutionNumber(record.average_score, -1) >= 0 ? `${institutionNumber(record.average_score).toFixed(1)}%` : '暂无'}</strong></div><div class="pc-info-row"><span>最近学习</span><strong>${escapeHtml(formatDateTime(readString(record.latest_activity_at)))}</strong></div></div><div class="pc-admin-note">薄弱项：${weaknesses.map((w) => escapeHtml(readString(asRecord(w)?.label) || '')).filter(Boolean).join('、') || '暂无'}</div></div>`;
+		} catch (error) {
+			detail.innerHTML = `<div class="pc-admin-note">${escapeHtml(readErrorMessage(error, '学员档案加载失败'))}</div>`;
+		}
+	}
+
+	async function openInstitutionImportPreview(container: HTMLElement): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		const detail = container.querySelector('#pc-institution-detail') as HTMLElement | null;
+		if (!token || !detail || !api || typeof api.previewInstitutionImport !== 'function') return;
+		const text = window.prompt('每行一个学员：姓名,邮箱,手机,角色', '张三,student@example.com,13800000000,student') || '';
+		if (!text.trim()) return;
+		const data = asRecord(await api.previewInstitutionImport(token, { org_id: getContext().organizationId || '', text })) || {};
+		const rows = Array.isArray(data.rows) ? data.rows : [];
+		detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">批量导入预览</div><div class="pc-info-list">${rows.map((item) => {
+			const raw = asRecord(item) || {};
+			return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.name) || readString(raw.raw) || '')}</span><strong>${readString(raw.message)}</strong></div>`;
+		}).join('')}</div></div>`;
+	}
+
+	async function openInstitutionLessonPrep(container: HTMLElement): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		const detail = container.querySelector('#pc-institution-detail') as HTMLElement | null;
+		if (!token || !detail || !api || typeof api.createLessonPrep !== 'function') return;
+		const examId = window.prompt('输入试卷 ID 用于组卷/讲义', 'eju_2023_02') || '';
+		if (!examId.trim()) return;
+		const data = asRecord(await api.createLessonPrep(token, { exam_id: examId.trim(), limit: 20, hide_answers: true, mode: 'handout' })) || {};
+		const qs = Array.isArray(data.question_set) ? data.question_set : [];
+		detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">备课工具</div><div class="pc-admin-note">已生成 ${qs.length} 道题的讲义清单，可继续接导出/打印/投屏样式。</div></div>`;
+	}
+
 	function attachAdminHubHandlers(container: HTMLElement): void {
 		container.onclick = (event: MouseEvent) => {
 			const target = event.target as HTMLElement | null;
+			if (target?.closest('[data-inst-gradebook]')) {
+				void openInstitutionGradebook(container);
+				return;
+			}
+			const studentButton = target?.closest('[data-inst-student]') as HTMLButtonElement | null;
+			if (studentButton) {
+				void openInstitutionStudentProfile(container, studentButton.dataset.instStudent || '');
+				return;
+			}
+			if (target?.closest('[data-inst-import]')) {
+				void openInstitutionImportPreview(container);
+				return;
+			}
+			if (target?.closest('[data-inst-prep]')) {
+				void openInstitutionLessonPrep(container);
+				return;
+			}
 			if (handleSystemFlagAction(target)) {
+				return;
+			}
+			if (target?.closest('[data-inst-create-class]')) {
+				void createInstitutionClass(container);
+				return;
+			}
+			if (target?.closest('[data-inst-add-members]')) {
+				void addInstitutionMembers(container);
+				return;
+			}
+			if (target?.closest('[data-inst-create-assignment]')) {
+				void createInstitutionAssignment(container);
 				return;
 			}
 			const invitationCancelButton = target?.closest('[data-org-invitation-cancel]') as HTMLButtonElement | null;
@@ -3297,7 +4341,19 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				container.innerHTML = `<div class="pc-section"><h2>社群</h2><p>加入学习社群以获取更多资料。</p><p><button disabled>加入社群（占位）</button></p></div>`;
 				break;
 			case 'balance':
-				container.innerHTML = `<div class="pc-section"><h2>账户</h2><p>余额：${ctx.balance?.credits ?? 0}</p><p><button disabled>充值（占位）</button></p></div>`;
+				container.innerHTML = `<div class="pc-section"><h2>账户</h2><p>余额：${ctx.balance?.credits ?? 0}</p><p>卡券：${ctx.couponCount ?? 0} 张</p><p style="display:flex;gap:8px;flex-wrap:wrap;"><button class="pc-inline-btn" type="button" data-action="pc-recharge">续费 / 升级</button><button class="pc-inline-btn" type="button" data-action="pc-redeem">兑换码</button><button class="pc-inline-btn" type="button" data-action="pc-coupons">卡券包</button><button class="pc-inline-btn" type="button" data-action="pc-payment-ledger">支付流水</button></p></div>`;
+				container.querySelector('[data-action="pc-recharge"]')?.addEventListener('click', () => {
+					void openRechargePanel();
+				});
+				container.querySelector('[data-action="pc-redeem"]')?.addEventListener('click', () => {
+					void openRedeemPanel();
+				});
+				container.querySelector('[data-action="pc-coupons"]')?.addEventListener('click', () => {
+					void openCouponsPanel();
+				});
+				container.querySelector('[data-action="pc-payment-ledger"]')?.addEventListener('click', () => {
+					void openPaymentLedgerPanel();
+				});
 				break;
 			case 'admin-hub':
 				container.innerHTML = renderAdminHub(ctx);
@@ -3305,6 +4361,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					void ensureManagedOrganizations(ctx);
 				}
 				attachAdminHubHandlers(container);
+				void refreshInstitutionWorkbench(ctx);
 				break;
 			case 'system-flags':
 				container.innerHTML = renderSystemFlags();

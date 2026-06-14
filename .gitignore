@@ -62,6 +62,7 @@ data/user/_users.wal.log
 data/user/_users.wal.snapshot.json
 data/user/answers/_wal.log
 data/user/answers/_wal.snapshot.json
+data/system/auth_sessions.json
 
 # 临时文件
 tmp/

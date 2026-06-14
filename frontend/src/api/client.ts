@@ -1,7 +1,7 @@
 import { requestApi, readStoredUserId } from './runtime.js';
 
 export class ApiClient {
-	constructor(private readonly baseUrl: string = '/api/v2') {}
+	constructor(private readonly baseUrl: string = '/api/v1') {}
 
 	async request<T>(path: string, options: RequestInit = {}): Promise<T> {
 		return requestApi<T>(path, options, this.baseUrl);
@@ -59,6 +59,17 @@ export class ApiClient {
 		return this.request('/auth/logout', {
 			method: 'POST',
 			body: JSON.stringify({ token })
+		});
+	}
+
+	changePassword(token: string, currentPassword: string, newPassword: string): Promise<unknown> {
+		return this.request('/auth/password/change', {
+			method: 'POST',
+			body: JSON.stringify({
+				token,
+				current_password: currentPassword,
+				new_password: newPassword
+			})
 		});
 	}
 
@@ -143,6 +154,17 @@ export class ApiClient {
 		});
 	}
 
+	getMyWallet(token: string): Promise<unknown> {
+		return this.request(`/me/wallet?token=${encodeURIComponent(token)}`);
+	}
+
+	redeemCode(token: string, code: string): Promise<unknown> {
+		return this.request('/me/redeem', {
+			method: 'POST',
+			body: JSON.stringify({ token, code })
+		});
+	}
+
 	getMyPendingOrganizationInvitations(token: string): Promise<unknown[]> {
 		return this.request(`/me/invitations?token=${encodeURIComponent(token)}`);
 	}
@@ -203,6 +225,69 @@ export class ApiClient {
 		return this.request(`/subscription/${organizationId}/grant`, {
 			method: 'POST',
 			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, scope_type: 'organization' })
+		});
+	}
+
+	updateUserSubscription(userId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/subscription/${userId}/grant`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, scope_type: 'personal' })
+		});
+	}
+
+	createPaymentOrder(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/payments/orders', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	getPaymentOrder(token: string, orderId: string): Promise<unknown> {
+		return this.request(`/payments/orders/${encodeURIComponent(orderId)}?token=${encodeURIComponent(token)}`);
+	}
+
+	listPaymentLedger(token: string, userId?: string): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (userId) query.set('user_id', userId);
+		return this.request(`/payments/ledger?${query.toString()}`);
+	}
+
+	requestPaymentRefund(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/payments/refunds', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	getInstitutionDashboard(token: string, orgId?: string): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (orgId) query.set('org_id', orgId);
+		return this.request(`/institution/dashboard?${query.toString()}`);
+	}
+
+	getInstitutionPlans(): Promise<unknown> {
+		return this.request('/institution/plans');
+	}
+
+	getInstitutionClassGradebook(token: string, classId: string): Promise<unknown> {
+		return this.request(`/institution/classes/${encodeURIComponent(classId)}/gradebook?token=${encodeURIComponent(token)}`);
+	}
+
+	getInstitutionStudentProfile(token: string, studentId: string): Promise<unknown> {
+		return this.request(`/institution/students/${encodeURIComponent(studentId)}?token=${encodeURIComponent(token)}`);
+	}
+
+	createLessonPrep(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/institution/lesson-prep', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	previewInstitutionImport(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/institution/import-preview', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
 		});
 	}
 

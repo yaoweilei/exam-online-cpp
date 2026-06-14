@@ -2,13 +2,13 @@
   "answered_count" : 1,
   "answers" : 
   {
-    "2:28" : 1
+    "2:26" : 1
   },
-  "exam_id" : "2022_02",
-  "last_question_index" : 2,
+  "exam_id" : "2013_01",
+  "last_question_index" : 0,
   "last_section_index" : 2,
-  "started_at" : "2026-05-10T00:47:02.339Z",
+  "started_at" : "2026-05-23T02:00:24.257Z",
   "total_questions" : 1,
-  "updated_at" : "2026-05-10T00:47:02.339Z",
+  "updated_at" : "2026-05-23T02:00:24.257Z",
   "user_id" : "usr_019df870-afa2-7e1f-8237-b7dac1fa241f"
 }

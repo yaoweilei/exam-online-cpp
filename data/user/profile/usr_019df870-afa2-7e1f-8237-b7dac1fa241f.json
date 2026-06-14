@@ -6,7 +6,7 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-05-09T12:07:33.357Z",
+  "last_active_at" : "2026-05-23T15:31:48.084Z",
   "last_credit_reason" : "",
   "locale" : "zh-CN",
   "longest_streak" : 5,
@@ -18,7 +18,7 @@
   "plan_status" : "active",
   "scope_id" : "usr_019df870-afa2-7e1f-8237-b7dac1fa241f",
   "scope_type" : "personal",
-  "streak_days" : 5,
+  "streak_days" : 2,
   "user_id" : "usr_019df870-afa2-7e1f-8237-b7dac1fa241f",
   "xp" : 0
 }

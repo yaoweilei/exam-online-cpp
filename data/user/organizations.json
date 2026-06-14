@@ -20,7 +20,7 @@
           "seats" : 30,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "invitation.delivered",
@@ -37,7 +37,7 @@
           "invitation_id" : "oinv_019da90a-c679-7f85-8200-bff7050f090b",
           "invite_code" : "invite_019da90a-c679-7ef7-8f6c-ce04e5b58923"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -56,7 +56,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "member.added",
@@ -74,7 +74,7 @@
           "user_id" : "usr_019da90a-c658-75b6-8472-9e9d63b39f29",
           "username" : "student_guard_20260420115908"
         },
-        "summary" : "\u6dfb\u52a0\u7ec4\u7ec7\u6210\u5458"
+        "summary" : "添加组织成员"
       },
       {
         "action" : "organization.created",
@@ -89,7 +89,7 @@
           "plan" : "free",
           "seats" : 5
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T03:59:08.895Z",
@@ -163,7 +163,7 @@
           "invitation_id" : "oinv_019da90a-c6df-7fa8-be1b-ac8b3a84009d",
           "invite_code" : "invite_019da90a-c6df-752f-bc44-54149d93dcc6"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -182,7 +182,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "organization.created",
@@ -197,7 +197,7 @@
           "plan" : "free",
           "seats" : 5
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T03:59:09.007Z",
@@ -273,7 +273,7 @@
           "seats" : 30,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "invitation.delivered",
@@ -290,7 +290,7 @@
           "invitation_id" : "oinv_019da91c-748a-7358-b386-7786727a8839",
           "invite_code" : "invite_019da91c-748a-7432-a5c5-06ee3bf077f9"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -309,7 +309,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "member.added",
@@ -327,7 +327,7 @@
           "user_id" : "usr_019da91c-7463-71c7-8d1d-4fd751f8efa4",
           "username" : "student_guard_20260420121827"
         },
-        "summary" : "\u6dfb\u52a0\u7ec4\u7ec7\u6210\u5458"
+        "summary" : "添加组织成员"
       },
       {
         "action" : "organization.created",
@@ -342,7 +342,7 @@
           "plan" : "free",
           "seats" : 5
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T04:18:27.564Z",
@@ -416,7 +416,7 @@
           "invitation_id" : "oinv_019da91c-74f4-7ac0-a75b-ae504355788d",
           "invite_code" : "invite_019da91c-74f4-797f-9974-1ef0d5106c87"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -435,7 +435,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "organization.created",
@@ -450,7 +450,7 @@
           "plan" : "free",
           "seats" : 5
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T04:18:27.681Z",
@@ -526,7 +526,7 @@
           "seats" : 30,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "invitation.delivered",
@@ -543,7 +543,7 @@
           "invitation_id" : "oinv_019da91e-b8ea-7fbf-8a42-e1aa7c816adf",
           "invite_code" : "invite_019da91e-b8ea-71a3-8bf8-21c669796dfd"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -562,7 +562,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "member.added",
@@ -580,7 +580,7 @@
           "user_id" : "usr_019da91e-b8c7-7ff4-8184-9233d372e1dd",
           "username" : "student_guard_20260420122056"
         },
-        "summary" : "\u6dfb\u52a0\u7ec4\u7ec7\u6210\u5458"
+        "summary" : "添加组织成员"
       },
       {
         "action" : "organization.created",
@@ -595,7 +595,7 @@
           "plan" : "free",
           "seats" : 5
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T04:20:56.142Z",
@@ -669,7 +669,7 @@
           "invitation_id" : "oinv_019da91e-b954-7a4c-8cbf-f2e877e16842",
           "invite_code" : "invite_019da91e-b954-7777-878c-94491261d61e"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -688,7 +688,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "organization.created",
@@ -703,7 +703,7 @@
           "plan" : "free",
           "seats" : 5
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T04:20:56.260Z",
@@ -779,7 +779,7 @@
           "seats" : 30,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "invitation.delivered",
@@ -796,7 +796,7 @@
           "invitation_id" : "oinv_019da91e-fdbc-7916-ac4b-6a1681b0b9e2",
           "invite_code" : "invite_019da91e-fdbc-7b2b-bb56-fe198f8efe5a"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -815,7 +815,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "member.added",
@@ -833,7 +833,7 @@
           "user_id" : "usr_019da91e-fd91-74ff-a782-7cc5e4738d73",
           "username" : "student_guard_20260420122113"
         },
-        "summary" : "\u6dfb\u52a0\u7ec4\u7ec7\u6210\u5458"
+        "summary" : "添加组织成员"
       },
       {
         "action" : "organization.created",
@@ -848,7 +848,7 @@
           "plan" : "free",
           "seats" : 5
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T04:21:13.754Z",
@@ -922,7 +922,7 @@
           "invitation_id" : "oinv_019da91e-fe32-7f5d-b4cd-6b945e8ff227",
           "invite_code" : "invite_019da91e-fe32-7f9e-83fe-590cb7e2018f"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -941,7 +941,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "organization.created",
@@ -956,7 +956,7 @@
           "plan" : "free",
           "seats" : 5
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T04:21:13.887Z",
@@ -1030,7 +1030,7 @@
           "invitation_id" : "oinv_019dab83-12fa-7484-9a5b-72c77feb41ea",
           "invite_code" : "invite_019dab83-12fa-7e17-860b-a8d200fb1f6b"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -1049,7 +1049,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "invitation.delivered",
@@ -1066,7 +1066,7 @@
           "invitation_id" : "oinv_019dab83-12ea-7c73-a4bb-4b5fe837b003",
           "invite_code" : "invite_019dab83-12ea-7fe3-92c9-efbd57586c11"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
@@ -1085,7 +1085,7 @@
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "subscription.updated",
@@ -1104,7 +1104,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "subscription.updated",
@@ -1123,7 +1123,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "subscription.updated",
@@ -1142,7 +1142,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "subscription.updated",
@@ -1161,7 +1161,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "subscription.updated",
@@ -1180,7 +1180,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "subscription.updated",
@@ -1199,7 +1199,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "subscription.updated",
@@ -1218,7 +1218,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "subscription.updated",
@@ -1237,7 +1237,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "subscription.updated",
@@ -1256,7 +1256,7 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
         "action" : "organization.created",
@@ -1271,7 +1271,7 @@
           "plan" : "pro",
           "seats" : 20
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "创建组织"
       }
     ],
     "created_at" : "2026-04-20T15:25:49.550Z",
@@ -1359,111 +1359,130 @@
     "audit_logs" : 
     [
       {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec40a-d1b5-7877-a698-f61c77a17914",
+        "created_at" : "2026-06-14T02:51:43.931Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ec40a-ccfa-7f05-b9bf-733d32cb06d5",
+          "invite_code" : "invite_019ec40a-ccfa-7ee0-8315-6ee4b5e1bb55",
+          "membership_id" : "mem_019ec40a-d1b3-761c-90fe-1ab8cdf27efe",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
+      },
+      {
         "action" : "invitation.delivered",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de393-da7d-7a49-a63f-290cad571aac",
-        "created_at" : "2026-05-01T12:46:51.007Z",
+        "audit_id" : "audit_019ec40a-cd0a-7355-9f40-563a9a226c15",
+        "created_at" : "2026-06-14T02:51:42.734Z",
         "details" : 
         {
           "channel" : "phone",
           "contact" : "13800138099",
           "delivery_provider" : "stub-sms",
           "delivery_status" : "sent",
-          "invitation_id" : "oinv_019de393-da79-72b6-8dd0-95f33b856650",
-          "invite_code" : "invite_019de393-da79-7c61-96de-c9087a297ba9"
+          "invitation_id" : "oinv_019ec40a-ccfa-7f05-b9bf-733d32cb06d5",
+          "invite_code" : "invite_019ec40a-ccfa-7ee0-8315-6ee4b5e1bb55"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de393-da79-7226-88b4-79acaaf93942",
-        "created_at" : "2026-05-01T12:46:51.002Z",
+        "audit_id" : "audit_019ec40a-ccfc-7d2f-8c62-d8e0b0d6990f",
+        "created_at" : "2026-06-14T02:51:42.721Z",
         "details" : 
         {
           "channel" : "phone",
           "contact" : "13800138099",
-          "invitation_id" : "oinv_019de393-da79-72b6-8dd0-95f33b856650",
-          "invite_code" : "invite_019de393-da79-7c61-96de-c9087a297ba9",
+          "invitation_id" : "oinv_019ec40a-ccfa-7f05-b9bf-733d32cb06d5",
+          "invite_code" : "invite_019ec40a-ccfa-7ee0-8315-6ee4b5e1bb55",
           "roles" : 
           [
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "invitation.delivered",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de393-da63-7fca-833d-df377ad89a3c",
-        "created_at" : "2026-05-01T12:46:50.981Z",
+        "audit_id" : "audit_019ec40a-ccde-70ac-8067-34e8f2149605",
+        "created_at" : "2026-06-14T02:51:42.691Z",
         "details" : 
         {
           "channel" : "email",
           "contact" : "orginvite.demo@example.local",
           "delivery_provider" : "stub-email",
           "delivery_status" : "sent",
-          "invitation_id" : "oinv_019de393-da5f-739d-8c2f-0bda58caab2a",
-          "invite_code" : "invite_019de393-da5f-769f-9334-b6ea5f7d33c5"
+          "invitation_id" : "oinv_019ec40a-ccce-7489-a070-b462cba7b934",
+          "invite_code" : "invite_019ec40a-ccce-7049-89f2-a39831077a63"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de393-da5f-7dfd-aafe-a147b790f9b4",
-        "created_at" : "2026-05-01T12:46:50.976Z",
+        "audit_id" : "audit_019ec40a-cccf-7a0a-8e2d-67f3d35eb1f6",
+        "created_at" : "2026-06-14T02:51:42.677Z",
         "details" : 
         {
           "channel" : "email",
           "contact" : "orginvite.demo@example.local",
-          "invitation_id" : "oinv_019de393-da5f-739d-8c2f-0bda58caab2a",
-          "invite_code" : "invite_019de393-da5f-769f-9334-b6ea5f7d33c5",
+          "invitation_id" : "oinv_019ec40a-ccce-7489-a070-b462cba7b934",
+          "invite_code" : "invite_019ec40a-ccce-7049-89f2-a39831077a63",
           "roles" : 
           [
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "invitation.cancelled",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de393-da52-77ae-bf33-8c8669160878",
-        "created_at" : "2026-05-01T12:46:50.963Z",
+        "audit_id" : "audit_019ec40a-ccb1-7101-aef8-0a3c3c9be2ff",
+        "created_at" : "2026-06-14T02:51:42.648Z",
         "details" : 
         {
           "contact" : "orginvite.demo@example.local",
-          "invitation_id" : "oinv_019de0e4-59e8-71c1-8fa9-ff9dedb82ca5",
-          "invite_code" : "invite_019de0e4-59e8-75cb-a3a1-828da88a8379"
+          "invitation_id" : "oinv_019ec3e3-29f5-74ae-9d92-13f1c2d8460b",
+          "invite_code" : "invite_019ec3e3-29f5-71e6-b061-1a6e14e46ecd"
         },
-        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "取消组织邀请"
       },
       {
-        "action" : "invitation.cancelled",
+        "action" : "member.removed",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de393-da48-7e84-b425-4d2950e6d767",
-        "created_at" : "2026-05-01T12:46:50.952Z",
+        "audit_id" : "audit_019ec40a-cc6e-7b4c-8efc-293726f97b77",
+        "created_at" : "2026-06-14T02:51:42.580Z",
         "details" : 
         {
-          "contact" : "13800138099",
-          "invitation_id" : "oinv_019de0e4-59f9-7417-a17d-83ba0bf2fc53",
-          "invite_code" : "invite_019de0e4-59f9-7342-95bf-ee30d65d5ea1"
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
         },
-        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "移除组织成员"
       },
       {
         "action" : "subscription.updated",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de393-da1c-7be0-a2c5-606b6ebfd557",
-        "created_at" : "2026-05-01T12:46:50.908Z",
+        "audit_id" : "audit_019ec40a-cc27-7323-9750-a3a09501290b",
+        "created_at" : "2026-06-14T02:51:42.508Z",
         "details" : 
         {
           "expires_at" : "",
@@ -1475,114 +1494,133 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec3e3-2eb9-7f3e-821e-9199bd84bed5",
+        "created_at" : "2026-06-14T02:08:26.301Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ec3e3-2a1a-7eca-a034-064ec62828ea",
+          "invite_code" : "invite_019ec3e3-2a1a-7e0f-9e17-906a3ba5e65f",
+          "membership_id" : "mem_019ec3e3-2eb7-7477-9d13-b82240745798",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
       },
       {
         "action" : "invitation.delivered",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0e4-59fc-7d68-a8d4-4fce1539c0fa",
-        "created_at" : "2026-05-01T00:15:54.877Z",
+        "audit_id" : "audit_019ec3e3-2a26-7742-b56a-0526746d278e",
+        "created_at" : "2026-06-14T02:08:25.131Z",
         "details" : 
         {
           "channel" : "phone",
           "contact" : "13800138099",
           "delivery_provider" : "stub-sms",
           "delivery_status" : "sent",
-          "invitation_id" : "oinv_019de0e4-59f9-7417-a17d-83ba0bf2fc53",
-          "invite_code" : "invite_019de0e4-59f9-7342-95bf-ee30d65d5ea1"
+          "invitation_id" : "oinv_019ec3e3-2a1a-7eca-a034-064ec62828ea",
+          "invite_code" : "invite_019ec3e3-2a1a-7e0f-9e17-906a3ba5e65f"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0e4-59f9-72d6-a0da-c1795e483d5f",
-        "created_at" : "2026-05-01T00:15:54.874Z",
+        "audit_id" : "audit_019ec3e3-2a1b-75d7-8920-8c55502f342e",
+        "created_at" : "2026-06-14T02:08:25.119Z",
         "details" : 
         {
           "channel" : "phone",
           "contact" : "13800138099",
-          "invitation_id" : "oinv_019de0e4-59f9-7417-a17d-83ba0bf2fc53",
-          "invite_code" : "invite_019de0e4-59f9-7342-95bf-ee30d65d5ea1",
+          "invitation_id" : "oinv_019ec3e3-2a1a-7eca-a034-064ec62828ea",
+          "invite_code" : "invite_019ec3e3-2a1a-7e0f-9e17-906a3ba5e65f",
           "roles" : 
           [
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "invitation.delivered",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0e4-59eb-79c6-be0c-8de7ddb5306e",
-        "created_at" : "2026-05-01T00:15:54.860Z",
+        "audit_id" : "audit_019ec3e3-2a01-7f13-8ecb-ddc730d09edd",
+        "created_at" : "2026-06-14T02:08:25.094Z",
         "details" : 
         {
           "channel" : "email",
           "contact" : "orginvite.demo@example.local",
           "delivery_provider" : "stub-email",
           "delivery_status" : "sent",
-          "invitation_id" : "oinv_019de0e4-59e8-71c1-8fa9-ff9dedb82ca5",
-          "invite_code" : "invite_019de0e4-59e8-75cb-a3a1-828da88a8379"
+          "invitation_id" : "oinv_019ec3e3-29f5-74ae-9d92-13f1c2d8460b",
+          "invite_code" : "invite_019ec3e3-29f5-71e6-b061-1a6e14e46ecd"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0e4-59e9-720b-80e2-9ad6f567b8cb",
-        "created_at" : "2026-05-01T00:15:54.857Z",
+        "audit_id" : "audit_019ec3e3-29f6-734d-902d-a2b680fbc54e",
+        "created_at" : "2026-06-14T02:08:25.083Z",
         "details" : 
         {
           "channel" : "email",
           "contact" : "orginvite.demo@example.local",
-          "invitation_id" : "oinv_019de0e4-59e8-71c1-8fa9-ff9dedb82ca5",
-          "invite_code" : "invite_019de0e4-59e8-75cb-a3a1-828da88a8379",
+          "invitation_id" : "oinv_019ec3e3-29f5-74ae-9d92-13f1c2d8460b",
+          "invite_code" : "invite_019ec3e3-29f5-71e6-b061-1a6e14e46ecd",
           "roles" : 
           [
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "invitation.cancelled",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0e4-59e0-76ad-90dc-7c3c5bcaef64",
-        "created_at" : "2026-05-01T00:15:54.848Z",
+        "audit_id" : "audit_019ec3e3-29db-7b5c-98be-cf6b865b8212",
+        "created_at" : "2026-06-14T02:08:25.056Z",
         "details" : 
         {
           "contact" : "orginvite.demo@example.local",
-          "invitation_id" : "oinv_019de0db-6c4e-72db-8d11-3690db05cf64",
-          "invite_code" : "invite_019de0db-6c4e-790d-b377-5d753a96980d"
+          "invitation_id" : "oinv_019ec3d5-86e4-7da0-aab9-eb380cb696ef",
+          "invite_code" : "invite_019ec3d5-86e4-70b7-b7c9-92f67b3b5963"
         },
-        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "取消组织邀请"
       },
       {
-        "action" : "invitation.cancelled",
+        "action" : "member.removed",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0e4-59d7-74bf-95af-c5d8ea342478",
-        "created_at" : "2026-05-01T00:15:54.839Z",
+        "audit_id" : "audit_019ec3e3-29a3-768d-bcc6-c36239da5c3b",
+        "created_at" : "2026-06-14T02:08:25.000Z",
         "details" : 
         {
-          "contact" : "13800138099",
-          "invitation_id" : "oinv_019de0db-6c5d-7e4d-813c-9d94705e4d50",
-          "invite_code" : "invite_019de0db-6c5d-7e2c-9656-9f3effef1ae2"
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
         },
-        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "移除组织成员"
       },
       {
         "action" : "subscription.updated",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0e4-59c1-7fa0-a942-e8cb8344864e",
-        "created_at" : "2026-05-01T00:15:54.818Z",
+        "audit_id" : "audit_019ec3e3-2966-700d-8773-b06eb17144f2",
+        "created_at" : "2026-06-14T02:08:24.940Z",
         "details" : 
         {
           "expires_at" : "",
@@ -1594,114 +1632,133 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec3d5-8b5d-755b-ad4f-26e9ae3b945c",
+        "created_at" : "2026-06-14T01:53:32.514Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ec3d5-870b-72dc-a6e9-5c96052978a0",
+          "invite_code" : "invite_019ec3d5-870b-7c3f-b334-08a4125f5048",
+          "membership_id" : "mem_019ec3d5-8b5b-7e7f-af7f-38cfa637d380",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
       },
       {
         "action" : "invitation.delivered",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0db-6c60-78ec-8167-c91f2c348d13",
-        "created_at" : "2026-05-01T00:06:09.761Z",
+        "audit_id" : "audit_019ec3d5-8718-78d6-84ea-7a7a27a52f41",
+        "created_at" : "2026-06-14T01:53:31.420Z",
         "details" : 
         {
           "channel" : "phone",
           "contact" : "13800138099",
           "delivery_provider" : "stub-sms",
           "delivery_status" : "sent",
-          "invitation_id" : "oinv_019de0db-6c5d-7e4d-813c-9d94705e4d50",
-          "invite_code" : "invite_019de0db-6c5d-7e2c-9656-9f3effef1ae2"
+          "invitation_id" : "oinv_019ec3d5-870b-72dc-a6e9-5c96052978a0",
+          "invite_code" : "invite_019ec3d5-870b-7c3f-b334-08a4125f5048"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0db-6c5d-75e0-b520-702a74da3c2f",
-        "created_at" : "2026-05-01T00:06:09.757Z",
+        "audit_id" : "audit_019ec3d5-870c-7383-9425-9c6f539b0632",
+        "created_at" : "2026-06-14T01:53:31.408Z",
         "details" : 
         {
           "channel" : "phone",
           "contact" : "13800138099",
-          "invitation_id" : "oinv_019de0db-6c5d-7e4d-813c-9d94705e4d50",
-          "invite_code" : "invite_019de0db-6c5d-7e2c-9656-9f3effef1ae2",
+          "invitation_id" : "oinv_019ec3d5-870b-72dc-a6e9-5c96052978a0",
+          "invite_code" : "invite_019ec3d5-870b-7c3f-b334-08a4125f5048",
           "roles" : 
           [
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "invitation.delivered",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0db-6c51-7e6b-92d2-9a53d36490e0",
-        "created_at" : "2026-05-01T00:06:09.746Z",
+        "audit_id" : "audit_019ec3d5-86f0-7565-9044-1f7bc8feabba",
+        "created_at" : "2026-06-14T01:53:31.380Z",
         "details" : 
         {
           "channel" : "email",
           "contact" : "orginvite.demo@example.local",
           "delivery_provider" : "stub-email",
           "delivery_status" : "sent",
-          "invitation_id" : "oinv_019de0db-6c4e-72db-8d11-3690db05cf64",
-          "invite_code" : "invite_019de0db-6c4e-790d-b377-5d753a96980d"
+          "invitation_id" : "oinv_019ec3d5-86e4-7da0-aab9-eb380cb696ef",
+          "invite_code" : "invite_019ec3d5-86e4-70b7-b7c9-92f67b3b5963"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0db-6c4e-737c-9015-1bff98f1fd19",
-        "created_at" : "2026-05-01T00:06:09.743Z",
+        "audit_id" : "audit_019ec3d5-86e5-7e30-95b2-2ea89a24e28f",
+        "created_at" : "2026-06-14T01:53:31.369Z",
         "details" : 
         {
           "channel" : "email",
           "contact" : "orginvite.demo@example.local",
-          "invitation_id" : "oinv_019de0db-6c4e-72db-8d11-3690db05cf64",
-          "invite_code" : "invite_019de0db-6c4e-790d-b377-5d753a96980d",
+          "invitation_id" : "oinv_019ec3d5-86e4-7da0-aab9-eb380cb696ef",
+          "invite_code" : "invite_019ec3d5-86e4-70b7-b7c9-92f67b3b5963",
           "roles" : 
           [
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "invitation.cancelled",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0db-6c46-73ad-923f-21e930fa19f1",
-        "created_at" : "2026-05-01T00:06:09.734Z",
+        "audit_id" : "audit_019ec3d5-86cf-775c-b8be-f80f829a0e87",
+        "created_at" : "2026-06-14T01:53:31.346Z",
         "details" : 
         {
           "contact" : "orginvite.demo@example.local",
-          "invitation_id" : "oinv_019ddef9-1423-7325-accb-a3a1779a6308",
-          "invite_code" : "invite_019ddef9-1423-7637-94b3-d5fe5579e0cf"
+          "invitation_id" : "oinv_019ec3c5-deeb-7247-b5e3-8711df02551e",
+          "invite_code" : "invite_019ec3c5-deeb-7dc8-b472-938a562eb210"
         },
-        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "取消组织邀请"
       },
       {
-        "action" : "invitation.cancelled",
+        "action" : "member.removed",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0db-6c3e-723c-be8a-75b7518d56e6",
-        "created_at" : "2026-05-01T00:06:09.726Z",
+        "audit_id" : "audit_019ec3d5-86ad-7bb0-b423-0cb62ece0a36",
+        "created_at" : "2026-06-14T01:53:31.313Z",
         "details" : 
         {
-          "contact" : "13800138099",
-          "invitation_id" : "oinv_019ddef9-1437-7e33-80f5-8e1f0dc71a29",
-          "invite_code" : "invite_019ddef9-1437-78a0-8569-447a6fd8cc05"
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
         },
-        "summary" : "\u53d6\u6d88\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "移除组织成员"
       },
       {
         "action" : "subscription.updated",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019de0db-6c1d-77c1-8689-59b4e6370bdf",
-        "created_at" : "2026-05-01T00:06:09.694Z",
+        "audit_id" : "audit_019ec3d5-867d-7b33-b944-12abd1f01f0f",
+        "created_at" : "2026-06-14T01:53:31.265Z",
         "details" : 
         {
           "expires_at" : "",
@@ -1713,86 +1770,133 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec3c5-e346-7a10-b773-bd0d582e20b1",
+        "created_at" : "2026-06-14T01:36:26.443Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ec3c5-df0d-7129-90c8-458a7cf41283",
+          "invite_code" : "invite_019ec3c5-df0d-7fe9-83ee-c6862add8f09",
+          "membership_id" : "mem_019ec3c5-e345-7c3e-89fd-051e39719297",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
       },
       {
         "action" : "invitation.delivered",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019ddef9-143a-74ef-8c49-f62907bc9d02",
-        "created_at" : "2026-04-30T15:19:18.843Z",
+        "audit_id" : "audit_019ec3c5-df17-7fda-ab07-8dabc4b72e2e",
+        "created_at" : "2026-06-14T01:36:25.370Z",
         "details" : 
         {
           "channel" : "phone",
           "contact" : "13800138099",
           "delivery_provider" : "stub-sms",
           "delivery_status" : "sent",
-          "invitation_id" : "oinv_019ddef9-1437-7e33-80f5-8e1f0dc71a29",
-          "invite_code" : "invite_019ddef9-1437-78a0-8569-447a6fd8cc05"
+          "invitation_id" : "oinv_019ec3c5-df0d-7129-90c8-458a7cf41283",
+          "invite_code" : "invite_019ec3c5-df0d-7fe9-83ee-c6862add8f09"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019ddef9-1437-7f6b-a8d2-ae97f412aa18",
-        "created_at" : "2026-04-30T15:19:18.840Z",
+        "audit_id" : "audit_019ec3c5-df0e-784f-af8f-f3f6b9445c07",
+        "created_at" : "2026-06-14T01:36:25.361Z",
         "details" : 
         {
           "channel" : "phone",
           "contact" : "13800138099",
-          "invitation_id" : "oinv_019ddef9-1437-7e33-80f5-8e1f0dc71a29",
-          "invite_code" : "invite_019ddef9-1437-78a0-8569-447a6fd8cc05",
+          "invitation_id" : "oinv_019ec3c5-df0d-7129-90c8-458a7cf41283",
+          "invite_code" : "invite_019ec3c5-df0d-7fe9-83ee-c6862add8f09",
           "roles" : 
           [
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
       },
       {
         "action" : "invitation.delivered",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019ddef9-1427-7aa5-8a99-624bdd26feab",
-        "created_at" : "2026-04-30T15:19:18.824Z",
+        "audit_id" : "audit_019ec3c5-def5-7269-af6d-830959f8b4dc",
+        "created_at" : "2026-06-14T01:36:25.337Z",
         "details" : 
         {
           "channel" : "email",
           "contact" : "orginvite.demo@example.local",
           "delivery_provider" : "stub-email",
           "delivery_status" : "sent",
-          "invitation_id" : "oinv_019ddef9-1423-7325-accb-a3a1779a6308",
-          "invite_code" : "invite_019ddef9-1423-7637-94b3-d5fe5579e0cf"
+          "invitation_id" : "oinv_019ec3c5-deeb-7247-b5e3-8711df02551e",
+          "invite_code" : "invite_019ec3c5-deeb-7dc8-b472-938a562eb210"
         },
-        "summary" : "\u53d1\u9001\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "发送组织邀请"
       },
       {
         "action" : "invitation.created",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019ddef9-1423-7cef-9af9-a842a0791d8d",
-        "created_at" : "2026-04-30T15:19:18.820Z",
+        "audit_id" : "audit_019ec3c5-deec-740f-9d54-3f6cf2cb0a44",
+        "created_at" : "2026-06-14T01:36:25.327Z",
         "details" : 
         {
           "channel" : "email",
           "contact" : "orginvite.demo@example.local",
-          "invitation_id" : "oinv_019ddef9-1423-7325-accb-a3a1779a6308",
-          "invite_code" : "invite_019ddef9-1423-7637-94b3-d5fe5579e0cf",
+          "invitation_id" : "oinv_019ec3c5-deeb-7247-b5e3-8711df02551e",
+          "invite_code" : "invite_019ec3c5-deeb-7dc8-b472-938a562eb210",
           "roles" : 
           [
             "student"
           ]
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7\u9080\u8bf7"
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c5-ded6-7299-88ff-83da09f0b48e",
+        "created_at" : "2026-06-14T01:36:25.306Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec3c1-e114-75ae-86e2-46aaff31a480",
+          "invite_code" : "invite_019ec3c1-e114-74c1-94d8-bed369ab2509"
+        },
+        "summary" : "取消组织邀请"
+      },
+      {
+        "action" : "member.removed",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c5-deb2-767a-8bd5-37089b959854",
+        "created_at" : "2026-06-14T01:36:25.269Z",
+        "details" : 
+        {
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
+        },
+        "summary" : "移除组织成员"
       },
       {
         "action" : "subscription.updated",
         "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019ddef9-140b-7cf2-82ef-80471ecccebe",
-        "created_at" : "2026-04-30T15:19:18.795Z",
+        "audit_id" : "audit_019ec3c5-de85-71f6-b870-c7be0c03baf0",
+        "created_at" : "2026-06-14T01:36:25.225Z",
         "details" : 
         {
           "expires_at" : "",
@@ -1804,22 +1908,835 @@
           "seats" : 20,
           "status" : "active"
         },
-        "summary" : "\u66f4\u65b0\u7ec4\u7ec7\u5957\u9910\u4e0e\u5e2d\u4f4d"
+        "summary" : "更新组织套餐与席位"
       },
       {
-        "action" : "organization.created",
-        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
-        "actor_username" : "orgadmin_invite_demo",
-        "audit_id" : "audit_019ddef9-13f3-7c79-a6f8-3f0e59b7d4e0",
-        "created_at" : "2026-04-30T15:19:18.771Z",
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec3c1-e68e-7467-bc13-19e7667ba469",
+        "created_at" : "2026-06-14T01:32:05.138Z",
         "details" : 
         {
-          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
-          "organization_type" : "business",
-          "plan" : "pro",
-          "seats" : 20
+          "invitation_id" : "oinv_019ec3c1-e133-7634-b666-329953b77d7c",
+          "invite_code" : "invite_019ec3c1-e133-799e-ae69-85080e0c1873",
+          "membership_id" : "mem_019ec3c1-e68d-76a8-aac5-942a67a187a9",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
         },
-        "summary" : "\u521b\u5efa\u7ec4\u7ec7"
+        "summary" : "接受组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c1-e13b-76b3-925b-787395c26190",
+        "created_at" : "2026-06-14T01:32:03.775Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec3c1-e133-7634-b666-329953b77d7c",
+          "invite_code" : "invite_019ec3c1-e133-799e-ae69-85080e0c1873"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c1-e133-7ebe-b64f-7ae91b41ab17",
+        "created_at" : "2026-06-14T01:32:03.766Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019ec3c1-e133-7634-b666-329953b77d7c",
+          "invite_code" : "invite_019ec3c1-e133-799e-ae69-85080e0c1873",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c1-e11e-7022-9f28-4e2093471c5a",
+        "created_at" : "2026-06-14T01:32:03.746Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec3c1-e114-75ae-86e2-46aaff31a480",
+          "invite_code" : "invite_019ec3c1-e114-74c1-94d8-bed369ab2509"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c1-e115-72b3-be86-fc55252739d0",
+        "created_at" : "2026-06-14T01:32:03.736Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec3c1-e114-75ae-86e2-46aaff31a480",
+          "invite_code" : "invite_019ec3c1-e114-74c1-94d8-bed369ab2509",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c1-e100-70a1-a075-7af3f331ce26",
+        "created_at" : "2026-06-14T01:32:03.715Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec3c0-a303-7c1b-9970-4927d06f3861",
+          "invite_code" : "invite_019ec3c0-a303-7a77-8c07-7b9b982eab6a"
+        },
+        "summary" : "取消组织邀请"
+      },
+      {
+        "action" : "member.removed",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c1-e0df-74e8-8314-27434e8a1801",
+        "created_at" : "2026-06-14T01:32:03.682Z",
+        "details" : 
+        {
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
+        },
+        "summary" : "移除组织成员"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c1-e0b7-7b8b-8499-44042f603faa",
+        "created_at" : "2026-06-14T01:32:03.642Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec3c0-a939-72fd-9783-b51fde1793e8",
+        "created_at" : "2026-06-14T01:30:43.902Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ec3c0-a321-773c-b9e3-6e0224f8020a",
+          "invite_code" : "invite_019ec3c0-a321-7968-a2dd-708725185133",
+          "membership_id" : "mem_019ec3c0-a937-705c-bb9f-6ef0bde7d4f9",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c0-a32b-716e-bca8-98c893c76723",
+        "created_at" : "2026-06-14T01:30:42.351Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec3c0-a321-773c-b9e3-6e0224f8020a",
+          "invite_code" : "invite_019ec3c0-a321-7968-a2dd-708725185133"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c0-a322-7b71-9bd2-8d619531ddd0",
+        "created_at" : "2026-06-14T01:30:42.341Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019ec3c0-a321-773c-b9e3-6e0224f8020a",
+          "invite_code" : "invite_019ec3c0-a321-7968-a2dd-708725185133",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c0-a30d-7576-a2a9-69d05c267ead",
+        "created_at" : "2026-06-14T01:30:42.321Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec3c0-a303-7c1b-9970-4927d06f3861",
+          "invite_code" : "invite_019ec3c0-a303-7a77-8c07-7b9b982eab6a"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c0-a303-7842-99b5-63da735b5f2b",
+        "created_at" : "2026-06-14T01:30:42.311Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec3c0-a303-7c1b-9970-4927d06f3861",
+          "invite_code" : "invite_019ec3c0-a303-7a77-8c07-7b9b982eab6a",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c0-a2ee-7915-870d-0394dd5d864d",
+        "created_at" : "2026-06-14T01:30:42.289Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec3be-b780-7961-bf47-a33a03b01d93",
+          "invite_code" : "invite_019ec3be-b780-7965-9d2d-0fd327db35e4"
+        },
+        "summary" : "取消组织邀请"
+      },
+      {
+        "action" : "member.removed",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c0-a2ca-7b2a-94cb-6d1fda029740",
+        "created_at" : "2026-06-14T01:30:42.254Z",
+        "details" : 
+        {
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
+        },
+        "summary" : "移除组织成员"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3c0-a29e-7abb-9079-6c4ed36ce41e",
+        "created_at" : "2026-06-14T01:30:42.209Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec3be-bd38-74cc-b90e-fb4422f6556b",
+        "created_at" : "2026-06-14T01:28:37.948Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ec3be-b7a1-7a06-b327-f1620fc75991",
+          "invite_code" : "invite_019ec3be-b7a1-7e0e-ac05-b38257943d78",
+          "membership_id" : "mem_019ec3be-bd37-7aa2-a65c-29120f540911",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3be-b7ae-7b4e-bef6-f25a096ec73f",
+        "created_at" : "2026-06-14T01:28:36.529Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec3be-b7a1-7a06-b327-f1620fc75991",
+          "invite_code" : "invite_019ec3be-b7a1-7e0e-ac05-b38257943d78"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3be-b7a2-7a3d-b7fb-f9b65ad568d7",
+        "created_at" : "2026-06-14T01:28:36.518Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019ec3be-b7a1-7a06-b327-f1620fc75991",
+          "invite_code" : "invite_019ec3be-b7a1-7e0e-ac05-b38257943d78",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3be-b78b-7930-9d8b-b85a7c966998",
+        "created_at" : "2026-06-14T01:28:36.495Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec3be-b780-7961-bf47-a33a03b01d93",
+          "invite_code" : "invite_019ec3be-b780-7965-9d2d-0fd327db35e4"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3be-b781-7e6c-b5f1-dc8f3dcf82cb",
+        "created_at" : "2026-06-14T01:28:36.484Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec3be-b780-7961-bf47-a33a03b01d93",
+          "invite_code" : "invite_019ec3be-b780-7965-9d2d-0fd327db35e4",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3be-b76a-7c31-83bb-ac3005243ac6",
+        "created_at" : "2026-06-14T01:28:36.461Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec39b-3ad4-7e7e-89c0-de9b60cacce5",
+          "invite_code" : "invite_019ec39b-3ad4-7567-af5c-85ec4dd1de28"
+        },
+        "summary" : "取消组织邀请"
+      },
+      {
+        "action" : "member.removed",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3be-b73e-7e92-bcfb-af79aba3cb7f",
+        "created_at" : "2026-06-14T01:28:36.417Z",
+        "details" : 
+        {
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
+        },
+        "summary" : "移除组织成员"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec3be-b708-7390-a308-8cacef215f74",
+        "created_at" : "2026-06-14T01:28:36.364Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec39b-4063-71d4-b5a4-546c6eab8afb",
+        "created_at" : "2026-06-14T00:49:52.231Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ec39b-3af6-73e2-ace3-b0fa82b18e84",
+          "invite_code" : "invite_019ec39b-3af6-7fec-82a6-5cac879c9dc5",
+          "membership_id" : "mem_019ec39b-4062-7de0-8924-b6881d14f66e",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec39b-3afe-7919-af91-e1159d5f8d51",
+        "created_at" : "2026-06-14T00:49:50.849Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec39b-3af6-73e2-ace3-b0fa82b18e84",
+          "invite_code" : "invite_019ec39b-3af6-7fec-82a6-5cac879c9dc5"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec39b-3af6-759a-9b3c-9ffd9aef50ff",
+        "created_at" : "2026-06-14T00:49:50.841Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019ec39b-3af6-73e2-ace3-b0fa82b18e84",
+          "invite_code" : "invite_019ec39b-3af6-7fec-82a6-5cac879c9dc5",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec39b-3add-77a3-bc4b-d8a175e26b3c",
+        "created_at" : "2026-06-14T00:49:50.815Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec39b-3ad4-7e7e-89c0-de9b60cacce5",
+          "invite_code" : "invite_019ec39b-3ad4-7567-af5c-85ec4dd1de28"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec39b-3ad5-7988-a939-3e4058859207",
+        "created_at" : "2026-06-14T00:49:50.807Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec39b-3ad4-7e7e-89c0-de9b60cacce5",
+          "invite_code" : "invite_019ec39b-3ad4-7567-af5c-85ec4dd1de28",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec39b-3ac0-7507-839f-6cd8e4cc5e6e",
+        "created_at" : "2026-06-14T00:49:50.788Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec18c-4aee-7bed-b2f2-5b97083698d7",
+          "invite_code" : "invite_019ec18c-4aee-7e21-b953-eede5ccf7ace"
+        },
+        "summary" : "取消组织邀请"
+      },
+      {
+        "action" : "member.removed",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec39b-3a97-7527-93b4-81184f625bdc",
+        "created_at" : "2026-06-14T00:49:50.745Z",
+        "details" : 
+        {
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
+        },
+        "summary" : "移除组织成员"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec39b-3a6f-7122-be67-8b6989c6a9cd",
+        "created_at" : "2026-06-14T00:49:50.706Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ec18c-4f3d-749d-aa8c-40894255c01c",
+        "created_at" : "2026-06-13T15:14:18.559Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ec18c-4b0a-7355-9569-f1e597563961",
+          "invite_code" : "invite_019ec18c-4b0a-71c1-bfc9-6d8bef012ae6",
+          "membership_id" : "mem_019ec18c-4f3c-7533-a2d7-d3cdc614bfb8",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec18c-4b12-76d5-9508-c8b16f0c4b57",
+        "created_at" : "2026-06-13T15:14:17.492Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec18c-4b0a-7355-9569-f1e597563961",
+          "invite_code" : "invite_019ec18c-4b0a-71c1-bfc9-6d8bef012ae6"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec18c-4b0b-7b2a-836d-099e1534b765",
+        "created_at" : "2026-06-13T15:14:17.485Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019ec18c-4b0a-7355-9569-f1e597563961",
+          "invite_code" : "invite_019ec18c-4b0a-71c1-bfc9-6d8bef012ae6",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec18c-4af6-74f8-9cc8-bfd19daa1a14",
+        "created_at" : "2026-06-13T15:14:17.465Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ec18c-4aee-7bed-b2f2-5b97083698d7",
+          "invite_code" : "invite_019ec18c-4aee-7e21-b953-eede5ccf7ace"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec18c-4aee-7906-a018-d3cd62a81574",
+        "created_at" : "2026-06-13T15:14:17.457Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ec18c-4aee-7bed-b2f2-5b97083698d7",
+          "invite_code" : "invite_019ec18c-4aee-7e21-b953-eede5ccf7ace",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec18c-4adc-7bca-8310-073ed9698777",
+        "created_at" : "2026-06-13T15:14:17.438Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ebe71-1a4b-7036-ad6c-f58d65db9deb",
+          "invite_code" : "invite_019ebe71-1a4b-792f-b12e-2013006158e6"
+        },
+        "summary" : "取消组织邀请"
+      },
+      {
+        "action" : "member.removed",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec18c-4ab6-7229-9b2c-8983d4524066",
+        "created_at" : "2026-06-13T15:14:17.401Z",
+        "details" : 
+        {
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
+        },
+        "summary" : "移除组织成员"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ec18c-4a8d-77c0-8289-28750d3378fa",
+        "created_at" : "2026-06-13T15:14:17.359Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "invitation.accepted",
+        "actor_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "actor_username" : "student_invite_demo",
+        "audit_id" : "audit_019ebe71-1eda-71b1-9629-13a98997e3c6",
+        "created_at" : "2026-06-13T00:45:45.054Z",
+        "details" : 
+        {
+          "invitation_id" : "oinv_019ebe71-1a70-760f-9653-e2b86fc40239",
+          "invite_code" : "invite_019ebe71-1a70-788a-91aa-cd95a5703644",
+          "membership_id" : "mem_019ebe71-1ed8-7bbc-b634-1f029a9801f4",
+          "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d"
+        },
+        "summary" : "接受组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ebe71-1a7a-7c6a-95f8-1edf21e70eb2",
+        "created_at" : "2026-06-13T00:45:43.933Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "delivery_provider" : "stub-sms",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ebe71-1a70-760f-9653-e2b86fc40239",
+          "invite_code" : "invite_019ebe71-1a70-788a-91aa-cd95a5703644"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ebe71-1a70-70b5-b75e-81e4e99ab79a",
+        "created_at" : "2026-06-13T00:45:43.923Z",
+        "details" : 
+        {
+          "channel" : "phone",
+          "contact" : "13800138099",
+          "invitation_id" : "oinv_019ebe71-1a70-760f-9653-e2b86fc40239",
+          "invite_code" : "invite_019ebe71-1a70-788a-91aa-cd95a5703644",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.delivered",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ebe71-1a57-7ea8-94b5-4ded438c18aa",
+        "created_at" : "2026-06-13T00:45:43.898Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "delivery_provider" : "stub-email",
+          "delivery_status" : "sent",
+          "invitation_id" : "oinv_019ebe71-1a4b-7036-ad6c-f58d65db9deb",
+          "invite_code" : "invite_019ebe71-1a4b-792f-b12e-2013006158e6"
+        },
+        "summary" : "发送组织邀请"
+      },
+      {
+        "action" : "invitation.created",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ebe71-1a4c-7783-a9c9-0412d56e92f3",
+        "created_at" : "2026-06-13T00:45:43.887Z",
+        "details" : 
+        {
+          "channel" : "email",
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ebe71-1a4b-7036-ad6c-f58d65db9deb",
+          "invite_code" : "invite_019ebe71-1a4b-792f-b12e-2013006158e6",
+          "roles" : 
+          [
+            "student"
+          ]
+        },
+        "summary" : "创建组织邀请"
+      },
+      {
+        "action" : "invitation.cancelled",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ebe71-1a35-7e05-825d-08cb2a7eedb1",
+        "created_at" : "2026-06-13T00:45:43.864Z",
+        "details" : 
+        {
+          "contact" : "orginvite.demo@example.local",
+          "invitation_id" : "oinv_019ebe60-6e2e-720e-9b3b-62ed6a38acf0",
+          "invite_code" : "invite_019ebe60-6e2e-7b45-94e9-4ded237827a4"
+        },
+        "summary" : "取消组织邀请"
+      },
+      {
+        "action" : "member.removed",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ebe71-1a06-7e79-afbc-c2170cafef35",
+        "created_at" : "2026-06-13T00:45:43.817Z",
+        "details" : 
+        {
+          "member_no" : "DEMO-PHONE",
+          "roles" : 
+          [
+            "student"
+          ],
+          "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+          "username" : "student_invite_demo"
+        },
+        "summary" : "移除组织成员"
+      },
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "actor_username" : "orgadmin_invite_demo",
+        "audit_id" : "audit_019ebe71-19cc-70ae-aaf2-4243c70329aa",
+        "created_at" : "2026-06-13T00:45:43.758Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
       }
     ],
     "created_at" : "2026-04-30T15:19:18.766Z",
@@ -1827,6 +2744,1566 @@
     "invitations" : 
     [
       {
+        "accepted_at" : "2026-06-14T02:51:43.924Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-14T02:51:42.715Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T02:51:42.729Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T02:51:42.715Z",
+        "invitation_id" : "oinv_019ec40a-ccfa-7f05-b9bf-733d32cb06d5",
+        "invite_code" : "invite_019ec40a-ccfa-7ee0-8315-6ee4b5e1bb55",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-14T02:51:42.670Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T02:51:42.685Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T02:51:42.670Z",
+        "invitation_id" : "oinv_019ec40a-ccce-7489-a070-b462cba7b934",
+        "invite_code" : "invite_019ec40a-ccce-7049-89f2-a39831077a63",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "pending",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-14T02:08:26.296Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-14T02:08:25.114Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T02:08:25.126Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T02:08:25.114Z",
+        "invitation_id" : "oinv_019ec3e3-2a1a-7eca-a034-064ec62828ea",
+        "invite_code" : "invite_019ec3e3-2a1a-7e0f-9e17-906a3ba5e65f",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-14T02:51:42.641Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-14T02:08:25.077Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T02:08:25.089Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T02:08:25.077Z",
+        "invitation_id" : "oinv_019ec3e3-29f5-74ae-9d92-13f1c2d8460b",
+        "invite_code" : "invite_019ec3e3-29f5-71e6-b061-1a6e14e46ecd",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-14T01:53:32.509Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-14T01:53:31.403Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:53:31.415Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:53:31.403Z",
+        "invitation_id" : "oinv_019ec3d5-870b-72dc-a6e9-5c96052978a0",
+        "invite_code" : "invite_019ec3d5-870b-7c3f-b334-08a4125f5048",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-14T02:08:25.051Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-14T01:53:31.364Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:53:31.375Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:53:31.364Z",
+        "invitation_id" : "oinv_019ec3d5-86e4-7da0-aab9-eb380cb696ef",
+        "invite_code" : "invite_019ec3d5-86e4-70b7-b7c9-92f67b3b5963",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-14T01:36:26.437Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-14T01:36:25.357Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:36:25.366Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:36:25.357Z",
+        "invitation_id" : "oinv_019ec3c5-df0d-7129-90c8-458a7cf41283",
+        "invite_code" : "invite_019ec3c5-df0d-7fe9-83ee-c6862add8f09",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-14T01:53:31.343Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-14T01:36:25.323Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:36:25.333Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:36:25.323Z",
+        "invitation_id" : "oinv_019ec3c5-deeb-7247-b5e3-8711df02551e",
+        "invite_code" : "invite_019ec3c5-deeb-7dc8-b472-938a562eb210",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-14T01:32:05.134Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-14T01:32:03.763Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:32:03.771Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:32:03.763Z",
+        "invitation_id" : "oinv_019ec3c1-e133-7634-b666-329953b77d7c",
+        "invite_code" : "invite_019ec3c1-e133-799e-ae69-85080e0c1873",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-14T01:36:25.302Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-14T01:32:03.732Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:32:03.741Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:32:03.732Z",
+        "invitation_id" : "oinv_019ec3c1-e114-75ae-86e2-46aaff31a480",
+        "invite_code" : "invite_019ec3c1-e114-74c1-94d8-bed369ab2509",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-14T01:30:43.897Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-14T01:30:42.337Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:30:42.347Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:30:42.337Z",
+        "invitation_id" : "oinv_019ec3c0-a321-773c-b9e3-6e0224f8020a",
+        "invite_code" : "invite_019ec3c0-a321-7968-a2dd-708725185133",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-14T01:32:03.712Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-14T01:30:42.307Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:30:42.316Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:30:42.307Z",
+        "invitation_id" : "oinv_019ec3c0-a303-7c1b-9970-4927d06f3861",
+        "invite_code" : "invite_019ec3c0-a303-7a77-8c07-7b9b982eab6a",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-14T01:28:37.944Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-14T01:28:36.513Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:28:36.525Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:28:36.513Z",
+        "invitation_id" : "oinv_019ec3be-b7a1-7a06-b327-f1620fc75991",
+        "invite_code" : "invite_019ec3be-b7a1-7e0e-ac05-b38257943d78",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-14T01:30:42.285Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-14T01:28:36.480Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T01:28:36.490Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T01:28:36.480Z",
+        "invitation_id" : "oinv_019ec3be-b780-7961-bf47-a33a03b01d93",
+        "invite_code" : "invite_019ec3be-b780-7965-9d2d-0fd327db35e4",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-14T00:49:52.227Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-14T00:49:50.838Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T00:49:50.846Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T00:49:50.838Z",
+        "invitation_id" : "oinv_019ec39b-3af6-73e2-ace3-b0fa82b18e84",
+        "invite_code" : "invite_019ec39b-3af6-7fec-82a6-5cac879c9dc5",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-14T01:28:36.457Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-14T00:49:50.804Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-14T00:49:50.812Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-21T00:49:50.804Z",
+        "invitation_id" : "oinv_019ec39b-3ad4-7e7e-89c0-de9b60cacce5",
+        "invite_code" : "invite_019ec39b-3ad4-7567-af5c-85ec4dd1de28",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-13T15:14:18.557Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-13T15:14:17.482Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-13T15:14:17.489Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-20T15:14:17.482Z",
+        "invitation_id" : "oinv_019ec18c-4b0a-7355-9569-f1e597563961",
+        "invite_code" : "invite_019ec18c-4b0a-71c1-bfc9-6d8bef012ae6",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-14T00:49:50.784Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-13T15:14:17.454Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-13T15:14:17.462Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-20T15:14:17.454Z",
+        "invitation_id" : "oinv_019ec18c-4aee-7bed-b2f2-5b97083698d7",
+        "invite_code" : "invite_019ec18c-4aee-7e21-b953-eede5ccf7ace",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-13T00:45:45.050Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-13T00:45:43.920Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-13T00:45:43.930Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-20T00:45:43.920Z",
+        "invitation_id" : "oinv_019ebe71-1a70-760f-9653-e2b86fc40239",
+        "invite_code" : "invite_019ebe71-1a70-788a-91aa-cd95a5703644",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-13T15:14:17.436Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-13T00:45:43.883Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-13T00:45:43.894Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-20T00:45:43.883Z",
+        "invitation_id" : "oinv_019ebe71-1a4b-7036-ad6c-f58d65db9deb",
+        "invite_code" : "invite_019ebe71-1a4b-792f-b12e-2013006158e6",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-13T00:27:32.448Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-13T00:27:31.279Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-13T00:27:31.288Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-20T00:27:31.279Z",
+        "invitation_id" : "oinv_019ebe60-6e4f-7230-859e-71f3d5f3de40",
+        "invite_code" : "invite_019ebe60-6e4f-7d87-aaef-dba769e4ad0b",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-13T00:45:43.861Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-13T00:27:31.246Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-13T00:27:31.255Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-20T00:27:31.246Z",
+        "invitation_id" : "oinv_019ebe60-6e2e-720e-9b3b-62ed6a38acf0",
+        "invite_code" : "invite_019ebe60-6e2e-7b45-94e9-4ded237827a4",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-12T23:49:24.479Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-12T23:49:23.372Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-12T23:49:23.380Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-19T23:49:23.372Z",
+        "invitation_id" : "oinv_019ebe3d-852c-70ae-814d-d98068f578c8",
+        "invite_code" : "invite_019ebe3d-852c-7c3c-b261-ab25cfa6c9f7",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-13T00:27:31.226Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-12T23:49:23.342Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-12T23:49:23.351Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-19T23:49:23.342Z",
+        "invitation_id" : "oinv_019ebe3d-850e-70f5-acc9-969e7144cf3a",
+        "invite_code" : "invite_019ebe3d-850e-765f-aba2-b9eb2f8719e5",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-12T23:38:01.421Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-12T23:38:00.362Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-12T23:38:00.370Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-19T23:38:00.362Z",
+        "invitation_id" : "oinv_019ebe33-192a-7c73-8c20-72346c3c8151",
+        "invite_code" : "invite_019ebe33-192a-7b02-83f3-3c43b8c685a2",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-12T23:49:23.325Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-12T23:38:00.334Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-12T23:38:00.342Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-19T23:38:00.334Z",
+        "invitation_id" : "oinv_019ebe33-190e-73b5-b940-df56fd624137",
+        "invite_code" : "invite_019ebe33-190e-78e7-b88e-2a69f59285b0",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-12T14:30:48.180Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-12T14:30:46.610Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-12T14:30:46.620Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-19T14:30:46.610Z",
+        "invitation_id" : "oinv_019ebc3e-1852-7bf3-8574-ead3cfc82903",
+        "invite_code" : "invite_019ebc3e-1852-705c-8594-4f6bbd9eb9ed",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-12T23:38:00.317Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-12T14:30:46.576Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-12T14:30:46.585Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-19T14:30:46.576Z",
+        "invitation_id" : "oinv_019ebc3e-1830-73be-83d5-af2c6f7d0a5b",
+        "invite_code" : "invite_019ebc3e-1830-7616-b229-6d6e2dad0705",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-12T14:30:16.709Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-12T14:30:14.924Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-12T14:30:14.935Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-19T14:30:14.924Z",
+        "invitation_id" : "oinv_019ebc3d-9c8c-7aab-8f01-59538dc0e457",
+        "invite_code" : "invite_019ebc3d-9c8c-7085-aeb8-1ee49e4bc5b9",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-12T14:30:46.557Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-12T14:30:14.891Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-12T14:30:14.901Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-19T14:30:14.891Z",
+        "invitation_id" : "oinv_019ebc3d-9c6b-7742-b428-55c8781432a9",
+        "invite_code" : "invite_019ebc3d-9c6b-71fa-a8dd-f551ad77e2f4",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-10T23:24:58.499Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:24:56.963Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:24:56.972Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:24:56.963Z",
+        "invitation_id" : "oinv_019eb3da-6d03-7dd6-af93-8848a57d149f",
+        "invite_code" : "invite_019eb3da-6d03-7a7c-bf90-158cdd4da919",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-12T14:30:14.871Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:24:56.938Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:24:56.943Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:24:56.938Z",
+        "invitation_id" : "oinv_019eb3da-6cea-7585-a019-4188a61c7999",
+        "invite_code" : "invite_019eb3da-6cea-77d7-9b6a-58c233e06576",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-10T23:23:50.676Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:23:49.013Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:23:49.020Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:23:49.013Z",
+        "invitation_id" : "oinv_019eb3d9-6395-783d-837e-2500278ee9cf",
+        "invite_code" : "invite_019eb3d9-6395-73fc-9684-584e9b96e533",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:24:56.921Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:23:48.985Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:23:48.993Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:23:48.985Z",
+        "invitation_id" : "oinv_019eb3d9-6379-7d37-977b-2ea9c9cbb343",
+        "invite_code" : "invite_019eb3d9-6379-768d-a739-8a54f4875cad",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-10T23:22:49.504Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:22:47.890Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:22:47.902Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:22:47.890Z",
+        "invitation_id" : "oinv_019eb3d8-74d2-7421-ab85-5b737fe73299",
+        "invite_code" : "invite_019eb3d8-74d2-712a-9edf-e4042d80752e",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:23:48.965Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:22:47.867Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:22:47.873Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:22:47.867Z",
+        "invitation_id" : "oinv_019eb3d8-74bb-7fba-8ff7-ea832d028571",
+        "invite_code" : "invite_019eb3d8-74bb-76c5-86ab-604eb2c2c5cb",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-10T23:19:42.578Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:19:40.785Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:19:40.791Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:19:40.785Z",
+        "invitation_id" : "oinv_019eb3d5-99f1-75a4-9533-8d26111af1ce",
+        "invite_code" : "invite_019eb3d5-99f1-7359-815e-82db011057c6",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:22:47.853Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:19:40.750Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:19:40.757Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:19:40.750Z",
+        "invitation_id" : "oinv_019eb3d5-99ce-7d67-9599-03b0cc1a3445",
+        "invite_code" : "invite_019eb3d5-99ce-769b-84c2-d7ac2ceec431",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "accepted_at" : "2026-06-10T23:18:47.133Z",
+        "accepted_by" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:17:13.558Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:17:13.564Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:17:13.558Z",
+        "invitation_id" : "oinv_019eb3d3-5ad6-75a5-a1f2-546e2c0488a2",
+        "invite_code" : "invite_019eb3d3-5ad6-7c9a-b054-4e3823f7e4a4",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "accepted",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:19:40.733Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:17:13.535Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:17:13.541Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:17:13.535Z",
+        "invitation_id" : "oinv_019eb3d3-5abf-7ea8-a06e-0dc880d8b9ad",
+        "invite_code" : "invite_019eb3d3-5abf-77e4-9af5-f44345ed0ec0",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:17:13.510Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:15:57.127Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:15:57.133Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:15:57.127Z",
+        "invitation_id" : "oinv_019eb3d2-3047-73a8-8470-8715d89f6f97",
+        "invite_code" : "invite_019eb3d2-3047-704b-a3f5-78caad6aa2d7",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:17:13.522Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:15:57.105Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:15:57.110Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:15:57.105Z",
+        "invitation_id" : "oinv_019eb3d2-3031-759f-848b-7318614d44c1",
+        "invite_code" : "invite_019eb3d2-3031-73d9-b017-8d269a31436f",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:15:57.078Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:15:05.721Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:15:05.726Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:15:05.721Z",
+        "invitation_id" : "oinv_019eb3d1-6779-71ea-a212-f39acb1c3929",
+        "invite_code" : "invite_019eb3d1-6779-7f94-87dd-4df9b59566f2",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:15:57.092Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:15:05.699Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:15:05.704Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:15:05.699Z",
+        "invitation_id" : "oinv_019eb3d1-6763-7701-b8e1-c90c23ef30ff",
+        "invite_code" : "invite_019eb3d1-6763-7622-9b0a-aa78256f9878",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:15:05.673Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:12:24.186Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:12:24.190Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:12:24.186Z",
+        "invitation_id" : "oinv_019eb3ce-f07a-76a9-8e8b-92680b49cb75",
+        "invite_code" : "invite_019eb3ce-f07a-7f62-89ce-1f8b8d401062",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:15:05.687Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:12:24.164Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:12:24.169Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:12:24.164Z",
+        "invitation_id" : "oinv_019eb3ce-f064-75ba-865e-6ff16b123584",
+        "invite_code" : "invite_019eb3ce-f064-722b-9b7a-cdf5796d4e39",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:12:24.139Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:10:29.216Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:10:29.220Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:10:29.216Z",
+        "invitation_id" : "oinv_019eb3cd-2f5f-704b-bf81-75576d75922f",
+        "invite_code" : "invite_019eb3cd-2f5f-70f9-88c7-06130b11aa70",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:12:24.151Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:10:29.195Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:10:29.199Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:10:29.195Z",
+        "invitation_id" : "oinv_019eb3cd-2f4b-77bf-b3a1-26a7691a3e16",
+        "invite_code" : "invite_019eb3cd-2f4b-72ba-8d67-4ffbec1dfd88",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:10:29.181Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:06:58.796Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:06:58.800Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:06:58.796Z",
+        "invitation_id" : "oinv_019eb3c9-f96c-7de0-abd8-9928a385556d",
+        "invite_code" : "invite_019eb3c9-f96c-78eb-81f0-c9c254d61c65",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:07:00.913Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:06:58.776Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:06:58.780Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:06:58.776Z",
+        "invitation_id" : "oinv_019eb3c9-f958-7e48-92c6-c3702e59fc05",
+        "invite_code" : "invite_019eb3c9-f958-7d14-a23f-80999cef278d",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:06:58.754Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "phone",
+        "contact" : "13800138099",
+        "created_at" : "2026-06-10T23:03:59.581Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:03:59.586Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-sms",
+        "delivery_status" : "sent",
+        "email" : "",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:03:59.581Z",
+        "invitation_id" : "oinv_019eb3c7-3d5d-7fee-8a60-42112fb291a2",
+        "invite_code" : "invite_019eb3c7-3d5d-7388-9038-38a44e4fc5eb",
+        "member_no" : "DEMO-PHONE",
+        "message" : "local invite demo by phone",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "13800138099",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:06:58.764Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "channel" : "email",
+        "contact" : "orginvite.demo@example.local",
+        "created_at" : "2026-06-10T23:03:59.558Z",
+        "created_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
+        "delivered_at" : "2026-06-10T23:03:59.563Z",
+        "delivery_error" : "",
+        "delivery_message_id" : "stub",
+        "delivery_provider" : "stub-email",
+        "delivery_status" : "sent",
+        "email" : "orginvite.demo@example.local",
+        "employee_no" : "",
+        "expires_at" : "2026-06-17T23:03:59.558Z",
+        "invitation_id" : "oinv_019eb3c7-3d46-7d0a-9c06-ef2219cc18e8",
+        "invite_code" : "invite_019eb3c7-3d46-79dc-8cc4-0ae9a5de2bd5",
+        "member_no" : "DEMO-EMAIL",
+        "message" : "local invite demo by email",
+        "organization_id" : "org_019ddef9-13ee-7f27-91d7-c609b152b46d",
+        "organization_name" : "Invite Demo Org",
+        "phone" : "",
+        "roles" : 
+        [
+          "student"
+        ],
+        "status" : "cancelled",
+        "student_no" : "",
+        "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
+      },
+      {
+        "cancelled_at" : "2026-06-10T23:03:59.533Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "channel" : "phone",
         "contact" : "13800138099",
         "created_at" : "2026-05-01T12:46:51.001Z",
@@ -1850,11 +4327,13 @@
         [
           "student"
         ],
-        "status" : "pending",
+        "status" : "cancelled",
         "student_no" : "",
         "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
       },
       {
+        "cancelled_at" : "2026-06-10T23:03:59.544Z",
+        "cancelled_by" : "usr_019ddef9-1399-7522-a9d5-4fbcce59e44a",
         "channel" : "email",
         "contact" : "orginvite.demo@example.local",
         "created_at" : "2026-05-01T12:46:50.975Z",
@@ -1878,7 +4357,7 @@
         [
           "student"
         ],
-        "status" : "pending",
+        "status" : "cancelled",
         "student_no" : "",
         "target_user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1"
       },
@@ -2080,6 +4559,555 @@
       "seats" : 20,
       "status" : "active"
     },
-    "updated_at" : "2026-05-01T12:46:51.016Z"
+    "updated_at" : "2026-06-14T02:51:43.935Z"
+  },
+  "org_019eb394-bc13-7196-9f1f-d3fd2c7b3c6a" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb394-bc48-7a6b-98b0-7a8bc2f0ca11",
+        "created_at" : "2026-06-10T22:08:49.737Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb394-bc25-7fa9-8327-acd167facdef",
+        "created_at" : "2026-06-10T22:08:49.702Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb394-bc13-7196-9f1f-d3fd2c7b3c6a",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:08:49.683Z",
+    "created_by" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8meyhc",
+    "organization_id" : "org_019eb394-bc13-7196-9f1f-d3fd2c7b3c6a",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb394-bc13-7196-9f1f-d3fd2c7b3c6a",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb394-bc13-7196-9f1f-d3fd2c7b3c6a",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:08:49.738Z"
+  },
+  "org_019eb397-4d0c-78c9-aa4f-5f02e82e9901" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb397-4d33-7fe6-bcc2-d605064b628e",
+        "created_at" : "2026-06-10T22:11:37.907Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb397-4d10-7b36-87c9-758743b73404",
+        "created_at" : "2026-06-10T22:11:37.873Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb397-4d0c-78c9-aa4f-5f02e82e9901",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:11:37.868Z",
+    "created_by" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8mik94",
+    "organization_id" : "org_019eb397-4d0c-78c9-aa4f-5f02e82e9901",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb397-4d0c-78c9-aa4f-5f02e82e9901",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb397-4d0c-78c9-aa4f-5f02e82e9901",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:11:37.908Z"
+  },
+  "org_019eb399-f39d-71ee-ba2c-63762c5c11d0" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb399-f3c4-7129-8630-399f5cfeca3a",
+        "created_at" : "2026-06-10T22:14:31.621Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb399-f3a2-7056-b432-245da98644a6",
+        "created_at" : "2026-06-10T22:14:31.587Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb399-f39d-71ee-ba2c-63762c5c11d0",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:14:31.581Z",
+    "created_by" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8mmaai",
+    "organization_id" : "org_019eb399-f39d-71ee-ba2c-63762c5c11d0",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb399-f39d-71ee-ba2c-63762c5c11d0",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb399-f39d-71ee-ba2c-63762c5c11d0",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:14:31.622Z"
+  },
+  "org_019eb39c-c226-7b24-9e0e-56588db4d0ad" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb39c-c24c-72b0-8670-acf13c3f6528",
+        "created_at" : "2026-06-10T22:17:35.564Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb39c-c22c-7079-9396-5e78ddb2a5ec",
+        "created_at" : "2026-06-10T22:17:35.533Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb39c-c226-7b24-9e0e-56588db4d0ad",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:17:35.526Z",
+    "created_by" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8mq883",
+    "organization_id" : "org_019eb39c-c226-7b24-9e0e-56588db4d0ad",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb39c-c226-7b24-9e0e-56588db4d0ad",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb39c-c226-7b24-9e0e-56588db4d0ad",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:17:35.565Z"
+  },
+  "org_019eb39f-9857-763e-a8d0-66389b3374f7" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb39f-9885-7a73-b736-41a17bdde8bd",
+        "created_at" : "2026-06-10T22:20:41.477Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb39f-985e-746e-b31f-b7aa6cebe295",
+        "created_at" : "2026-06-10T22:20:41.439Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb39f-9857-763e-a8d0-66389b3374f7",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:20:41.431Z",
+    "created_by" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8mu7o4",
+    "organization_id" : "org_019eb39f-9857-763e-a8d0-66389b3374f7",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb39f-9857-763e-a8d0-66389b3374f7",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb39f-9857-763e-a8d0-66389b3374f7",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:20:41.479Z"
+  },
+  "org_019eb3a2-6a7c-733c-9503-4adc0fa05f6e" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb3a2-6aa4-7a13-a5af-0d806bef0974",
+        "created_at" : "2026-06-10T22:23:46.340Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+        "actor_username" : "orgadmin_teaching_demo",
+        "audit_id" : "audit_019eb3a2-6a81-7dc6-9497-b6bb470c576a",
+        "created_at" : "2026-06-10T22:23:46.306Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb3a2-6a7c-733c-9503-4adc0fa05f6e",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:23:46.300Z",
+    "created_by" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8my6bc",
+    "organization_id" : "org_019eb3a2-6a7c-733c-9503-4adc0fa05f6e",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb3a2-6a7c-733c-9503-4adc0fa05f6e",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb3a2-6a7c-733c-9503-4adc0fa05f6e",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:23:46.341Z"
+  },
+  "org_019eb3a4-1e22-7b27-95a2-9a3f422d27ed" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb3a4-1e02-7db2-8e62-ae9d55307bf1",
+        "actor_username" : "orgadmin_teaching_mq8n0kc6",
+        "audit_id" : "audit_019eb3a4-1e4e-7ae0-b9a9-625d6eabca2a",
+        "created_at" : "2026-06-10T22:25:37.871Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb3a4-1e02-7db2-8e62-ae9d55307bf1",
+        "actor_username" : "orgadmin_teaching_mq8n0kc6",
+        "audit_id" : "audit_019eb3a4-1e29-7fc1-9e0d-74bc7ddd50ac",
+        "created_at" : "2026-06-10T22:25:37.834Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb3a4-1e22-7b27-95a2-9a3f422d27ed",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:25:37.826Z",
+    "created_by" : "usr_019eb3a4-1e02-7db2-8e62-ae9d55307bf1",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8n0kc6",
+    "organization_id" : "org_019eb3a4-1e22-7b27-95a2-9a3f422d27ed",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb3a4-1e22-7b27-95a2-9a3f422d27ed",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb3a4-1e22-7b27-95a2-9a3f422d27ed",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:25:37.872Z"
+  },
+  "org_019eb3a5-b29e-771a-8958-283f05d35e5a" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb3a5-b281-7720-8b1c-7b1168405ed6",
+        "actor_username" : "orgadmin_teaching_mq8n2s8n",
+        "audit_id" : "audit_019eb3a5-b2cc-727e-a43a-92b0bac8d6f8",
+        "created_at" : "2026-06-10T22:27:21.421Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb3a5-b281-7720-8b1c-7b1168405ed6",
+        "actor_username" : "orgadmin_teaching_mq8n2s8n",
+        "audit_id" : "audit_019eb3a5-b2a5-720c-a135-bfa19509d825",
+        "created_at" : "2026-06-10T22:27:21.382Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb3a5-b29e-771a-8958-283f05d35e5a",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:27:21.374Z",
+    "created_by" : "usr_019eb3a5-b281-7720-8b1c-7b1168405ed6",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8n2s8n",
+    "organization_id" : "org_019eb3a5-b29e-771a-8958-283f05d35e5a",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb3a5-b29e-771a-8958-283f05d35e5a",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb3a5-b29e-771a-8958-283f05d35e5a",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:27:21.422Z"
+  },
+  "org_019eb3ac-991b-7b26-8af5-8401416bce0a" : 
+  {
+    "audit_logs" : 
+    [
+      {
+        "action" : "subscription.updated",
+        "actor_user_id" : "usr_019eb3ac-98f0-72d1-b2fd-ff1106256fb1",
+        "actor_username" : "orgadmin_teaching_mq8nch5r",
+        "audit_id" : "audit_019eb3ac-9954-7cc2-8f89-6b3951555189",
+        "created_at" : "2026-06-10T22:34:53.653Z",
+        "details" : 
+        {
+          "expires_at" : "",
+          "plan" : "pro",
+          "previous_expires_at" : "",
+          "previous_plan" : "pro",
+          "previous_seats" : 20,
+          "previous_status" : "active",
+          "seats" : 20,
+          "status" : "active"
+        },
+        "summary" : "更新组织套餐与席位"
+      },
+      {
+        "action" : "organization.created",
+        "actor_user_id" : "usr_019eb3ac-98f0-72d1-b2fd-ff1106256fb1",
+        "actor_username" : "orgadmin_teaching_mq8nch5r",
+        "audit_id" : "audit_019eb3ac-9923-777e-b2a9-6c93e0354e93",
+        "created_at" : "2026-06-10T22:34:53.604Z",
+        "details" : 
+        {
+          "organization_id" : "org_019eb3ac-991b-7b26-8af5-8401416bce0a",
+          "organization_type" : "business",
+          "plan" : "pro",
+          "seats" : 20
+        },
+        "summary" : "创建组织"
+      }
+    ],
+    "created_at" : "2026-06-10T22:34:53.595Z",
+    "created_by" : "usr_019eb3ac-98f0-72d1-b2fd-ff1106256fb1",
+    "invitations" : [],
+    "name" : "Teaching E2E Org mq8nch5r",
+    "organization_id" : "org_019eb3ac-991b-7b26-8af5-8401416bce0a",
+    "organization_type" : "business",
+    "scope_id" : "org_019eb3ac-991b-7b26-8af5-8401416bce0a",
+    "scope_type" : "organization",
+    "subscription" : 
+    {
+      "accessible_levels" : [],
+      "entitlements" : [],
+      "expires_at" : "",
+      "organization_type" : "business",
+      "plan" : "pro",
+      "scope_id" : "org_019eb3ac-991b-7b26-8af5-8401416bce0a",
+      "scope_type" : "organization",
+      "seats" : 20,
+      "status" : "active"
+    },
+    "updated_at" : "2026-06-10T22:34:53.654Z"
   }
 }

@@ -20,7 +20,7 @@
 	<script>
 		window.__FURIGANA_DICT_URL__ = "/static/resource/furigana.dict.json";
 		window.__WEB_APP_MODE__ = true;
-		window.__API_BASE__ = "/api/v2";
+		window.__API_BASE__ = "/api/v1";
 		// 可配置展示哪些考试族：["jlpt","eju"]、["jlpt"] 或 ["eju"]。
 		window.__ENABLED_EXAM_FAMILIES__ = ["jlpt", "eju"];
 		window.__EXAMS_BY_FAMILY__ = {};
@@ -56,9 +56,32 @@
 
 				<!-- 用户名密码面板 -->
 				<div class="login-panel" data-panel="password">
-					<input id="login-username" class="login-input" type="text" placeholder="用户名 / user_id / member_no（学号/工号）/ 测试 ID" />
-					<input id="login-password" class="login-input" type="password" placeholder="密码（开发测试可留空）" />
-					<button id="login-btn-password" class="btn-primary-login">登录</button>
+					<div class="login-password-tabs">
+						<button class="login-password-tab active" data-password-view="login" type="button">登录</button>
+						<button class="login-password-tab" data-password-view="register" type="button">注册</button>
+						<button class="login-password-tab" data-password-view="reset" type="button">找回密码</button>
+					</div>
+					<div class="login-password-view is-active" data-password-panel="login">
+						<input id="login-username" class="login-input" type="text" placeholder="用户名 / user_id / member_no（学号/工号）/ 测试 ID" />
+						<input id="login-password" class="login-input" type="password" placeholder="密码（开发测试可留空）" />
+						<button id="login-btn-password" class="btn-primary-login">登录</button>
+					</div>
+					<div class="login-password-view" data-password-panel="register">
+						<input id="register-username" class="login-input" type="text" placeholder="设置用户名" />
+						<input id="register-email" class="login-input" type="email" placeholder="邮箱（可选）" />
+						<input id="register-password" class="login-input" type="password" placeholder="设置密码：至少8位，含字母和数字" />
+						<input id="register-password-confirm" class="login-input" type="password" placeholder="再次输入密码" />
+						<button id="login-btn-register" class="btn-primary-login">注册并登录</button>
+					</div>
+					<div class="login-password-view" data-password-panel="reset">
+						<input id="reset-login-id" class="login-input" type="text" placeholder="用户名 / 邮箱 / 手机号 / 学号" />
+						<div class="login-code-row">
+							<input id="reset-code" class="login-input code-input" type="text" placeholder="验证码" />
+							<button id="login-btn-reset-send-code" class="btn-send-code">发送验证码</button>
+						</div>
+						<input id="reset-new-password" class="login-input" type="password" placeholder="新密码：至少8位，含字母和数字" />
+						<button id="login-btn-reset-password" class="btn-primary-login">重置并登录</button>
+					</div>
 				</div>
 
 				<div id="login-error" class="login-error" style="display:none"></div>
@@ -76,9 +99,11 @@
 				</div>
 
 				<!-- 业务功能 22：第三方 OAuth（Google / Apple）登录入口 -->
-				<div class="login-oauth-bar" id="login-oauth-bar" style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
+				<div class="login-oauth-bar" id="login-oauth-bar" style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
 					<button class="login-oauth-btn" data-oauth="google" title="使用 Google 登录" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:4px;background:#fff;cursor:pointer;">Google 登录</button>
 					<button class="login-oauth-btn" data-oauth="apple" title="使用 Apple 登录" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:4px;background:#000;color:#fff;cursor:pointer;"> Apple 登录</button>
+					<button class="login-oauth-btn" data-oauth="github" title="使用 GitHub 登录" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:4px;background:#24292f;color:#fff;cursor:pointer;">GitHub 登录</button>
+					<button class="login-oauth-btn" data-oauth="line" title="使用 LINE 登录" style="padding:6px 12px;border:1px solid #06c755;border-radius:4px;background:#06c755;color:#fff;cursor:pointer;">LINE 登录</button>
 				</div>
 			</div>
 		</div>
@@ -106,11 +131,11 @@
 			<div id="exam-header"></div>
 
 			<div id="exam-controls" class="toolbar-grid">
-				<button id="toggle-answers" class="btn-secondary">显示答案</button>
+				<button id="toggle-answers" class="btn-secondary">答案解析</button>
 				<button id="open-question-map" class="btn-secondary" title="题目选择面板">答题卡</button>
 				<button id="top-prev" class="btn-secondary" title="上一题(←)">上一题</button>
 				<button id="top-next" class="btn-secondary" title="下一题(→)">下一题</button>
-				<button id="toggle-explanations" class="btn-secondary">显示详解</button>
+				<button id="toggle-explanations" class="btn-secondary">补充解析</button>
 				<button id="toggle-reading-kana" class="btn-secondary" title="阅读原文上方显示假名">假名</button>
 				<button id="toggle-reading-zh" class="btn-secondary" title="阅读原文下方显示中文">中文</button>
 				<div class="category-slot" data-slot="1"></div>

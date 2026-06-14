@@ -3,7 +3,7 @@ setlocal
 
 chcp 65001>nul
 
-set BUILD_DIR=cpp-backend\build
+set BUILD_DIR=backend\build
 set TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 set POWERSHELL_EXE=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
 
@@ -20,11 +20,11 @@ if "%LOG_MAX_FILES%"=="" set LOG_MAX_FILES=10
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
 
 if not exist data\user\users.json (
-  powershell -ExecutionPolicy Bypass -File cpp-backend/tools/migrate_user_baseline.ps1 -BaseDir .
+  powershell -ExecutionPolicy Bypass -File backend/tools/migrate_user_baseline.ps1 -BaseDir .
   if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 )
 if not exist data\user\roles.json (
-  powershell -ExecutionPolicy Bypass -File cpp-backend/tools/migrate_user_baseline.ps1 -BaseDir .
+  powershell -ExecutionPolicy Bypass -File backend/tools/migrate_user_baseline.ps1 -BaseDir .
   if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 )
 
@@ -33,14 +33,14 @@ echo [start-cpp] LOG_LEVEL=%LOG_LEVEL%
 echo [start-cpp] LOG_DIR=%LOG_DIR%
 
 if exist "%BUILD_DIR%\Release\exam_online_cpp.exe" (
-  powershell -NoProfile -ExecutionPolicy Bypass -File cpp-backend/tools/stop_running_backend.ps1 -ExePath "%BUILD_DIR%\Release\exam_online_cpp.exe"
+  powershell -NoProfile -ExecutionPolicy Bypass -File backend/tools/stop_running_backend.ps1 -ExePath "%BUILD_DIR%\Release\exam_online_cpp.exe"
   if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 )
 
 if exist "%BUILD_DIR%\CMakeCache.txt" (
-  cmake -S cpp-backend -B "%BUILD_DIR%" -DZ_VCPKG_POWERSHELL_PATH:FILEPATH="%POWERSHELL_EXE%" -DZ_VCPKG_PWSH_PATH:FILEPATH="%POWERSHELL_EXE%"
+  cmake -S backend -B "%BUILD_DIR%" -DZ_VCPKG_POWERSHELL_PATH:FILEPATH="%POWERSHELL_EXE%" -DZ_VCPKG_PWSH_PATH:FILEPATH="%POWERSHELL_EXE%"
 ) else (
-  cmake -S cpp-backend -B "%BUILD_DIR%" -DCMAKE_TOOLCHAIN_FILE="%TOOLCHAIN_FILE%" -DZ_VCPKG_POWERSHELL_PATH:FILEPATH="%POWERSHELL_EXE%" -DZ_VCPKG_PWSH_PATH:FILEPATH="%POWERSHELL_EXE%"
+  cmake -S backend -B "%BUILD_DIR%" -DCMAKE_TOOLCHAIN_FILE="%TOOLCHAIN_FILE%" -DZ_VCPKG_POWERSHELL_PATH:FILEPATH="%POWERSHELL_EXE%" -DZ_VCPKG_PWSH_PATH:FILEPATH="%POWERSHELL_EXE%"
 )
 if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 

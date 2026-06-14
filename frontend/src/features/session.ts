@@ -57,6 +57,19 @@ function recordDeviceActivity(userId = ''): void {
 	}
 }
 
+function readCookie(name: string): string {
+	const prefix = `${name}=`;
+	const item = document.cookie
+		.split(';')
+		.map((part) => part.trim())
+		.find((part) => part.startsWith(prefix));
+	return item ? decodeURIComponent(item.slice(prefix.length)) : '';
+}
+
+function clearCookie(name: string): void {
+	document.cookie = `${name}=; Max-Age=0; path=/`;
+}
+
 export function buildCurrentUser(context: MeContext, token: string): CurrentUser {
 	return {
 		...context.user,
@@ -73,12 +86,13 @@ export function buildCurrentUser(context: MeContext, token: string): CurrentUser
 export async function restoreSession(api: ApiClient, store: AppStore): Promise<void> {
 	try {
 		recordDeviceActivity();
-		const token = localStorage.getItem(TOKEN_KEY) ?? '';
+		const token = localStorage.getItem(TOKEN_KEY) || readCookie('token');
 		if (!token) return;
 
 		const context = (await api.getMeContext(token)) as MeContext;
 		const user = buildCurrentUser(context, token);
 		persistSession(user);
+		clearCookie('token');
 		store.setState({ user });
 	} catch {
 		clearSession(store);

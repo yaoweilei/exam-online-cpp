@@ -7,8 +7,8 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$buildDir = Join-Path $repoRoot 'cpp-backend\build'
-$backendExe = Join-Path $repoRoot 'cpp-backend\build\Release\exam_online_cpp.exe'
+$buildDir = Join-Path $repoRoot 'backend\build'
+$backendExe = Join-Path $repoRoot 'backend\build\Release\exam_online_cpp.exe'
 $toolchainFile = 'C:\vcpkg\scripts\buildsystems\vcpkg.cmake'
 $backendStdout = Join-Path $repoRoot 'logs\backend\local-regression.stdout.log'
 $backendStderr = Join-Path $repoRoot 'logs\backend\local-regression.stderr.log'
@@ -54,14 +54,14 @@ try {
 
     Write-Step 'Configuring CMake build directory if needed'
     if (-not (Test-Path $buildDir)) {
-        & cmake -S cpp-backend -B cpp-backend\build -DCMAKE_TOOLCHAIN_FILE=$toolchainFile
+        & cmake -S backend -B backend\build -DCMAKE_TOOLCHAIN_FILE=$toolchainFile
     }
 
     Write-Step 'Building Release backend and smoke tests'
-    & cmake --build cpp-backend\build --config Release
+    & cmake --build backend\build --config Release
 
     Write-Step 'Running focused C++ smoke tests'
-    & ctest --test-dir cpp-backend\build -C Release -R smoke_tests --output-on-failure
+    & ctest --test-dir backend\build -C Release -R smoke_tests --output-on-failure
 
     Write-Step ("Starting backend with REFERRAL_REWARD_CREDITS=" + $ReferralRewardCredits)
     New-Item -ItemType Directory -Path (Join-Path $repoRoot 'logs\backend') -Force | Out-Null
@@ -83,7 +83,7 @@ try {
         & powershell -ExecutionPolicy Bypass -File .\test_org_security.ps1
 
         Write-Step 'Running referral reward integration regression'
-        & powershell -ExecutionPolicy Bypass -File .\cpp-backend\tests\integration_flow_smoke.ps1 -ReferralRewardCredits $ReferralRewardCredits
+        & powershell -ExecutionPolicy Bypass -File .\backend\tests\integration_flow_smoke.ps1 -ReferralRewardCredits $ReferralRewardCredits
 
         Write-Step 'Local regression passed'
     }

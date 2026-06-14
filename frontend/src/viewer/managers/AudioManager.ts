@@ -72,6 +72,7 @@ class AudioManager {
 	private readonly audioPlayers: Map<string, HTMLAudioElement>;
 	// 业务功能 9：音频增强状态表（key: questionId）
 	private readonly enhanceStates: Map<string, AudioEnhanceState>;
+	private readonly scriptLineSeekPrerollSeconds = 0.18;
 
 	constructor(examViewer: AudioExamViewer) {
 		this.examViewer = examViewer;
@@ -313,7 +314,7 @@ class AudioManager {
 	}
 
 	private createScriptLayoutImageElement(question: AudioQuestion): HTMLDivElement | null {
-		if (!question.script_layout_image) {
+		if (!question.script_layout_image || this.isEjuListeningQuestion(question)) {
 			return null;
 		}
 
@@ -336,6 +337,20 @@ class AudioManager {
 			'display:block;width:100%;max-width:860px;height:auto;margin:0 auto;border-radius:6px;background:#fff;';
 		wrap.appendChild(image);
 		return wrap;
+	}
+
+	private isEjuListeningQuestion(question: AudioQuestion): boolean {
+		const tags = [
+			...(Array.isArray(question.tags) ? question.tags.map(String) : []),
+			...(Array.isArray(question.skill_tags) ? question.skill_tags.map(String) : [])
+		];
+		if (tags.includes('eju.listening_reading') || tags.includes('eju.listening')) {
+			return true;
+		}
+
+		const section = this.examViewer.currentExam?.exam_info?.sections?.[this.examViewer.currentSectionIndex];
+		const sectionType = String((section as Record<string, unknown> | undefined)?.section_type || '');
+		return sectionType === 'listening_reading' || sectionType === 'listening';
 	}
 
 	private createScriptLineElement(
@@ -732,7 +747,7 @@ class AudioManager {
 		}
 
 		const activeAudio = audio;
-		const start = this.parseTimeToSeconds(lineDiv.dataset.start ?? '');
+		const start = this.getScriptLineSeekStart(lineDiv);
 		const wasPlaying = !activeAudio.paused;
 		activeAudio.pause();
 
@@ -742,16 +757,67 @@ class AudioManager {
 
 		lineDiv.classList.add('active');
 		this.scrollScriptLineIntoView(lineDiv);
-		activeAudio.currentTime = start;
+		this.seekAndPlayScriptLine(activeAudio, start, playBtn, wasPlaying || activeAudio.paused);
+	}
 
-		if (wasPlaying || activeAudio.paused) {
-			void activeAudio.play().catch(() => {
+	private getScriptLineSeekStart(lineDiv: HTMLElement): number {
+		const rawStart = this.parseTimeToSeconds(lineDiv.dataset.start ?? '');
+		return Math.max(0, rawStart - this.scriptLineSeekPrerollSeconds);
+	}
+
+	private seekAndPlayScriptLine(
+		audio: HTMLAudioElement,
+		start: number,
+		playBtn: HTMLButtonElement | null,
+		shouldPlay: boolean
+	): void {
+		let started = false;
+		let fallbackTimer: number | undefined;
+		let metadataFallbackTimer: number | undefined;
+
+		const startPlayback = () => {
+			if (started) return;
+			started = true;
+			if (fallbackTimer !== undefined) {
+				window.clearTimeout(fallbackTimer);
+			}
+			if (metadataFallbackTimer !== undefined) {
+				window.clearTimeout(metadataFallbackTimer);
+			}
+			if (!shouldPlay) return;
+			void audio.play().catch(() => {
 				console.log('Audio play failed');
 			});
 			if (playBtn) {
 				playBtn.dataset.playing = 'true';
 			}
+		};
+
+		const seekThenPlay = () => {
+			if (metadataFallbackTimer !== undefined) {
+				window.clearTimeout(metadataFallbackTimer);
+				metadataFallbackTimer = undefined;
+			}
+			audio.currentTime = start;
+			audio.addEventListener('seeked', startPlayback, { once: true });
+			fallbackTimer = window.setTimeout(startPlayback, 160);
+		};
+
+		if (audio.readyState === HTMLMediaElement.HAVE_NOTHING) {
+			audio.addEventListener('loadedmetadata', seekThenPlay, { once: true });
+			audio.load();
+			metadataFallbackTimer = window.setTimeout(() => {
+				try {
+					audio.currentTime = start;
+				} catch {
+					/* wait for metadata */
+				}
+				startPlayback();
+			}, 500);
+			return;
 		}
+
+		seekThenPlay();
 	}
 
 	/**

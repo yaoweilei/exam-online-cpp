@@ -27,7 +27,7 @@ export function readStoredToken(): string {
 	}
 }
 
-export function buildApiUrl(path: string, baseUrl: string = '/api/v2'): string {
+export function buildApiUrl(path: string, baseUrl: string = '/api/v1'): string {
 	if (path.startsWith('http://') || path.startsWith('https://')) {
 		return path;
 	}
@@ -37,7 +37,7 @@ export function buildApiUrl(path: string, baseUrl: string = '/api/v2'): string {
 	return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-export async function requestApi<T>(path: string, options: RequestInit = {}, baseUrl: string = '/api/v2'): Promise<T> {
+export async function requestApi<T>(path: string, options: RequestInit = {}, baseUrl: string = '/api/v1'): Promise<T> {
 	const token = readStoredToken();
 	const response = await fetch(buildApiUrl(path, baseUrl), {
 		...options,

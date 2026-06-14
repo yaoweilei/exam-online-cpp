@@ -38,23 +38,23 @@
 | 当前最稳的链路 | 试卷详情、答题、答案/详解、基础进度与统计、题目反馈、章节式路径读取、登录上下文同步 |
 | 当前最明显的不足 | 空模板卷仍进入试卷列表；题目级 `skill_tags` 仍为 `0 / 9080`；题库限时字段仍为 `0 / 88`；自动化覆盖仍偏编译/契约/仓储级 |
 | 当前仍需重点治理 | 题库显式元数据、题目级 `skill_tags`、时间字段标准化、模板卷展示策略、平台能力的验收与测试补齐 |
-| 本轮已确认通过 | 后端 Release 编译、前端 TypeScript 构建、`smoke_tests.exe`、`contract_v2_smoke.ps1`、`/api/v2/exams` `/api/v2/exams/{id}` `/api/v2/chapters` 冒烟 |
+| 本轮已确认通过 | 后端 Release 编译、前端 TypeScript 构建、`smoke_tests.exe`、`contract_v1_smoke.ps1`、`/api/v1/exams` `/api/v1/exams/{id}` `/api/v1/chapters` 冒烟 |
 | 默认已收敛/隐藏 | 社区讨论、排行榜前台入口已隐藏；功能开关默认关闭 |
 
 ### 2.1 对这份文档本身的补充判断
 
 - 当前文档更适合被理解为“能力盘点 + 可跑通程度”，不应直接等同“可对外稳定交付程度”。
-- `smoke_tests` 与 `contract_v2_smoke` 已跑通，但前者主要覆盖 request id、推荐奖励、联系方式变更，后者主要覆盖 `exams` 与 `roles` 包络，不能替代试卷/答题/组织等业务回归。
+- `smoke_tests` 与 `contract_v1_smoke` 已跑通，但前者主要覆盖 request id、推荐奖励、联系方式变更，后者主要覆盖 `exams` 与 `roles` 包络，不能替代试卷/答题/组织等业务回归。
 - 多考试家族抽象、索引和前端运行时已经泛化，但本轮真实内容样本、接口冒烟与完成度判断仍几乎全部建立在 JLPT 数据上。
 
 ## 3. 业务能力总表
 
 | 业务域 | 核心方法/能力 | 主要入口/接口 | 当前状态 | 完成度 | 自动化测试 | 人工确认 | 备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 试卷浏览 | 试卷列表、按 `family/level/year/sort` 过滤 | `GET /api/v2/exams`，前端试卷下拉 | 可用，但模板卷未过滤 | 中 | 已自动化验证 | 局部 | 本轮 GET 冒烟通过；`N1_2025_12 (Template)` 仍排在 N1 列表首位 |
-| 试卷详情 | 加载单份试卷、订阅校验 | `GET /api/v2/exams/{id}` | 可用 | 高 | 已自动化验证 | 局部 | 近期已修复试卷无法加载问题；本轮详情冒烟通过 |
-| 答题提交 | 提交整卷答案、读取历史答案 | `/api/v2/answers/submit`、`/api/v2/answers/{user}/{exam}` | 可用 | 高 | 部分自动化 | 否 | 需再补用户级回归与多角色验收 |
-| 做题进度 | 用户总进度、分试卷完成度 | `/api/v2/progress/{user}`、`/api/v2/progress/{user}/exams` | 可用 | 高 | 部分自动化 | 否 | 前端试卷列表已显示完成图标 |
+| 试卷浏览 | 试卷列表、按 `family/level/year/sort` 过滤 | `GET /api/v1/exams`，前端试卷下拉 | 可用，但模板卷未过滤 | 中 | 已自动化验证 | 局部 | 本轮 GET 冒烟通过；`N1_2025_12 (Template)` 仍排在 N1 列表首位 |
+| 试卷详情 | 加载单份试卷、订阅校验 | `GET /api/v1/exams/{id}` | 可用 | 高 | 已自动化验证 | 局部 | 近期已修复试卷无法加载问题；本轮详情冒烟通过 |
+| 答题提交 | 提交整卷答案、读取历史答案 | `/api/v1/answers/submit`、`/api/v1/answers/{user}/{exam}` | 可用 | 高 | 部分自动化 | 否 | 需再补用户级回归与多角色验收 |
+| 做题进度 | 用户总进度、分试卷完成度 | `/api/v1/progress/{user}`、`/api/v1/progress/{user}/exams` | 可用 | 高 | 部分自动化 | 否 | 前端试卷列表已显示完成图标 |
 | 统计分析 | 总统计、弱项、学习曲线、推荐 | `/statistics/*`、`/recommendations/*` | 可用 | 中 | 部分自动化 | 否 | 推荐逻辑仍偏规则驱动 |
 | 登录鉴权 | 用户名/密码、手机号、微信、OAuth 扩展 | `/auth/*`、`/wechat/*`、`/oauth/*` | 可用 | 中 | 部分自动化 | 局部 | 本轮已统一 token 透传；微信/OAuth 仍缺完整端到端回归 |
 | 联系方式验证/变更 | 邮箱/手机号验证码绑定、换绑挑战、旧联系方式提醒 | `/auth/email/*`、`/auth/phone/*`、`/auth/contact-change/*` | 可用 | 中 | 已自动化验证 | 否 | 本轮 `smoke_tests` 已覆盖邮箱/手机号换绑提醒与 challenge 链路 |
@@ -77,7 +77,7 @@
 | 题目讲解 | 讲解附件列表、创建、删除 | `/explanations/*` | 可用 | 中 | 未见自动化 | 局部 | 本轮已把“题库内解析 + 附件讲解”在 UI 上做了语义整合 |
 | 题库解析显示 | `显示答案`、`显示详解` 基于题库 `explanation` 字段 | 前端阅读器直接渲染 | 可用 | 高 | 间接覆盖 | 局部 | 当前是系统最有价值的学习内容之一 |
 | 同考点串题 | 相关题目聚合 | `/related-questions` | 可用 | 中 | 未见自动化 | 否 | 当前主要依赖 `target_words`，后续应更多依赖 `skill_tags` |
-| 章节/技能路径 | 路径列表、章节详情、进度 | `/chapters*` | 可用 | 高 | 已自动化验证 | 局部 | 本轮 `GET /api/v2/chapters?family=jlpt&level=N1&user_id=guest` 返回 `29` 个章节 |
+| 章节/技能路径 | 路径列表、章节详情、进度 | `/chapters*` | 可用 | 高 | 已自动化验证 | 局部 | 本轮 `GET /api/v1/chapters?family=jlpt&level=N1&user_id=guest` 返回 `29` 个章节 |
 | 生词本 | 词本列表、加入、删改 | `/vocab-notebook/*` | 可用 | 中 | 未见自动化 | 否 | 对自学非常有价值，应继续保留 |
 | 振假名/查词 | 加注音、查读音 | `/furigana/*` | 可用 | 中 | 未见自动化 | 否 | 当前仍偏日语专属，需要为多考试家族做能力抽象 |
 | 阅读译文 | 句级译文拉取与写入 | `/translations/*` | 可用 | 中 | 未见自动化 | 否 | 对日语阅读精读有帮助，但尚未通用化 |
@@ -133,13 +133,13 @@
 
 | 测试/回归项 | 位置 | 当前覆盖 | 本轮状态 | 备注 |
 | --- | --- | --- | --- | --- |
-| C++ 编译 | `cmake --build cpp-backend/build --config Release` | 后端编译完整性 | 已执行通过 | 2026-04-24 复跑通过 |
+| C++ 编译 | `cmake --build backend/build --config Release` | 后端编译完整性 | 已执行通过 | 2026-04-24 复跑通过 |
 | 前端编译 | `frontend npm run build` | TS 编译完整性 | 已执行通过 | 2026-04-24 复跑通过 |
-| `smoke_tests` | `cpp-backend/tests/smoke_tests.cpp` | RequestId、推荐奖励、联系方式变更等仓储级 smoke | 已执行通过 | 2026-04-24 复跑通过；不覆盖试卷/章节主链路 |
-| Contract Smoke | `cpp-backend/tests/contract_v2_smoke.ps1` | `exams` / `roles` 包络与基础 schema | 已执行通过 | 2026-04-24 复跑通过 |
-| Integration Flow Smoke | `cpp-backend/tests/integration_flow_smoke.ps1` | `exams`、`answers`、`statistics`、`auth`、`me/context`、推荐奖励集成链路 | 未执行 | 脚本存在，但本轮为避免写入测试数据未执行 |
+| `smoke_tests` | `backend/tests/smoke_tests.cpp` | RequestId、推荐奖励、联系方式变更等仓储级 smoke | 已执行通过 | 2026-04-24 复跑通过；不覆盖试卷/章节主链路 |
+| Contract Smoke | `backend/tests/contract_v1_smoke.ps1` | `exams` / `roles` 包络与基础 schema | 已执行通过 | 2026-04-24 复跑通过 |
+| Integration Flow Smoke | `backend/tests/integration_flow_smoke.ps1` | `exams`、`answers`、`statistics`、`auth`、`me/context`、推荐奖励集成链路 | 未执行 | 脚本存在，但本轮为避免写入测试数据未执行 |
 | Local Regression | `run-local-regression.ps1` | 编译 + smoke + 安全 + 推荐集成 | 未完整执行 | 建议后续大改后跑全量 |
-| 本轮接口冒烟 | 脚本化调用 `/api/v2/exams`、`/api/v2/exams/{id}`、`/api/v2/chapters` | 试卷索引、试卷详情、章节读取主链路 | 已执行通过 | 全部返回 `OK`；`N1` 列表首条仍是模板卷 |
+| 本轮接口冒烟 | 脚本化调用 `/api/v1/exams`、`/api/v1/exams/{id}`、`/api/v1/chapters` | 试卷索引、试卷详情、章节读取主链路 | 已执行通过 | 全部返回 `OK`；`N1` 列表首条仍是模板卷 |
 | 本轮题库统计复核 | PowerShell JSON 统计脚本 | 实卷/模板、`skill_tags`、限时字段、显式元数据覆盖率 | 已执行通过 | 统计结果与第 7 章一致：`88` 实卷、`72` 模板、`question.skill_tags = 0 / 9080` |
 | 页面问题修复观察 | 试卷加载、登录鉴权、讲解/反馈链路 | 局部页面级确认 | 已做局部确认 | 不等于完整人工验收 |
 
@@ -168,7 +168,7 @@
 | 问题 | 当前情况 | 影响 |
 | --- | --- | --- |
 | 空模板卷占比高 | `72 / 160` 仍为空模板 | 会污染试卷列表、统计和后续多考试接入判断 |
-| 模板卷已进入前台可见列表 | `/api/v2/exams?family=jlpt&level=N1&sort=date_desc` 首条就是 `N1_2025_12 (Template)`，`questionCount = 0` | 这是当前真实用户可见问题，会影响首屏信任感与试卷选择体验 |
+| 模板卷已进入前台可见列表 | `/api/v1/exams?family=jlpt&level=N1&sort=date_desc` 首条就是 `N1_2025_12 (Template)`，`questionCount = 0` | 这是当前真实用户可见问题，会影响首屏信任感与试卷选择体验 |
 | 题库原始元数据不足 | 原始 JSON 未显式写 `family/subject/paper_type`，当前主要靠索引/API summary 推断 | 当前能跑，但迁移成本仍留在数据源侧 |
 | `skill_tags` 只到 section 级 | `question.skill_tags = 0 / 9080` | 学习路径、推荐、错题分析仍不够细 |
 | section 命名不完全一致 | 仍有 `8` 个 section 没命中新规则，回退成旧式 section 路径 | 技能路径不够纯，统计会混入旧分组 |
@@ -195,8 +195,8 @@
 
 | 抓手 | 当前情况 | 价值 |
 | --- | --- | --- |
-| `/api/v2/exams` summary 已派生 `questionCount`、`checked` | 模板卷在索引层已能被稳定识别 | 可先做后端默认过滤或前端隐藏，不必等待题库补元数据 |
-| `/api/v2/exams` summary 已派生 `family/subject/paper_type/skills/capabilities` | 即使原始 JSON 未显式声明，接口也已稳定输出 | UI 与多考试接入可优先复用摘要层，降低阶段性阻塞 |
+| `/api/v1/exams` summary 已派生 `questionCount`、`checked` | 模板卷在索引层已能被稳定识别 | 可先做后端默认过滤或前端隐藏，不必等待题库补元数据 |
+| `/api/v1/exams` summary 已派生 `family/subject/paper_type/skills/capabilities` | 即使原始 JSON 未显式声明，接口也已稳定输出 | UI 与多考试接入可优先复用摘要层，降低阶段性阻塞 |
 
 ## 8. 当前确认过的实现问题与治理状态
 
@@ -213,8 +213,8 @@
 | `personalCenter.ts` 过大 | 仍存在 | 目前仅做硬编码治理，尚未拆模块 |
 | 题内解析与附件讲解双系统混淆 | 部分处理 | 当前 UI 已明确区分，但内容模型仍是两套 |
 | 鉴权契约不统一 | 部分处理 | 前端已统一走 Authorization header；后端仍兼容旧 query/body token |
-| 模板卷未在列表默认过滤 | 仍存在 | `/api/v2/exams?family=jlpt&level=N1` 首项仍是 `N1_2025_12 (Template)`；summary 已有 `questionCount/checked` 可立即修复 |
-| 自动化覆盖口径偏粗 | 仍存在 | `smoke_tests` 主要测 request id、推荐奖励、联系方式变更；`contract_v2_smoke` 只测 `exams + roles` 包络，业务主链路仍缺系统回归 |
+| 模板卷未在列表默认过滤 | 仍存在 | `/api/v1/exams?family=jlpt&level=N1` 首项仍是 `N1_2025_12 (Template)`；summary 已有 `questionCount/checked` 可立即修复 |
+| 自动化覆盖口径偏粗 | 仍存在 | `smoke_tests` 主要测 request id、推荐奖励、联系方式变更；`contract_v1_smoke` 只测 `exams + roles` 包络，业务主链路仍缺系统回归 |
 | JSON 存储承载过多状态 | 仍存在 | 仍是当前平台放量前最大瓶颈之一 |
 
 ## 9. 自学强化功能专项盘点
@@ -272,7 +272,7 @@
 
 | 优先级 | 建议动作 | 目标 |
 | --- | --- | --- |
-| P0 | 在 `/api/v2/exams` 或前端选择器中过滤 `questionCount = 0` / `checked = false` 的模板卷 | 先修复用户首屏体验与试卷选择噪音 |
+| P0 | 在 `/api/v1/exams` 或前端选择器中过滤 `questionCount = 0` / `checked = false` 的模板卷 | 先修复用户首屏体验与试卷选择噪音 |
 | P0 | 跑一遍 `run-local-regression.ps1` 并补齐失败项 | 建立可信回归基线 |
 | P0 | 补齐 `question.skill_tags` 方案，先覆盖高频错题/阅读/听力题型 | 让推荐、错题、学习路径真正细化 |
 | P0 | 给题库补显式 `family/subject/paper_type` | 降低未来 EJU/CET 接入成本 |

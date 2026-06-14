@@ -53,3 +53,36 @@ body:not(.light-theme) .login-box { background: #1e1e2e; color: #ddd; }
 	letter-spacing: 1px;
 }
 
+.login-password-tabs {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 6px;
+	margin-bottom: 14px;
+}
+
+.login-password-tab {
+	border: 1px solid rgba(128,128,128,0.35);
+	background: rgba(128,128,128,0.12);
+	color: inherit;
+	border-radius: 6px;
+	padding: 7px 4px;
+	cursor: pointer;
+	font-size: 13px;
+}
+
+.login-password-tab.active {
+	background: #0b84d8;
+	border-color: #0b84d8;
+	color: #fff;
+}
+
+.login-password-view {
+	display: none;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.login-password-view.is-active {
+	display: flex;
+}
+

@@ -2,12 +2,12 @@ import { requestApi, readStoredToken, readStoredUserId, buildApiUrl } from '../.
 
 /**
  * API 客户端（v2）
- * 统一对接 /api/v2 响应契约：
+ * 统一对接 /api/v1 响应契约：
  * { code, message, data, request_id, ts }
  */
 class APIClient {
 	static get base(): string {
-		return window.__API_BASE__ || '/api/v2';
+		return window.__API_BASE__ || '/api/v1';
 	}
 
 	static readStoredUserId(): string {
@@ -45,6 +45,17 @@ class APIClient {
 		return this.request('/auth/logout', {
 			method: 'POST',
 			body: JSON.stringify({ token })
+		});
+	}
+
+	static async changePassword(token: string, currentPassword: string, newPassword: string): Promise<unknown> {
+		return this.request('/auth/password/change', {
+			method: 'POST',
+			body: JSON.stringify({
+				token,
+				current_password: currentPassword,
+				new_password: newPassword
+			})
 		});
 	}
 
@@ -235,6 +246,17 @@ class APIClient {
 		});
 	}
 
+	static async getMyWallet(token: string): Promise<unknown> {
+		return this.request(`/me/wallet?token=${encodeURIComponent(token)}`);
+	}
+
+	static async redeemCode(token: string, code: string): Promise<unknown> {
+		return this.request('/me/redeem', {
+			method: 'POST',
+			body: JSON.stringify({ token, code })
+		});
+	}
+
 	static async getMyPendingOrganizationInvitations(token: string): Promise<unknown[]> {
 		return this.request(`/me/invitations?token=${encodeURIComponent(token)}`);
 	}
@@ -300,6 +322,69 @@ class APIClient {
 		return this.request(`/subscription/${organizationId}/grant`, {
 			method: 'POST',
 			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, scope_type: 'organization' })
+		});
+	}
+
+	static async updateUserSubscription(userId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/subscription/${userId}/grant`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, scope_type: 'personal' })
+		});
+	}
+
+	static async createPaymentOrder(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/payments/orders', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async getPaymentOrder(token: string, orderId: string): Promise<unknown> {
+		return this.request(`/payments/orders/${encodeURIComponent(orderId)}?token=${encodeURIComponent(token)}`);
+	}
+
+	static async listPaymentLedger(token: string, userId?: string): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (userId) query.set('user_id', userId);
+		return this.request(`/payments/ledger?${query.toString()}`);
+	}
+
+	static async requestPaymentRefund(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/payments/refunds', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async getInstitutionDashboard(token: string, orgId?: string): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (orgId) query.set('org_id', orgId);
+		return this.request(`/institution/dashboard?${query.toString()}`);
+	}
+
+	static async getInstitutionPlans(): Promise<unknown> {
+		return this.request('/institution/plans');
+	}
+
+	static async getInstitutionClassGradebook(token: string, classId: string): Promise<unknown> {
+		return this.request(`/institution/classes/${encodeURIComponent(classId)}/gradebook?token=${encodeURIComponent(token)}`);
+	}
+
+	static async getInstitutionStudentProfile(token: string, studentId: string): Promise<unknown> {
+		return this.request(`/institution/students/${encodeURIComponent(studentId)}?token=${encodeURIComponent(token)}`);
+	}
+
+	static async createLessonPrep(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/institution/lesson-prep', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async previewInstitutionImport(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/institution/import-preview', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
 		});
 	}
 

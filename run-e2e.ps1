@@ -26,6 +26,8 @@ try {
 
     if ($Ui) {
         $playwrightCmd += '--ui'
+        $playwrightCmd += '--ui-host'
+        $playwrightCmd += '127.0.0.1'
     }
 
     if ($Spec) {

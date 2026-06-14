@@ -48,7 +48,7 @@
       "level" : "",
       "paper_type" : "complete",
       "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2010_02.json",
-      "questionCount" : 52,
+      "questionCount" : 53,
       "session" : "02",
       "skills" : 
       [
@@ -78,7 +78,7 @@
       "level" : "",
       "paper_type" : "complete",
       "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2011_01.json",
-      "questionCount" : 51,
+      "questionCount" : 53,
       "session" : "01",
       "skills" : 
       [
@@ -86,7 +86,10 @@
         "eju.listening_reading",
         "eju.reading",
         "eju.writing",
-        "reading.comprehension"
+        "figure_reasoning",
+        "reading",
+        "reading.comprehension",
+        "reason"
       ],
       "subject" : "japanese",
       "title" : "EJU-Japanese-2011_01",
@@ -108,7 +111,7 @@
       "level" : "",
       "paper_type" : "complete",
       "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2011_02.json",
-      "questionCount" : 52,
+      "questionCount" : 53,
       "session" : "02",
       "skills" : 
       [
@@ -438,7 +441,7 @@
       "level" : "",
       "paper_type" : "complete",
       "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2017_01.json",
-      "questionCount" : 52,
+      "questionCount" : 53,
       "session" : "01",
       "skills" : 
       [
@@ -468,7 +471,7 @@
       "level" : "",
       "paper_type" : "complete",
       "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2017_02.json",
-      "questionCount" : 52,
+      "questionCount" : 53,
       "session" : "02",
       "skills" : 
       [
@@ -729,7 +732,7 @@
         "audio" : true,
         "image" : false,
         "ruby" : false,
-        "translation" : false
+        "translation" : true
       },
       "checked" : false,
       "display" : "2023_01",
@@ -6677,5 +6680,5 @@
       "year" : "2025"
     }
   ],
-  "updated_at" : "2026-05-11T00:36:05.926Z"
+  "updated_at" : "2026-06-14T02:51:21.074Z"
 }

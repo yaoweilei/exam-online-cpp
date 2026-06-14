@@ -542,13 +542,14 @@ class ExamViewer {
 				// 提取 section 标题中的"問題X"部分
 				const sectionTitle = section.section_title || '';
 				const match = sectionTitle.match(/問題\d+/);
-				const sectionLabel = match ? match[0] : `Section ${section.section_id}`;
+				const sectionLabel = match ? match[0] : '';
 
-				// Section 标签
-				const sectionLabelDiv = document.createElement('span');
-				sectionLabelDiv.className = 'answer-card-section-label';
-				sectionLabelDiv.textContent = sectionLabel;
-				sectionDiv.appendChild(sectionLabelDiv);
+				if (sectionLabel) {
+					const sectionLabelDiv = document.createElement('span');
+					sectionLabelDiv.className = 'answer-card-section-label';
+					sectionLabelDiv.textContent = sectionLabel;
+					sectionDiv.appendChild(sectionLabelDiv);
+				}
 
 				// 题号容器
 				const questionsDiv = document.createElement('div');
@@ -566,7 +567,13 @@ class ExamViewer {
 					}
 
 					// 标记已答题目
-					if (this.userAnswers[String(question.id)] !== undefined) {
+					let answerValue: unknown = this.userAnswers[String(question.id)];
+					try {
+						answerValue = this.answerManager.getAnswerComposite(sectionIndex, String(question.id));
+					} catch {
+						// Keep legacy direct lookup fallback.
+					}
+					if (answerValue !== undefined && answerValue !== null) {
 						questionBtn.classList.add('answered');
 					}
 

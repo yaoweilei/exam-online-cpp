@@ -13,7 +13,7 @@
 统一前缀：
 
 ```text
-/api/v2
+/api/v1
 ```
 
 ### 2.2 响应包裹格式
@@ -748,4 +748,4 @@ Path 参数：
 
 - [docs/user-module-design.md](D:/_develop/_side/exam-online-cpp/docs/user-module-design.md)
 - [docs/user-module-spec.md](D:/_develop/_side/exam-online-cpp/docs/user-module-spec.md)
-- [cpp-backend/docs/api-v2.md](D:/_develop/_side/exam-online-cpp/cpp-backend/docs/api-v2.md)
+- [backend/docs/api-v1.md](D:/_develop/_side/exam-online-cpp/backend/docs/api-v1.md)

@@ -238,7 +238,7 @@ class AnswerManager {
 						this.examViewer.userAnswers
 				  )) as ScoreResult)
 				: await (async (): Promise<ScoreResult> => {
-						const apiBase = window.__API_BASE__ || '/api/v2';
+						const apiBase = window.__API_BASE__ || '/api/v1';
 						const response = await fetch(`${apiBase}/answers/submit`, {
 							method: 'POST',
 							headers: { 'Content-Type': 'application/json' },

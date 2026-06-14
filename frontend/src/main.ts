@@ -17,7 +17,7 @@ function logAppReady(levels: number): void {
 
 async function bootstrap(): Promise<void> {
 	(window as Window & { __API_BASE__?: string; __WEB_APP_MODE__?: boolean; __APP_DEBUG__?: boolean }).__API_BASE__ =
-		'/api/v2';
+		'/api/v1';
 	(window as Window & { __WEB_APP_MODE__?: boolean }).__WEB_APP_MODE__ = true;
 	(window as Window & { __APP_DEBUG__?: boolean }).__APP_DEBUG__ = false;
 	captureReferralCodeFromUrl();
@@ -25,7 +25,7 @@ async function bootstrap(): Promise<void> {
 	// 业务功能 14：尽早初始化 PWA（捕获 beforeinstallprompt 与默认注册）
 	initPwa();
 
-	const api = new ApiClient('/api/v2');
+	const api = new ApiClient('/api/v1');
 	const store = new AppStore();
 	const loginModal = new LoginModal(api, store);
 	const appWindow = window as Window & {

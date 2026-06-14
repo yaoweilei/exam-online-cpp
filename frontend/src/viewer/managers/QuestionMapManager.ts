@@ -337,10 +337,13 @@ class QuestionMapManager {
 				console.log(`[QuestionMapManager] Rendering section ${sectionIndex}: ${section.questions.length} questions`);
 				const sectionTitle = section.section_title || '';
 				const match = sectionTitle.match(/問題\d+/);
-				const sectionLabel = match ? match[0] : `Section ${section.section_id}`;
+				const sectionLabel = match ? match[0] : '';
+				const sectionLabelHtml = sectionLabel
+					? `<span class="question-map-section-label">${sectionLabel}</span>`
+					: '';
 
 				html += `<div class="question-map-section">
-					<span class="question-map-section-label">${sectionLabel}</span>
+					${sectionLabelHtml}
 					<div class="question-map-section-questions">`;
 
 				section.questions.forEach((question, questionIndex) => {
@@ -458,6 +461,7 @@ class QuestionMapManager {
 			return;
 		}
 
+		const sections = this.examViewer.currentExam?.exam_info?.sections || [];
 		const items = this.questionMapContent.querySelectorAll('.question-map-item');
 		items.forEach((itemNode) => {
 			const item = itemNode as HTMLElement;
@@ -473,10 +477,25 @@ class QuestionMapManager {
 				return;
 			}
 
+			const question = sections[sectionIndex]?.questions?.[questionIndex];
+			const questionId = String(question?.id ?? questionIndex);
+			let isAnswered = false;
+			try {
+				const answer = this.examViewer.answerManager.getAnswerComposite(sectionIndex, questionId);
+				isAnswered = answer !== undefined && answer !== null;
+			} catch {
+				isAnswered = this.examViewer.userAnswers[`${sectionIndex}:${questionId}`] !== undefined
+					&& this.examViewer.userAnswers[`${sectionIndex}:${questionId}`] !== null;
+			}
+
 			const isCorrect = this.examViewer.answerManager.evaluateQuestionAnswer(sectionIndex, questionIndex);
-			item.classList.remove('correct', 'incorrect');
-			if (this.examViewer.userAnswers[`${sectionIndex}:${questionIndex}`] !== undefined) {
+			item.classList.remove('answered', 'correct', 'incorrect', 'unanswered');
+			if (!isAnswered) {
+				item.classList.add('unanswered');
+			} else if (this.examViewer.showAnswers) {
 				item.classList.add(isCorrect ? 'correct' : 'incorrect');
+			} else {
+				item.classList.add('answered');
 			}
 		});
 	}

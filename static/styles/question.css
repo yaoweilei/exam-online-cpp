@@ -149,6 +149,26 @@
 	font-size: var(--exam-font-size);
 }
 
+.option:has(.text-assist-wrap) {
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+.option-text .text-assist-wrap {
+	line-height: 1.35;
+	margin-bottom: 0;
+}
+
+.option-text .text-assist-source {
+	line-height: 1.5;
+}
+
+.option-text .sentence-zh {
+	margin-top: -0.18em;
+	margin-bottom: 0;
+	line-height: 1.35;
+}
+
 /* 阅读 passage 也使用统一字号（原本继承 16px） */
 .passage {
 	font-size: var(--exam-font-size);
@@ -176,19 +196,31 @@
 
 .passage.writing-passage .passage-content {
 	white-space: normal;
+	line-height: 1.9;
 }
 
 .passage.writing-passage .passage-sentence-wrap {
-	display: inline;
-	margin: 0;
-	vertical-align: baseline;
-	line-height: inherit;
+	display: inline-flex;
+	margin: 0 0.08em 0.55em 0;
+	vertical-align: top;
+	line-height: 1.75;
+}
+
+.passage.writing-passage .passage-sentence-wrap.has-zh {
+	display: block;
+	margin: 0 0 0.95em;
 }
 
 .passage.writing-passage .passage-sentence-wrap .passage-sentence,
 .passage.writing-passage .text-assist-source {
-	display: inline;
+	display: block;
 	max-width: none;
+}
+
+.passage.writing-passage .passage-sentence-wrap .sentence-zh,
+.passage.writing-passage .text-assist-wrap .sentence-zh {
+	margin-top: -0.18em;
+	margin-bottom: 0.53em;
 }
 
 .passage.writing-passage .translation-chip {
@@ -226,10 +258,14 @@
 	flex-direction: column;
 	align-items: flex-start;
 	max-width: 100%;
-	margin: 0 0.08em 0.35em 0;
-	vertical-align: baseline;
+	margin: 0 0.08em 0.55em 0;
+	vertical-align: top;
 	white-space: normal;
-	line-height: 1.65;
+	line-height: 1.75;
+}
+.passage-sentence-wrap.has-zh {
+	display: block;
+	margin: 0 0 0.85em;
 }
 .passage-sentence-wrap .passage-sentence {
 	display: block;
@@ -241,11 +277,13 @@
 	align-items: flex-start;
 	max-width: 100%;
 	vertical-align: top;
-	line-height: 1.55;
+	line-height: 1.7;
+	margin-bottom: 0.35em;
 }
 .text-assist-source {
 	display: block;
 	max-width: 100%;
+	line-height: 1.85;
 }
 .sentence-zh {
 	display: block;
@@ -257,16 +295,19 @@
 .passage-sentence ruby {
 	ruby-position: over;
 }
-.passage-sentence rt {
+.passage-sentence rt,
+.text-assist-source ruby rt {
 	font-size: 0.52em;
 	line-height: 1;
 	color: color-mix(in srgb, var(--vscode-textLink-foreground) 76%, var(--vscode-foreground));
+	transform: translateY(-0.08em);
 }
 .sentence-zh {
-	margin-top: 2px;
+	margin-top: -0.18em;
+	margin-bottom: 0.46em;
 	font-family: var(--font-ui, system-ui, sans-serif);
 	font-size: 0.76em;
-	line-height: 1.45;
+	line-height: 1.55;
 	color: var(--vscode-descriptionForeground);
 }
 

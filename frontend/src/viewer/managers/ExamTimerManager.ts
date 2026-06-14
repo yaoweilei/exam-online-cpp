@@ -10,7 +10,7 @@
 // 答题计时管理器（业务功能 3：答题计时与分段限时）
 // ------------------------------------------------------------------------------------
 // 职责：
-//   1. 在 ExamViewer.loadExamData 之后启动后端计时（POST /api/v2/timers/{userId}/start）
+//   1. 在 ExamViewer.loadExamData 之后启动后端计时（POST /api/v1/timers/{userId}/start）
 //   2. 每 5 秒做一次心跳 tick，累计当前 section 的用时
 //   3. 在 #exam-header 顶部渲染一个轻量的"计时条"：
 //        - 已用时（mm:ss）

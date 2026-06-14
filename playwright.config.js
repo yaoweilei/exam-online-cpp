@@ -3,6 +3,7 @@ const { defineConfig } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './tests/e2e',
   timeout: 120000,
+  workers: 1,
   expect: {
     timeout: 15000
   },
@@ -16,6 +17,7 @@ module.exports = defineConfig({
     baseURL: 'http://127.0.0.1:8000',
     browserName: 'chromium',
     channel: 'msedge',
+    serviceWorkers: 'block',
     headless: true,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',

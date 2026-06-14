@@ -3,7 +3,7 @@ $adminUser = "orgadmin_guard_$ts"
 $studentUser = "student_guard_$ts"
 $orgName = "GuardOrg_$ts"
 $inviteEmail = "guard_$ts@example.local"
-$baseUrl = "http://127.0.0.1:8000/api/v2"
+$baseUrl = "http://127.0.0.1:8000/api/v1"
 
 function Invoke-ApiRequest {
     param(

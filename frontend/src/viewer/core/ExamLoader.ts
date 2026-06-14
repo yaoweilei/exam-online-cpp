@@ -52,7 +52,7 @@ class ExamLoader {
 			if (window.APIClient) {
 				return await window.APIClient.getExams();
 			}
-			const apiBase = window.__API_BASE__ || '/api/v2';
+			const apiBase = window.__API_BASE__ || '/api/v1';
 			const response = await fetch(`${apiBase}/exams`);
 			const payload = (await response.json()) as Partial<ApiEnvelope<unknown[]>> | unknown[];
 			if (Array.isArray(payload)) {
@@ -73,7 +73,7 @@ class ExamLoader {
 			if (window.APIClient) {
 				return await window.APIClient.getExam(examId);
 			}
-			const apiBase = window.__API_BASE__ || '/api/v2';
+			const apiBase = window.__API_BASE__ || '/api/v1';
 			const response = await fetch(`${apiBase}/exams/${examId}`);
 			const payload = (await response.json()) as Partial<ApiEnvelope<unknown>>;
 			return payload.data !== undefined ? payload.data : (payload as unknown);
