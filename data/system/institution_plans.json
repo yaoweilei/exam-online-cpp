@@ -1,0 +1,137 @@
+{
+  "currency": "CNY",
+  "billing": {
+    "monthly_discount_note": "",
+    "yearly_discount_note": "年付按 10 个月计费，相当于赠送 2 个月"
+  },
+  "plans": [
+    {
+      "id": "starter",
+      "name": "机构体验版",
+      "monthly_price": 99,
+      "yearly_price": 990,
+      "included_seats": 10,
+      "extra_seat_price": 10,
+      "max_classes": 1,
+      "target": "小老师 / 小工作室试用",
+      "features": {
+        "classrooms": true,
+        "assignments": true,
+        "auto_grading": true,
+        "gradebook": true,
+        "student_profiles": true,
+        "institution_dashboard": false,
+        "teacher_effectiveness": false,
+        "renewal_risk": false,
+        "bulk_import": false,
+        "lesson_prep": false,
+        "export_handouts": false,
+        "multi_teacher": false,
+        "audit_logs": false
+      }
+    },
+    {
+      "id": "small_class",
+      "name": "小班版",
+      "monthly_price": 199,
+      "yearly_price": 1990,
+      "included_seats": 20,
+      "extra_seat_price": 8,
+      "max_classes": 3,
+      "target": "小工作室 / 1-2 个班",
+      "features": {
+        "classrooms": true,
+        "assignments": true,
+        "auto_grading": true,
+        "gradebook": true,
+        "student_profiles": true,
+        "institution_dashboard": true,
+        "teacher_effectiveness": false,
+        "renewal_risk": true,
+        "bulk_import": true,
+        "lesson_prep": true,
+        "export_handouts": false,
+        "multi_teacher": false,
+        "audit_logs": false
+      }
+    },
+    {
+      "id": "standard",
+      "name": "标准版",
+      "monthly_price": 399,
+      "yearly_price": 3990,
+      "included_seats": 50,
+      "extra_seat_price": 8,
+      "max_classes": 10,
+      "target": "常规培训机构",
+      "recommended": true,
+      "features": {
+        "classrooms": true,
+        "assignments": true,
+        "auto_grading": true,
+        "gradebook": true,
+        "student_profiles": true,
+        "institution_dashboard": true,
+        "teacher_effectiveness": true,
+        "renewal_risk": true,
+        "bulk_import": true,
+        "lesson_prep": true,
+        "export_handouts": true,
+        "multi_teacher": true,
+        "audit_logs": false
+      }
+    },
+    {
+      "id": "professional",
+      "name": "专业版",
+      "monthly_price": 799,
+      "yearly_price": 7990,
+      "included_seats": 120,
+      "extra_seat_price": 5,
+      "max_classes": 30,
+      "target": "中型机构 / 多老师协作",
+      "features": {
+        "classrooms": true,
+        "assignments": true,
+        "auto_grading": true,
+        "gradebook": true,
+        "student_profiles": true,
+        "institution_dashboard": true,
+        "teacher_effectiveness": true,
+        "renewal_risk": true,
+        "bulk_import": true,
+        "lesson_prep": true,
+        "export_handouts": true,
+        "multi_teacher": true,
+        "audit_logs": true
+      }
+    },
+    {
+      "id": "campus",
+      "name": "校区版",
+      "monthly_price": 1499,
+      "yearly_price": 14990,
+      "included_seats": 300,
+      "extra_seat_price": 5,
+      "max_classes": 100,
+      "target": "多班级 / 多校区",
+      "features": {
+        "classrooms": true,
+        "assignments": true,
+        "auto_grading": true,
+        "gradebook": true,
+        "student_profiles": true,
+        "institution_dashboard": true,
+        "teacher_effectiveness": true,
+        "renewal_risk": true,
+        "bulk_import": true,
+        "lesson_prep": true,
+        "export_handouts": true,
+        "multi_teacher": true,
+        "audit_logs": true,
+        "multi_campus": true,
+        "custom_success_support": true
+      }
+    }
+  ]
+}

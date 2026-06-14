@@ -1,0 +1,409 @@
+{
+  "classrooms" : 
+  [
+    {
+      "class_id" : "cls_019eb39e-e286-759e-a3b1-600b6e909276",
+      "created_at" : "2026-06-10T22:19:54.886Z",
+      "description" : "probe",
+      "name" : "api crash probe",
+      "org_id" : "",
+      "student_ids" : [],
+      "teacher_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+      "updated_at" : "2026-06-10T22:19:54.886Z"
+    },
+    {
+      "class_id" : "cls_019eb39f-9bb9-7e02-9bbb-e9171f25fb3f",
+      "created_at" : "2026-06-10T22:20:42.297Z",
+      "description" : "Playwright 可视化测试创建的班级",
+      "name" : "E2E 核心教学班 mq8mu7o4",
+      "org_id" : "",
+      "student_ids" : [],
+      "teacher_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+      "updated_at" : "2026-06-10T22:20:42.297Z"
+    },
+    {
+      "class_id" : "cls_019eb3a2-6dd2-72dc-9cc1-46d56ef31700",
+      "created_at" : "2026-06-10T22:23:47.154Z",
+      "description" : "Playwright 可视化测试创建的班级",
+      "name" : "E2E 核心教学班 mq8my6bc",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb394-bc08-741a-88e2-8948985ac5a0"
+      ],
+      "teacher_user_id" : "usr_019eb394-bbf6-749d-93a3-6f07094b9180",
+      "updated_at" : "2026-06-10T22:23:47.914Z"
+    },
+    {
+      "class_id" : "cls_019eb3a4-242e-7e80-9eee-e1fd266eb9d1",
+      "created_at" : "2026-06-10T22:25:39.374Z",
+      "description" : "Playwright 可视化测试创建的班级",
+      "name" : "E2E 核心教学班 mq8n0kc6",
+      "org_id" : "",
+      "student_ids" : [],
+      "teacher_user_id" : "usr_019eb3a4-1e02-7db2-8e62-ae9d55307bf1",
+      "updated_at" : "2026-06-10T22:25:39.374Z"
+    },
+    {
+      "class_id" : "cls_019eb3a5-b5de-7b5e-bcd7-b9f4edc533c1",
+      "created_at" : "2026-06-10T22:27:22.206Z",
+      "description" : "Playwright 可视化测试创建的班级",
+      "name" : "E2E 核心教学班 mq8n2s8n",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3a5-b292-724a-a0fc-9d0926ad7edb"
+      ],
+      "teacher_user_id" : "usr_019eb3a5-b281-7720-8b1c-7b1168405ed6",
+      "updated_at" : "2026-06-10T22:27:22.396Z"
+    },
+    {
+      "class_id" : "cls_019eb3ac-9fd8-798a-99d7-53f8efe05390",
+      "created_at" : "2026-06-10T22:34:55.320Z",
+      "description" : "Playwright 可视化测试创建的班级",
+      "name" : "E2E 核心教学班 mq8nch5r",
+      "org_id" : "",
+      "student_ids" : [],
+      "teacher_user_id" : "usr_019eb3ac-98f0-72d1-b2fd-ff1106256fb1",
+      "updated_at" : "2026-06-10T22:34:55.320Z"
+    },
+    {
+      "class_id" : "cls_019eb3ae-c81d-76bd-817f-420b33147e6d",
+      "created_at" : "2026-06-10T22:37:16.701Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mq8nfjl8",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3ae-c80d-7d25-af3a-6973310650c5"
+      ],
+      "teacher_user_id" : "usr_019eb3ae-c7f9-7ca2-a794-aca6fa54985b",
+      "updated_at" : "2026-06-10T22:37:16.713Z"
+    },
+    {
+      "class_id" : "cls_019eb3b5-5855-7d41-bb78-b79be75000a8",
+      "created_at" : "2026-06-10T22:44:26.837Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mq8norf2",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3b5-5831-7bc7-bf52-e07405e23585"
+      ],
+      "teacher_user_id" : "usr_019eb3b5-57e9-799d-8172-419e05ff351d",
+      "updated_at" : "2026-06-10T22:44:26.856Z"
+    },
+    {
+      "class_id" : "cls_019eb3bd-60f8-79f5-b1b0-c6a07b9c9c5f",
+      "created_at" : "2026-06-10T22:53:13.336Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mq8o01ql",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3bd-60ea-7f8c-9f31-64119e1f8dd0"
+      ],
+      "teacher_user_id" : "usr_019eb3bd-60d7-7d58-9127-97a2428dd115",
+      "updated_at" : "2026-06-10T22:53:13.345Z"
+    },
+    {
+      "class_id" : "cls_019eb3c3-1c0d-749f-8b49-bc884c414b7f",
+      "created_at" : "2026-06-10T22:59:28.909Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mq8o83iz",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3c3-1bfd-7a6f-a55e-6654242dccf0"
+      ],
+      "teacher_user_id" : "usr_019eb3c3-1be9-742d-93cf-71c06bd885dc",
+      "updated_at" : "2026-06-10T22:59:28.917Z"
+    },
+    {
+      "class_id" : "cls_019eb3c7-35fb-739f-9b82-6094475c02f6",
+      "created_at" : "2026-06-10T23:03:57.691Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mq8oduxg",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3c7-35ee-7002-85aa-a4b69c36621b"
+      ],
+      "teacher_user_id" : "usr_019eb3c7-35df-7211-a3da-7dd74dcb0853",
+      "updated_at" : "2026-06-10T23:03:57.699Z"
+    },
+    {
+      "class_id" : "cls_019eb3d9-194a-7b07-81d6-859ebf0fbe8e",
+      "created_at" : "2026-06-10T23:23:29.994Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mq8p2zh9",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3d9-193b-7707-afbe-a624ede65a44"
+      ],
+      "teacher_user_id" : "usr_019eb3d9-1929-715d-96c7-123d927bda96",
+      "updated_at" : "2026-06-10T23:23:30.002Z"
+    },
+    {
+      "class_id" : "cls_019eb3d9-faca-74c3-90e5-6c51257dbacf",
+      "created_at" : "2026-06-10T23:24:27.722Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mq8p480s",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3d9-faba-736b-bd3a-b3f7c3833f1a"
+      ],
+      "teacher_user_id" : "usr_019eb3d9-faa8-758f-a88d-45b4d452253c",
+      "updated_at" : "2026-06-10T23:24:27.730Z"
+    },
+    {
+      "class_id" : "cls_019eb3da-640a-75f6-adc0-a7bf376fa344",
+      "created_at" : "2026-06-10T23:24:54.666Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mq8p4st3",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019eb3da-63f9-7c59-880b-113c606b7186"
+      ],
+      "teacher_user_id" : "usr_019eb3da-63e6-7c55-a1dd-bf4a911d030e",
+      "updated_at" : "2026-06-10T23:24:54.674Z"
+    },
+    {
+      "class_id" : "cls_019ebc3f-50dc-7cab-a2fb-b90f7edc212f",
+      "created_at" : "2026-06-12T14:32:06.620Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqb0zbfc",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ebc3f-50c0-7246-a358-0ef4c057f8a5"
+      ],
+      "teacher_user_id" : "usr_019ebc3f-50a7-7964-9b49-84347ddfa982",
+      "updated_at" : "2026-06-12T14:32:06.629Z"
+    },
+    {
+      "class_id" : "cls_019ebc41-86c9-75d3-8f8e-1d7d8d453a64",
+      "created_at" : "2026-06-12T14:34:31.497Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqb12f8c",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ebc41-86bb-7c7d-ae0e-800062a9bfcc"
+      ],
+      "teacher_user_id" : "usr_019ebc41-86a9-7edd-b9c0-09d94b34f8ce",
+      "updated_at" : "2026-06-12T14:34:31.505Z"
+    },
+    {
+      "class_id" : "cls_019ebe33-0d92-786f-ba43-9854437fdaed",
+      "created_at" : "2026-06-12T23:37:57.394Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqbkha3y",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ebe33-0d85-7ae4-b30c-68b181a568b5"
+      ],
+      "teacher_user_id" : "usr_019ebe33-0d75-7a17-99c1-6469de691019",
+      "updated_at" : "2026-06-12T23:37:57.400Z"
+    },
+    {
+      "class_id" : "cls_019ebe3d-79a5-7fa0-848e-ea6c44f3e206",
+      "created_at" : "2026-06-12T23:49:20.421Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqbkvx4h",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ebe3d-7993-7533-a4d7-41699055bd5d"
+      ],
+      "teacher_user_id" : "usr_019ebe3d-797d-7f25-b97f-935025f11a06",
+      "updated_at" : "2026-06-12T23:49:20.428Z"
+    },
+    {
+      "class_id" : "cls_019ebe60-622f-7a67-bd08-766fddeff680",
+      "created_at" : "2026-06-13T00:27:28.175Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqbm8ycy",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ebe60-621c-7170-8446-7816d2c3eda2"
+      ],
+      "teacher_user_id" : "usr_019ebe60-61fd-7a4c-8d78-dda59a4a0562",
+      "updated_at" : "2026-06-13T00:27:28.181Z"
+    },
+    {
+      "class_id" : "cls_019ebe71-0ca4-74e4-9d43-340817a8a99b",
+      "created_at" : "2026-06-13T00:45:40.388Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqbmwd3v",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ebe71-0c86-7738-b831-10be7918e22c"
+      ],
+      "teacher_user_id" : "usr_019ebe71-0c66-7c97-a4f7-6821c8d2b54a",
+      "updated_at" : "2026-06-13T00:45:40.397Z"
+    },
+    {
+      "class_id" : "cls_019ec18c-3fcf-7164-8ed2-a95a1e03205b",
+      "created_at" : "2026-06-13T15:14:14.607Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqchxcob",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec18c-3fa5-7d6b-b619-89c675788dc0"
+      ],
+      "teacher_user_id" : "usr_019ec18c-3f7b-7aa1-ae04-89cf3a2880ad",
+      "updated_at" : "2026-06-13T15:14:14.621Z"
+    },
+    {
+      "class_id" : "cls_019ec39b-2fb5-75ac-830d-a870c76ce67a",
+      "created_at" : "2026-06-14T00:49:47.957Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd2hisc",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec39b-2f94-7631-b516-d3f77120a8ef"
+      ],
+      "teacher_user_id" : "usr_019ec39b-2f6d-7b3d-bddd-d0a7ac9af6d9",
+      "updated_at" : "2026-06-14T00:49:47.964Z"
+    },
+    {
+      "class_id" : "cls_019ec3be-6c59-77d9-b007-ddc5759f0bed",
+      "created_at" : "2026-06-14T01:28:17.241Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd3v0ms",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3be-6c2b-794a-b2ee-19c23121cdb9"
+      ],
+      "teacher_user_id" : "usr_019ec3be-6c03-7ee1-be6f-50749cfee542",
+      "updated_at" : "2026-06-14T01:28:17.250Z"
+    },
+    {
+      "class_id" : "cls_019ec3bf-cf53-7984-ab8b-f8f204cc240f",
+      "created_at" : "2026-06-14T01:29:48.115Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd3wyr2",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3bf-cf32-7562-a0ac-59d2ffc05085"
+      ],
+      "teacher_user_id" : "usr_019ec3bf-cf05-7450-b802-50a61b0d8d32",
+      "updated_at" : "2026-06-14T01:29:48.122Z"
+    },
+    {
+      "class_id" : "cls_019ec3c0-59c8-7bf4-9ca1-732000e86d8f",
+      "created_at" : "2026-06-14T01:30:23.560Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd3xq3y",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3c0-59a5-771d-9c3d-3ad7121dfaea"
+      ],
+      "teacher_user_id" : "usr_019ec3c0-597e-74f3-a0bc-f54604e6f534",
+      "updated_at" : "2026-06-14T01:30:23.568Z"
+    },
+    {
+      "class_id" : "cls_019ec3c1-856d-7773-b64a-de4a04723287",
+      "created_at" : "2026-06-14T01:31:40.269Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd3zdb0",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3c1-854e-755e-85c3-659c765e6c25"
+      ],
+      "teacher_user_id" : "usr_019ec3c1-852a-759a-b3e4-f064f9a25ed0",
+      "updated_at" : "2026-06-14T01:31:40.276Z"
+    },
+    {
+      "class_id" : "cls_019ec3c4-08db-7e6e-9e7d-b327b500a11c",
+      "created_at" : "2026-06-14T01:34:24.987Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd42wdx_h6nt1",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3c4-08ba-7855-9c6a-0b0f536c5478"
+      ],
+      "teacher_user_id" : "usr_019ec3c4-088f-70d2-b9f7-8d78367eab26",
+      "updated_at" : "2026-06-14T01:34:24.996Z"
+    },
+    {
+      "class_id" : "cls_019ec3c5-59d1-75b3-9a31-99cf7b279f57",
+      "created_at" : "2026-06-14T01:35:51.249Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd44qyb_2wx1h",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3c5-59b0-70a6-911c-681cdc7d1615"
+      ],
+      "teacher_user_id" : "usr_019ec3c5-5988-762c-a7d7-75c66a11f25c",
+      "updated_at" : "2026-06-14T01:35:51.257Z"
+    },
+    {
+      "class_id" : "cls_019ec3c5-d413-7db9-be61-03f4391f64e3",
+      "created_at" : "2026-06-14T01:36:22.547Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd45f3p_1ea7h",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3c5-d3ee-79bf-9671-8fa3750d105e"
+      ],
+      "teacher_user_id" : "usr_019ec3c5-d3c5-7f0a-a844-f1b5c7a6a96a",
+      "updated_at" : "2026-06-14T01:36:22.556Z"
+    },
+    {
+      "class_id" : "cls_019ec3d5-7c46-7a7e-80c5-4c80e0add632",
+      "created_at" : "2026-06-14T01:53:28.646Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd4reub_f0rby",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3d5-7c21-72ca-8b26-e730118d81a2"
+      ],
+      "teacher_user_id" : "usr_019ec3d5-7bf3-7a8b-b91e-361fed22f695",
+      "updated_at" : "2026-06-14T01:53:28.654Z"
+    },
+    {
+      "class_id" : "cls_019ec3e3-1a80-7bcd-a5cf-cd72379ba5db",
+      "created_at" : "2026-06-14T02:08:21.120Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd5ajgs_1899e",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec3e3-1a58-7218-bd45-1010b98c653b"
+      ],
+      "teacher_user_id" : "usr_019ec3e3-1a22-70f2-b7f0-145caa7bf3ff",
+      "updated_at" : "2026-06-14T02:08:21.128Z"
+    },
+    {
+      "class_id" : "cls_019ec40a-bd68-763e-9b44-17d50c0734ec",
+      "created_at" : "2026-06-14T02:51:38.728Z",
+      "description" : "Playwright 可视化测试预置的班级",
+      "name" : "E2E 核心教学班 mqd6u7s8_sysyv",
+      "org_id" : "",
+      "student_ids" : 
+      [
+        "usr_019ec40a-bd38-7446-8e5c-657de8d88732"
+      ],
+      "teacher_user_id" : "usr_019ec40a-bcfe-734c-b4f5-8f05fc1daae8",
+      "updated_at" : "2026-06-14T02:51:38.739Z"
+    }
+  ]
+}

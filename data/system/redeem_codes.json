@@ -1,0 +1,28 @@
+[
+  {
+    "code": "WELCOME-100",
+    "title": "新用户学习积分包",
+    "kind": "credits",
+    "credits": 100,
+    "description": "兑换后增加 100 学习积分。",
+    "enabled": true
+  },
+  {
+    "code": "EJU-PRO-30",
+    "title": "EJU Pro 30 天体验卡",
+    "kind": "subscription",
+    "plan": "pro",
+    "days": 30,
+    "description": "兑换后开通或顺延 Pro 套餐 30 天。",
+    "enabled": true
+  },
+  {
+    "code": "EJU-ULTRA-30",
+    "title": "EJU Ultra 30 天体验卡",
+    "kind": "subscription",
+    "plan": "ultra",
+    "days": 30,
+    "description": "兑换后开通或顺延 Ultra 套餐 30 天。",
+    "enabled": true
+  }
+]

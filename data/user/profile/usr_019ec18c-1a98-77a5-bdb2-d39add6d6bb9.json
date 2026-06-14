@@ -1,0 +1,53 @@
+{
+  "avatar_url" : "",
+  "credit_awards" : 
+  {
+    "redeem:WELCOME100" : 
+    {
+      "amount" : 100,
+      "granted_at" : "2026-06-13T15:14:05.408Z",
+      "reason" : "redeem.code"
+    }
+  },
+  "credits" : 100,
+  "credits_updated_at" : "2026-06-13T15:14:05.408Z",
+  "daily_target" : 20,
+  "display_name" : "",
+  "goal_date" : "",
+  "goal_level" : "",
+  "last_active_at" : "2026-06-13T15:14:05.090Z",
+  "last_credit_reason" : "redeem.code",
+  "locale" : "zh-CN",
+  "longest_streak" : 1,
+  "notification_enabled" : true,
+  "organization_type" : "",
+  "plan" : "free",
+  "plan_expires" : "",
+  "plan_expires_at" : "",
+  "plan_status" : "active",
+  "redeemed_codes" : 
+  {
+    "WELCOME100" : 
+    {
+      "code" : "WELCOME-100",
+      "description" : "兑换后增加 100 学习积分。",
+      "effect" : 
+      {
+        "credits" : 100
+      },
+      "effect_summary" : "已到账 100 学习积分",
+      "id" : "red_WELCOME100",
+      "kind" : "credits",
+      "normalized_code" : "WELCOME100",
+      "redeemedAt" : "2026-06-13T15:14:05.408Z",
+      "redeemed_at" : "2026-06-13T15:14:05.408Z",
+      "status" : "used",
+      "title" : "新用户学习积分包"
+    }
+  },
+  "scope_id" : "usr_019ec18c-1a98-77a5-bdb2-d39add6d6bb9",
+  "scope_type" : "personal",
+  "streak_days" : 1,
+  "user_id" : "usr_019ec18c-1a98-77a5-bdb2-d39add6d6bb9",
+  "xp" : 0
+}

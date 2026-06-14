@@ -1,0 +1,302 @@
+{
+  "assignments" : 
+  [
+    {
+      "assignment_id" : "asg_019eb3a5-b711-7480-abff-ac7fb431ca5f",
+      "class_id" : "cls_019eb3a5-b5de-7b5e-bcd7-b9f4edc533c1",
+      "created_at" : "2026-06-10T22:27:22.513Z",
+      "created_by" : "usr_019eb3a5-b281-7720-8b1c-7b1168405ed6",
+      "description" : "系统布置作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8n2s8n",
+      "updated_at" : "2026-06-10T22:27:22.513Z"
+    },
+    {
+      "assignment_id" : "asg_019eb3ae-c832-7226-a1df-757cc603ae08",
+      "class_id" : "cls_019eb3ae-c81d-76bd-817f-420b33147e6d",
+      "created_at" : "2026-06-10T22:37:16.722Z",
+      "created_by" : "usr_019eb3ae-c7f9-7ca2-a794-aca6fa54985b",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8nfjl8",
+      "updated_at" : "2026-06-10T22:37:16.722Z"
+    },
+    {
+      "assignment_id" : "asg_019eb3b5-5889-7bc1-a3ae-62a328bdbe77",
+      "class_id" : "cls_019eb3b5-5855-7d41-bb78-b79be75000a8",
+      "created_at" : "2026-06-10T22:44:26.889Z",
+      "created_by" : "usr_019eb3b5-57e9-799d-8172-419e05ff351d",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8norf2",
+      "updated_at" : "2026-06-10T22:44:26.889Z"
+    },
+    {
+      "assignment_id" : "asg_019eb3bd-610f-7739-a013-de0eb9f6ab4b",
+      "class_id" : "cls_019eb3bd-60f8-79f5-b1b0-c6a07b9c9c5f",
+      "created_at" : "2026-06-10T22:53:13.359Z",
+      "created_by" : "usr_019eb3bd-60d7-7d58-9127-97a2428dd115",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8o01ql",
+      "updated_at" : "2026-06-10T22:53:13.359Z"
+    },
+    {
+      "assignment_id" : "asg_019eb3c3-1c1c-7700-b0ff-03a968712a02",
+      "class_id" : "cls_019eb3c3-1c0d-749f-8b49-bc884c414b7f",
+      "created_at" : "2026-06-10T22:59:28.924Z",
+      "created_by" : "usr_019eb3c3-1be9-742d-93cf-71c06bd885dc",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8o83iz",
+      "updated_at" : "2026-06-10T22:59:28.924Z"
+    },
+    {
+      "assignment_id" : "asg_019eb3c7-360a-72a4-8fb1-7172027dec30",
+      "class_id" : "cls_019eb3c7-35fb-739f-9b82-6094475c02f6",
+      "created_at" : "2026-06-10T23:03:57.706Z",
+      "created_by" : "usr_019eb3c7-35df-7211-a3da-7dd74dcb0853",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8oduxg",
+      "updated_at" : "2026-06-10T23:03:57.706Z"
+    },
+    {
+      "assignment_id" : "asg_019eb3d9-1959-7ed8-9ed9-c9c9b1fe5e50",
+      "class_id" : "cls_019eb3d9-194a-7b07-81d6-859ebf0fbe8e",
+      "created_at" : "2026-06-10T23:23:30.009Z",
+      "created_by" : "usr_019eb3d9-1929-715d-96c7-123d927bda96",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8p2zh9",
+      "updated_at" : "2026-06-10T23:23:30.009Z"
+    },
+    {
+      "assignment_id" : "asg_019eb3d9-fada-7bd3-a5ca-964df2a0a656",
+      "class_id" : "cls_019eb3d9-faca-74c3-90e5-6c51257dbacf",
+      "created_at" : "2026-06-10T23:24:27.738Z",
+      "created_by" : "usr_019eb3d9-faa8-758f-a88d-45b4d452253c",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8p480s",
+      "updated_at" : "2026-06-10T23:24:27.738Z"
+    },
+    {
+      "assignment_id" : "asg_019eb3da-641a-766b-a78e-6420690da9a2",
+      "class_id" : "cls_019eb3da-640a-75f6-adc0-a7bf376fa344",
+      "created_at" : "2026-06-10T23:24:54.682Z",
+      "created_by" : "usr_019eb3da-63e6-7c55-a1dd-bf4a911d030e",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mq8p4st3",
+      "updated_at" : "2026-06-10T23:24:54.682Z"
+    },
+    {
+      "assignment_id" : "asg_019ebc3f-50f3-718e-8cd8-edec2a72b52c",
+      "class_id" : "cls_019ebc3f-50dc-7cab-a2fb-b90f7edc212f",
+      "created_at" : "2026-06-12T14:32:06.643Z",
+      "created_by" : "usr_019ebc3f-50a7-7964-9b49-84347ddfa982",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqb0zbfc",
+      "updated_at" : "2026-06-12T14:32:06.643Z"
+    },
+    {
+      "assignment_id" : "asg_019ebc41-86df-7743-9645-7ff9679614d4",
+      "class_id" : "cls_019ebc41-86c9-75d3-8f8e-1d7d8d453a64",
+      "created_at" : "2026-06-12T14:34:31.519Z",
+      "created_by" : "usr_019ebc41-86a9-7edd-b9c0-09d94b34f8ce",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqb12f8c",
+      "updated_at" : "2026-06-12T14:34:31.519Z"
+    },
+    {
+      "assignment_id" : "asg_019ebe33-0d9f-7990-8707-6ffd6aae5635",
+      "class_id" : "cls_019ebe33-0d92-786f-ba43-9854437fdaed",
+      "created_at" : "2026-06-12T23:37:57.407Z",
+      "created_by" : "usr_019ebe33-0d75-7a17-99c1-6469de691019",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqbkha3y",
+      "updated_at" : "2026-06-12T23:37:57.407Z"
+    },
+    {
+      "assignment_id" : "asg_019ebe3d-79b4-7dd7-8592-bbdeee428020",
+      "class_id" : "cls_019ebe3d-79a5-7fa0-848e-ea6c44f3e206",
+      "created_at" : "2026-06-12T23:49:20.436Z",
+      "created_by" : "usr_019ebe3d-797d-7f25-b97f-935025f11a06",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqbkvx4h",
+      "updated_at" : "2026-06-12T23:49:20.436Z"
+    },
+    {
+      "assignment_id" : "asg_019ebe60-623e-764f-96d7-0ab1700ee0bc",
+      "class_id" : "cls_019ebe60-622f-7a67-bd08-766fddeff680",
+      "created_at" : "2026-06-13T00:27:28.190Z",
+      "created_by" : "usr_019ebe60-61fd-7a4c-8d78-dda59a4a0562",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqbm8ycy",
+      "updated_at" : "2026-06-13T00:27:28.190Z"
+    },
+    {
+      "assignment_id" : "asg_019ebe71-0cb6-7c86-aa9a-f269f2517f42",
+      "class_id" : "cls_019ebe71-0ca4-74e4-9d43-340817a8a99b",
+      "created_at" : "2026-06-13T00:45:40.406Z",
+      "created_by" : "usr_019ebe71-0c66-7c97-a4f7-6821c8d2b54a",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqbmwd3v",
+      "updated_at" : "2026-06-13T00:45:40.406Z"
+    },
+    {
+      "assignment_id" : "asg_019ec18c-3fe9-7b7b-a48d-fe3a1ad6724e",
+      "class_id" : "cls_019ec18c-3fcf-7164-8ed2-a95a1e03205b",
+      "created_at" : "2026-06-13T15:14:14.633Z",
+      "created_by" : "usr_019ec18c-3f7b-7aa1-ae04-89cf3a2880ad",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqchxcob",
+      "updated_at" : "2026-06-13T15:14:14.633Z"
+    },
+    {
+      "assignment_id" : "asg_019ec39b-2fc9-7bce-ba03-cec95958f9e1",
+      "class_id" : "cls_019ec39b-2fb5-75ac-830d-a870c76ce67a",
+      "created_at" : "2026-06-14T00:49:47.977Z",
+      "created_by" : "usr_019ec39b-2f6d-7b3d-bddd-d0a7ac9af6d9",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd2hisc",
+      "updated_at" : "2026-06-14T00:49:47.977Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3be-6c71-7c79-8670-7d0adba87593",
+      "class_id" : "cls_019ec3be-6c59-77d9-b007-ddc5759f0bed",
+      "created_at" : "2026-06-14T01:28:17.265Z",
+      "created_by" : "usr_019ec3be-6c03-7ee1-be6f-50749cfee542",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd3v0ms",
+      "updated_at" : "2026-06-14T01:28:17.265Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3bf-cf66-7b0b-8658-53d55e85608a",
+      "class_id" : "cls_019ec3bf-cf53-7984-ab8b-f8f204cc240f",
+      "created_at" : "2026-06-14T01:29:48.134Z",
+      "created_by" : "usr_019ec3bf-cf05-7450-b802-50a61b0d8d32",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd3wyr2",
+      "updated_at" : "2026-06-14T01:29:48.134Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3c0-59d8-7465-9cf2-1d517fd861db",
+      "class_id" : "cls_019ec3c0-59c8-7bf4-9ca1-732000e86d8f",
+      "created_at" : "2026-06-14T01:30:23.576Z",
+      "created_by" : "usr_019ec3c0-597e-74f3-a0bc-f54604e6f534",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd3xq3y",
+      "updated_at" : "2026-06-14T01:30:23.576Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3c1-857c-7f0e-a07d-c7f1ad251806",
+      "class_id" : "cls_019ec3c1-856d-7773-b64a-de4a04723287",
+      "created_at" : "2026-06-14T01:31:40.284Z",
+      "created_by" : "usr_019ec3c1-852a-759a-b3e4-f064f9a25ed0",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd3zdb0",
+      "updated_at" : "2026-06-14T01:31:40.284Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3c4-08ef-701c-a1cc-e75ddde410cf",
+      "class_id" : "cls_019ec3c4-08db-7e6e-9e7d-b327b500a11c",
+      "created_at" : "2026-06-14T01:34:25.007Z",
+      "created_by" : "usr_019ec3c4-088f-70d2-b9f7-8d78367eab26",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd42wdx_h6nt1",
+      "updated_at" : "2026-06-14T01:34:25.007Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3c5-59e3-7e1a-abfe-edd20cf1217b",
+      "class_id" : "cls_019ec3c5-59d1-75b3-9a31-99cf7b279f57",
+      "created_at" : "2026-06-14T01:35:51.267Z",
+      "created_by" : "usr_019ec3c5-5988-762c-a7d7-75c66a11f25c",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd44qyb_2wx1h",
+      "updated_at" : "2026-06-14T01:35:51.267Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3c5-d424-7433-9a07-1354567d200b",
+      "class_id" : "cls_019ec3c5-d413-7db9-be61-03f4391f64e3",
+      "created_at" : "2026-06-14T01:36:22.564Z",
+      "created_by" : "usr_019ec3c5-d3c5-7f0a-a844-f1b5c7a6a96a",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd45f3p_1ea7h",
+      "updated_at" : "2026-06-14T01:36:22.564Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3d5-7c58-719e-9770-08b82260e732",
+      "class_id" : "cls_019ec3d5-7c46-7a7e-80c5-4c80e0add632",
+      "created_at" : "2026-06-14T01:53:28.664Z",
+      "created_by" : "usr_019ec3d5-7bf3-7a8b-b91e-361fed22f695",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd4reub_f0rby",
+      "updated_at" : "2026-06-14T01:53:28.664Z"
+    },
+    {
+      "assignment_id" : "asg_019ec3e3-1a91-7cab-8275-3f260a69e537",
+      "class_id" : "cls_019ec3e3-1a80-7bcd-a5cf-cd72379ba5db",
+      "created_at" : "2026-06-14T02:08:21.137Z",
+      "created_by" : "usr_019ec3e3-1a22-70f2-b7f0-145caa7bf3ff",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd5ajgs_1899e",
+      "updated_at" : "2026-06-14T02:08:21.137Z"
+    },
+    {
+      "assignment_id" : "asg_019ec40a-bd7e-78ec-ac50-da07113e2c39",
+      "class_id" : "cls_019ec40a-bd68-763e-9b44-17d50c0734ec",
+      "created_at" : "2026-06-14T02:51:38.750Z",
+      "created_by" : "usr_019ec40a-bcfe-734c-b4f5-8f05fc1daae8",
+      "description" : "Playwright 可视化测试预置的作业",
+      "due_at" : "2026-12-31",
+      "exam_id" : "eju_2023_02",
+      "title" : "E2E 读解作业 mqd6u7s8_sysyv",
+      "updated_at" : "2026-06-14T02:51:38.750Z"
+    }
+  ]
+}
