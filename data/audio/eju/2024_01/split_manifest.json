@@ -1,0 +1,304 @@
+{
+  "exam_id": "2024_01",
+  "source_upper": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+  "source_lower": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+  "notes": "2024 audio is split into upper/lower files. Tracks 01-17 come from the upper file, tracks 18-37 from the lower file. Listening-reading q10 is omitted in the source booklet/audio for publication reasons, so track_15 is a 1-second silent placeholder to preserve answer-number alignment. Verified against the scanned PDF pages 44-47 and spot-checked with Whisper.",
+  "tracks": [
+    {
+      "track": "track_01.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 0.0,
+      "end": 41.08,
+      "duration": 41.08,
+      "label": "sound_check"
+    },
+    {
+      "track": "track_02.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 41.08,
+      "end": 93.705,
+      "duration": 52.625,
+      "label": "general_cautions"
+    },
+    {
+      "track": "track_03.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 93.705,
+      "end": 157.12,
+      "duration": 63.415,
+      "label": "listening_reading_instructions"
+    },
+    {
+      "track": "track_04.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 157.12,
+      "end": 210.377,
+      "duration": 53.257,
+      "label": "listening_reading_practice"
+    },
+    {
+      "track": "track_05.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 217.942,
+      "end": 244.6,
+      "duration": 26.658,
+      "label": "listening_reading_practice_answer_start"
+    },
+    {
+      "track": "track_06.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 244.6,
+      "end": 339.751,
+      "duration": 95.151,
+      "label": "listening_reading_q01"
+    },
+    {
+      "track": "track_07.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 347.267,
+      "end": 438.83,
+      "duration": 91.563,
+      "label": "listening_reading_q02"
+    },
+    {
+      "track": "track_08.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 446.36,
+      "end": 550.521,
+      "duration": 104.161,
+      "label": "listening_reading_q03"
+    },
+    {
+      "track": "track_09.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 558.006,
+      "end": 637.688,
+      "duration": 79.682,
+      "label": "listening_reading_q04"
+    },
+    {
+      "track": "track_10.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 645.222,
+      "end": 747.989,
+      "duration": 102.767,
+      "label": "listening_reading_q05"
+    },
+    {
+      "track": "track_11.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 755.543,
+      "end": 858.71,
+      "duration": 103.167,
+      "label": "listening_reading_q06"
+    },
+    {
+      "track": "track_12.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 866.217,
+      "end": 948.295,
+      "duration": 82.078,
+      "label": "listening_reading_q07"
+    },
+    {
+      "track": "track_13.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 955.84,
+      "end": 1043.43,
+      "duration": 87.59,
+      "label": "listening_reading_q08"
+    },
+    {
+      "track": "track_14.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 1050.963,
+      "end": 1152.221,
+      "duration": 101.258,
+      "label": "listening_reading_q09"
+    },
+    {
+      "track": "track_15.mp3",
+      "source": null,
+      "start": 0.0,
+      "end": 1.0,
+      "duration": 1.0,
+      "label": "listening_reading_q10_omitted_silent_placeholder"
+    },
+    {
+      "track": "track_16.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 1159.746,
+      "end": 1266.4,
+      "duration": 106.654,
+      "label": "listening_reading_q11"
+    },
+    {
+      "track": "track_17.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（上）.m4a",
+      "start": 1273.916,
+      "end": 1374.751,
+      "duration": 100.835,
+      "label": "listening_reading_q12"
+    },
+    {
+      "track": "track_18.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 0.0,
+      "end": 16.0,
+      "duration": 16.0,
+      "label": "listening_intro"
+    },
+    {
+      "track": "track_19.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 16.0,
+      "end": 72.0,
+      "duration": 56.0,
+      "label": "listening_instructions"
+    },
+    {
+      "track": "track_20.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 72.0,
+      "end": 135.684,
+      "duration": 63.684,
+      "label": "listening_practice"
+    },
+    {
+      "track": "track_21.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 140.861,
+      "end": 165.8,
+      "duration": 24.939,
+      "label": "listening_practice_answer_start"
+    },
+    {
+      "track": "track_22.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 165.8,
+      "end": 280.764,
+      "duration": 114.964,
+      "label": "listening_q13"
+    },
+    {
+      "track": "track_23.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 286.074,
+      "end": 400.061,
+      "duration": 113.987,
+      "label": "listening_q14"
+    },
+    {
+      "track": "track_24.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 405.415,
+      "end": 518.762,
+      "duration": 113.347,
+      "label": "listening_q15"
+    },
+    {
+      "track": "track_25.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 524.104,
+      "end": 629.065,
+      "duration": 104.961,
+      "label": "listening_q16"
+    },
+    {
+      "track": "track_26.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 634.221,
+      "end": 756.026,
+      "duration": 121.805,
+      "label": "listening_q17"
+    },
+    {
+      "track": "track_27.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 761.379,
+      "end": 855.242,
+      "duration": 93.863,
+      "label": "listening_q18"
+    },
+    {
+      "track": "track_28.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 860.413,
+      "end": 961.869,
+      "duration": 101.456,
+      "label": "listening_q19"
+    },
+    {
+      "track": "track_29.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 967.11,
+      "end": 1065.563,
+      "duration": 98.453,
+      "label": "listening_q20"
+    },
+    {
+      "track": "track_30.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 1070.755,
+      "end": 1174.255,
+      "duration": 103.5,
+      "label": "listening_q21"
+    },
+    {
+      "track": "track_31.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 1179.56,
+      "end": 1291.314,
+      "duration": 111.754,
+      "label": "listening_q22"
+    },
+    {
+      "track": "track_32.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 1296.443,
+      "end": 1410.497,
+      "duration": 114.054,
+      "label": "listening_q23"
+    },
+    {
+      "track": "track_33.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 1415.757,
+      "end": 1529.226,
+      "duration": 113.469,
+      "label": "listening_q24"
+    },
+    {
+      "track": "track_34.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 1534.381,
+      "end": 1656.347,
+      "duration": 121.966,
+      "label": "listening_q25"
+    },
+    {
+      "track": "track_35.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 1661.673,
+      "end": 1783.422,
+      "duration": 121.749,
+      "label": "listening_q26"
+    },
+    {
+      "track": "track_36.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 1788.535,
+      "end": 1890.238,
+      "duration": 101.703,
+      "label": "listening_q27"
+    },
+    {
+      "track": "track_37.mp3",
+      "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2024\\2024年6月日语音频（下）.m4a",
+      "start": 1895.593,
+      "end": 2004.202,
+      "duration": 108.609,
+      "label": "closing"
+    }
+  ]
+}
