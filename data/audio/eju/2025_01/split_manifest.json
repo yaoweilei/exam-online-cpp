@@ -1,266 +1,488 @@
 {
   "source": "D:\\_develop\\_side\\exam-online-cpp\\downloads\\EJU日本语\\2025\\2025.mp3",
   "exam_id": "2025_01",
-  "notes": "Track boundaries generated from long silence detection and spot-checked with Whisper transcription. In listening-reading, spoken 5番 asks for multiple selections, so track_10 and track_11 intentionally contain the same audio segment for answer slots 5 and 6. Tracks 06-17 map to answer numbers 1-12; tracks 22-36 map to listening answer numbers 13-27.",
+  "notes": "Track boundaries generated from long silence detection and spot-checked with Whisper transcription. In listening-reading, spoken 5番 asks for multiple selections, so track_10 and track_11 intentionally contain the same audio segment for answer slots 5 and 6. Tracks 06-17 map to answer numbers 1-12; tracks 22-36 map to listening answer numbers 13-27. Re-exported with boundary padding on 2026-06-16: start -0.25s, end +0.9s when source duration allows, to avoid clipping low-volume final words.",
   "tracks": [
     {
       "track": "track_01.mp3",
       "start": 0.0,
-      "end": 36.607,
-      "duration": 36.607,
-      "label": "sound_check"
+      "end": 37.507,
+      "duration": 37.507,
+      "label": "sound_check",
+      "raw_start": 0.0,
+      "raw_end": 36.607,
+      "padding": {
+        "start": 0.0,
+        "end": 0.9
+      }
     },
     {
       "track": "track_02.mp3",
-      "start": 36.607,
-      "end": 83.245,
-      "duration": 46.638,
-      "label": "general_cautions"
+      "start": 36.357,
+      "end": 84.145,
+      "duration": 47.788,
+      "label": "general_cautions",
+      "raw_start": 36.607,
+      "raw_end": 83.245,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_03.mp3",
-      "start": 83.245,
-      "end": 146.855,
-      "duration": 63.61,
-      "label": "listening_reading_instructions"
+      "start": 82.995,
+      "end": 147.755,
+      "duration": 64.76,
+      "label": "listening_reading_instructions",
+      "raw_start": 83.245,
+      "raw_end": 146.855,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_04.mp3",
-      "start": 146.855,
-      "end": 199.848,
-      "duration": 52.993,
-      "label": "listening_reading_practice"
+      "start": 146.605,
+      "end": 200.748,
+      "duration": 54.143,
+      "label": "listening_reading_practice",
+      "raw_start": 146.855,
+      "raw_end": 199.848,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_05.mp3",
-      "start": 207.48,
-      "end": 234.18,
-      "duration": 26.7,
-      "label": "listening_reading_practice_answer_start"
+      "start": 207.23,
+      "end": 235.08,
+      "duration": 27.85,
+      "label": "listening_reading_practice_answer_start",
+      "raw_start": 207.48,
+      "raw_end": 234.18,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_06.mp3",
-      "start": 234.18,
-      "end": 315.059,
-      "duration": 80.879,
-      "label": "listening_reading_q01"
+      "start": 233.93,
+      "end": 315.959,
+      "duration": 82.029,
+      "label": "listening_reading_q01",
+      "raw_start": 234.18,
+      "raw_end": 315.059,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_07.mp3",
-      "start": 322.642,
-      "end": 403.553,
-      "duration": 80.911,
-      "label": "listening_reading_q02"
+      "start": 322.392,
+      "end": 404.453,
+      "duration": 82.061,
+      "label": "listening_reading_q02",
+      "raw_start": 322.642,
+      "raw_end": 403.553,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_08.mp3",
-      "start": 411.125,
-      "end": 516.849,
-      "duration": 105.724,
-      "label": "listening_reading_q03"
+      "start": 410.875,
+      "end": 517.749,
+      "duration": 106.874,
+      "label": "listening_reading_q03",
+      "raw_start": 411.125,
+      "raw_end": 516.849,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_09.mp3",
-      "start": 524.451,
-      "end": 623.489,
-      "duration": 99.038,
-      "label": "listening_reading_q04"
+      "start": 524.201,
+      "end": 624.389,
+      "duration": 100.188,
+      "label": "listening_reading_q04",
+      "raw_start": 524.451,
+      "raw_end": 623.489,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_10.mp3",
-      "start": 631.071,
-      "end": 710.592,
-      "duration": 79.521,
-      "label": "listening_reading_q05_q06_shared"
+      "start": 630.821,
+      "end": 711.492,
+      "duration": 80.671,
+      "label": "listening_reading_q05_q06_shared",
+      "raw_start": 631.071,
+      "raw_end": 710.592,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_11.mp3",
-      "start": 631.071,
-      "end": 710.592,
-      "duration": 79.521,
-      "label": "listening_reading_q05_q06_shared_duplicate"
+      "start": 630.821,
+      "end": 711.492,
+      "duration": 80.671,
+      "label": "listening_reading_q05_q06_shared_duplicate",
+      "raw_start": 631.071,
+      "raw_end": 710.592,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_12.mp3",
-      "start": 723.134,
-      "end": 807.41,
-      "duration": 84.276,
-      "label": "listening_reading_q07"
+      "start": 722.884,
+      "end": 808.31,
+      "duration": 85.426,
+      "label": "listening_reading_q07",
+      "raw_start": 723.134,
+      "raw_end": 807.41,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_13.mp3",
-      "start": 815.005,
-      "end": 927.016,
-      "duration": 112.011,
-      "label": "listening_reading_q08"
+      "start": 814.755,
+      "end": 927.916,
+      "duration": 113.161,
+      "label": "listening_reading_q08",
+      "raw_start": 815.005,
+      "raw_end": 927.016,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_14.mp3",
-      "start": 934.568,
-      "end": 1037.958,
-      "duration": 103.39,
-      "label": "listening_reading_q09"
+      "start": 934.318,
+      "end": 1038.858,
+      "duration": 104.54,
+      "label": "listening_reading_q09",
+      "raw_start": 934.568,
+      "raw_end": 1037.958,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_15.mp3",
-      "start": 1045.558,
-      "end": 1155.389,
-      "duration": 109.831,
-      "label": "listening_reading_q10"
+      "start": 1045.308,
+      "end": 1156.289,
+      "duration": 110.981,
+      "label": "listening_reading_q10",
+      "raw_start": 1045.558,
+      "raw_end": 1155.389,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_16.mp3",
-      "start": 1162.986,
-      "end": 1269.247,
-      "duration": 106.261,
-      "label": "listening_reading_q11"
+      "start": 1162.736,
+      "end": 1270.147,
+      "duration": 107.411,
+      "label": "listening_reading_q11",
+      "raw_start": 1162.986,
+      "raw_end": 1269.247,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_17.mp3",
-      "start": 1276.825,
-      "end": 1347.533,
-      "duration": 70.708,
-      "label": "listening_reading_q12"
+      "start": 1276.575,
+      "end": 1348.433,
+      "duration": 71.858,
+      "label": "listening_reading_q12",
+      "raw_start": 1276.825,
+      "raw_end": 1347.533,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_18.mp3",
-      "start": 1355.125,
-      "end": 1368.992,
-      "duration": 13.867,
-      "label": "listening_intro"
+      "start": 1354.875,
+      "end": 1369.892,
+      "duration": 15.017,
+      "label": "listening_intro",
+      "raw_start": 1355.125,
+      "raw_end": 1368.992,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_19.mp3",
-      "start": 1368.992,
-      "end": 1427.226,
-      "duration": 58.234,
-      "label": "listening_instructions"
+      "start": 1368.742,
+      "end": 1428.126,
+      "duration": 59.384,
+      "label": "listening_instructions",
+      "raw_start": 1368.992,
+      "raw_end": 1427.226,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_20.mp3",
-      "start": 1427.226,
-      "end": 1495.788,
-      "duration": 68.562,
-      "label": "listening_practice"
+      "start": 1426.976,
+      "end": 1496.688,
+      "duration": 69.712,
+      "label": "listening_practice",
+      "raw_start": 1427.226,
+      "raw_end": 1495.788,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_21.mp3",
-      "start": 1495.788,
-      "end": 1520.0,
-      "duration": 24.212,
-      "label": "listening_practice_answer_start"
+      "start": 1495.538,
+      "end": 1520.9,
+      "duration": 25.362,
+      "label": "listening_practice_answer_start",
+      "raw_start": 1495.788,
+      "raw_end": 1520.0,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_22.mp3",
-      "start": 1520.0,
-      "end": 1642.172,
-      "duration": 122.172,
-      "label": "listening_q13"
+      "start": 1519.75,
+      "end": 1643.072,
+      "duration": 123.322,
+      "label": "listening_q13",
+      "raw_start": 1520.0,
+      "raw_end": 1642.172,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_23.mp3",
-      "start": 1647.472,
-      "end": 1753.717,
-      "duration": 106.245,
-      "label": "listening_q14"
+      "start": 1647.222,
+      "end": 1754.617,
+      "duration": 107.395,
+      "label": "listening_q14",
+      "raw_start": 1647.472,
+      "raw_end": 1753.717,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_24.mp3",
-      "start": 1758.994,
-      "end": 1867.842,
-      "duration": 108.848,
-      "label": "listening_q15"
+      "start": 1758.744,
+      "end": 1868.742,
+      "duration": 109.998,
+      "label": "listening_q15",
+      "raw_start": 1758.994,
+      "raw_end": 1867.842,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_25.mp3",
-      "start": 1873.174,
-      "end": 1988.391,
-      "duration": 115.217,
-      "label": "listening_q16"
+      "start": 1872.924,
+      "end": 1989.291,
+      "duration": 116.367,
+      "label": "listening_q16",
+      "raw_start": 1873.174,
+      "raw_end": 1988.391,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_26.mp3",
-      "start": 1993.579,
-      "end": 2096.55,
-      "duration": 102.971,
-      "label": "listening_q17"
+      "start": 1993.329,
+      "end": 2097.45,
+      "duration": 104.121,
+      "label": "listening_q17",
+      "raw_start": 1993.579,
+      "raw_end": 2096.55,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_27.mp3",
-      "start": 2101.848,
-      "end": 2217.736,
-      "duration": 115.888,
-      "label": "listening_q18"
+      "start": 2101.598,
+      "end": 2218.636,
+      "duration": 117.038,
+      "label": "listening_q18",
+      "raw_start": 2101.848,
+      "raw_end": 2217.736,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_28.mp3",
-      "start": 2222.923,
-      "end": 2344.963,
-      "duration": 122.04,
-      "label": "listening_q19"
+      "start": 2222.673,
+      "end": 2345.863,
+      "duration": 123.19,
+      "label": "listening_q19",
+      "raw_start": 2222.923,
+      "raw_end": 2344.963,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_29.mp3",
-      "start": 2350.274,
-      "end": 2464.237,
-      "duration": 113.963,
-      "label": "listening_q20"
+      "start": 2350.024,
+      "end": 2465.137,
+      "duration": 115.113,
+      "label": "listening_q20",
+      "raw_start": 2350.274,
+      "raw_end": 2464.237,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_30.mp3",
-      "start": 2469.472,
-      "end": 2577.447,
-      "duration": 107.975,
-      "label": "listening_q21"
+      "start": 2469.222,
+      "end": 2578.347,
+      "duration": 109.125,
+      "label": "listening_q21",
+      "raw_start": 2469.472,
+      "raw_end": 2577.447,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_31.mp3",
-      "start": 2582.768,
-      "end": 2679.439,
-      "duration": 96.671,
-      "label": "listening_q22"
+      "start": 2582.518,
+      "end": 2680.339,
+      "duration": 97.821,
+      "label": "listening_q22",
+      "raw_start": 2582.768,
+      "raw_end": 2679.439,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_32.mp3",
-      "start": 2684.69,
-      "end": 2797.294,
-      "duration": 112.604,
-      "label": "listening_q23"
+      "start": 2684.44,
+      "end": 2798.194,
+      "duration": 113.754,
+      "label": "listening_q23",
+      "raw_start": 2684.69,
+      "raw_end": 2797.294,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_33.mp3",
-      "start": 2802.564,
-      "end": 2917.009,
-      "duration": 114.445,
-      "label": "listening_q24"
+      "start": 2802.314,
+      "end": 2917.909,
+      "duration": 115.595,
+      "label": "listening_q24",
+      "raw_start": 2802.564,
+      "raw_end": 2917.009,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_34.mp3",
-      "start": 2922.222,
-      "end": 3042.791,
-      "duration": 120.569,
-      "label": "listening_q25"
+      "start": 2921.972,
+      "end": 3043.691,
+      "duration": 121.719,
+      "label": "listening_q25",
+      "raw_start": 2922.222,
+      "raw_end": 3042.791,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_35.mp3",
-      "start": 3048.082,
-      "end": 3148.331,
-      "duration": 100.249,
-      "label": "listening_q26"
+      "start": 3047.832,
+      "end": 3149.231,
+      "duration": 101.399,
+      "label": "listening_q26",
+      "raw_start": 3048.082,
+      "raw_end": 3148.331,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_36.mp3",
-      "start": 3153.593,
-      "end": 3265.918,
-      "duration": 112.325,
-      "label": "listening_q27"
+      "start": 3153.343,
+      "end": 3266.818,
+      "duration": 113.475,
+      "label": "listening_q27",
+      "raw_start": 3153.593,
+      "raw_end": 3265.918,
+      "padding": {
+        "start": 0.25,
+        "end": 0.9
+      }
     },
     {
       "track": "track_37.mp3",
-      "start": 3271.176,
+      "start": 3270.926,
       "end": 3290.251,
-      "duration": 19.075,
-      "label": "closing"
+      "duration": 19.325,
+      "label": "closing",
+      "raw_start": 3271.176,
+      "raw_end": 3290.251,
+      "padding": {
+        "start": 0.25,
+        "end": 0.0
+      }
     }
   ]
 }
