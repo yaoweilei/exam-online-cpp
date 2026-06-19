@@ -73,16 +73,16 @@ export type RoleId =
 	| 'guest'
 	| 'student'
 	| 'teacher'
-	| 'reviewer'
+	| 'assistant'
 	| 'orgAdmin'
-	| 'systemAdmin'
+	| 'contentAdmin'
 	| 'superAdmin';
 
 export type PlanId = 'free' | 'pro' | 'ultra';
 
 export type PlanStatus = 'active' | 'trial' | 'expired' | 'canceled';
 
-export type ScopeType = 'personal' | 'organization';
+export type ScopeType = 'personal' | 'learningGroup' | 'campus' | 'organization' | 'platform';
 
 export type OrganizationType = '' | 'business' | 'school';
 
@@ -137,6 +137,10 @@ export interface MembershipView {
 	scope_id: string;
 	organization_type: OrganizationType;
 	roles: RoleId[];
+	permission_templates?: PermissionTemplateId[];
+	permissionTemplates?: PermissionTemplateId[];
+	permission_overrides?: PermissionOverrideView[];
+	permissionOverrides?: PermissionOverrideView[];
 	member_no?: string;
 	memberNo?: string;
 	student_no?: string;
@@ -148,6 +152,18 @@ export interface MembershipView {
 	organization_name?: string;
 	username?: string;
 	status?: string;
+}
+
+export type PermissionTemplateId = 'assistant' | 'homeroom' | 'teachingOffice' | 'consultant' | 'campusAdmin';
+
+export interface PermissionOverrideView {
+	permission: string;
+	effect: 'allow' | 'deny';
+	scope: Exclude<ScopeType, 'platform'>;
+	scope_id?: string;
+	scopeId?: string;
+	expires_at?: string;
+	expiresAt?: string;
 }
 
 export interface OrganizationInvitationView {
@@ -162,6 +178,8 @@ export interface OrganizationInvitationView {
 	target_user_id?: string;
 	status: 'pending' | 'accepted' | 'cancelled';
 	roles: RoleId[];
+	permission_templates?: PermissionTemplateId[];
+	permission_overrides?: PermissionOverrideView[];
 	member_no?: string;
 	student_no?: string;
 	employee_no?: string;
@@ -232,6 +250,7 @@ export interface PermissionSection {
 export interface PermissionView {
 	user_id: string;
 	roles: RoleId[];
+	permission_overrides?: PermissionOverrideView[];
 	subscription: SubscriptionView;
 	features: PermissionItem[];
 	sections: PermissionSection[];

@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <cctype>
+#include <fstream>
 #include <iomanip>
 #include <memory>
 #include <optional>
@@ -12,7 +13,12 @@
 
 #include <drogon/HttpClient.h>
 #include <drogon/utils/Utilities.h>
+#include <openssl/bio.h>
+#include <openssl/buffer.h>
+#include <openssl/evp.h>
 #include <openssl/hmac.h>
+#include <openssl/pem.h>
+#include <openssl/sha.h>
 
 #include "common/AppException.h"
 #include "common/TimeUtils.h"
@@ -87,6 +93,7 @@ PaymentService::PaymentService(std::filesystem::path userRootDir,
       ordersFile_(paymentsDir_ / "orders.json"),
       ledgerFile_(paymentsDir_ / "ledger.json"),
       refundsFile_(paymentsDir_ / "refunds.json"),
+      webhookEventsFile_(paymentsDir_ / "webhook_events.json"),
       subscriptionService_(subscriptionService)
 {
     std::filesystem::create_directories(paymentsDir_);
@@ -246,6 +253,122 @@ Json::Value PaymentService::requestRefund(const std::string &userId, const Json:
             refund["status"] = "requires_manual_review";
         }
     }
+    else if (order.get("provider", "").asString() == "wechat" && !env("WECHAT_PAY_MCH_ID").empty())
+    {
+        Json::Value body(Json::objectValue);
+        body["out_trade_no"] = orderId;
+        body["out_refund_no"] = refund["id"].asString();
+        body["reason"] = refund["reason"].asString();
+        body["notify_url"] = env("WECHAT_PAY_REFUND_NOTIFY_URL", env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhook/wechat");
+        body["amount"]["refund"] = amount;
+        body["amount"]["total"] = order.get("amount_cents", 0).asInt();
+        body["amount"]["currency"] = "CNY";
+        Json::StreamWriterBuilder writer;
+        writer["indentation"] = "";
+        const auto rawBody = Json::writeString(writer, body);
+        const auto path = "/v3/refund/domestic/refunds";
+        const auto authorization = buildWechatAuthorization("POST", path, rawBody);
+        if (!authorization.empty())
+        {
+            auto client = drogon::HttpClient::newHttpClient(env("WECHAT_PAY_API_BASE_URL", "https://api.mch.weixin.qq.com"));
+            auto request = drogon::HttpRequest::newHttpRequest();
+            request->setMethod(drogon::Post);
+            request->setPath(path);
+            request->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+            request->addHeader("Authorization", authorization);
+            request->addHeader("Accept", "application/json");
+            request->setBody(rawBody);
+            const auto [result, response] = client->sendRequest(request);
+            if (result == drogon::ReqResult::Ok && response)
+            {
+                const auto bodyJson = parseJsonOrNull(std::string(response->body()));
+                if (response->statusCode() >= drogon::k200OK && response->statusCode() < drogon::k300MultipleChoices)
+                {
+                    refund["status"] = bodyJson.get("status", "processing").asString();
+                    refund["provider_reference"] = bodyJson.get("refund_id", "").asString();
+                    refund["provider_response"] = bodyJson;
+                }
+                else
+                {
+                    refund["status"] = "requires_manual_review";
+                    refund["provider_response"] = bodyJson;
+                }
+            }
+        }
+        else
+        {
+            refund["status"] = "requires_provider_console";
+        }
+    }
+    else if (order.get("provider", "").asString() == "alipay" && !env("ALIPAY_APP_ID").empty())
+    {
+        const auto privateKey = readTextFile(env("ALIPAY_PRIVATE_KEY_PATH"));
+        if (!privateKey.empty())
+        {
+            const auto gatewayBase = env("ALIPAY_API_BASE_URL", "https://openapi.alipay.com");
+            const auto gatewayPath = env("ALIPAY_API_PATH", "/gateway.do");
+            std::ostringstream biz;
+            biz << "{\"out_trade_no\":\"" << orderId
+                << "\",\"refund_amount\":\"" << std::fixed << std::setprecision(2) << amount / 100.0
+                << "\",\"refund_reason\":\"" << refund["reason"].asString()
+                << "\",\"out_request_no\":\"" << refund["id"].asString() << "\"}";
+            std::vector<std::pair<std::string, std::string>> params{
+                {"app_id", env("ALIPAY_APP_ID")},
+                {"biz_content", biz.str()},
+                {"charset", "utf-8"},
+                {"format", "JSON"},
+                {"method", "alipay.trade.refund"},
+                {"sign_type", "RSA2"},
+                {"timestamp", alipayTimestamp()},
+                {"version", "1.0"}};
+            std::sort(params.begin(), params.end());
+            std::ostringstream canonical;
+            for (size_t i = 0; i < params.size(); ++i)
+            {
+                if (i > 0) canonical << '&';
+                canonical << params[i].first << '=' << params[i].second;
+            }
+            const auto signature = rsaSha256Base64(privateKey, canonical.str());
+            if (!signature.empty())
+            {
+                std::ostringstream body;
+                for (size_t i = 0; i < params.size(); ++i)
+                {
+                    if (i > 0) body << '&';
+                    body << params[i].first << '=' << urlEncode(params[i].second);
+                }
+                body << "&sign=" << urlEncode(signature);
+                auto client = drogon::HttpClient::newHttpClient(gatewayBase);
+                auto request = drogon::HttpRequest::newHttpRequest();
+                request->setMethod(drogon::Post);
+                request->setPath(gatewayPath);
+                request->setContentTypeString("application/x-www-form-urlencoded");
+                request->setBody(body.str());
+                const auto [result, response] = client->sendRequest(request);
+                if (result == drogon::ReqResult::Ok && response)
+                {
+                    const auto bodyJson = parseJsonOrNull(std::string(response->body()));
+                    const auto refundResp = bodyJson["alipay_trade_refund_response"];
+                    const auto code = refundResp.get("code", "").asString();
+                    if (response->statusCode() >= drogon::k200OK && response->statusCode() < drogon::k300MultipleChoices && code == "10000")
+                    {
+                        refund["status"] = "succeeded";
+                        refund["provider_reference"] = refundResp.get("trade_no", "").asString();
+                        refund["provider_response"] = bodyJson;
+                    }
+                    else
+                    {
+                        refund["status"] = "requires_manual_review";
+                        refund["provider_response"] = bodyJson;
+                    }
+                }
+            }
+        }
+        else
+        {
+            refund["status"] = "requires_provider_console";
+        }
+    }
     else
     {
         refund["status"] = "requires_provider_console";
@@ -272,9 +395,17 @@ Json::Value PaymentService::handleWebhook(const std::string &provider,
     std::unique_lock lock(mutex_);
     auto orders = loadOrders();
     auto ledger = loadLedger();
+    auto webhookEvents = std::filesystem::exists(webhookEventsFile_)
+                             ? infrastructure::storage::readJsonFile(webhookEventsFile_)
+                             : Json::Value(Json::arrayValue);
+    if (!webhookEvents.isArray())
+    {
+        webhookEvents = Json::Value(Json::arrayValue);
+    }
 
     std::string orderId;
     std::string providerPaymentId;
+    std::string eventId = payload.get("id", "").asString();
     if (normalizedProvider == "stripe")
     {
         const auto type = payload.get("type", "").asString();
@@ -289,11 +420,24 @@ Json::Value PaymentService::handleWebhook(const std::string &provider,
         const auto object = payload["data"]["object"];
         orderId = object.get("client_reference_id", object["metadata"].get("order_id", "")).asString();
         providerPaymentId = object.get("payment_intent", object.get("id", "")).asString();
+        if (eventId.empty())
+        {
+            eventId = "stripe:" + type + ":" + providerPaymentId;
+        }
     }
     else
     {
-        const auto secret = env("PAYMENT_GENERIC_WEBHOOK_SECRET");
-        if (secret.empty() || payload.get("secret", "").asString() != secret)
+        const auto secret = normalizedProvider == "wechat"
+                                ? env("WECHAT_PAY_WEBHOOK_SECRET", env("PAYMENT_GENERIC_WEBHOOK_SECRET"))
+                                : env("ALIPAY_WEBHOOK_SECRET", env("PAYMENT_GENERIC_WEBHOOK_SECRET"));
+        if (!secret.empty() && !signatureHeader.empty())
+        {
+            if (!verifyGenericHmacSignature(rawBody, signatureHeader, secret))
+            {
+                throw common::AppException("PAYMENT_WEBHOOK_SIGNATURE_INVALID", "Payment webhook signature is invalid", drogon::k401Unauthorized);
+            }
+        }
+        else if (secret.empty() || payload.get("secret", "").asString() != secret)
         {
             throw common::AppException("PAYMENT_WEBHOOK_SIGNATURE_INVALID", "Payment webhook secret is invalid", drogon::k401Unauthorized);
         }
@@ -308,13 +452,29 @@ Json::Value PaymentService::handleWebhook(const std::string &provider,
         }
         orderId = payload.get("order_id", payload.get("out_trade_no", "")).asString();
         providerPaymentId = payload.get("provider_payment_id", payload.get("trade_no", "")).asString();
+        eventId = payload.get("event_id", normalizedProvider + ":" + orderId + ":" + providerPaymentId).asString();
     }
 
     if (orderId.empty())
     {
         throw common::AppException("PAYMENT_WEBHOOK_ORDER_MISSING", "Webhook did not include order id", drogon::k422UnprocessableEntity);
     }
+    if (!eventId.empty() && hasProcessedWebhookEvent(webhookEvents, eventId))
+    {
+        Json::Value duplicate(Json::objectValue);
+        duplicate["ignored"] = true;
+        duplicate["duplicate"] = true;
+        duplicate["provider"] = normalizedProvider;
+        duplicate["event_id"] = eventId;
+        duplicate["order_id"] = orderId;
+        return duplicate;
+    }
     const auto paidOrder = markOrderPaidUnlocked(orders, ledger, orderId, providerPaymentId, payload);
+    if (!eventId.empty())
+    {
+        rememberWebhookEvent(webhookEvents, eventId, normalizedProvider);
+        infrastructure::storage::writeJsonFileAtomic(webhookEventsFile_, webhookEvents);
+    }
     saveOrders(orders);
     saveLedger(ledger);
     return paidOrder;
@@ -444,14 +604,21 @@ Json::Value PaymentService::buildProviderPayload(const Json::Value &order) const
     }
     if (providerName == "wechat")
     {
-        provider["configured"] = false;
-        provider["message"] = "WeChat Pay requires merchant id, API v3 key, private key/certificate serial, and platform certificate verification before live order creation.";
-        return provider;
+        return buildWechatNativePayOrder(order);
     }
     if (providerName == "alipay")
     {
-        provider["configured"] = false;
-        provider["message"] = "Alipay requires app id, merchant private key, Alipay public key, gateway, and RSA2 signing before live order creation.";
+        const auto paymentUrl = buildAlipayPagePayUrl(order);
+        provider["configured"] = !paymentUrl.empty();
+        provider["method"] = "page_pay";
+        if (paymentUrl.empty())
+        {
+            provider["message"] = "Alipay is not configured. Set ALIPAY_APP_ID, ALIPAY_PRIVATE_KEY_PATH, ALIPAY_PUBLIC_KEY, and PUBLIC_WEB_BASE_URL.";
+        }
+        else
+        {
+            provider["payment_url"] = paymentUrl;
+        }
         return provider;
     }
     provider["configured"] = false;
@@ -542,7 +709,7 @@ bool PaymentService::canAccessOrder(const Json::Value &order, const std::string 
 
 bool PaymentService::canManagePayments(const Json::Value &roles) const
 {
-    return hasAnyRole(roles, {"systemAdmin", "superAdmin"});
+    return hasAnyRole(roles, {"superAdmin"});
 }
 
 bool PaymentService::verifyStripeSignature(const std::string &rawBody, const std::string &signatureHeader) const
@@ -560,6 +727,45 @@ bool PaymentService::verifyStripeSignature(const std::string &rawBody, const std
     }
     const auto expected = hmacSha256Hex(secret, timestamp + "." + rawBody);
     return expected == signature;
+}
+
+bool PaymentService::verifyGenericHmacSignature(const std::string &rawBody,
+                                                const std::string &signatureHeader,
+                                                const std::string &secret) const
+{
+    const auto expected = hmacSha256Hex(secret, rawBody);
+    return signatureHeader == expected || signatureHeader == ("sha256=" + expected);
+}
+
+bool PaymentService::hasProcessedWebhookEvent(Json::Value &events, const std::string &eventId) const
+{
+    for (const auto &event : events)
+    {
+        if (event.get("event_id", "").asString() == eventId)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void PaymentService::rememberWebhookEvent(Json::Value &events, const std::string &eventId, const std::string &provider) const
+{
+    Json::Value event(Json::objectValue);
+    event["event_id"] = eventId;
+    event["provider"] = provider;
+    event["processed_at"] = nowIso();
+    events.append(event);
+    constexpr Json::ArrayIndex maxEvents = 1000;
+    if (events.size() > maxEvents)
+    {
+        Json::Value trimmed(Json::arrayValue);
+        for (Json::ArrayIndex i = events.size() - maxEvents; i < events.size(); ++i)
+        {
+            trimmed.append(events[i]);
+        }
+        events = trimmed;
+    }
 }
 
 std::string PaymentService::normalizeProvider(const std::string &provider)
@@ -721,5 +927,250 @@ std::string PaymentService::hmacSha256Hex(const std::string &secret, const std::
         out << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(digest[i]);
     }
     return out.str();
+}
+
+std::string PaymentService::sha256Hex(const std::string &payload)
+{
+    unsigned char digest[SHA256_DIGEST_LENGTH]{};
+    SHA256(reinterpret_cast<const unsigned char *>(payload.data()), payload.size(), digest);
+    std::ostringstream out;
+    for (unsigned char byte : digest)
+    {
+        out << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
+    }
+    return out.str();
+}
+
+std::string PaymentService::readTextFile(const std::string &path)
+{
+    if (path.empty())
+    {
+        return "";
+    }
+    std::ifstream input(path, std::ios::binary);
+    if (!input)
+    {
+        return "";
+    }
+    std::ostringstream out;
+    out << input.rdbuf();
+    return out.str();
+}
+
+std::string PaymentService::base64Encode(const unsigned char *data, size_t len)
+{
+    BIO *bio = BIO_new(BIO_s_mem());
+    BIO *b64 = BIO_new(BIO_f_base64());
+    if (!bio || !b64)
+    {
+        if (bio) BIO_free(bio);
+        if (b64) BIO_free(b64);
+        return "";
+    }
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    bio = BIO_push(b64, bio);
+    BIO_write(bio, data, static_cast<int>(len));
+    BIO_flush(bio);
+    BUF_MEM *buffer = nullptr;
+    BIO_get_mem_ptr(bio, &buffer);
+    std::string out = buffer ? std::string(buffer->data, buffer->length) : "";
+    BIO_free_all(bio);
+    return out;
+}
+
+std::string PaymentService::rsaSha256Base64(const std::string &privateKeyPem, const std::string &payload)
+{
+    if (privateKeyPem.empty())
+    {
+        return "";
+    }
+    BIO *bio = BIO_new_mem_buf(privateKeyPem.data(), static_cast<int>(privateKeyPem.size()));
+    if (!bio)
+    {
+        return "";
+    }
+    EVP_PKEY *key = PEM_read_bio_PrivateKey(bio, nullptr, nullptr, nullptr);
+    BIO_free(bio);
+    if (!key)
+    {
+        return "";
+    }
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    if (!ctx)
+    {
+        EVP_PKEY_free(key);
+        return "";
+    }
+    std::string signature;
+    if (EVP_DigestSignInit(ctx, nullptr, EVP_sha256(), nullptr, key) == 1 &&
+        EVP_DigestSignUpdate(ctx, payload.data(), payload.size()) == 1)
+    {
+        size_t sigLen = 0;
+        if (EVP_DigestSignFinal(ctx, nullptr, &sigLen) == 1)
+        {
+            std::string bytes(sigLen, '\0');
+            if (EVP_DigestSignFinal(ctx, reinterpret_cast<unsigned char *>(bytes.data()), &sigLen) == 1)
+            {
+                signature = base64Encode(reinterpret_cast<const unsigned char *>(bytes.data()), sigLen);
+            }
+        }
+    }
+    EVP_MD_CTX_free(ctx);
+    EVP_PKEY_free(key);
+    return signature;
+}
+
+std::string PaymentService::alipayTimestamp()
+{
+    const auto now = std::chrono::system_clock::now();
+    const std::time_t tt = std::chrono::system_clock::to_time_t(now);
+    std::tm tm{};
+#if defined(_WIN32)
+    localtime_s(&tm, &tt);
+#else
+    localtime_r(&tt, &tm);
+#endif
+    char buf[32];
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
+    return buf;
+}
+
+std::string PaymentService::buildAlipayPagePayUrl(const Json::Value &order)
+{
+    const auto appId = env("ALIPAY_APP_ID");
+    const auto privateKey = readTextFile(env("ALIPAY_PRIVATE_KEY_PATH"));
+    if (appId.empty() || privateKey.empty())
+    {
+        return "";
+    }
+    const auto gateway = env("ALIPAY_GATEWAY", "https://openapi.alipay.com/gateway.do");
+    const auto notifyUrl = env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhook/alipay";
+    const auto returnUrl = env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/?payment=success&order_id=" + order.get("id", "").asString();
+    std::ostringstream biz;
+    biz << "{\"out_trade_no\":\"" << order.get("id", "").asString()
+        << "\",\"product_code\":\"FAST_INSTANT_TRADE_PAY\""
+        << ",\"total_amount\":\"" << std::fixed << std::setprecision(2) << order.get("amount_cents", 0).asInt() / 100.0
+        << "\",\"subject\":\"" << order.get("description", "Exam Online subscription").asString() << "\"}";
+
+    std::vector<std::pair<std::string, std::string>> params{
+        {"app_id", appId},
+        {"biz_content", biz.str()},
+        {"charset", "utf-8"},
+        {"format", "JSON"},
+        {"method", "alipay.trade.page.pay"},
+        {"notify_url", notifyUrl},
+        {"return_url", returnUrl},
+        {"sign_type", "RSA2"},
+        {"timestamp", alipayTimestamp()},
+        {"version", "1.0"}};
+    std::sort(params.begin(), params.end());
+    std::ostringstream canonical;
+    for (size_t i = 0; i < params.size(); ++i)
+    {
+        if (i > 0) canonical << '&';
+        canonical << params[i].first << '=' << params[i].second;
+    }
+    const auto signature = rsaSha256Base64(privateKey, canonical.str());
+    if (signature.empty())
+    {
+        return "";
+    }
+    std::ostringstream url;
+    url << gateway << '?';
+    for (size_t i = 0; i < params.size(); ++i)
+    {
+        if (i > 0) url << '&';
+        url << params[i].first << '=' << urlEncode(params[i].second);
+    }
+    url << "&sign=" << urlEncode(signature);
+    return url.str();
+}
+
+std::string PaymentService::buildWechatAuthorization(const std::string &method,
+                                                     const std::string &urlPath,
+                                                     const std::string &body)
+{
+    const auto mchId = env("WECHAT_PAY_MCH_ID");
+    const auto serialNo = env("WECHAT_PAY_CERT_SERIAL_NO");
+    const auto privateKey = readTextFile(env("WECHAT_PAY_PRIVATE_KEY_PATH"));
+    if (mchId.empty() || serialNo.empty() || privateKey.empty())
+    {
+        return "";
+    }
+    const auto timestamp = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count());
+    const auto nonce = makeId("nonce");
+    const auto message = method + "\n" + urlPath + "\n" + timestamp + "\n" + nonce + "\n" + body + "\n";
+    const auto signature = rsaSha256Base64(privateKey, message);
+    if (signature.empty())
+    {
+        return "";
+    }
+    return "WECHATPAY2-SHA256-RSA2048 mchid=\"" + mchId +
+           "\",nonce_str=\"" + nonce +
+           "\",signature=\"" + signature +
+           "\",timestamp=\"" + timestamp +
+           "\",serial_no=\"" + serialNo + "\"";
+}
+
+Json::Value PaymentService::buildWechatNativePayOrder(const Json::Value &order)
+{
+    Json::Value provider(Json::objectValue);
+    provider["provider"] = "wechat";
+    const auto appId = env("WECHAT_PAY_APP_ID");
+    const auto mchId = env("WECHAT_PAY_MCH_ID");
+    const auto notifyUrl = env("WECHAT_PAY_NOTIFY_URL", env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhook/wechat");
+    if (appId.empty() || mchId.empty() || env("WECHAT_PAY_CERT_SERIAL_NO").empty() || env("WECHAT_PAY_PRIVATE_KEY_PATH").empty())
+    {
+        provider["configured"] = false;
+        provider["message"] = "WeChat Pay is not configured. Set WECHAT_PAY_APP_ID, WECHAT_PAY_MCH_ID, WECHAT_PAY_CERT_SERIAL_NO, and WECHAT_PAY_PRIVATE_KEY_PATH.";
+        return provider;
+    }
+
+    Json::Value body(Json::objectValue);
+    body["appid"] = appId;
+    body["mchid"] = mchId;
+    body["description"] = order.get("description", "Exam Online subscription").asString();
+    body["out_trade_no"] = order.get("id", "").asString();
+    body["notify_url"] = notifyUrl;
+    body["amount"]["total"] = order.get("amount_cents", 0).asInt();
+    body["amount"]["currency"] = "CNY";
+    Json::StreamWriterBuilder writer;
+    writer["indentation"] = "";
+    const auto rawBody = Json::writeString(writer, body);
+    const auto path = "/v3/pay/transactions/native";
+    const auto authorization = buildWechatAuthorization("POST", path, rawBody);
+    if (authorization.empty())
+    {
+        provider["configured"] = true;
+        provider["error"] = "WeChat Pay signing failed";
+        return provider;
+    }
+
+    auto client = drogon::HttpClient::newHttpClient(env("WECHAT_PAY_API_BASE_URL", "https://api.mch.weixin.qq.com"));
+    auto request = drogon::HttpRequest::newHttpRequest();
+    request->setMethod(drogon::Post);
+    request->setPath(path);
+    request->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+    request->addHeader("Authorization", authorization);
+    request->addHeader("Accept", "application/json");
+    request->setBody(rawBody);
+    const auto [result, response] = client->sendRequest(request);
+    provider["configured"] = true;
+    provider["method"] = "native";
+    if (result != drogon::ReqResult::Ok || !response)
+    {
+        provider["error"] = "WeChat Pay request failed";
+        return provider;
+    }
+    const auto payload = parseJsonOrNull(std::string(response->body()));
+    if (response->statusCode() < drogon::k200OK || response->statusCode() >= drogon::k300MultipleChoices)
+    {
+        provider["error"] = payload.get("message", "WeChat Pay order creation failed").asString();
+        return provider;
+    }
+    provider["payment_url"] = payload.get("code_url", "").asString();
+    provider["code_url"] = payload.get("code_url", "").asString();
+    return provider;
 }
 }  // namespace application::services

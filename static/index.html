@@ -13,12 +13,11 @@
 	<meta name="theme-color" content="#1f1914">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<link href="/static/style.css?v=20260503b" rel="stylesheet">
+	<link href="/static/style.css?v=20260619-login3" rel="stylesheet">
 </head>
 
 <body>
 	<script>
-		window.__FURIGANA_DICT_URL__ = "/static/resource/furigana.dict.json";
 		window.__WEB_APP_MODE__ = true;
 		window.__API_BASE__ = "/api/v1";
 		// 可配置展示哪些考试族：["jlpt","eju"]、["jlpt"] 或 ["eju"]。
@@ -29,12 +28,16 @@
 
 	<div id="exam-content">
 		<!-- 登录弹窗 -->
-		<div id="login-modal">
+		<div id="login-modal" class="login-mode-phone">
 			<div class="login-box">
-				<div class="login-title">在线试卷</div>
+				<button class="login-close" type="button" data-login-close aria-label="关闭登录">×</button>
+				<div class="login-brand">
+					<div class="login-brand-mark">試</div>
+					<div class="login-title">在线试卷</div>
+				</div>
 
 				<!-- WeChat 面板 -->
-				<div class="login-panel is-active" data-panel="wechat">
+				<div class="login-panel" data-panel="wechat">
 					<div class="qr-wrapper">
 						<img id="wechat-qr-img" class="qr-img" src="" alt="二维码" />
 					</div>
@@ -42,16 +45,20 @@
 					<div id="wechat-status" class="login-status"></div>
 					<button id="wechat-stub-btn" class="btn-stub" style="display:none">🔧 模拟扫码（开发模式）</button>
 					<div id="wechat-test-id-list" class="login-test-id-list" style="display:none"></div>
+					<button class="login-back-phone" type="button" data-mode="phone">手机号验证码登录</button>
 				</div>
 
 				<!-- 手机号面板 -->
-				<div class="login-panel" data-panel="phone">
-					<input id="login-phone" class="login-input" type="tel" placeholder="手机号" />
-					<div class="login-code-row">
-						<input id="login-phone-code" class="login-input code-input" type="text" placeholder="验证码" />
-						<button id="login-btn-send-code" class="btn-send-code">发送验证码</button>
+				<div class="login-panel is-active" data-panel="phone">
+					<div class="login-phone-entry">
+						<button class="login-country-code" type="button">+86 <span>▾</span></button>
+						<input id="login-phone" class="login-input login-phone-input" type="tel" placeholder="请输入手机号码" autocomplete="tel" />
 					</div>
-					<button id="login-btn-phone-verify" class="btn-primary-login">验证登录</button>
+					<button id="login-btn-send-code" class="btn-primary-login login-send-code-main" disabled>发送验证码</button>
+					<div class="login-code-row login-phone-code-row">
+						<input id="login-phone-code" class="login-input code-input" type="text" placeholder="请输入验证码" autocomplete="one-time-code" />
+						<button id="login-btn-phone-verify" class="btn-send-code">登录</button>
+					</div>
 				</div>
 
 				<!-- 用户名密码面板 -->
@@ -82,28 +89,35 @@
 						<input id="reset-new-password" class="login-input" type="password" placeholder="新密码：至少8位，含字母和数字" />
 						<button id="login-btn-reset-password" class="btn-primary-login">重置并登录</button>
 					</div>
+					<button class="login-back-phone" type="button" data-mode="phone">手机号验证码登录</button>
 				</div>
 
 				<div id="login-error" class="login-error" style="display:none"></div>
 
 				<!-- 底部同意协议 -->
 				<div class="login-agree">
-					<label><input type="checkbox" checked /> 同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a></label>
+					<label><input type="checkbox" checked /> <span>我已阅读并同意</span> <a href="#">《用户协议》</a> <span>和</span> <a href="#">《隐私政策》</a></label>
 				</div>
 
 				<!-- 模式切换图标 -->
 				<div class="login-mode-bar">
-					<button class="login-mode-icon active" data-mode="wechat" title="微信扫码登录">💬</button>
-					<button class="login-mode-icon" data-mode="phone" title="手机号登录">📱</button>
-					<button class="login-mode-icon" data-mode="password" title="用户名密码登录">🔑</button>
-				</div>
-
-				<!-- 业务功能 22：第三方 OAuth（Google / Apple）登录入口 -->
-				<div class="login-oauth-bar" id="login-oauth-bar" style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-					<button class="login-oauth-btn" data-oauth="google" title="使用 Google 登录" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:4px;background:#fff;cursor:pointer;">Google 登录</button>
-					<button class="login-oauth-btn" data-oauth="apple" title="使用 Apple 登录" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:4px;background:#000;color:#fff;cursor:pointer;"> Apple 登录</button>
-					<button class="login-oauth-btn" data-oauth="github" title="使用 GitHub 登录" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:4px;background:#24292f;color:#fff;cursor:pointer;">GitHub 登录</button>
-					<button class="login-oauth-btn" data-oauth="line" title="使用 LINE 登录" style="padding:6px 12px;border:1px solid #06c755;border-radius:4px;background:#06c755;color:#fff;cursor:pointer;">LINE 登录</button>
+					<button class="login-mode-icon login-password-shortcut" data-mode="password" title="用户名密码登录">
+						<span class="login-mode-symbol" aria-hidden="true">
+							<svg viewBox="0 0 24 24" focusable="false">
+								<circle cx="7.5" cy="14.5" r="3.5"></circle>
+								<path d="M10.2 11.8 18 4"></path>
+								<path d="M15.4 6.6 17.4 8.6"></path>
+								<path d="M13.2 8.8 15.2 10.8"></path>
+							</svg>
+						</span>
+						<span>密码登录</span>
+					</button>
+					<button class="login-mode-icon login-social-icon login-wechat-icon" data-mode="wechat" title="微信扫码登录" aria-label="微信登录">
+						<svg viewBox="0 0 576 512" aria-hidden="true" focusable="false">
+							<path fill-rule="evenodd" clip-rule="evenodd" d="M385.2 167.6c6.4 0 12.6.3 18.8 1.1C387.4 90.3 303.3 32 207.7 32 100.5 32 13 104.8 13 197.4c0 53.4 29.3 97.5 78.2 130.8l-19.3 58.6 68.7-34.1c24.4 7.1 43.7 9.7 68.2 9.7 6.2 0 12.1-.3 18.3-.8-3.9-12.9-6.2-26.6-6.2-40.8-.1-84.9 73.3-153.2 164.3-153.2ZM278.6 114.2c14.5 0 24.2 9.7 24.2 24.4 0 14.5-9.7 24.2-24.2 24.2-14.8 0-29.3-9.7-29.3-24.2.1-14.7 14.6-24.4 29.3-24.4Zm-136.4 48.6c-14.5 0-29.3-9.7-29.3-24.2 0-14.8 14.8-24.4 29.3-24.4 14.8 0 24.4 9.7 24.4 24.4 0 14.6-9.6 24.2-24.4 24.2ZM563 319.4c0-77.9-77.2-141.3-163.8-141.3-91.2 0-164.3 63.4-164.3 141.3s73.1 141.3 164.3 141.3c19.3 0 38.9-5.1 58.6-9.9l53.4 29.3-14.8-48.6C535.3 402.1 563 363.2 563 319.4Zm-216.2-24.5c-9.7 0-19.3-9.7-19.3-19.6 0-9.7 9.7-19.3 19.3-19.3 14.8 0 24.4 9.7 24.4 19.3 0 10-9.7 19.6-24.4 19.6Zm106.9 0c-9.7 0-19.3-9.7-19.3-19.6 0-9.7 9.7-19.3 19.3-19.3 14.8 0 24.4 9.7 24.4 19.3.1 10-9.6 19.6-24.4 19.6Z"/>
+						</svg>
+					</button>
+					<button class="login-mode-icon login-social-icon" data-oauth="google" title="使用 Google 登录"><span>G</span></button>
 				</div>
 			</div>
 		</div>

@@ -19,7 +19,7 @@
 #include "application/services/DraftService.h"
 #include "application/services/AttemptTimerService.h"
 #include "application/services/BookmarkFolderService.h"
-#include "application/services/ClassroomService.h"
+#include "application/services/AssignmentService.h"
 #include "application/services/FeatureFlagService.h"
 #include "application/services/FeedbackService.h"
 #include "application/services/SrsService.h"
@@ -43,7 +43,6 @@
 #include "application/services/ContactChangeChallengeService.h"
 #include "application/services/EmailVerificationService.h"
 #include "application/services/ExamService.h"
-#include "application/services/FuriganaService.h"
 #include "application/services/NotificationService.h"
 #include "application/services/OrganizationService.h"
 #include "application/services/PhoneService.h"
@@ -63,14 +62,12 @@
 #include "infrastructure/storage/AssignmentRepository.h"
 #include "infrastructure/storage/AttemptTimerRepository.h"
 #include "infrastructure/storage/BookmarkFolderRepository.h"
-#include "infrastructure/storage/ClassroomRepository.h"
 #include "infrastructure/storage/FeatureFlagRepository.h"
 #include "infrastructure/storage/FeedbackRepository.h"
 #include "infrastructure/storage/SrsRepository.h"
 #include "infrastructure/storage/VocabNotebookRepository.h"
 #include "infrastructure/storage/TranslationRepository.h"
 #include "infrastructure/storage/ExamRepository.h"
-#include "infrastructure/storage/FuriganaRepository.h"
 #include "infrastructure/storage/OrganizationRepository.h"
 #include "infrastructure/storage/ProfileRepository.h"
 #include "infrastructure/storage/SessionRepository.h"
@@ -148,7 +145,6 @@ int main()
     infrastructure::storage::AnswerRepository answerRepo(cfg.dataUserDir);
     infrastructure::storage::UserRepository userRepo(cfg.dataUserDir);
     infrastructure::storage::SessionRepository sessionRepo(cfg.dataSystemDir);
-    infrastructure::storage::FuriganaRepository furiganaRepo(cfg.furiganaDictPath);
     infrastructure::storage::ProfileRepository profileRepo(cfg.dataUserDir);
     infrastructure::storage::OrganizationRepository organizationRepo(cfg.dataUserDir);
     infrastructure::storage::BookmarkRepository bookmarkRepo(cfg.dataUserDir);
@@ -178,7 +174,6 @@ int main()
         smsService.get());
     application::services::StatisticsService statisticsService(answerRepo);
     application::services::UserService userService(userRepo, profileRepo, organizationRepo, subscriptionService);
-    application::services::FuriganaService furiganaService(furiganaRepo);
     application::services::ProfileService profileService(profileRepo);
     application::services::ContactChangeChallengeService contactChangeChallengeService(userRepo, *emailService, *smsService);
     application::services::OrganizationService organizationService(
@@ -203,10 +198,9 @@ int main()
     // 题目反馈 Repository + Service（业务功能 5）
     infrastructure::storage::FeedbackRepository feedbackRepo(cfg.dataUserDir);
     application::services::FeedbackService feedbackService(feedbackRepo);
-    // 班级与作业 Repository + Service（业务功能 6）
-    infrastructure::storage::ClassroomRepository classroomRepo(cfg.dataSystemDir);
+    // 学习组作业 Repository + Service（业务功能 6）
     infrastructure::storage::AssignmentRepository assignmentRepo(cfg.dataSystemDir);
-    application::services::ClassroomService classroomService(classroomRepo, assignmentRepo);
+    application::services::AssignmentService assignmentService(assignmentRepo, organizationRepo);
     // SRS Repository + Service（业务功能 7）
     infrastructure::storage::SrsRepository srsRepo(cfg.dataUserDir);
     application::services::SrsService srsService(srsRepo);
@@ -253,7 +247,6 @@ int main()
     application::services::RedeemService redeemService(cfg.dataSystemDir, profileRepo, subscriptionService);
     application::services::PaymentService paymentService(cfg.dataUserDir, subscriptionService);
     application::services::InstitutionService institutionService(
-        classroomRepo,
         assignmentRepo,
         answerRepo,
         userRepo,
@@ -284,7 +277,6 @@ int main()
         .authService = &authService,
         .statisticsService = &statisticsService,
         .userService = &userService,
-        .furiganaService = &furiganaService,
         .profileService = &profileService,
         .organizationService = &organizationService,
         .bookmarkService = &bookmarkService,
@@ -299,7 +291,7 @@ int main()
         .attemptTimerService = &attemptTimerService,
         .featureFlagService = &featureFlagService,
         .feedbackService = &feedbackService,
-        .classroomService = &classroomService,
+        .assignmentService = &assignmentService,
         .srsService = &srsService,
         .vocabNotebookService = &vocabNotebookService,
         .translationService = &translationService,

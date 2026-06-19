@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <filesystem>
 #include <mutex>
 #include <shared_mutex>
@@ -69,7 +70,94 @@ class BookmarkRepository
         writeJsonFileAtomic(path, bm);
     }
 
+    void addQuestionBookmark(const std::string &userId, Json::Value item)
+    {
+        std::unique_lock lock(mutex_);
+        const auto path = bookmarkDir_ / (userId + ".json");
+        auto bm = std::filesystem::exists(path) ? readJsonFile(path) : defaultBookmarks(userId);
+        if (!bm["questions"].isArray())
+        {
+            bm["questions"] = Json::arrayValue;
+        }
+
+        const auto examId = item.get("exam_id", "").asString();
+        const auto sectionIndex = item.get("section_index", 0).asInt();
+        const auto questionId = item.get("question_id", "").asString();
+        const auto now = common::nowIso8601();
+        auto bookmarkId = item.get("bookmark_id", "").asString();
+        if (bookmarkId.empty())
+        {
+            bookmarkId = makeQuestionBookmarkId(examId, sectionIndex, questionId);
+        }
+
+        item["bookmark_id"] = bookmarkId;
+        item["updated_at"] = now;
+        if (!item.isMember("created_at") || item["created_at"].asString().empty())
+        {
+            item["created_at"] = now;
+        }
+
+        Json::Value next(Json::arrayValue);
+        bool replaced = false;
+        for (const auto &existing : bm["questions"])
+        {
+            if (existing.get("bookmark_id", "").asString() == bookmarkId)
+            {
+                Json::Value merged = existing;
+                for (const auto &name : item.getMemberNames())
+                {
+                    merged[name] = item[name];
+                }
+                if (!existing.get("created_at", "").asString().empty())
+                {
+                    merged["created_at"] = existing["created_at"];
+                }
+                next.append(merged);
+                replaced = true;
+            }
+            else
+            {
+                next.append(existing);
+            }
+        }
+        if (!replaced)
+        {
+            next.append(item);
+        }
+
+        bm["questions"] = next;
+        bm["updated_at"] = now;
+        writeJsonFileAtomic(path, bm);
+    }
+
+    void removeQuestionBookmark(const std::string &userId, const std::string &bookmarkId)
+    {
+        std::unique_lock lock(mutex_);
+        const auto path = bookmarkDir_ / (userId + ".json");
+        auto bm = std::filesystem::exists(path) ? readJsonFile(path) : defaultBookmarks(userId);
+
+        Json::Value filtered(Json::arrayValue);
+        for (const auto &item : bm["questions"])
+        {
+            if (item.get("bookmark_id", "").asString() != bookmarkId)
+            {
+                filtered.append(item);
+            }
+        }
+        bm["questions"] = filtered;
+        bm["updated_at"] = common::nowIso8601();
+        writeJsonFileAtomic(path, bm);
+    }
+
   private:
+    static std::string makeQuestionBookmarkId(const std::string &examId, int sectionIndex, const std::string &questionId)
+    {
+        auto raw = examId + "::" + std::to_string(sectionIndex) + "::" + questionId;
+        std::replace(raw.begin(), raw.end(), '/', '_');
+        std::replace(raw.begin(), raw.end(), '\\', '_');
+        return raw;
+    }
+
     static Json::Value defaultBookmarks(const std::string &userId)
     {
         Json::Value bm(Json::objectValue);

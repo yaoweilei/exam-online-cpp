@@ -55,6 +55,30 @@ class OrganizationService
 
     Json::Value updateSubscription(const std::string &actorUserId, const std::string &organizationId, const Json::Value &patch);
 
+    Json::Value listCampuses(const std::string &organizationId) const;
+
+    Json::Value upsertCampus(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload);
+
+    Json::Value listLearningGroups(const std::string &organizationId) const;
+
+    Json::Value upsertLearningGroup(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload);
+
+    Json::Value completeLearningGroup(const std::string &actorUserId,
+                                      const std::string &organizationId,
+                                      const std::string &learningGroupId,
+                                      const Json::Value &payload);
+
+    Json::Value listLearningGroupEnrollments(const std::string &organizationId, const std::string &learningGroupId) const;
+
+    Json::Value upsertLearningGroupEnrollment(const std::string &actorUserId,
+                                              const std::string &organizationId,
+                                              const std::string &learningGroupId,
+                                              const Json::Value &payload);
+
+    Json::Value listCoursePackages(const std::string &organizationId) const;
+
+    Json::Value upsertCoursePackage(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload);
+
     bool canAccessOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const;
 
     bool canManageOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const;
@@ -76,15 +100,35 @@ class OrganizationService
 
     static std::string normalizeOrganizationType(const std::string &organizationType);
 
+    static std::string normalizeLearningGroupType(const std::string &type);
+
+    static std::string normalizeLearningGroupStatus(const std::string &status);
+
+    static std::string normalizeEnrollmentRole(const std::string &role);
+
+    static std::string normalizeCoursePackageStatus(const std::string &status);
+
     static Json::Value defaultOwnerRoles();
 
     static Json::Value defaultMemberRoles();
 
     static Json::Value allowedMembershipRoles();
 
+    static Json::Value allowedPermissionTemplates();
+
     static bool hasRole(const Json::Value &roles, const std::string &expected);
 
     static Json::Value normalizeMemberRoles(const Json::Value &inputRoles);
+
+    static Json::Value normalizePermissionTemplates(const Json::Value &inputTemplates, const Json::Value &roles);
+
+    static Json::Value normalizePermissionOverrides(const Json::Value &inputOverrides);
+
+    static bool isAllowedPermissionOverride(const std::string &permission);
+
+    static std::string normalizePermissionEffect(const std::string &effect);
+
+    static std::string normalizePermissionScope(const std::string &scope);
 
     Json::Value appendAuditEntry(Json::Value organization, const Json::Value &entry) const;
 
@@ -157,6 +201,17 @@ class OrganizationService
     static std::string generateOrganizationId();
 
     static bool hasPlatformRole(const Json::Value &roles);
+
+    static Json::Value ensureArray(const Json::Value &value);
+
+    static Json::Value touchEntity(Json::Value entity, const std::string &actorUserId, bool isNew);
+
+    static Json::Value replaceEntityById(Json::Value items,
+                                         const std::string &idField,
+                                         const std::string &id,
+                                         const Json::Value &entity);
+
+    static Json::Value findEntityById(const Json::Value &items, const std::string &idField, const std::string &id);
 
     infrastructure::storage::OrganizationRepository &organizationRepository_;
     infrastructure::storage::UserRepository &userRepository_;

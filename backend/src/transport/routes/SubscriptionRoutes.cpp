@@ -31,7 +31,7 @@ void registerSubscriptionRoutes(const AppContext &ctx)
                     return common::ok(req, ctx.subscriptionService->subscriptionForOrganization(scopeId));
                 }
                 const auto currentUserId = session.get("user_id", "").asString();
-                if (currentUserId != scopeId && !hasAnyRole(session["roles"], {"systemAdmin", "superAdmin"}))
+                if (currentUserId != scopeId && !hasAnyRole(session["roles"], {"superAdmin"}))
                 {
                     throw common::AppException("FORBIDDEN",
                                                "You do not have access to this subscription",
@@ -64,7 +64,7 @@ void registerSubscriptionRoutes(const AppContext &ctx)
                                               session.get("user_id", "").asString(), scopeId, body));
                 }
                 const auto currentUserId = session.get("user_id", "").asString();
-                if (currentUserId != scopeId && !hasAnyRole(session["roles"], {"systemAdmin", "superAdmin"}))
+                if (currentUserId != scopeId && !hasAnyRole(session["roles"], {"superAdmin"}))
                 {
                     throw common::AppException("FORBIDDEN",
                                                "You do not have permission to manage this subscription",

@@ -111,7 +111,7 @@ test('密码登录后可以刷新恢复 session，退出后旧 token 失效', as
 
   await openPersonalCenter(page);
   await expect(page.locator('#pc-name')).toContainText(loginId);
-  await expect(page.locator('#pc-roles')).toContainText(/学生|student/);
+  await expect(page.locator('#pc-roles')).toContainText(/学员|student/);
 
   await page.locator('.pc-logout-action').click();
   await expectGuestEntry(page);

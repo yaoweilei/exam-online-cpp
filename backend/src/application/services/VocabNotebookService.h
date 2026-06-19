@@ -10,7 +10,7 @@ namespace application::services
 {
 // 个人生词本（业务功能：自学者点词查词 + 加入词本）
 //   - 后端只存 word/reading/note + 来源（exam_id/question_id）
-//   - 释义来源：前端从 furigana.dict.json 取读音，note 字段由用户自填
+//   - 释义来源：note 字段由用户自填
 class VocabNotebookService
 {
   public:

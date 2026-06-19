@@ -7,10 +7,10 @@
 #include "application/services/AnswerService.h"
 #include "application/services/AuthService.h"
 #include "application/services/BookmarkService.h"
+#include "application/services/AssignmentService.h"
 #include "application/services/ContactChangeChallengeService.h"
 #include "application/services/EmailVerificationService.h"
 #include "application/services/ExamService.h"
-#include "application/services/FuriganaService.h"
 #include "application/services/OrganizationService.h"
 #include "application/services/PhoneService.h"
 #include "application/services/ProfileService.h"
@@ -23,7 +23,6 @@
 #include "application/services/DraftService.h"
 #include "application/services/AttemptTimerService.h"
 #include "application/services/BookmarkFolderService.h"
-#include "application/services/ClassroomService.h"
 #include "application/services/FeatureFlagService.h"
 #include "application/services/FeedbackService.h"
 #include "application/services/SrsService.h"
@@ -56,7 +55,6 @@ struct AppContext
     application::services::AuthService *authService{nullptr};
     application::services::StatisticsService *statisticsService{nullptr};
     application::services::UserService *userService{nullptr};
-    application::services::FuriganaService *furiganaService{nullptr};
     application::services::ProfileService *profileService{nullptr};
     application::services::OrganizationService *organizationService{nullptr};
     application::services::BookmarkService *bookmarkService{nullptr};
@@ -77,8 +75,8 @@ struct AppContext
     application::services::FeatureFlagService *featureFlagService{nullptr};
     // 题目反馈/纠错（业务功能 5）
     application::services::FeedbackService *feedbackService{nullptr};
-    // 班级与作业（业务功能 6）
-    application::services::ClassroomService *classroomService{nullptr};
+    // 学习组作业（业务功能 6）
+    application::services::AssignmentService *assignmentService{nullptr};
     // SRS 间隔重复（业务功能 7）
     application::services::SrsService *srsService{nullptr};
     // 个人生词本（自学者点词查词）

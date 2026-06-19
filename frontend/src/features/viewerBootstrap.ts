@@ -54,7 +54,6 @@ const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'NavigationManager', path: '../viewer/managers/NavigationManager.js' },
 	{ name: 'ExamTimerManager', path: '../viewer/managers/ExamTimerManager.js' },
 	{ name: 'AudioManager', path: '../viewer/managers/AudioManager.js' },
-	{ name: 'FuriganaManager', path: '../viewer/managers/FuriganaManager.js' },
 	{ name: 'TranslationManager', path: '../viewer/managers/TranslationManager.js' },
 	{ name: 'VocabLookupManager', path: '../viewer/managers/VocabLookupManager.js' },
 	{ name: 'AnswerManager', path: '../viewer/managers/AnswerManager.js' },
@@ -77,7 +76,6 @@ const REQUIRED_GLOBALS = [
 	'AudioManager',
 	'AnswerManager',
 	'QuestionMapManager',
-	'FuriganaManager',
 	'TranslationManager',
 	'VocabLookupManager',
 	'CategoryNavigationManager',
@@ -540,6 +538,12 @@ async function initExamSelectors(): Promise<void> {
 			}
 		} catch (error) {
 			console.error('[viewerBootstrap] Failed to load exam:', error);
+			const accessError = error as { status?: number; code?: string; message?: string };
+			if (accessError.status === 403 || accessError.code === 'EXAM_ACCESS_DENIED') {
+				const viewer = globalWindow.examViewer as { showExamLocked?: (id: string, reason: string) => void } | undefined;
+				viewer?.showExamLocked?.(examId, accessError.message || '当前套餐无法访问这份试卷');
+				return;
+			}
 			const container = document.getElementById('current-question-container');
 			if (container) {
 				const message = error instanceof Error ? error.message : String(error);

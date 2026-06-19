@@ -20,7 +20,8 @@ Json::Value ProfileService::updateProfile(const std::string &userId, const Json:
     static const std::vector<std::string> allowed = {
         "display_name", "avatar_url", "locale",
         "goal_level", "goal_date", "daily_target",
-        "notification_enabled", "scope_type", "scope_id", "organization_type"};
+        "notification_enabled", "scope_type", "scope_id", "organization_type",
+        "teacher_notes"};
 
     for (const auto &field : allowed)
     {

@@ -1,0 +1,20 @@
+{
+  "flags" : 
+  {
+    "admin_dashboard" : 
+    {
+      "enabled" : true,
+      "lock" : false
+    },
+    "community" : 
+    {
+      "enabled" : true,
+      "lock" : false
+    },
+    "pwa" : 
+    {
+      "enabled" : true,
+      "lock" : false
+    }
+  }
+}

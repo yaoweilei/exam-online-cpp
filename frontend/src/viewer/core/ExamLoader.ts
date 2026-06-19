@@ -78,6 +78,18 @@ class ExamLoader {
 			const payload = (await response.json()) as Partial<ApiEnvelope<unknown>>;
 			return payload.data !== undefined ? payload.data : (payload as unknown);
 		} catch (error) {
+			const err = error as { status?: number; payload?: { code?: string; message?: string }; message?: string };
+			if (err.status === 403 || err.payload?.code === 'EXAM_ACCESS_DENIED') {
+				const accessError = new Error(err.payload?.message || err.message || '当前套餐无法访问这份试卷') as Error & {
+					status?: number;
+					code?: string;
+					examId?: string;
+				};
+				accessError.status = err.status || 403;
+				accessError.code = err.payload?.code || 'EXAM_ACCESS_DENIED';
+				accessError.examId = examId;
+				throw accessError;
+			}
 			console.error(`[ExamLoader] Failed to load exam ${examId}:`, error);
 			return null;
 		}

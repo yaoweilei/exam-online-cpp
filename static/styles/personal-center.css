@@ -1292,6 +1292,39 @@
 	margin: 0;
 }
 
+.pc-org-permission-editor {
+	border: 1px solid #dde7f0;
+	border-radius: 6px;
+	background: #f8fbff;
+	padding: 10px 12px;
+}
+
+.pc-org-permission-editor summary {
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1f4f7a;
+}
+
+.pc-permission-group {
+	margin-top: 8px;
+}
+
+.pc-permission-toggle span {
+	font-size: 12px;
+}
+
+.pc-deny-group {
+	border-top: 1px dashed #d6e0ea;
+	padding-top: 8px;
+}
+
+.pc-deny-group .pc-role-toggle {
+	background: #fff7f7;
+	border-color: #efc4c4;
+	color: #9b2c2c;
+}
+
 .pc-org-form-actions {
 	display: flex;
 	justify-content: flex-start;

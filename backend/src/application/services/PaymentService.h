@@ -53,6 +53,9 @@ class PaymentService
     bool canAccessOrder(const Json::Value &order, const std::string &userId, const Json::Value &roles) const;
     bool canManagePayments(const Json::Value &roles) const;
     bool verifyStripeSignature(const std::string &rawBody, const std::string &signatureHeader) const;
+    bool verifyGenericHmacSignature(const std::string &rawBody, const std::string &signatureHeader, const std::string &secret) const;
+    bool hasProcessedWebhookEvent(Json::Value &events, const std::string &eventId) const;
+    void rememberWebhookEvent(Json::Value &events, const std::string &eventId, const std::string &provider) const;
 
     static std::string normalizeProvider(const std::string &provider);
     static std::string normalizePlan(const std::string &plan);
@@ -67,11 +70,22 @@ class PaymentService
     static Json::Value parseJsonOrNull(const std::string &raw);
     static std::string readStripeSignaturePart(const std::string &header, const std::string &key);
     static std::string hmacSha256Hex(const std::string &secret, const std::string &payload);
+    static std::string sha256Hex(const std::string &payload);
+    static std::string readTextFile(const std::string &path);
+    static std::string base64Encode(const unsigned char *data, size_t len);
+    static std::string rsaSha256Base64(const std::string &privateKeyPem, const std::string &payload);
+    static std::string alipayTimestamp();
+    static std::string buildAlipayPagePayUrl(const Json::Value &order);
+    static Json::Value buildWechatNativePayOrder(const Json::Value &order);
+    static std::string buildWechatAuthorization(const std::string &method,
+                                                const std::string &urlPath,
+                                                const std::string &body);
 
     std::filesystem::path paymentsDir_;
     std::filesystem::path ordersFile_;
     std::filesystem::path ledgerFile_;
     std::filesystem::path refundsFile_;
+    std::filesystem::path webhookEventsFile_;
     SubscriptionService &subscriptionService_;
     mutable std::mutex mutex_;
 };

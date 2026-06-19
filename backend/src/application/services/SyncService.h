@@ -8,6 +8,7 @@
 //          bookmark_folders / study_goals / daily_practice / attempt_timer
 
 #include <filesystem>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -24,12 +25,19 @@ class SyncService
     Json::Value state(const std::string &userId) const;
     // modules 为空表示拉全部；返回 {server_time, modules:{name:{modified_at, content}}}
     Json::Value pull(const std::string &userId, const std::vector<std::string> &modules) const;
+    // 上传本机模块快照；remote_modified_at 不匹配时返回 conflict，除非 force=true
+    Json::Value push(const std::string &userId, const Json::Value &payload);
+    Json::Value devices(const std::string &userId) const;
 
   private:
     static const std::vector<std::string> &knownModules();
     std::filesystem::path moduleFile(const std::string &moduleName, const std::string &userId) const;
     Json::Value fileSnapshot(const std::filesystem::path &p) const;
+    Json::Value loadDevices(const std::string &userId) const;
+    void saveDevices(const std::string &userId, const Json::Value &devices) const;
+    void touchDevice(const std::string &userId, const Json::Value &payload, const std::vector<std::string> &modules) const;
 
     std::filesystem::path userRootDir_;
+    mutable std::mutex mutex_;
 };
 }  // namespace application::services

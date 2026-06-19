@@ -81,7 +81,10 @@ Json::Value OrganizationService::createOrganization(const std::string &actorUser
     membership["scope_type"] = "organization";
     membership["scope_id"] = organizationId;
     membership["organization_type"] = organizationType;
-    membership["roles"] = payload.isMember("owner_roles") ? payload["owner_roles"] : defaultOwnerRoles();
+    const auto ownerRoles = normalizeMemberRoles(payload.isMember("owner_roles") ? payload["owner_roles"] : defaultOwnerRoles());
+    membership["roles"] = ownerRoles;
+    membership["permission_templates"] = normalizePermissionTemplates(payload.get("permission_templates", Json::Value(Json::arrayValue)), ownerRoles);
+    membership["permission_overrides"] = normalizePermissionOverrides(payload.get("permission_overrides", Json::Value(Json::arrayValue)));
     membership = assignBusinessNumbers(savedOrganization, membership, Json::Value(Json::nullValue));
     organizationRepository_.upsertMembership(membership);
 
@@ -121,6 +124,8 @@ Json::Value OrganizationService::createInvitation(const std::string &actorUserId
     auto organization = requireOrganization(organizationId);
     const auto contact = extractInvitationContact(payload);
     const auto roles = normalizeMemberRoles(payload.isMember("roles") ? payload["roles"] : defaultMemberRoles());
+    const auto permissionTemplates = normalizePermissionTemplates(payload.get("permission_templates", Json::Value(Json::arrayValue)), roles);
+    const auto permissionOverrides = normalizePermissionOverrides(payload.get("permission_overrides", Json::Value(Json::arrayValue)));
     const auto targetUser = findUserByInvitationContact(contact);
     const auto targetUserId = targetUser.isNull() ? std::string("") : targetUser.get("id", "").asString();
     if (!targetUserId.empty() && !organizationRepository_.findMembership(targetUserId, organizationId).isNull())
@@ -153,6 +158,8 @@ Json::Value OrganizationService::createInvitation(const std::string &actorUserId
     invitation["target_user_id"] = targetUserId;
     invitation["status"] = "pending";
     invitation["roles"] = roles;
+    invitation["permission_templates"] = permissionTemplates;
+    invitation["permission_overrides"] = permissionOverrides;
     invitation["member_no"] = payload.get("member_no", "").asString();
     invitation["student_no"] = payload.get("student_no", "").asString();
     invitation["employee_no"] = payload.get("employee_no", "").asString();
@@ -180,6 +187,8 @@ Json::Value OrganizationService::createInvitation(const std::string &actorUserId
                 details["channel"] = contact.channel;
                 details["contact"] = normalizedContact;
                 details["roles"] = roles;
+                details["permission_templates"] = permissionTemplates;
+                details["permission_overrides"] = permissionOverrides;
                 return details;
             }()));
     organization = organizationRepository_.upsertOrganization(organization);
@@ -306,6 +315,8 @@ Json::Value OrganizationService::acceptInvitation(const std::string &actorUserId
             membership["scope_id"] = organizationId;
             membership["organization_type"] = organization.get("organization_type", "business").asString();
             membership["roles"] = normalizeMemberRoles(invitation.get("roles", defaultMemberRoles()));
+            membership["permission_templates"] = normalizePermissionTemplates(invitation.get("permission_templates", Json::Value(Json::arrayValue)), membership["roles"]);
+            membership["permission_overrides"] = normalizePermissionOverrides(invitation.get("permission_overrides", Json::Value(Json::arrayValue)));
             membership["joined_at"] = common::nowIso8601();
             membership["member_no"] = invitation.get("member_no", "").asString();
             membership["student_no"] = invitation.get("student_no", "").asString();
@@ -415,6 +426,12 @@ Json::Value OrganizationService::upsertMember(const std::string &actorUserId, co
 
     const auto roles = normalizeMemberRoles(payload.isMember("roles") ? payload["roles"] : defaultMemberRoles());
     ensureOrgAdminGuard(organizationId, existing, roles);
+    const auto permissionTemplates = payload.isMember("permission_templates")
+                                         ? normalizePermissionTemplates(payload["permission_templates"], roles)
+                                         : normalizePermissionTemplates(existing.get("permission_templates", Json::Value(Json::arrayValue)), roles);
+    const auto permissionOverrides = payload.isMember("permission_overrides")
+                                         ? normalizePermissionOverrides(payload["permission_overrides"])
+                                         : normalizePermissionOverrides(existing.get("permission_overrides", Json::Value(Json::arrayValue)));
 
     Json::Value membership(Json::objectValue);
     membership["membership_id"] = existing.isNull() ? Json::Value(Json::nullValue) : existing.get("membership_id", "");
@@ -423,6 +440,8 @@ Json::Value OrganizationService::upsertMember(const std::string &actorUserId, co
     membership["scope_id"] = organizationId;
     membership["organization_type"] = organization.get("organization_type", "business").asString();
     membership["roles"] = roles;
+    membership["permission_templates"] = permissionTemplates;
+    membership["permission_overrides"] = permissionOverrides;
     membership["joined_at"] = existing.isNull() ? common::nowIso8601() : existing.get("joined_at", common::nowIso8601()).asString();
     membership["member_no"] = payload.get("member_no", existing.get("member_no", "")).asString();
     membership["student_no"] = payload.get("student_no", existing.get("student_no", "")).asString();
@@ -442,10 +461,14 @@ Json::Value OrganizationService::upsertMember(const std::string &actorUserId, co
                 details["user_id"] = userId;
                 details["username"] = user.get("username", "").asString();
                 details["roles"] = roles;
+                details["permission_templates"] = permissionTemplates;
+                details["permission_overrides"] = permissionOverrides;
                 details["member_no"] = savedMembership.get("member_no", "").asString();
                 if (!existing.isNull())
                 {
                     details["previous_roles"] = existing["roles"];
+                    details["previous_permission_templates"] = existing.get("permission_templates", Json::Value(Json::arrayValue));
+                    details["previous_permission_overrides"] = existing.get("permission_overrides", Json::Value(Json::arrayValue));
                     details["previous_member_no"] = existing.get("member_no", "").asString();
                 }
                 return details;
@@ -508,6 +531,344 @@ Json::Value OrganizationService::updateSubscription(const std::string &actorUser
             }()));
     organizationRepository_.upsertOrganization(organization);
     return updated;
+}
+
+Json::Value OrganizationService::listCampuses(const std::string &organizationId) const
+{
+    const auto organization = requireOrganization(organizationId);
+    return ensureArray(organization.get("campuses", Json::Value(Json::arrayValue)));
+}
+
+Json::Value OrganizationService::upsertCampus(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload)
+{
+    auto organization = requireOrganization(organizationId);
+    const auto campusId = payload.get("campus_id", payload.get("id", "")).asString().empty()
+                              ? common::generateOpaqueId("campus_")
+                              : payload.get("campus_id", payload.get("id", "")).asString();
+    const auto existing = findEntityById(ensureArray(organization.get("campuses", Json::Value(Json::arrayValue))), "campus_id", campusId);
+    const auto name = payload.get("name", existing.get("name", "")).asString();
+    if (name.empty())
+    {
+        throw common::AppException("VALIDATION_ERROR", "campus name is required", drogon::k422UnprocessableEntity);
+    }
+
+    Json::Value campus(Json::objectValue);
+    campus["campus_id"] = campusId;
+    campus["id"] = campusId;
+    campus["organization_id"] = organizationId;
+    campus["name"] = name;
+    campus["address"] = payload.get("address", existing.get("address", "")).asString();
+    campus["status"] = payload.get("status", existing.get("status", "active")).asString() == "disabled" ? "disabled" : "active";
+    if (!existing.isNull())
+    {
+        campus["created_at"] = existing.get("created_at", "").asString();
+        campus["created_by"] = existing.get("created_by", "").asString();
+    }
+    campus = touchEntity(campus, actorUserId, existing.isNull());
+
+    organization["campuses"] = replaceEntityById(ensureArray(organization.get("campuses", Json::Value(Json::arrayValue))), "campus_id", campusId, campus);
+    organization = appendAuditEntry(
+        organization,
+        createAuditEntry(
+            actorUserId,
+            existing.isNull() ? "campus.created" : "campus.updated",
+            existing.isNull() ? "创建校区" : "更新校区",
+            [&] {
+                Json::Value details(Json::objectValue);
+                details["campus_id"] = campusId;
+                details["name"] = name;
+                return details;
+            }()));
+    organizationRepository_.upsertOrganization(organization);
+    return campus;
+}
+
+Json::Value OrganizationService::listLearningGroups(const std::string &organizationId) const
+{
+    const auto organization = requireOrganization(organizationId);
+    return ensureArray(organization.get("learning_groups", Json::Value(Json::arrayValue)));
+}
+
+Json::Value OrganizationService::upsertLearningGroup(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload)
+{
+    auto organization = requireOrganization(organizationId);
+    const auto groupId = payload.get("learning_group_id", payload.get("group_id", payload.get("id", ""))).asString().empty()
+                             ? common::generateOpaqueId("lg_")
+                             : payload.get("learning_group_id", payload.get("group_id", payload.get("id", ""))).asString();
+    const auto existing = findEntityById(ensureArray(organization.get("learning_groups", Json::Value(Json::arrayValue))), "learning_group_id", groupId);
+    const auto name = payload.get("name", existing.get("name", "")).asString();
+    if (name.empty())
+    {
+        throw common::AppException("VALIDATION_ERROR", "learning group name is required", drogon::k422UnprocessableEntity);
+    }
+    const auto type = normalizeLearningGroupType(payload.get("type", existing.get("type", "class")).asString());
+    const auto status = normalizeLearningGroupStatus(payload.get("status", existing.get("status", type == "booking" ? "scheduled" : "active")).asString());
+    const auto campusId = payload.get("campus_id", existing.get("campus_id", "")).asString();
+    if (!campusId.empty() && findEntityById(ensureArray(organization.get("campuses", Json::Value(Json::arrayValue))), "campus_id", campusId).isNull())
+    {
+        throw common::AppException("VALIDATION_ERROR", "campus_id does not exist in this organization", drogon::k422UnprocessableEntity);
+    }
+
+    Json::Value group(Json::objectValue);
+    group["learning_group_id"] = groupId;
+    group["group_id"] = groupId;
+    group["id"] = groupId;
+    group["organization_id"] = organizationId;
+    group["campus_id"] = campusId;
+    group["type"] = type;
+    group["subject"] = payload.get("subject", existing.get("subject", "")).asString();
+    group["name"] = name;
+    group["starts_at"] = payload.get("starts_at", existing.get("starts_at", "")).asString();
+    group["ends_at"] = payload.get("ends_at", existing.get("ends_at", "")).asString();
+    group["course_package_id"] = payload.get("course_package_id", existing.get("course_package_id", "")).asString();
+    group["status"] = status;
+    group["enrollments"] = ensureArray(existing.get("enrollments", Json::Value(Json::arrayValue)));
+    if (!existing.isNull())
+    {
+        group["created_at"] = existing.get("created_at", "").asString();
+        group["created_by"] = existing.get("created_by", "").asString();
+    }
+    group = touchEntity(group, actorUserId, existing.isNull());
+
+    organization["learning_groups"] = replaceEntityById(ensureArray(organization.get("learning_groups", Json::Value(Json::arrayValue))), "learning_group_id", groupId, group);
+    organization = appendAuditEntry(
+        organization,
+        createAuditEntry(
+            actorUserId,
+            existing.isNull() ? "learning_group.created" : "learning_group.updated",
+            existing.isNull() ? "创建学习组" : "更新学习组",
+            [&] {
+                Json::Value details(Json::objectValue);
+                details["learning_group_id"] = groupId;
+                details["type"] = type;
+                details["name"] = name;
+                details["campus_id"] = campusId;
+                return details;
+            }()));
+    organizationRepository_.upsertOrganization(organization);
+    return group;
+}
+
+Json::Value OrganizationService::completeLearningGroup(const std::string &actorUserId,
+                                                       const std::string &organizationId,
+                                                       const std::string &learningGroupId,
+                                                       const Json::Value &payload)
+{
+    auto organization = requireOrganization(organizationId);
+    auto groups = ensureArray(organization.get("learning_groups", Json::Value(Json::arrayValue)));
+    auto group = findEntityById(groups, "learning_group_id", learningGroupId);
+    if (group.isNull())
+    {
+        throw common::AppException("LEARNING_GROUP_NOT_FOUND", "Learning group not found: " + learningGroupId, drogon::k404NotFound);
+    }
+
+    const auto previousStatus = group.get("status", "active").asString();
+    const auto wasCompleted = previousStatus == "completed";
+    const auto packageId = group.get("course_package_id", "").asString();
+    auto coursePackages = ensureArray(organization.get("course_packages", Json::Value(Json::arrayValue)));
+    Json::Value consumedPackage(Json::nullValue);
+    bool deducted = false;
+
+    if (!wasCompleted && group.get("type", "class").asString() == "booking" && !packageId.empty())
+    {
+        consumedPackage = findEntityById(coursePackages, "course_package_id", packageId);
+        if (consumedPackage.isNull())
+        {
+            throw common::AppException("COURSE_PACKAGE_NOT_FOUND", "Course package not found: " + packageId, drogon::k404NotFound);
+        }
+        const auto remainingLessons = (std::max)(0, consumedPackage.get("remaining_lessons", 0).asInt());
+        if (remainingLessons <= 0)
+        {
+            throw common::AppException("COURSE_PACKAGE_DEPLETED", "Course package has no remaining lessons", drogon::k422UnprocessableEntity);
+        }
+        const auto totalLessons = (std::max)(0, consumedPackage.get("total_lessons", 0).asInt());
+        const auto usedLessons = (std::max)(0, consumedPackage.get("used_lessons", 0).asInt()) + 1;
+        const auto nextRemainingLessons = (std::max)(0, remainingLessons - 1);
+        consumedPackage["used_lessons"] = usedLessons;
+        consumedPackage["remaining_lessons"] = nextRemainingLessons;
+        if (nextRemainingLessons == 0 && totalLessons > 0)
+        {
+            consumedPackage["status"] = "depleted";
+        }
+        consumedPackage = touchEntity(consumedPackage, actorUserId, false);
+        coursePackages = replaceEntityById(coursePackages, "course_package_id", packageId, consumedPackage);
+        organization["course_packages"] = coursePackages;
+        group["consumed_course_package_id"] = packageId;
+        deducted = true;
+    }
+    else if (!packageId.empty())
+    {
+        consumedPackage = findEntityById(coursePackages, "course_package_id", packageId);
+    }
+
+    group["status"] = "completed";
+    group["completed_at"] = payload.get("completed_at", common::nowIso8601()).asString();
+    group["completed_by"] = actorUserId;
+    group["completion_note"] = payload.get("note", payload.get("completion_note", group.get("completion_note", ""))).asString();
+    group = touchEntity(group, actorUserId, false);
+    organization["learning_groups"] = replaceEntityById(groups, "learning_group_id", learningGroupId, group);
+    organization = appendAuditEntry(
+        organization,
+        createAuditEntry(
+            actorUserId,
+            "learning_group.completed",
+            deducted ? "完成约课并扣减课时" : "完成学习组",
+            [&] {
+                Json::Value details(Json::objectValue);
+                details["learning_group_id"] = learningGroupId;
+                details["previous_status"] = previousStatus;
+                details["course_package_id"] = packageId;
+                details["deducted"] = deducted;
+                if (!consumedPackage.isNull())
+                {
+                    details["remaining_lessons"] = consumedPackage.get("remaining_lessons", 0).asInt();
+                    details["used_lessons"] = consumedPackage.get("used_lessons", 0).asInt();
+                }
+                return details;
+            }()));
+    organizationRepository_.upsertOrganization(organization);
+
+    Json::Value out(Json::objectValue);
+    out["learning_group"] = group;
+    out["course_package"] = consumedPackage;
+    out["deducted"] = deducted;
+    return out;
+}
+
+Json::Value OrganizationService::listLearningGroupEnrollments(const std::string &organizationId, const std::string &learningGroupId) const
+{
+    const auto organization = requireOrganization(organizationId);
+    const auto group = findEntityById(ensureArray(organization.get("learning_groups", Json::Value(Json::arrayValue))), "learning_group_id", learningGroupId);
+    if (group.isNull())
+    {
+        throw common::AppException("LEARNING_GROUP_NOT_FOUND", "Learning group not found: " + learningGroupId, drogon::k404NotFound);
+    }
+    return ensureArray(group.get("enrollments", Json::Value(Json::arrayValue)));
+}
+
+Json::Value OrganizationService::upsertLearningGroupEnrollment(const std::string &actorUserId,
+                                                              const std::string &organizationId,
+                                                              const std::string &learningGroupId,
+                                                              const Json::Value &payload)
+{
+    auto organization = requireOrganization(organizationId);
+    auto groups = ensureArray(organization.get("learning_groups", Json::Value(Json::arrayValue)));
+    auto group = findEntityById(groups, "learning_group_id", learningGroupId);
+    if (group.isNull())
+    {
+        throw common::AppException("LEARNING_GROUP_NOT_FOUND", "Learning group not found: " + learningGroupId, drogon::k404NotFound);
+    }
+
+    const auto userId = payload.get("user_id", "").asString();
+    if (userId.empty())
+    {
+        throw common::AppException("VALIDATION_ERROR", "user_id is required", drogon::k422UnprocessableEntity);
+    }
+    if (userRepository_.findUserById(userId).isNull())
+    {
+        throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
+    }
+    const auto role = normalizeEnrollmentRole(payload.get("role", "student").asString());
+    auto enrollments = ensureArray(group.get("enrollments", Json::Value(Json::arrayValue)));
+    const auto existingEnrollment = findEntityById(enrollments, "user_id", userId);
+    Json::Value enrollment(Json::objectValue);
+    enrollment["enrollment_id"] = payload.get("enrollment_id", existingEnrollment.get("enrollment_id", common::generateOpaqueId("enr_"))).asString();
+    enrollment["organization_id"] = organizationId;
+    enrollment["learning_group_id"] = learningGroupId;
+    enrollment["group_id"] = learningGroupId;
+    enrollment["user_id"] = userId;
+    enrollment["role"] = role;
+    enrollment["status"] = payload.get("status", existingEnrollment.get("status", "active")).asString() == "inactive" ? "inactive" : "active";
+    if (!existingEnrollment.isNull())
+    {
+        enrollment["created_at"] = existingEnrollment.get("created_at", "").asString();
+        enrollment["created_by"] = existingEnrollment.get("created_by", "").asString();
+    }
+    enrollment = touchEntity(enrollment, actorUserId, existingEnrollment.isNull());
+    enrollments = replaceEntityById(enrollments, "user_id", userId, enrollment);
+    group["enrollments"] = enrollments;
+    group = touchEntity(group, actorUserId, false);
+    organization["learning_groups"] = replaceEntityById(groups, "learning_group_id", learningGroupId, group);
+    organization = appendAuditEntry(
+        organization,
+        createAuditEntry(
+            actorUserId,
+            "learning_group.enrollment_saved",
+            "保存学习组成员",
+            [&] {
+                Json::Value details(Json::objectValue);
+                details["learning_group_id"] = learningGroupId;
+                details["user_id"] = userId;
+                details["role"] = role;
+                return details;
+            }()));
+    organizationRepository_.upsertOrganization(organization);
+    return enrollment;
+}
+
+Json::Value OrganizationService::listCoursePackages(const std::string &organizationId) const
+{
+    const auto organization = requireOrganization(organizationId);
+    return ensureArray(organization.get("course_packages", Json::Value(Json::arrayValue)));
+}
+
+Json::Value OrganizationService::upsertCoursePackage(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload)
+{
+    auto organization = requireOrganization(organizationId);
+    const auto packageId = payload.get("course_package_id", payload.get("id", "")).asString().empty()
+                               ? common::generateOpaqueId("pkg_")
+                               : payload.get("course_package_id", payload.get("id", "")).asString();
+    const auto existing = findEntityById(ensureArray(organization.get("course_packages", Json::Value(Json::arrayValue))), "course_package_id", packageId);
+    const auto studentId = payload.get("student_id", existing.get("student_id", "")).asString();
+    if (studentId.empty())
+    {
+        throw common::AppException("VALIDATION_ERROR", "student_id is required", drogon::k422UnprocessableEntity);
+    }
+    if (userRepository_.findUserById(studentId).isNull())
+    {
+        throw common::AppException("USER_NOT_FOUND", "Student not found: " + studentId, drogon::k404NotFound);
+    }
+
+    const auto totalLessons = (std::max)(0, payload.get("total_lessons", existing.get("total_lessons", 0)).asInt());
+    const auto usedLessons = (std::max)(0, payload.get("used_lessons", existing.get("used_lessons", 0)).asInt());
+    const auto remainingLessons = payload.isMember("remaining_lessons")
+                                      ? (std::max)(0, payload.get("remaining_lessons", 0).asInt())
+                                      : (std::max)(0, totalLessons - usedLessons);
+    Json::Value coursePackage(Json::objectValue);
+    coursePackage["course_package_id"] = packageId;
+    coursePackage["id"] = packageId;
+    coursePackage["organization_id"] = organizationId;
+    coursePackage["student_id"] = studentId;
+    coursePackage["subject"] = payload.get("subject", existing.get("subject", "")).asString();
+    coursePackage["title"] = payload.get("title", existing.get("title", "")).asString();
+    coursePackage["total_lessons"] = totalLessons;
+    coursePackage["remaining_lessons"] = remainingLessons;
+    coursePackage["used_lessons"] = usedLessons;
+    coursePackage["expires_at"] = payload.get("expires_at", existing.get("expires_at", "")).asString();
+    coursePackage["status"] = normalizeCoursePackageStatus(payload.get("status", existing.get("status", "active")).asString());
+    if (!existing.isNull())
+    {
+        coursePackage["created_at"] = existing.get("created_at", "").asString();
+        coursePackage["created_by"] = existing.get("created_by", "").asString();
+    }
+    coursePackage = touchEntity(coursePackage, actorUserId, existing.isNull());
+
+    organization["course_packages"] = replaceEntityById(ensureArray(organization.get("course_packages", Json::Value(Json::arrayValue))), "course_package_id", packageId, coursePackage);
+    organization = appendAuditEntry(
+        organization,
+        createAuditEntry(
+            actorUserId,
+            existing.isNull() ? "course_package.created" : "course_package.updated",
+            existing.isNull() ? "创建课程包" : "更新课程包",
+            [&] {
+                Json::Value details(Json::objectValue);
+                details["course_package_id"] = packageId;
+                details["student_id"] = studentId;
+                details["subject"] = coursePackage.get("subject", "").asString();
+                return details;
+            }()));
+    organizationRepository_.upsertOrganization(organization);
+    return coursePackage;
 }
 
 bool OrganizationService::canAccessOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const
@@ -583,6 +944,14 @@ Json::Value OrganizationService::enrichMembership(Json::Value membership) const
     {
         membership["organization_id"] = organization.get("organization_id", "").asString();
         membership["organization_name"] = organization.get("name", "").asString();
+    }
+    if (!membership.isMember("permission_overrides") || !membership["permission_overrides"].isArray())
+    {
+        membership["permission_overrides"] = Json::arrayValue;
+    }
+    if (!membership.isMember("permission_templates") || !membership["permission_templates"].isArray())
+    {
+        membership["permission_templates"] = Json::arrayValue;
     }
     return membership;
 }
@@ -673,6 +1042,59 @@ std::string OrganizationService::normalizeOrganizationType(const std::string &or
     return "";
 }
 
+std::string OrganizationService::normalizeLearningGroupType(const std::string &type)
+{
+    if (type == "booking")
+    {
+        return "booking";
+    }
+    return "class";
+}
+
+std::string OrganizationService::normalizeLearningGroupStatus(const std::string &status)
+{
+    if (status == "finished")
+    {
+        return "completed";
+    }
+    if (status == "canceled")
+    {
+        return "cancelled";
+    }
+    if (status == "scheduled" || status == "active" || status == "completed" || status == "cancelled" ||
+        status == "rescheduled" || status == "no_show" || status == "archived")
+    {
+        return status;
+    }
+    return "active";
+}
+
+std::string OrganizationService::normalizeEnrollmentRole(const std::string &role)
+{
+    if (role == "teacher" || role == "assistant")
+    {
+        return role;
+    }
+    return "student";
+}
+
+std::string OrganizationService::normalizeCoursePackageStatus(const std::string &status)
+{
+    if (status == "finished")
+    {
+        return "depleted";
+    }
+    if (status == "canceled")
+    {
+        return "cancelled";
+    }
+    if (status == "active" || status == "expired" || status == "paused" || status == "depleted" || status == "cancelled")
+    {
+        return status;
+    }
+    return "active";
+}
+
 Json::Value OrganizationService::defaultOwnerRoles()
 {
     Json::Value roles(Json::arrayValue);
@@ -691,10 +1113,21 @@ Json::Value OrganizationService::allowedMembershipRoles()
 {
     Json::Value roles(Json::arrayValue);
     roles.append("student");
+    roles.append("assistant");
     roles.append("teacher");
-    roles.append("reviewer");
     roles.append("orgAdmin");
     return roles;
+}
+
+Json::Value OrganizationService::allowedPermissionTemplates()
+{
+    Json::Value templates(Json::arrayValue);
+    templates.append("assistant");
+    templates.append("homeroom");
+    templates.append("teachingOffice");
+    templates.append("consultant");
+    templates.append("campusAdmin");
+    return templates;
 }
 
 bool OrganizationService::hasRole(const Json::Value &roles, const std::string &expected)
@@ -738,6 +1171,126 @@ Json::Value OrganizationService::normalizeMemberRoles(const Json::Value &inputRo
         throw common::AppException("VALIDATION_ERROR", "roles must include at least one valid organization role", drogon::k422UnprocessableEntity);
     }
     return roles;
+}
+
+Json::Value OrganizationService::normalizePermissionTemplates(const Json::Value &inputTemplates, const Json::Value &roles)
+{
+    Json::Value templates(Json::arrayValue);
+    if (!inputTemplates.isArray())
+    {
+        return templates;
+    }
+
+    const bool canUseAssistantTemplate = hasRole(roles, "assistant");
+    const bool canUseCampusAdminTemplate = hasRole(roles, "orgAdmin");
+    std::unordered_set<std::string> allowed;
+    for (const auto &permissionTemplate : allowedPermissionTemplates())
+    {
+        allowed.insert(permissionTemplate.asString());
+    }
+
+    std::unordered_set<std::string> seen;
+    for (const auto &permissionTemplate : inputTemplates)
+    {
+        const auto value = permissionTemplate.asString();
+        if (value.empty() || !allowed.contains(value) || seen.contains(value))
+        {
+            continue;
+        }
+        if (value == "campusAdmin" && !canUseCampusAdminTemplate)
+        {
+            continue;
+        }
+        if (value != "campusAdmin" && !canUseAssistantTemplate)
+        {
+            continue;
+        }
+        seen.insert(value);
+        templates.append(value);
+    }
+    return templates;
+}
+
+Json::Value OrganizationService::normalizePermissionOverrides(const Json::Value &inputOverrides)
+{
+    Json::Value overrides(Json::arrayValue);
+    if (!inputOverrides.isArray())
+    {
+        return overrides;
+    }
+
+    std::unordered_set<std::string> seen;
+    for (const auto &item : inputOverrides)
+    {
+        if (!item.isObject())
+        {
+            continue;
+        }
+        const auto permission = item.get("permission", "").asString();
+        if (!isAllowedPermissionOverride(permission))
+        {
+            continue;
+        }
+        const auto effect = normalizePermissionEffect(item.get("effect", "allow").asString());
+        const auto scope = normalizePermissionScope(item.get("scope", "organization").asString());
+        const auto scopeId = item.get("scope_id", item.get("scopeId", "")).asString();
+        const auto expiresAt = item.get("expires_at", item.get("expiresAt", "")).asString();
+        const auto key = permission + "|" + effect + "|" + scope + "|" + scopeId + "|" + expiresAt;
+        if (seen.contains(key))
+        {
+            continue;
+        }
+        seen.insert(key);
+
+        Json::Value normalized(Json::objectValue);
+        normalized["permission"] = permission;
+        normalized["effect"] = effect;
+        normalized["scope"] = scope;
+        normalized["scope_id"] = scopeId;
+        normalized["expires_at"] = expiresAt;
+        overrides.append(normalized);
+    }
+    return overrides;
+}
+
+bool OrganizationService::isAllowedPermissionOverride(const std::string &permission)
+{
+    static const std::unordered_set<std::string> allowed{
+        "assignment.create",
+        "assignment.review",
+        "assignment.remind",
+        "gradebook.view",
+        "student.profile.view",
+        "student.profile.edit",
+        "student.followup.edit",
+        "student.import",
+        "learning_group.manage",
+        "lesson.booking.manage",
+        "course_package.manage",
+        "course_package.view",
+        "lesson_prep.create",
+        "lesson_prep.export",
+        "renewal_risk.view",
+        "organization.dashboard.view",
+        "organization.member.manage",
+        "organization.billing.manage",
+        "payment.refund",
+        "audit.view"};
+    return allowed.contains(permission);
+}
+
+std::string OrganizationService::normalizePermissionEffect(const std::string &effect)
+{
+    return effect == "deny" ? "deny" : "allow";
+}
+
+std::string OrganizationService::normalizePermissionScope(const std::string &scope)
+{
+    if (scope == "personal" || scope == "learningGroup" || scope == "campus" || scope == "organization")
+    {
+        return scope;
+    }
+    return "organization";
 }
 
 Json::Value OrganizationService::appendAuditEntry(Json::Value organization, const Json::Value &entry) const
@@ -867,6 +1420,8 @@ const Json::Value &invitation) const
     view["target_user_id"] = invitation.get("target_user_id", "").asString();
     view["status"] = invitation.get("status", "pending").asString();
     view["roles"] = invitation.get("roles", Json::Value(Json::arrayValue));
+    view["permission_templates"] = invitation.get("permission_templates", Json::Value(Json::arrayValue));
+    view["permission_overrides"] = invitation.get("permission_overrides", Json::Value(Json::arrayValue));
     view["member_no"] = invitation.get("member_no", "").asString();
     view["student_no"] = invitation.get("student_no", "").asString();
     view["employee_no"] = invitation.get("employee_no", "").asString();
@@ -1177,12 +1732,67 @@ bool OrganizationService::hasPlatformRole(const Json::Value &roles)
     for (const auto &role : roles)
     {
         const auto value = role.asString();
-        if (value == "systemAdmin" || value == "superAdmin")
+        if (value == "superAdmin")
         {
             return true;
         }
     }
     return false;
+}
+
+Json::Value OrganizationService::ensureArray(const Json::Value &value)
+{
+    return value.isArray() ? value : Json::Value(Json::arrayValue);
+}
+
+Json::Value OrganizationService::touchEntity(Json::Value entity, const std::string &actorUserId, bool isNew)
+{
+    const auto now = common::nowIso8601();
+    if (isNew || !entity.isMember("created_at") || entity.get("created_at", "").asString().empty())
+    {
+        entity["created_at"] = now;
+        entity["created_by"] = actorUserId;
+    }
+    entity["updated_at"] = now;
+    entity["updated_by"] = actorUserId;
+    return entity;
+}
+
+Json::Value OrganizationService::replaceEntityById(Json::Value items,
+                                                   const std::string &idField,
+                                                   const std::string &id,
+                                                   const Json::Value &entity)
+{
+    if (!items.isArray())
+    {
+        items = Json::arrayValue;
+    }
+    for (Json::ArrayIndex index = 0; index < items.size(); ++index)
+    {
+        if (items[index].get(idField, "").asString() == id)
+        {
+            items[index] = entity;
+            return items;
+        }
+    }
+    items.append(entity);
+    return items;
+}
+
+Json::Value OrganizationService::findEntityById(const Json::Value &items, const std::string &idField, const std::string &id)
+{
+    if (!items.isArray() || id.empty())
+    {
+        return Json::Value(Json::nullValue);
+    }
+    for (const auto &item : items)
+    {
+        if (item.get(idField, "").asString() == id || item.get("id", "").asString() == id || item.get("group_id", "").asString() == id)
+        {
+            return item;
+        }
+    }
+    return Json::Value(Json::nullValue);
 }
 
 }  // namespace application::services

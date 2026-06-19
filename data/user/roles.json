@@ -1,89 +1,103 @@
 {
+  "assistant" : 
+  {
+    "description" : "助教、班主任、教务或课程顾问的基础角色，通过权限模板区分职责。",
+    "id" : "assistant",
+    "name" : "教学运营",
+    "permissions" : 
+    [
+      "assignment.review",
+      "assignment.remind",
+      "student.profile.view",
+      "student.profile.edit",
+      "student.followup.edit",
+      "learning_record.comment",
+      "course_package.view"
+    ]
+  },
+  "contentAdmin" : 
+  {
+    "description" : "维护平台试卷、音频、图片、答案、解析和发布质量。",
+    "id" : "contentAdmin",
+    "name" : "内容管理员",
+    "permissions" : 
+    [
+      "content.exam.edit",
+      "content.audio.manage",
+      "content.image.manage",
+      "content.answer.edit",
+      "content.analysis.edit",
+      "content.publish",
+      "content.audit.view"
+    ]
+  },
   "guest" : 
   {
-    "description" : "未登录访客",
+    "description" : "未登录状态，可浏览公开内容和进入登录注册。",
     "id" : "guest",
     "name" : "访客",
     "permissions" : 
     [
-      "view_exams",
-      "submit_answers"
+      "exam.public.view"
     ]
   },
   "orgAdmin" : 
   {
-    "description" : "组织成员与空间管理",
+    "description" : "管理机构成员、学习组、课程包、套餐席位、机构看板和审计。",
     "id" : "orgAdmin",
-    "name" : "组织管理员",
+    "name" : "机构管理员",
     "permissions" : 
     [
-      "organization.manage"
-    ]
-  },
-  "reviewer" : 
-  {
-    "description" : "阅卷与审核",
-    "id" : "reviewer",
-    "name" : "阅卷员",
-    "permissions" : 
-    [
-      "review.manage"
+      "organization.member.manage",
+      "learning_group.manage",
+      "course_package.manage",
+      "lesson.booking.manage",
+      "organization.dashboard.view",
+      "organization.billing.manage",
+      "audit.view"
     ]
   },
   "student" : 
   {
-    "description" : "参加考试与查看结果，无管理权限。",
+    "description" : "个人用户或机构学员，可做题、提交作业、查看自己的学习报告。",
     "id" : "student",
-    "name" : "学生",
+    "name" : "学员",
     "permissions" : 
     [
-      "view_exams",
-      "submit_answers",
-      "save_progress",
-      "takeExam",
-      "viewResult"
+      "exam.practice",
+      "answer.submit",
+      "analysis.view",
+      "assignment.submit",
+      "report.view.self",
+      "learning_record.view.self"
     ]
   },
   "superAdmin" : 
   {
-    "description" : "拥有系统最高权限，包含所有管理与审核能力。",
+    "description" : "平台最高权限，仅用于平台运营和技术管理。",
     "id" : "superAdmin",
-    "name" : "超级管理员",
+    "name" : "平台超级管理员",
     "permissions" : 
     [
-      "*",
-      "manageSystem",
-      "manageUsers",
-      "manageRoles",
-      "reviewExam",
-      "editExam",
-      "publishExam"
-    ]
-  },
-  "systemAdmin" : 
-  {
-    "description" : "维护系统配置与资源，具备用户与试卷的常规管理权限。",
-    "id" : "systemAdmin",
-    "name" : "系统管理员",
-    "permissions" : 
-    [
-      "system.manage",
-      "manageUsers",
-      "reviewExam",
-      "editExam",
-      "publishExam"
+      "*"
     ]
   },
   "teacher" : 
   {
-    "description" : "编写与更新试卷，需要审核后才能发布。",
+    "description" : "负责学习组教学、作业、批改、课后反馈和备课。",
     "id" : "teacher",
-    "name" : "教师",
+    "name" : "老师",
     "permissions" : 
     [
-      "question.manage",
-      "editExam",
-      "submitForReview"
+      "assignment.create",
+      "assignment.review",
+      "assignment.remind",
+      "gradebook.view",
+      "student.profile.view",
+      "student.profile.edit",
+      "lesson_prep.create",
+      "lesson_prep.export",
+      "learning_record.feedback.edit"
     ]
   }
 }

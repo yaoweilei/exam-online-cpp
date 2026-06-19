@@ -62,6 +62,11 @@ std::filesystem::path SyncService::moduleFile(const std::string &moduleName, con
     return userRootDir_ / moduleName / (sanitize(userId) + ".json");
 }
 
+std::filesystem::path deviceFile(const std::filesystem::path &userRootDir, const std::string &userId)
+{
+    return userRootDir / "sync_devices" / (sanitize(userId) + ".json");
+}
+
 Json::Value SyncService::fileSnapshot(const std::filesystem::path &p) const
 {
     Json::Value out(Json::objectValue);
@@ -147,6 +152,123 @@ Json::Value SyncService::pull(const std::string &userId, const std::vector<std::
         entries[m] = entry;
     }
     out["modules"] = entries;
+    return out;
+}
+
+Json::Value SyncService::push(const std::string &userId, const Json::Value &payload)
+{
+    if (userId.empty())
+        throw common::AppException("VALIDATION_ERROR", "userId 必填", drogon::k400BadRequest);
+    const auto incoming = payload["modules"];
+    if (!incoming.isObject())
+        throw common::AppException("VALIDATION_ERROR", "modules must be an object", drogon::k422UnprocessableEntity);
+
+    std::unique_lock lock(mutex_);
+    const bool force = payload.get("force", false).asBool();
+    Json::Value result(Json::objectValue);
+    Json::Value written(Json::objectValue);
+    Json::Value conflicts(Json::objectValue);
+    std::vector<std::string> touchedModules;
+    const auto &allowed = knownModules();
+
+    for (const auto &name : incoming.getMemberNames())
+    {
+        if (std::find(allowed.begin(), allowed.end(), name) == allowed.end())
+        {
+            continue;
+        }
+        const auto entry = incoming[name];
+        const auto p = moduleFile(name, userId);
+        const auto current = fileSnapshot(p);
+        const auto expected = entry.get("remote_modified_at", "").asString();
+        const auto actual = current.get("modified_at", "").asString();
+        if (!force && current.get("exists", false).asBool() && !expected.empty() && expected != actual)
+        {
+            Json::Value conflict(Json::objectValue);
+            conflict["expected_remote_modified_at"] = expected;
+            conflict["actual_remote_modified_at"] = actual;
+            conflict["server"] = current;
+            conflicts[name] = conflict;
+            continue;
+        }
+        std::filesystem::create_directories(p.parent_path());
+        infrastructure::storage::writeJsonFileAtomic(p, entry["content"]);
+        written[name] = fileSnapshot(p);
+        touchedModules.push_back(name);
+    }
+
+    touchDevice(userId, payload, touchedModules);
+    result["server_time"] = common::nowIso8601();
+    result["written"] = written;
+    result["conflicts"] = conflicts;
+    result["status"] = conflicts.empty() ? "ok" : (written.empty() ? "conflict" : "partial_conflict");
+    return result;
+}
+
+Json::Value SyncService::loadDevices(const std::string &userId) const
+{
+    const auto p = deviceFile(userRootDir_, userId);
+    if (!std::filesystem::exists(p))
+    {
+        return Json::Value(Json::arrayValue);
+    }
+    auto data = infrastructure::storage::readJsonFile(p);
+    return data.isArray() ? data : Json::Value(Json::arrayValue);
+}
+
+void SyncService::saveDevices(const std::string &userId, const Json::Value &devices) const
+{
+    const auto p = deviceFile(userRootDir_, userId);
+    std::filesystem::create_directories(p.parent_path());
+    infrastructure::storage::writeJsonFileAtomic(p, devices);
+}
+
+void SyncService::touchDevice(const std::string &userId, const Json::Value &payload, const std::vector<std::string> &modules) const
+{
+    auto devices = loadDevices(userId);
+    const auto deviceId = payload.get("device_id", "unknown").asString().empty() ? std::string("unknown") : payload.get("device_id", "unknown").asString();
+    Json::Value next(Json::arrayValue);
+    bool updated = false;
+    for (const auto &device : devices)
+    {
+        if (device.get("device_id", "").asString() == deviceId)
+        {
+            Json::Value item = device;
+            item["device_id"] = deviceId;
+            item["device_name"] = payload.get("device_name", device.get("device_name", "Unknown device")).asString();
+            item["last_seen_at"] = common::nowIso8601();
+            item["last_push_modules"] = Json::arrayValue;
+            for (const auto &m : modules) item["last_push_modules"].append(m);
+            next.append(item);
+            updated = true;
+        }
+        else
+        {
+            next.append(device);
+        }
+    }
+    if (!updated)
+    {
+        Json::Value item(Json::objectValue);
+        item["device_id"] = deviceId;
+        item["device_name"] = payload.get("device_name", "Unknown device").asString();
+        item["created_at"] = common::nowIso8601();
+        item["last_seen_at"] = item["created_at"].asString();
+        item["last_push_modules"] = Json::arrayValue;
+        for (const auto &m : modules) item["last_push_modules"].append(m);
+        next.append(item);
+    }
+    saveDevices(userId, next);
+}
+
+Json::Value SyncService::devices(const std::string &userId) const
+{
+    if (userId.empty())
+        throw common::AppException("VALIDATION_ERROR", "userId 必填", drogon::k400BadRequest);
+    std::scoped_lock lock(mutex_);
+    Json::Value out(Json::objectValue);
+    out["server_time"] = common::nowIso8601();
+    out["items"] = loadDevices(userId);
     return out;
 }
 }  // namespace application::services

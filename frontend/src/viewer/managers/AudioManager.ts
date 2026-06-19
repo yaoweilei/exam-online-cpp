@@ -38,9 +38,6 @@ interface AudioExamViewer {
 	showReadingKana?: boolean;
 	showReadingZh?: boolean;
 	_currentExamId?: string | null;
-	furiganaManager?: {
-		annotateFurigana?: (text: string) => string;
-	};
 }
 
 type DragLikeEvent = MouseEvent | Touch;
@@ -426,8 +423,7 @@ class AudioManager {
 		if (explicitRuby.trim()) {
 			return explicitRuby;
 		}
-		const annotator = this.examViewer.furiganaManager?.annotateFurigana;
-		return typeof annotator === 'function' ? annotator.call(this.examViewer.furiganaManager, formattedText) : '';
+		return formattedText;
 	}
 
 	private buildZhForScope(examId: string, scopeKey: string, pIdx: number, sIdx: number): string {

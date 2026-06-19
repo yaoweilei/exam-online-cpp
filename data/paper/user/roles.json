@@ -1,43 +1,43 @@
 {
   "$schema": "internal",
-  "version": 1,
-  "generated": "2025-10-17T00:00:00Z",
+  "version": 2,
+  "generated": "2026-06-17T00:00:00Z",
   "roles": [
     {
       "id": "superAdmin",
-      "name": "超级管理员",
-      "description": "拥有系统最高权限，包含所有管理与审核能力。",
-      "privileges": ["manageSystem", "manageUsers", "manageRoles", "reviewExam", "editExam", "publishExam"]
+      "name": "平台超级管理员",
+      "description": "平台最高权限，仅用于平台运营和技术管理。",
+      "privileges": ["*"]
     },
     {
-      "id": "systemAdmin",
-      "name": "系统管理员",
-      "description": "维护系统配置与资源，具备用户与试卷的常规管理权限。",
-      "privileges": ["manageUsers", "reviewExam", "editExam", "publishExam"]
+      "id": "contentAdmin",
+      "name": "内容管理员",
+      "description": "维护平台试卷、音频、图片、答案、解析和发布质量。",
+      "privileges": ["content.exam.edit", "content.audio.manage", "content.image.manage", "content.answer.edit", "content.analysis.edit", "content.publish", "content.audit.view"]
+    },
+    {
+      "id": "orgAdmin",
+      "name": "机构管理员",
+      "description": "管理机构成员、学习组、课程包、套餐席位、机构看板和审计。",
+      "privileges": ["organization.member.manage", "learning_group.manage", "course_package.manage", "lesson.booking.manage", "organization.dashboard.view", "organization.billing.manage", "audit.view"]
     },
     {
       "id": "teacher",
-      "name": "教师",
-      "description": "编写与更新试卷，需要审核后才能发布。",
-      "privileges": ["editExam", "submitForReview"]
-    },
-    {
-      "id": "academic",
-      "name": "教务",
-      "description": "管理教学安排与试卷调度，可发起与跟踪审核流程。",
-      "privileges": ["scheduleExam", "reviewExam", "publishExam"]
-    },
-    {
-      "id": "student",
-      "name": "学生",
-      "description": "参加考试与查看结果，无管理权限。",
-      "privileges": ["takeExam", "viewResult"]
+      "name": "老师",
+      "description": "负责学习组教学、作业、批改、课后反馈和备课。",
+      "privileges": ["assignment.create", "assignment.review", "assignment.remind", "gradebook.view", "student.profile.view", "student.profile.edit", "lesson_prep.create", "lesson_prep.export", "learning_record.feedback.edit"]
     },
     {
       "id": "assistant",
-      "name": "助理",
-      "description": "协助教师处理题目初稿与资源整理，不能最终发布。",
-      "privileges": ["editDraft", "attachResource"]
+      "name": "教学运营",
+      "description": "助教、班主任、教务或课程顾问的基础角色，通过权限模板区分职责。",
+      "privileges": ["assignment.review", "assignment.remind", "student.profile.view", "student.profile.edit", "student.followup.edit", "learning_record.comment", "course_package.view"]
+    },
+    {
+      "id": "student",
+      "name": "学员",
+      "description": "个人用户或机构学员，可做题、提交作业、查看自己的学习报告。",
+      "privileges": ["exam.practice", "answer.submit", "analysis.view", "assignment.submit", "report.view.self", "learning_record.view.self"]
     }
   ]
 }

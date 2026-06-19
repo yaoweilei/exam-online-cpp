@@ -12,7 +12,6 @@ void registerAuthRoutes(const AppContext &ctx);
 void registerMeRoutes(const AppContext &ctx);
 void registerStatisticsRoutes(const AppContext &ctx);
 void registerUserRoutes(const AppContext &ctx);
-void registerFuriganaRoutes(const AppContext &ctx);
 void registerProfileRoutes(const AppContext &ctx);
 void registerBookmarkRoutes(const AppContext &ctx);
 void registerSubscriptionRoutes(const AppContext &ctx);
@@ -31,8 +30,8 @@ void registerAttemptTimerRoutes(const AppContext &ctx);
 void registerFeatureFlagRoutes(const AppContext &ctx);
 // 题目反馈路由（业务功能 5）
 void registerFeedbackRoutes(const AppContext &ctx);
-// 班级与作业路由（业务功能 6）
-void registerClassroomRoutes(const AppContext &ctx);
+// 学习组作业路由（业务功能 6）
+void registerAssignmentRoutes(const AppContext &ctx);
 // SRS 间隔重复路由（业务功能 7）
 void registerSrsRoutes(const AppContext &ctx);
 // 个人生词本路由（自学者点词查词）

@@ -20,7 +20,6 @@ struct AppConfig
     std::filesystem::path dataSystemDir;
     std::filesystem::path staticDir;
     std::filesystem::path templatesDir;
-    std::filesystem::path furiganaDictPath;
     std::filesystem::path logDir;
     std::string publicWebBaseUrl{"http://127.0.0.1:8000"};
     std::string logFileBaseName{"exam-online-cpp"};
@@ -146,7 +145,6 @@ inline AppConfig loadConfig()
     config.dataSystemDir = config.baseDir / "data" / "system";
     config.staticDir = config.baseDir / "static";
     config.templatesDir = config.baseDir / "templates";
-    config.furiganaDictPath = config.staticDir / "resource" / "furigana.dict.json";
     config.publicWebBaseUrl = readEnv("PUBLIC_WEB_BASE_URL", config.publicWebBaseUrl);
     config.logDir = std::filesystem::path(readEnv("LOG_DIR", (config.baseDir / "logs" / "backend").string()));
     config.logFileBaseName = readEnv("LOG_FILE_BASENAME", config.logFileBaseName);

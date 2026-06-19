@@ -18,7 +18,7 @@ void registerUserRoutes(const AppContext &ctx)
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
-                requireRole(session, {"orgAdmin", "systemAdmin", "superAdmin"},
+                requireRole(session, {"orgAdmin", "superAdmin"},
                             "You do not have permission to search users");
 
                 const auto query = req->getParameter("q");

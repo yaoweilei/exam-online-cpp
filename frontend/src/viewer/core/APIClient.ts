@@ -298,6 +298,53 @@ class APIClient {
 		});
 	}
 
+	static async getOrganizationCampuses(organizationId: string, token: string): Promise<unknown[]> {
+		return this.request(`/organizations/${organizationId}/campuses?token=${encodeURIComponent(token)}`);
+	}
+
+	static async saveOrganizationCampus(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/campuses`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async getOrganizationLearningGroups(organizationId: string, token: string): Promise<unknown[]> {
+		return this.request(`/organizations/${organizationId}/learning-groups?token=${encodeURIComponent(token)}`);
+	}
+
+	static async saveOrganizationLearningGroup(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/learning-groups`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async getOrganizationCoursePackages(organizationId: string, token: string): Promise<unknown[]> {
+		return this.request(`/organizations/${organizationId}/course-packages?token=${encodeURIComponent(token)}`);
+	}
+
+	static async saveOrganizationCoursePackage(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/course-packages`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async saveLearningGroupEnrollment(organizationId: string, learningGroupId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/learning-groups/${learningGroupId}/enrollments`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async completeOrganizationLearningGroup(organizationId: string, learningGroupId: string, token: string, payload: unknown = {}): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/learning-groups/${learningGroupId}/complete`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
 	static async saveOrganizationInvitation(organizationId: string, token: string, payload: unknown): Promise<unknown> {
 		return this.request(`/organizations/${organizationId}/invitations`, {
 			method: 'POST',
@@ -362,12 +409,18 @@ class APIClient {
 		return this.request(`/institution/dashboard?${query.toString()}`);
 	}
 
+	static async getInstitutionWorkbench(token: string, orgId?: string): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (orgId) query.set('org_id', orgId);
+		return this.request(`/institution/workbench?${query.toString()}`);
+	}
+
 	static async getInstitutionPlans(): Promise<unknown> {
 		return this.request('/institution/plans');
 	}
 
-	static async getInstitutionClassGradebook(token: string, classId: string): Promise<unknown> {
-		return this.request(`/institution/classes/${encodeURIComponent(classId)}/gradebook?token=${encodeURIComponent(token)}`);
+	static async getInstitutionLearningGroupGradebook(token: string, organizationId: string, learningGroupId: string): Promise<unknown> {
+		return this.request(`/institution/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/gradebook?token=${encodeURIComponent(token)}`);
 	}
 
 	static async getInstitutionStudentProfile(token: string, studentId: string): Promise<unknown> {
@@ -381,23 +434,24 @@ class APIClient {
 		});
 	}
 
-	static async previewInstitutionImport(token: string, payload: unknown): Promise<unknown> {
-		return this.request('/institution/import-preview', {
+	static async listLessonPrepPlans(token: string, orgId?: string): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (orgId) query.set('org_id', orgId);
+		return this.request(`/institution/lesson-prep/plans?${query.toString()}`);
+	}
+
+	static async saveLessonPrepPlan(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/institution/lesson-prep/plans', {
 			method: 'POST',
 			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
 		});
 	}
 
-	// ==================== 振假名 ====================
-	static async addFurigana(text: string): Promise<unknown> {
-		return this.request('/furigana/add', {
+	static async previewInstitutionImport(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/institution/import-preview', {
 			method: 'POST',
-			body: JSON.stringify({ text })
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
 		});
-	}
-
-	static async getReading(word: string): Promise<unknown> {
-		return this.request(`/furigana/reading/${encodeURIComponent(word)}`);
 	}
 
 	// ==================== 错题本（业务功能 1） ====================
@@ -634,58 +688,44 @@ class APIClient {
 	}
 
 	// ---------------------------------------------------------------------
-	// 班级与作业 API（业务功能 6）
+	// 学习组作业 API（业务功能 6）
 	// ---------------------------------------------------------------------
 
-	static async createClassroom(payload: Record<string, unknown>): Promise<unknown> {
-		return this.request('/classrooms', { method: 'POST', body: JSON.stringify(payload) });
-	}
-
-	static async listMyClassrooms(): Promise<unknown> {
-		return this.request('/me/classrooms');
-	}
-
-	static async getClassroom(classId: string): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}`);
-	}
-
-	static async updateClassroom(classId: string, patch: Record<string, unknown>): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}`, {
-			method: 'PATCH',
-			body: JSON.stringify(patch)
-		});
-	}
-
-	static async removeClassroom(classId: string): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}`, { method: 'DELETE' });
-	}
-
-	static async addClassroomMembers(classId: string, userIds: string[]): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}/members`, {
-			method: 'POST',
-			body: JSON.stringify({ user_ids: userIds })
-		});
-	}
-
-	static async removeClassroomMember(classId: string, userId: string): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}/members/${encodeURIComponent(userId)}`, {
-			method: 'DELETE'
-		});
-	}
-
-	static async createAssignment(classId: string, payload: Record<string, unknown>): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}/assignments`, {
+	static async createLearningGroupAssignment(organizationId: string, learningGroupId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/assignments`, {
 			method: 'POST',
 			body: JSON.stringify(payload)
 		});
 	}
 
-	static async listClassroomAssignments(classId: string): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}/assignments`);
+	static async listLearningGroupAssignments(organizationId: string, learningGroupId: string): Promise<unknown> {
+		return this.request(`/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/assignments`);
 	}
 
 	static async listMyAssignments(): Promise<unknown> {
 		return this.request('/me/assignments');
+	}
+
+	static async getAssignment(assignmentId: string): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}`);
+	}
+
+	static async submitAssignment(assignmentId: string, answers: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submit`, {
+			method: 'POST',
+			body: JSON.stringify({ answers })
+		});
+	}
+
+	static async getAssignmentSubmissions(assignmentId: string): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submissions`);
+	}
+
+	static async remindAssignment(assignmentId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/reminders`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
 	}
 
 	static async updateAssignment(assignmentId: string, patch: Record<string, unknown>): Promise<unknown> {
@@ -734,6 +774,23 @@ class APIClient {
 	// ---------------------------------------------------------------------
 	// 收藏夹/分类 API（业务功能 8）
 	// ---------------------------------------------------------------------
+
+	static async getBookmarks(userId: string): Promise<unknown> {
+		return this.request(`/bookmarks/${encodeURIComponent(userId)}`);
+	}
+
+	static async addQuestionBookmark(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/bookmarks/${encodeURIComponent(userId)}/questions`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async removeQuestionBookmark(userId: string, bookmarkId: string): Promise<unknown> {
+		return this.request(`/bookmarks/${encodeURIComponent(userId)}/questions/${encodeURIComponent(bookmarkId)}`, {
+			method: 'DELETE'
+		});
+	}
 
 	static async listBookmarkFolders(userId: string): Promise<unknown> {
 		return this.request(`/bookmark-folders/${encodeURIComponent(userId)}`);
@@ -923,6 +980,17 @@ class APIClient {
 	static async pullSync(modules?: string[]): Promise<unknown> {
 		const qs = modules && modules.length > 0 ? `?modules=${encodeURIComponent(modules.join(','))}` : '';
 		return this.request(`/me/sync/pull${qs}`);
+	}
+
+	static async pushSync(payload: Record<string, unknown>): Promise<unknown> {
+		return this.request('/me/sync/push', {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	static async getSyncDevices(): Promise<unknown> {
+		return this.request('/me/sync/devices');
 	}
 
 	// ---------------------------------------------------------------------

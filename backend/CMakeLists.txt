@@ -60,9 +60,8 @@ if(BUILD_TESTING)
         src/application/services/FeatureFlagService.cpp
         src/infrastructure/storage/FeedbackRepository.cpp
         src/application/services/FeedbackService.cpp
-        src/infrastructure/storage/ClassroomRepository.cpp
         src/infrastructure/storage/AssignmentRepository.cpp
-        src/application/services/ClassroomService.cpp
+        src/application/services/AssignmentService.cpp
         src/infrastructure/storage/SrsRepository.cpp
         src/application/services/SrsService.cpp
         src/infrastructure/storage/BookmarkFolderRepository.cpp

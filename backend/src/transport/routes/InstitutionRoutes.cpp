@@ -26,7 +26,7 @@ void registerInstitutionRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 const auto userId = session.get("user_id", "").asString();
-                requireFeature(*ctx.featureFlagService, "classrooms", userId);
+                requireFeature(*ctx.featureFlagService, "learning_groups", userId);
                 return common::ok(
                     req,
                     ctx.institutionService->dashboard(userId, session["roles"], req->getParameter("org_id")));
@@ -35,17 +35,32 @@ void registerInstitutionRoutes(const AppContext &ctx)
         {Get});
 
     app().registerHandler(
-        "/api/v1/institution/classes/{1}/gradebook",
-        [ctx](const HttpRequestPtr &req,
-              std::function<void(const HttpResponsePtr &)> &&callback,
-              std::string classId) {
+        "/api/v1/institution/workbench",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 const auto userId = session.get("user_id", "").asString();
-                requireFeature(*ctx.featureFlagService, "classrooms", userId);
+                requireFeature(*ctx.featureFlagService, "learning_groups", userId);
                 return common::ok(
                     req,
-                    ctx.institutionService->classGradebook(userId, session["roles"], classId));
+                    ctx.institutionService->teachingWorkbench(userId, session["roles"], req->getParameter("org_id")));
+            });
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v1/institution/organizations/{1}/learning-groups/{2}/gradebook",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string organizationId,
+              std::string learningGroupId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                const auto userId = session.get("user_id", "").asString();
+                requireFeature(*ctx.featureFlagService, "learning_groups", userId);
+                return common::ok(
+                    req,
+                    ctx.institutionService->learningGroupGradebook(userId, session["roles"], organizationId, learningGroupId));
             });
         },
         {Get});
@@ -58,7 +73,7 @@ void registerInstitutionRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 const auto userId = session.get("user_id", "").asString();
-                requireFeature(*ctx.featureFlagService, "classrooms", userId);
+                requireFeature(*ctx.featureFlagService, "learning_groups", userId);
                 return common::ok(
                     req,
                     ctx.institutionService->studentProfile(userId, session["roles"], studentId));
@@ -73,7 +88,7 @@ void registerInstitutionRoutes(const AppContext &ctx)
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
                 const auto userId = session.get("user_id", "").asString();
-                requireFeature(*ctx.featureFlagService, "classrooms", userId);
+                requireFeature(*ctx.featureFlagService, "learning_groups", userId);
                 return common::ok(
                     req,
                     ctx.institutionService->lessonPrep(userId, session["roles"], body),
@@ -83,13 +98,43 @@ void registerInstitutionRoutes(const AppContext &ctx)
         {Post});
 
     app().registerHandler(
+        "/api/v1/institution/lesson-prep/plans",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                const auto userId = session.get("user_id", "").asString();
+                requireFeature(*ctx.featureFlagService, "learning_groups", userId);
+                return common::ok(
+                    req,
+                    ctx.institutionService->listLessonPrepPlans(userId, session["roles"], req->getParameter("org_id")));
+            });
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v1/institution/lesson-prep/plans",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto userId = session.get("user_id", "").asString();
+                requireFeature(*ctx.featureFlagService, "learning_groups", userId);
+                return common::ok(
+                    req,
+                    ctx.institutionService->saveLessonPrepPlan(userId, session["roles"], body),
+                    "lesson_prep_plan_saved");
+            });
+        },
+        {Post, Put});
+
+    app().registerHandler(
         "/api/v1/institution/import-preview",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
                 const auto userId = session.get("user_id", "").asString();
-                requireFeature(*ctx.featureFlagService, "classrooms", userId);
+                requireFeature(*ctx.featureFlagService, "learning_groups", userId);
                 return common::ok(
                     req,
                     ctx.institutionService->bulkImportPreview(

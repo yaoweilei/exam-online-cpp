@@ -21,9 +21,6 @@ interface RendererExamViewer {
 	userAnswers: Record<string, any>;
 	audioManager: RendererAnyRecord;
 	answerManager: RendererAnyRecord;
-	furiganaManager?: {
-		annotateFurigana?: (text: string) => string;
-	};
 }
 class QuestionRenderer {
 	private readonly examViewer: RendererExamViewer;
@@ -270,11 +267,16 @@ class QuestionRenderer {
 				questionText.appendChild(this.createFeedbackButton(question));
 			}
 
+			if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('bookmark_folders', true)) {
+				questionText.appendChild(this.createQuestionBookmarkButton(question, sectionIndex, questionIndex));
+			}
+
 			questionDiv.appendChild(questionText);
 		} else if (this.isAdmin()) {
 			const adminToolbar = DOMUtils.createElementWithClass("div", "question-admin-toolbar");
 			adminToolbar.style.cssText = "display:flex;justify-content:flex-start;gap:6px;margin:8px 0;";
 			adminToolbar.appendChild(this.createEditButton('question', question));
+			adminToolbar.appendChild(this.createQuestionBookmarkButton(question, sectionIndex, questionIndex));
 			questionDiv.appendChild(adminToolbar);
 		}
 
@@ -694,7 +696,7 @@ class QuestionRenderer {
 	isAdmin() {
 		const userContext = this.examViewer.userContextManager?.getUserContext();
 		const roles = Array.isArray(userContext?.roles) ? userContext.roles : [];
-		return roles.some((role: string) => ['teacher', 'orgAdmin', 'systemAdmin', 'superAdmin'].includes(role));
+		return roles.some((role: string) => ['teacher', 'assistant', 'orgAdmin', 'contentAdmin', 'superAdmin'].includes(role));
 	}
 
 	/**
@@ -730,6 +732,111 @@ class QuestionRenderer {
 			this.openFeedbackDialog(question);
 		};
 		return btn;
+	}
+
+	createQuestionBookmarkButton(question: RendererAnyRecord, sectionIndex: number, questionIndex: number) {
+		const btn = document.createElement("button");
+		btn.className = "question-bookmark-btn";
+		btn.style.cssText = 'margin-left:6px;font-size:12px;padding:2px 8px;cursor:pointer;border:1px solid #d0d0d0;border-radius:4px;background:#fff8e1;color:#7a4b00;';
+		btn.textContent = "收藏本题";
+		btn.title = '收藏当前题并添加复习原因';
+		btn.onclick = (e) => {
+			e.stopPropagation();
+			void this.openQuestionBookmarkDialog(question, sectionIndex, questionIndex);
+		};
+		return btn;
+	}
+
+	async openQuestionBookmarkDialog(question: RendererAnyRecord, sectionIndex: number, questionIndex: number) {
+		const userId = this.examViewer.userId;
+		if (!userId || userId === 'guest') {
+			alert('请先登录后再收藏题目');
+			return;
+		}
+		const examId = this.getViewerExamId();
+		if (!examId) {
+			alert('当前试卷信息不完整，暂时不能收藏');
+			return;
+		}
+
+		const api = window.APIClient;
+		if (!api || typeof api.addQuestionBookmark !== 'function') {
+			alert('收藏接口未就绪');
+			return;
+		}
+
+		let folders: Array<Record<string, unknown>> = [];
+		if (typeof api.listBookmarkFolders === 'function') {
+			try {
+				const data = (await api.listBookmarkFolders(userId)) as { items?: Array<Record<string, unknown>> } | null;
+				folders = Array.isArray(data?.items) ? data!.items : [];
+			} catch {
+				folders = [];
+			}
+		}
+
+		const overlay = document.createElement('div');
+		overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		const card = document.createElement('div');
+		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;min-width:360px;max-width:520px;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
+		const folderOptions = ['<option value="">未分类</option>']
+			.concat(
+				folders.map((f) => {
+					const id = this.escapeHtml(String(f.folder_id || ''));
+					const name = this.escapeHtml(String(f.name || '未命名'));
+					return `<option value="${id}">${name}</option>`;
+				})
+			)
+			.join('');
+		card.innerHTML = `
+			<h3 style="margin:0 0 12px;font-size:16px;">收藏当前题</h3>
+			<label style="display:block;margin-bottom:6px;font-size:13px;">分类</label>
+			<select class="qb-folder" style="width:100%;padding:6px;margin-bottom:12px;">${folderOptions}</select>
+			<label style="display:block;margin-bottom:6px;font-size:13px;">收藏原因 / 复习备注</label>
+			<textarea class="qb-reason" rows="4" maxlength="500" style="width:100%;padding:6px;box-sizing:border-box;" placeholder="例如：选项陷阱、句子没读懂、听力关键词没抓住"></textarea>
+			<div style="text-align:right;margin-top:14px;">
+				<button class="qb-cancel" style="margin-right:8px;padding:6px 14px;">取消</button>
+				<button class="qb-submit" style="padding:6px 14px;background:#1976d2;color:#fff;border:0;border-radius:4px;cursor:pointer;">保存收藏</button>
+			</div>
+		`;
+		overlay.appendChild(card);
+		document.body.appendChild(overlay);
+
+		const close = () => overlay.remove();
+		(card.querySelector('.qb-cancel') as HTMLButtonElement).onclick = close;
+		overlay.addEventListener('click', (e) => {
+			if (e.target === overlay) close();
+		});
+
+		(card.querySelector('.qb-submit') as HTMLButtonElement).onclick = async () => {
+			const folderId = (card.querySelector('.qb-folder') as HTMLSelectElement).value;
+			const reason = (card.querySelector('.qb-reason') as HTMLTextAreaElement).value.trim();
+			const section = this.getCurrentSection();
+			const payload: Record<string, unknown> = {
+				exam_id: examId,
+				section_index: sectionIndex,
+				question_index: questionIndex,
+				question_id: String(question.id ?? ''),
+				question_no: String(question.question_no ?? question.number ?? question.id ?? ''),
+				folder_id: folderId,
+				reason,
+				question_snapshot: {
+					section_title: section?.section_title || section?.section_name || '',
+					question: String(question.question || question.stem || ''),
+					options: Array.isArray(question.options) ? question.options : [],
+					correct_answer: String(question.correct_answer || question.answer || ''),
+					explanation: String(question.explanation || '')
+				}
+			};
+			try {
+				await api.addQuestionBookmark(userId, payload);
+				close();
+				alert('已收藏当前题');
+			} catch (err) {
+				const message = err instanceof Error ? err.message : '收藏失败';
+				alert(message || '收藏失败');
+			}
+		};
 	}
 
 	/**
@@ -1434,8 +1541,7 @@ class QuestionRenderer {
 		if (explicitRuby.trim()) {
 			return explicitRuby;
 		}
-		const annotator = this.examViewer.furiganaManager?.annotateFurigana;
-		return typeof annotator === 'function' ? annotator.call(this.examViewer.furiganaManager, formattedText) : '';
+		return formattedText;
 	}
 
 	private buildZhForScope(examId: string, scopeKey: string, pIdx: number, sIdx: number): string {
@@ -1512,7 +1618,7 @@ class QuestionRenderer {
 	 *
 	 * 设计要点：
 	 *  - target_words / **...** / &&...&& 这类替换在「单句」上做，避免跨句匹配，结果与原行为等价
-	 *  - 不会破坏 furigana（FuriganaManager 是按需对显式调用文本做处理，不自动遍历 passage DOM）
+	 *  - 不会破坏数据里显式维护的 ruby 标注
 	 *  - data-pidx / data-sidx 给 explanation 出处回链按钮使用
 	 */
 	private buildSentenceWrappedHtml(rawText: string, targetWords: string[] | null, passageKey: string): string {
@@ -1599,8 +1705,7 @@ class QuestionRenderer {
 		if (explicitRuby.trim()) {
 			return explicitRuby;
 		}
-		const annotator = this.examViewer.furiganaManager?.annotateFurigana;
-		return typeof annotator === 'function' ? annotator.call(this.examViewer.furiganaManager, formattedSentence) : '';
+		return formattedSentence;
 	}
 
 	private shouldShowTranslationChips(): boolean {

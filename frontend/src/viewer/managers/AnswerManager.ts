@@ -231,12 +231,25 @@ class AnswerManager {
 	 */
 	async submitAnswers(): Promise<void> {
 		try {
+			const examId = this.examViewer._currentExamId || 'unknown';
+			let activeAssignment: { assignment_id?: string; exam_id?: string } | null = null;
+			try {
+				activeAssignment = JSON.parse(localStorage.getItem('exam_v2_active_assignment') || 'null') as { assignment_id?: string; exam_id?: string } | null;
+			} catch {
+				activeAssignment = null;
+			}
+			const shouldSubmitAssignment = !!activeAssignment?.assignment_id && activeAssignment.exam_id === examId;
 			const result = window.APIClient
-				? ((await window.APIClient.submitAnswers(
-						this.examViewer.userId || 'guest',
-						this.examViewer._currentExamId || 'unknown',
-						this.examViewer.userAnswers
-				  )) as ScoreResult)
+				? (shouldSubmitAssignment && typeof window.APIClient.submitAssignment === 'function'
+						? (((await window.APIClient.submitAssignment(
+								activeAssignment!.assignment_id!,
+								this.examViewer.userAnswers
+						  )) as { score?: ScoreResult }).score as ScoreResult)
+						: ((await window.APIClient.submitAnswers(
+								this.examViewer.userId || 'guest',
+								examId,
+								this.examViewer.userAnswers
+						  )) as ScoreResult))
 				: await (async (): Promise<ScoreResult> => {
 						const apiBase = window.__API_BASE__ || '/api/v1';
 						const response = await fetch(`${apiBase}/answers/submit`, {
@@ -244,13 +257,16 @@ class AnswerManager {
 							headers: { 'Content-Type': 'application/json' },
 							body: JSON.stringify({
 								user_id: this.examViewer.userId || 'guest',
-								exam_id: this.examViewer._currentExamId || 'unknown',
+								exam_id: examId,
 								answers: this.examViewer.userAnswers
 							})
 						});
 						const payload = (await response.json()) as Partial<ApiEnvelope<ScoreResult>> | ScoreResult;
 						return (payload as Partial<ApiEnvelope<ScoreResult>>).data || (payload as ScoreResult);
 				  })();
+			if (shouldSubmitAssignment) {
+				localStorage.removeItem('exam_v2_active_assignment');
+			}
 
 			this.examViewer.showAnswers = true;
 			this.examViewer.renderExam();

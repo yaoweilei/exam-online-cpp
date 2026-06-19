@@ -7,7 +7,7 @@ type LoginMode = 'wechat' | 'phone' | 'password';
 
 export class LoginModal {
 	private modal: HTMLElement;
-	private currentMode: LoginMode = 'wechat';
+	private currentMode: LoginMode = 'phone';
 	private pollTimer: number | null = null;
 	private api: ApiClient;
 	private store: AppStore;
@@ -17,11 +17,14 @@ export class LoginModal {
 		this.store = store;
 		this.modal = document.getElementById('login-modal')!;
 		this.bindEvents();
+		window.addEventListener('resize', () => this.updateLoginScale());
 	}
 
 	open(): void {
 		this.modal.classList.add('active');
 		this.switchMode(this.currentMode);
+		this.updateLoginScale();
+		requestAnimationFrame(() => this.updateLoginScale());
 	}
 
 	close(): void {
@@ -34,14 +37,21 @@ export class LoginModal {
 		this.modal.addEventListener('click', (e) => {
 			if ((e.target as HTMLElement).id === 'login-modal') this.close();
 		});
+		this.modal.querySelector('[data-login-close]')?.addEventListener('click', () => {
+			this.close();
+		});
 
-		// Mode switch icons
+		// Mode switch buttons
 		this.modal.querySelectorAll<HTMLElement>('[data-mode]').forEach((el) => {
-			el.addEventListener('mouseenter', () => {
-				this.switchMode(el.dataset.mode as LoginMode);
-			});
 			el.addEventListener('click', () => {
 				this.switchMode(el.dataset.mode as LoginMode);
+			});
+		});
+		this.modal.querySelectorAll<HTMLButtonElement>('[data-oauth]').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const provider = btn.dataset.oauth || '';
+				if (!provider) return;
+				window.location.href = `/api/v1/auth/oauth/${encodeURIComponent(provider)}/start`;
 			});
 		});
 
@@ -68,19 +78,13 @@ export class LoginModal {
 		this.modal.querySelector('#login-btn-send-code')?.addEventListener('click', () => {
 			void this.sendPhoneCode();
 		});
+		this.modal.querySelector<HTMLInputElement>('#login-phone')?.addEventListener('input', () => {
+			this.updatePhoneSendButtonState();
+		});
 
 		// Phone verify
 		this.modal.querySelector('#login-btn-phone-verify')?.addEventListener('click', () => {
 			void this.submitPhone();
-		});
-
-		// 业务功能 22：第三方 OAuth 按钮（mock 模式直接跳到回调；生产模式跳到授权页）
-		this.modal.querySelectorAll<HTMLButtonElement>('.login-oauth-btn').forEach((btn) => {
-			btn.addEventListener('click', () => {
-				const provider = btn.dataset.oauth || '';
-				if (!provider) return;
-				window.location.href = `/api/v1/auth/oauth/${encodeURIComponent(provider)}/start`;
-			});
 		});
 	}
 
@@ -99,10 +103,31 @@ export class LoginModal {
 		});
 
 		this.clearError();
+		this.modal.classList.toggle('login-mode-phone', mode === 'phone');
+		this.modal.classList.toggle('login-mode-password', mode === 'password');
+		this.modal.classList.toggle('login-mode-wechat', mode === 'wechat');
 
 		if (mode === 'wechat') {
 			void this.startWechatLogin();
 		}
+		this.updatePhoneSendButtonState();
+		this.updateLoginScale();
+	}
+
+	private updateLoginScale(): void {
+		const box = this.modal.querySelector<HTMLElement>('.login-box');
+		if (!box) return;
+		const width = box.getBoundingClientRect().width;
+		if (width <= 0) return;
+		box.style.setProperty('--login-scale', `${width / 1170}px`);
+	}
+
+	private updatePhoneSendButtonState(): void {
+		const input = this.modal.querySelector<HTMLInputElement>('#login-phone');
+		const btn = this.modal.querySelector<HTMLButtonElement>('#login-btn-send-code');
+		if (!btn || btn.dataset.counting === '1') return;
+		const phoneDigits = (input?.value ?? '').replace(/\D/g, '');
+		btn.disabled = phoneDigits.length !== 11;
 	}
 
 	// ─── WeChat ─────────────────────────────────────────────────────────────
@@ -344,24 +369,36 @@ export class LoginModal {
 
 	private async sendPhoneCode(): Promise<void> {
 		const phone = (this.modal.querySelector<HTMLInputElement>('#login-phone'))?.value.trim() ?? '';
-		if (!phone) { this.showError('请输入手机号'); return; }
+		const phoneDigits = phone.replace(/\D/g, '');
+		if (phoneDigits.length !== 11) { this.showError('请输入 11 位手机号'); return; }
 
 		const btn = this.modal.querySelector<HTMLButtonElement>('#login-btn-send-code');
-		if (btn) btn.disabled = true;
+		if (btn) {
+			btn.disabled = true;
+			btn.dataset.counting = '1';
+		}
 
 		try {
 			await this.api.request('/auth/phone/send-code', { method: 'POST', body: JSON.stringify({ phone }) });
 			this.showError('验证码已发送（有效期10分钟）');
+			this.modal.classList.add('login-phone-code-sent');
 			let countdown = 60;
 			const timer = setInterval(() => {
 				if (btn) btn.textContent = `重新发送 (${--countdown}s)`;
 				if (countdown <= 0) {
 					clearInterval(timer);
-					if (btn) { btn.disabled = false; btn.textContent = '发送验证码'; }
+					if (btn) {
+						btn.textContent = '发送验证码';
+						delete btn.dataset.counting;
+					}
+					this.updatePhoneSendButtonState();
 				}
 			}, 1000);
 		} catch (e) {
-			if (btn) btn.disabled = false;
+			if (btn) {
+				delete btn.dataset.counting;
+				this.updatePhoneSendButtonState();
+			}
 			this.showError((e as Error).message || '发送失败');
 		}
 	}

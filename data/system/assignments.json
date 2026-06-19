@@ -2,301 +2,1148 @@
   "assignments" : 
   [
     {
-      "assignment_id" : "asg_019eb3a5-b711-7480-abff-ac7fb431ca5f",
-      "class_id" : "cls_019eb3a5-b5de-7b5e-bcd7-b9f4edc533c1",
-      "created_at" : "2026-06-10T22:27:22.513Z",
-      "created_by" : "usr_019eb3a5-b281-7720-8b1c-7b1168405ed6",
-      "description" : "系统布置作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8n2s8n",
-      "updated_at" : "2026-06-10T22:27:22.513Z"
-    },
-    {
-      "assignment_id" : "asg_019eb3ae-c832-7226-a1df-757cc603ae08",
-      "class_id" : "cls_019eb3ae-c81d-76bd-817f-420b33147e6d",
-      "created_at" : "2026-06-10T22:37:16.722Z",
-      "created_by" : "usr_019eb3ae-c7f9-7ca2-a794-aca6fa54985b",
+      "assignment_id" : "asg_019ed933-fd9f-7d85-af60-87d41bc6a95a",
+      "created_at" : "2026-06-18T05:28:43.679Z",
+      "created_by" : "usr_019ed933-fc33-7fba-b300-4241c7c2221e",
       "description" : "Playwright 可视化测试预置的作业",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8nfjl8",
-      "updated_at" : "2026-06-10T22:37:16.722Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed933-fd4a-7ee6-9654-be6b2257fe0c",
+      "learning_group_id" : "lg_019ed933-fd4a-7ee6-9654-be6b2257fe0c",
+      "learning_group_name" : "E2E 核心学习组 mqj27mkc_2g052",
+      "organization_id" : "org_019ed933-fcc1-7fef-afb2-3a7870714d8d",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : [],
+      "submissions" : 
+      {
+        "usr_019ed933-fc80-7815-b393-8ee9c6ec5369" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0,
+            "assignment_scope_applied" : true,
+            "completion" : 0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0,
+            "timestamp" : "2026-06-18T05:28:43.700Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed933-fc80-7815-b393-8ee9c6ec5369",
+          "submitted_at" : "2026-06-18T05:28:43.706Z",
+          "updated_at" : "2026-06-18T05:28:43.706Z"
+        }
+      },
+      "title" : "E2E 读解作业 mqj27mkc_2g052",
+      "updated_at" : "2026-06-18T05:28:43.706Z"
     },
     {
-      "assignment_id" : "asg_019eb3b5-5889-7bc1-a3ae-62a328bdbe77",
-      "class_id" : "cls_019eb3b5-5855-7d41-bb78-b79be75000a8",
-      "created_at" : "2026-06-10T22:44:26.889Z",
-      "created_by" : "usr_019eb3b5-57e9-799d-8172-419e05ff351d",
+      "assignment_id" : "asg_019ed935-1ae9-7c15-9450-3d0116bf4304",
+      "created_at" : "2026-06-18T05:29:56.713Z",
+      "created_by" : "usr_019ed935-1981-7951-8797-4e09000d7d75",
       "description" : "Playwright 可视化测试预置的作业",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8norf2",
-      "updated_at" : "2026-06-10T22:44:26.889Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed935-1a94-76a4-bf66-4f359e80cbb6",
+      "learning_group_id" : "lg_019ed935-1a94-76a4-bf66-4f359e80cbb6",
+      "learning_group_name" : "E2E 核心学习组 mqj296xj_cscs8",
+      "organization_id" : "org_019ed935-1a16-7fe7-928c-162348c63ca0",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T05:29:58.322Z",
+          "created_by" : "usr_019ed935-1981-7951-8797-4e09000d7d75",
+          "message" : "请今天完成作业。",
+          "reminder_id" : "rem_019ed935-2132-7ba7-bfa9-3a8185e74626",
+          "target_student_ids" : []
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed935-19d3-77ba-9d38-f385c26876ee" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0,
+            "assignment_scope_applied" : true,
+            "completion" : 0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0,
+            "timestamp" : "2026-06-18T05:29:56.735Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed935-19d3-77ba-9d38-f385c26876ee",
+          "submitted_at" : "2026-06-18T05:29:56.741Z",
+          "updated_at" : "2026-06-18T05:29:56.741Z"
+        }
+      },
+      "title" : "E2E 读解作业 mqj296xj_cscs8",
+      "updated_at" : "2026-06-18T05:29:58.322Z"
     },
     {
-      "assignment_id" : "asg_019eb3bd-610f-7739-a013-de0eb9f6ab4b",
-      "class_id" : "cls_019eb3bd-60f8-79f5-b1b0-c6a07b9c9c5f",
-      "created_at" : "2026-06-10T22:53:13.359Z",
-      "created_by" : "usr_019eb3bd-60d7-7d58-9127-97a2428dd115",
+      "assignment_id" : "asg_019ed937-f875-745f-875f-c11d9764c8ef",
+      "created_at" : "2026-06-18T05:33:04.501Z",
+      "created_by" : "usr_019ed937-f6de-747a-a803-8b46a78d6cb7",
       "description" : "Playwright 可视化测试预置的作业",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8o01ql",
-      "updated_at" : "2026-06-10T22:53:13.359Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed937-f81a-7ae5-b642-f864caebce8d",
+      "learning_group_id" : "lg_019ed937-f81a-7ae5-b642-f864caebce8d",
+      "learning_group_name" : "E2E 核心学习组 mqj2d7sh_lwj84",
+      "organization_id" : "org_019ed937-f780-7db9-bd1d-a97d47d781b2",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T05:33:07.178Z",
+          "created_by" : "usr_019ed937-f6de-747a-a803-8b46a78d6cb7",
+          "message" : "请今天完成作业。",
+          "reminder_id" : "rem_019ed938-02ea-7ee3-b24a-f9acba7a0905",
+          "target_student_ids" : []
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed937-f736-7f98-b661-20e9485d330e" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0,
+            "assignment_scope_applied" : true,
+            "completion" : 0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0,
+            "timestamp" : "2026-06-18T05:33:04.523Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed937-f736-7f98-b661-20e9485d330e",
+          "submitted_at" : "2026-06-18T05:33:04.529Z",
+          "updated_at" : "2026-06-18T05:33:04.529Z"
+        }
+      },
+      "title" : "E2E 读解作业 mqj2d7sh_lwj84",
+      "updated_at" : "2026-06-18T05:33:07.178Z"
     },
     {
-      "assignment_id" : "asg_019eb3c3-1c1c-7700-b0ff-03a968712a02",
-      "class_id" : "cls_019eb3c3-1c0d-749f-8b49-bc884c414b7f",
-      "created_at" : "2026-06-10T22:59:28.924Z",
-      "created_by" : "usr_019eb3c3-1be9-742d-93cf-71c06bd885dc",
+      "assignment_id" : "asg_019ed939-283c-7000-897b-4f477a620e4a",
+      "created_at" : "2026-06-18T05:34:22.268Z",
+      "created_by" : "usr_019ed939-26c5-7b02-95e2-02d97289a406",
       "description" : "Playwright 可视化测试预置的作业",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8o83iz",
-      "updated_at" : "2026-06-10T22:59:28.924Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed939-27e1-731c-96ab-f19a6b663adf",
+      "learning_group_id" : "lg_019ed939-27e1-731c-96ab-f19a6b663adf",
+      "learning_group_name" : "E2E 核心学习组 mqj2evtl_q7v92",
+      "organization_id" : "org_019ed939-275f-7b83-b1fe-aaafd709a817",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T05:34:25.523Z",
+          "created_by" : "usr_019ed939-26c5-7b02-95e2-02d97289a406",
+          "message" : "请今天完成作业。",
+          "reminder_id" : "rem_019ed939-34f3-7b50-b951-de2fcc7b7983",
+          "target_student_ids" : []
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed939-271c-71d4-bba9-b27a24f270cd" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0,
+            "assignment_scope_applied" : true,
+            "completion" : 0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0,
+            "timestamp" : "2026-06-18T05:34:22.292Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed939-271c-71d4-bba9-b27a24f270cd",
+          "submitted_at" : "2026-06-18T05:34:22.298Z",
+          "updated_at" : "2026-06-18T05:34:22.298Z"
+        }
+      },
+      "title" : "E2E 读解作业 mqj2evtl_q7v92",
+      "updated_at" : "2026-06-18T05:34:25.523Z"
     },
     {
-      "assignment_id" : "asg_019eb3c7-360a-72a4-8fb1-7172027dec30",
-      "class_id" : "cls_019eb3c7-35fb-739f-9b82-6094475c02f6",
-      "created_at" : "2026-06-10T23:03:57.706Z",
-      "created_by" : "usr_019eb3c7-35df-7211-a3da-7dd74dcb0853",
+      "assignment_id" : "asg_019ed955-7655-71f0-af12-08da19e6ebf1",
+      "created_at" : "2026-06-18T06:05:17.269Z",
+      "created_by" : "usr_019ed955-74d8-75cf-9d99-6b0a5eb9a06b",
       "description" : "Playwright 可视化测试预置的作业",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8oduxg",
-      "updated_at" : "2026-06-10T23:03:57.706Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed955-75f9-72c2-9f04-b75841148529",
+      "learning_group_id" : "lg_019ed955-75f9-72c2-9f04-b75841148529",
+      "learning_group_name" : "E2E 核心学习组 mqj3in55_n1vm1",
+      "organization_id" : "org_019ed955-7573-74d0-83f1-39a043a300b2",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T06:05:20.558Z",
+          "created_by" : "usr_019ed955-74d8-75cf-9d99-6b0a5eb9a06b",
+          "message" : "请今天完成作业。",
+          "reminder_id" : "rem_019ed955-832e-76e7-8a8e-01067a989fff",
+          "target_student_ids" : []
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed955-752d-76c3-85c4-362e0f98ac77" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0,
+            "assignment_scope_applied" : true,
+            "completion" : 0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0,
+            "timestamp" : "2026-06-18T06:05:17.291Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed955-752d-76c3-85c4-362e0f98ac77",
+          "submitted_at" : "2026-06-18T06:05:17.297Z",
+          "updated_at" : "2026-06-18T06:05:17.297Z"
+        }
+      },
+      "title" : "E2E 读解作业 mqj3in55_n1vm1",
+      "updated_at" : "2026-06-18T06:05:20.558Z"
     },
     {
-      "assignment_id" : "asg_019eb3d9-1959-7ed8-9ed9-c9c9b1fe5e50",
-      "class_id" : "cls_019eb3d9-194a-7b07-81d6-859ebf0fbe8e",
-      "created_at" : "2026-06-10T23:23:30.009Z",
-      "created_by" : "usr_019eb3d9-1929-715d-96c7-123d927bda96",
-      "description" : "Playwright 可视化测试预置的作业",
+      "assignment_id" : "asg_019ed9db-907a-7da5-a7ad-1fd374324212",
+      "created_at" : "2026-06-18T08:31:45.786Z",
+      "created_by" : "usr_019ed9db-8dd3-7043-85ea-36940988a26c",
+      "description" : "Role permission matrix assignment",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8p2zh9",
-      "updated_at" : "2026-06-10T23:23:30.009Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed9db-8edc-740f-adf9-1239f25ecf22",
+      "learning_group_id" : "lg_019ed9db-8edc-740f-adf9-1239f25ecf22",
+      "learning_group_name" : "E2E 角色权限学习组 mqj8r00h_wbf8l",
+      "organization_id" : "org_019ed9db-8ea7-7fbb-b9a4-4c75973b344d",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T08:31:46.094Z",
+          "created_by" : "usr_019ed9db-8dd3-7043-85ea-36940988a26c",
+          "message" : "role orgAdmin reminder",
+          "reminder_id" : "rem_019ed9db-91ae-74b1-b85b-99df6f5fbd90",
+          "target_student_ids" : 
+          [
+            "usr_019ed9db-8cf8-7060-8bd2-8f2e70272abf"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:31:46.113Z",
+          "created_by" : "usr_019ed9db-8d8d-7eaf-bce6-9621c1117d52",
+          "message" : "role teacher reminder",
+          "reminder_id" : "rem_019ed9db-91c1-7e2f-aeec-1aab768e70ae",
+          "target_student_ids" : 
+          [
+            "usr_019ed9db-8cf8-7060-8bd2-8f2e70272abf"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:31:46.131Z",
+          "created_by" : "usr_019ed9db-8d46-714f-ab8e-f5d587afe2c8",
+          "message" : "role assistant reminder",
+          "reminder_id" : "rem_019ed9db-91d3-7810-aed0-725478d0353a",
+          "target_student_ids" : 
+          [
+            "usr_019ed9db-8cf8-7060-8bd2-8f2e70272abf"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:31:46.146Z",
+          "created_by" : "usr_019ed9db-8e65-7ec8-9327-c23352a7c10e",
+          "message" : "role superAdmin reminder",
+          "reminder_id" : "rem_019ed9db-91e2-7132-a8e4-cc115e03c7b0",
+          "target_student_ids" : 
+          [
+            "usr_019ed9db-8cf8-7060-8bd2-8f2e70272abf"
+          ]
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed9db-8cf8-7060-8bd2-8f2e70272abf" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0.0,
+            "assignment_scope_applied" : true,
+            "completion" : 0.0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0.0,
+            "timestamp" : "2026-06-18T08:31:46.194Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed9db-8cf8-7060-8bd2-8f2e70272abf",
+          "submitted_at" : "2026-06-18T08:31:46.199Z",
+          "updated_at" : "2026-06-18T08:31:46.199Z"
+        }
+      },
+      "title" : "E2E 角色权限作业 mqj8r00h_wbf8l",
+      "updated_at" : "2026-06-18T08:31:46.199Z"
     },
     {
-      "assignment_id" : "asg_019eb3d9-fada-7bd3-a5ca-964df2a0a656",
-      "class_id" : "cls_019eb3d9-faca-74c3-90e5-6c51257dbacf",
-      "created_at" : "2026-06-10T23:24:27.738Z",
-      "created_by" : "usr_019eb3d9-faa8-758f-a88d-45b4d452253c",
-      "description" : "Playwright 可视化测试预置的作业",
+      "assignment_id" : "asg_019ed9dd-8238-7c74-8712-8837389215cf",
+      "created_at" : "2026-06-18T08:33:53.208Z",
+      "created_by" : "usr_019ed9dd-7f84-73a4-934a-cea8630bfb81",
+      "description" : "Role permission matrix assignment",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8p480s",
-      "updated_at" : "2026-06-10T23:24:27.738Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed9dd-8096-7858-83dc-8576e67e29ac",
+      "learning_group_id" : "lg_019ed9dd-8096-7858-83dc-8576e67e29ac",
+      "learning_group_name" : "E2E 角色权限学习组 mqj8tqbr_ev63k",
+      "organization_id" : "org_019ed9dd-805a-77d1-81c2-722f0e14e470",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T08:33:53.530Z",
+          "created_by" : "usr_019ed9dd-7f84-73a4-934a-cea8630bfb81",
+          "message" : "role orgAdmin reminder",
+          "reminder_id" : "rem_019ed9dd-837a-70a7-9b12-a2e869c35caa",
+          "target_student_ids" : 
+          [
+            "usr_019ed9dd-7eaa-7d6c-afea-81981563a901"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:33:53.548Z",
+          "created_by" : "usr_019ed9dd-7f3c-7a16-adfe-2a7ab7c5a686",
+          "message" : "role teacher reminder",
+          "reminder_id" : "rem_019ed9dd-838c-7cb5-b324-f9c20320eda6",
+          "target_student_ids" : 
+          [
+            "usr_019ed9dd-7eaa-7d6c-afea-81981563a901"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:33:53.568Z",
+          "created_by" : "usr_019ed9dd-7ef5-7c2b-8cbc-4256575567f6",
+          "message" : "role assistant reminder",
+          "reminder_id" : "rem_019ed9dd-83a0-7612-8972-5cff80835361",
+          "target_student_ids" : 
+          [
+            "usr_019ed9dd-7eaa-7d6c-afea-81981563a901"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:33:53.584Z",
+          "created_by" : "usr_019ed9dd-801a-712a-8b20-00e447fa0e27",
+          "message" : "role superAdmin reminder",
+          "reminder_id" : "rem_019ed9dd-83b0-707f-b87f-0cd0fd56d5b5",
+          "target_student_ids" : 
+          [
+            "usr_019ed9dd-7eaa-7d6c-afea-81981563a901"
+          ]
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed9dd-7eaa-7d6c-afea-81981563a901" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0.0,
+            "assignment_scope_applied" : true,
+            "completion" : 0.0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0.0,
+            "timestamp" : "2026-06-18T08:33:53.633Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed9dd-7eaa-7d6c-afea-81981563a901",
+          "submitted_at" : "2026-06-18T08:33:53.638Z",
+          "updated_at" : "2026-06-18T08:33:53.638Z"
+        }
+      },
+      "title" : "E2E 角色权限作业 mqj8tqbr_ev63k",
+      "updated_at" : "2026-06-18T08:33:53.638Z"
     },
     {
-      "assignment_id" : "asg_019eb3da-641a-766b-a78e-6420690da9a2",
-      "class_id" : "cls_019eb3da-640a-75f6-adc0-a7bf376fa344",
-      "created_at" : "2026-06-10T23:24:54.682Z",
-      "created_by" : "usr_019eb3da-63e6-7c55-a1dd-bf4a911d030e",
-      "description" : "Playwright 可视化测试预置的作业",
+      "assignment_id" : "asg_019ed9de-9d72-738c-a88d-3c1639ff051d",
+      "created_at" : "2026-06-18T08:35:05.714Z",
+      "created_by" : "usr_019ed9de-9aad-7ea6-92e8-00b1b03ee0c8",
+      "description" : "Role permission matrix assignment",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mq8p4st3",
-      "updated_at" : "2026-06-10T23:24:54.682Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed9de-9bc2-7c6d-befb-999fb1d571c9",
+      "learning_group_id" : "lg_019ed9de-9bc2-7c6d-befb-999fb1d571c9",
+      "learning_group_name" : "E2E 角色权限学习组 mqj8va99_cvtfv",
+      "organization_id" : "org_019ed9de-9b8e-7a53-877d-fac298f5236c",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T08:35:06.035Z",
+          "created_by" : "usr_019ed9de-9aad-7ea6-92e8-00b1b03ee0c8",
+          "message" : "role orgAdmin reminder",
+          "reminder_id" : "rem_019ed9de-9eb3-7e8d-ba12-1353dc6b9741",
+          "target_student_ids" : 
+          [
+            "usr_019ed9de-99cc-76fc-9ceb-c29aa8e54c85"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:35:06.054Z",
+          "created_by" : "usr_019ed9de-9a62-7d2b-b224-667fedf00263",
+          "message" : "role teacher reminder",
+          "reminder_id" : "rem_019ed9de-9ec6-752c-8be6-0fab1087d1b9",
+          "target_student_ids" : 
+          [
+            "usr_019ed9de-99cc-76fc-9ceb-c29aa8e54c85"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:35:06.072Z",
+          "created_by" : "usr_019ed9de-9a18-7b09-93f7-e1900469fb40",
+          "message" : "role assistant reminder",
+          "reminder_id" : "rem_019ed9de-9ed8-75e5-b38f-6fce939d37ed",
+          "target_student_ids" : 
+          [
+            "usr_019ed9de-99cc-76fc-9ceb-c29aa8e54c85"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:35:06.088Z",
+          "created_by" : "usr_019ed9de-9b47-7a67-b67c-1f95fdd3dd69",
+          "message" : "role superAdmin reminder",
+          "reminder_id" : "rem_019ed9de-9ee8-7b1a-96be-b5882c65f340",
+          "target_student_ids" : 
+          [
+            "usr_019ed9de-99cc-76fc-9ceb-c29aa8e54c85"
+          ]
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed9de-99cc-76fc-9ceb-c29aa8e54c85" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0.0,
+            "assignment_scope_applied" : true,
+            "completion" : 0.0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0.0,
+            "timestamp" : "2026-06-18T08:35:06.137Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed9de-99cc-76fc-9ceb-c29aa8e54c85",
+          "submitted_at" : "2026-06-18T08:35:06.144Z",
+          "updated_at" : "2026-06-18T08:35:06.144Z"
+        }
+      },
+      "title" : "E2E 角色权限作业 mqj8va99_cvtfv",
+      "updated_at" : "2026-06-18T08:35:06.144Z"
     },
     {
-      "assignment_id" : "asg_019ebc3f-50f3-718e-8cd8-edec2a72b52c",
-      "class_id" : "cls_019ebc3f-50dc-7cab-a2fb-b90f7edc212f",
-      "created_at" : "2026-06-12T14:32:06.643Z",
-      "created_by" : "usr_019ebc3f-50a7-7964-9b49-84347ddfa982",
+      "assignment_id" : "asg_019ed9e0-5abf-7fb0-85f9-d4820ba59b26",
+      "created_at" : "2026-06-18T08:36:59.711Z",
+      "created_by" : "usr_019ed9e0-5927-78a8-afea-a86fd64f499d",
       "description" : "Playwright 可视化测试预置的作业",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqb0zbfc",
-      "updated_at" : "2026-06-12T14:32:06.643Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed9e0-5a5b-7f2b-81e2-30af35ca7982",
+      "learning_group_id" : "lg_019ed9e0-5a5b-7f2b-81e2-30af35ca7982",
+      "learning_group_name" : "E2E 核心学习组 mqj8xqm2_fx6ut",
+      "organization_id" : "org_019ed9e0-59ce-75ae-95b0-991f7bf5d7e7",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T08:37:02.896Z",
+          "created_by" : "usr_019ed9e0-5927-78a8-afea-a86fd64f499d",
+          "message" : "请今天完成作业。",
+          "reminder_id" : "rem_019ed9e0-6730-71f3-93a8-e67b09f6b8a7",
+          "target_student_ids" : []
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed9e0-597c-7339-ab63-de849b8d186f" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0.0,
+            "assignment_scope_applied" : true,
+            "completion" : 0.0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0.0,
+            "timestamp" : "2026-06-18T08:36:59.739Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed9e0-597c-7339-ab63-de849b8d186f",
+          "submitted_at" : "2026-06-18T08:36:59.745Z",
+          "updated_at" : "2026-06-18T08:36:59.745Z"
+        }
+      },
+      "title" : "E2E 读解作业 mqj8xqm2_fx6ut",
+      "updated_at" : "2026-06-18T08:37:02.896Z"
     },
     {
-      "assignment_id" : "asg_019ebc41-86df-7743-9645-7ff9679614d4",
-      "class_id" : "cls_019ebc41-86c9-75d3-8f8e-1d7d8d453a64",
-      "created_at" : "2026-06-12T14:34:31.519Z",
-      "created_by" : "usr_019ebc41-86a9-7edd-b9c0-09d94b34f8ce",
-      "description" : "Playwright 可视化测试预置的作业",
+      "assignment_id" : "asg_019ed9e0-aa31-7c91-b0e3-1bc200b94f9d",
+      "created_at" : "2026-06-18T08:37:20.049Z",
+      "created_by" : "usr_019ed9e0-a71c-7a03-b226-46137692fb71",
+      "description" : "Role permission matrix assignment",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqb12f8c",
-      "updated_at" : "2026-06-12T14:34:31.519Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019ed9e0-a848-7fc4-8cd8-5b02b981ca25",
+      "learning_group_id" : "lg_019ed9e0-a848-7fc4-8cd8-5b02b981ca25",
+      "learning_group_name" : "E2E 角色权限学习组 mqj8y5tk_cw544",
+      "organization_id" : "org_019ed9e0-a810-7cc9-9bfe-54502ae88c01",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T08:37:20.412Z",
+          "created_by" : "usr_019ed9e0-a71c-7a03-b226-46137692fb71",
+          "message" : "role orgAdmin reminder",
+          "reminder_id" : "rem_019ed9e0-ab9c-76f9-9926-99aa10c411f6",
+          "target_student_ids" : 
+          [
+            "usr_019ed9e0-a624-720e-acd2-1e9b63a343c6"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:37:20.433Z",
+          "created_by" : "usr_019ed9e0-a6cb-7634-863d-a9309a52440c",
+          "message" : "role teacher reminder",
+          "reminder_id" : "rem_019ed9e0-abb1-7708-849c-7e7373491b7c",
+          "target_student_ids" : 
+          [
+            "usr_019ed9e0-a624-720e-acd2-1e9b63a343c6"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:37:20.461Z",
+          "created_by" : "usr_019ed9e0-a677-7407-b98a-a6995ba9bb46",
+          "message" : "role assistant reminder",
+          "reminder_id" : "rem_019ed9e0-abcd-777a-9595-c39b4b14c9eb",
+          "target_student_ids" : 
+          [
+            "usr_019ed9e0-a624-720e-acd2-1e9b63a343c6"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T08:37:20.477Z",
+          "created_by" : "usr_019ed9e0-a7c4-7056-bff1-857cac8d8b27",
+          "message" : "role superAdmin reminder",
+          "reminder_id" : "rem_019ed9e0-abdd-7a98-a610-2ba1178cc19e",
+          "target_student_ids" : 
+          [
+            "usr_019ed9e0-a624-720e-acd2-1e9b63a343c6"
+          ]
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019ed9e0-a624-720e-acd2-1e9b63a343c6" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0.0,
+            "assignment_scope_applied" : true,
+            "completion" : 0.0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0.0,
+            "timestamp" : "2026-06-18T08:37:20.530Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019ed9e0-a624-720e-acd2-1e9b63a343c6",
+          "submitted_at" : "2026-06-18T08:37:20.536Z",
+          "updated_at" : "2026-06-18T08:37:20.536Z"
+        }
+      },
+      "title" : "E2E 角色权限作业 mqj8y5tk_cw544",
+      "updated_at" : "2026-06-18T08:37:20.536Z"
     },
     {
-      "assignment_id" : "asg_019ebe33-0d9f-7990-8707-6ffd6aae5635",
-      "class_id" : "cls_019ebe33-0d92-786f-ba43-9854437fdaed",
-      "created_at" : "2026-06-12T23:37:57.407Z",
-      "created_by" : "usr_019ebe33-0d75-7a17-99c1-6469de691019",
+      "assignment_id" : "asg_019edad5-ba34-7df4-8a18-d4010d010de5",
+      "created_at" : "2026-06-18T13:05:00.468Z",
+      "created_by" : "usr_019edad5-b7af-7053-a02e-525994c96965",
       "description" : "Playwright 可视化测试预置的作业",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqbkha3y",
-      "updated_at" : "2026-06-12T23:37:57.407Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019edad5-b9a5-71da-a79c-1925167f7d14",
+      "learning_group_id" : "lg_019edad5-b9a5-71da-a79c-1925167f7d14",
+      "learning_group_name" : "E2E 核心学习组 mqjiieeh_hdq1i",
+      "organization_id" : "org_019edad5-b8b7-7f31-83d9-b7609702da3e",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T13:05:07.434Z",
+          "created_by" : "usr_019edad5-b7af-7053-a02e-525994c96965",
+          "message" : "请今天完成作业。",
+          "reminder_id" : "rem_019edad5-d56a-7565-a341-15e0f1db0e29",
+          "target_student_ids" : []
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019edad5-b846-793b-8698-768a69ded1f6" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0.0,
+            "assignment_scope_applied" : true,
+            "completion" : 0.0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0.0,
+            "timestamp" : "2026-06-18T13:05:00.507Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019edad5-b846-793b-8698-768a69ded1f6",
+          "submitted_at" : "2026-06-18T13:05:00.516Z",
+          "updated_at" : "2026-06-18T13:05:00.516Z"
+        }
+      },
+      "title" : "E2E 读解作业 mqjiieeh_hdq1i",
+      "updated_at" : "2026-06-18T13:05:07.434Z"
     },
     {
-      "assignment_id" : "asg_019ebe3d-79b4-7dd7-8592-bbdeee428020",
-      "class_id" : "cls_019ebe3d-79a5-7fa0-848e-ea6c44f3e206",
-      "created_at" : "2026-06-12T23:49:20.436Z",
-      "created_by" : "usr_019ebe3d-797d-7f25-b97f-935025f11a06",
+      "assignment_id" : "asg_019edad9-249d-7242-b2dc-1149997869ba",
+      "created_at" : "2026-06-18T13:08:44.317Z",
+      "created_by" : "usr_019edad9-2236-7330-abe6-e69afe12c90f",
       "description" : "Playwright 可视化测试预置的作业",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqbkvx4h",
-      "updated_at" : "2026-06-12T23:49:20.436Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019edad9-240b-7be1-9d17-cfa7eded68cf",
+      "learning_group_id" : "lg_019edad9-240b-7be1-9d17-cfa7eded68cf",
+      "learning_group_name" : "E2E 核心学习组 mqjin75l_0j750",
+      "organization_id" : "org_019edad9-231f-763d-a38a-268523496efb",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T13:08:50.759Z",
+          "created_by" : "usr_019edad9-2236-7330-abe6-e69afe12c90f",
+          "message" : "请今天完成作业。",
+          "reminder_id" : "rem_019edad9-3dc7-7453-b7dc-b27c5563f5aa",
+          "target_student_ids" : []
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019edad9-22b2-7898-8a1a-062e1e878bb9" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0.0,
+            "assignment_scope_applied" : true,
+            "completion" : 0.0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0.0,
+            "timestamp" : "2026-06-18T13:08:44.350Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019edad9-22b2-7898-8a1a-062e1e878bb9",
+          "submitted_at" : "2026-06-18T13:08:44.360Z",
+          "updated_at" : "2026-06-18T13:08:44.360Z"
+        }
+      },
+      "title" : "E2E 读解作业 mqjin75l_0j750",
+      "updated_at" : "2026-06-18T13:08:50.759Z"
     },
     {
-      "assignment_id" : "asg_019ebe60-623e-764f-96d7-0ab1700ee0bc",
-      "class_id" : "cls_019ebe60-622f-7a67-bd08-766fddeff680",
-      "created_at" : "2026-06-13T00:27:28.190Z",
-      "created_by" : "usr_019ebe60-61fd-7a4c-8d78-dda59a4a0562",
-      "description" : "Playwright 可视化测试预置的作业",
+      "assignment_id" : "asg_019edad9-b38e-739f-a4ba-012e10099b52",
+      "created_at" : "2026-06-18T13:09:20.910Z",
+      "created_by" : "usr_019edad9-af35-7667-ae29-8f4680cd8dff",
+      "description" : "Role permission matrix assignment",
       "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqbm8ycy",
-      "updated_at" : "2026-06-13T00:27:28.190Z"
-    },
-    {
-      "assignment_id" : "asg_019ebe71-0cb6-7c86-aa9a-f269f2517f42",
-      "class_id" : "cls_019ebe71-0ca4-74e4-9d43-340817a8a99b",
-      "created_at" : "2026-06-13T00:45:40.406Z",
-      "created_by" : "usr_019ebe71-0c66-7c97-a4f7-6821c8d2b54a",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqbmwd3v",
-      "updated_at" : "2026-06-13T00:45:40.406Z"
-    },
-    {
-      "assignment_id" : "asg_019ec18c-3fe9-7b7b-a48d-fe3a1ad6724e",
-      "class_id" : "cls_019ec18c-3fcf-7164-8ed2-a95a1e03205b",
-      "created_at" : "2026-06-13T15:14:14.633Z",
-      "created_by" : "usr_019ec18c-3f7b-7aa1-ae04-89cf3a2880ad",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqchxcob",
-      "updated_at" : "2026-06-13T15:14:14.633Z"
-    },
-    {
-      "assignment_id" : "asg_019ec39b-2fc9-7bce-ba03-cec95958f9e1",
-      "class_id" : "cls_019ec39b-2fb5-75ac-830d-a870c76ce67a",
-      "created_at" : "2026-06-14T00:49:47.977Z",
-      "created_by" : "usr_019ec39b-2f6d-7b3d-bddd-d0a7ac9af6d9",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd2hisc",
-      "updated_at" : "2026-06-14T00:49:47.977Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3be-6c71-7c79-8670-7d0adba87593",
-      "class_id" : "cls_019ec3be-6c59-77d9-b007-ddc5759f0bed",
-      "created_at" : "2026-06-14T01:28:17.265Z",
-      "created_by" : "usr_019ec3be-6c03-7ee1-be6f-50749cfee542",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd3v0ms",
-      "updated_at" : "2026-06-14T01:28:17.265Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3bf-cf66-7b0b-8658-53d55e85608a",
-      "class_id" : "cls_019ec3bf-cf53-7984-ab8b-f8f204cc240f",
-      "created_at" : "2026-06-14T01:29:48.134Z",
-      "created_by" : "usr_019ec3bf-cf05-7450-b802-50a61b0d8d32",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd3wyr2",
-      "updated_at" : "2026-06-14T01:29:48.134Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3c0-59d8-7465-9cf2-1d517fd861db",
-      "class_id" : "cls_019ec3c0-59c8-7bf4-9ca1-732000e86d8f",
-      "created_at" : "2026-06-14T01:30:23.576Z",
-      "created_by" : "usr_019ec3c0-597e-74f3-a0bc-f54604e6f534",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd3xq3y",
-      "updated_at" : "2026-06-14T01:30:23.576Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3c1-857c-7f0e-a07d-c7f1ad251806",
-      "class_id" : "cls_019ec3c1-856d-7773-b64a-de4a04723287",
-      "created_at" : "2026-06-14T01:31:40.284Z",
-      "created_by" : "usr_019ec3c1-852a-759a-b3e4-f064f9a25ed0",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd3zdb0",
-      "updated_at" : "2026-06-14T01:31:40.284Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3c4-08ef-701c-a1cc-e75ddde410cf",
-      "class_id" : "cls_019ec3c4-08db-7e6e-9e7d-b327b500a11c",
-      "created_at" : "2026-06-14T01:34:25.007Z",
-      "created_by" : "usr_019ec3c4-088f-70d2-b9f7-8d78367eab26",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd42wdx_h6nt1",
-      "updated_at" : "2026-06-14T01:34:25.007Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3c5-59e3-7e1a-abfe-edd20cf1217b",
-      "class_id" : "cls_019ec3c5-59d1-75b3-9a31-99cf7b279f57",
-      "created_at" : "2026-06-14T01:35:51.267Z",
-      "created_by" : "usr_019ec3c5-5988-762c-a7d7-75c66a11f25c",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd44qyb_2wx1h",
-      "updated_at" : "2026-06-14T01:35:51.267Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3c5-d424-7433-9a07-1354567d200b",
-      "class_id" : "cls_019ec3c5-d413-7db9-be61-03f4391f64e3",
-      "created_at" : "2026-06-14T01:36:22.564Z",
-      "created_by" : "usr_019ec3c5-d3c5-7f0a-a844-f1b5c7a6a96a",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd45f3p_1ea7h",
-      "updated_at" : "2026-06-14T01:36:22.564Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3d5-7c58-719e-9770-08b82260e732",
-      "class_id" : "cls_019ec3d5-7c46-7a7e-80c5-4c80e0add632",
-      "created_at" : "2026-06-14T01:53:28.664Z",
-      "created_by" : "usr_019ec3d5-7bf3-7a8b-b91e-361fed22f695",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd4reub_f0rby",
-      "updated_at" : "2026-06-14T01:53:28.664Z"
-    },
-    {
-      "assignment_id" : "asg_019ec3e3-1a91-7cab-8275-3f260a69e537",
-      "class_id" : "cls_019ec3e3-1a80-7bcd-a5cf-cd72379ba5db",
-      "created_at" : "2026-06-14T02:08:21.137Z",
-      "created_by" : "usr_019ec3e3-1a22-70f2-b7f0-145caa7bf3ff",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd5ajgs_1899e",
-      "updated_at" : "2026-06-14T02:08:21.137Z"
-    },
-    {
-      "assignment_id" : "asg_019ec40a-bd7e-78ec-ac50-da07113e2c39",
-      "class_id" : "cls_019ec40a-bd68-763e-9b44-17d50c0734ec",
-      "created_at" : "2026-06-14T02:51:38.750Z",
-      "created_by" : "usr_019ec40a-bcfe-734c-b4f5-8f05fc1daae8",
-      "description" : "Playwright 可视化测试预置的作业",
-      "due_at" : "2026-12-31",
-      "exam_id" : "eju_2023_02",
-      "title" : "E2E 读解作业 mqd6u7s8_sysyv",
-      "updated_at" : "2026-06-14T02:51:38.750Z"
+      "exam_id" : "2023_02",
+      "group_id" : "lg_019edad9-b0e8-71b2-a32e-22203f93c8d2",
+      "learning_group_id" : "lg_019edad9-b0e8-71b2-a32e-22203f93c8d2",
+      "learning_group_name" : "E2E 角色权限学习组 mqjinyqo_mjfdb",
+      "organization_id" : "org_019edad9-b09e-7194-965c-18c8c81030b8",
+      "question_end" : 3,
+      "question_ids" : [],
+      "question_start" : 1,
+      "reminders" : 
+      [
+        {
+          "created_at" : "2026-06-18T13:09:21.437Z",
+          "created_by" : "usr_019edad9-af35-7667-ae29-8f4680cd8dff",
+          "message" : "role orgAdmin reminder",
+          "reminder_id" : "rem_019edad9-b59d-79a4-83e2-00fff52f9269",
+          "target_student_ids" : 
+          [
+            "usr_019edad9-adcf-7564-b22f-cca951064746"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T13:09:21.468Z",
+          "created_by" : "usr_019edad9-aeb9-780e-88d4-ab707bf9a521",
+          "message" : "role teacher reminder",
+          "reminder_id" : "rem_019edad9-b5bc-7d49-a862-4be69ad16325",
+          "target_student_ids" : 
+          [
+            "usr_019edad9-adcf-7564-b22f-cca951064746"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T13:09:21.499Z",
+          "created_by" : "usr_019edad9-ae3d-752f-a5c0-434d88697135",
+          "message" : "role assistant reminder",
+          "reminder_id" : "rem_019edad9-b5db-79af-a249-c513d8fd133c",
+          "target_student_ids" : 
+          [
+            "usr_019edad9-adcf-7564-b22f-cca951064746"
+          ]
+        },
+        {
+          "created_at" : "2026-06-18T13:09:21.525Z",
+          "created_by" : "usr_019edad9-b02e-7dd8-a787-ac0d51c34f8a",
+          "message" : "role superAdmin reminder",
+          "reminder_id" : "rem_019edad9-b5f5-711a-9ee7-19b255631d25",
+          "target_student_ids" : 
+          [
+            "usr_019edad9-adcf-7564-b22f-cca951064746"
+          ]
+        }
+      ],
+      "submissions" : 
+      {
+        "usr_019edad9-adcf-7564-b22f-cca951064746" : 
+        {
+          "answers" : {},
+          "attempt_no" : 1,
+          "score" : 
+          {
+            "accuracy" : 0.0,
+            "assignment_scope_applied" : true,
+            "completion" : 0.0,
+            "correct_count" : 0,
+            "exam_id" : "2023_02",
+            "results" : 
+            {
+              "1:1" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "1",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:2" : 
+              {
+                "correct_answer" : "3",
+                "question_id" : "2",
+                "section_index" : 1,
+                "status" : "unanswered"
+              },
+              "1:3" : 
+              {
+                "correct_answer" : "2",
+                "question_id" : "3",
+                "section_index" : 1,
+                "status" : "unanswered"
+              }
+            },
+            "score" : 0.0,
+            "timestamp" : "2026-06-18T13:09:21.615Z",
+            "total_questions" : 3,
+            "unanswered_count" : 3,
+            "wrong_count" : 0
+          },
+          "status" : "submitted",
+          "student_id" : "usr_019edad9-adcf-7564-b22f-cca951064746",
+          "submitted_at" : "2026-06-18T13:09:21.624Z",
+          "updated_at" : "2026-06-18T13:09:21.624Z"
+        }
+      },
+      "title" : "E2E 角色权限作业 mqjinyqo_mjfdb",
+      "updated_at" : "2026-06-18T13:09:21.624Z"
     }
   ]
 }

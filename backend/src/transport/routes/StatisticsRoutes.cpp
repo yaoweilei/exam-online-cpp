@@ -10,6 +10,53 @@ using namespace drogon;
 
 namespace transport::routes
 {
+namespace
+{
+Json::Value buildRecommendations(const AppContext &ctx, const std::string &userId, int limit)
+{
+    Json::Value out(Json::arrayValue);
+    if (ctx.examService == nullptr)
+    {
+        return out;
+    }
+
+    Json::Value weak(Json::arrayValue);
+    if (ctx.statisticsService != nullptr)
+    {
+        weak = ctx.statisticsService->weakPoints(userId);
+    }
+
+    const auto exams = ctx.examService->listExams("", "", "", "date_desc");
+    if (!exams.isArray())
+    {
+        return out;
+    }
+
+    const bool hasWeakPoints = weak.isArray() && weak.size() > 0;
+    int count = 0;
+    for (const auto &exam : exams)
+    {
+        if (count >= limit)
+        {
+            break;
+        }
+        Json::Value item(Json::objectValue);
+        item["exam_id"] = exam.get("id", "").asString();
+        item["reason"] = hasWeakPoints ? "weak_point_boost" : "latest_exam";
+        item["score"] = hasWeakPoints ? 0.8 : 0.5;
+        out.append(item);
+        ++count;
+    }
+    return out;
+}
+
+int readRecommendationLimit(const HttpRequestPtr &req)
+{
+    const auto limitParam = req->getParameter("limit");
+    return limitParam.empty() ? 5 : (std::max)(1, std::stoi(limitParam));
+}
+}  // namespace
+
 void registerStatisticsRoutes(const AppContext &ctx)
 {
     app().registerHandler(
@@ -47,17 +94,26 @@ void registerStatisticsRoutes(const AppContext &ctx)
         },
         {Get});
 
-    auto recommendHandler = [ctx](const HttpRequestPtr &req,
-                                  std::function<void(const HttpResponsePtr &)> &&callback,
-                                  std::string userId) {
-        handleRequest(req, std::move(callback), [&]() {
-            const auto limitParam = req->getParameter("limit");
-            const int limit = limitParam.empty() ? 5 : (std::max)(1, std::stoi(limitParam));
-            return common::ok(req, ctx.recommendationStrategy->recommend(userId, limit));
-        });
-    };
+    app().registerHandler(
+        "/api/v1/recommendations/{1}",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string userId) {
+            handleRequest(req, std::move(callback), [&]() {
+                return common::ok(req, buildRecommendations(ctx, userId, readRecommendationLimit(req)));
+            });
+        },
+        {Get});
 
-    app().registerHandler("/api/v1/recommendations/{1}", recommendHandler, {Get});
-    app().registerHandler("/api/v1/statistics/{1}/recommendations", recommendHandler, {Get});
+    app().registerHandler(
+        "/api/v1/statistics/{1}/recommendations",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string userId) {
+            handleRequest(req, std::move(callback), [&]() {
+                return common::ok(req, buildRecommendations(ctx, userId, readRecommendationLimit(req)));
+            });
+        },
+        {Get});
 }
 }  // namespace transport::routes

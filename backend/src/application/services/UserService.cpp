@@ -94,6 +94,8 @@ Json::Value UserService::permissions(const std::string &userId) const
     out["user_id"] = user.get("id", userId).asString();
     out["roles"] = roles;
     out["subscription"] = subscription;
+    out["permission_templates"] = membership.get("permission_templates", Json::Value(Json::arrayValue));
+    out["permission_overrides"] = membership.get("permission_overrides", Json::Value(Json::arrayValue));
     out["features"] = visibleFeatures(roles, subscription);
     out["sections"] = visibleSections(roles, subscription);
     return out;
@@ -341,13 +343,13 @@ Json::Value UserService::visibleFeatures(const Json::Value &userRoles, const Jso
     add("profile", "个人信息", "👤");
     add("subscription", "套餐与权益", "⭐");
     add("community", "加入社群", "💬");
-    add("bookmarks", "收藏与错题", "📚", {"student", "teacher", "reviewer", "orgAdmin", "systemAdmin", "superAdmin"}, "bookmark");
-    add("stats", "学习统计", "📊", {"student", "teacher", "reviewer", "orgAdmin", "systemAdmin", "superAdmin"}, "weak_points");
-    add("recommendation", "推荐练习", "🎯", {"student", "teacher", "reviewer", "orgAdmin", "systemAdmin", "superAdmin"}, "recommendation");
-    add("training", "专项训练", "🚀", {"student", "teacher", "reviewer", "orgAdmin", "systemAdmin", "superAdmin"}, "training.specialized");
-    add("questions", "题目管理", "🗂️", {"teacher", "orgAdmin", "systemAdmin", "superAdmin"});
-    add("review", "阅卷审核", "📝", {"reviewer", "systemAdmin", "superAdmin"});
-    add("memberAdmin", "成员管理", "👥", {"orgAdmin", "systemAdmin", "superAdmin"});
+    add("bookmarks", "收藏与错题", "📚", {"student", "teacher", "assistant", "orgAdmin", "superAdmin"}, "bookmark");
+    add("stats", "学习统计", "📊", {"student", "teacher", "assistant", "orgAdmin", "superAdmin"}, "weak_points");
+    add("recommendation", "推荐练习", "🎯", {"student", "teacher", "assistant", "orgAdmin", "superAdmin"}, "recommendation");
+    add("training", "专项训练", "🚀", {"student", "teacher", "assistant", "orgAdmin", "superAdmin"}, "training.specialized");
+    add("questions", "题目管理", "🗂️", {"teacher", "contentAdmin", "superAdmin"});
+    add("contentAdmin", "内容维护", "🧩", {"contentAdmin", "superAdmin"});
+    add("memberAdmin", "成员管理", "👥", {"orgAdmin", "superAdmin"});
     add("sysFlags", "系统开关", "⚙️", {"superAdmin"});
     return features;
 }
@@ -377,8 +379,8 @@ Json::Value UserService::visibleSections(const Json::Value &userRoles, const Jso
     add("profile", "个人资料");
     add("subscription", "套餐");
     add("roles", "角色权限");
-    add("learning", "学习能力", {"student", "teacher", "reviewer", "orgAdmin", "systemAdmin", "superAdmin"});
-    add("admin-hub", "管理面板", {"teacher", "reviewer", "orgAdmin", "systemAdmin", "superAdmin"});
+    add("learning", "学习能力", {"student", "teacher", "assistant", "orgAdmin", "superAdmin"});
+    add("admin-hub", "管理面板", {"teacher", "assistant", "orgAdmin", "contentAdmin", "superAdmin"});
     add("logout", "退出登录");
     return sections;
 }

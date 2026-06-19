@@ -6,10 +6,10 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-06-14T00:49:16.332Z",
+  "last_active_at" : "2026-06-18T08:36:50.223Z",
   "last_credit_reason" : "",
   "locale" : "zh-CN",
-  "longest_streak" : 2,
+  "longest_streak" : 6,
   "notification_enabled" : true,
   "organization_type" : "",
   "plan" : "free",
@@ -18,7 +18,7 @@
   "plan_status" : "active",
   "scope_id" : "usr_019ebe5f-efca-7e4d-8f20-1973d2076ee8",
   "scope_type" : "personal",
-  "streak_days" : 2,
+  "streak_days" : 6,
   "user_id" : "usr_019ebe5f-efca-7e4d-8f20-1973d2076ee8",
   "xp" : 0
 }

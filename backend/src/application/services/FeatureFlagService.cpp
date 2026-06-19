@@ -16,7 +16,7 @@ static const std::array<FeatureFlagDef, 24> kRegistry{{
     {"exam_timer", "答题计时与限时", "全卷/分段限时和顶部计时条", true, true, true},
     {"resume_draft", "上次未完成自动续考", "自动保存答题草稿与续考横幅", true, true, true},
     {"question_feedback", "题目反馈/纠错", "用户报错入口与运营后台查看", true, true, true},
-    {"classrooms", "班级与作业", "教师建班、布置作业及学生作业汇总", true, true, true},
+    {"learning_groups", "学习组与作业", "学习组管理、布置作业及学生作业汇总", true, true, true},
     {"srs", "间隔重复复习", "SM-2 调度的错题复习卡", true, true, true},
     {"bookmark_folders", "收藏分类", "自定义文件夹组织收藏的试卷", true, true, true},
     {"audio_enhancement", "音频增强", "听力题变速、循环与 AB 复读", true, true, true},

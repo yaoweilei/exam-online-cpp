@@ -19,6 +19,10 @@ class BookmarkService
 
     Json::Value removeExamBookmark(const std::string &userId, const std::string &examId);
 
+    Json::Value addQuestionBookmark(const std::string &userId, Json::Value item);
+
+    Json::Value removeQuestionBookmark(const std::string &userId, const std::string &bookmarkId);
+
   private:
     infrastructure::storage::BookmarkRepository &repository_;
 };

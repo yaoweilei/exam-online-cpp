@@ -110,8 +110,9 @@ export function buildAvatarPresets(): AvatarPreset[] {
 		{ id: 'teacher-male', label: '男教师', role: '教师', emoji: '👨‍🏫', background: '#fff6e7', accent: '#b98743' },
 		{ id: 'admin-female', label: '女管理员', role: '管理员', emoji: '👩‍💼', background: '#f4f1ff', accent: '#7f6ad6' },
 		{ id: 'admin-male', label: '男管理员', role: '管理员', emoji: '👨‍💼', background: '#eff4f8', accent: '#71839a' },
-		{ id: 'reviewer', label: '阅卷员', role: '阅卷', emoji: '🧑‍⚖️', background: '#fff0f6', accent: '#c86b93' },
-		{ id: 'superadmin', label: '超级管理员', role: '超管', emoji: '👑', background: '#fff8e9', accent: '#cf9622' }
+		{ id: 'assistant', label: '教学运营', role: '运营', emoji: '🧑‍💼', background: '#eefaf4', accent: '#3e9b6f' },
+		{ id: 'content-admin', label: '内容管理员', role: '内容', emoji: '🧑‍💻', background: '#fff0f6', accent: '#c86b93' },
+		{ id: 'superadmin', label: '平台超级管理员', role: '超管', emoji: '👑', background: '#fff8e9', accent: '#cf9622' }
 	];
 
 	return [

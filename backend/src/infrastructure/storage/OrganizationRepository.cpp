@@ -344,6 +344,10 @@ Json::Value OrganizationRepository::normalizeMembership(const Json::Value &input
         roles.append("student");
     }
     membership["roles"] = roles;
+    if (!membership.isMember("permission_overrides") || !membership["permission_overrides"].isArray())
+    {
+        membership["permission_overrides"] = Json::arrayValue;
+    }
     membership["joined_at"] = membership.get("joined_at", common::nowIso8601()).asString();
     return membership;
 }
@@ -373,14 +377,10 @@ std::string OrganizationRepository::normalizeRole(const std::string &role)
     }
     if (role == "admin")
     {
-        return "systemAdmin";
-    }
-    if (role == "academicAdmin")
-    {
         return "orgAdmin";
     }
-    if (role == "guest" || role == "student" || role == "teacher" || role == "reviewer" || role == "orgAdmin" ||
-        role == "systemAdmin" || role == "superAdmin")
+    if (role == "guest" || role == "student" || role == "assistant" || role == "teacher" ||
+        role == "orgAdmin" || role == "contentAdmin" || role == "superAdmin")
     {
         return role;
     }

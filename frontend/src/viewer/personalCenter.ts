@@ -12,7 +12,9 @@ import type {
 	ManagedOrganizationMember, ManagedOrganizationInvitation, PendingOrganizationInvitation,
 	ManagedOrganizationAuditLog, ManagedOrganization, OrganizationMemberDraft,
 	ContactVerificationDraft, ContactVerificationKind, SectionDef, SystemFlag,
-	FeatureItem, RoleDef, AvatarPreset, AvatarPalette, AvatarSeed
+	FeatureItem, RoleDef, AvatarPreset, AvatarPalette, AvatarSeed, PermissionOverride,
+	PermissionTemplateId, ManagedCampus, ManagedLearningGroup, ManagedLearningGroupEnrollment,
+	ManagedCoursePackage
 } from './personalCenter/types.js';
 import {
 	escapeHtml, svgToDataUri, asRecord, readString, readBoolean, readNumber, readCount, readStringArray,
@@ -62,7 +64,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	const sections: SectionDef[] = [
 		{ id: 'dashboard', title: '我的', gate: (u) => !u.guest, nav: true },
 		{ id: 'profile', title: '资料', gate: (u) => !u.guest, nav: false },
-		{ id: 'admin-hub', title: '管理', gate: (u) => hasAnyRole(u, ['teacher', 'reviewer', 'orgAdmin', 'systemAdmin', 'superAdmin']), nav: true }
+		{ id: 'admin-hub', title: '管理', gate: (u) => hasAnyRole(u, ['teacher', 'assistant', 'orgAdmin', 'contentAdmin', 'superAdmin']), nav: true }
 	];
 
 	const featureItems: FeatureItem[] = [
@@ -86,8 +88,15 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			id: 'srsReview',
 			title: '今日复习',
 			icon: 'book',
-			intent: 'openSrsReview',
+			intent: 'openReviewWorkbench',
 			gate: (u) => !u.guest && (window.isFeatureEnabled?.('srs') ?? true)
+		},
+		{
+			id: 'recommendedReview',
+			title: '推荐复习',
+			icon: 'chart',
+			intent: 'openRecommendedReview',
+			gate: (u) => !u.guest
 		},
 		{
 			// 业务功能 8：收藏分类入口（功能开关：bookmark_folders）
@@ -167,7 +176,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			title: '社区讨论',
 			icon: 'chat',
 			intent: 'openCommunity',
-			gate: () => false
+			gate: (u) => !u.guest && (window.isFeatureEnabled?.('community') ?? true)
 		},
 		{
 			id: 'redeem',
@@ -196,34 +205,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			icon: 'profileMark',
 			intent: 'gotoProfile',
 			gate: (u) => !u.guest
-		},
-		{
-			id: 'community',
-			title: '加入社群',
-			icon: 'community',
-			intent: 'joinCommunity',
-			gate: () => false
-		},
-		{
-			id: 'questions',
-			title: '题目管理',
-			icon: 'folder',
-			intent: 'openQuestionManager',
-			gate: (u) => hasAnyRole(u, ['teacher', 'orgAdmin', 'systemAdmin', 'superAdmin'])
-		},
-		{
-			id: 'approvals',
-			title: '角色审批',
-			icon: 'badge',
-			intent: 'openRoleApprovals',
-			gate: (u) => hasAnyRole(u, ['systemAdmin', 'superAdmin'])
-		},
-		{
-			id: 'stats',
-			title: '统计',
-			icon: 'chart',
-			intent: 'openStats',
-			gate: (u) => hasAnyRole(u, ['systemAdmin', 'superAdmin'])
 		},
 		{
 			id: 'sysFlags',
@@ -260,15 +241,44 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	const roleDefs: RoleDef[] = [
 		{ id: 'guest', name: '访客', desc: '未登录，仅可浏览公开内容', risk: 'low' },
-		{ id: 'student', name: '学生', desc: '做题 / 积分 / 充值', risk: 'low' },
-		{ id: 'teacher', name: '教师', desc: '组卷 / 题库管理 / 布置', risk: 'medium' },
-		{ id: 'reviewer', name: '阅卷', desc: '阅卷审核、质检', risk: 'medium' },
-		{ id: 'orgAdmin', name: '组织管理员', desc: '组织空间内的成员与资源管理', risk: 'medium' },
-		{ id: 'systemAdmin', name: '系统管理员', desc: '系统级管理（非高危开关）', risk: 'high' },
-		{ id: 'superAdmin', name: '超级管理员', desc: '全部权限 + 高危系统操作', risk: 'critical' }
+		{ id: 'student', name: '学员', desc: '做题 / 作业 / 学习报告', risk: 'low' },
+		{ id: 'assistant', name: '教学运营', desc: '助教、班主任、教务、顾问的基础角色', risk: 'medium' },
+		{ id: 'teacher', name: '老师', desc: '教学 / 作业 / 批改 / 反馈', risk: 'medium' },
+		{ id: 'orgAdmin', name: '机构管理员', desc: '机构成员、学习组、课程包和看板管理', risk: 'medium' },
+		{ id: 'contentAdmin', name: '内容管理员', desc: '试卷、音频、答案和解析维护', risk: 'high' },
+		{ id: 'superAdmin', name: '平台超级管理员', desc: '平台全部权限和高危系统操作', risk: 'critical' }
 	];
 
-	const organizationMemberRoleDefs = roleDefs.filter((role) => ['student', 'teacher', 'reviewer', 'orgAdmin'].includes(role.id));
+	const organizationMemberRoleDefs = roleDefs.filter((role) => ['student', 'assistant', 'teacher', 'orgAdmin'].includes(role.id));
+	const organizationPermissionTemplateDefs: Array<{ id: PermissionTemplateId; name: string; role: 'assistant' | 'orgAdmin'; desc: string }> = [
+		{ id: 'assistant', name: '助教模板', role: 'assistant', desc: '催交、查看提交、协助老师反馈' },
+		{ id: 'homeroom', name: '班主任模板', role: 'assistant', desc: '学员档案、跟进记录、续费风险' },
+		{ id: 'teachingOffice', name: '教务模板', role: 'assistant', desc: '排课、约课、课程包、学习组' },
+		{ id: 'consultant', name: '课程顾问模板', role: 'assistant', desc: '基础档案、跟进记录、续费风险' },
+		{ id: 'campusAdmin', name: '校区管理员模板', role: 'orgAdmin', desc: '限定校区的机构管理能力' }
+	];
+	const organizationPermissionDefs = [
+		{ id: 'assignment.create', name: '布置作业' },
+		{ id: 'assignment.review', name: '查看/批改提交' },
+		{ id: 'assignment.remind', name: '催交作业' },
+		{ id: 'gradebook.view', name: '查看成绩册' },
+		{ id: 'student.profile.view', name: '查看学员档案' },
+		{ id: 'student.profile.edit', name: '编辑学员档案' },
+		{ id: 'student.followup.edit', name: '编辑跟进记录' },
+		{ id: 'student.import', name: '批量导入学员' },
+		{ id: 'learning_group.manage', name: '学习组管理' },
+		{ id: 'lesson.booking.manage', name: '约课管理' },
+		{ id: 'course_package.manage', name: '课程包管理' },
+		{ id: 'course_package.view', name: '查看课程包' },
+		{ id: 'lesson_prep.create', name: '备课组卷' },
+		{ id: 'lesson_prep.export', name: '导出讲义' },
+		{ id: 'renewal_risk.view', name: '续费风险' },
+		{ id: 'organization.dashboard.view', name: '机构看板' },
+		{ id: 'organization.member.manage', name: '成员管理' },
+		{ id: 'organization.billing.manage', name: '套餐/席位管理' },
+		{ id: 'payment.refund', name: '发起退款' },
+		{ id: 'audit.view', name: '查看审计日志' }
+	];
 
 	const avatarPresets: AvatarPreset[] = buildAvatarPresets();
 
@@ -524,6 +534,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return roles.map((role) => roleDefs.find((item) => item.id === role)?.name || role);
 	}
 
+	function permissionTemplateLabel(templateId: string): string {
+		return organizationPermissionTemplateDefs.find((item) => item.id === templateId)?.name || templateId;
+	}
+
 	function showToast(msg: string): void {
 		let el = document.getElementById('pc-toast') as HTMLDivElement | null;
 		if (!el) {
@@ -597,7 +611,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			allUsers = [];
 			return;
 		}
-		const roles = ['guest', 'student', 'teacher', 'reviewer', 'orgAdmin', 'systemAdmin', 'superAdmin'];
+		const roles = ['guest', 'student', 'assistant', 'teacher', 'orgAdmin', 'contentAdmin', 'superAdmin'];
 		const map = new Map<string, PCUser>();
 		for (const role of roles) {
 			try {
@@ -659,7 +673,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	}
 
 	function canManageMembers(ctx: PCContext): boolean {
-		return hasAnyRole(ctx, ['orgAdmin', 'systemAdmin', 'superAdmin']);
+		return hasAnyRole(ctx, ['orgAdmin', 'superAdmin']);
 	}
 
 	function pendingInvitationsKey(ctx: PCContext): string {
@@ -743,6 +757,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				searchResults: [],
 				selectedUserId: '',
 				memberNo: '',
+				permissionTemplates: [],
 				batchText: '',
 				inviteContact: '',
 				inviteMemberNo: '',
@@ -758,6 +773,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			searchResults: [],
 			selectedUserId: '',
 			memberNo: '',
+			permissionTemplates: [],
 			batchText: '',
 			inviteContact: '',
 			inviteMemberNo: '',
@@ -1525,9 +1541,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			return;
 		}
 		try {
-			await api.sendEmailVerificationCode(token, normalizedEmail);
+			const data = asRecord(await api.sendEmailVerificationCode(token, normalizedEmail));
 			contactVerificationDraft.email = normalizedEmail;
-			showToast('邮箱验证码已发送');
+			const remaining = data && typeof data.daily_remaining === 'number' ? `，今日剩余 ${data.daily_remaining} 次` : '';
+			showToast(`邮箱验证码已发送${remaining}`);
 		} catch (error) {
 			log('send email verification failed', error);
 			showToast(readErrorMessage(error, '邮箱验证码发送失败'));
@@ -1600,9 +1617,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			return;
 		}
 		try {
-			await api.sendPhoneVerificationCode(normalizedPhone);
+			const data = asRecord(await api.sendPhoneVerificationCode(normalizedPhone));
 			contactVerificationDraft.phone = normalizedPhone;
-			showToast('手机验证码已发送');
+			const remaining = data && typeof data.daily_remaining === 'number' ? `，今日剩余 ${data.daily_remaining} 次` : '';
+			showToast(`手机验证码已发送${remaining}`);
 		} catch (error) {
 			log('send phone verification failed', error);
 			showToast(readErrorMessage(error, '手机验证码发送失败'));
@@ -1656,6 +1674,94 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return `当前 ${organization.memberCount}/${organization.seats} 席，剩余 ${remaining} 席。`;
 	}
 
+	function normalizeManagedCampus(value: unknown): ManagedCampus | null {
+		const raw = asRecord(value);
+		if (!raw) {
+			return null;
+		}
+		const id = readString(raw.campus_id) || readString(raw.id);
+		const name = readString(raw.name);
+		if (!id || !name) {
+			return null;
+		}
+		return {
+			id,
+			name,
+			address: readString(raw.address),
+			status: readString(raw.status) || 'active'
+		};
+	}
+
+	function normalizeLearningGroupEnrollment(value: unknown): ManagedLearningGroupEnrollment | null {
+		const raw = asRecord(value);
+		if (!raw) {
+			return null;
+		}
+		const userId = readString(raw.user_id);
+		if (!userId) {
+			return null;
+		}
+		const role = readString(raw.role);
+		return {
+			enrollmentId: readString(raw.enrollment_id) || `${userId}-enrollment`,
+			userId,
+			role: role === 'teacher' || role === 'assistant' ? role : 'student',
+			status: readString(raw.status) || 'active'
+		};
+	}
+
+	function normalizeManagedLearningGroup(value: unknown): ManagedLearningGroup | null {
+		const raw = asRecord(value);
+		if (!raw) {
+			return null;
+		}
+		const id = readString(raw.learning_group_id) || readString(raw.group_id) || readString(raw.id);
+		const name = readString(raw.name);
+		if (!id || !name) {
+			return null;
+		}
+		const type = readString(raw.type);
+		return {
+			id,
+			name,
+			type: type === 'booking' ? 'booking' : 'class',
+			subject: readString(raw.subject),
+			campusId: readString(raw.campus_id),
+			coursePackageId: readString(raw.course_package_id),
+			startsAt: readString(raw.starts_at),
+			endsAt: readString(raw.ends_at),
+			status: readString(raw.status) || 'active',
+			enrollments: Array.isArray(raw.enrollments)
+				? raw.enrollments
+						.map((item) => normalizeLearningGroupEnrollment(item))
+						.filter((item): item is ManagedLearningGroupEnrollment => Boolean(item))
+				: []
+		};
+	}
+
+	function normalizeManagedCoursePackage(value: unknown): ManagedCoursePackage | null {
+		const raw = asRecord(value);
+		if (!raw) {
+			return null;
+		}
+		const id = readString(raw.course_package_id) || readString(raw.id);
+		const studentId = readString(raw.student_id);
+		if (!id || !studentId) {
+			return null;
+		}
+		return {
+			id,
+			studentId,
+			subject: readString(raw.subject),
+			title: readString(raw.title),
+			totalLessons: readCount(raw.total_lessons) ?? 0,
+			usedLessons: readCount(raw.used_lessons) ?? 0,
+			remainingLessons: readCount(raw.remaining_lessons) ?? 0,
+			expiresAt: readString(raw.expires_at),
+			status: readString(raw.status) || 'active'
+		};
+	}
+
 	function normalizeOrganizationRoleToken(value: string): string | undefined {
 		const normalized = value.trim().toLowerCase();
 		if (!normalized) {
@@ -1666,9 +1772,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			学生: 'student',
 			teacher: 'teacher',
 			教师: 'teacher',
-			reviewer: 'reviewer',
-			阅卷: 'reviewer',
-			阅卷员: 'reviewer',
+			assistant: 'assistant',
+			助教: 'assistant',
+			教务: 'assistant',
+			班主任: 'assistant',
+			顾问: 'assistant',
+			课程顾问: 'assistant',
 			orgadmin: 'orgAdmin',
 			admin: 'orgAdmin',
 			管理员: 'orgAdmin',
@@ -1765,7 +1874,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		organization: ManagedOrganization,
 		userId: string,
 		roles: string[],
-		memberNo: string
+		memberNo: string,
+		permissionTemplates: PermissionTemplateId[] = [],
+		permissionOverrides: PermissionOverride[] = []
 	): Promise<void> {
 		const ctx = getContext();
 		const token = activeToken(ctx);
@@ -1773,7 +1884,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		if (!token || !api || typeof api.saveOrganizationMember !== 'function') {
 			throw new Error('成员管理接口暂不可用');
 		}
-		await api.saveOrganizationMember(organization.id, token, buildOrganizationMemberPayload(organization, userId.trim(), roles, memberNo));
+		await api.saveOrganizationMember(organization.id, token, buildOrganizationMemberPayload(organization, userId.trim(), roles, memberNo, permissionTemplates, permissionOverrides));
 	}
 
 	async function refreshManagedOrganizations(): Promise<void> {
@@ -1799,16 +1910,153 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			.filter((value): value is string => Boolean(value) && allowed.has(value));
 	}
 
+	function normalizePermissionTemplates(value: unknown, roles: string[] = []): PermissionTemplateId[] {
+		const items = Array.isArray(value) ? value : [];
+		const roleSet = new Set(roles);
+		const allowed = new Set(organizationPermissionTemplateDefs.map((item) => item.id));
+		return Array.from(
+			new Set(
+				items
+					.map((item) => readString(item))
+					.filter((item): item is PermissionTemplateId => {
+						if (!allowed.has(item as PermissionTemplateId)) {
+							return false;
+						}
+						if (item === 'campusAdmin') {
+							return roleSet.has('orgAdmin');
+						}
+						return roleSet.has('assistant');
+					})
+			)
+		);
+	}
+
+	function renderOrganizationTemplateControls(selectedTemplates: PermissionTemplateId[], selectedRoles: string[], name: string): string {
+		const roleSet = new Set(selectedRoles);
+		const templateSet = new Set(selectedTemplates);
+		return `<div class="pc-org-template-block"><div class="pc-admin-note">权限模板是预设权限组合；助教/班主任/教务/顾问模板需搭配“教学运营”，校区管理员模板需搭配“机构管理员”。</div><div class="pc-role-toggle-group">${organizationPermissionTemplateDefs
+			.map(
+				(template) => `<label class="pc-role-toggle" title="${escapeHtml(template.desc)}"><input type="checkbox" data-org-template name="${escapeHtml(name)}" value="${escapeHtml(template.id)}"${templateSet.has(template.id) && roleSet.has(template.role) ? ' checked' : ''} /><span>${escapeHtml(template.name)}</span></label>`
+			)
+			.join('')}</div></div>`;
+	}
+
+	function readOrganizationPermissionTemplates(scope: ParentNode, roles: string[]): PermissionTemplateId[] {
+		return normalizePermissionTemplates(
+			Array.from(scope.querySelectorAll('input[data-org-template]:checked')).map((input) => ((input as HTMLInputElement).value || '').trim()),
+			roles
+		);
+	}
+
+	function normalizeOrganizationPermissionOverrides(value: unknown): PermissionOverride[] {
+		const items = Array.isArray(value) ? value : [];
+		const allowed = new Set(organizationPermissionDefs.map((item) => item.id));
+		return items
+			.map((item) => asRecord(item))
+			.filter((item): item is Record<string, unknown> => Boolean(item))
+			.map((item) => {
+				const permission = readString(item.permission);
+				if (!permission || !allowed.has(permission)) {
+					return null;
+				}
+				return {
+					permission,
+					effect: readString(item.effect) === 'deny' ? 'deny' : 'allow',
+					scope: normalizePermissionScope(readString(item.scope) || ''),
+					scopeId: readString(item.scopeId) || readString(item.scope_id) || '',
+					expiresAt: readString(item.expiresAt) || readString(item.expires_at) || ''
+				} as PermissionOverride;
+			})
+			.filter((item): item is PermissionOverride => Boolean(item));
+	}
+
+	function normalizePermissionScope(value: string): PermissionOverride['scope'] {
+		if (value === 'personal' || value === 'learningGroup' || value === 'campus' || value === 'organization') {
+			return value;
+		}
+		return 'organization';
+	}
+
+	function renderOrganizationPermissionControls(overrides: PermissionOverride[], expiresAt = ''): string {
+		const allowSet = new Set(overrides.filter((item) => item.effect !== 'deny').map((item) => item.permission));
+		const denySet = new Set(overrides.filter((item) => item.effect === 'deny').map((item) => item.permission));
+		const scope = overrides.find((item) => item.scope !== 'organization')?.scope || 'organization';
+		const scopeId = overrides.find((item) => item.scopeId)?.scopeId || '';
+		const expiry = expiresAt || overrides.find((item) => item.expiresAt)?.expiresAt || '';
+		const permissionsMarkup = organizationPermissionDefs
+			.map((permission) => `<label class="pc-role-toggle pc-permission-toggle"><input type="checkbox" data-org-permission value="${escapeHtml(permission.id)}"${allowSet.has(permission.id) ? ' checked' : ''} /><span>${escapeHtml(permission.name)}</span></label>`)
+			.join('');
+		const denyMarkup = organizationPermissionDefs
+			.filter((permission) => allowSet.has(permission.id) || denySet.has(permission.id))
+			.map((permission) => `<label class="pc-role-toggle pc-permission-toggle"><input type="checkbox" data-org-permission-deny value="${escapeHtml(permission.id)}"${denySet.has(permission.id) ? ' checked' : ''} /><span>禁用 ${escapeHtml(permission.name)}</span></label>`)
+			.join('');
+		const expiringText = expiry ? `有效期到 ${formatDateTime(expiry)}` : '永久有效';
+		return `<details class="pc-org-permission-editor"${overrides.length ? ' open' : ''} data-org-permission-editor>
+			<summary>额外权限${overrides.length ? `（${escapeHtml(String(overrides.length))}）` : ''} · ${escapeHtml(expiringText)}</summary>
+			<div class="pc-admin-note">角色提供默认权限；这里仅处理个别成员的额外授权或禁用。保存后会写入组织操作审计，deny 优先于 allow。</div>
+			<div class="pc-org-form-grid pc-org-form-grid-compact">
+				<label class="pc-org-field">
+					<span>权限范围</span>
+					<select class="pc-profile-input pc-org-select" data-org-permission-scope>
+						<option value="organization"${scope === 'organization' ? ' selected' : ''}>整个机构</option>
+						<option value="campus"${scope === 'campus' ? ' selected' : ''}>指定校区</option>
+						<option value="learningGroup"${scope === 'learningGroup' ? ' selected' : ''}>指定学习组</option>
+						<option value="personal"${scope === 'personal' ? ' selected' : ''}>个人</option>
+					</select>
+				</label>
+				<label class="pc-org-field">
+					<span>范围 ID</span>
+					<input class="pc-profile-input" type="text" data-org-permission-scope-id value="${escapeHtml(scopeId)}" placeholder="校区 / 学习组 / 用户 ID，可留空" />
+				</label>
+				<label class="pc-org-field">
+					<span>有效期</span>
+					<input class="pc-profile-input" type="date" data-org-permission-expires value="${escapeHtml(expiry.slice(0, 10))}" />
+				</label>
+			</div>
+			<div class="pc-role-toggle-group pc-permission-group">${permissionsMarkup}</div>
+			${denyMarkup ? `<div class="pc-role-toggle-group pc-permission-group pc-deny-group">${denyMarkup}</div>` : ''}
+		</details>`;
+	}
+
+	function readOrganizationPermissionOverrides(scope: ParentNode): PermissionOverride[] {
+		const permissionScope = normalizePermissionScope((scope.querySelector('[data-org-permission-scope]') as HTMLSelectElement | null)?.value || 'organization');
+		const scopeId = ((scope.querySelector('[data-org-permission-scope-id]') as HTMLInputElement | null)?.value || '').trim();
+		const expires = ((scope.querySelector('[data-org-permission-expires]') as HTMLInputElement | null)?.value || '').trim();
+		const expiresAt = expires ? `${expires}T23:59:59Z` : '';
+		const allowed = Array.from(scope.querySelectorAll('input[data-org-permission]:checked')).map((input) => ((input as HTMLInputElement).value || '').trim());
+		const denied = new Set(Array.from(scope.querySelectorAll('input[data-org-permission-deny]:checked')).map((input) => ((input as HTMLInputElement).value || '').trim()));
+		const overrides: PermissionOverride[] = [];
+		for (const permission of allowed) {
+			overrides.push({ permission, effect: denied.has(permission) ? 'deny' : 'allow', scope: permissionScope, scopeId, expiresAt });
+		}
+		for (const permission of denied) {
+			if (!allowed.includes(permission)) {
+				overrides.push({ permission, effect: 'deny', scope: permissionScope, scopeId, expiresAt });
+			}
+		}
+		return normalizeOrganizationPermissionOverrides(overrides);
+	}
+
 	function buildOrganizationMemberPayload(
 		organization: ManagedOrganization,
 		userId: string,
 		roles: string[],
-		memberNo: string
+		memberNo: string,
+		permissionTemplates: PermissionTemplateId[],
+		permissionOverrides: PermissionOverride[] = []
 	): Record<string, unknown> {
 		const normalizedMemberNo = memberNo.trim();
 		const payload: Record<string, unknown> = {
 			user_id: userId,
-			roles
+			roles,
+			permission_templates: normalizePermissionTemplates(permissionTemplates, roles),
+			permission_overrides: permissionOverrides.map((item) => ({
+				permission: item.permission,
+				effect: item.effect,
+				scope: item.scope,
+				scope_id: item.scopeId || '',
+				expires_at: item.expiresAt || ''
+			}))
 		};
 		if (normalizedMemberNo) {
 			payload.member_no = normalizedMemberNo;
@@ -1826,6 +2074,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		userId: string,
 		roles: string[],
 		memberNo: string,
+		permissionTemplates: PermissionTemplateId[],
+		permissionOverrides: PermissionOverride[],
 		successMessage: string
 	): Promise<void> {
 		const ctx = getContext();
@@ -1848,7 +2098,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			return;
 		}
 		try {
-			await persistOrganizationMembership(organization, userId, roles, memberNo);
+			await persistOrganizationMembership(organization, userId, roles, memberNo, permissionTemplates, permissionOverrides);
 			resetOrganizationMemberDraft(organization.id);
 			await refreshManagedOrganizations();
 			showToast(successMessage);
@@ -1885,6 +2135,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		contact: string,
 		roles: string[],
 		memberNo: string,
+		permissionTemplates: PermissionTemplateId[],
 		message: string
 	): Promise<void> {
 		const ctx = getContext();
@@ -1912,12 +2163,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				email: normalizedContact.includes('@') ? normalizedContact : '',
 				phone: normalizedContact.includes('@') ? '' : normalizedContact,
 				roles,
+				permission_templates: normalizePermissionTemplates(permissionTemplates, roles),
 				member_no: memberNo.trim(),
 				message: message.trim()
 			});
 			const draft = getOrganizationMemberDraft(organization.id);
 			draft.inviteContact = '';
 			draft.inviteMemberNo = '';
+			draft.permissionTemplates = [];
 			draft.inviteMessage = '';
 			await refreshManagedOrganizations();
 			showToast('邀请已创建，系统会自动投递到目标邮箱或手机号');
@@ -1985,6 +2238,158 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		} catch (error) {
 			log('save organization subscription failed', organization.id, error);
 			showToast(readErrorMessage(error, '组织套餐更新失败'));
+		}
+	}
+
+	async function saveOrganizationCampus(organization: ManagedOrganization, form: HTMLFormElement): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.saveOrganizationCampus !== 'function') {
+			showToast('校区管理接口暂不可用');
+			return;
+		}
+		const name = ((form.querySelector('[data-org-campus-name]') as HTMLInputElement | null)?.value || '').trim();
+		if (!name) {
+			showToast('请输入校区名称');
+			return;
+		}
+		try {
+			await api.saveOrganizationCampus(organization.id, token, {
+				campus_id: ((form.querySelector('[data-org-campus-id]') as HTMLInputElement | null)?.value || '').trim(),
+				name,
+				address: ((form.querySelector('[data-org-campus-address]') as HTMLInputElement | null)?.value || '').trim(),
+				status: (form.querySelector('[data-org-campus-status]') as HTMLSelectElement | null)?.value || 'active'
+			});
+			await refreshManagedOrganizations();
+			showToast('校区已保存');
+		} catch (error) {
+			log('save organization campus failed', organization.id, error);
+			showToast(readErrorMessage(error, '校区保存失败'));
+		}
+	}
+
+	async function saveOrganizationLearningGroup(organization: ManagedOrganization, form: HTMLFormElement): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.saveOrganizationLearningGroup !== 'function') {
+			showToast('学习组管理接口暂不可用');
+			return;
+		}
+		const name = ((form.querySelector('[data-org-learning-group-name]') as HTMLInputElement | null)?.value || '').trim();
+		if (!name) {
+			showToast('请输入学习组名称');
+			return;
+		}
+		try {
+			await api.saveOrganizationLearningGroup(organization.id, token, {
+				learning_group_id: ((form.querySelector('[data-org-learning-group-id]') as HTMLInputElement | null)?.value || '').trim(),
+				name,
+				type: (form.querySelector('[data-org-learning-group-type]') as HTMLSelectElement | null)?.value || 'class',
+				subject: ((form.querySelector('[data-org-learning-group-subject]') as HTMLInputElement | null)?.value || '').trim(),
+				campus_id: (form.querySelector('[data-org-learning-group-campus]') as HTMLSelectElement | null)?.value || '',
+				course_package_id: (form.querySelector('[data-org-learning-group-package]') as HTMLSelectElement | null)?.value || '',
+				starts_at: ((form.querySelector('[data-org-learning-group-starts]') as HTMLInputElement | null)?.value || '').trim(),
+				ends_at: ((form.querySelector('[data-org-learning-group-ends]') as HTMLInputElement | null)?.value || '').trim(),
+				status: (form.querySelector('[data-org-learning-group-status]') as HTMLSelectElement | null)?.value || 'active'
+			});
+			await refreshManagedOrganizations();
+			showToast('学习组已保存');
+		} catch (error) {
+			log('save organization learning group failed', organization.id, error);
+			showToast(readErrorMessage(error, '学习组保存失败'));
+		}
+	}
+
+	async function saveOrganizationCoursePackage(organization: ManagedOrganization, form: HTMLFormElement): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.saveOrganizationCoursePackage !== 'function') {
+			showToast('课程包管理接口暂不可用');
+			return;
+		}
+		const studentId = (form.querySelector('[data-org-course-package-student]') as HTMLSelectElement | null)?.value || '';
+		if (!studentId) {
+			showToast('请选择学员');
+			return;
+		}
+		const totalLessons = Math.max(0, Math.floor(Number((form.querySelector('[data-org-course-package-total]') as HTMLInputElement | null)?.value || '0')));
+		const usedLessons = Math.max(0, Math.floor(Number((form.querySelector('[data-org-course-package-used]') as HTMLInputElement | null)?.value || '0')));
+		if (totalLessons <= 0) {
+			showToast('课程包总课时必须大于 0');
+			return;
+		}
+		try {
+			await api.saveOrganizationCoursePackage(organization.id, token, {
+				course_package_id: ((form.querySelector('[data-org-course-package-id]') as HTMLInputElement | null)?.value || '').trim(),
+				student_id: studentId,
+				subject: ((form.querySelector('[data-org-course-package-subject]') as HTMLInputElement | null)?.value || '').trim(),
+				title: ((form.querySelector('[data-org-course-package-title]') as HTMLInputElement | null)?.value || '').trim(),
+				total_lessons: totalLessons,
+				used_lessons: usedLessons,
+				expires_at: ((form.querySelector('[data-org-course-package-expires]') as HTMLInputElement | null)?.value || '').trim(),
+				status: (form.querySelector('[data-org-course-package-status]') as HTMLSelectElement | null)?.value || 'active'
+			});
+			await refreshManagedOrganizations();
+			showToast('课程包已保存');
+		} catch (error) {
+			log('save organization course package failed', organization.id, error);
+			showToast(readErrorMessage(error, '课程包保存失败'));
+		}
+	}
+
+	async function saveOrganizationLearningGroupEnrollment(organization: ManagedOrganization, form: HTMLFormElement): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.saveLearningGroupEnrollment !== 'function') {
+			showToast('学习组成员接口暂不可用');
+			return;
+		}
+		const learningGroupId = (form.querySelector('[data-org-enrollment-group]') as HTMLSelectElement | null)?.value || '';
+		const userId = (form.querySelector('[data-org-enrollment-user]') as HTMLSelectElement | null)?.value || '';
+		if (!learningGroupId || !userId) {
+			showToast('请选择学习组和成员');
+			return;
+		}
+		try {
+			await api.saveLearningGroupEnrollment(organization.id, learningGroupId, token, {
+				user_id: userId,
+				role: (form.querySelector('[data-org-enrollment-role]') as HTMLSelectElement | null)?.value || 'student',
+				status: (form.querySelector('[data-org-enrollment-status]') as HTMLSelectElement | null)?.value || 'active'
+			});
+			await refreshManagedOrganizations();
+			showToast('学习组成员已保存');
+		} catch (error) {
+			log('save learning group enrollment failed', organization.id, learningGroupId, userId, error);
+			showToast(readErrorMessage(error, '学习组成员保存失败'));
+		}
+	}
+
+	async function completeOrganizationLearningGroup(organization: ManagedOrganization, learningGroup: ManagedLearningGroup): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.completeOrganizationLearningGroup !== 'function') {
+			showToast('完成学习组接口暂不可用');
+			return;
+		}
+		const label = learningGroup.type === 'booking' && learningGroup.coursePackageId
+			? `确认完成 ${learningGroup.name} 并扣减 1 次课程包课时吗？`
+			: `确认将 ${learningGroup.name} 标记为已完成吗？`;
+		if (!window.confirm(label)) {
+			return;
+		}
+		try {
+			const note = window.prompt('课后备注（可留空）', '') || '';
+			await api.completeOrganizationLearningGroup(organization.id, learningGroup.id, token, { note });
+			await refreshManagedOrganizations();
+			showToast(learningGroup.type === 'booking' && learningGroup.coursePackageId ? '已完成约课并扣减课时' : '学习组已完成');
+		} catch (error) {
+			log('complete learning group failed', organization.id, learningGroup.id, error);
+			showToast(readErrorMessage(error, '学习组完成失败'));
 		}
 	}
 
@@ -2099,7 +2504,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					failedRawLines.push(line);
 					continue;
 				}
-				await persistOrganizationMembership(organization, matchedUser.id, roles, memberNoPart.trim());
+				await persistOrganizationMembership(organization, matchedUser.id, roles, memberNoPart.trim(), [], []);
 				memberIds.add(matchedUser.id);
 				successCount += 1;
 			} catch (error) {
@@ -2160,6 +2565,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					}
 					const organizationSubscription = normalizeSubscription(organization.subscription);
 					let members: ManagedOrganizationMember[] = [];
+					let campuses: ManagedCampus[] = [];
+					let learningGroups: ManagedLearningGroup[] = [];
+					let coursePackages: ManagedCoursePackage[] = [];
 					let memberCount = readCount(organization.member_count) ?? 0;
 					const invitations = Array.isArray(organization.invitations)
 						? organization.invitations
@@ -2172,6 +2580,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 									contact: readString(invitation.contact) || readString(invitation.email) || readString(invitation.phone) || '-',
 									status: readString(invitation.status) || 'pending',
 									roles: readStringArray(invitation.roles) || ['student'],
+									permissionTemplates: normalizePermissionTemplates(invitation.permission_templates || invitation.permissionTemplates, readStringArray(invitation.roles) || ['student']),
+									permissionOverrides: normalizeOrganizationPermissionOverrides(invitation.permission_overrides || invitation.permissionOverrides),
 									memberNo:
 										readString(invitation.member_no) || readString(invitation.student_no) || readString(invitation.employee_no),
 									message: readString(invitation.message) || '',
@@ -2210,11 +2620,49 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 							username: readString(member.username) || readString(member.user_id) || '未命名成员',
 							memberNo: readString(member.member_no) || readString(member.student_no) || readString(member.employee_no),
 							roles: readStringArray(member.roles) || [],
+							permissionTemplates: normalizePermissionTemplates(member.permission_templates || member.permissionTemplates, readStringArray(member.roles) || []),
+							permissionOverrides: normalizeOrganizationPermissionOverrides(member.permission_overrides || member.permissionOverrides),
 							status: readString(member.status) || 'active'
 						}));
 						memberCount = memberCount || members.length;
 					} catch (error) {
 						log('load organization members failed', organizationId, error);
+					}
+					if (typeof api.getOrganizationCampuses === 'function') {
+						try {
+							const campusValues = (await api.getOrganizationCampuses(organizationId, token)) as unknown[];
+							campuses = Array.isArray(campusValues)
+								? campusValues
+										.map((item) => normalizeManagedCampus(item))
+										.filter((item): item is ManagedCampus => Boolean(item))
+								: [];
+						} catch (error) {
+							log('load organization campuses failed', organizationId, error);
+						}
+					}
+					if (typeof api.getOrganizationLearningGroups === 'function') {
+						try {
+							const groupValues = (await api.getOrganizationLearningGroups(organizationId, token)) as unknown[];
+							learningGroups = Array.isArray(groupValues)
+								? groupValues
+										.map((item) => normalizeManagedLearningGroup(item))
+										.filter((item): item is ManagedLearningGroup => Boolean(item))
+								: [];
+						} catch (error) {
+							log('load organization learning groups failed', organizationId, error);
+						}
+					}
+					if (typeof api.getOrganizationCoursePackages === 'function') {
+						try {
+							const packageValues = (await api.getOrganizationCoursePackages(organizationId, token)) as unknown[];
+							coursePackages = Array.isArray(packageValues)
+								? packageValues
+										.map((item) => normalizeManagedCoursePackage(item))
+										.filter((item): item is ManagedCoursePackage => Boolean(item))
+								: [];
+						} catch (error) {
+							log('load organization course packages failed', organizationId, error);
+						}
 					}
 
 					nextOrganizations.push({
@@ -2231,6 +2679,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 						status: readString(organization.status) || organizationSubscription?.status || 'active',
 						expiresAt: readString(organization.expires_at) || organizationSubscription?.expiresAt || '',
 						members,
+						campuses,
+						learningGroups,
+						coursePackages,
 						invitations,
 						auditLogs
 					});
@@ -2271,12 +2722,107 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					.join('')
 			: '<div class="pc-org-empty">当前还没有邀请记录。创建后会显示投递状态和到期时间，对方登录后会在待处理邀请里直接看到。</div>';
 
-		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>邀请成员</h4><span>${escapeHtml(String(pendingCount))} 个待接受</span></div><div class="pc-admin-note">支持直接填写邮箱或手机号。系统会自动发送邮件或短信，并要求对方验证匹配联系人后才能接受邀请。</div><form class="pc-org-add-form" data-org-invite-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid"><label class="pc-org-field pc-org-field-wide"><span>邮箱或手机号</span><input class="pc-profile-input" type="text" data-org-invite-contact value="${escapeHtml(draft.inviteContact)}" placeholder="name@example.com / 13800138000" /></label><label class="pc-org-field"><span>${escapeHtml(organizationMemberNoLabel(organization.organizationType))}</span><input class="pc-profile-input" type="text" maxlength="32" data-org-invite-member-no value="${escapeHtml(draft.inviteMemberNo)}" placeholder="留空自动生成" /></label></div><div class="pc-role-toggle-group">${renderOrganizationRoleControls(['student'], `org-invite-${organization.id}`)}</div><label class="pc-org-field"><span>邀请备注</span><textarea class="pc-org-batch-input" data-org-invite-message rows="3" placeholder="例如：欢迎加入第三期日语冲刺班">${escapeHtml(draft.inviteMessage)}</textarea></label><div class="pc-org-form-actions"><button class="pc-inline-btn" type="submit">创建邀请</button></div></form><div class="pc-org-invite-list">${invitationMarkup}</div></div>`;
+		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>邀请成员</h4><span>${escapeHtml(String(pendingCount))} 个待接受</span></div><div class="pc-admin-note">支持直接填写邮箱或手机号。系统会自动发送邮件或短信，并要求对方验证匹配联系人后才能接受邀请。</div><form class="pc-org-add-form" data-org-invite-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid"><label class="pc-org-field pc-org-field-wide"><span>邮箱或手机号</span><input class="pc-profile-input" type="text" data-org-invite-contact value="${escapeHtml(draft.inviteContact)}" placeholder="name@example.com / 13800138000" /></label><label class="pc-org-field"><span>${escapeHtml(organizationMemberNoLabel(organization.organizationType))}</span><input class="pc-profile-input" type="text" maxlength="32" data-org-invite-member-no value="${escapeHtml(draft.inviteMemberNo)}" placeholder="留空自动生成" /></label></div><div class="pc-role-toggle-group">${renderOrganizationRoleControls(['student'], `org-invite-${organization.id}`)}</div>${renderOrganizationTemplateControls(draft.permissionTemplates, ['student'], `org-invite-template-${organization.id}`)}<label class="pc-org-field"><span>邀请备注</span><textarea class="pc-org-batch-input" data-org-invite-message rows="3" placeholder="例如：欢迎加入第三期日语冲刺班">${escapeHtml(draft.inviteMessage)}</textarea></label><div class="pc-org-form-actions"><button class="pc-inline-btn" type="submit">创建邀请</button></div></form><div class="pc-org-invite-list">${invitationMarkup}</div></div>`;
 	}
 
 	function renderOrganizationSubscriptionPanel(organization: ManagedOrganization): string {
 		const expiryInput = organization.expiresAt ? organization.expiresAt.slice(0, 10) : '';
 		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>套餐与席位</h4><span>${escapeHtml(subscriptionExpirySummary(organization.expiresAt, organization.status))}</span></div><form class="pc-org-add-form" data-org-subscription-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input pc-org-select" data-org-plan><option value="free"${organization.plan === 'free' ? ' selected' : ''}>FREE</option><option value="pro"${organization.plan === 'pro' ? ' selected' : ''}>PRO</option><option value="ultra"${organization.plan === 'ultra' ? ' selected' : ''}>ULTRA</option></select></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-status><option value="active"${organization.status === 'active' ? ' selected' : ''}>active</option><option value="trial"${organization.status === 'trial' ? ' selected' : ''}>trial</option><option value="expired"${organization.status === 'expired' ? ' selected' : ''}>expired</option><option value="canceled"${organization.status === 'canceled' ? ' selected' : ''}>canceled</option></select></label><label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-seats value="${escapeHtml(String(organization.seats || defaultSeatsForPlan(organization.plan)))}" /></label></div><div class="pc-org-form-grid"><label class="pc-org-field"><span>到期日期</span><input class="pc-profile-input" type="date" data-org-expires-at value="${escapeHtml(expiryInput)}" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存套餐</button></div></div><div class="pc-admin-note">当前成员 ${escapeHtml(String(organization.memberCount))} 人，建议席位不低于成员数。切换套餐时会自动写入组织审计日志。</div></form></div>`;
+	}
+
+	function organizationMemberLabelById(organization: ManagedOrganization, userId: string): string {
+		const member = organization.members.find((item) => item.userId === userId);
+		if (member) {
+			return organizationMemberDisplayName(member);
+		}
+		return allUsers.find((user) => user.id === userId)?.displayName || userId;
+	}
+
+	function renderOrganizationCampusPanel(organization: ManagedOrganization): string {
+		const campusList = organization.campuses.length
+			? organization.campuses
+					.map((campus) => `<div class="pc-org-invite-item"><div class="pc-org-invite-head"><div><strong>${escapeHtml(campus.name)}</strong><span>${escapeHtml(campus.status)} · ${escapeHtml(campus.id)}</span></div></div>${campus.address ? `<div class="pc-admin-note">${escapeHtml(campus.address)}</div>` : ''}</div>`)
+					.join('')
+			: '<div class="pc-org-empty">还没有校区。小机构可以只建一个“默认校区”，多校区机构可按校区分配权限范围。</div>';
+		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>校区管理</h4><span>${escapeHtml(String(organization.campuses.length))} 个校区</span></div><form class="pc-org-add-form" data-org-campus-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>校区ID（更新时填写）</span><input class="pc-profile-input" data-org-campus-id placeholder="留空新建" /></label><label class="pc-org-field"><span>校区名称</span><input class="pc-profile-input" data-org-campus-name placeholder="东京校区" /></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-campus-status><option value="active">active</option><option value="disabled">disabled</option></select></label></div><div class="pc-org-form-grid"><label class="pc-org-field pc-org-field-wide"><span>地址/备注</span><input class="pc-profile-input" data-org-campus-address placeholder="校区地址或内部备注" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存校区</button></div></div></form><div class="pc-org-invite-list">${campusList}</div></div>`;
+	}
+
+	function renderOrganizationCoursePackagePanel(organization: ManagedOrganization): string {
+		const studentMembers = organization.members.filter((member) => member.roles.includes('student'));
+		const studentOptions = studentMembers.length
+			? studentMembers.map((member) => `<option value="${escapeHtml(member.userId)}">${escapeHtml(organizationMemberDisplayName(member))}</option>`).join('')
+			: '<option value="">请先添加学员成员</option>';
+		const packageList = organization.coursePackages.length
+			? organization.coursePackages
+					.map((item) => `<div class="pc-org-invite-item"><div class="pc-org-invite-head"><div><strong>${escapeHtml(item.title || item.subject || item.id)}</strong><span>${escapeHtml(organizationMemberLabelById(organization, item.studentId))} · ${escapeHtml(item.status)}</span></div><span>${escapeHtml(String(item.remainingLessons))}/${escapeHtml(String(item.totalLessons))} 次</span></div><div class="pc-org-invite-meta"><span>ID：${escapeHtml(item.id)}</span><span>科目：${escapeHtml(item.subject || '-')}</span><span>已用：${escapeHtml(String(item.usedLessons))}</span>${item.expiresAt ? `<span>到期：${escapeHtml(item.expiresAt)}</span>` : ''}</div></div>`)
+					.join('')
+			: '<div class="pc-org-empty">还没有课程包。课程包只绑定学员和科目，不绑定固定老师。</div>';
+		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>课程包</h4><span>${escapeHtml(String(organization.coursePackages.length))} 个</span></div><form class="pc-org-add-form" data-org-course-package-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>课程包ID（更新时填写）</span><input class="pc-profile-input" data-org-course-package-id placeholder="留空新建" /></label><label class="pc-org-field"><span>学员</span><select class="pc-profile-input pc-org-select" data-org-course-package-student>${studentOptions}</select></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-course-package-status><option value="active">active</option><option value="paused">paused</option><option value="expired">expired</option><option value="finished">finished</option></select></label></div><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>标题</span><input class="pc-profile-input" data-org-course-package-title placeholder="文综约课 20 次" /></label><label class="pc-org-field"><span>科目</span><input class="pc-profile-input" data-org-course-package-subject placeholder="japanese / sogo / writing" /></label><label class="pc-org-field"><span>到期时间</span><input class="pc-profile-input" type="date" data-org-course-package-expires /></label></div><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>总课时</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-course-package-total value="20" /></label><label class="pc-org-field"><span>已用课时</span><input class="pc-profile-input" type="number" min="0" step="1" data-org-course-package-used value="0" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存课程包</button></div></div></form><div class="pc-org-invite-list">${packageList}</div></div>`;
+	}
+
+	function renderLearningGroupCompleteButton(organization: ManagedOrganization, group: ManagedLearningGroup): string {
+		if (group.status === 'completed') {
+			return '<span class="pc-tag muted">已完成</span>';
+		}
+		return `<button class="pc-inline-btn" type="button" data-org-learning-group-complete data-org-id="${escapeHtml(organization.id)}" data-learning-group-id="${escapeHtml(group.id)}">${group.type === 'booking' && group.coursePackageId ? '完成并扣课时' : '标记完成'}</button>`;
+	}
+
+	function renderOrganizationSchedulePanel(organization: ManagedOrganization): string {
+		const sortedGroups = [...organization.learningGroups].sort((left, right) => {
+			const leftTime = Date.parse(left.startsAt || '');
+			const rightTime = Date.parse(right.startsAt || '');
+			const safeLeft = Number.isNaN(leftTime) ? Number.MAX_SAFE_INTEGER : leftTime;
+			const safeRight = Number.isNaN(rightTime) ? Number.MAX_SAFE_INTEGER : rightTime;
+			if (safeLeft !== safeRight) {
+				return safeLeft - safeRight;
+			}
+			return left.name.localeCompare(right.name, 'zh-CN');
+		});
+		const scheduleItems = sortedGroups.length
+			? sortedGroups
+					.slice(0, 12)
+					.map((group) => {
+						const campus = organization.campuses.find((item) => item.id === group.campusId);
+						const teachers = group.enrollments
+							.filter((item) => item.role === 'teacher' || item.role === 'assistant')
+							.map((item) => organizationMemberLabelById(organization, item.userId));
+						const students = group.enrollments
+							.filter((item) => item.role === 'student')
+							.map((item) => organizationMemberLabelById(organization, item.userId));
+						const timeText = group.startsAt
+							? `${formatDateTime(group.startsAt)}${group.endsAt ? ` - ${formatDateTime(group.endsAt)}` : ''}`
+							: '未排时间';
+						const typeText = group.type === 'booking' ? '约课' : '班级';
+						return `<div class="pc-org-invite-item"><div class="pc-org-invite-head"><div><strong>${escapeHtml(group.name)}</strong><span>${escapeHtml(timeText)}</span></div><div class="pc-org-form-actions">${renderLearningGroupCompleteButton(organization, group)}</div></div><div class="pc-org-invite-meta"><span>${escapeHtml(typeText)} · ${escapeHtml(group.status)}</span><span>科目：${escapeHtml(group.subject || '-')}</span><span>校区：${escapeHtml(campus?.name || '未指定')}</span><span>老师：${escapeHtml(teachers.join(' / ') || '未指定')}</span><span>学员：${escapeHtml(students.join(' / ') || '未指定')}</span></div></div>`;
+					})
+					.join('')
+			: '<div class="pc-org-empty">还没有日程。创建学习组时填写开始/结束时间后，会在这里按时间显示。</div>';
+		const scheduledCount = organization.learningGroups.filter((group) => Boolean(group.startsAt)).length;
+		const bookingCount = organization.learningGroups.filter((group) => group.type === 'booking').length;
+		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>排课日历</h4><span>${escapeHtml(String(scheduledCount))} 个已排时间 / ${escapeHtml(String(bookingCount))} 个约课</span></div><div class="pc-org-invite-list">${scheduleItems}</div></div>`;
+	}
+
+	function renderOrganizationLearningGroupPanel(organization: ManagedOrganization): string {
+		const campusOptions = `<option value="">不指定校区</option>${organization.campuses.map((campus) => `<option value="${escapeHtml(campus.id)}">${escapeHtml(campus.name)}</option>`).join('')}`;
+		const packageOptions = `<option value="">不绑定课程包</option>${organization.coursePackages.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.title || item.subject || item.id)} · ${escapeHtml(organizationMemberLabelById(organization, item.studentId))}</option>`).join('')}`;
+		const groupOptions = organization.learningGroups.length
+			? organization.learningGroups.map((group) => `<option value="${escapeHtml(group.id)}">${escapeHtml(group.name)}</option>`).join('')
+			: '<option value="">请先创建学习组</option>';
+		const memberOptions = organization.members.length
+			? organization.members.map((member) => `<option value="${escapeHtml(member.userId)}">${escapeHtml(organizationMemberDisplayName(member))}</option>`).join('')
+			: '<option value="">请先添加成员</option>';
+		const groupList = organization.learningGroups.length
+			? organization.learningGroups
+					.map((group) => {
+						const campus = organization.campuses.find((item) => item.id === group.campusId);
+						const enrollments = group.enrollments.length
+							? group.enrollments.map((enrollment) => `${organizationMemberLabelById(organization, enrollment.userId)}(${enrollment.role})`).join(' / ')
+							: '暂无成员';
+						return `<div class="pc-org-invite-item"><div class="pc-org-invite-head"><div><strong>${escapeHtml(group.name)}</strong><span>${escapeHtml(group.type === 'booking' ? '约课' : '班级')} · ${escapeHtml(group.status)} · ${escapeHtml(group.id)}</span></div><div class="pc-org-form-actions">${renderLearningGroupCompleteButton(organization, group)}</div></div><div class="pc-org-invite-meta"><span>科目：${escapeHtml(group.subject || '-')}</span><span>校区：${escapeHtml(campus?.name || '未指定')}</span><span>成员：${escapeHtml(enrollments)}</span>${group.coursePackageId ? `<span>课程包：${escapeHtml(group.coursePackageId)}</span>` : ''}${group.startsAt ? `<span>开始：${escapeHtml(group.startsAt)}</span>` : ''}</div></div>`;
+					})
+					.join('')
+			: '<div class="pc-org-empty">还没有学习组。班级、小班课、一对一约课都用学习组表达。</div>';
+		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>学习组</h4><span>${escapeHtml(String(organization.learningGroups.length))} 个</span></div><form class="pc-org-add-form" data-org-learning-group-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>学习组ID（更新时填写）</span><input class="pc-profile-input" data-org-learning-group-id placeholder="留空新建" /></label><label class="pc-org-field"><span>名称</span><input class="pc-profile-input" data-org-learning-group-name placeholder="EJU 日语基础班 / 文综一对一" /></label><label class="pc-org-field"><span>类型</span><select class="pc-profile-input pc-org-select" data-org-learning-group-type><option value="class">班级 / 小班</option><option value="booking">约课课次</option></select></label></div><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>科目</span><input class="pc-profile-input" data-org-learning-group-subject placeholder="japanese / sogo / writing" /></label><label class="pc-org-field"><span>校区</span><select class="pc-profile-input pc-org-select" data-org-learning-group-campus>${campusOptions}</select></label><label class="pc-org-field"><span>课程包</span><select class="pc-profile-input pc-org-select" data-org-learning-group-package>${packageOptions}</select></label></div><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>开始时间</span><input class="pc-profile-input" type="datetime-local" data-org-learning-group-starts /></label><label class="pc-org-field"><span>结束时间</span><input class="pc-profile-input" type="datetime-local" data-org-learning-group-ends /></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-learning-group-status><option value="active">active</option><option value="scheduled">scheduled</option><option value="finished">finished</option><option value="canceled">canceled</option><option value="archived">archived</option></select></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存学习组</button></div></form><form class="pc-org-add-form" data-org-learning-enrollment-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>学习组</span><select class="pc-profile-input pc-org-select" data-org-enrollment-group>${groupOptions}</select></label><label class="pc-org-field"><span>成员</span><select class="pc-profile-input pc-org-select" data-org-enrollment-user>${memberOptions}</select></label><label class="pc-org-field"><span>身份</span><select class="pc-profile-input pc-org-select" data-org-enrollment-role><option value="student">学生</option><option value="teacher">老师</option><option value="assistant">助教/教务</option></select></label></div><div class="pc-org-form-grid"><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-enrollment-status><option value="active">active</option><option value="inactive">inactive</option></select></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存学习组成员</button></div></div></form><div class="pc-org-invite-list">${groupList}</div></div>`;
 	}
 
 	function renderOrganizationAuditPanel(organization: ManagedOrganization): string {
@@ -2319,6 +2865,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				</label>
 			</div>
 			<div class="pc-role-toggle-group">${renderOrganizationRoleControls(['student'], `org-add-${organization.id}`)}</div>
+			${renderOrganizationTemplateControls(draft.permissionTemplates, ['student'], `org-add-template-${organization.id}`)}
 			${resultsMarkup}
 			<div class="pc-admin-note">${selectedUser ? `已选择 ${escapeHtml(selectedUser.displayName)}，提交后会加入当前组织。` : '先搜索并选择一个账号，再点击添加成员。'}</div>
 			<div class="pc-org-form-actions"><button class="pc-inline-btn" type="submit"${seatFull || !selectedUser ? ' disabled' : ''}>添加成员</button></div>
@@ -2336,12 +2883,20 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	function renderOrganizationMemberEditor(organization: ManagedOrganization, member: ManagedOrganizationMember): string {
 		const displayName = organizationMemberDisplayName(member);
 		const metaParts = [member.username !== displayName ? member.username : '', member.memberNo || ''].filter(Boolean);
+		const overrideCount = member.permissionOverrides.length;
+		const templateText = member.permissionTemplates.length
+			? member.permissionTemplates.map(permissionTemplateLabel).join(' / ')
+			: '未套用模板';
 		return `<form class="pc-org-member-editor" data-org-member-form data-org-id="${escapeHtml(organization.id)}" data-user-id="${escapeHtml(member.userId)}">
 			<div class="pc-org-member-head">
 				<div class="pc-org-member-meta"><strong>${escapeHtml(displayName)}</strong><span>${escapeHtml(metaParts.join(' · ') || '组织成员')}</span></div>
 				<button class="pc-inline-danger" type="button" data-org-member-remove>移除成员</button>
 			</div>
+			<div class="pc-org-subsection-head"><h4>成员权限</h4><span>${escapeHtml(roleLabels(member.roles).join(' / ') || '未设置角色')} · ${escapeHtml(templateText)} · 额外权限 ${escapeHtml(String(overrideCount))} 项</span></div>
+			<div class="pc-admin-note">基础角色决定默认权限；权限模板用于常见教务职责；额外权限可限定到整个机构、校区、学习组或个人，并可设置到期日期。</div>
 			<div class="pc-role-toggle-group">${renderOrganizationRoleControls(member.roles, `org-member-${organization.id}-${member.userId}`)}</div>
+			${renderOrganizationTemplateControls(member.permissionTemplates, member.roles, `org-member-template-${organization.id}-${member.userId}`)}
+			${renderOrganizationPermissionControls(member.permissionOverrides)}
 			<div class="pc-org-form-grid pc-org-form-grid-compact">
 				<label class="pc-org-field">
 					<span>${escapeHtml(organizationMemberNoLabel(organization.organizationType))}</span>
@@ -2761,7 +3316,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			return;
 		}
 		// 业务功能 6 的开关
-		if (window.isFeatureEnabled && !window.isFeatureEnabled('classrooms')) {
+		if (window.isFeatureEnabled && !window.isFeatureEnabled('learning_groups')) {
 			banner.hidden = true;
 			banner.innerHTML = '';
 			return;
@@ -2793,14 +3348,16 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				.map((it) => {
 					const title = escapeHtmlSafe(String(it.title || '未命名作业'));
 					const examId = String(it.exam_id || '');
+					const assignmentId = String(it.assignment_id || '');
 					const dueAt = escapeHtmlSafe(String(it.due_at || '不限期'));
+					const submitted = !!asRecord(it.own_submission)?.submitted_at;
 					return `
 						<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px dashed #eee;">
 							<div>
-								<div style="font-size:13px;">${title}</div>
+								<div style="font-size:13px;">${title}${submitted ? ' · 已交' : ''}</div>
 								<div style="font-size:12px;color:#888;">截止：${dueAt} · 试卷 <code>${escapeHtmlSafe(examId)}</code></div>
 							</div>
-							<button class="risk-btn" data-asg-action="open" data-exam-id="${escapeHtmlSafe(examId)}">去做题</button>
+							<button class="risk-btn" data-asg-action="open" data-exam-id="${escapeHtmlSafe(examId)}" data-assignment-id="${escapeHtmlSafe(assignmentId)}">${submitted ? '再做一次' : '去做题'}</button>
 						</div>`;
 				})
 				.join('');
@@ -2817,7 +3374,11 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					| null;
 				if (!btn) return;
 				const examId = btn.dataset.examId || '';
+				const assignmentId = btn.dataset.assignmentId || '';
 				if (!examId) return;
+				if (assignmentId) {
+					localStorage.setItem('exam_v2_active_assignment', JSON.stringify({ assignment_id: assignmentId, exam_id: examId }));
+				}
 				void resumeExam(examId, null);
 			};
 		} catch {
@@ -2926,6 +3487,62 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			showToast('已恢复到上次进度');
 		} catch (err) {
 			showToast(readErrorMessage(err, '续考失败'));
+		}
+	}
+
+	function findQuestionPosition(examData: Record<string, unknown>, questionId: string, preferredSectionIndex?: number): { sectionIndex: number; questionIndex: number } | null {
+		const examInfo = (examData.exam_info || {}) as Record<string, unknown>;
+		const sections = Array.isArray(examInfo.sections) ? (examInfo.sections as Array<Record<string, unknown>>) : [];
+		const sectionIndexes = typeof preferredSectionIndex === 'number' && preferredSectionIndex >= 0
+			? [preferredSectionIndex, ...sections.map((_, idx) => idx).filter((idx) => idx !== preferredSectionIndex)]
+			: sections.map((_, idx) => idx);
+		for (const sectionIndex of sectionIndexes) {
+			const section = sections[sectionIndex];
+			const questions = Array.isArray(section?.questions) ? (section.questions as Array<Record<string, unknown>>) : [];
+			for (let questionIndex = 0; questionIndex < questions.length; questionIndex += 1) {
+				if (String(questions[questionIndex]?.id ?? '') === questionId) {
+					return { sectionIndex, questionIndex };
+				}
+			}
+		}
+		return null;
+	}
+
+	async function openExamQuestion(examId: string, questionId: string, sectionIndex?: number): Promise<void> {
+		const api = window.APIClient;
+		const viewer = (window as unknown as {
+			examViewer?: {
+				loadExamData: (data: unknown) => void;
+				jumpToQuestion?: (sectionIndex: number, questionIndex: number) => void;
+				_currentExamId?: string | null;
+			};
+		}).examViewer;
+		if (!questionId) {
+			await resumeExam(examId, null);
+			return;
+		}
+		if (!api || typeof api.getExam !== 'function' || !viewer) {
+			showToast('当前环境无法直接打开题目，请手动打开试卷');
+			return;
+		}
+		try {
+			const examData = (await api.getExam(examId)) as Record<string, unknown>;
+			viewer._currentExamId = examId;
+			viewer.loadExamData(examData);
+			const pos = findQuestionPosition(examData, questionId, sectionIndex);
+			if (pos && typeof viewer.jumpToQuestion === 'function') {
+				viewer.jumpToQuestion(pos.sectionIndex, pos.questionIndex);
+				showToast('已跳转到收藏题');
+			} else {
+				showToast('已打开试卷，但没有定位到该题');
+			}
+			closePanel();
+			document.querySelectorAll<HTMLElement>('.risk-modal').forEach((modal) => {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			});
+		} catch (err) {
+			showToast(readErrorMessage(err, '打开题目失败'));
 		}
 	}
 
@@ -3114,57 +3731,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		</div>`;
 	}
 
-	function renderRoles(ctx: PCContext): string {
-		const owned = ctx.roles || [];
-		const ownedStr = escapeHtml(owned.join(', ') || '无');
-		const isSuper = owned.includes('superAdmin');
-		let extra = '';
-		if (isSuper) {
-			const rows = roleDefs
-				.map(
-					(role) => `<tr>
-						<td>${escapeHtml(role.id)}</td>
-						<td>${escapeHtml(role.name)}</td>
-						<td>${escapeHtml(role.desc)}</td>
-						<td><span class="risk-badge role-risk-${role.risk}">${role.risk}</span></td>
-						<td>${owned.includes(role.id) ? '<span class="role-owned">✔</span>' : ''}</td>
-					</tr>`
-				)
-				.join('');
-			const blocks = roleDefs
-				.map((role) => {
-					const users = allUsers.filter((u) => u.roleIds.includes(role.id));
-					if (users.length === 0) {
-						return '';
-					}
-					const list = users
-						.slice(0, 5)
-						.map(
-							(u) => `<li data-impersonate="${escapeHtml(u.id)}" title="切换为该用户">
-								<span class="ru-name">${escapeHtml(u.displayName)}</span>
-								<span class="ru-id">${escapeHtml(u.id)}</span>
-							</li>`
-						)
-						.join('');
-					const more = users.length > 5 ? `<div class="ru-more">+${users.length - 5} 更多…</div>` : '';
-					return `<div class="role-users-block" data-role="${escapeHtml(role.id)}">
-						<div class="role-users-head"><strong>${escapeHtml(role.name)}</strong><span class="ru-count">(${users.length})</span></div>
-						<ul class="role-user-list">${list}</ul>${more}
-					</div>`;
-				})
-				.join('');
-			extra = `<h3 style="margin-top:16px;">系统角色总览（仅 superAdmin 可见）</h3>
-				<table class="roles-table"><thead><tr><th>ID</th><th>名称</th><th>说明</th><th>风险</th><th>拥有</th></tr></thead><tbody>${rows}</tbody></table>
-				<p class="subtle" style="margin-top:8px;">下方是各角色的模拟用户（点击可快速切换身份，仅前端）。</p>
-				<div class="role-users-grid">${blocks}</div>`;
-		}
-		return `<div class="pc-section"><h2>角色与权限</h2>
-			<p>已拥有角色：${ownedStr}</p>
-			<p><button disabled>申请教师（占位）</button> <button disabled>申请阅卷（占位）</button></p>
-			${extra}
-		</div>`;
-	}
-
 	function renderProfileCard(ctx: PCContext): string {
 		const roleNames = roleLabels(ctx.roles);
 		const explicitDisplayName = (ctx.displayName || '').trim();
@@ -3259,26 +3825,26 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					.map((organization) => {
 						const members = organization.members.map((member) => renderOrganizationMemberEditor(organization, member)).join('');
 						const seatsText = organization.seats > 0 ? `${organization.memberCount}/${organization.seats} 席` : `${organization.memberCount} 人`;
-						return `<div class="pc-card pc-info-card"><div class="pc-service-header">${escapeHtml(organization.name)}</div><div class="pc-org-card"><div class="pc-org-head"><div><div class="pc-org-name">${escapeHtml(organization.name)}</div><div class="pc-org-type">${escapeHtml(organizationTypeLabel(organization.organizationType))}组织</div></div><div class="pc-org-seat">${escapeHtml(seatsText)}</div></div><div class="pc-org-meta"><div class="pc-org-metric"><span>套餐</span><strong>${escapeHtml(planLabel(organization.plan))}</strong></div><div class="pc-org-metric"><span>状态</span><strong>${escapeHtml(organization.status)}</strong></div><div class="pc-org-metric"><span>成员数</span><strong>${escapeHtml(String(organization.memberCount))}</strong></div></div><div class="pc-admin-note">这里可以直接添加成员、发起邀请、维护成员编号、查看审计记录并调整组织套餐。</div>${renderOrganizationSubscriptionPanel(organization)}${renderOrganizationInvitationPanel(organization)}${renderOrganizationAddForm(organization)}<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>成员管理</h4><span>${escapeHtml(organizationSeatSummary(organization))}</span></div><div class="pc-org-member-list">${members || '<div class="pc-org-empty">当前组织暂无成员数据，可先通过上方表单添加。</div>'}</div></div>${renderOrganizationAuditPanel(organization)}</div></div>`;
+						return `<div class="pc-card pc-info-card"><div class="pc-service-header">${escapeHtml(organization.name)}</div><div class="pc-org-card"><div class="pc-org-head"><div><div class="pc-org-name">${escapeHtml(organization.name)}</div><div class="pc-org-type">${escapeHtml(organizationTypeLabel(organization.organizationType))}组织</div></div><div class="pc-org-seat">${escapeHtml(seatsText)}</div></div><div class="pc-org-meta"><div class="pc-org-metric"><span>套餐</span><strong>${escapeHtml(planLabel(organization.plan))}</strong></div><div class="pc-org-metric"><span>状态</span><strong>${escapeHtml(organization.status)}</strong></div><div class="pc-org-metric"><span>成员数</span><strong>${escapeHtml(String(organization.memberCount))}</strong></div></div><div class="pc-admin-note">这里可以维护成员、席位、校区、学习组和课程包。班级制和约课制都会统一进入学习组模型。</div>${renderOrganizationSubscriptionPanel(organization)}${renderOrganizationCampusPanel(organization)}${renderOrganizationCoursePackagePanel(organization)}${renderOrganizationSchedulePanel(organization)}${renderOrganizationLearningGroupPanel(organization)}${renderOrganizationInvitationPanel(organization)}${renderOrganizationAddForm(organization)}<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>成员管理</h4><span>${escapeHtml(organizationSeatSummary(organization))}</span></div><div class="pc-org-member-list">${members || '<div class="pc-org-empty">当前组织暂无成员数据，可先通过上方表单添加。</div>'}</div></div>${renderOrganizationAuditPanel(organization)}</div></div>`;
 					})
 					.join('');
 			}
 		}
 
 		const roleNote = canManage
-			? '企业管理员现在会直接看到组织成员、席位和套餐摘要。'
-			: '教师和阅卷角色先保留业务入口；企业管理员进入组织后，会自动出现成员管理视图。';
+			? '机构管理员现在会直接看到成员、权限模板、席位和套餐摘要。'
+			: '老师、教学运营、内容管理员会看到各自工作台；机构管理员进入组织后，会出现成员管理视图。';
 
 		return `<div class="pc-profile-stack"><div class="pc-card pc-info-card"><div class="pc-service-header">管理面板</div><div class="pc-info-list"><div class="pc-info-row"><span>当前空间</span><strong>${escapeHtml(scopeLabel(ctx))}</strong></div>${organizationRow}<div class="pc-info-row"><span>当前角色</span><strong>${roleText}</strong></div></div><div class="pc-admin-note">${escapeHtml(roleNote)}</div></div>${renderInstitutionWorkbenchShell(ctx)}${organizationPanel}${hasAnyRole(ctx, ['superAdmin']) ? renderSystemFlags() : ''}</div>`;
 	}
 
 	function renderInstitutionWorkbenchShell(ctx: PCContext): string {
-		if (!hasAnyRole(ctx, ['teacher', 'reviewer', 'orgAdmin', 'systemAdmin', 'superAdmin'])) {
+		if (!hasAnyRole(ctx, ['teacher', 'assistant', 'orgAdmin', 'contentAdmin', 'superAdmin'])) {
 			return '';
 		}
 		return `<div class="pc-card pc-info-card" id="pc-institution-workbench">
 			<div class="pc-service-header">机构教学工作台</div>
-			<div class="pc-admin-note">正在加载班级、作业、席位、成绩册与学员档案...</div>
+			<div class="pc-admin-note">正在加载学习组、作业、席位、成绩册与学员档案...</div>
 		</div>`;
 	}
 
@@ -3529,9 +4095,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				renderSectionContent();
 				break;
 			case 'openSystemFlags':
-			case 'openQuestionManager':
-			case 'openRoleApprovals':
-			case 'openStats':
 				activeSection = 'admin-hub';
 				renderSections();
 				renderSectionContent();
@@ -3545,9 +4108,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			case 'openPaymentLedger':
 				void openPaymentLedgerPanel();
 				break;
-			case 'joinCommunity':
-				showToast(`功能占位: ${intent}`);
-				break;
 			case 'openRecharge':
 				void openRechargePanel();
 				break;
@@ -3558,6 +4118,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			case 'openSrsReview':
 				// 业务功能 7：打开 SRS 间隔重复复习面板
 				void openSrsReviewPanel();
+				break;
+			case 'openReviewWorkbench':
+				void openReviewWorkbenchPanel();
+				break;
+			case 'openRecommendedReview':
+				void openRecommendedReviewPanel();
 				break;
 			case 'openBookmarkFolders':
 				// 业务功能 8：打开收藏夹管理面板
@@ -3642,11 +4208,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					showToast('已填入待验证手机号，请先获取验证码并完成验证');
 				}
 				renderSectionContent();
-				return;
-			}
-			const fx = target?.closest('[data-fx]') as HTMLElement | null;
-			if (fx) {
-				showToast(`功能占位: ${fx.getAttribute('data-fx') || ''}`);
 				return;
 			}
 			const serviceItem = target?.closest('button.service-item') as HTMLButtonElement | null;
@@ -3777,14 +4338,18 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const assignments = Array.isArray(data.assignments) ? data.assignments : [];
 		const risks = Array.isArray(data.renewal_risks) ? data.renewal_risks : [];
 		const teachers = Array.isArray(data.teacher_effectiveness) ? data.teacher_effectiveness : [];
-		const classes = Array.isArray(data.classes) ? data.classes : [];
+		const classTrend = Array.isArray(data.class_average_trend) ? data.class_average_trend : [];
+		const ranking = Array.isArray(data.student_ranking) ? data.student_ranking : [];
+		const skillWeaknesses = Array.isArray(data.skill_weaknesses) ? data.skill_weaknesses : [];
+		const learningGroups = Array.isArray(data.learning_groups) ? data.learning_groups : [];
 		const assignmentRows = assignments.slice(0, 6).map((item) => {
 			const raw = asRecord(item) || {};
 			const title = readString(raw.title) || '未命名作业';
+			const assignmentId = readString(raw.assignment_id);
 			const submitted = institutionNumber(raw.submitted_count);
 			const total = institutionNumber(raw.student_count);
 			const avg = institutionNumber(raw.average_score, -1);
-			return `<div class="pc-info-row"><span>${escapeHtml(title)}</span><strong>${submitted}/${total}${avg >= 0 ? ` · ${avg.toFixed(1)}%` : ''}</strong></div>`;
+			return `<div class="pc-info-row"><span>${escapeHtml(title)}</span><strong>${submitted}/${total}${avg >= 0 ? ` · ${avg.toFixed(1)}%` : ''} ${assignmentId ? `<button class="pc-inline-btn" type="button" data-inst-assignment-submissions="${escapeHtml(assignmentId)}">提交</button><button class="pc-inline-btn" type="button" data-inst-assignment-remind="${escapeHtml(assignmentId)}">催交</button>` : ''}</strong></div>`;
 		}).join('');
 		const riskRows = risks.slice(0, 5).map((item) => {
 			const raw = asRecord(item) || {};
@@ -3794,21 +4359,42 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const teacherRows = teachers.slice(0, 5).map((item) => {
 			const raw = asRecord(item) || {};
 			const teacher = asRecord(raw.teacher) || {};
-			return `<div class="pc-info-row"><span>${escapeHtml(readString(teacher.display_name) || readString(teacher.username) || '老师')}</span><strong>${institutionNumber(raw.class_count)} 班 · ${institutionNumber(raw.assignment_count)} 作业</strong></div>`;
+			return `<div class="pc-info-row"><span>${escapeHtml(readString(teacher.display_name) || readString(teacher.username) || '老师')}</span><strong>${institutionNumber(raw.learning_group_count)} 组 · ${institutionNumber(raw.assignment_count)} 作业</strong></div>`;
 		}).join('');
-		const classOptions = classes.map((item) => {
+		const trendRows = classTrend.slice(-6).map((item) => {
 			const raw = asRecord(item) || {};
-			const id = readString(raw.class_id);
+			const avg = institutionNumber(raw.average_score, -1);
+			return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.learning_group_name) || '')} · ${escapeHtml(readString(raw.assignment_title) || '')}</span><strong>${avg >= 0 ? `${avg.toFixed(1)}%` : '暂无'} · ${institutionNumber(raw.submitted_count)}/${institutionNumber(raw.student_count)}</strong></div>`;
+		}).join('');
+		const rankingRows = ranking
+			.slice()
+			.sort((a, b) => institutionNumber(asRecord(b)?.average_score, -1) - institutionNumber(asRecord(a)?.average_score, -1))
+			.slice(0, 5)
+			.map((item, index) => {
+				const raw = asRecord(item) || {};
+				const student = asRecord(raw.student) || {};
+				const avg = institutionNumber(raw.average_score, -1);
+				return `<div class="pc-info-row"><span>${index + 1}. ${escapeHtml(readString(student.display_name) || readString(student.username) || readString(student.id) || '学员')}</span><strong>${avg >= 0 ? `${avg.toFixed(1)}%` : '暂无'} · ${institutionNumber(raw.attempt_count)} 次</strong></div>`;
+			}).join('');
+		const weaknessRows = skillWeaknesses.slice(0, 6).map((item) => {
+			const raw = asRecord(item) || {};
+			return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.skill) || '未分类')}</span><strong>${institutionNumber(raw.error_rate).toFixed(1)}% · 错 ${institutionNumber(raw.wrong_count)}/${institutionNumber(raw.total_questions)}</strong></div>`;
+		}).join('');
+		const learningGroupOptions = learningGroups.map((item) => {
+			const raw = asRecord(item) || {};
+			const id = readString(raw.learning_group_id) || readString(raw.group_id) || readString(raw.id);
+			const organizationId = readString(raw.organization_id) || readString(raw.org_id);
 			const name = readString(raw.name) || id;
-			return id ? `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>` : '';
+			return id ? `<option value="${escapeHtml(id)}" data-org-id="${escapeHtml(organizationId)}">${escapeHtml(name)}</option>` : '';
 		}).join('');
 		const canImport = capabilities.bulk_import === true;
 		const canPrep = capabilities.lesson_prep === true;
-		return `<div class="pc-admin-note">机构工作台已经接入班级、作业、成绩册、席位、学员档案和备课工具。</div>
+		return `<div class="pc-admin-note">机构工作台已经接入学习组、作业、成绩册、席位、学员档案和备课工具。</div>
 			<div class="pc-info-list">
 				<div class="pc-info-row"><span>当前机构套餐</span><strong>${escapeHtml(readString(activePlan.name) || readString(activePlan.id) || '标准版')}</strong></div>
-				<div class="pc-info-row"><span>班级 / 学员 / 作业</span><strong>${institutionNumber(summary.class_count)} / ${institutionNumber(summary.student_count)} / ${institutionNumber(summary.assignment_count)}</strong></div>
+				<div class="pc-info-row"><span>学习组 / 学员 / 作业</span><strong>${institutionNumber(summary.learning_group_count)} / ${institutionNumber(summary.student_count)} / ${institutionNumber(summary.assignment_count)}</strong></div>
 				<div class="pc-info-row"><span>席位</span><strong>${institutionNumber(seat.used_seats)} / ${institutionNumber(seat.purchased_seats)} 已用</strong></div>
+				<div class="pc-info-row"><span>可用席位</span><strong>${institutionNumber(seat.available_seats)} · 成员 ${institutionNumber(seat.member_count)}</strong></div>
 				<div class="pc-info-row"><span>平均作业得分</span><strong>${institutionNumber(summary.average_assignment_score, -1) >= 0 ? `${institutionNumber(summary.average_assignment_score).toFixed(1)}%` : '暂无'}</strong></div>
 			</div>
 			${renderInstitutionCapabilityPanel(capabilities, lockedFeatures)}
@@ -3816,11 +4402,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				<div class="pc-card pc-info-card"><div class="pc-service-header">作业完成</div><div class="pc-info-list">${assignmentRows || '<div class="pc-admin-note">暂无作业</div>'}</div></div>
 				<div class="pc-card pc-info-card"><div class="pc-service-header">续费风险</div><div class="pc-info-list">${capabilities.renewal_risk === true ? (riskRows || '<div class="pc-admin-note">暂无风险学员</div>') : '<div class="pc-admin-note">当前套餐未开通续费风险。</div>'}</div></div>
 				<div class="pc-card pc-info-card"><div class="pc-service-header">老师教学概览</div><div class="pc-info-list">${capabilities.teacher_effectiveness === true ? (teacherRows || '<div class="pc-admin-note">暂无老师数据</div>') : '<div class="pc-admin-note">当前套餐未开通老师教学看板。</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">学习组平均分趋势</div><div class="pc-info-list">${trendRows || '<div class="pc-admin-note">暂无趋势数据</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">学员排名</div><div class="pc-info-list">${rankingRows || '<div class="pc-admin-note">暂无排名数据</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">各题型弱项</div><div class="pc-info-list">${weaknessRows || '<div class="pc-admin-note">暂无弱项数据</div>'}</div></div>
 			</div>
 			${renderInstitutionPlanCatalog(planCatalog)}
 			<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-				<select data-inst-class style="padding:7px;border:1px solid #ddd;border-radius:4px;">${classOptions || '<option value="">暂无班级</option>'}</select>
-				<button class="pc-inline-btn" type="button" data-inst-create-class>创建班级</button>
+				<select data-inst-learning-group style="padding:7px;border:1px solid #ddd;border-radius:4px;">${learningGroupOptions || '<option value="">暂无学习组</option>'}</select>
+				<button class="pc-inline-btn" type="button" data-inst-create-learning-group>创建学习组</button>
 				<button class="pc-inline-btn" type="button" data-inst-add-members>添加学员</button>
 				<button class="pc-inline-btn" type="button" data-inst-create-assignment>布置作业</button>
 				<button class="pc-inline-btn" type="button" data-inst-gradebook>打开成绩册</button>
@@ -3833,7 +4422,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	function institutionFeatureLabel(key: string): string {
 		const labels: Record<string, string> = {
-			classrooms: '班级管理',
+			learning_groups: '学习组管理',
 			assignments: '布置作业',
 			auto_grading: '自动批改',
 			gradebook: '成绩册',
@@ -3853,7 +4442,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	}
 
 	function renderInstitutionCapabilityPanel(capabilities: Record<string, unknown>, lockedFeatures: string[]): string {
-		const core = ['classrooms', 'assignments', 'auto_grading', 'gradebook', 'student_profiles'];
+		const core = ['learning_groups', 'assignments', 'auto_grading', 'gradebook', 'student_profiles'];
 		const advanced = ['institution_dashboard', 'teacher_effectiveness', 'renewal_risk', 'bulk_import', 'lesson_prep', 'export_handouts', 'multi_teacher', 'audit_logs', 'multi_campus', 'custom_success_support'];
 		const renderList = (items: string[]) => items
 			.map((key) => {
@@ -3897,6 +4486,45 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		</div>`;
 	}
 
+	function renderInstitutionWorkbenchExtras(data: Record<string, unknown>): string {
+		const schedule = Array.isArray(data.schedule) ? data.schedule : [];
+		const packages = Array.isArray(data.course_packages) ? data.course_packages : [];
+		const relationships = Array.isArray(data.student_relationships) ? data.student_relationships : [];
+		const prepPlans = Array.isArray(data.lesson_prep_plans) ? data.lesson_prep_plans : [];
+		const scheduleRows = schedule.slice(0, 8).map((item) => {
+			const raw = asRecord(item) || {};
+			const start = readString(raw.starts_at);
+			const end = readString(raw.ends_at);
+			const time = start ? `${formatDateTime(start)}${end ? ` - ${formatDateTime(end)}` : ''}` : '未排时间';
+			return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.name) || '未命名日程')}</span><strong>${escapeHtml(time)} · ${escapeHtml(readString(raw.subject) || '-')}</strong></div>`;
+		}).join('');
+		const packageRows = packages.slice(0, 8).map((item) => {
+			const raw = asRecord(item) || {};
+			const student = asRecord(raw.student) || {};
+			const name = readString(student.display_name) || readString(student.username) || readString(raw.student_id) || '学员';
+			const remaining = institutionNumber(raw.remaining_lessons);
+			const total = institutionNumber(raw.total_lessons);
+			return `<div class="pc-info-row"><span>${escapeHtml(name)} · ${escapeHtml(readString(raw.title) || readString(raw.subject) || '课程包')}</span><strong>${remaining}/${total} 次 · ${escapeHtml(readString(raw.attention_reason) || '状态正常')}</strong></div>`;
+		}).join('');
+		const relationshipRows = relationships.slice(0, 8).map((item) => {
+			const raw = asRecord(item) || {};
+			const student = asRecord(raw.student) || {};
+			const name = readString(student.display_name) || readString(student.username) || '学员';
+			return `<div class="pc-info-row"><span>${escapeHtml(name)}</span><strong>${institutionNumber(raw.relationship_count)} 个学习关系 · ${institutionNumber(raw.course_package_count)} 个课程包</strong></div>`;
+		}).join('');
+		const prepRows = prepPlans.slice(0, 6).map((item) => {
+			const raw = asRecord(item) || {};
+			const questionCount = Array.isArray(raw.question_set) ? raw.question_set.length : 0;
+			return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.title) || '备课方案')}</span><strong>${escapeHtml(readString(raw.exam_id) || '-')} · ${questionCount} 题</strong></div>`;
+		}).join('');
+		return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px;" data-inst-workbench-extras>
+			<div class="pc-card pc-info-card"><div class="pc-service-header">老师/学员日程</div><div class="pc-info-list">${scheduleRows || '<div class="pc-admin-note">暂无日程</div>'}</div></div>
+			<div class="pc-card pc-info-card"><div class="pc-service-header">课程包预警</div><div class="pc-info-list">${packageRows || '<div class="pc-admin-note">暂无课程包数据</div>'}</div></div>
+			<div class="pc-card pc-info-card"><div class="pc-service-header">学生学习关系</div><div class="pc-info-list">${relationshipRows || '<div class="pc-admin-note">暂无学生关系</div>'}</div></div>
+			<div class="pc-card pc-info-card"><div class="pc-service-header">已保存备课方案</div><div class="pc-info-list">${prepRows || '<div class="pc-admin-note">暂无备课方案</div>'}</div></div>
+		</div>`;
+	}
+
 	async function refreshInstitutionWorkbench(ctx: PCContext): Promise<void> {
 		const root = document.getElementById('pc-institution-workbench');
 		const token = activeToken(ctx);
@@ -3906,28 +4534,50 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		}
 		try {
 			const data = asRecord(await api.getInstitutionDashboard(token, ctx.organizationId)) || {};
-			root.innerHTML = `<div class="pc-service-header">机构教学工作台</div>${renderInstitutionDashboard(data)}`;
+			let workbenchData: Record<string, unknown> = {};
+			if (typeof api.getInstitutionWorkbench === 'function') {
+				workbenchData = asRecord(await api.getInstitutionWorkbench(token, ctx.organizationId)) || {};
+			}
+			root.innerHTML = `<div class="pc-service-header">机构教学工作台</div>${renderInstitutionDashboard(data)}${renderInstitutionWorkbenchExtras(workbenchData)}`;
 		} catch (error) {
 			root.innerHTML = `<div class="pc-service-header">机构教学工作台</div><div class="pc-admin-note">${escapeHtml(readErrorMessage(error, '机构工作台加载失败'))}</div>`;
 		}
+	}
+
+	function readSelectedInstitutionLearningGroup(container: HTMLElement): { organizationId: string; learningGroupId: string } {
+		const select = container.querySelector('[data-inst-learning-group]') as HTMLSelectElement | null;
+		const option = select?.selectedOptions?.[0] as HTMLOptionElement | undefined;
+		return {
+			organizationId: option?.dataset.orgId || getContext().organizationId || '',
+			learningGroupId: select?.value || ''
+		};
 	}
 
 	async function openInstitutionGradebook(container: HTMLElement): Promise<void> {
 		const ctx = getContext();
 		const token = activeToken(ctx);
 		const api = window.APIClient;
-		const select = container.querySelector('[data-inst-class]') as HTMLSelectElement | null;
-		const classId = select?.value || '';
+		const selected = readSelectedInstitutionLearningGroup(container);
 		const detail = container.querySelector('#pc-institution-detail') as HTMLElement | null;
-		if (!token || !classId || !detail || !api || typeof api.getInstitutionClassGradebook !== 'function') {
-			showToast('请选择班级');
+		if (!token || !selected.organizationId || !selected.learningGroupId || !detail || !api || typeof api.getInstitutionLearningGroupGradebook !== 'function') {
+			showToast('请选择学习组');
 			return;
 		}
 		detail.innerHTML = '<div class="pc-admin-note">正在加载成绩册...</div>';
 		try {
-			const data = asRecord(await api.getInstitutionClassGradebook(token, classId)) || {};
+			const data = asRecord(await api.getInstitutionLearningGroupGradebook(token, selected.organizationId, selected.learningGroupId)) || {};
 			const students = Array.isArray(data.students) ? data.students : [];
-			detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">班级成绩册</div><div class="pc-info-list">${students.map((item) => {
+			const assignments = Array.isArray(data.assignments) ? data.assignments : [];
+			const assignmentRows = assignments.map((item) => {
+				const raw = asRecord(item) || {};
+				const assignmentId = readString(raw.assignment_id);
+				const title = readString(raw.title) || '未命名作业';
+				const submitted = institutionNumber(raw.submitted_count);
+				const total = institutionNumber(raw.student_count);
+				const avg = institutionNumber(raw.average_score, -1);
+				return `<div class="pc-info-row"><span>${escapeHtml(title)}</span><strong>${submitted}/${total}${avg >= 0 ? ` · ${avg.toFixed(1)}%` : ''} ${assignmentId ? `<button class="pc-inline-btn" type="button" data-inst-assignment-submissions="${escapeHtml(assignmentId)}">提交</button><button class="pc-inline-btn" type="button" data-inst-assignment-remind="${escapeHtml(assignmentId)}">催交</button>` : ''}</strong></div>`;
+			}).join('');
+			detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">学习组成绩册</div><div class="pc-info-list">${students.map((item) => {
 				const raw = asRecord(item) || {};
 				const student = asRecord(raw.student) || {};
 				const record = asRecord(raw.answers) || {};
@@ -3935,65 +4585,75 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				const score = institutionNumber(record.average_score, -1);
 				const studentId = readString(student.id);
 				return `<div class="pc-info-row"><span>${escapeHtml(name)}</span><strong>${score >= 0 ? `${score.toFixed(1)}%` : '暂无'} · ${institutionNumber(record.attempt_count)} 次 <button class="pc-inline-btn" type="button" data-inst-student="${escapeHtml(studentId)}">档案</button></strong></div>`;
-			}).join('') || '<div class="pc-admin-note">暂无学员</div>'}</div></div>`;
+			}).join('') || '<div class="pc-admin-note">暂无学员</div>'}</div></div><div class="pc-card pc-info-card"><div class="pc-service-header">学习组作业</div><div class="pc-info-list">${assignmentRows || '<div class="pc-admin-note">暂无作业</div>'}</div></div>`;
 		} catch (error) {
 			detail.innerHTML = `<div class="pc-admin-note">${escapeHtml(readErrorMessage(error, '成绩册加载失败'))}</div>`;
 		}
 	}
 
-	async function createInstitutionClass(container: HTMLElement): Promise<void> {
+	async function createInstitutionLearningGroup(container: HTMLElement): Promise<void> {
 		const ctx = getContext();
 		const api = window.APIClient;
-		if (!api || typeof api.createClassroom !== 'function') {
-			showToast('班级接口暂不可用');
+		const token = activeToken(ctx);
+		if (!api || typeof api.saveOrganizationLearningGroup !== 'function' || !token || !ctx.organizationId) {
+			showToast('学习组接口暂不可用');
 			return;
 		}
-		const name = (window.prompt('班级名称', 'EJU 日语冲刺班') || '').trim();
+		const name = (window.prompt('学习组名称', 'EJU 日语冲刺班') || '').trim();
 		if (!name) return;
-		const description = (window.prompt('班级说明（可选）', '') || '').trim();
+		const subject = (window.prompt('科目（可选，例如 japanese / sogo）', 'japanese') || '').trim();
 		try {
-			const created = asRecord(await api.createClassroom({
+			const created = asRecord(await api.saveOrganizationLearningGroup(ctx.organizationId, token, {
 				name,
-				description,
-				org_id: ctx.organizationId || ''
+				subject,
+				type: 'class',
+				status: 'active'
 			})) || {};
-			const createdId = readString(created.class_id);
-			showToast('班级已创建');
+			const createdId = readString(created.learning_group_id) || readString(created.group_id) || readString(created.id);
+			showToast('学习组已创建');
 			await refreshInstitutionWorkbench(getContext());
 			const root = document.getElementById('pc-institution-workbench') || container;
-			const select = root.querySelector('[data-inst-class]') as HTMLSelectElement | null;
+			const select = root.querySelector('[data-inst-learning-group]') as HTMLSelectElement | null;
 			if (select && createdId) {
 				const existing = Array.from(select.options).some((option) => option.value === createdId);
 				if (!existing) {
 					const option = document.createElement('option');
 					option.value = createdId;
+					option.dataset.orgId = ctx.organizationId || '';
 					option.textContent = readString(created.name) || name;
 					select.appendChild(option);
 				}
 				select.value = createdId;
 			}
 		} catch (error) {
-			showToast(readErrorMessage(error, '班级创建失败'));
+			showToast(readErrorMessage(error, '学习组创建失败'));
 		}
 	}
 
 	async function addInstitutionMembers(container: HTMLElement): Promise<void> {
+		const ctx = getContext();
 		const api = window.APIClient;
-		const select = container.querySelector('[data-inst-class]') as HTMLSelectElement | null;
-		const classId = select?.value || '';
-		if (!classId) {
-			showToast('请选择班级');
+		const token = activeToken(ctx);
+		const selected = readSelectedInstitutionLearningGroup(container);
+		if (!selected.organizationId || !selected.learningGroupId) {
+			showToast('请选择学习组');
 			return;
 		}
-		if (!api || typeof api.addClassroomMembers !== 'function') {
-			showToast('班级成员接口暂不可用');
+		if (!api || typeof api.saveLearningGroupEnrollment !== 'function' || !token) {
+			showToast('学习组成员接口暂不可用');
 			return;
 		}
 		const raw = window.prompt('输入学员 userId，多个用逗号或换行分隔', '') || '';
 		const userIds = raw.split(/[\s,，;；]+/).map((item) => item.trim()).filter(Boolean);
 		if (userIds.length === 0) return;
 		try {
-			await api.addClassroomMembers(classId, userIds);
+			for (const userId of userIds) {
+				await api.saveLearningGroupEnrollment(selected.organizationId, selected.learningGroupId, token, {
+					user_id: userId,
+					role: 'student',
+					status: 'active'
+				});
+			}
 			showToast(`已添加 ${userIds.length} 名学员`);
 			await refreshInstitutionWorkbench(getContext());
 		} catch (error) {
@@ -4003,13 +4663,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	async function createInstitutionAssignment(container: HTMLElement): Promise<void> {
 		const api = window.APIClient;
-		const select = container.querySelector('[data-inst-class]') as HTMLSelectElement | null;
-		const classId = select?.value || '';
-		if (!classId) {
-			showToast('请选择班级');
+		const selected = readSelectedInstitutionLearningGroup(container);
+		if (!selected.organizationId || !selected.learningGroupId) {
+			showToast('请选择学习组');
 			return;
 		}
-		if (!api || typeof api.createAssignment !== 'function') {
+		if (!api || typeof api.createLearningGroupAssignment !== 'function') {
 			showToast('作业接口暂不可用');
 			return;
 		}
@@ -4017,17 +4676,74 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		if (!examId) return;
 		const title = (window.prompt('作业标题', `${examId} 练习`) || '').trim() || `${examId} 练习`;
 		const dueAt = (window.prompt('截止时间（可选，例如 2026-07-01）', '') || '').trim();
+		const rangeRaw = (window.prompt('题号范围（可选，例如 1-10；留空表示整卷）', '') || '').trim();
+		const rangeMatch = rangeRaw.match(/^(\d+)\s*[-~～]\s*(\d+)$/);
+		const singleMatch = rangeRaw.match(/^(\d+)$/);
+		const payload: Record<string, unknown> = {
+			exam_id: examId,
+			title,
+			description: '系统布置作业',
+			due_at: dueAt
+		};
+		if (rangeMatch) {
+			payload.question_start = Number(rangeMatch[1]);
+			payload.question_end = Number(rangeMatch[2]);
+		} else if (singleMatch) {
+			payload.question_start = Number(singleMatch[1]);
+			payload.question_end = Number(singleMatch[1]);
+		}
 		try {
-			await api.createAssignment(classId, {
-				exam_id: examId,
-				title,
-				description: '系统布置作业',
-				due_at: dueAt
-			});
+			await api.createLearningGroupAssignment(selected.organizationId, selected.learningGroupId, payload);
 			showToast('作业已布置');
 			await refreshInstitutionWorkbench(getContext());
 		} catch (error) {
 			showToast(readErrorMessage(error, '作业布置失败'));
+		}
+	}
+
+	async function openInstitutionAssignmentSubmissions(container: HTMLElement, assignmentId: string): Promise<void> {
+		const api = window.APIClient;
+		const detail = container.querySelector('#pc-institution-detail') as HTMLElement | null;
+		if (!assignmentId || !detail || !api || typeof api.getAssignmentSubmissions !== 'function') return;
+		detail.innerHTML = '<div class="pc-admin-note">正在加载作业提交情况...</div>';
+		try {
+			const data = asRecord(await api.getAssignmentSubmissions(assignmentId)) || {};
+			const assignment = asRecord(data.assignment) || {};
+			const submissions = asRecord(data.submissions) || {};
+			const learningGroup = asRecord(data.learning_group) || {};
+			const enrollments = Array.isArray(learningGroup.enrollments) ? learningGroup.enrollments : [];
+			const studentIds = enrollments
+				.map((item) => asRecord(item) || {})
+				.filter((item) => readString(item.role) === 'student' && (readString(item.status) || 'active') === 'active')
+				.map((item) => readString(item.user_id))
+				.filter((item): item is string => Boolean(item));
+			const visibleStudentIds = studentIds.length ? studentIds : Object.keys(submissions);
+			const rows = visibleStudentIds.map((studentId) => {
+				const sub = asRecord(submissions[studentId]) || {};
+				const score = asRecord(sub.score) || {};
+				const submitted = !!readString(sub.submitted_at);
+				return `<div class="pc-info-row">
+					<span>${escapeHtml(studentId)}</span>
+					<strong>${submitted ? `已交 · ${institutionNumber(score.score, 0).toFixed(1)}% · ${escapeHtml(formatDateTime(readString(sub.submitted_at)))}` : '未交'}</strong>
+				</div>`;
+			}).join('');
+			detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">作业提交：${escapeHtml(readString(assignment.title) || assignmentId)}</div><div class="pc-info-list">${rows || '<div class="pc-admin-note">暂无学员</div>'}</div></div>`;
+		} catch (error) {
+			detail.innerHTML = `<div class="pc-admin-note">${escapeHtml(readErrorMessage(error, '提交情况加载失败'))}</div>`;
+		}
+	}
+
+	async function remindInstitutionAssignment(assignmentId: string): Promise<void> {
+		const api = window.APIClient;
+		if (!assignmentId || !api || typeof api.remindAssignment !== 'function') return;
+		const message = (window.prompt('催交内容', '请按时完成作业，有问题可以联系老师。') || '').trim();
+		if (!message) return;
+		try {
+			const data = asRecord(await api.remindAssignment(assignmentId, { message })) || {};
+			const targets = Array.isArray(data.target_student_ids) ? data.target_student_ids.length : 0;
+			showToast(`已记录催交，目标 ${targets} 人`);
+		} catch (error) {
+			showToast(readErrorMessage(error, '催交失败'));
 		}
 	}
 
@@ -4042,9 +4758,75 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			const student = asRecord(data.student) || {};
 			const record = asRecord(data.learning_record) || {};
 			const weaknesses = Array.isArray(data.weaknesses) ? data.weaknesses : [];
-			detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">学员档案：${escapeHtml(readString(student.display_name) || readString(student.username) || studentId)}</div><div class="pc-info-list"><div class="pc-info-row"><span>练习次数</span><strong>${institutionNumber(record.attempt_count)}</strong></div><div class="pc-info-row"><span>平均分</span><strong>${institutionNumber(record.average_score, -1) >= 0 ? `${institutionNumber(record.average_score).toFixed(1)}%` : '暂无'}</strong></div><div class="pc-info-row"><span>最近学习</span><strong>${escapeHtml(formatDateTime(readString(record.latest_activity_at)))}</strong></div></div><div class="pc-admin-note">薄弱项：${weaknesses.map((w) => escapeHtml(readString(asRecord(w)?.label) || '')).filter(Boolean).join('、') || '暂无'}</div></div>`;
+			const wrongTrend = Array.isArray(data.wrong_trend) ? data.wrong_trend : [];
+			const writingHistory = Array.isArray(data.writing_history) ? data.writing_history : [];
+			const listeningWeak = asRecord(data.listening_weaknesses) || {};
+			const teacherNotes = Array.isArray(data.teacher_notes) ? data.teacher_notes : [];
+			const recommended = Array.isArray(data.recommended_homework) ? data.recommended_homework : [];
+			const weakText = weaknesses.map((w) => escapeHtml(readString(asRecord(w)?.label) || '')).filter(Boolean).join('、') || '暂无';
+			const wrongRows = wrongTrend.slice(-6).map((item) => {
+				const raw = asRecord(item) || {};
+				return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.exam_title) || readString(raw.exam_id) || '')}</span><strong>错 ${institutionNumber(raw.wrong_count)}/${institutionNumber(raw.total_questions)} · ${institutionNumber(raw.score, -1) >= 0 ? `${institutionNumber(raw.score).toFixed(1)}%` : '暂无'}</strong></div>`;
+			}).join('');
+			const writingRows = writingHistory.slice(-5).map((item) => {
+				const raw = asRecord(item) || {};
+				return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.exam_title) || readString(raw.exam_id) || '')}</span><strong>${escapeHtml(formatDateTime(readString(raw.saved_at)))} · ${institutionNumber(raw.score, -1) >= 0 ? `${institutionNumber(raw.score).toFixed(1)}%` : '未评分'}</strong></div>`;
+			}).join('');
+			const listenItems = Array.isArray(listeningWeak.items) ? listeningWeak.items : [];
+			const listenRows = listenItems.slice(-5).map((item) => {
+				const raw = asRecord(item) || {};
+				return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.exam_title) || readString(raw.exam_id) || '')}</span><strong>${institutionNumber(raw.error_rate).toFixed(1)}% · 错 ${institutionNumber(raw.wrong_count)}/${institutionNumber(raw.total_questions)}</strong></div>`;
+			}).join('');
+			const noteRows = teacherNotes.slice(-5).map((item) => {
+				const raw = asRecord(item) || {};
+				return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.text) || '')}</span><strong>${escapeHtml(formatDateTime(readString(raw.created_at)))}</strong></div>`;
+			}).join('');
+			const recommendedRows = recommended.slice(0, 5).map((item) => {
+				const raw = asRecord(item) || {};
+				return `<div class="pc-info-row"><span>${escapeHtml(readString(raw.title) || '建议作业')}</span><strong>${escapeHtml(readString(raw.reason) || '')}</strong></div>`;
+			}).join('');
+			detail.innerHTML = `<div class="pc-card pc-info-card">
+				<div class="pc-service-header">学员档案：${escapeHtml(readString(student.display_name) || readString(student.username) || studentId)}</div>
+				<div class="pc-info-list">
+					<div class="pc-info-row"><span>练习次数</span><strong>${institutionNumber(record.attempt_count)}</strong></div>
+					<div class="pc-info-row"><span>平均分</span><strong>${institutionNumber(record.average_score, -1) >= 0 ? `${institutionNumber(record.average_score).toFixed(1)}%` : '暂无'}</strong></div>
+					<div class="pc-info-row"><span>最近学习</span><strong>${escapeHtml(formatDateTime(readString(record.latest_activity_at)))}</strong></div>
+					<div class="pc-info-row"><span>听力弱项</span><strong>${institutionNumber(listeningWeak.error_rate).toFixed(1)}% · 错 ${institutionNumber(listeningWeak.wrong_count)}/${institutionNumber(listeningWeak.total_questions)}</strong></div>
+				</div>
+				<div class="pc-admin-note">薄弱项：${weakText}</div>
+				<div style="margin-top:8px;"><button class="pc-inline-btn" type="button" data-inst-add-note="${escapeHtml(studentId)}">添加老师备注</button></div>
+			</div>
+			<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px;">
+				<div class="pc-card pc-info-card"><div class="pc-service-header">错题变化</div><div class="pc-info-list">${wrongRows || '<div class="pc-admin-note">暂无错题变化</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">作文历史</div><div class="pc-info-list">${writingRows || '<div class="pc-admin-note">暂无作文记录</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">听力弱项</div><div class="pc-info-list">${listenRows || '<div class="pc-admin-note">暂无听力弱项</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">老师备注</div><div class="pc-info-list">${noteRows || '<div class="pc-admin-note">暂无备注</div>'}</div></div>
+				<div class="pc-card pc-info-card"><div class="pc-service-header">建议作业</div><div class="pc-info-list">${recommendedRows || '<div class="pc-admin-note">暂无建议</div>'}</div></div>
+			</div>`;
 		} catch (error) {
 			detail.innerHTML = `<div class="pc-admin-note">${escapeHtml(readErrorMessage(error, '学员档案加载失败'))}</div>`;
+		}
+	}
+
+	async function addInstitutionTeacherNote(container: HTMLElement, studentId: string): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		if (!token || !studentId || !api || typeof api.getInstitutionStudentProfile !== 'function' || typeof api.updateProfile !== 'function') return;
+		const text = (window.prompt('老师备注', '') || '').trim();
+		if (!text) return;
+		try {
+			const data = asRecord(await api.getInstitutionStudentProfile(token, studentId)) || {};
+			const currentNotes = Array.isArray(data.teacher_notes) ? data.teacher_notes : [];
+			const notes = currentNotes.concat([{
+				text,
+				created_at: new Date().toISOString(),
+				created_by: getContext().id || ''
+			}]);
+			await api.updateProfile(studentId, { teacher_notes: notes });
+			showToast('老师备注已保存');
+			await openInstitutionStudentProfile(container, studentId);
+		} catch (error) {
+			showToast(readErrorMessage(error, '老师备注保存失败'));
 		}
 	}
 
@@ -4068,11 +4850,139 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const api = window.APIClient;
 		const detail = container.querySelector('#pc-institution-detail') as HTMLElement | null;
 		if (!token || !detail || !api || typeof api.createLessonPrep !== 'function') return;
-		const examId = window.prompt('输入试卷 ID 用于组卷/讲义', 'eju_2023_02') || '';
+		const examId = window.prompt('输入试卷 ID 用于组卷/讲义', '2023_02') || '';
 		if (!examId.trim()) return;
-		const data = asRecord(await api.createLessonPrep(token, { exam_id: examId.trim(), limit: 20, hide_answers: true, mode: 'handout' })) || {};
+		const focus = (window.prompt('考点/题型关键词（可空，例如 読解、聴解、writing）', '') || '').trim();
+		const selected = readSelectedInstitutionLearningGroup(container);
+		const orgId = selected.organizationId || getContext().organizationId || '';
+		const requestPayload = {
+			org_id: orgId,
+			exam_id: examId.trim(),
+			limit: 20,
+			hide_answers: true,
+			mode: 'handout',
+			focus_keyword: focus,
+			projection_mode: false,
+			print_layout: 'A4'
+		};
+		let data = asRecord(await api.createLessonPrep(token, requestPayload)) || {};
+		if (orgId && typeof api.saveLessonPrepPlan === 'function') {
+			const saved = asRecord(await api.saveLessonPrepPlan(token, {
+				...requestPayload,
+				title: `${examId.trim()} ${focus || '课堂备课方案'}`,
+				learning_group_id: selected.learningGroupId || ''
+			})) || {};
+			data = { ...data, ...saved };
+		}
 		const qs = Array.isArray(data.question_set) ? data.question_set : [];
-		detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">备课工具</div><div class="pc-admin-note">已生成 ${qs.length} 道题的讲义清单，可继续接导出/打印/投屏样式。</div></div>`;
+		const handoutHtml = readString(data.handout_html) || buildLessonPrepHtml(data, false);
+		const projectionHtml = buildLessonPrepHtml({ ...data, projection_mode: true, mode: 'projection' }, true);
+		const questionIds = qs
+			.map((item) => readString(asRecord(item)?.question_id))
+			.filter(Boolean);
+		const rows = qs.map((item, index) => {
+			const raw = asRecord(item) || {};
+			return `<div class="pc-info-row">
+				<span>${index + 1}. ${escapeHtml(readString(raw.section) || '题目')} · ${escapeHtml(readString(raw.question_number) || readString(raw.question_id) || '')}</span>
+				<strong>${escapeHtml(readString(raw.type) || readString(raw.exam_id) || '')}</strong>
+			</div>`;
+		}).join('');
+		detail.innerHTML = `<div class="pc-card pc-info-card">
+			<div class="pc-service-header">备课工具</div>
+			<div class="pc-admin-note">已按 ${escapeHtml(examId.trim())}${focus ? ` / ${escapeHtml(focus)}` : ''} 生成 ${qs.length} 道题。${readString(data.lesson_prep_id) ? `方案已保存：${escapeHtml(readString(data.lesson_prep_id))}。` : ''}当前讲义隐藏答案，适合课前分发、课堂打印和投屏。</div>
+			<div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;">
+				<button class="pc-inline-btn" type="button" data-prep-download>导出讲义</button>
+				<button class="pc-inline-btn" type="button" data-prep-print>打印题目</button>
+				<button class="pc-inline-btn" type="button" data-prep-project>课堂投屏模式</button>
+				<button class="pc-inline-btn" type="button" data-prep-assignment>布置为作业</button>
+			</div>
+			<div class="pc-info-list">${rows || '<div class="pc-admin-note">没有匹配题目，请换一个试卷或考点关键词。</div>'}</div>
+			<textarea data-prep-handout hidden>${escapeHtml(handoutHtml)}</textarea>
+			<textarea data-prep-projection hidden>${escapeHtml(projectionHtml)}</textarea>
+			<textarea data-prep-question-ids hidden>${escapeHtml(JSON.stringify(questionIds))}</textarea>
+			<input type="hidden" data-prep-exam-id value="${escapeHtml(examId.trim())}" />
+		</div>`;
+	}
+
+	async function createAssignmentFromLessonPrep(container: HTMLElement): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		const selected = readSelectedInstitutionLearningGroup(container);
+		if (!token || !selected.organizationId || !selected.learningGroupId || !api || typeof api.createLearningGroupAssignment !== 'function') {
+			showToast('请先选择学习组');
+			return;
+		}
+		const examId = (container.querySelector('[data-prep-exam-id]') as HTMLInputElement | null)?.value || '';
+		let questionIds: string[] = [];
+		try {
+			const raw = (container.querySelector('[data-prep-question-ids]') as HTMLTextAreaElement | null)?.value || '[]';
+			const parsed = JSON.parse(raw);
+			questionIds = Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string' && item.length > 0) : [];
+		} catch {
+			questionIds = [];
+		}
+		const title = window.prompt('作业标题', `${examId || '备课方案'} 课堂作业`) || '';
+		if (!title.trim()) return;
+		const dueAt = window.prompt('截止日期（YYYY-MM-DD，可空）', '') || '';
+		try {
+			await api.createLearningGroupAssignment(selected.organizationId, selected.learningGroupId, {
+				token,
+				exam_id: examId,
+				title: title.trim(),
+				description: '由备课方案生成',
+				due_at: dueAt.trim(),
+				question_ids: questionIds
+			});
+			showToast('已从备课方案布置作业');
+			await openInstitutionGradebook(container);
+		} catch (error) {
+			showToast(readErrorMessage(error, '布置作业失败'));
+		}
+	}
+
+	function buildLessonPrepHtml(data: Record<string, unknown>, projection: boolean): string {
+		const questions = Array.isArray(data.question_set) ? data.question_set : [];
+		const title = projection ? '课堂投屏' : '课堂讲义';
+		const fontSize = projection ? '28px' : '16px';
+		const bodyPadding = projection ? '48px 64px' : '28px';
+		const rows = questions.map((item, index) => {
+			const raw = asRecord(item) || {};
+			return `<li><strong>${index + 1}.</strong> ${escapeHtmlSafe(readString(raw.exam_id) || '')} / ${escapeHtmlSafe(readString(raw.section) || '')} / ${escapeHtmlSafe(readString(raw.question_number) || readString(raw.question_id) || '')}</li>`;
+		}).join('');
+		return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>
+			body{font-family:Arial,'Microsoft YaHei',sans-serif;line-height:1.75;padding:${bodyPadding};font-size:${fontSize};color:#111;background:#fff;}
+			h1{font-size:${projection ? '42px' : '24px'};margin:0 0 16px;}
+			.meta{font-size:${projection ? '18px' : '12px'};color:#666;margin-bottom:18px;}
+			li{margin:10px 0;page-break-inside:avoid;}
+			@media print{button{display:none;}body{padding:18mm;font-size:14px;}}
+		</style></head><body><h1>${title}</h1><div class="meta">隐藏答案：是 / 布局：${projection ? '投屏' : 'A4 打印'}</div><ol>${rows}</ol></body></html>`;
+	}
+
+	function openLessonPrepWindow(html: string, printNow: boolean): void {
+		const win = window.open('', '_blank');
+		if (!win) {
+			showToast('浏览器阻止了新窗口，请允许弹窗后重试');
+			return;
+		}
+		win.document.open();
+		win.document.write(html);
+		win.document.close();
+		if (printNow) {
+			win.focus();
+			setTimeout(() => win.print(), 200);
+		}
+	}
+
+	function downloadLessonPrepHtml(html: string): void {
+		const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `lesson-handout-${new Date().toISOString().replace(/[:.]/g, '-')}.html`;
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+		setTimeout(() => URL.revokeObjectURL(url), 1000);
 	}
 
 	function attachAdminHubHandlers(container: HTMLElement): void {
@@ -4087,6 +4997,11 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				void openInstitutionStudentProfile(container, studentButton.dataset.instStudent || '');
 				return;
 			}
+			const noteButton = target?.closest('[data-inst-add-note]') as HTMLButtonElement | null;
+			if (noteButton) {
+				void addInstitutionTeacherNote(container, noteButton.dataset.instAddNote || '');
+				return;
+			}
 			if (target?.closest('[data-inst-import]')) {
 				void openInstitutionImportPreview(container);
 				return;
@@ -4095,11 +5010,28 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				void openInstitutionLessonPrep(container);
 				return;
 			}
+			const prepCard = (target?.closest('[data-prep-download], [data-prep-print], [data-prep-project], [data-prep-assignment]') as HTMLElement | null);
+			if (prepCard) {
+				if (prepCard.hasAttribute('data-prep-assignment')) {
+					void createAssignmentFromLessonPrep(container);
+					return;
+				}
+				const handout = (container.querySelector('[data-prep-handout]') as HTMLTextAreaElement | null)?.value || '';
+				const projection = (container.querySelector('[data-prep-projection]') as HTMLTextAreaElement | null)?.value || handout;
+				if (prepCard.hasAttribute('data-prep-download')) {
+					downloadLessonPrepHtml(handout);
+				} else if (prepCard.hasAttribute('data-prep-print')) {
+					openLessonPrepWindow(handout, true);
+				} else {
+					openLessonPrepWindow(projection, false);
+				}
+				return;
+			}
 			if (handleSystemFlagAction(target)) {
 				return;
 			}
-			if (target?.closest('[data-inst-create-class]')) {
-				void createInstitutionClass(container);
+			if (target?.closest('[data-inst-create-learning-group]')) {
+				void createInstitutionLearningGroup(container);
 				return;
 			}
 			if (target?.closest('[data-inst-add-members]')) {
@@ -4108,6 +5040,16 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			}
 			if (target?.closest('[data-inst-create-assignment]')) {
 				void createInstitutionAssignment(container);
+				return;
+			}
+			const submissionsButton = target?.closest('[data-inst-assignment-submissions]') as HTMLButtonElement | null;
+			if (submissionsButton) {
+				void openInstitutionAssignmentSubmissions(container, submissionsButton.dataset.instAssignmentSubmissions || '');
+				return;
+			}
+			const remindButton = target?.closest('[data-inst-assignment-remind]') as HTMLButtonElement | null;
+			if (remindButton) {
+				void remindInstitutionAssignment(remindButton.dataset.instAssignmentRemind || '');
 				return;
 			}
 			const invitationCancelButton = target?.closest('[data-org-invitation-cancel]') as HTMLButtonElement | null;
@@ -4141,6 +5083,17 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				renderSectionContent();
 				return;
 			}
+			const completeLearningGroupButton = target?.closest('[data-org-learning-group-complete]') as HTMLButtonElement | null;
+			if (completeLearningGroupButton) {
+				const organization = managedOrganizations.find((item) => item.id === (completeLearningGroupButton.dataset.orgId || ''));
+				const learningGroup = organization?.learningGroups.find((item) => item.id === (completeLearningGroupButton.dataset.learningGroupId || ''));
+				if (!organization || !learningGroup) {
+					showToast('学习组信息已失效，请刷新后重试');
+					return;
+				}
+				void completeOrganizationLearningGroup(organization, learningGroup);
+				return;
+			}
 			const removeButton = target?.closest('[data-org-member-remove]') as HTMLButtonElement | null;
 			if (!removeButton) {
 				return;
@@ -4171,11 +5124,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				}
 				const draft = getOrganizationMemberDraft(organization.id);
 				const memberNoInput = form.querySelector('[data-org-add-member-no]') as HTMLInputElement | null;
+				const roles = readOrganizationRoles(form);
 				void saveOrganizationMembership(
 					organization,
 					draft.selectedUserId,
-					readOrganizationRoles(form),
+					roles,
 					memberNoInput?.value || '',
+					readOrganizationPermissionTemplates(form, roles),
+					[],
 					'成员已添加'
 				);
 				return;
@@ -4189,11 +5145,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				const contactInput = form.querySelector('[data-org-invite-contact]') as HTMLInputElement | null;
 				const memberNoInput = form.querySelector('[data-org-invite-member-no]') as HTMLInputElement | null;
 				const messageInput = form.querySelector('[data-org-invite-message]') as HTMLTextAreaElement | null;
+				const roles = readOrganizationRoles(form);
 				void saveOrganizationInvitation(
 					organization,
 					contactInput?.value || '',
-					readOrganizationRoles(form),
+					roles,
 					memberNoInput?.value || '',
+					readOrganizationPermissionTemplates(form, roles),
 					messageInput?.value || ''
 				);
 				return;
@@ -4227,6 +5185,42 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				);
 				return;
 			}
+			if (form.matches('form[data-org-campus-form]')) {
+				const organization = managedOrganizations.find((item) => item.id === (form.dataset.orgId || ''));
+				if (!organization) {
+					showToast('组织信息已失效，请刷新后重试');
+					return;
+				}
+				void saveOrganizationCampus(organization, form);
+				return;
+			}
+			if (form.matches('form[data-org-course-package-form]')) {
+				const organization = managedOrganizations.find((item) => item.id === (form.dataset.orgId || ''));
+				if (!organization) {
+					showToast('组织信息已失效，请刷新后重试');
+					return;
+				}
+				void saveOrganizationCoursePackage(organization, form);
+				return;
+			}
+			if (form.matches('form[data-org-learning-group-form]')) {
+				const organization = managedOrganizations.find((item) => item.id === (form.dataset.orgId || ''));
+				if (!organization) {
+					showToast('组织信息已失效，请刷新后重试');
+					return;
+				}
+				void saveOrganizationLearningGroup(organization, form);
+				return;
+			}
+			if (form.matches('form[data-org-learning-enrollment-form]')) {
+				const organization = managedOrganizations.find((item) => item.id === (form.dataset.orgId || ''));
+				if (!organization) {
+					showToast('组织信息已失效，请刷新后重试');
+					return;
+				}
+				void saveOrganizationLearningGroupEnrollment(organization, form);
+				return;
+			}
 			if (form.matches('form[data-org-member-form]')) {
 				const organization = managedOrganizations.find((item) => item.id === (form.dataset.orgId || ''));
 				if (!organization) {
@@ -4234,11 +5228,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					return;
 				}
 				const memberNoInput = form.querySelector('[data-org-member-no]') as HTMLInputElement | null;
+				const roles = readOrganizationRoles(form);
 				void saveOrganizationMembership(
 					organization,
 					form.dataset.userId || '',
-					readOrganizationRoles(form),
+					roles,
 					memberNoInput?.value || '',
+					readOrganizationPermissionTemplates(form, roles),
+					readOrganizationPermissionOverrides(form),
 					'成员已更新'
 				);
 			}
@@ -4296,13 +5293,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		};
 	}
 
-	function attachSystemFlagsHandlers(container: HTMLElement): void {
-		container.onclick = (event: MouseEvent) => {
-			const target = event.target as HTMLElement | null;
-			handleSystemFlagAction(target);
-		};
-	}
-
 	function renderSectionContent(options: { preserveScroll?: boolean; focusSelector?: string } = {}): void {
 		const container = document.getElementById('pc-content');
 		if (!container) {
@@ -4333,28 +5323,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				container.innerHTML = renderProfileCard(ctx);
 				attachProfileHandlers(container);
 				break;
-			case 'roles':
-				container.innerHTML = renderProfileCard(ctx);
-				attachProfileHandlers(container);
-				break;
-			case 'community':
-				container.innerHTML = `<div class="pc-section"><h2>社群</h2><p>加入学习社群以获取更多资料。</p><p><button disabled>加入社群（占位）</button></p></div>`;
-				break;
-			case 'balance':
-				container.innerHTML = `<div class="pc-section"><h2>账户</h2><p>余额：${ctx.balance?.credits ?? 0}</p><p>卡券：${ctx.couponCount ?? 0} 张</p><p style="display:flex;gap:8px;flex-wrap:wrap;"><button class="pc-inline-btn" type="button" data-action="pc-recharge">续费 / 升级</button><button class="pc-inline-btn" type="button" data-action="pc-redeem">兑换码</button><button class="pc-inline-btn" type="button" data-action="pc-coupons">卡券包</button><button class="pc-inline-btn" type="button" data-action="pc-payment-ledger">支付流水</button></p></div>`;
-				container.querySelector('[data-action="pc-recharge"]')?.addEventListener('click', () => {
-					void openRechargePanel();
-				});
-				container.querySelector('[data-action="pc-redeem"]')?.addEventListener('click', () => {
-					void openRedeemPanel();
-				});
-				container.querySelector('[data-action="pc-coupons"]')?.addEventListener('click', () => {
-					void openCouponsPanel();
-				});
-				container.querySelector('[data-action="pc-payment-ledger"]')?.addEventListener('click', () => {
-					void openPaymentLedgerPanel();
-				});
-				break;
 			case 'admin-hub':
 				container.innerHTML = renderAdminHub(ctx);
 				if (canManageMembers(ctx)) {
@@ -4362,13 +5330,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				}
 				attachAdminHubHandlers(container);
 				void refreshInstitutionWorkbench(ctx);
-				break;
-			case 'system-flags':
-				container.innerHTML = renderSystemFlags();
-				attachSystemFlagsHandlers(container);
-				break;
-			case 'logout':
-				window.logoutUser?.();
 				break;
 		}
 		container.scrollTop = options.preserveScroll ? previousScrollTop : 0;
@@ -4921,6 +5882,172 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		await loadAndRenderSrsCard(modal, userId);
 	}
 
+	// 今日复习工作台：把 SRS 到期、错题复习、每日一练放到同一个入口
+	let reviewWorkbenchModal: HTMLDivElement | null = null;
+
+	function ensureReviewWorkbenchModal(): HTMLDivElement {
+		if (reviewWorkbenchModal) return reviewWorkbenchModal;
+		const modal = document.createElement('div');
+		modal.id = 'review-workbench-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:620px;max-width:900px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">今日复习工作台</h3>
+					<button id="rw-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+				</div>
+				<div id="rw-body" style="min-height:240px;"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		reviewWorkbenchModal = modal;
+		(modal.querySelector('#rw-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		return modal;
+	}
+
+	function renderReviewWorkbench(data: {
+		srs: Array<Record<string, unknown>>;
+		wrong: Array<Record<string, unknown>>;
+		daily: Array<Record<string, unknown>>;
+		completedDaily: string[];
+	}): string {
+		const srsHtml = data.srs.length === 0
+			? '<div style="padding:10px;color:#999;">今天没有到期 SRS 卡片。</div>'
+			: data.srs.slice(0, 5).map((card) => {
+				const snap = (card.snapshot || {}) as Record<string, unknown>;
+				const qid = String(card.question_id || '');
+				const examId = String(card.exam_id || '');
+				const stem = String(snap.question || snap.stem || '');
+				return `<div style="padding:8px;border-top:1px solid #eee;">
+					<div style="font-size:12px;color:#888;">试卷 <code>${escapeHtmlSafe(examId)}</code> · 题 <code>${escapeHtmlSafe(qid)}</code></div>
+					<div style="margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlSafe(stem) || '<span style="color:#999;">（无题干快照）</span>'}</div>
+				</div>`;
+			}).join('');
+		const wrongHtml = data.wrong.length === 0
+			? '<div style="padding:10px;color:#999;">错题本里没有待复习题。</div>'
+			: data.wrong.slice(0, 5).map((item) => {
+				const qid = String(item.question_id || '');
+				const examId = String(item.exam_id || '');
+				const snap = (item.question_snapshot || {}) as Record<string, unknown>;
+				const stem = String(snap.question || snap.stem || '');
+				return `<div style="display:flex;justify-content:space-between;gap:12px;padding:8px;border-top:1px solid #eee;">
+					<div style="min-width:0;flex:1;">
+						<div style="font-size:12px;color:#888;">试卷 <code>${escapeHtmlSafe(examId)}</code> · 题 <code>${escapeHtmlSafe(qid)}</code> · 错 ${escapeHtmlSafe(String(item.wrong_count || 0))} 次</div>
+						<div style="margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlSafe(stem) || '<span style="color:#999;">（无题干快照）</span>'}</div>
+					</div>
+					<button class="risk-btn" data-rw-action="open-question" data-exam-id="${escapeHtmlSafe(examId)}" data-question-id="${escapeHtmlSafe(qid)}">去复习</button>
+				</div>`;
+			}).join('');
+		const dailyDone = new Set(data.completedDaily);
+		const dailyHtml = data.daily.length === 0
+			? '<div style="padding:10px;color:#999;">每日一练暂无题目。</div>'
+			: data.daily.slice(0, 6).map((item, idx) => {
+				const qid = String(item.question_id || '');
+				const examId = String(item.exam_id || '');
+				const source = String(item.source || '');
+				const done = dailyDone.has(qid);
+				const label = source === 'wrong_question' ? '错题' : source === 'srs_due' ? 'SRS' : source || '练习';
+				return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-top:1px solid #eee;">
+					<div>
+						<div style="font-size:13px;">${done ? '已完成' : '待完成'} · 第 ${idx + 1} 题</div>
+						<div style="font-size:12px;color:#888;">${escapeHtmlSafe(label)} · <code>${escapeHtmlSafe(examId)}</code> · <code>${escapeHtmlSafe(qid)}</code></div>
+					</div>
+					<button class="risk-btn" data-rw-action="open-question" data-exam-id="${escapeHtmlSafe(examId)}" data-question-id="${escapeHtmlSafe(qid)}">去练习</button>
+				</div>`;
+			}).join('');
+		return `<div style="display:grid;grid-template-columns:1fr;gap:12px;">
+			<section style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;">
+				<div style="display:flex;justify-content:space-between;align-items:center;">
+					<strong>SRS 到期</strong>
+					<button class="risk-btn" data-rw-action="open-srs">开始 SRS</button>
+				</div>
+				${srsHtml}
+			</section>
+			<section style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;">
+				<div style="display:flex;justify-content:space-between;align-items:center;">
+					<strong>错题复习</strong>
+					<button class="risk-btn" data-rw-action="open-wrong">打开错题本</button>
+				</div>
+				${wrongHtml}
+			</section>
+			<section style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;">
+				<div style="display:flex;justify-content:space-between;align-items:center;">
+					<strong>每日一练</strong>
+					<button class="risk-btn" data-rw-action="open-daily">打开完整清单</button>
+				</div>
+				${dailyHtml}
+			</section>
+		</div>`;
+	}
+
+	async function reloadReviewWorkbench(): Promise<void> {
+		const modal = reviewWorkbenchModal!;
+		const body = modal.querySelector('#rw-body') as HTMLDivElement;
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		const api = window.APIClient;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		if (!api || !userId) {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">请先登录后复习</div>';
+			return;
+		}
+		try {
+			const [srsData, wrongData, dailyData] = await Promise.all([
+				typeof api.listSrsDue === 'function' ? api.listSrsDue(userId, 8) : Promise.resolve(null),
+				typeof api.sampleWrongQuestions === 'function' ? api.sampleWrongQuestions(userId, 8) : Promise.resolve(null),
+				typeof api.getDailyPractice === 'function' ? api.getDailyPractice(8) : Promise.resolve(null)
+			]) as Array<Record<string, unknown> | null>;
+			const srs = Array.isArray(srsData?.items) ? (srsData!.items as Array<Record<string, unknown>>) : [];
+			const wrong = Array.isArray(wrongData?.items)
+				? (wrongData!.items as Array<Record<string, unknown>>)
+				: Array.isArray(wrongData)
+					? (wrongData as Array<Record<string, unknown>>)
+					: [];
+			const daily = Array.isArray(dailyData?.items) ? (dailyData!.items as Array<Record<string, unknown>>) : [];
+			const completedDaily = Array.isArray(dailyData?.completed_question_ids)
+				? (dailyData!.completed_question_ids as unknown[]).map(String)
+				: [];
+			body.innerHTML = renderReviewWorkbench({ srs, wrong, daily, completedDaily });
+			body.onclick = async (e: MouseEvent) => {
+				const btn = (e.target as HTMLElement | null)?.closest('button[data-rw-action]') as HTMLButtonElement | null;
+				if (!btn) return;
+				const action = btn.dataset.rwAction || '';
+				if (action === 'open-srs') {
+					await openSrsReviewPanel();
+				} else if (action === 'open-wrong') {
+					await openWrongQuestionsPanel();
+				} else if (action === 'open-daily') {
+					await openDailyPracticePanel();
+				} else if (action === 'open-question') {
+					await openExamQuestion(btn.dataset.examId || '', btn.dataset.questionId || '');
+				}
+			};
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openReviewWorkbenchPanel(): Promise<void> {
+		const ctx = getContext();
+		if (!ctx.id) {
+			showToast('请先登录后开始复习');
+			return;
+		}
+		const modal = ensureReviewWorkbenchModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		await reloadReviewWorkbench();
+	}
+
 	// 业务功能 8：收藏夹/分类管理面板
 	let bookmarkFoldersModal: HTMLDivElement | null = null;
 	function ensureBookmarkFoldersModal(): HTMLDivElement {
@@ -4957,7 +6084,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	function renderBookmarkFolders(folders: Array<Record<string, unknown>>): string {
 		if (folders.length === 0) {
-			return '<div style="padding:24px;text-align:center;color:#999;">还没有收藏夹，点右上角新建一个吧～</div>';
+			return '<div style="padding:16px;text-align:center;color:#999;">还没有收藏夹，点右上角新建一个。</div>';
 		}
 		return folders
 			.map((f) => {
@@ -4991,6 +6118,42 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			.join('');
 	}
 
+	function renderQuestionBookmarks(questions: Array<Record<string, unknown>>, folders: Array<Record<string, unknown>>): string {
+		if (questions.length === 0) {
+			return '<div style="padding:16px;text-align:center;color:#999;">还没有单题收藏。做题时点击题干旁边的“收藏本题”即可加入。</div>';
+		}
+		const folderNames = new Map(folders.map((f) => [String(f.folder_id || ''), String(f.name || '未命名')]));
+		return questions
+			.map((item) => {
+				const id = String(item.bookmark_id || '');
+				const examId = String(item.exam_id || '');
+				const qid = String(item.question_id || '');
+				const sectionIndex = Number(item.section_index ?? 0);
+				const folderId = String(item.folder_id || '');
+				const folderName = folderId ? folderNames.get(folderId) || '未命名分类' : '未分类';
+				const reason = String(item.reason || '').trim();
+				const snap = (item.question_snapshot || {}) as Record<string, unknown>;
+				const stem = String(snap.question || snap.stem || '').trim();
+				const title = String(snap.section_title || '').trim();
+				const createdAt = String(item.created_at || item.updated_at || '');
+				return `<div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;margin-bottom:10px;background:#fff;">
+					<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+						<div style="min-width:0;flex:1;">
+							<div style="font-size:12px;color:#666;">${escapeHtmlSafe(folderName)} · 试卷 <code>${escapeHtmlSafe(examId)}</code> · 题 <code>${escapeHtmlSafe(qid)}</code>${title ? ` · ${escapeHtmlSafe(title)}` : ''}</div>
+							<div style="margin-top:6px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlSafe(stem) || '<span style="color:#999;">（无题干快照）</span>'}</div>
+							${reason ? `<div style="margin-top:6px;font-size:12px;color:#6b4f00;background:#fff8e1;border-radius:4px;padding:6px;">${escapeHtmlSafe(reason)}</div>` : ''}
+							${createdAt ? `<div style="margin-top:6px;font-size:11px;color:#aaa;">收藏时间：${escapeHtmlSafe(createdAt)}</div>` : ''}
+						</div>
+						<div style="display:flex;gap:6px;flex-shrink:0;">
+							<button data-bf-action="open-question" data-exam-id="${escapeHtmlSafe(examId)}" data-question-id="${escapeHtmlSafe(qid)}" data-section-index="${escapeHtmlSafe(String(sectionIndex))}" style="font-size:12px;padding:4px 10px;cursor:pointer;">去做这题</button>
+							<button data-bf-action="remove-question" data-bookmark-id="${escapeHtmlSafe(id)}" style="font-size:12px;padding:4px 10px;cursor:pointer;color:#a33;">删除</button>
+						</div>
+					</div>
+				</div>`;
+			})
+			.join('');
+	}
+
 	async function reloadBookmarkFolders(modal: HTMLDivElement, userId: string): Promise<void> {
 		const body = modal.querySelector('#bf-body') as HTMLDivElement;
 		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
@@ -5000,9 +6163,22 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			return;
 		}
 		try {
-			const data = (await api.listBookmarkFolders(userId)) as { items?: Array<Record<string, unknown>> } | null;
-			const items = Array.isArray(data?.items) ? data!.items : [];
-			body.innerHTML = renderBookmarkFolders(items);
+			const [folderData, bookmarkData] = await Promise.all([
+				api.listBookmarkFolders(userId) as Promise<{ items?: Array<Record<string, unknown>> } | null>,
+				typeof api.getBookmarks === 'function'
+					? (api.getBookmarks(userId) as Promise<{ questions?: Array<Record<string, unknown>> } | null>)
+					: Promise.resolve(null)
+			]);
+			const folders = Array.isArray(folderData?.items) ? folderData!.items : [];
+			const questions = Array.isArray(bookmarkData?.questions) ? bookmarkData!.questions : [];
+			body.innerHTML = `<div style="margin-bottom:16px;">
+				<h4 style="margin:0 0 8px;font-size:14px;">单题收藏</h4>
+				${renderQuestionBookmarks(questions, folders)}
+			</div>
+			<div>
+				<h4 style="margin:0 0 8px;font-size:14px;">收藏夹分类</h4>
+				${renderBookmarkFolders(folders)}
+			</div>`;
 		} catch (err) {
 			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
 		}
@@ -5034,7 +6210,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			}
 		};
 
-		// 列表区域事件委托：重命名/删除/移除试卷
+		// 列表区域事件委托：重命名/删除/移除试卷/打开单题收藏
 		const body = modal.querySelector('#bf-body') as HTMLDivElement;
 		body.onclick = async (e: MouseEvent) => {
 			const btn = (e.target as HTMLElement | null)?.closest('button[data-bf-action]') as HTMLButtonElement | null;
@@ -5042,9 +6218,22 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			const action = btn.dataset.bfAction || '';
 			const fid = btn.dataset.fid || '';
 			const api = window.APIClient;
-			if (!api || !fid) return;
+			if (!api) return;
 			try {
-				if (action === 'rename' && typeof api.updateBookmarkFolder === 'function') {
+				if (action === 'open-question') {
+					const examId = btn.dataset.examId || '';
+					const questionId = btn.dataset.questionId || '';
+					const si = Number(btn.dataset.sectionIndex ?? 0);
+					await openExamQuestion(examId, questionId, Number.isFinite(si) ? si : undefined);
+					return;
+				}
+				if (action === 'remove-question' && typeof api.removeQuestionBookmark === 'function') {
+					const bookmarkId = btn.dataset.bookmarkId || '';
+					if (!bookmarkId || !window.confirm('确定删除这个单题收藏吗？')) return;
+					await api.removeQuestionBookmark(userId, bookmarkId);
+				} else if (!fid) {
+					return;
+				} else if (action === 'rename' && typeof api.updateBookmarkFolder === 'function') {
 					const next = window.prompt('新的文件夹名称');
 					if (!next) return;
 					await api.updateBookmarkFolder(userId, fid, { name: next.trim() });
@@ -5117,7 +6306,43 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					</div>
 				</div>
 				<div id="ad-body" style="min-height:160px;"></div>
-				<div style="margin-top:12px;font-size:11px;color:#999;">仅 superAdmin 可见；数据按需扫描，可能略有延迟。</div>
+				<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px;">
+					<div style="border:1px solid #eee;border-radius:6px;padding:12px;">
+						<div style="font-weight:600;margin-bottom:8px;">用户搜索</div>
+						<div style="display:flex;gap:6px;">
+							<input id="ad-user-query" type="text" placeholder="用户名 / 邮箱 / 学号" style="flex:1;padding:6px 8px;border:1px solid #ccc;border-radius:4px;" />
+							<button id="ad-user-search" style="padding:6px 10px;cursor:pointer;">搜索</button>
+						</div>
+						<div id="ad-user-results" style="margin-top:8px;font-size:12px;color:#666;"></div>
+					</div>
+					<div style="border:1px solid #eee;border-radius:6px;padding:12px;">
+						<div style="font-weight:600;margin-bottom:8px;">角色权限</div>
+						<div style="display:flex;gap:6px;">
+							<select id="ad-role-select" style="flex:1;padding:6px 8px;border:1px solid #ccc;border-radius:4px;"></select>
+							<button id="ad-role-load" style="padding:6px 10px;cursor:pointer;">查看</button>
+						</div>
+						<div id="ad-role-results" style="margin-top:8px;font-size:12px;color:#666;"></div>
+					</div>
+					<div style="border:1px solid #eee;border-radius:6px;padding:12px;">
+						<div style="font-weight:600;margin-bottom:8px;">功能开关</div>
+						<button id="ad-flags-load" style="padding:6px 10px;cursor:pointer;">加载开关</button>
+						<div id="ad-flags-results" style="margin-top:8px;font-size:12px;color:#666;"></div>
+					</div>
+					<div style="border:1px solid #eee;border-radius:6px;padding:12px;">
+						<div style="font-weight:600;margin-bottom:8px;">反馈处理</div>
+						<div style="display:flex;gap:6px;">
+							<select id="ad-feedback-status" style="flex:1;padding:6px 8px;border:1px solid #ccc;border-radius:4px;">
+								<option value="">全部</option>
+								<option value="open">待处理</option>
+								<option value="reviewing">处理中</option>
+								<option value="resolved">已解决</option>
+							</select>
+							<button id="ad-feedback-load" style="padding:6px 10px;cursor:pointer;">加载</button>
+						</div>
+						<div id="ad-feedback-results" style="margin-top:8px;font-size:12px;color:#666;"></div>
+					</div>
+				</div>
+				<div style="margin-top:12px;font-size:11px;color:#999;">仅 superAdmin 可见；统计、用户、功能开关和反馈均走真实 API。</div>
 			</div>`;
 		document.body.appendChild(modal);
 		adminDashboardModal = modal;
@@ -5190,6 +6415,138 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		}
 	}
 
+	async function loadAdminRoles(modal: HTMLDivElement): Promise<void> {
+		const api = window.APIClient;
+		const select = modal.querySelector('#ad-role-select') as HTMLSelectElement | null;
+		if (!api || typeof api.getAllRoles !== 'function' || !select) return;
+		try {
+			const data = asRecord(await api.getAllRoles()) || {};
+			const roles = asRecord(data.roles) || data;
+			const roleKeys = Object.keys(roles).filter(Boolean).sort();
+			select.innerHTML = roleKeys.map((key) => {
+				const row = asRecord(roles[key]) || {};
+				const label = readString(row.name) || key;
+				return `<option value="${escapeHtmlSafe(key)}">${escapeHtmlSafe(label)} / ${escapeHtmlSafe(key)}</option>`;
+			}).join('');
+		} catch {
+			select.innerHTML = '<option value="">角色加载失败</option>';
+		}
+	}
+
+	async function searchAdminUsers(modal: HTMLDivElement): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		const input = modal.querySelector('#ad-user-query') as HTMLInputElement | null;
+		const box = modal.querySelector('#ad-user-results') as HTMLDivElement | null;
+		const query = (input?.value || '').trim();
+		if (!token || !api || typeof api.searchUsers !== 'function' || !box || !query) return;
+		box.innerHTML = '搜索中...';
+		try {
+			const rows = await api.searchUsers(token, query, 12);
+			const items = Array.isArray(rows) ? rows : [];
+			box.innerHTML = items.map((item) => {
+				const raw = asRecord(item) || {};
+				const roles = Array.isArray(raw.roles) ? raw.roles.map(String).join(', ') : '';
+				return `<div style="padding:6px 0;border-bottom:1px solid #eee;"><strong>${escapeHtmlSafe(readString(raw.username) || readString(raw.id) || '')}</strong><div style="color:#888;">${escapeHtmlSafe(readString(raw.id) || '')} · ${escapeHtmlSafe(roles)}</div></div>`;
+			}).join('') || '<div style="color:#999;">没有匹配用户</div>';
+		} catch (err) {
+			box.innerHTML = `<span style="color:#a33;">${escapeHtmlSafe(readErrorMessage(err, '搜索失败'))}</span>`;
+		}
+	}
+
+	async function loadAdminRoleUsers(modal: HTMLDivElement): Promise<void> {
+		const api = window.APIClient;
+		const select = modal.querySelector('#ad-role-select') as HTMLSelectElement | null;
+		const box = modal.querySelector('#ad-role-results') as HTMLDivElement | null;
+		const roleId = select?.value || '';
+		if (!api || typeof api.getUsersByRole !== 'function' || !box || !roleId) return;
+		box.innerHTML = '加载中...';
+		try {
+			const rows = await api.getUsersByRole(roleId);
+			const items = Array.isArray(rows) ? rows : [];
+			box.innerHTML = `<div style="margin-bottom:4px;">${escapeHtmlSafe(roleId)}：${items.length} 人</div>` + (items.slice(0, 12).map((item) => {
+				const raw = asRecord(item) || {};
+				return `<div style="padding:4px 0;border-bottom:1px solid #eee;">${escapeHtmlSafe(readString(raw.username) || readString(raw.id) || '')}</div>`;
+			}).join('') || '<div style="color:#999;">暂无用户</div>');
+		} catch (err) {
+			box.innerHTML = `<span style="color:#a33;">${escapeHtmlSafe(readErrorMessage(err, '角色用户加载失败'))}</span>`;
+		}
+	}
+
+	async function loadAdminFeatureFlags(modal: HTMLDivElement): Promise<void> {
+		const api = window.APIClient;
+		const box = modal.querySelector('#ad-flags-results') as HTMLDivElement | null;
+		if (!api || typeof api.getFeatureFlagRegistry !== 'function' || typeof api.getMyFeatureFlags !== 'function' || !box) return;
+		box.innerHTML = '加载中...';
+		try {
+			const registryData = asRecord(await api.getFeatureFlagRegistry()) || {};
+			const myData = asRecord(await api.getMyFeatureFlags()) || {};
+			const registry = Array.isArray(registryData.registry) ? registryData.registry : [];
+			const flags = asRecord(myData.flags) || {};
+			box.innerHTML = registry.slice(0, 28).map((item) => {
+				const raw = asRecord(item) || {};
+				const key = readString(raw.key) || '';
+				const resolved = asRecord(flags[key]) || {};
+				const enabled = resolved.enabled !== undefined ? !!resolved.enabled : !!raw.default_enabled;
+				return `<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #eee;">
+					<span><strong>${escapeHtmlSafe(readString(raw.name) || key)}</strong><br><span style="color:#888;">${escapeHtmlSafe(key)} · ${escapeHtmlSafe(readString(resolved.source) || 'default')}</span></span>
+					<button type="button" data-admin-flag="${escapeHtmlSafe(key)}" data-enabled="${enabled ? 'true' : 'false'}" style="height:28px;padding:4px 8px;cursor:pointer;">${enabled ? '关闭' : '开启'}</button>
+				</div>`;
+			}).join('');
+		} catch (err) {
+			box.innerHTML = `<span style="color:#a33;">${escapeHtmlSafe(readErrorMessage(err, '功能开关加载失败'))}</span>`;
+		}
+	}
+
+	async function toggleAdminFeatureFlag(modal: HTMLDivElement, key: string, currentlyEnabled: boolean): Promise<void> {
+		const api = window.APIClient;
+		if (!key || !api || typeof api.updateSystemFeatureFlags !== 'function') return;
+		try {
+			await api.updateSystemFeatureFlags({ [key]: { enabled: !currentlyEnabled } });
+			showToast(`${key} 已${currentlyEnabled ? '关闭' : '开启'}`);
+			await loadAdminFeatureFlags(modal);
+		} catch (err) {
+			showToast(readErrorMessage(err, '功能开关更新失败'));
+		}
+	}
+
+	async function loadAdminFeedback(modal: HTMLDivElement): Promise<void> {
+		const api = window.APIClient;
+		const status = (modal.querySelector('#ad-feedback-status') as HTMLSelectElement | null)?.value || '';
+		const box = modal.querySelector('#ad-feedback-results') as HTMLDivElement | null;
+		if (!api || typeof api.listFeedback !== 'function' || !box) return;
+		box.innerHTML = '加载中...';
+		try {
+			const data = asRecord(await api.listFeedback('', status)) || {};
+			const items = Array.isArray(data.items) ? data.items : [];
+			box.innerHTML = items.slice(0, 10).map((item) => {
+				const raw = asRecord(item) || {};
+				const feedbackId = readString(raw.feedback_id) || '';
+				const paperId = readString(raw.paper_id) || '';
+				return `<div style="padding:6px 0;border-bottom:1px solid #eee;">
+					<strong>${escapeHtmlSafe(readString(raw.category) || '反馈')}</strong> <span style="color:#888;">${escapeHtmlSafe(readString(raw.status) || 'open')}</span>
+					<div style="color:#666;margin:3px 0;">${escapeHtmlSafe(readString(raw.description) || readString(raw.question_id) || '')}</div>
+					<button type="button" data-admin-feedback="${escapeHtmlSafe(feedbackId)}" data-paper-id="${escapeHtmlSafe(paperId)}" data-status="reviewing" style="margin-right:4px;">处理中</button>
+					<button type="button" data-admin-feedback="${escapeHtmlSafe(feedbackId)}" data-paper-id="${escapeHtmlSafe(paperId)}" data-status="resolved">已解决</button>
+				</div>`;
+			}).join('') || '<div style="color:#999;">暂无反馈</div>';
+		} catch (err) {
+			box.innerHTML = `<span style="color:#a33;">${escapeHtmlSafe(readErrorMessage(err, '反馈加载失败'))}</span>`;
+		}
+	}
+
+	async function updateAdminFeedbackStatus(modal: HTMLDivElement, feedbackId: string, paperId: string, status: string): Promise<void> {
+		const api = window.APIClient;
+		if (!feedbackId || !api || typeof api.updateFeedback !== 'function') return;
+		try {
+			await api.updateFeedback(feedbackId, paperId, { status, admin_note: `运营后台标记为 ${status}` });
+			showToast('反馈状态已更新');
+			await loadAdminFeedback(modal);
+		} catch (err) {
+			showToast(readErrorMessage(err, '反馈更新失败'));
+		}
+	}
+
 	async function openAdminDashboardPanel(): Promise<void> {
 		const modal = ensureAdminDashboardModal();
 		modal.classList.remove('risk-hidden');
@@ -5197,6 +6554,31 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		(modal.querySelector('#ad-refresh') as HTMLButtonElement).onclick = () => {
 			void reloadAdminOverview(modal);
 		};
+		if (modal.dataset.adminControlsBound !== 'true') {
+			modal.dataset.adminControlsBound = 'true';
+			(modal.querySelector('#ad-user-search') as HTMLButtonElement).onclick = () => void searchAdminUsers(modal);
+			(modal.querySelector('#ad-role-load') as HTMLButtonElement).onclick = () => void loadAdminRoleUsers(modal);
+			(modal.querySelector('#ad-flags-load') as HTMLButtonElement).onclick = () => void loadAdminFeatureFlags(modal);
+			(modal.querySelector('#ad-feedback-load') as HTMLButtonElement).onclick = () => void loadAdminFeedback(modal);
+			modal.addEventListener('click', (e) => {
+				const target = e.target as HTMLElement | null;
+				const flagButton = target?.closest('[data-admin-flag]') as HTMLButtonElement | null;
+				if (flagButton) {
+					void toggleAdminFeatureFlag(modal, flagButton.dataset.adminFlag || '', flagButton.dataset.enabled === 'true');
+					return;
+				}
+				const feedbackButton = target?.closest('[data-admin-feedback]') as HTMLButtonElement | null;
+				if (feedbackButton) {
+					void updateAdminFeedbackStatus(
+						modal,
+						feedbackButton.dataset.adminFeedback || '',
+						feedbackButton.dataset.paperId || '',
+						feedbackButton.dataset.status || 'resolved'
+					);
+				}
+			});
+		}
+		await loadAdminRoles(modal);
 		await reloadAdminOverview(modal);
 	}
 
@@ -5739,7 +7121,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				const qid = btn.dataset.questionId || '';
 				const examId = btn.dataset.examId || '';
 				if (action === 'open' && examId) {
-					await resumeExam(examId, null);
+					await openExamQuestion(examId, qid);
 				} else if (action === 'complete' && qid) {
 					try {
 						await api.completeDailyPracticeItem(qid);
@@ -5773,6 +7155,139 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		} catch (err) {
 			showToast(readErrorMessage(err, '重新生成失败'));
 		}
+	}
+
+	// 推荐复习：推荐原因 -> 去练习 -> 用户反馈
+	let recommendedReviewModal: HTMLDivElement | null = null;
+
+	function ensureRecommendedReviewModal(): HTMLDivElement {
+		if (recommendedReviewModal) return recommendedReviewModal;
+		const modal = document.createElement('div');
+		modal.id = 'recommended-review-modal';
+		modal.className = 'risk-modal risk-hidden';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		modal.innerHTML = `
+			<div style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:820px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+					<h3 style="margin:0;font-size:16px;">推荐复习</h3>
+					<button id="rr-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+				</div>
+				<div id="rr-body" style="min-height:220px;"></div>
+			</div>`;
+		document.body.appendChild(modal);
+		recommendedReviewModal = modal;
+		(modal.querySelector('#rr-close') as HTMLButtonElement).onclick = () => {
+			modal.classList.add('risk-hidden');
+			modal.style.display = 'none';
+		};
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			}
+		});
+		return modal;
+	}
+
+	function recommendationFeedbackKey(userId: string): string {
+		return `exam_v2_recommendation_feedback_${userId}`;
+	}
+
+	function readRecommendationFeedback(userId: string): Record<string, string> {
+		try {
+			return JSON.parse(localStorage.getItem(recommendationFeedbackKey(userId)) || '{}') as Record<string, string>;
+		} catch {
+			return {};
+		}
+	}
+
+	function saveRecommendationFeedback(userId: string, examId: string, value: string): void {
+		const feedback = readRecommendationFeedback(userId);
+		feedback[examId] = value;
+		localStorage.setItem(recommendationFeedbackKey(userId), JSON.stringify(feedback));
+	}
+
+	function recommendationReasonLabel(reason: string): string {
+		if (reason === 'weak_point_boost') return '根据最近错题和弱项，优先安排这份试卷查漏补缺。';
+		if (reason === 'latest_exam') return '当前没有明显弱项记录，先推荐较新的试卷保持手感。';
+		return reason || '系统根据学习记录推荐。';
+	}
+
+	function renderRecommendedReview(items: Array<Record<string, unknown>>, userId: string): string {
+		if (items.length === 0) {
+			return '<div style="padding:24px;text-align:center;color:#999;">暂无推荐。完成几次练习后，系统会根据错题和弱项生成推荐。</div>';
+		}
+		const feedback = readRecommendationFeedback(userId);
+		return items
+			.map((item) => {
+				const examId = String(item.exam_id || '');
+				const reason = String(item.reason || '');
+				const score = Number(item.score ?? 0);
+				const state = feedback[examId] || '';
+				const stateText = state === 'started' ? '已开始练习' : state === 'useful' ? '已反馈：有用' : state === 'not_useful' ? '已反馈：不适合' : '';
+				return `<div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;margin-bottom:10px;background:#fff;">
+					<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+						<div style="min-width:0;flex:1;">
+							<div style="font-weight:600;">试卷 <code>${escapeHtmlSafe(examId)}</code></div>
+							<div style="margin-top:6px;font-size:13px;color:#555;line-height:1.6;">${escapeHtmlSafe(recommendationReasonLabel(reason))}</div>
+							<div style="margin-top:6px;font-size:12px;color:#888;">推荐强度：${escapeHtmlSafe(String(Math.round(score * 100)))}%${stateText ? ` · ${escapeHtmlSafe(stateText)}` : ''}</div>
+						</div>
+						<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+							<button class="risk-btn" data-rr-action="open" data-exam-id="${escapeHtmlSafe(examId)}">去练习</button>
+							<button class="risk-btn" data-rr-action="feedback" data-value="useful" data-exam-id="${escapeHtmlSafe(examId)}">有用</button>
+							<button class="risk-btn" data-rr-action="feedback" data-value="not_useful" data-exam-id="${escapeHtmlSafe(examId)}">不适合</button>
+						</div>
+					</div>
+				</div>`;
+			})
+			.join('');
+	}
+
+	async function reloadRecommendedReview(): Promise<void> {
+		const modal = recommendedReviewModal!;
+		const body = modal.querySelector('#rr-body') as HTMLDivElement;
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		const api = window.APIClient;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
+		if (!api || typeof api.getRecommendations !== 'function' || !userId) {
+			body.innerHTML = '<div style="padding:24px;color:#a33;">推荐接口不可用或尚未登录</div>';
+			return;
+		}
+		try {
+			const data = (await api.getRecommendations(userId, 8)) as Array<Record<string, unknown>>;
+			const items = Array.isArray(data) ? data : [];
+			body.innerHTML = renderRecommendedReview(items, userId);
+			body.onclick = async (e: MouseEvent) => {
+				const btn = (e.target as HTMLElement | null)?.closest('button[data-rr-action]') as HTMLButtonElement | null;
+				if (!btn) return;
+				const examId = btn.dataset.examId || '';
+				const action = btn.dataset.rrAction || '';
+				if (!examId) return;
+				if (action === 'open') {
+					saveRecommendationFeedback(userId, examId, 'started');
+					await openExamQuestion(examId, '');
+				} else if (action === 'feedback') {
+					saveRecommendationFeedback(userId, examId, btn.dataset.value || '');
+					body.innerHTML = renderRecommendedReview(items, userId);
+					showToast('已记录反馈');
+				}
+			};
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
+		}
+	}
+
+	async function openRecommendedReviewPanel(): Promise<void> {
+		const ctx = getContext();
+		if (!ctx.id) {
+			showToast('请先登录后查看推荐');
+			return;
+		}
+		const modal = ensureRecommendedReviewModal();
+		modal.classList.remove('risk-hidden');
+		modal.style.display = 'flex';
+		await reloadRecommendedReview();
 	}
 
 	// ---------------------------------------------------------------------
@@ -6109,13 +7624,27 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	// ---------------------------------------------------------------------
 	// 业务功能 19：多端同步面板
-	//   - 显示服务端各模块 mtime；可选模块勾选 → 拉取覆盖本地缓存（localStorage）
+	//   - 显示服务端各模块 mtime；可选模块勾选 → 拉取/上传本地缓存（localStorage）
 	//   - localStorage key：sync.snapshot.{userId}.{module} = {modified_at, content}
 	// ---------------------------------------------------------------------
 	let syncDevicesModal: HTMLDivElement | null = null;
 
 	function syncSnapshotKey(userId: string, moduleName: string): string {
 		return `sync.snapshot.${userId}.${moduleName}`;
+	}
+
+	function getSyncDeviceId(): string {
+		const key = 'sync.device.id';
+		const existing = localStorage.getItem(key);
+		if (existing) return existing;
+		const next = `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+		localStorage.setItem(key, next);
+		return next;
+	}
+
+	function getSyncDeviceName(): string {
+		const platform = navigator.platform || 'Browser';
+		return `${platform} · ${navigator.userAgent.includes('Edg') ? 'Edge' : navigator.userAgent.includes('Chrome') ? 'Chrome' : 'Web'}`;
 	}
 
 	function ensureSyncDevicesModal(): HTMLDivElement {
@@ -6130,12 +7659,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					<h3 style="margin:0;font-size:16px;">🔄 多端同步</h3>
 					<div>
 						<button id="sd-refresh" style="margin-right:8px;padding:6px 12px;cursor:pointer;">刷新状态</button>
+						<button id="sd-devices" style="margin-right:8px;padding:6px 12px;cursor:pointer;">设备</button>
+						<button id="sd-push" style="margin-right:8px;padding:6px 12px;background:#06c;color:#fff;border:0;border-radius:4px;cursor:pointer;">上传选中</button>
 						<button id="sd-pull" style="margin-right:8px;padding:6px 12px;background:#0a7;color:#fff;border:0;border-radius:4px;cursor:pointer;">拉取选中</button>
 						<button id="sd-close" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
 					</div>
 				</div>
 				<div style="font-size:12px;color:#888;margin-bottom:8px;">
-					拉取后会以服务端为准覆盖本地缓存（last-write-wins）。本机暂存键：<code>sync.snapshot.&lt;userId&gt;.&lt;module&gt;</code>。
+					拉取会以服务端覆盖本机缓存；上传会检查服务端 mtime，发现冲突时需要二次确认。本机暂存键：<code>sync.snapshot.&lt;userId&gt;.&lt;module&gt;</code>。
 				</div>
 				<div id="sd-body" style="min-height:160px;"></div>
 				<div id="sd-status" style="margin-top:8px;font-size:12px;color:#666;"></div>
@@ -6154,6 +7685,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		});
 		(modal.querySelector('#sd-refresh') as HTMLButtonElement).onclick = () => void reloadSyncState();
 		(modal.querySelector('#sd-pull') as HTMLButtonElement).onclick = () => void pullSelectedSyncModules();
+		(modal.querySelector('#sd-push') as HTMLButtonElement).onclick = () => void pushSelectedSyncModules(false);
+		(modal.querySelector('#sd-devices') as HTMLButtonElement).onclick = () => void reloadSyncDevices();
 		return modal;
 	}
 
@@ -6193,6 +7726,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					<td style="padding:6px 8px;border-bottom:1px solid #eee;">
 						<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
 							<input type="checkbox" data-sync-mod="${escapeHtmlSafe(name)}" ${drift || !localCached ? 'checked' : ''} />
+							<input type="hidden" data-sync-remote="${escapeHtmlSafe(name)}" value="${escapeHtmlSafe(remote)}" />
 							${escapeHtmlSafe(name)}
 						</label>
 					</td>
@@ -6250,6 +7784,101 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			await reloadSyncState();
 		} catch (err) {
 			status.textContent = readErrorMessage(err, '同步失败');
+		}
+	}
+
+	async function pushSelectedSyncModules(force: boolean): Promise<void> {
+		const modal = syncDevicesModal!;
+		const status = modal.querySelector('#sd-status') as HTMLDivElement;
+		const ctx = getContext();
+		const userId = ctx.id || '';
+		const checks = Array.from(modal.querySelectorAll<HTMLInputElement>('input[data-sync-mod]:checked'));
+		const modules: Record<string, unknown> = {};
+		for (const check of checks) {
+			const name = check.dataset.syncMod || '';
+			if (!name) continue;
+			try {
+				const raw = localStorage.getItem(syncSnapshotKey(userId, name));
+				if (!raw) continue;
+				const snapshot = JSON.parse(raw) as { modified_at?: string; content?: unknown };
+				const remote = modal.querySelector<HTMLInputElement>(`input[data-sync-remote="${CSS.escape(name)}"]`)?.value || '';
+				modules[name] = {
+					remote_modified_at: remote || snapshot.modified_at || '',
+					content: snapshot.content ?? null
+				};
+			} catch { /* ignore malformed local cache */ }
+		}
+		const names = Object.keys(modules);
+		if (names.length === 0) {
+			status.textContent = '没有可上传的本机缓存。请先拉取或在本机产生学习数据。';
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.pushSync !== 'function') return;
+		status.textContent = force ? '强制覆盖上传中…' : '上传中…';
+		try {
+			const data = (await api.pushSync({
+				device_id: getSyncDeviceId(),
+				device_name: getSyncDeviceName(),
+				force,
+				modules
+			})) as { written?: Record<string, unknown>; conflicts?: Record<string, unknown>; status?: string } | null;
+			const conflicts = data?.conflicts || {};
+			const conflictNames = Object.keys(conflicts);
+			if (conflictNames.length > 0 && !force) {
+				status.textContent = `发现冲突：${conflictNames.join('、')}。服务端数据更新过，未覆盖。`;
+				if (confirm(`发现 ${conflictNames.length} 个同步冲突。是否用本机缓存覆盖服务端？`)) {
+					await pushSelectedSyncModules(true);
+					return;
+				}
+			} else {
+				const written = Object.keys(data?.written || {}).length;
+				status.textContent = `已上传 ${written} 个模块`;
+				showToast('上传完成');
+			}
+			await reloadSyncState();
+		} catch (err) {
+			status.textContent = readErrorMessage(err, '上传失败');
+		}
+	}
+
+	async function reloadSyncDevices(): Promise<void> {
+		const modal = syncDevicesModal!;
+		const body = modal.querySelector('#sd-body') as HTMLDivElement;
+		const status = modal.querySelector('#sd-status') as HTMLDivElement;
+		const api = window.APIClient;
+		if (!api || typeof api.getSyncDevices !== 'function') return;
+		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载设备中…</div>';
+		try {
+			const data = (await api.getSyncDevices()) as { items?: Array<Record<string, unknown>>; server_time?: string } | null;
+			const items = Array.isArray(data?.items) ? data.items : [];
+			if (items.length === 0) {
+				body.innerHTML = '<div style="padding:24px;color:#999;">暂无设备上传记录</div>';
+				status.textContent = '';
+				return;
+			}
+			body.innerHTML = `
+				<div style="font-size:11px;color:#999;margin-bottom:6px;">当前设备：${escapeHtmlSafe(getSyncDeviceName())} / ${escapeHtmlSafe(getSyncDeviceId())}</div>
+				<table style="border-collapse:collapse;width:100%;font-size:13px;">
+					<thead><tr style="background:#fafafa;">
+						<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">设备</th>
+						<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">首次同步</th>
+						<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">最后同步</th>
+						<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">最近模块</th>
+					</tr></thead>
+					<tbody>${items.map((item) => {
+						const mods = Array.isArray(item.last_push_modules) ? item.last_push_modules.map(String).join('、') : '';
+						return `<tr>
+							<td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlSafe(String(item.device_name || item.device_id || 'Unknown'))}</td>
+							<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px;">${escapeHtmlSafe(String(item.created_at || ''))}</td>
+							<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px;">${escapeHtmlSafe(String(item.last_seen_at || ''))}</td>
+							<td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtmlSafe(mods || '—')}</td>
+						</tr>`;
+					}).join('')}</tbody>
+				</table>`;
+			status.textContent = `共 ${items.length} 台设备`;
+		} catch (err) {
+			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
 		}
 	}
 
@@ -6810,6 +8439,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	};
 
 	window.openPersonalCenter = () => openPanel();
+	(window as unknown as { openRechargePanel?: () => void }).openRechargePanel = () => {
+		void openRechargePanel();
+	};
 	window.refreshPersonalCenterTrigger = () => buildTrigger();
 	window.getUserContext = () => ({ ...getContext() });
 	window._pcDebug = {

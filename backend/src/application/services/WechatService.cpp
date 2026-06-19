@@ -148,7 +148,8 @@ const std::vector<std::string> &WechatService::defaultDevelopmentTestIds()
         "wxdev_003",
         "admin_001",
         "teacher_001",
-        "reviewer_001"};
+        "assistant_001",
+        "content_001"};
     return testIds;
 }
 

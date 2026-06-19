@@ -25,4 +25,16 @@ Json::Value BookmarkService::removeExamBookmark(const std::string &userId, const
     return repository_.loadBookmarks(userId);
 }
 
+Json::Value BookmarkService::addQuestionBookmark(const std::string &userId, Json::Value item)
+{
+    repository_.addQuestionBookmark(userId, std::move(item));
+    return repository_.loadBookmarks(userId);
+}
+
+Json::Value BookmarkService::removeQuestionBookmark(const std::string &userId, const std::string &bookmarkId)
+{
+    repository_.removeQuestionBookmark(userId, bookmarkId);
+    return repository_.loadBookmarks(userId);
+}
+
 }  // namespace application::services

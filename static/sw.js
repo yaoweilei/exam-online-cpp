@@ -6,13 +6,18 @@
 //
 // 版本号变更后，新 SW 会清理旧缓存
 
-const CACHE_VERSION = 'v1-2026-04-22';
+const CACHE_VERSION = 'v2-2026-06-19-login';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 const ALL_CACHES = [STATIC_CACHE, API_CACHE];
 
 // 安装：预缓存核心壳
-const PRECACHE_URLS = ['/', '/static/style.css', '/manifest.webmanifest'];
+const PRECACHE_URLS = [
+	'/',
+	'/manifest.webmanifest',
+	'/static/style.css?v=20260619-login3',
+	'/static/app/main.js'
+];
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(

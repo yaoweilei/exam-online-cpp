@@ -1,7 +1,7 @@
 {
-	"name": "JLPT 在线试卷系统",
-	"short_name": "JLPT 试卷",
-	"description": "JLPT 在线考试与练习系统（支持离线缓存）",
+	"name": "EJU / JLPT 在线学习系统",
+	"short_name": "EJU JLPT",
+	"description": "EJU 与 JLPT 在线真题练习、机构作业和自学复习系统（支持安装与离线缓存）",
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",
@@ -9,6 +9,21 @@
 	"background_color": "#1f1914",
 	"theme_color": "#1f1914",
 	"lang": "zh-CN",
+	"categories": ["education", "productivity"],
+	"shortcuts": [
+		{
+			"name": "打开试卷",
+			"short_name": "试卷",
+			"url": "/?source=pwa-shortcut-exams",
+			"description": "进入在线试卷练习"
+		},
+		{
+			"name": "个人中心",
+			"short_name": "中心",
+			"url": "/?source=pwa-shortcut-profile",
+			"description": "查看学习进度、作业和账户"
+		}
+	],
 	"icons": [
 		{
 			"src": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%231f1914'/%3E%3Cpath d='M48 48h96v96H48z' fill='none' stroke='%23f7f4ef' stroke-width='8'/%3E%3Cpath d='M68 76h56M68 96h56M68 116h36' stroke='%23f7f4ef' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E",

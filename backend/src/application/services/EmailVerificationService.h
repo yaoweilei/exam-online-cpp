@@ -23,7 +23,7 @@ class EmailVerificationService
                                                                             ContactChangeChallengeService &contactChangeChallengeService)
 ;
 
-    void sendVerificationCode(const std::string &email);
+    Json::Value sendVerificationCode(const std::string &email);
 
     Json::Value verifyAndBind(const std::string &userId,
                               const std::string &email,
@@ -47,10 +47,20 @@ class EmailVerificationService
         std::chrono::system_clock::time_point expiresAt;
     };
 
+    struct DailySendCounter
+    {
+        std::string dayKey;
+        int count{0};
+    };
+
+    static std::string dayKeyUtc(std::chrono::system_clock::time_point timePoint);
+
     infrastructure::storage::UserRepository &userRepository_;
     EmailService &emailService_;
     ContactChangeChallengeService &contactChangeChallengeService_;
     std::unordered_map<std::string, PendingCode> pending_;
+    std::unordered_map<std::string, DailySendCounter> dailyCounters_;
+    int dailySendLimit_{10};
     std::mutex mutex_;
 };
 }  // namespace application::services

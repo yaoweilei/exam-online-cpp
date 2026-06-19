@@ -53,6 +53,14 @@ interface LegacyApiClientShape {
 	getOrganizationMembers(organizationId: string, token: string): Promise<unknown[]>;
 	saveOrganizationMember(organizationId: string, token: string, payload: unknown): Promise<unknown>;
 	removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown>;
+	getOrganizationCampuses(organizationId: string, token: string): Promise<unknown[]>;
+	saveOrganizationCampus(organizationId: string, token: string, payload: unknown): Promise<unknown>;
+	getOrganizationLearningGroups(organizationId: string, token: string): Promise<unknown[]>;
+	saveOrganizationLearningGroup(organizationId: string, token: string, payload: unknown): Promise<unknown>;
+	getOrganizationCoursePackages(organizationId: string, token: string): Promise<unknown[]>;
+	saveOrganizationCoursePackage(organizationId: string, token: string, payload: unknown): Promise<unknown>;
+	saveLearningGroupEnrollment(organizationId: string, learningGroupId: string, token: string, payload: unknown): Promise<unknown>;
+	completeOrganizationLearningGroup(organizationId: string, learningGroupId: string, token: string, payload?: unknown): Promise<unknown>;
 	saveOrganizationInvitation(organizationId: string, token: string, payload: unknown): Promise<unknown>;
 	cancelOrganizationInvitation(organizationId: string, invitationId: string, token: string): Promise<unknown>;
 	acceptOrganizationInvitation(token: string, inviteToken: string): Promise<unknown>;
@@ -63,13 +71,14 @@ interface LegacyApiClientShape {
 	listPaymentLedger(token: string, userId?: string): Promise<unknown>;
 	requestPaymentRefund(token: string, payload: unknown): Promise<unknown>;
 	getInstitutionDashboard(token: string, orgId?: string): Promise<unknown>;
+	getInstitutionWorkbench(token: string, orgId?: string): Promise<unknown>;
 	getInstitutionPlans(): Promise<unknown>;
-	getInstitutionClassGradebook(token: string, classId: string): Promise<unknown>;
+	getInstitutionLearningGroupGradebook(token: string, organizationId: string, learningGroupId: string): Promise<unknown>;
 	getInstitutionStudentProfile(token: string, studentId: string): Promise<unknown>;
 	createLessonPrep(token: string, payload: unknown): Promise<unknown>;
+	listLessonPrepPlans(token: string, orgId?: string): Promise<unknown>;
+	saveLessonPrepPlan(token: string, payload: unknown): Promise<unknown>;
 	previewInstitutionImport(token: string, payload: unknown): Promise<unknown>;
-	addFurigana(text: string): Promise<unknown>;
-	getReading(word: string): Promise<unknown>;
 	// 错题本（业务功能 1）
 	getWrongQuestions(
 		userId: string,
@@ -112,17 +121,14 @@ interface LegacyApiClientShape {
 	submitFeedback(payload: Record<string, unknown>): Promise<unknown>;
 	listFeedback(paperId?: string, status?: string): Promise<unknown>;
 	updateFeedback(feedbackId: string, paperId: string, patch: Record<string, unknown>): Promise<unknown>;
-	// 班级与作业（业务功能 6）
-	createClassroom(payload: Record<string, unknown>): Promise<unknown>;
-	listMyClassrooms(): Promise<unknown>;
-	getClassroom(classId: string): Promise<unknown>;
-	updateClassroom(classId: string, patch: Record<string, unknown>): Promise<unknown>;
-	removeClassroom(classId: string): Promise<unknown>;
-	addClassroomMembers(classId: string, userIds: string[]): Promise<unknown>;
-	removeClassroomMember(classId: string, userId: string): Promise<unknown>;
-	createAssignment(classId: string, payload: Record<string, unknown>): Promise<unknown>;
-	listClassroomAssignments(classId: string): Promise<unknown>;
+	// 学习组作业（业务功能 6）
+	createLearningGroupAssignment(organizationId: string, learningGroupId: string, payload: Record<string, unknown>): Promise<unknown>;
+	listLearningGroupAssignments(organizationId: string, learningGroupId: string): Promise<unknown>;
 	listMyAssignments(): Promise<unknown>;
+	getAssignment(assignmentId: string): Promise<unknown>;
+	submitAssignment(assignmentId: string, answers: Record<string, unknown>): Promise<unknown>;
+	getAssignmentSubmissions(assignmentId: string): Promise<unknown>;
+	remindAssignment(assignmentId: string, payload: Record<string, unknown>): Promise<unknown>;
 	updateAssignment(assignmentId: string, patch: Record<string, unknown>): Promise<unknown>;
 	removeAssignment(assignmentId: string): Promise<unknown>;
 	// SRS 间隔重复（业务功能 7）
@@ -132,6 +138,9 @@ interface LegacyApiClientShape {
 	addSrsCard(userId: string, payload: Record<string, unknown>): Promise<unknown>;
 	removeSrsCard(userId: string, cardId: string): Promise<unknown>;
 	// 收藏夹/分类（业务功能 8）
+	getBookmarks(userId: string): Promise<unknown>;
+	addQuestionBookmark(userId: string, payload: Record<string, unknown>): Promise<unknown>;
+	removeQuestionBookmark(userId: string, bookmarkId: string): Promise<unknown>;
 	listBookmarkFolders(userId: string): Promise<unknown>;
 	createBookmarkFolder(userId: string, name: string, color?: string): Promise<unknown>;
 	updateBookmarkFolder(userId: string, folderId: string, patch: Record<string, unknown>): Promise<unknown>;
@@ -173,6 +182,8 @@ interface LegacyApiClientShape {
 	// 多端同步（业务功能 19）
 	getSyncState(): Promise<unknown>;
 	pullSync(modules?: string[]): Promise<unknown>;
+	pushSync(payload: Record<string, unknown>): Promise<unknown>;
+	getSyncDevices(): Promise<unknown>;
 	// 排行榜（业务功能 21）
 	getLeaderboard(period?: 'week' | 'month' | 'all', limit?: number, force?: boolean): Promise<unknown>;
 	// 个人生词本
@@ -206,7 +217,6 @@ interface Window {
 	__API_BASE__?: string;
 	__WEB_APP_MODE__?: boolean;
 	__LOG_LEVEL__?: string;
-	__FURIGANA_DICT_URL__?: string;
 	__ENABLED_EXAM_FAMILIES__?: string[] | string;
 	// 功能开关：登录后由 FeatureFlagsClient 写入；未登录时为 undefined
 	__FEATURE_FLAGS__?: Record<string, FeatureFlagState>;
@@ -247,7 +257,6 @@ interface Window {
 	StateManager?: unknown;
 	AnswerManager?: unknown;
 	AudioManager?: unknown;
-	FuriganaManager?: unknown;
 	NavigationManager?: unknown;
 	ExamTimerManager?: unknown;
 	QuestionMapManager?: unknown;
@@ -265,6 +274,7 @@ interface Window {
 	setUserContext?: (ctx: Record<string, unknown>) => void;
 	logoutUser?: () => void;
 	openPersonalCenter?: () => void;
+	openRechargePanel?: () => void;
 	refreshPersonalCenterTrigger?: () => Promise<void> | void;
 	getUserContext?: () => Record<string, unknown>;
 	_pcDebug?: Record<string, unknown>;

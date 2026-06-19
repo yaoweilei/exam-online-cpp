@@ -111,7 +111,6 @@ class ExamViewer {
 
 		// 2. 功能管理器（可能有依赖）
 		this.audioManager = new AudioManager(this as any);
-		this.furiganaManager = new FuriganaManager(this as any);
 		// 生词划词查词 · 个人词本
 		this.vocabLookupManager = new (window as any).VocabLookupManager(this as any);
 		this.answerManager = new AnswerManager(this as any);
@@ -134,8 +133,6 @@ class ExamViewer {
 		this.questionMapManager.initQuestionMap();
 		this.categoryNavigationManager.initCategoryDropdowns();
 		(window as unknown as { TranslationManager?: { installDelegation?: () => void } }).TranslationManager?.installDelegation?.();
-		this.furiganaManager.loadExternalFuriganaDict();
-		this.furiganaManager.initFuriganaDebugBadge();
 		this.vocabLookupManager?.init?.();
 
 		// ==================== 后端通信设置 ====================
@@ -1238,14 +1235,37 @@ class ExamViewer {
 	showExamLocked(examId: string, reason: string) {
 		const container = document.getElementById('exam-content');
 		if (!container) { return; }
+		const escapeHtml = (value: string): string => value
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
 
 		container.innerHTML = `
-			<div style="padding: 20px; text-align: center;">
-				<h3>试卷已锁定</h3>
-				<p>原因: ${reason}</p>
-				<p>试卷 ID: ${examId}</p>
+			<div style="padding: 36px 20px; text-align: center; max-width: 560px; margin: 0 auto;">
+				<h3 style="margin:0 0 12px;font-size:22px;color:#222;">试卷需要升级套餐</h3>
+				<p style="margin:0 0 8px;color:#555;line-height:1.7;">${escapeHtml(reason || '当前账号权益不足，无法访问这份试卷。')}</p>
+				<p style="margin:0 0 20px;color:#888;font-size:12px;">试卷 ID: ${escapeHtml(examId)}</p>
+				<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+					<button id="exam-upgrade-cta" style="padding:10px 18px;border:0;border-radius:6px;background:#0878d8;color:#fff;cursor:pointer;font-weight:600;">立即升级</button>
+					<button id="exam-profile-cta" style="padding:10px 18px;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#333;cursor:pointer;">查看当前权益</button>
+				</div>
 			</div>
 		`;
+		const openBilling = () => {
+			const win = window as Window & { openRechargePanel?: () => void; openPersonalCenter?: () => void };
+			if (typeof win.openRechargePanel === 'function') {
+				win.openRechargePanel();
+				return;
+			}
+			win.openPersonalCenter?.();
+		};
+		document.getElementById('exam-upgrade-cta')?.addEventListener('click', openBilling);
+		document.getElementById('exam-profile-cta')?.addEventListener('click', () => {
+			const win = window as Window & { openPersonalCenter?: () => void };
+			win.openPersonalCenter?.();
+		});
 	}
 
 	// ==================== 宽度控制 ====================

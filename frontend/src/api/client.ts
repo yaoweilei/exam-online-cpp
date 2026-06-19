@@ -201,6 +201,53 @@ export class ApiClient {
 		});
 	}
 
+	getOrganizationCampuses(organizationId: string, token: string): Promise<unknown[]> {
+		return this.request(`/organizations/${organizationId}/campuses?token=${encodeURIComponent(token)}`);
+	}
+
+	saveOrganizationCampus(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/campuses`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	getOrganizationLearningGroups(organizationId: string, token: string): Promise<unknown[]> {
+		return this.request(`/organizations/${organizationId}/learning-groups?token=${encodeURIComponent(token)}`);
+	}
+
+	saveOrganizationLearningGroup(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/learning-groups`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	getOrganizationCoursePackages(organizationId: string, token: string): Promise<unknown[]> {
+		return this.request(`/organizations/${organizationId}/course-packages?token=${encodeURIComponent(token)}`);
+	}
+
+	saveOrganizationCoursePackage(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/course-packages`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	saveLearningGroupEnrollment(organizationId: string, learningGroupId: string, token: string, payload: unknown): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/learning-groups/${learningGroupId}/enrollments`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	completeOrganizationLearningGroup(organizationId: string, learningGroupId: string, token: string, payload: unknown = {}): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/learning-groups/${learningGroupId}/complete`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
 	saveOrganizationInvitation(organizationId: string, token: string, payload: unknown): Promise<unknown> {
 		return this.request(`/organizations/${organizationId}/invitations`, {
 			method: 'POST',
@@ -265,12 +312,18 @@ export class ApiClient {
 		return this.request(`/institution/dashboard?${query.toString()}`);
 	}
 
+	getInstitutionWorkbench(token: string, orgId?: string): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (orgId) query.set('org_id', orgId);
+		return this.request(`/institution/workbench?${query.toString()}`);
+	}
+
 	getInstitutionPlans(): Promise<unknown> {
 		return this.request('/institution/plans');
 	}
 
-	getInstitutionClassGradebook(token: string, classId: string): Promise<unknown> {
-		return this.request(`/institution/classes/${encodeURIComponent(classId)}/gradebook?token=${encodeURIComponent(token)}`);
+	getInstitutionLearningGroupGradebook(token: string, organizationId: string, learningGroupId: string): Promise<unknown> {
+		return this.request(`/institution/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/gradebook?token=${encodeURIComponent(token)}`);
 	}
 
 	getInstitutionStudentProfile(token: string, studentId: string): Promise<unknown> {
@@ -279,6 +332,19 @@ export class ApiClient {
 
 	createLessonPrep(token: string, payload: unknown): Promise<unknown> {
 		return this.request('/institution/lesson-prep', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	listLessonPrepPlans(token: string, orgId?: string): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (orgId) query.set('org_id', orgId);
+		return this.request(`/institution/lesson-prep/plans?${query.toString()}`);
+	}
+
+	saveLessonPrepPlan(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/institution/lesson-prep/plans', {
 			method: 'POST',
 			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
 		});
@@ -490,58 +556,44 @@ export class ApiClient {
 	}
 
 	// ---------------------------------------------------------------------
-	// 班级与作业 API（业务功能 6）
+	// 学习组作业 API（业务功能 6）
 	// ---------------------------------------------------------------------
 
-	createClassroom(payload: Record<string, unknown>): Promise<unknown> {
-		return this.request('/classrooms', { method: 'POST', body: JSON.stringify(payload) });
-	}
-
-	listMyClassrooms(): Promise<unknown> {
-		return this.request('/me/classrooms');
-	}
-
-	getClassroom(classId: string): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}`);
-	}
-
-	updateClassroom(classId: string, patch: Record<string, unknown>): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}`, {
-			method: 'PATCH',
-			body: JSON.stringify(patch)
-		});
-	}
-
-	removeClassroom(classId: string): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}`, { method: 'DELETE' });
-	}
-
-	addClassroomMembers(classId: string, userIds: string[]): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}/members`, {
-			method: 'POST',
-			body: JSON.stringify({ user_ids: userIds })
-		});
-	}
-
-	removeClassroomMember(classId: string, userId: string): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}/members/${encodeURIComponent(userId)}`, {
-			method: 'DELETE'
-		});
-	}
-
-	createAssignment(classId: string, payload: Record<string, unknown>): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}/assignments`, {
+	createLearningGroupAssignment(organizationId: string, learningGroupId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/assignments`, {
 			method: 'POST',
 			body: JSON.stringify(payload)
 		});
 	}
 
-	listClassroomAssignments(classId: string): Promise<unknown> {
-		return this.request(`/classrooms/${encodeURIComponent(classId)}/assignments`);
+	listLearningGroupAssignments(organizationId: string, learningGroupId: string): Promise<unknown> {
+		return this.request(`/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/assignments`);
 	}
 
 	listMyAssignments(): Promise<unknown> {
 		return this.request('/me/assignments');
+	}
+
+	getAssignment(assignmentId: string): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}`);
+	}
+
+	submitAssignment(assignmentId: string, answers: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submit`, {
+			method: 'POST',
+			body: JSON.stringify({ answers })
+		});
+	}
+
+	getAssignmentSubmissions(assignmentId: string): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submissions`);
+	}
+
+	remindAssignment(assignmentId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/reminders`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
 	}
 
 	updateAssignment(assignmentId: string, patch: Record<string, unknown>): Promise<unknown> {
@@ -590,6 +642,23 @@ export class ApiClient {
 	// ---------------------------------------------------------------------
 	// 收藏夹/分类 API（业务功能 8）
 	// ---------------------------------------------------------------------
+
+	getBookmarks(userId: string): Promise<unknown> {
+		return this.request(`/bookmarks/${encodeURIComponent(userId)}`);
+	}
+
+	addQuestionBookmark(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/bookmarks/${encodeURIComponent(userId)}/questions`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	removeQuestionBookmark(userId: string, bookmarkId: string): Promise<unknown> {
+		return this.request(`/bookmarks/${encodeURIComponent(userId)}/questions/${encodeURIComponent(bookmarkId)}`, {
+			method: 'DELETE'
+		});
+	}
 
 	listBookmarkFolders(userId: string): Promise<unknown> {
 		return this.request(`/bookmark-folders/${encodeURIComponent(userId)}`);
@@ -779,6 +848,17 @@ export class ApiClient {
 	pullSync(modules?: string[]): Promise<unknown> {
 		const qs = modules && modules.length > 0 ? `?modules=${encodeURIComponent(modules.join(','))}` : '';
 		return this.request(`/me/sync/pull${qs}`);
+	}
+
+	pushSync(payload: Record<string, unknown>): Promise<unknown> {
+		return this.request('/me/sync/push', {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	getSyncDevices(): Promise<unknown> {
+		return this.request('/me/sync/devices');
 	}
 
 	// ---------------------------------------------------------------------

@@ -92,7 +92,19 @@ export interface ManagedOrganizationMember {
 	username: string;
 	memberNo?: string;
 	roles: string[];
+	permissionTemplates: PermissionTemplateId[];
+	permissionOverrides: PermissionOverride[];
 	status?: string;
+}
+
+export type PermissionTemplateId = 'assistant' | 'homeroom' | 'teachingOffice' | 'consultant' | 'campusAdmin';
+
+export interface PermissionOverride {
+	permission: string;
+	effect: 'allow' | 'deny';
+	scope: 'personal' | 'learningGroup' | 'campus' | 'organization';
+	scopeId?: string;
+	expiresAt?: string;
 }
 
 export interface ManagedOrganizationInvitation {
@@ -107,6 +119,8 @@ export interface ManagedOrganizationInvitation {
 	deliveryError?: string;
 	deliveredAt?: string;
 	roles: string[];
+	permissionTemplates?: PermissionTemplateId[];
+	permissionOverrides?: PermissionOverride[];
 	memberNo?: string;
 	message?: string;
 	createdAt: string;
@@ -147,6 +161,45 @@ export interface ManagedOrganizationAuditLog {
 	detailText: string;
 }
 
+export interface ManagedCampus {
+	id: string;
+	name: string;
+	address?: string;
+	status: string;
+}
+
+export interface ManagedLearningGroupEnrollment {
+	enrollmentId: string;
+	userId: string;
+	role: 'student' | 'teacher' | 'assistant';
+	status: string;
+}
+
+export interface ManagedLearningGroup {
+	id: string;
+	name: string;
+	type: 'class' | 'booking';
+	subject?: string;
+	campusId?: string;
+	coursePackageId?: string;
+	startsAt?: string;
+	endsAt?: string;
+	status: string;
+	enrollments: ManagedLearningGroupEnrollment[];
+}
+
+export interface ManagedCoursePackage {
+	id: string;
+	studentId: string;
+	subject?: string;
+	title?: string;
+	totalLessons: number;
+	usedLessons: number;
+	remainingLessons: number;
+	expiresAt?: string;
+	status: string;
+}
+
 export interface ManagedOrganization {
 	id: string;
 	name: string;
@@ -157,6 +210,9 @@ export interface ManagedOrganization {
 	status: string;
 	expiresAt?: string;
 	members: ManagedOrganizationMember[];
+	campuses: ManagedCampus[];
+	learningGroups: ManagedLearningGroup[];
+	coursePackages: ManagedCoursePackage[];
 	invitations: ManagedOrganizationInvitation[];
 	auditLogs: ManagedOrganizationAuditLog[];
 }
@@ -166,6 +222,7 @@ export interface OrganizationMemberDraft {
 	searchResults: PCUser[];
 	selectedUserId: string;
 	memberNo: string;
+	permissionTemplates: PermissionTemplateId[];
 	batchText: string;
 	inviteContact: string;
 	inviteMemberNo: string;
@@ -184,7 +241,7 @@ export interface ContactVerificationDraft {
 export type ContactVerificationKind = 'email' | 'phone';
 
 export interface SectionDef {
-	id: 'dashboard' | 'profile' | 'roles' | 'community' | 'balance' | 'admin-hub' | 'system-flags' | 'logout';
+	id: 'dashboard' | 'profile' | 'admin-hub';
 	title: string;
 	gate: (ctx: PCContext) => boolean;
 	nav?: boolean;

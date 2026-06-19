@@ -7,7 +7,7 @@
  * --------------------------------------------------------------------
  * 触发方式：用户在题面 / passage / transcript 中划选 1–8 个 CJK 字符，
  * 选区附近浮出一个小卡片，含：
- *   - 词形 + 假名读音（来自 furigana.dict.json）
+ *   - 词形
  *   - 该词在本卷其他出现位置（数量 + 跳转）
  *   - 「加入生词本」按钮 + 笔记输入
  *
@@ -99,7 +99,7 @@ class VocabLookupManager {
 
 	private show(word: string, anchorRect: DOMRect): void {
 		const popup = this.ensurePopup();
-		const reading = this.examViewer.furiganaManager?.lookupReading?.(word) ?? '';
+		const reading = '';
 		const occurrences = this.findOccurrences(word);
 		const examId = this.examViewer._currentExamId || this.examViewer.currentExam?.exam_info?.id || '';
 		const questionId = this.examViewer.currentQuestion?.id ?? '';

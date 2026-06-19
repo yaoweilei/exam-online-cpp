@@ -58,7 +58,7 @@ void registerRelatedQuestionsRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req, nullptr);
-                requireRole(session, {"systemAdmin", "superAdmin"}, "仅管理员可重建索引");
+                requireRole(session, {"contentAdmin", "superAdmin"}, "仅内容管理员可重建索引");
                 ctx.relatedQuestionsService->rebuild();
                 return common::ok(req, ctx.relatedQuestionsService->getStats());
             });

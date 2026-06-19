@@ -14,7 +14,6 @@ void ApiRouter::registerRoutes() const
     routes::registerMeRoutes(context_);
     routes::registerStatisticsRoutes(context_);
     routes::registerUserRoutes(context_);
-    routes::registerFuriganaRoutes(context_);
     routes::registerProfileRoutes(context_);
     routes::registerBookmarkRoutes(context_);
     routes::registerSubscriptionRoutes(context_);
@@ -33,8 +32,8 @@ void ApiRouter::registerRoutes() const
     routes::registerFeatureFlagRoutes(context_);
     // 题目反馈路由（业务功能 5）
     routes::registerFeedbackRoutes(context_);
-    // 班级与作业路由（业务功能 6）
-    routes::registerClassroomRoutes(context_);
+    // 学习组作业路由（业务功能 6）
+    routes::registerAssignmentRoutes(context_);
     // SRS 间隔重复路由（业务功能 7）
     routes::registerSrsRoutes(context_);
     // 个人生词本路由（自学者点词查词）

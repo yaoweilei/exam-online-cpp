@@ -10,8 +10,10 @@
 #include "application/services/EmailVerificationService.h"
 #include "application/services/AnswerService.h"
 #include "application/services/AuthService.h"
+#include "application/services/OrganizationService.h"
 #include "application/services/PhoneService.h"
 #include "application/services/SubscriptionService.h"
+#include "application/services/UserService.h"
 #include "common/RequestId.h"
 #include "infrastructure/storage/AnswerRepository.h"
 #include "infrastructure/storage/OrganizationRepository.h"
@@ -324,6 +326,230 @@ void testPasswordLifecycle()
     assert(!authService.login("password_lifecycle_smoke", "Reset12345").get("token", "").asString().empty());
 }
 
+void testOrganizationMemberPermissionOverrides()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::UserRepository userRepository(tempDir.path());
+    infrastructure::storage::ProfileRepository profileRepository(tempDir.path());
+    infrastructure::storage::OrganizationRepository organizationRepository(tempDir.path());
+    application::services::SubscriptionService subscriptionService(profileRepository, organizationRepository, userRepository, 0);
+    RecordingSmsService smsService;
+    RecordingEmailService emailService;
+    application::services::OrganizationService organizationService(
+        organizationRepository,
+        userRepository,
+        subscriptionService,
+        smsService,
+        emailService,
+        "http://127.0.0.1:8000");
+    application::services::UserService userService(userRepository, profileRepository, organizationRepository, subscriptionService);
+
+    const auto owner = userRepository.createUser("org_override_owner", "secret", "owner@example.com");
+    const auto teacher = userRepository.createUser("org_override_teacher", "secret", "teacher@example.com");
+    const auto ownerId = owner.get("id", "").asString();
+    const auto teacherId = teacher.get("id", "").asString();
+    assert(!ownerId.empty());
+    assert(!teacherId.empty());
+
+    Json::Value createOrg(Json::objectValue);
+    createOrg["name"] = "Permission Override Smoke";
+    createOrg["organization_type"] = "school";
+    createOrg["seats"] = 10;
+    const auto organization = organizationService.createOrganization(ownerId, createOrg);
+    const auto organizationId = organization.get("organization_id", "").asString();
+    assert(!organizationId.empty());
+
+    Json::Value roles(Json::arrayValue);
+    roles.append("teacher");
+
+    Json::Value templates(Json::arrayValue);
+    templates.append("assistant");
+    templates.append("campusAdmin");
+
+    Json::Value overrides(Json::arrayValue);
+    Json::Value allowImport(Json::objectValue);
+    allowImport["permission"] = "student.import";
+    allowImport["effect"] = "allow";
+    allowImport["scope"] = "organization";
+    allowImport["expires_at"] = "2026-12-31T23:59:59Z";
+    overrides.append(allowImport);
+    Json::Value denyDelete(Json::objectValue);
+    denyDelete["permission"] = "assignment.create";
+    denyDelete["effect"] = "deny";
+    denyDelete["scope"] = "learningGroup";
+    denyDelete["scope_id"] = "lg_smoke_001";
+    overrides.append(denyDelete);
+    Json::Value ignored(Json::objectValue);
+    ignored["permission"] = "dangerous.internal";
+    ignored["effect"] = "allow";
+    ignored["scope"] = "platform";
+    overrides.append(ignored);
+
+    Json::Value memberPayload(Json::objectValue);
+    memberPayload["user_id"] = teacherId;
+    memberPayload["roles"] = roles;
+    memberPayload["permission_templates"] = templates;
+    memberPayload["permission_overrides"] = overrides;
+    const auto member = organizationService.upsertMember(ownerId, organizationId, memberPayload);
+    assert(member["permission_templates"].isArray());
+    assert(member["permission_templates"].empty());
+    assert(member["permission_overrides"].isArray());
+    assert(member["permission_overrides"].size() == 2);
+    assert(member["permission_overrides"][0].get("permission", "").asString() == "student.import");
+    assert(member["permission_overrides"][1].get("effect", "").asString() == "deny");
+
+    auto teacherProfile = profileRepository.loadProfile(teacherId);
+    teacherProfile["scope_type"] = "organization";
+    teacherProfile["scope_id"] = organizationId;
+    teacherProfile["organization_type"] = "school";
+    profileRepository.saveProfile(teacherId, teacherProfile);
+
+    const auto permissions = userService.permissions(teacherId);
+    assert(permissions["permission_templates"].isArray());
+    assert(permissions["permission_templates"].empty());
+    assert(permissions["permission_overrides"].isArray());
+    assert(permissions["permission_overrides"].size() == 2);
+
+    const auto organizationAfterUpdate = organizationService.getOrganization(organizationId);
+    assert(organizationAfterUpdate["audit_logs"].isArray());
+    bool sawMemberUpdateAudit = false;
+    for (const auto &entry : organizationAfterUpdate["audit_logs"])
+    {
+        if (entry.get("action", "").asString() == "member.added" &&
+            entry["details"].isMember("permission_overrides"))
+        {
+            sawMemberUpdateAudit = true;
+            break;
+        }
+    }
+    assert(sawMemberUpdateAudit);
+}
+
+void testOrganizationLearningModel()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::UserRepository userRepository(tempDir.path());
+    infrastructure::storage::ProfileRepository profileRepository(tempDir.path());
+    infrastructure::storage::OrganizationRepository organizationRepository(tempDir.path());
+    application::services::SubscriptionService subscriptionService(profileRepository, organizationRepository, userRepository, 0);
+    RecordingSmsService smsService;
+    RecordingEmailService emailService;
+    application::services::OrganizationService organizationService(
+        organizationRepository,
+        userRepository,
+        subscriptionService,
+        smsService,
+        emailService,
+        "http://127.0.0.1:8000");
+
+    const auto owner = userRepository.createUser("learning_model_owner", "secret", "learning-owner@example.com");
+    const auto teacher = userRepository.createUser("learning_model_teacher", "secret", "learning-teacher@example.com");
+    const auto student = userRepository.createUser("learning_model_student", "secret", "learning-student@example.com");
+    const auto ownerId = owner.get("id", "").asString();
+    const auto teacherId = teacher.get("id", "").asString();
+    const auto studentId = student.get("id", "").asString();
+    assert(!ownerId.empty());
+    assert(!teacherId.empty());
+    assert(!studentId.empty());
+
+    Json::Value createOrg(Json::objectValue);
+    createOrg["name"] = "Learning Model Smoke";
+    createOrg["organization_type"] = "school";
+    createOrg["seats"] = 30;
+    const auto organization = organizationService.createOrganization(ownerId, createOrg);
+    const auto organizationId = organization.get("organization_id", "").asString();
+    assert(!organizationId.empty());
+
+    Json::Value campusPayload(Json::objectValue);
+    campusPayload["name"] = "东京校区";
+    campusPayload["address"] = "Tokyo";
+    const auto campus = organizationService.upsertCampus(ownerId, organizationId, campusPayload);
+    const auto campusId = campus.get("campus_id", "").asString();
+    assert(!campusId.empty());
+    assert(campus.get("name", "").asString() == "东京校区");
+    assert(organizationService.listCampuses(organizationId).size() == 1);
+
+    Json::Value groupPayload(Json::objectValue);
+    groupPayload["name"] = "EJU 日语基础班";
+    groupPayload["type"] = "class";
+    groupPayload["subject"] = "japanese";
+    groupPayload["campus_id"] = campusId;
+    const auto group = organizationService.upsertLearningGroup(ownerId, organizationId, groupPayload);
+    const auto groupId = group.get("learning_group_id", "").asString();
+    assert(!groupId.empty());
+    assert(group.get("type", "").asString() == "class");
+    assert(group.get("campus_id", "").asString() == campusId);
+    assert(organizationService.listLearningGroups(organizationId).size() == 1);
+
+    Json::Value teacherEnrollment(Json::objectValue);
+    teacherEnrollment["user_id"] = teacherId;
+    teacherEnrollment["role"] = "teacher";
+    const auto savedTeacherEnrollment = organizationService.upsertLearningGroupEnrollment(ownerId, organizationId, groupId, teacherEnrollment);
+    assert(savedTeacherEnrollment.get("role", "").asString() == "teacher");
+
+    Json::Value studentEnrollment(Json::objectValue);
+    studentEnrollment["user_id"] = studentId;
+    studentEnrollment["role"] = "student";
+    const auto savedStudentEnrollment = organizationService.upsertLearningGroupEnrollment(ownerId, organizationId, groupId, studentEnrollment);
+    assert(savedStudentEnrollment.get("role", "").asString() == "student");
+    assert(organizationService.listLearningGroupEnrollments(organizationId, groupId).size() == 2);
+
+    Json::Value packagePayload(Json::objectValue);
+    packagePayload["student_id"] = studentId;
+    packagePayload["subject"] = "sogo";
+    packagePayload["title"] = "文综约课 20 次";
+    packagePayload["total_lessons"] = 20;
+    packagePayload["used_lessons"] = 3;
+    const auto coursePackage = organizationService.upsertCoursePackage(ownerId, organizationId, packagePayload);
+    const auto coursePackageId = coursePackage.get("course_package_id", "").asString();
+    assert(!coursePackageId.empty());
+    assert(coursePackage.get("remaining_lessons", 0).asInt() == 17);
+    assert(coursePackage.get("status", "").asString() == "active");
+    assert(organizationService.listCoursePackages(organizationId).size() == 1);
+
+    Json::Value bookingPayload(Json::objectValue);
+    bookingPayload["name"] = "文综一对一试讲";
+    bookingPayload["type"] = "booking";
+    bookingPayload["subject"] = "sogo";
+    bookingPayload["campus_id"] = campusId;
+    bookingPayload["course_package_id"] = coursePackageId;
+    const auto booking = organizationService.upsertLearningGroup(ownerId, organizationId, bookingPayload);
+    const auto bookingId = booking.get("learning_group_id", "").asString();
+    assert(!bookingId.empty());
+    assert(booking.get("type", "").asString() == "booking");
+
+    Json::Value completePayload(Json::objectValue);
+    completePayload["note"] = "lesson completed";
+    const auto completed = organizationService.completeLearningGroup(ownerId, organizationId, bookingId, completePayload);
+    assert(completed.get("deducted", false).asBool());
+    assert(completed["learning_group"].get("status", "").asString() == "completed");
+    assert(completed["course_package"].get("remaining_lessons", 0).asInt() == 16);
+    assert(completed["course_package"].get("used_lessons", 0).asInt() == 4);
+
+    const auto completedAgain = organizationService.completeLearningGroup(ownerId, organizationId, bookingId, Json::Value(Json::objectValue));
+    assert(!completedAgain.get("deducted", true).asBool());
+    assert(completedAgain["course_package"].get("remaining_lessons", 0).asInt() == 16);
+    assert(completedAgain["course_package"].get("used_lessons", 0).asInt() == 4);
+
+    const auto organizationAfterUpdate = organizationService.getOrganization(organizationId);
+    bool sawCampusAudit = false;
+    bool sawGroupAudit = false;
+    bool sawPackageAudit = false;
+    bool sawCompleteAudit = false;
+    for (const auto &entry : organizationAfterUpdate["audit_logs"])
+    {
+        const auto action = entry.get("action", "").asString();
+        sawCampusAudit = sawCampusAudit || action == "campus.created";
+        sawGroupAudit = sawGroupAudit || action == "learning_group.created";
+        sawPackageAudit = sawPackageAudit || action == "course_package.created";
+        sawCompleteAudit = sawCompleteAudit || action == "learning_group.completed";
+    }
+    assert(sawCampusAudit);
+    assert(sawGroupAudit);
+    assert(sawPackageAudit);
+    assert(sawCompleteAudit);
+}
+
 void testCompositeAnswerKeysAreScoredPerSection()
 {
     ScopedTempDir tempDir;
@@ -369,6 +595,8 @@ int main()
     testPhoneVerificationDailyLimit();
     testAuthSessionPersistsAcrossServiceInstances();
     testPasswordLifecycle();
+    testOrganizationMemberPermissionOverrides();
+    testOrganizationLearningModel();
     testCompositeAnswerKeysAreScoredPerSection();
     return 0;
 }

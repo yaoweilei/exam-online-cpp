@@ -20,12 +20,473 @@
 - 用户模块式样书见 [docs/user-module-spec.md](D:/_develop/_side/exam-online-cpp/docs/user-module-spec.md)
 - 用户模块接口式样书见 [docs/user-module-api-spec.md](D:/_develop/_side/exam-online-cpp/docs/user-module-api-spec.md)
 
+## 功能完成进度
+
+完成度按“前端入口 + 后端 API + 数据落库/读取 + 自动化测试覆盖”综合估算。`已闭环` 表示本地和内测环境可以完整使用；`基础可用` 表示代码链路已接通，但生产环境还需要外部 provider、商户配置或更细的风控。
+
+### 账号与权限
+
+| 功能 | 当前能力 | 完成度 | 状态 |
+|---|---|---:|---|
+| 账号登录 | 用户名密码登录、退出、session 恢复、游客/登录态区分 | 95% | 已闭环 |
+| 注册流程 | 前端注册入口、校验、注册后自动登录 | 90% | 已闭环 |
+| 密码体系 | 修改密码、忘记密码、验证码重置、错误登录不建 session | 90% | 已闭环 |
+| 手机号登录 | 验证码登录、自动创建账号、发送频率限制 | 85% | 基础可用，真实短信服务需上线配置 |
+| 微信登录 | 微信入口、开发 mock 扫码登录 | 75% | 基础可用，真实微信开放平台待接入 |
+| OAuth | GitHub / Google / LINE mock 回调登录 | 65% | mock 可用，真实 provider 待接入 |
+| 权限识别 | guest / student / assistant / teacher / orgAdmin / contentAdmin / superAdmin 角色识别 | 95% | 已闭环 |
+| 成员权限 | 基础角色、权限模板、额外权限、作用域、有效期、组织审计 | 90% | 已闭环 |
+| API 版本 | 接口统一到 `/api/v1` | 100% | 已完成 |
+
+### 试卷学习核心
+
+| 功能 | 当前能力 | 完成度 | 状态 |
+|---|---|---:|---|
+| 试卷选择 | JLPT / EJU、年份、场次、级别选择 | 95% | 已闭环 |
+| 做题流程 | 显示题目、作答、保存答案、提交、跳题、答题卡 | 95% | 已闭环 |
+| 答案与解析 | 答案解析、补充解析展示 | 95% | 已闭环 |
+| 学习辅助 | 假名、中文翻译、显示间距优化 | 90% | 已可用 |
+| 做题进度 | 进度记录、恢复 | 90% | 已闭环 |
+| 听力核心 | 播放、暂停、逐句播放、transcript、题图对应 | 90% | 已闭环 |
+| EJU 版式修正 | 答题卡去 Section、听力解析去原文版式 | 100% | 已验证 |
+| 内容质量审计 | `audit:content` / `audit:content:strict` | 80% | 有工具，内容仍需持续人工终审 |
+
+### 自学闭环
+
+| 功能 | 当前能力 | 完成度 | 状态 |
+|---|---|---:|---|
+| 错题本 | 错题沉淀、筛选、移除、掌握/取消掌握、标签 | 90% | 已闭环 |
+| 收藏夹 | 试卷收藏、单题收藏、收藏分类 | 90% | 已闭环 |
+| 生词本 | 添加单词、读音、备注、删除/更新 | 85% | 已可用 |
+| 今日复习 | SRS 到期、错题复习、每日一练聚合入口 | 90% | 已闭环 |
+| 每日一练 | 生成、重新生成、完成标记 | 85% | 已可用 |
+| 学习报告 | 周/月学习报告 | 80% | 已可用 |
+| 备考目标 | 目标日期、每日目标、倒计时 | 85% | 已可用 |
+| 连续学习 | 连续天数、热力图、每日目标 | 85% | 已可用 |
+| 弱项分析 | 统计、弱点、推荐练习 | 85% | 已可用 |
+| 推荐复习 | 推荐原因、去练习、完成后反馈 | 90% | 已闭环 |
+
+### 个人账户与付费权益
+
+| 功能 | 当前能力 | 完成度 | 状态 |
+|---|---|---:|---|
+| 个人资料 | 昵称、头像、邮箱/手机绑定 | 85% | 已可用 |
+| 联系方式验证 | 邮箱/手机号验证码、剩余次数提示 | 85% | provider 依赖环境 |
+| 推荐码 | 推荐码领取/归属 | 80% | 已可用 |
+| 数据导出 | 个人数据 JSON 导出 | 90% | 已闭环 |
+| 多端同步 | 拉取、上传、冲突提示、设备列表 | 80% | 已可用，冲突策略还可精细化 |
+| 个人套餐 | 权益判断、续费/升级入口 | 80% | 已可用 |
+| 兑换码 | 兑换入口、钱包积分 | 90% | 已闭环 |
+| 卡券包 | 卡券显示 | 85% | 已可用 |
+| 支付订单 | 订单、流水、退款、webhook 接口 | 75% | 代码有，真实支付待商户接入 |
+| 支付流水 | 前端查看流水 | 85% | 已可用 |
+| 到期/续费状态 | subscription 状态、到期显示 | 80% | 已可用 |
+
+### 机构用户闭环
+
+| 功能 | 当前能力 | 完成度 | 状态 |
+|---|---|---:|---|
+| 机构/学习组 | 创建机构、创建学习组、添加/移除学员 | 90% | 已闭环 |
+| 机构套餐/席位 | 席位、套餐、功能分档 | 85% | 已可用 |
+| 邀请码/邀请链接 | 邮箱/手机号邀请、待处理邀请、接受邀请 | 90% | 已闭环 |
+| 老师/助教/学员权限 | 基础角色、权限模板、额外权限、作用域、有效期和审计记录 | 90% | 已闭环 |
+| 作业系统 | 布置作业、指定学习组、试卷、题目范围 | 90% | 已闭环 |
+| 学员作业 | 查看作业、完成作业、自动提交 | 90% | 已闭环 |
+| 自动批改 | 作业提交后统计分数 | 85% | 已可用 |
+| 提交情况 | 老师查看提交情况 | 90% | 已闭环 |
+| 催交 | 手动催交未交学生 | 80% | 已可用；定时自动催交待做 |
+| 学习组成绩册 | 学员、作业、平均分、弱项 | 90% | 已闭环 |
+| 学员档案 | 错题变化、作文历史、听力弱项、老师备注、建议作业 | 90% | 已闭环 |
+| 机构看板 | 学习组趋势、学员排名、题型弱项、老师效果、续费风险、席位 | 85% | 已可用 |
+| 教学工作台 | 老师/学员日程、课程包预警、学生学习关系、备课方案聚合 | 90% | 已闭环 |
+
+### P2 增强功能
+
+| 功能 | 当前能力 | 完成度 | 状态 |
+|---|---|---:|---|
+| 老师备课 | 按试卷/关键词组卷、保存备课方案、从方案生成作业 | 95% | 已闭环 |
+| 导出讲义 | HTML 讲义导出 | 90% | 已可用 |
+| 打印题目 | 打开打印版讲义 | 80% | 已接前端 |
+| 隐藏答案 | 讲义默认隐藏答案 | 85% | 已可用 |
+| 课堂投屏 | 投屏版 HTML | 85% | 已接前端 |
+| 社区 | 试卷讨论、发帖、评论、点赞、删除 | 90% | 已闭环 |
+| 运营后台 | 用户搜索、角色查看、功能开关、反馈处理、全站统计 | 85% | 已闭环 |
+| 审计日志 | 查询、筛选、分页、CSV 导出 | 85% | 已可用 |
+| PWA | manifest、安装入口、service worker、缓存策略 | 80% | 已可用 |
+
+### 自动化测试覆盖
+
+当前 Playwright E2E 共 `25` 条，覆盖：
+
+- 账号系统：游客、密码登录、注册、手机号、忘记密码、修改密码、微信 mock、OAuth mock、角色识别
+- 角色权限：`guest/student/assistant/teacher/orgAdmin/contentAdmin/superAdmin` 上下文、入口和高风险 API 权限矩阵
+- 试卷学习：EJU 试卷选择、答题卡、听力解析版式、听力播放/逐句、作答提交与进度
+- 学习闭环：单题收藏、今日复习工作台、推荐复习反馈
+- 账户付费：兑换码、卡券包、支付流水
+- 机构闭环：学习组、作业、提交、催交、成绩册、学员档案、老师备注
+- 组织邀请：邀请展示与接受
+- P2 增强：PWA、备课讲义接口、运营后台、社区发帖/点赞/评论
+
+最近一次验证命令：
+
+```powershell
+npm --prefix frontend run build
+ctest --test-dir backend/build -C Debug --output-on-failure
+npx playwright test
+cmake --build backend/build --config Release -- /m:1 /p:UseMultiToolTask=true /p:CL_MPCount=1
+```
+
+账号系统专项 Playwright UI 调试命令：
+
+```powershell
+npx playwright test tests/e2e/auth-session.spec.js --ui --ui-host 127.0.0.1 --ui-port 9323
+```
+
+最近一次结果：Playwright `25 passed`，后端 `smoke_tests` 通过，Release 编译通过。
+
+### 仍未到生产级的重点
+
+- 真实微信开放平台接入
+- 真实 OAuth provider 接入
+- 真实短信服务接入与费用风控
+- 真实微信/支付宝/Stripe 支付签名、回调验签、退款对账
+- 作业定时自动催交，例如截止前 24 小时自动提醒未提交学生
+- 生产级通知系统，例如站内信、邮件、短信、微信服务通知统一消息中心
+- 内容质量全量人工终审，尤其是历年 EJU/JLPT 解析的出版级一致性
+
 ## 技术栈
 
 - 后端：C++20、Drogon、CMake
 - 前端：TypeScript、ES Modules
 - 数据：本地 JSON、索引文件、WAL 日志
 - 测试：C++ `ctest` + PowerShell smoke 脚本
+
+## 代码结构分析
+
+当前代码已经是单体应用结构：Drogon 后端负责静态页面、API、JSON 存储和业务规则；TypeScript 前端负责试卷查看、学习闭环、个人中心和机构工作台。运行时主入口是 `backend/src/main.cpp`，前端入口是 `frontend/src/main.ts`，浏览器加载的是编译后的 `static/app/main.js`。
+
+后端分层比较清楚：
+
+- `transport`：只做 HTTP 路由、参数读取、鉴权入口、响应包装。
+- `application/services`：放业务规则，例如登录、作业、机构看板、学习报告、支付、社区。
+- `infrastructure/storage`：读写 JSON 文件和 WAL，避免路由层直接碰文件格式。
+- `domain`：放跨模块共享的数据模型。
+- `common`：放响应、异常、时间、ID、request id 等基础能力。
+
+前端也基本按职责拆分：
+
+- `features`：负责启动阶段、登录/session、试卷列表、PWA。
+- `viewer/core`：试卷查看器的主流程。
+- `viewer/managers`：把答题、音频、导航、假名、中文、计时等交互拆开。
+- `viewer/renderers`：负责题目 DOM 渲染。
+- `viewer/personalCenter.ts`：个人中心、学习闭环、机构后台的主要 UI，目前功能最多，也是后续最值得继续拆分的文件。
+
+当前最重要的设计判断：
+
+- 机构教学已经统一为 `learning_groups`，作业绑定 `organization_id + learning_group_id`。
+- 旧班级模型的服务、路由、仓储和历史作业数据已清理，后续不要再新增旧模型。
+- JSON 存储适合当前开发和内测；如果进入多人高并发或商用部署，机构、订单、作业提交、用户 session 这些模块应优先迁移到数据库。
+- 路由文件数量较多但职责薄，维护重点应放在 service 层的权限边界和数据一致性。
+- 前端个人中心已经覆盖大量产品能力，建议下一阶段按“账号/学习/付费/机构/运营”继续拆分组件，降低单文件维护成本。
+
+## 文件职责速查
+
+下面按“源码、配置、测试、工具、运行数据”说明当前主要文件内容。试卷 JSON、音频、图片、图标这类数量很大的资源按目录说明，不逐个列出。
+
+### 根目录文件
+
+| 文件 | 内容 |
+|---|---|
+| `.editorconfig` | 统一编码、缩进、换行等编辑器规则。 |
+| `.env.example` | 邮件、短信、支付、微信等外部 provider 的环境变量样例。 |
+| `.gitignore` | 忽略构建产物、日志、临时文件和本地依赖。 |
+| `package.json` | 根目录 Playwright E2E 和内容审计脚本入口。 |
+| `package-lock.json` | 根目录 E2E 依赖锁定文件。 |
+| `playwright.config.js` | Playwright 测试服务启动、baseURL、浏览器和报告配置。 |
+| `run-e2e.ps1` | 自动安装依赖、启动后端并运行 Playwright 的包装脚本。 |
+| `run-local-regression.ps1` | 本地回归测试集合脚本。 |
+| `start-cpp.bat` | 推荐启动入口，负责 UTF-8 控制台、环境变量、基线迁移和启动 C++ 服务。 |
+| `test_org_security.ps1` | 组织权限相关安全检查脚本。 |
+| `README.md` | 当前项目说明、功能进度、启动方式、测试方式和代码速查。 |
+| `功能设计书.md` | 产品功能设计书，重点覆盖角色、权限、机构学习模型和后续设计。 |
+
+### 后端配置与文档
+
+| 文件 | 内容 |
+|---|---|
+| `backend/CMakeLists.txt` | 后端 CMake 构建配置，编译主程序和 `smoke_tests`。 |
+| `backend/README.md` | 后端局部说明。 |
+| `backend/config/appsettings.example.json` | Drogon 和应用配置样例。 |
+| `backend/docs/api-v1.md` | `/api/v1` 接口清单和请求/响应说明。 |
+
+### 后端入口与基础层
+
+| 文件 | 内容 |
+|---|---|
+| `backend/src/main.cpp` | 读取配置、创建 repository/service、注册路由、启动 Drogon。 |
+| `backend/src/domain/Models.h` | 用户、角色、试卷、答案、组织、作业等共享模型。 |
+| `backend/src/common/ApiResponse.h` | 统一 API 响应格式。 |
+| `backend/src/common/AppException.h` | 业务异常类型。 |
+| `backend/src/common/IdGenerator.h` | 用户、组织、作业等 ID 生成工具。 |
+| `backend/src/common/RequestId.h` | 请求 ID 生成和传递。 |
+| `backend/src/common/TimeUtils.h` | ISO 时间、过期时间、时间比较工具。 |
+| `backend/src/infrastructure/config/AppConfig.h` | 应用配置结构和读取逻辑。 |
+
+### 后端业务服务
+
+| 文件 | 内容 |
+|---|---|
+| `AdminStatisticsService.{h,cpp}` | 运营后台全站统计、用户搜索、概览数据。 |
+| `AnswerService.{h,cpp}` | 答案保存、读取、提交评分和做题记录。 |
+| `AssignmentService.{h,cpp}` | 学习组作业创建、列表、提交、提交情况、催交和权限判断。 |
+| `AttemptTimerService.{h,cpp}` | 做题计时、暂停、恢复和计时记录。 |
+| `AuditLogService.{h,cpp}` | 组织和后台操作审计日志。 |
+| `AuthService.{h,cpp}` | 用户名密码登录、注册、session 创建和恢复。 |
+| `BookmarkFolderService.{h,cpp}` | 收藏夹分类、文件夹管理。 |
+| `BookmarkService.{h,cpp}` | 试卷收藏、单题收藏、收藏原因和跳题入口数据。 |
+| `ChapterService.{h,cpp}` | 试卷章节和题目结构读取。 |
+| `CommunityService.{h,cpp}` | 讨论区发帖、评论、点赞、删除。 |
+| `ContactChangeChallengeService.{h,cpp}` | 邮箱/手机改绑前的旧联系人验证。 |
+| `DailyPracticeService.{h,cpp}` | 每日一练生成、完成和重置。 |
+| `DataExportService.{h,cpp}` | 用户个人数据导出。 |
+| `DraftService.{h,cpp}` | 作文、答题草稿保存和恢复。 |
+| `EmailVerificationService.{h,cpp}` | 邮箱验证码、验证次数、debug code。 |
+| `ExamService.{h,cpp}` | 试卷列表、试卷详情、题目数据读取。 |
+| `FeatureFlagService.{h,cpp}` | 功能开关注册、读取和更新。 |
+| `FeedbackService.{h,cpp}` | 用户反馈提交、后台处理。 |
+| `InstitutionService.{h,cpp}` | 机构看板、学习组成绩册、学员档案、老师效果和续费风险。 |
+| `LeaderboardService.{h,cpp}` | 学习排行榜和排名数据。 |
+| `LearningReportService.{h,cpp}` | 周/月学习报告。 |
+| `NotificationService.h` | 通知能力接口定义。 |
+| `OAuthService.{h,cpp}` | GitHub/Google/LINE mock OAuth 登录和账号绑定。 |
+| `OrganizationService.{h,cpp}` | 机构、成员、权限、校区、课程包、学习组、邀请链接。 |
+| `PaymentService.{h,cpp}` | 支付订单、流水、退款、webhook 基础链路。 |
+| `PhoneService.{h,cpp}` | 手机验证码登录、发送频率和每日次数限制。 |
+| `ProfileService.{h,cpp}` | 个人资料、头像、联系方式、老师备注等 profile 数据。 |
+| `RedeemService.{h,cpp}` | 兑换码、卡券、积分到账。 |
+| `RelatedQuestionsService.{h,cpp}` | 相关题、推荐题和题目关联。 |
+| `SmsService.h` | 短信 provider 抽象接口。 |
+| `SrsService.{h,cpp}` | 间隔复习、到期复习、掌握状态。 |
+| `StatisticsService.{h,cpp}` | 学习统计、正确率、弱项分析。 |
+| `StreakService.{h,cpp}` | 连续学习、每日目标和热力图。 |
+| `StudyGoalService.{h,cpp}` | 备考目标、目标日期、每日目标。 |
+| `SubscriptionService.{h,cpp}` | 个人套餐、权益判断、到期状态。 |
+| `SyncService.{h,cpp}` | 多端同步状态、上传、拉取和设备信息。 |
+| `TranslationService.{h,cpp}` | 中文翻译数据读取。 |
+| `UserService.{h,cpp}` | 用户、角色、密码、权限识别。 |
+| `VocabNotebookService.{h,cpp}` | 生词本增删改查。 |
+| `WechatService.{h,cpp}` | 微信 mock 登录、扫码状态和账号创建。 |
+| `WrongQuestionService.{h,cpp}` | 错题本、掌握状态、错题筛选。 |
+| `RecommendationStrategy.h` | 推荐策略接口。 |
+| `RuleBasedRecommendationStrategy.h` | 基于规则的推荐策略实现。 |
+
+### 后端存储层
+
+| 文件 | 内容 |
+|---|---|
+| `JsonIo.h` | JSON 文件读写、原子写入辅助。 |
+| `WalStore.h` | 写前日志存储辅助。 |
+| `AnswerRepository.h` | 答案和提交记录存储。 |
+| `AssignmentRepository.{h,cpp}` | 学习组作业、提交、催交记录存储。 |
+| `AttemptTimerRepository.{h,cpp}` | 做题计时记录存储。 |
+| `BookmarkFolderRepository.{h,cpp}` | 收藏夹文件夹存储。 |
+| `BookmarkRepository.h` | 收藏和单题收藏存储。 |
+| `CommunityRepository.{h,cpp}` | 社区帖子、评论、点赞存储。 |
+| `DraftRepository.{h,cpp}` | 草稿存储。 |
+| `ExamRepository.{h,cpp}` | 试卷 JSON、索引和章节读取。 |
+| `FeatureFlagRepository.{h,cpp}` | 功能开关 JSON 存储。 |
+| `FeedbackRepository.{h,cpp}` | 反馈数据存储。 |
+| `OrganizationRepository.{h,cpp}` | 机构、成员、校区、课程包、学习组、邀请和审计数据存储。 |
+| `ProfileRepository.{h,cpp}` | 用户 profile JSON 存储。 |
+| `SessionRepository.{h,cpp}` | session token、过期时间和用户登录态存储。 |
+| `SrsRepository.{h,cpp}` | SRS 复习卡片和复习记录存储。 |
+| `StreakRepository.{h,cpp}` | 连续学习记录存储。 |
+| `TranslationRepository.h` | 翻译 JSON 读取。 |
+| `UserRepository.{h,cpp}` | 用户、密码、角色、联系人存储。 |
+| `VocabNotebookRepository.h` | 生词本 JSON 存储。 |
+| `WrongQuestionRepository.{h,cpp}` | 错题记录存储。 |
+
+### 后端路由层
+
+| 文件 | 内容 |
+|---|---|
+| `ApiRouter.{h,cpp}` | 聚合所有 route 注册函数，统一挂载 `/api/v1`。 |
+| `RouteUtils.{h,cpp}` | 路由层通用参数读取、token 解析、响应辅助。 |
+| `routes/Routes.h` | 各路由注册函数声明。 |
+| `routes/AdminStatisticsRoutes.cpp` | 运营统计 API。 |
+| `routes/AnswerRoutes.cpp` | 答案保存、提交、读取 API。 |
+| `routes/AssignmentRoutes.cpp` | 学习组作业、提交、催交 API。 |
+| `routes/AttemptTimerRoutes.cpp` | 做题计时 API。 |
+| `routes/AuditLogRoutes.cpp` | 审计日志 API。 |
+| `routes/AuthRoutes.cpp` | 登录、注册、退出、session API。 |
+| `routes/BookmarkFolderRoutes.cpp` | 收藏夹分类 API。 |
+| `routes/ChapterRoutes.cpp` | 章节和题目 API。 |
+| `routes/CommunityRoutes.cpp` | 社区讨论 API。 |
+| `routes/ContactRoutes.cpp` | 联系方式验证和改绑 API。 |
+| `routes/DailyPracticeRoutes.cpp` | 每日一练 API。 |
+| `routes/DataExportRoutes.cpp` | 数据导出 API。 |
+| `routes/DraftRoutes.cpp` | 草稿 API。 |
+| `routes/ExamRoutes.cpp` | 试卷列表和详情 API。 |
+| `routes/FeatureFlagRoutes.cpp` | 功能开关 API。 |
+| `routes/FeedbackRoutes.cpp` | 反馈提交和处理 API。 |
+| `routes/InstitutionRoutes.cpp` | 机构看板、成绩册、学员档案 API。 |
+| `routes/LeaderboardRoutes.cpp` | 排行榜 API。 |
+| `routes/LearningReportRoutes.cpp` | 学习报告 API。 |
+| `routes/MeRoutes.cpp` | 当前用户状态聚合 API。 |
+| `routes/OAuthRoutes.cpp` | OAuth mock 登录 API。 |
+| `routes/OrganizationRoutes.cpp` | 机构、成员、权限、学习组、课程包、邀请 API。 |
+| `routes/PaymentRoutes.cpp` | 支付订单、流水、退款、webhook API。 |
+| `routes/ProfileBookmarkRoutes.cpp` | 个人中心收藏、错题等聚合 API。 |
+| `routes/RedeemRoutes.cpp` | 兑换码和卡券 API。 |
+| `routes/RelatedQuestionsRoutes.cpp` | 相关题和推荐练习 API。 |
+| `routes/SrsRoutes.cpp` | SRS 复习 API。 |
+| `routes/StaticRoutes.cpp` | 首页和静态资源兜底路由。 |
+| `routes/StatisticsRoutes.cpp` | 学习统计 API。 |
+| `routes/StreakRoutes.cpp` | 连续学习和每日目标 API。 |
+| `routes/StudyGoalRoutes.cpp` | 备考目标 API。 |
+| `routes/SubscriptionRoutes.cpp` | 订阅权益 API。 |
+| `routes/SyncRoutes.cpp` | 多端同步 API。 |
+| `routes/TranslationRoutes.cpp` | 中文翻译 API。 |
+| `routes/UserRoutes.cpp` | 用户、角色、密码、手机号 API。 |
+| `routes/VocabNotebookRoutes.cpp` | 生词本 API。 |
+| `routes/WechatRoutes.cpp` | 微信登录 API。 |
+| `routes/WrongQuestionRoutes.cpp` | 错题本 API。 |
+
+### 前端源码
+
+| 文件 | 内容 |
+|---|---|
+| `frontend/package.json` | 前端 TypeScript 构建脚本和依赖。 |
+| `frontend/tsconfig.json` | TypeScript 编译配置，输出到 `static/app`。 |
+| `frontend/src/main.ts` | 浏览器入口，初始化登录、试卷选择、查看器和 PWA。 |
+| `frontend/src/analytics/tracker.ts` | 前端埋点和用户行为记录辅助。 |
+| `frontend/src/api/runtime.ts` | API baseURL、请求运行时配置。 |
+| `frontend/src/api/dto.ts` | 前端 API DTO 类型定义。 |
+| `frontend/src/api/client.ts` | 面向新版页面的 API 请求封装。 |
+| `frontend/src/features/exams.ts` | 试卷列表加载和考试类型/年份/级别选择。 |
+| `frontend/src/features/featureFlags.ts` | 前端功能开关读取和判断。 |
+| `frontend/src/features/login.ts` | 登录、注册、手机号、微信、OAuth 入口 UI。 |
+| `frontend/src/features/pwa.ts` | PWA 安装提示和 service worker 注册。 |
+| `frontend/src/features/session.ts` | session 恢复、退出、游客/登录态区分。 |
+| `frontend/src/features/viewerBootstrap.ts` | 创建并挂载 `ExamViewer`。 |
+| `frontend/src/state/store.ts` | 简单前端状态存储。 |
+| `frontend/src/viewer/globals.d.ts` | 浏览器全局对象和 viewer 相关类型声明。 |
+| `frontend/src/viewer/core/APIClient.ts` | viewer 内部使用的 API 封装。 |
+| `frontend/src/viewer/core/ExamLoader.ts` | 试卷 JSON、章节、资源加载。 |
+| `frontend/src/viewer/core/ExamViewer.ts` | 试卷查看器主控制器。 |
+| `frontend/src/viewer/core/UserContextManager.ts` | viewer 内用户状态、权限、权益上下文。 |
+| `frontend/src/viewer/managers/AnswerManager.ts` | 作答、保存、提交、答案解析展示。 |
+| `frontend/src/viewer/managers/AudioManager.ts` | 听力音频、暂停继续、逐句播放、时间戳控制。 |
+| `frontend/src/viewer/managers/CategoryNavigationManager.ts` | 记述/读解/读听解/听解分类切换。 |
+| `frontend/src/viewer/managers/ExamTimerManager.ts` | 做题计时 UI 和后端计时同步。 |
+| `frontend/src/viewer/managers/NavigationManager.ts` | 上一题、下一题、题号跳转。 |
+| `frontend/src/viewer/managers/QuestionMapManager.ts` | 答题卡、题号状态和跳题。 |
+| `frontend/src/viewer/managers/StateManager.ts` | 当前试卷、章节、题目、显示开关状态。 |
+| `frontend/src/viewer/managers/TranslationManager.ts` | 中文翻译显示、隐藏和定位。 |
+| `frontend/src/viewer/managers/VocabLookupManager.ts` | 生词查询、字典弹层、生词本入口。 |
+| `frontend/src/viewer/renderers/QuestionRenderer.ts` | 题干、选项、图片、解析、辅助文本渲染。 |
+| `frontend/src/viewer/utils/DOMHelpers.ts` | DOM 创建、选择器、事件辅助。 |
+| `frontend/src/viewer/utils/DOMUtils.ts` | DOM 操作工具。 |
+| `frontend/src/viewer/utils/ErrorHandler.ts` | 前端错误捕获和展示。 |
+| `frontend/src/viewer/utils/Logger.ts` | 前端日志封装。 |
+| `frontend/src/viewer/personalCenter.ts` | 个人中心、学习闭环、付费权益、机构后台、运营入口主实现。 |
+| `frontend/src/viewer/personalCenter/avatar.ts` | 头像资源和头像选择逻辑。 |
+| `frontend/src/viewer/personalCenter/icons.ts` | 个人中心图标常量。 |
+| `frontend/src/viewer/personalCenter/normalize.ts` | 个人中心后端数据标准化。 |
+| `frontend/src/viewer/personalCenter/types.ts` | 个人中心类型定义。 |
+| `frontend/src/viewer/personalCenter/utils.ts` | 个人中心通用格式化、转义、读取工具。 |
+
+### 静态页面与样式
+
+| 文件 | 内容 |
+|---|---|
+| `static/index.html` | 单页应用 HTML 入口。 |
+| `static/style.css` | 全局样式入口，组合各 CSS 模块。 |
+| `static/manifest.webmanifest` | PWA manifest。 |
+| `static/sw.js` | service worker 和缓存策略。 |
+| `static/favicon.ico` | 浏览器图标。 |
+| `static/styles/tokens.css` | 颜色、间距、字号等 CSS token。 |
+| `static/styles/layout.css` | 页面整体布局。 |
+| `static/styles/exam-toolbar.css` | 顶部试卷工具栏。 |
+| `static/styles/exam-controls.css` | 答题控制按钮和通用控制区。 |
+| `static/styles/question.css` | 题目主体样式。 |
+| `static/styles/question-navigation.css` | 答题卡和题号导航。 |
+| `static/styles/answer-explanation.css` | 答案解析、补充解析样式。 |
+| `static/styles/audio-listening.css` | 听力播放器和逐句播放样式。 |
+| `static/styles/image.css` | 题目图片和材料图片样式。 |
+| `static/styles/login.css` | 登录/注册相关样式。 |
+| `static/styles/wechat-login.css` | 微信登录弹层样式。 |
+| `static/styles/modals.css` | 通用弹窗样式。 |
+| `static/styles/paper-library.css` | 试卷选择和试卷库样式。 |
+| `static/styles/personal-center.css` | 个人中心、机构后台、运营后台样式。 |
+| `static/styles/vocab-lookup.css` | 生词查询和词典弹层样式。 |
+| `static/styles/misc.css` | 其他零散样式。 |
+| `static/resource/icons/**` | 头像、用户角色、学习状态、试卷状态 SVG 图标。 |
+| `static/app/**` | TypeScript 编译产物，可由 `npm --prefix frontend run build` 重新生成。 |
+
+### 测试文件
+
+| 文件 | 内容 |
+|---|---|
+| `backend/tests/smoke_tests.cpp` | C++ 后端 smoke 测试。 |
+| `backend/tests/contract_v1_smoke.ps1` | `/api/v1` 合约烟雾测试。 |
+| `backend/tests/integration_flow_smoke.ps1` | 后端集成流程 smoke 测试。 |
+| `backend/tests/perf_read_score.ps1` | 读取和评分性能基线测试。 |
+| `backend/tests/README.md` | 后端测试说明。 |
+| `tests/e2e/README.md` | Playwright E2E 使用说明。 |
+| `tests/e2e/helpers/session.js` | E2E 登录、session、API mock 辅助。 |
+| `tests/e2e/auth-session.spec.js` | 账号、session、注册、手机号、微信、OAuth、角色识别测试。 |
+| `tests/e2e/exam-viewer.spec.js` | 试卷查看、答题、答题卡、听力、解析测试。 |
+| `tests/e2e/account-wallet.spec.js` | 个人账户、兑换码、卡券、支付流水测试。 |
+| `tests/e2e/institution-core.spec.js` | 机构学习组、作业、成绩册、学员档案、课程包测试。 |
+| `tests/e2e/org-invite.spec.js` | 组织邀请链接和接受邀请测试。 |
+| `tests/e2e/p2-enhancements.spec.js` | PWA、备课、社区、运营后台等增强功能测试。 |
+| `tests/e2e/role-permissions.spec.js` | 七类身份的角色上下文、功能入口和权限边界测试。 |
+| `tests/e2e/scripts/start-e2e-backend.ps1` | E2E 专用后端启动脚本。 |
+
+### 工具脚本
+
+| 文件 | 内容 |
+|---|---|
+| `backend/tools/migrate_user_baseline.ps1` | 初始化用户和角色基线。 |
+| `backend/tools/prepare_org_invite_demo.ps1` | 准备组织邀请演示数据。 |
+| `backend/tools/sink_user_repository.ps1` | 用户仓储压力/写入辅助脚本。 |
+| `backend/tools/sink_class.ps1` | C++ 头文件拆分工具，把 header 内联实现迁移到 `.cpp`；不是旧班级业务工具。 |
+| `backend/tools/stop_running_backend.ps1` | 停止本机正在运行的后端进程。 |
+| `tools/audit_exam_content.mjs` | 试卷内容质量审计，支持严格时间戳检查。 |
+| `tools/align_eju_script_timestamps.py` | 对齐 EJU 听力原文时间戳。 |
+| `tools/apply_eju_answers.py` | 写入/修正 EJU 答案。 |
+| `tools/apply_eju_transcripts.py` | 写入/修正 EJU transcript。 |
+| `tools/apply_jlpt_question_skill_tags.mjs` | 给 JLPT 题目补技能标签。 |
+| `tools/audit_eju_listening_transcripts.py` | 审计 EJU 听力 transcript 完整性。 |
+| `tools/build_eju_full_sample.py` | 生成 EJU 全量样例数据。 |
+| `tools/extract_eju_transcript_layouts.py` | 从资料中抽取 EJU 原文版式。 |
+| `tools/generate_eju_listening_explanations.mjs` | 生成/批处理 EJU 听力解析。 |
+| `tools/generate_eju_translations.mjs` | 生成 EJU 中文翻译。 |
+| `tools/generate_jlpt_translations.mjs` | 生成 JLPT 中文翻译。 |
+| `tools/merge_eju_reading_to_root.py` | 合并 EJU 读解数据到根结构。 |
+| `tools/normalize_eju_writing_sections.py` | 规范 EJU 作文题结构。 |
+| `tools/parse_eju_docx.py` | 解析 EJU docx 材料。 |
+| `tools/review_eju_translation_file.mjs` | 审查 EJU 翻译文件质量。 |
+| `tools/split_eju_full_audio.py` | 按 EJU 模式切割整份听力音频。 |
+| `tools/extract_pc_types.ps1` | 抽取 personal center TypeScript 类型辅助。 |
+| `tools/scan_css_sections.ps1` | 扫描 CSS section。 |
+| `tools/split_css.ps1` | CSS 拆分辅助。 |
+| `tools/apply_pc_round6.ps1` | 个人中心历史批处理补丁脚本。 |
+
+### 数据目录
+
+| 目录/文件 | 内容 |
+|---|---|
+| `data/paper` | JLPT/EJU 试卷 JSON、索引和内容数据。 |
+| `data/audio` | 听力音频，EJU 按年份场次和 track 存放。 |
+| `data/image` | 试卷题图、材料图和处理后的图片资源。 |
+| `data/system` | 系统级 JSON，例如作业、功能开关、机构套餐。 |
+| `data/user` | 用户、角色、session、答题、profile、学习记录等运行数据。 |
+| `downloads` | 原始下载资料、PDF、音频等处理前材料。 |
+| `uploads` | 用户上传或导入产生的文件。 |
+| `logs/backend` | 后端运行日志。 |
+| `tmp_*`、`test-results`、`playwright-report` | 临时审计输出和测试报告，可按需要清理。 |
 
 ## 编码规则
 
@@ -279,7 +740,6 @@ exam-online-cpp/
 - `ExamRepository`
 - `AnswerRepository`
 - `UserRepository`
-- `FuriganaRepository`
 
 对应行为：
 
@@ -295,13 +755,9 @@ exam-online-cpp/
 - [AnswerRepository.h](D:/_develop/_side/exam-online-cpp/backend/src/infrastructure/storage/AnswerRepository.h)
   - 启动时准备 `data/user/answers`
   - 恢复答题 WAL
-- [FuriganaRepository.h](D:/_develop/_side/exam-online-cpp/backend/src/infrastructure/storage/FuriganaRepository.h)
-  - 启动时调用 `reload()`
-  - 把振假名字典读入内存
-
 所以：
 
-- 试卷索引和振假名字典属于“服务启动时预加载”
+- 试卷索引属于“服务启动时预加载”
 - 用户/答题 WAL 也会在启动时做恢复准备
 
 ### 2. 浏览器打开页面时

@@ -75,9 +75,7 @@ void registerContactRoutes(const AppContext &ctx)
                 const auto body = parseJsonBody(req);
                 requireSession(*ctx.authService, req, &body);
                 const auto email = requireString(body, "email");
-                ctx.emailVerificationService->sendVerificationCode(email);
-                Json::Value out(Json::objectValue);
-                out["email"] = email;
+                auto out = ctx.emailVerificationService->sendVerificationCode(email);
                 return common::ok(req, out, "code_sent");
             });
         },
