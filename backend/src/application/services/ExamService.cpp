@@ -17,6 +17,12 @@ Json::Value ExamService::listExams(const std::string &family,
 {
     auto exams = repository_.listExams();
     exams.erase(std::remove_if(exams.begin(), exams.end(), [&](const domain::ExamSummary &item) {
+                   // A JSON placeholder is not a usable paper. Keep unfinished files in the
+                   // content repository, but never advertise them through the public library.
+                   if (item.questionCount <= 0)
+                   {
+                       return true;
+                   }
                    if (!family.empty() && item.family != family)
                    {
                        return true;
@@ -65,6 +71,10 @@ Json::Value ExamService::groupedByLevel() const
     Json::Value grouped(Json::objectValue);
     for (const auto &exam : repository_.listExams())
     {
+        if (exam.questionCount <= 0)
+        {
+            continue;
+        }
         grouped[exam.family][exam.level].append(exam.toJson());
     }
     return grouped;
@@ -78,6 +88,10 @@ Json::Value ExamService::getExam(const std::string &examId, const std::string &u
                                  [&](const domain::ExamSummary &s) { return s.id == examId; });
     if (it != exams.end())
     {
+        if (it->questionCount <= 0)
+        {
+            throw common::AppException("EXAM_UNAVAILABLE", "Exam content is not published yet", drogon::k404NotFound);
+        }
         subscriptionService_.requireAccess(userId, it->accessLevel);
     }
     return repository_.getExamById(examId);

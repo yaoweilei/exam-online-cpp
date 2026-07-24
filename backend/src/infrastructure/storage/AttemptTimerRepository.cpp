@@ -52,6 +52,7 @@ Json::Value AttemptTimerRepository::start(const std::string &userId, const Json:
         doc = Json::Value(Json::objectValue);
         doc["elapsed_seconds"] = 0;
         doc["section_elapsed_seconds"] = Json::Value(Json::objectValue);
+        doc["expired_section_indexes"] = Json::Value(Json::arrayValue);
     }
 
     doc["user_id"] = userId;
@@ -110,15 +111,15 @@ Json::Value AttemptTimerRepository::tick(const std::string &userId, const Json::
         return Json::Value(Json::nullValue);
     }
 
-    // 累加 delta（最多累加 60 秒，防止前端长时间挂起后一次性灌入）
+    // 累加 delta（最多累加 120 秒，防止前端长时间挂起后一次性灌入）
     int delta = tick.get("delta_seconds", 0).asInt();
     if (delta < 0)
     {
         delta = 0;
     }
-    if (delta > 60)
+    if (delta > 120)
     {
-        delta = 60;
+        delta = 120;
     }
     const int newTotal = doc.get("elapsed_seconds", 0).asInt() + delta;
     doc["elapsed_seconds"] = newTotal;
@@ -134,6 +135,17 @@ Json::Value AttemptTimerRepository::tick(const std::string &userId, const Json::
         const auto key = std::to_string(sectionIndex);
         const int prev = doc["section_elapsed_seconds"].get(key, 0).asInt();
         doc["section_elapsed_seconds"][key] = prev + delta;
+        const auto limits = doc.get("section_limits_seconds", Json::Value(Json::arrayValue));
+        const int sectionLimit = limits.isArray() && static_cast<int>(limits.size()) > sectionIndex
+            ? limits[sectionIndex].asInt()
+            : 0;
+        if (sectionLimit > 0 && prev + delta >= sectionLimit)
+        {
+            if (!doc["expired_section_indexes"].isArray()) doc["expired_section_indexes"] = Json::Value(Json::arrayValue);
+            bool exists = false;
+            for (const auto &value : doc["expired_section_indexes"]) exists = exists || value.asInt() == sectionIndex;
+            if (!exists) doc["expired_section_indexes"].append(sectionIndex);
+        }
     }
 
     doc["updated_at"] = common::nowIso8601();

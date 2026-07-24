@@ -10,6 +10,32 @@ using namespace drogon;
 
 namespace transport::routes
 {
+namespace
+{
+std::string contentTypeForPath(const std::filesystem::path &path)
+{
+    auto ext = path.extension().string();
+    for (auto &ch : ext)
+    {
+        if (ch >= 'A' && ch <= 'Z')
+        {
+            ch = static_cast<char>(ch - 'A' + 'a');
+        }
+    }
+    if (ext == ".html") return "text/html; charset=utf-8";
+    if (ext == ".css") return "text/css; charset=utf-8";
+    if (ext == ".js") return "application/javascript; charset=utf-8";
+    if (ext == ".json" || ext == ".webmanifest") return "application/json; charset=utf-8";
+    if (ext == ".svg") return "image/svg+xml";
+    if (ext == ".png") return "image/png";
+    if (ext == ".jpg" || ext == ".jpeg") return "image/jpeg";
+    if (ext == ".ico") return "image/x-icon";
+    if (ext == ".mp3") return "audio/mpeg";
+    if (ext == ".wav") return "audio/wav";
+    return "application/octet-stream";
+}
+}
+
 void registerStaticRoutes(const AppContext &ctx)
 {
     app().registerHandler(
@@ -21,8 +47,7 @@ void registerStaticRoutes(const AppContext &ctx)
                 callback(common::fail(req, k404NotFound, "INDEX_NOT_FOUND", "Index file not found"));
                 return;
             }
-            auto response = HttpResponse::newFileResponse(path.string());
-            response->setContentTypeCode(CT_TEXT_HTML);
+            auto response = fileContentResponse(path, "text/html; charset=utf-8");
             if (ctx.disableStaticCache)
             {
                 applyNoCacheHeaders(response);
@@ -49,7 +74,7 @@ void registerStaticRoutes(const AppContext &ctx)
                 return;
             }
 
-            auto response = HttpResponse::newFileResponse(fullPath.string());
+            auto response = fileContentResponse(fullPath, contentTypeForPath(fullPath));
             if (ctx.disableStaticCache)
             {
                 applyNoCacheHeaders(response);
@@ -69,7 +94,7 @@ void registerStaticRoutes(const AppContext &ctx)
                 callback(common::fail(req, k404NotFound, "RESOURCE_NOT_FOUND", "Resource not found"));
                 return;
             }
-            auto response = HttpResponse::newFileResponse(fullPath.string());
+            auto response = fileContentResponse(fullPath, contentTypeForPath(fullPath));
             if (ctx.disableStaticCache)
             {
                 applyNoCacheHeaders(response);
@@ -88,8 +113,7 @@ void registerStaticRoutes(const AppContext &ctx)
                 callback(common::fail(req, k404NotFound, "SW_NOT_FOUND", "Service worker not found"));
                 return;
             }
-            auto response = HttpResponse::newFileResponse(path.string());
-            response->setContentTypeString("application/javascript; charset=utf-8");
+            auto response = fileContentResponse(path, "application/javascript; charset=utf-8");
             // 始终禁用 SW 缓存，确保新版本能被快速感知
             applyNoCacheHeaders(response);
             response->addHeader("Service-Worker-Allowed", "/");
@@ -107,8 +131,7 @@ void registerStaticRoutes(const AppContext &ctx)
                 callback(common::fail(req, k404NotFound, "MANIFEST_NOT_FOUND", "Manifest not found"));
                 return;
             }
-            auto response = HttpResponse::newFileResponse(path.string());
-            response->setContentTypeString("application/manifest+json; charset=utf-8");
+            auto response = fileContentResponse(path, "application/manifest+json; charset=utf-8");
             if (ctx.disableStaticCache)
             {
                 applyNoCacheHeaders(response);

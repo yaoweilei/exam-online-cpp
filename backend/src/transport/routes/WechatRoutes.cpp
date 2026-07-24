@@ -20,6 +20,15 @@ void registerWechatRoutes(const AppContext &ctx)
         {Get});
 
     app().registerHandler(
+        "/api/v1/auth/wechat/authorize",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                return common::ok(req, ctx.wechatService->generateMobileAuthorization());
+            });
+        },
+        {Get});
+
+    app().registerHandler(
         "/api/v1/auth/wechat/callback",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() -> HttpResponsePtr {
@@ -30,7 +39,17 @@ void registerWechatRoutes(const AppContext &ctx)
                     throw common::AppException("VALIDATION_ERROR", "Missing code or state",
                                                k422UnprocessableEntity);
                 }
-                ctx.wechatService->handleCallback(code, state);
+                const auto isMobile = ctx.wechatService->isMobileState(state);
+                const auto token = ctx.wechatService->handleCallback(code, state);
+                if (isMobile)
+                {
+                    auto resp = HttpResponse::newRedirectionResponse("/");
+                    drogon::Cookie cookie("token", token);
+                    cookie.setPath("/");
+                    cookie.setHttpOnly(false);
+                    resp->addCookie(std::move(cookie));
+                    return resp;
+                }
                 auto resp = HttpResponse::newHttpResponse();
                 resp->setStatusCode(k200OK);
                 resp->setContentTypeCode(CT_TEXT_HTML);
@@ -55,5 +74,19 @@ void registerWechatRoutes(const AppContext &ctx)
             });
         },
         {Get});
+
+    app().registerHandler(
+        "/api/v1/auth/wechat/bind",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto code = requireString(body, "code");
+                return common::ok(req,
+                    ctx.wechatService->bindToUser(session.get("user_id", "").asString(), code),
+                    "wechat_bound");
+            });
+        },
+        {Post});
 }
 }  // namespace transport::routes

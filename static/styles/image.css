@@ -569,6 +569,14 @@
 	gap: 12px;
 }
 
+.edit-dialog-status {
+	min-height: 18px;
+	margin-right: auto;
+	align-self: center;
+	color: var(--vscode-descriptionForeground, #666);
+	font-size: 12px;
+}
+
 .edit-dialog-cancel,
 .edit-dialog-save {
 	padding: 6px 16px;
@@ -597,10 +605,57 @@
 	background: var(--vscode-button-hoverBackground);
 }
 
+.edit-dialog-footer button:disabled,
+.edit-dialog-close:disabled {
+	opacity: 0.58;
+	cursor: wait;
+}
+
+.edit-dialog button:focus-visible,
+.edit-dialog input:focus-visible,
+.edit-dialog textarea:focus-visible,
+.edit-dialog select:focus-visible {
+	outline: 2px solid var(--vscode-focusBorder, #2563eb);
+	outline-offset: 2px;
+}
+
 
 /* 大号编辑对话框 */
 .edit-dialog-large {
 	max-width: 900px;
+}
+
+@media (max-width: 600px) {
+	.edit-dialog-overlay {
+		align-items: flex-end;
+		padding: 10px;
+		box-sizing: border-box;
+	}
+	.edit-dialog,
+	.edit-dialog-large {
+		width: 100%;
+		max-width: none;
+		max-height: 92vh;
+	}
+	.edit-dialog-header,
+	.edit-dialog-body,
+	.edit-dialog-footer {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+	.edit-dialog-footer {
+		flex-wrap: wrap;
+	}
+	.edit-dialog-status {
+		width: 100%;
+	}
+	.edit-dialog-footer button {
+		min-height: 44px;
+		flex: 1;
+	}
+	.edit-textarea {
+		min-height: 220px;
+	}
 }
 
 /* 编辑表单字段 */

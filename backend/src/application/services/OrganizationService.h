@@ -35,6 +35,9 @@ class OrganizationService
 
     Json::Value listOrganizationsForUser(const std::string &userId, bool includeAll = false) const;
 
+    Json::Value listOrganizationSummaries(const std::string &userId, bool includeAll,
+                                          const std::string &query, int page, int pageSize) const;
+
     Json::Value getOrganization(const std::string &organizationId) const;
 
     Json::Value createOrganization(const std::string &actorUserId, const Json::Value &payload);
@@ -52,6 +55,11 @@ class OrganizationService
     Json::Value upsertMember(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload);
 
     void removeMember(const std::string &actorUserId, const std::string &organizationId, const std::string &userId);
+
+    Json::Value updateRolePermissions(const std::string &actorUserId,
+                                      const std::string &organizationId,
+                                      const std::string &roleId,
+                                      const Json::Value &payload);
 
     Json::Value updateSubscription(const std::string &actorUserId, const std::string &organizationId, const Json::Value &patch);
 
@@ -116,6 +124,8 @@ class OrganizationService
 
     static Json::Value allowedPermissionTemplates();
 
+    static Json::Value allowedRolePermissionRoles();
+
     static bool hasRole(const Json::Value &roles, const std::string &expected);
 
     static Json::Value normalizeMemberRoles(const Json::Value &inputRoles);
@@ -125,6 +135,10 @@ class OrganizationService
     static Json::Value normalizePermissionOverrides(const Json::Value &inputOverrides);
 
     static bool isAllowedPermissionOverride(const std::string &permission);
+
+    static Json::Value normalizeRolePermissions(const Json::Value &inputRolePermissions);
+
+    static Json::Value normalizePermissionIdArray(const Json::Value &inputPermissions);
 
     static std::string normalizePermissionEffect(const std::string &effect);
 

@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------------------------
 // 职责：
 //   1. 在 ExamViewer.loadExamData 之后启动后端计时（POST /api/v1/timers/{userId}/start）
-//   2. 每 5 秒做一次心跳 tick，累计当前 section 的用时
+//   2. 每 15 秒做一次心跳 tick，累计当前 section 的用时
 //   3. 在 #exam-header 顶部渲染一个轻量的"计时条"：
 //        - 已用时（mm:ss）
 //        - 全卷剩余（若设置了 total_limit_seconds）
@@ -26,6 +26,11 @@ interface ExamTimerExamViewer {
 	userId?: string;
 	_currentExamId?: string | null;
 	currentSectionIndex: number;
+	examMode?: 'practice' | 'mock';
+	isSubmitted?: boolean;
+	submitAnswers?: (options?: { automatic?: boolean }) => void;
+	onSectionExpired?: (sectionIndex: number) => void;
+	syncExpiredSections?: (sectionIndexes: number[]) => void;
 }
 
 interface ExamTimerSnapshot {
@@ -37,6 +42,9 @@ interface ExamTimerSnapshot {
 	section_elapsed_seconds?: Record<string, number>;
 	expired?: boolean;
 	section_expired?: boolean;
+	section_remaining_seconds?: number;
+	section_limit_seconds?: number;
+	expired_section_indexes?: number[];
 }
 
 class ExamTimerManager {
@@ -45,12 +53,19 @@ class ExamTimerManager {
 	private currentExamId: string | null = null;
 	private localElapsedSeconds = 0;
 	private lastSnapshot: ExamTimerSnapshot | null = null;
+	private lastActiveAt = Date.now();
+	private activityListenersBound = false;
 	// 已经提示过的超时，避免重复弹 toast
 	private warnedTotalExpired = false;
+	private autoSubmitTriggered = false;
 	private warnedSectionExpired: Record<number, boolean> = {};
+	private warnedSectionFiveMinutes: Record<number, boolean> = {};
+	private warnedSectionOneMinute: Record<number, boolean> = {};
 
-	// 心跳间隔（毫秒）；与后端 tick 上限 60s 保持安全距离
-	private static readonly TICK_INTERVAL_MS = 5000;
+	// 心跳间隔（毫秒）；与后端 tick 上限 120s 保持安全距离
+	private static readonly TICK_INTERVAL_MS = 15000;
+	// 只有页面可见，且最近 3 分钟内有学习操作，才累计为有效学习时间。
+	private static readonly ACTIVE_WINDOW_MS = 3 * 60 * 1000;
 
 	constructor(examViewer: ExamTimerExamViewer) {
 		this.examViewer = examViewer;
@@ -85,10 +100,15 @@ class ExamTimerManager {
 			this.stop();
 		}
 		this.currentExamId = examId;
+		this.markActive();
+		this.bindActivityListeners();
 		this.warnedTotalExpired = false;
+		this.autoSubmitTriggered = false;
 		this.warnedSectionExpired = {};
+		this.warnedSectionFiveMinutes = {};
+		this.warnedSectionOneMinute = {};
 
-		const payload: Record<string, unknown> = { exam_id: examId };
+		const payload: Record<string, unknown> = { exam_id: examId, current_section_index: this.examViewer.currentSectionIndex };
 		if (options?.totalLimitSeconds && options.totalLimitSeconds > 0) {
 			payload.total_limit_seconds = options.totalLimitSeconds;
 		}
@@ -100,6 +120,7 @@ class ExamTimerManager {
 		api.startExamTimer(userId, payload).then((doc: unknown) => {
 			this.applySnapshot(doc);
 			this.renderBar();
+			this.checkExpiry();
 		}).catch(() => {
 			// 后端启动失败则不渲染计时条，避免误导
 		});
@@ -124,10 +145,11 @@ class ExamTimerManager {
 		this.localElapsedSeconds = 0;
 		this.lastSnapshot = null;
 		this.removeBar();
+		this.unbindActivityListeners();
 	}
 
 	/**
-	 * 心跳：把累积的本地秒数发到后端（约 5 秒一次）
+	 * 心跳：把累积的本地秒数发到后端（约 15 秒一次）
 	 *   - 若返回 null（exam_id 不匹配/被清理），则停止本地计时
 	 */
 	private sendTick(): void {
@@ -138,6 +160,9 @@ class ExamTimerManager {
 		}
 		const api = window.APIClient;
 		if (!api || typeof api.tickExamTimer !== 'function') {
+			return;
+		}
+		if (!this.shouldCountTime()) {
 			return;
 		}
 		const delta = Math.round(ExamTimerManager.TICK_INTERVAL_MS / 1000);
@@ -164,6 +189,7 @@ class ExamTimerManager {
 	private applySnapshot(doc: unknown): void {
 		if (doc && typeof doc === 'object') {
 			this.lastSnapshot = doc as ExamTimerSnapshot;
+			this.examViewer.syncExpiredSections?.(Array.isArray(this.lastSnapshot.expired_section_indexes) ? this.lastSnapshot.expired_section_indexes : []);
 		}
 	}
 
@@ -172,6 +198,21 @@ class ExamTimerManager {
 	 */
 	private renderBar(): void {
 		this.removeBar();
+		const snapshot = this.lastSnapshot;
+		const header = document.getElementById('exam-header');
+		if (!snapshot || !header) return;
+		const elapsed = formatDuration(Number(snapshot.elapsed_seconds || 0));
+		const totalLimit = Number(snapshot.total_limit_seconds || 0);
+		const remaining = Number(snapshot.total_remaining_seconds || 0);
+		const bar = document.createElement('div');
+		bar.id = 'exam-timer-bar';
+		bar.className = snapshot.expired ? 'is-expired' : '';
+		bar.setAttribute('role', 'timer');
+		bar.setAttribute('aria-live', snapshot.expired ? 'assertive' : 'off');
+		const sectionLimit = Number(snapshot.section_limit_seconds || 0);
+		const sectionRemaining = Number(snapshot.section_remaining_seconds || 0);
+		bar.innerHTML = `<span>已用 ${elapsed}</span>${totalLimit > 0 ? `<strong>全卷剩余 ${formatDuration(remaining)}</strong>` : ''}${sectionLimit > 0 ? `<strong class="section-remaining">本部分剩余 ${formatDuration(sectionRemaining)}</strong>` : ''}`;
+		header.appendChild(bar);
 	}
 
 	private removeBar(): void {
@@ -189,12 +230,29 @@ class ExamTimerManager {
 		if (!snap) return;
 		if (snap.expired && !this.warnedTotalExpired) {
 			this.warnedTotalExpired = true;
-			this.notify('考试时间已用完，请尽快提交');
+			if (this.examViewer.examMode === 'mock' && !this.examViewer.isSubmitted && !this.autoSubmitTriggered) {
+				this.autoSubmitTriggered = true;
+				this.notify('考试时间已用完，正在自动交卷');
+				this.examViewer.submitAnswers?.({ automatic: true });
+			} else {
+				this.notify('练习时间已用完，你仍可继续学习或手动提交');
+			}
 		}
 		const sectionIdx = this.examViewer.currentSectionIndex;
+		const sectionRemaining = Number(snap.section_remaining_seconds || 0);
+		const hasSectionLimit = Number(snap.section_limit_seconds || 0) > 0;
+		if (hasSectionLimit && sectionRemaining > 60 && sectionRemaining <= 300 && !this.warnedSectionFiveMinutes[sectionIdx]) {
+			this.warnedSectionFiveMinutes[sectionIdx] = true;
+			this.notify(`第 ${sectionIdx + 1} 部分还剩 5 分钟`);
+		}
+		if (hasSectionLimit && sectionRemaining > 0 && sectionRemaining <= 60 && !this.warnedSectionOneMinute[sectionIdx]) {
+			this.warnedSectionOneMinute[sectionIdx] = true;
+			this.notify(`第 ${sectionIdx + 1} 部分还剩 1 分钟`);
+		}
 		if (snap.section_expired && sectionIdx >= 0 && !this.warnedSectionExpired[sectionIdx]) {
 			this.warnedSectionExpired[sectionIdx] = true;
 			this.notify(`第 ${sectionIdx + 1} 部分时间已用完`);
+			this.examViewer.onSectionExpired?.(sectionIdx);
 		}
 	}
 
@@ -207,6 +265,42 @@ class ExamTimerManager {
 			try { w.showToast(message); return; } catch { /* fallthrough */ }
 		}
 		try { console.warn('[ExamTimer]', message); } catch { /* ignore */ }
+	}
+
+	private shouldCountTime(): boolean {
+		if (document.visibilityState && document.visibilityState !== 'visible') {
+			return false;
+		}
+		return Date.now() - this.lastActiveAt <= ExamTimerManager.ACTIVE_WINDOW_MS;
+	}
+
+	private markActive = (): void => {
+		this.lastActiveAt = Date.now();
+	};
+
+	private bindActivityListeners(): void {
+		if (this.activityListenersBound) {
+			return;
+		}
+		this.activityListenersBound = true;
+		const options: AddEventListenerOptions = { passive: true };
+		document.addEventListener('pointerdown', this.markActive, options);
+		document.addEventListener('keydown', this.markActive);
+		document.addEventListener('wheel', this.markActive, options);
+		document.addEventListener('scroll', this.markActive, options);
+		document.addEventListener('touchstart', this.markActive, options);
+	}
+
+	private unbindActivityListeners(): void {
+		if (!this.activityListenersBound) {
+			return;
+		}
+		this.activityListenersBound = false;
+		document.removeEventListener('pointerdown', this.markActive);
+		document.removeEventListener('keydown', this.markActive);
+		document.removeEventListener('wheel', this.markActive);
+		document.removeEventListener('scroll', this.markActive);
+		document.removeEventListener('touchstart', this.markActive);
 	}
 }
 

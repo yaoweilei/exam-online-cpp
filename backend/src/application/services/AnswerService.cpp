@@ -115,12 +115,13 @@ const Json::Value &examData) const
     return output;
 }
 
-void AnswerService::save(const std::string &userId,
+Json::Value AnswerService::save(const std::string &userId,
 const std::string &examId,
 const Json::Value &answers,
-const Json::Value &statistics)
+const Json::Value &statistics,
+const std::string &submissionId)
 {
-    repository_.saveAnswer(userId, examId, answers, statistics);
+    return repository_.saveAnswer(userId, examId, answers, statistics, submissionId);
 }
 
 Json::Value AnswerService::load(const std::string &userId, const std::string &examId) const
@@ -162,6 +163,11 @@ Json::Value AnswerService::examProgress(const std::string &userId) const
         progress[examId] = completion;
     }
     return progress;
+}
+
+Json::Value AnswerService::attempts(const std::string &userId, const std::string &examId, int limit) const
+{
+    return repository_.listAttempts(userId, examId, limit);
 }
 
 std::string AnswerService::normalizeAnswer(const Json::Value &value)

@@ -1,0 +1,20 @@
+{
+  "daily" : 
+  {
+    "2026-07-18" : 
+    {
+      "answers_submitted" : 1,
+      "correct" : 0,
+      "questions_done" : 51
+    }
+  },
+  "daily_goal" : 
+  {
+    "questions" : 30
+  },
+  "last_active_date" : "2026-07-18",
+  "streak_best" : 1,
+  "streak_current" : 1,
+  "updated_at" : "2026-07-18T15:02:43.251Z",
+  "user_id" : "usr_019f75c0-38d3-7d43-9e2c-ae3270761b84"
+}

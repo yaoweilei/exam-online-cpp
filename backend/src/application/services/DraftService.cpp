@@ -22,4 +22,11 @@ bool DraftService::clear(const std::string &userId)
     return repository_.clear(userId);
 }
 
+void DraftService::markSubmitted(const std::string &userId,
+                                 const std::string &examId,
+                                 const std::string &attemptId)
+{
+    repository_.markSubmitted(userId, examId, attemptId);
+}
+
 }  // namespace application::services

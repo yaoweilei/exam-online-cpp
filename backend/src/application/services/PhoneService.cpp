@@ -138,6 +138,12 @@ const std::string &changeChallengeCode)
     const auto previousPhone = currentUser.get("phone", "").asString();
     const auto previousPhoneVerified = currentUser.get("phone_verified", false).asBool();
 
+    const auto existingPhoneOwner = userRepository_.findUserByPhone(phone);
+    const auto isWechatOnlyUser =
+        !currentUser.get("wechat_openid", "").asString().empty() &&
+        currentUser.get("phone", "").asString().empty() &&
+        !currentUser.get("phone_verified", false).asBool();
+
     contactChangeChallengeService_.requireVerifiedChallengeIfNeeded(currentUser, "phone", phone, changeChallengeChannel, changeChallengeCode);
 
     lock.lock();
@@ -153,9 +159,64 @@ const std::string &changeChallengeCode)
     pending_.erase(it);
     lock.unlock();
 
+    if (!existingPhoneOwner.isNull() && existingPhoneOwner.get("id", "").asString() != userId && isWechatOnlyUser)
+    {
+        return userRepository_.bindWechatFromUserToPhoneOwner(userId, phone);
+    }
+
     const auto boundUser = userRepository_.bindPhone(userId, phone);
     notifyPreviousPhoneIfChanged(previousPhone, previousPhoneVerified, phone);
     return boundUser;
+}
+
+Json::Value PhoneService::verifyCurrentPhoneCode(const std::string &userId,
+const std::string &phone,
+const std::string &code)
+{
+    if (userId.empty() || userId == "guest")
+    {
+        throw common::AppException("AUTH_REQUIRED", "Login is required before verifying phone", drogon::k401Unauthorized);
+    }
+    validatePhoneFormat(phone);
+
+    const auto currentUser = userRepository_.findUserById(userId);
+    if (currentUser.isNull())
+    {
+        throw common::AppException("USER_NOT_FOUND", "User not found", drogon::k404NotFound);
+    }
+    const auto boundPhone = currentUser.get("phone", "").asString();
+    const auto phoneVerified = currentUser.get("phone_verified", false).asBool();
+    if (!phoneVerified || boundPhone.empty())
+    {
+        throw common::AppException("PHONE_VERIFICATION_REQUIRED", "Please bind and verify a phone number first", drogon::k403Forbidden);
+    }
+    if (boundPhone != phone)
+    {
+        throw common::AppException("PHONE_MISMATCH", "Verification phone does not match current account", drogon::k403Forbidden);
+    }
+
+    std::unique_lock lock(mutex_);
+    auto it = pending_.find(phone);
+    if (it == pending_.end())
+    {
+        throw common::AppException("SMS_CODE_NOT_FOUND", "No code sent to this number, or it has expired", drogon::k400BadRequest);
+    }
+    if (std::chrono::system_clock::now() > it->second.expiresAt)
+    {
+        pending_.erase(it);
+        throw common::AppException("SMS_CODE_EXPIRED", "Verification code has expired", drogon::k400BadRequest);
+    }
+    if (it->second.code != code)
+    {
+        throw common::AppException("SMS_CODE_INVALID", "Verification code is incorrect", drogon::k400BadRequest);
+    }
+    pending_.erase(it);
+
+    Json::Value out(Json::objectValue);
+    out["user_id"] = userId;
+    out["phone"] = phone;
+    out["verified"] = true;
+    return out;
 }
 
 void PhoneService::notifyPreviousPhoneIfChanged(const std::string &previousPhone,

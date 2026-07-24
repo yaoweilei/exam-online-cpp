@@ -15,7 +15,11 @@
  * 采用模块化架构，将功能委托给专门的管理器
  */
 
+import { requestAppConfirmation } from '../../ui/dialogs.js';
+import { QuestionRenderer } from '../renderers/QuestionRenderer.js';
+
 type LegacyAnyRecord = Record<string, any>;
+type ExamMode = 'practice' | 'mock';
 
 interface NavigationButtonConfig {
 	className: string;
@@ -81,8 +85,13 @@ class ExamViewer {
 	showExplanations = false;
 	showReadingKana = false;
 	showReadingZh = false;
+	examMode: ExamMode = 'practice';
+	isSubmitted = false;
 	contentWidthPx = 0;
 	private _kbBound = false;
+	private _draftRestoreRequest = 0;
+	private submitConfirmationPending = false;
+	private expiredSectionIndexes = new Set<number>();
 	_currentExamId: string | null = null;
 	constructor() {
 		// 初始化日志记录器
@@ -99,6 +108,8 @@ class ExamViewer {
 		this.showExplanations = false;
 		this.showReadingKana = this.readBooleanPreference('examViewer.showReadingKana', false);
 		this.showReadingZh = this.readBooleanPreference('examViewer.showReadingZh', false);
+		this.examMode = this.readExamModePreference();
+		this.isSubmitted = false;
 		this.contentWidthPx = 0;
 
 		// ==================== 初始化管理器 ====================
@@ -122,6 +133,9 @@ class ExamViewer {
 
 		// ==================== 初始化各个子系统 ====================
 		this.initializeEventListeners();
+		this.initializeModeControl();
+		this.initializeLeaveProtection();
+		this.initializeNetworkStatus();
 		this.loadExamData();
 		
 		// Web 应用模式下不自动调用 initExamLibrary（由 loader.js 处理）
@@ -154,6 +168,9 @@ class ExamViewer {
 		this.userId = userContext?.user_id || userContext?.id || 'guest';
 		this.token = userContext?.token || '';
 		this.roles = Array.isArray(userContext?.roles) ? userContext.roles : [];
+		if (this.currentExam && this._currentExamId && this.userId !== 'guest') {
+			void this.restoreDraftForCurrentExam();
+		}
 	}
 
 	setupBackendCommunication() {
@@ -257,12 +274,18 @@ class ExamViewer {
 				const prevShowReadingZh = this.showReadingZh;
 				
 				this.resetExamState();
+				this.expiredSectionIndexes.clear();
+				this.isSubmitted = false;
 				
 				// 恢复显示状态
 				this.showAnswers = prevShowAnswers;
 				this.showExplanations = prevShowExplanations;
 				this.showReadingKana = prevShowReadingKana;
 				this.showReadingZh = prevShowReadingZh;
+				if (this.examMode === 'mock') {
+					this.hideLearningAssists();
+				}
+				this.setAnswerSaveStatus('idle', '尚未作答');
 				this.setInitialNavigationPosition();
 				
 				this.renderExam();
@@ -270,6 +293,7 @@ class ExamViewer {
 				this.categoryNavigationManager.initCategoryDropdowns();
 				console.log('[ExamViewer] Render completed');
 				this.loadTranslationsForReadingAssist();
+				void this.restoreDraftForCurrentExam();
 
 				// 业务功能 3：试卷渲染完成后启动答题计时（仅登录用户 + 有 examId 时）
 				try {
@@ -486,6 +510,11 @@ class ExamViewer {
 		controls.classList.add(family);
 		// HTML模板中已经定义了所有需要的按钮
 		this.updateReadingAssistButtonStates();
+		this.updateLearningAssistAvailability();
+		const modeSelect = document.getElementById('exam-mode-select') as HTMLSelectElement | null;
+		if (modeSelect) modeSelect.value = this.examMode;
+		const submitButton = document.getElementById('submit-exam') as HTMLButtonElement | null;
+		if (submitButton) submitButton.disabled = !this.currentExam || this.isSubmitted;
 	}
 
 	renderQuestionNavigation() {
@@ -557,6 +586,9 @@ class ExamViewer {
 					const questionBtn = document.createElement('button');
 					questionBtn.className = 'answer-card-question-btn';
 					questionBtn.textContent = String(qIndex + 1);
+					questionBtn.dataset.sectionIndex = String(sectionIndex);
+					if (this.expiredSectionIndexes.has(sectionIndex)) questionBtn.classList.add('section-expired');
+					if (this.examMode === 'mock' && !this.allowsEarlySectionAdvance() && sectionIndex > this.currentSectionIndex) questionBtn.classList.add('section-locked');
 
 					// 标记当前题目
 					if (sectionIndex === this.currentSectionIndex && qIndex === this.currentQuestionIndex) {
@@ -597,6 +629,7 @@ class ExamViewer {
 		if (!this.currentExam) {
 			return;
 		}
+		if (!this.canNavigateToSection(sectionIndex)) return;
 		// 停止所有正在播放的音频
 		this.audioManager.stopAllAudio();
 
@@ -756,6 +789,56 @@ class ExamViewer {
 		return orderedCategories;
 	}
 
+	canNavigateToSection(sectionIndex: number): boolean {
+		if (this.examMode !== 'mock' || this.isSubmitted) return true;
+		if (this.expiredSectionIndexes.has(sectionIndex)) {
+			this.setAnswerSaveStatus('failed', `第 ${sectionIndex + 1} 部分已结束，不能返回修改`);
+			return false;
+		}
+		if (!this.allowsEarlySectionAdvance() && sectionIndex > this.currentSectionIndex) {
+			this.setAnswerSaveStatus('failed', '当前考试不允许提前进入下一部分');
+			return false;
+		}
+		return true;
+	}
+
+	private allowsEarlySectionAdvance(): boolean {
+		return (this.currentExam?.exam_info as LegacyAnyRecord | undefined)?.allow_early_section_advance !== false;
+	}
+
+	syncExpiredSections(sectionIndexes: number[]) {
+		if (this.examMode !== 'mock' || this.isSubmitted) return;
+		sectionIndexes.forEach((index) => {
+			if (Number.isInteger(index) && index >= 0) this.expiredSectionIndexes.add(index);
+		});
+		this.renderExpiredSectionMarkers();
+	}
+
+	private renderExpiredSectionMarkers() {
+		document.querySelectorAll<HTMLElement>('.answer-card-question-btn[data-section-index]').forEach((button) => {
+			const sectionIndex = Number(button.dataset.sectionIndex);
+			button.classList.toggle('section-expired', this.expiredSectionIndexes.has(sectionIndex));
+		});
+	}
+
+	onSectionExpired(sectionIndex: number) {
+		if (this.examMode !== 'mock' || this.isSubmitted || sectionIndex !== this.currentSectionIndex) return;
+		this.expiredSectionIndexes.add(sectionIndex);
+		const sections = this.currentExam?.exam_info?.sections || [];
+		for (let next = sectionIndex + 1; next < sections.length; next += 1) {
+			if (sections[next]?.questions?.length) {
+				this.currentSectionIndex = next;
+				this.currentQuestionIndex = 0;
+				this.currentCategory = this.resolveCategoryIdForSection(sections[next]) || this.currentCategory;
+				this.setAnswerSaveStatus('saving', `第 ${sectionIndex + 1} 部分已结束，已进入下一部分`);
+				this.renderExam();
+				return;
+			}
+		}
+		this.setAnswerSaveStatus('saving', '最后一部分时间已用完，正在自动交卷…');
+		this.submitAnswers({ automatic: true });
+	}
+
 	getCurrentCategory() {
 		const categories = this.getCategories();
 		const result = categories.find(cat => cat.id === this.currentCategory) || categories[0] || null;
@@ -900,7 +983,8 @@ class ExamViewer {
 			'#toggle-explanations': () => this.toggleExplanations(),
 			'#toggle-reading-kana': () => this.toggleReadingKana(),
 			'#toggle-reading-zh': () => this.toggleReadingZh(),
-			'#open-question-map': () => this.questionMapManager.showQuestionMap()
+			'#open-question-map': () => this.questionMapManager.showQuestionMap(),
+			'#submit-exam': () => this.submitAnswers()
 		};
 
 		document.addEventListener('click', (event: MouseEvent) => {
@@ -960,7 +1044,184 @@ class ExamViewer {
 		});
 	}
 
+	private initializeModeControl() {
+		const select = document.getElementById('exam-mode-select') as HTMLSelectElement | null;
+		if (!select) return;
+		select.value = this.examMode;
+		select.addEventListener('change', () => {
+			const nextMode: ExamMode = select.value === 'mock' ? 'mock' : 'practice';
+			select.disabled = true;
+			void this.setExamMode(nextMode, true).then((changed) => {
+				if (!changed) select.value = this.examMode;
+			}).finally(() => {
+				select.disabled = false;
+				if (select.isConnected) select.focus();
+			});
+		});
+	}
+
+	private initializeLeaveProtection() {
+		window.addEventListener('beforeunload', (event) => {
+			if (this.examMode !== 'mock' || this.isSubmitted || !this.currentExam) return;
+			const hasAnswers = Object.values(this.userAnswers).some((answer) => answer !== null && answer !== undefined && answer !== '');
+			if (!hasAnswers) return;
+			event.preventDefault();
+			event.returnValue = '';
+		});
+	}
+
+	private initializeNetworkStatus() {
+		const banner = document.getElementById('network-status-banner');
+		if (!banner) return;
+		let recoveryTimer: number | null = null;
+		const render = (offline: boolean) => {
+			if (recoveryTimer !== null) window.clearTimeout(recoveryTimer);
+			banner.classList.toggle('is-offline', offline);
+			banner.classList.toggle('is-online', !offline);
+			banner.textContent = offline
+				? '网络已断开，当前答案会保留在页面中，联网后将继续保存'
+				: '网络已恢复，答案将继续同步';
+			banner.hidden = false;
+			if (!offline) recoveryTimer = window.setTimeout(() => { banner.hidden = true; }, 3000);
+		};
+		window.addEventListener('offline', () => render(true));
+		window.addEventListener('online', () => render(false));
+		if (!navigator.onLine) render(true);
+	}
+
+	private async restoreDraftForCurrentExam() {
+		const userId = this.userId;
+		const examId = this._currentExamId;
+		if (!userId || userId === 'guest' || !examId || this.isSubmitted) return;
+		const enabled = (window as Window & { isFeatureEnabled?: (key: string) => boolean }).isFeatureEnabled;
+		if (enabled && !enabled('resume_draft')) return;
+		const api = window.APIClient;
+		if (!api || typeof api.getDraft !== 'function') return;
+		const requestId = ++this._draftRestoreRequest;
+		try {
+			const draft = await api.getDraft(userId) as {
+				exam_id?: string;
+				exam_mode?: ExamMode;
+				answers?: Record<string, unknown>;
+				answered_count?: number;
+				last_section_index?: number;
+				last_question_index?: number;
+				revision?: number;
+				attempt_id?: string;
+			} | null;
+			if (requestId !== this._draftRestoreRequest || this._currentExamId !== examId) return;
+			if (!draft || String(draft.exam_id || '') !== examId || !draft.answers || typeof draft.answers !== 'object') return;
+			if (draft.exam_mode === 'mock' || draft.exam_mode === 'practice') {
+				this.examMode = draft.exam_mode;
+				try { localStorage.setItem('examViewer.mode', this.examMode); } catch { }
+			}
+			this.answerManager.setDraftRevision?.(draft.revision);
+			this.answerManager.setAttemptId?.(draft.attempt_id);
+			this.applyDraftSnapshot(draft as unknown as Record<string, unknown>);
+		} catch {
+			// Draft restoration must never block opening a paper.
+		}
+	}
+
+	applyDraftSnapshot(draft: Record<string, unknown>) {
+		const answers = draft.answers;
+		if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return;
+		Object.assign(this.userAnswers, answers);
+		if (draft.exam_mode === 'mock' || draft.exam_mode === 'practice') {
+			this.examMode = draft.exam_mode;
+			try { localStorage.setItem('examViewer.mode', this.examMode); } catch { }
+		}
+			const sectionIndex = Math.max(0, Number(draft.last_section_index || 0));
+			const questionIndex = Math.max(0, Number(draft.last_question_index || 0));
+			try { this.jumpToQuestion(sectionIndex, questionIndex); } catch { this.renderExam(); }
+			if (this.examMode === 'mock') this.hideLearningAssists();
+			this.renderExam();
+			const answered = Number(draft.answered_count || Object.values(answers).filter((answer) => answer !== null && answer !== undefined && answer !== '').length);
+			this.setAnswerSaveStatus('saved', `已恢复 ${answered} 题`);
+	}
+
+	private readExamModePreference(): ExamMode {
+		try {
+			return localStorage.getItem('examViewer.mode') === 'mock' ? 'mock' : 'practice';
+		} catch {
+			return 'practice';
+		}
+	}
+
+	private async setExamMode(mode: ExamMode, userInitiated = false): Promise<boolean> {
+		if (mode === this.examMode) return true;
+		const hasAnswers = Object.values(this.userAnswers).some((answer) => answer !== null && answer !== undefined && answer !== '');
+		if (userInitiated && hasAnswers) {
+			const confirmed = await requestAppConfirmation('切换答题模式会清空当前答案，是否继续？', '清空并切换');
+			if (!confirmed) return false;
+			this.answerManager.initializeUserAnswers();
+			this.setAnswerSaveStatus('idle', '答案已清空');
+		}
+		this.examMode = mode;
+		this.isSubmitted = false;
+		try { localStorage.setItem('examViewer.mode', mode); } catch { }
+		if (mode === 'mock') this.hideLearningAssists();
+		if (this.currentExam) this.renderExam();
+		return true;
+	}
+
+	private hideLearningAssists() {
+		this.showAnswers = false;
+		this.showExplanations = false;
+		this.showReadingKana = false;
+		this.showReadingZh = false;
+	}
+
+	canUseLearningAssists(): boolean {
+		return this.examMode === 'practice' || this.isSubmitted;
+	}
+
+	private updateLearningAssistAvailability() {
+		const locked = !this.canUseLearningAssists();
+		['toggle-answers', 'toggle-explanations', 'toggle-reading-kana', 'toggle-reading-zh'].forEach((id) => {
+			const button = document.getElementById(id) as HTMLButtonElement | null;
+			if (!button) return;
+			if (!button.dataset.defaultTitle) button.dataset.defaultTitle = button.title;
+			button.disabled = locked;
+			button.classList.toggle('learning-assist-locked', locked);
+			button.title = locked ? '模拟考试提交后可以查看' : button.dataset.defaultTitle;
+		});
+	}
+
+	setAnswerSaveStatus(state: 'idle' | 'saving' | 'saved' | 'failed' | 'submitted', text: string) {
+		const status = document.getElementById('answer-save-status');
+		if (!status) return;
+		status.dataset.state = state;
+		status.textContent = text;
+	}
+
+	onAnswersSubmitted() {
+		this.isSubmitted = true;
+		this.setAnswerSaveStatus('submitted', '已提交');
+		this.renderExam();
+	}
+
+	restartCurrentExam() {
+		if (!this.currentExam) return;
+		this.isSubmitted = false;
+		this.showAnswers = false;
+		this.showExplanations = false;
+		this.currentSectionIndex = 0;
+		this.currentQuestionIndex = 0;
+		this.expiredSectionIndexes.clear();
+		this.answerManager.initializeUserAnswers();
+		this.setInitialNavigationPosition();
+		this.setAnswerSaveStatus('idle', '尚未作答');
+		if (this.examMode === 'mock') this.hideLearningAssists();
+		this.renderExam();
+		if (this._currentExamId) {
+			this.examTimerManager.stop();
+			this.examTimerManager.startForExam(this._currentExamId, this.extractExamTimerLimits());
+		}
+	}
+
 	toggleReadingKana(show: boolean | null = null) {
+		if (!this.canUseLearningAssists()) return;
 		this.showReadingKana = show !== null ? show : !this.showReadingKana;
 		this.writeBooleanPreference('examViewer.showReadingKana', this.showReadingKana);
 		this.renderExam();
@@ -968,6 +1229,7 @@ class ExamViewer {
 	}
 
 	toggleReadingZh(show: boolean | null = null) {
+		if (!this.canUseLearningAssists()) return;
 		this.showReadingZh = show !== null ? show : !this.showReadingZh;
 		this.writeBooleanPreference('examViewer.showReadingZh', this.showReadingZh);
 		this.renderExam();
@@ -1026,6 +1288,7 @@ class ExamViewer {
 	}
 
 	toggleExplanations() {
+		if (!this.canUseLearningAssists()) return;
 		this.showExplanations = !this.showExplanations;
 
 		// “显示详解”是“显示答案”的超集：打开详解时必须同时打开答案
@@ -1066,6 +1329,7 @@ class ExamViewer {
 	}
 
 	toggleAnswers(show: boolean | null = null) {
+		if (!this.canUseLearningAssists()) return;
 		this.showAnswers = show !== null ? show : !this.showAnswers;
 
 		// “显示答案”是精简模式：一旦切到答案模式，就退出“显示详解”
@@ -1403,8 +1667,25 @@ class ExamViewer {
 		}
 	}
 
-	submitAnswers() {
-		this.answerManager.submitAnswers();
+	async submitAnswers(options: { automatic?: boolean } = {}): Promise<void> {
+		if (this.isSubmitted) return;
+		if (this.examMode === 'mock' && !options.automatic) {
+			if (this.submitConfirmationPending) return;
+			this.submitConfirmationPending = true;
+			const answers = Object.values(this.userAnswers);
+			const answered = answers.filter((answer) => answer !== null && answer !== undefined && answer !== '').length;
+			const unanswered = Math.max(0, answers.length - answered);
+			const message = unanswered > 0
+				? `还有 ${unanswered} 题未作答。提交后不能继续修改，确定提交吗？`
+				: '提交后不能继续修改，确定提交吗？';
+			try {
+				if (!await requestAppConfirmation(message, '确认交卷')) return;
+			} finally {
+				this.submitConfirmationPending = false;
+			}
+		}
+		if (options.automatic) this.setAnswerSaveStatus('saving', '时间到，正在自动交卷…');
+		void this.answerManager.submitAnswers();
 	}
 
 	/**

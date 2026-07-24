@@ -83,7 +83,7 @@ async function createOrganizationApi(request, token, name) {
 
 async function addOrganizationMemberApi(request, token, organizationId, userId, roles) {
   const response = await request.post(`/api/v1/organizations/${encodeURIComponent(organizationId)}/members`, {
-    data: { token, user_id: userId, roles }
+    data: { token, user_id: userId, roles, confirmation: '确认修改机构成员', reauth_password: '' }
   });
   const payload = await getOkJson(response);
   return payload.data;
@@ -202,8 +202,8 @@ test('游客和普通角色不能访问高权限 API', async ({ request }) => {
     sessions[item.role] = await loginApi(request, uniqueLoginId(item.prefix));
   }
 
-  await expectApiCode(await request.get('/api/v1/admin/statistics/overview'), 'VALIDATION_ERROR');
-  await expectApiCode(await request.post('/api/v1/chapters/rebuild'), 'VALIDATION_ERROR');
+  await expectApiCode(await request.get('/api/v1/admin/statistics/overview'), 'AUTH_REQUIRED');
+  await expectApiCode(await request.post('/api/v1/chapters/rebuild'), 'AUTH_REQUIRED');
 
   for (const role of ['student', 'assistant', 'teacher', 'orgAdmin', 'contentAdmin']) {
     const adminResponse = await request.get(
@@ -240,6 +240,209 @@ test('平台级权限只开放给 contentAdmin 和 superAdmin 的对应能力', 
   await expectApiCode(contentStats, 'FORBIDDEN');
 });
 
+test('系统功能开关只允许超级管理员读取和确认后修改', async ({ request }) => {
+  const student = await loginApi(request, uniqueLoginId('student_flag_perm'));
+  const superAdminLoginId = uniqueLoginId('superadmin_flag_perm');
+  const superAdmin = await loginApi(request, superAdminLoginId);
+  const otherSuperAdminSession = await loginApi(request, superAdminLoginId);
+  await expectApiCode(await request.get('/api/v1/admin/feature-flags/system', {
+    headers: { Authorization: `Bearer ${student.token}` }
+  }), 'FORBIDDEN');
+
+  const snapshotResponse = await request.get('/api/v1/admin/feature-flags/system', {
+    headers: { Authorization: `Bearer ${superAdmin.token}` }
+  });
+  const snapshot = await getOkJson(snapshotResponse);
+  const original = snapshot.data.flags.related_questions;
+  expect(original.key).toBe('related_questions');
+  expect(['default', 'system']).toContain(original.source);
+
+  const missingConfirmation = await request.put('/api/v1/admin/feature-flags/system', {
+    data: { token: superAdmin.token, related_questions: { enabled: !original.enabled, lock: original.locked } }
+  });
+  await expectApiCode(missingConfirmation, 'VALIDATION_ERROR');
+
+  const missingReauthentication = await request.put('/api/v1/admin/feature-flags/system', {
+    data: {
+      token: superAdmin.token,
+      confirmation: '确认修改系统开关',
+      related_questions: { enabled: !original.enabled, lock: original.locked }
+    }
+  });
+  await expectApiCode(missingReauthentication, 'REAUTH_REQUIRED');
+
+  const invalidReauthentication = await request.put('/api/v1/admin/feature-flags/system', {
+    data: {
+      token: superAdmin.token,
+      confirmation: '确认修改系统开关',
+      reauth_password: 'wrong-password',
+      related_questions: { enabled: !original.enabled, lock: original.locked }
+    }
+  });
+  await expectApiCode(invalidReauthentication, 'REAUTH_FAILED');
+
+  const updateResponse = await request.put('/api/v1/admin/feature-flags/system', {
+    data: {
+      token: superAdmin.token,
+      confirmation: '确认修改系统开关',
+      reauth_password: '',
+      related_questions: { enabled: !original.enabled, lock: original.locked }
+    }
+  });
+  await getOkJson(updateResponse);
+  await expectApiCode(await request.get(
+    `/api/v1/me/context?token=${encodeURIComponent(otherSuperAdminSession.token)}`
+  ), 'TOKEN_INVALID');
+  const changed = await getOkJson(await request.get('/api/v1/admin/feature-flags/system', {
+    headers: { Authorization: `Bearer ${superAdmin.token}` }
+  }));
+  expect(changed.data.flags.related_questions.enabled).toBe(!original.enabled);
+  expect(changed.data.flags.related_questions.source).toBe('system');
+
+  const auditResponse = await request.get(
+    `/api/v1/admin/audit-logs?action=${encodeURIComponent('feature_flags.system.updated')}&actor_id=${encodeURIComponent(superAdmin.user_id)}&limit=10`,
+    { headers: { Authorization: `Bearer ${superAdmin.token}` } }
+  );
+  const audit = await getOkJson(auditResponse);
+  expect(audit.data.items.some((item) =>
+    item.action === 'feature_flags.system.updated'
+      && item.action_label === '修改系统功能开关'
+      && item.scope === 'platform'
+  )).toBeTruthy();
+  const actionResponse = await getOkJson(await request.get('/api/v1/admin/audit-logs/actions', {
+    headers: { Authorization: `Bearer ${superAdmin.token}` }
+  }));
+  expect(actionResponse.data.actions).toContain('feature_flags.system.updated');
+  expect(actionResponse.data.action_options).toContainEqual({
+    value: 'feature_flags.system.updated',
+    label: '修改系统功能开关'
+  });
+
+  const restorePatch = original.source === 'default'
+    ? { related_questions: null }
+    : { related_questions: { enabled: original.enabled, lock: original.locked } };
+  await getOkJson(await request.put('/api/v1/admin/feature-flags/system', {
+    data: { token: superAdmin.token, confirmation: '确认修改系统开关', reauth_password: '', ...restorePatch }
+  }));
+});
+
+test('机构功能开关校验机构归属，并允许超级管理员显式跨机构管理', async ({ request }) => {
+  const firstAdmin = await loginApi(request, uniqueLoginId('orgadmin_flag_owner_a'));
+  const secondAdmin = await loginApi(request, uniqueLoginId('orgadmin_flag_owner_b'));
+  const superAdmin = await loginApi(request, uniqueLoginId('superadmin_org_flag_cross'));
+  const firstOrganization = await createOrganizationApi(request, firstAdmin.token, `开关机构甲-${Date.now()}`);
+  const secondOrganization = await createOrganizationApi(request, secondAdmin.token, `开关机构乙-${Date.now()}`);
+  const firstOrganizationId = firstOrganization.organization_id || firstOrganization.scope_id || firstOrganization.id;
+  const secondOrganizationId = secondOrganization.organization_id || secondOrganization.scope_id || secondOrganization.id;
+
+  const forgedOrganizationId = await request.put(
+    `/api/v1/admin/feature-flags/orgs/${encodeURIComponent(secondOrganizationId)}`,
+    {
+      data: {
+        token: firstAdmin.token,
+        confirmation: '确认修改机构开关',
+        reauth_password: '',
+        related_questions: { enabled: false }
+      }
+    }
+  );
+  await expectApiCode(forgedOrganizationId, 'ORGANIZATION_ACCESS_DENIED');
+
+  await getOkJson(await request.put(
+    `/api/v1/admin/feature-flags/orgs/${encodeURIComponent(firstOrganizationId)}`,
+    {
+      data: {
+        token: firstAdmin.token,
+        confirmation: '确认修改机构开关',
+        reauth_password: '',
+        related_questions: { enabled: false }
+      }
+    }
+  ));
+
+  await getOkJson(await request.put(
+    `/api/v1/admin/feature-flags/orgs/${encodeURIComponent(secondOrganizationId)}`,
+    {
+      data: {
+        token: superAdmin.token,
+        confirmation: '确认修改机构开关',
+        reauth_password: '',
+        related_questions: { enabled: true }
+      }
+    }
+  ));
+});
+
+test('机构成员角色变更后撤销该成员的全部旧会话', async ({ request }) => {
+  const owner = await loginApi(request, uniqueLoginId('orgadmin_member_session_owner'));
+  const memberLoginId = uniqueLoginId('student_member_session_target');
+  const memberSession = await loginApi(request, memberLoginId);
+  const organization = await createOrganizationApi(request, owner.token, `成员会话机构-${Date.now()}`);
+  const organizationId = organization.organization_id || organization.scope_id || organization.id;
+
+  await addOrganizationMemberApi(request, owner.token, organizationId, memberSession.user_id, ['student']);
+  await getMeContext(request, memberSession.token);
+
+  await getOkJson(await request.put(
+    `/api/v1/organizations/${encodeURIComponent(organizationId)}/members`,
+    {
+      data: {
+        token: owner.token,
+        user_id: memberSession.user_id,
+        roles: ['teacher'],
+        confirmation: '确认修改机构成员',
+        reauth_password: ''
+      }
+    }
+  ));
+
+  await expectApiCode(await request.get(
+    `/api/v1/me/context?token=${encodeURIComponent(memberSession.token)}`
+  ), 'TOKEN_INVALID');
+});
+
+test('套餐价格配置只允许超级管理员维护，订单金额读取配置', async ({ request }) => {
+  const student = await loginApi(request, uniqueLoginId('student_pricing_perm'));
+  const superAdmin = await loginApi(request, uniqueLoginId('superadmin_pricing_perm'));
+
+  const publicPricing = await request.get('/api/v1/payments/pricing');
+  const publicPayload = await getOkJson(publicPricing);
+  expect(publicPayload.data.prices_cents.cny.pro['30']).toBe(1290);
+
+  const pricingPayload = {
+    token: student.token,
+    default_provider: 'wechat',
+    prices_cents: {
+      cny: {
+        pro: { 30: 1290, 90: 3870, 365: 15480 },
+        ultra: { 30: 3900, 90: 9900, 365: 29900 }
+      }
+    }
+  };
+  const forbidden = await request.put('/api/v1/admin/payments/pricing', { data: pricingPayload });
+  await expectApiCode(forbidden, 'FORBIDDEN');
+
+  const updated = await request.put('/api/v1/admin/payments/pricing', {
+    data: { ...pricingPayload, token: superAdmin.token, confirmation: '确认修改套餐价格', reauth_password: '' }
+  });
+  const updatedPayload = await getOkJson(updated);
+  expect(updatedPayload.data.default_provider).toBe('wechat');
+  expect(updatedPayload.data.prices_cents.cny.pro['30']).toBe(1290);
+
+  const order = await request.post('/api/v1/payments/orders', {
+    data: {
+      token: student.token,
+      plan: 'pro',
+      days: 30,
+      provider: 'wechat',
+      currency: 'cny'
+    }
+  });
+  const orderPayload = await getOkJson(order);
+  expect(orderPayload.data.amount_cents).toBe(1290);
+  expect(orderPayload.data.provider).toBe('wechat');
+});
+
 test('机构和学习组权限按 orgAdmin、teacher、assistant、student、contentAdmin、superAdmin 区分', async ({ request }) => {
   const { sessions, organizationId, learningGroupId, assignment } = await prepareRoleFixture(request);
   const assignmentId = assignment.assignment_id;
@@ -260,18 +463,34 @@ test('机构和学习组权限按 orgAdmin、teacher、assistant、student、con
   }
 
   for (const role of ['orgAdmin', 'teacher', 'assistant', 'superAdmin']) {
+    const idempotencyKey = `role-${role}-${Date.now()}`;
     const response = await request.post(`/api/v1/assignments/${encodeURIComponent(assignmentId)}/reminders`, {
-      data: { token: sessions[role].token, message: `role ${role} reminder` }
+      data: { token: sessions[role].token, message: `role ${role} reminder`, idempotency_key: idempotencyKey }
     });
-    await getOkJson(response);
+    const first = await getOkJson(response);
+    expect(first.data.idempotent_replay).toBe(false);
+    const replayResponse = await request.post(`/api/v1/assignments/${encodeURIComponent(assignmentId)}/reminders`, {
+      data: { token: sessions[role].token, message: `role ${role} reminder`, idempotency_key: idempotencyKey }
+    });
+    const replay = await getOkJson(replayResponse);
+    expect(replay.data.reminder_id).toBe(first.data.reminder_id);
+    expect(replay.data.idempotent_replay).toBe(true);
   }
 
   for (const role of ['student', 'contentAdmin']) {
     const response = await request.post(`/api/v1/assignments/${encodeURIComponent(assignmentId)}/reminders`, {
-      data: { token: sessions[role].token, message: `role ${role} reminder` }
+      data: { token: sessions[role].token, message: `role ${role} reminder`, idempotency_key: `forbidden-${role}-${Date.now()}` }
     });
     await expectApiCode(response, 'FORBIDDEN');
   }
+
+  const orgAuditResponse = await request.get(
+    `/api/v1/admin/audit-logs?action=${encodeURIComponent('assignment.reminder.sent')}&actor_id=${encodeURIComponent(sessions.orgAdmin.user_id)}&org_id=another-org`,
+    { headers: { Authorization: `Bearer ${sessions.orgAdmin.token}` } }
+  );
+  const orgAudit = await getOkJson(orgAuditResponse);
+  expect(orgAudit.data.total).toBe(1);
+  expect(orgAudit.data.items[0].org_id).toBe(organizationId);
 
   const submitResponse = await request.post(`/api/v1/assignments/${encodeURIComponent(assignmentId)}/submit`, {
     headers: { Authorization: `Bearer ${sessions.student.token}` },

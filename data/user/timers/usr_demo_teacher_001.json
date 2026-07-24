@@ -1,0 +1,13 @@
+{
+  "elapsed_seconds" : 420,
+  "exam_id" : "N1_2025_12",
+  "section_elapsed_seconds" : 
+  {
+    "0" : 420
+  },
+  "section_limits_seconds" : [],
+  "started_at" : "2026-06-24T15:43:18.710Z",
+  "total_limit_seconds" : 0,
+  "updated_at" : "2026-06-25T14:11:46.633Z",
+  "user_id" : "usr_demo_teacher_001"
+}

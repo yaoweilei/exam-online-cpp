@@ -95,7 +95,12 @@ void registerBookmarkFolderRoutes(const AppContext &ctx)
                 const auto session = requireSession(*ctx.authService, req);
                 requireSelf(session, userId);
                 requireFeature(*ctx.featureFlagService, "bookmark_folders", userId);
-                return common::ok(req, ctx.bookmarkFolderService->remove(userId, folderId));
+                auto out = ctx.bookmarkFolderService->remove(userId, folderId);
+                if (ctx.bookmarkService)
+                {
+                    out["question_bookmarks_uncategorized"] = ctx.bookmarkService->clearQuestionFolder(userId, folderId);
+                }
+                return common::ok(req, out);
             });
         },
         {Delete});

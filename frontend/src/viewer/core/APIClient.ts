@@ -156,15 +156,22 @@ class APIClient {
 	}
 
 	// ==================== 答题 ====================
-	static async submitAnswers(userId: string, examId: string, answers: Record<string, unknown>): Promise<unknown> {
+	static async submitAnswers(userId: string, examId: string, answers: Record<string, unknown>, submissionId = '', attemptId = '', examMode = 'practice'): Promise<unknown> {
 		return this.request('/answers/submit', {
 			method: 'POST',
 			body: JSON.stringify({
 				user_id: userId,
 				exam_id: examId,
-				answers
+				answers,
+				submission_id: submissionId,
+				attempt_id: attemptId,
+				exam_mode: examMode
 			})
 		});
+	}
+
+	static async getAnswerAttempts(userId: string, examId: string, limit = 20): Promise<unknown> {
+		return this.request(`/answers/${encodeURIComponent(userId)}/${encodeURIComponent(examId)}/attempts?limit=${limit}`);
 	}
 
 	static async getAnswers(userId: string, examId: string): Promise<unknown> {
@@ -177,6 +184,10 @@ class APIClient {
 
 	static async getExamProgress(userId: string): Promise<Record<string, number>> {
 		return this.request(`/progress/${userId}/exams`);
+	}
+
+	static async listRecentLearning(userId: string, limit = 3): Promise<unknown> {
+		return this.request(`/recent-learning/${encodeURIComponent(userId)}?limit=${encodeURIComponent(String(limit))}`);
 	}
 
 	// ==================== 统计 ====================
@@ -212,6 +223,18 @@ class APIClient {
 	static async getAllRoles(): Promise<unknown> {
 		return this.request('/roles');
 	}
+	static async listPlatformRoleTemplates(token: string): Promise<unknown> { return this.request(`/admin/role-templates?token=${encodeURIComponent(token)}`); }
+	static async previewPlatformRoleTemplate(token: string, roleId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/role-templates/${encodeURIComponent(roleId)}/preview`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	static async updatePlatformRoleTemplate(token: string, roleId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/role-templates/${encodeURIComponent(roleId)}`, { method: 'PUT', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	static async getPlatformUserAccess(token: string, userId: string): Promise<unknown> { return this.request(`/admin/users/${encodeURIComponent(userId)}/platform-access?token=${encodeURIComponent(token)}`); }
+	static async previewPlatformUserAccess(token: string, userId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/users/${encodeURIComponent(userId)}/platform-access/preview`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	static async updatePlatformUserAccess(token: string, userId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/users/${encodeURIComponent(userId)}/platform-access`, { method: 'PUT', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	static async listContentWorkflow(token: string): Promise<unknown> { return this.request(`/admin/content/workflow?token=${encodeURIComponent(token)}`); }
+	static async inspectContentWorkflow(token: string, examId: string): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/inspect`, { method: 'POST', body: JSON.stringify({ token }) }); }
+	static async reviewContentWorkflow(token: string, examId: string, stage: string, payload: unknown): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/reviews/${encodeURIComponent(stage)}`, { method: 'PUT', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	static async publishContentWorkflow(token: string, examId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/publish`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	static async listContentVersions(token: string, examId: string): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/versions?token=${encodeURIComponent(token)}`); }
+	static async rollbackContentVersion(token: string, examId: string, versionId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/versions/${encodeURIComponent(versionId)}/rollback`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
 
 	static async getProfile(userId: string): Promise<unknown> {
 		return this.request(`/profile/${userId}`);
@@ -237,6 +260,20 @@ class APIClient {
 
 	static async getMeContext(token: string): Promise<unknown> {
 		return this.request(`/me/context?token=${encodeURIComponent(token)}`);
+	}
+
+	static async bindWechat(token: string, code: string): Promise<unknown> {
+		return this.request('/auth/wechat/bind', {
+			method: 'POST',
+			body: JSON.stringify({ token, code })
+		});
+	}
+
+	static async deleteAccount(token: string, confirmation: string, phone: string, phoneCode: string, reason = 'user_requested'): Promise<unknown> {
+		return this.request('/auth/account/delete', {
+			method: 'POST',
+			body: JSON.stringify({ token, confirmation, phone, phone_code: phoneCode, reason })
+		});
 	}
 
 	static async claimReferralCode(token: string, referralCode: string): Promise<unknown> {
@@ -266,8 +303,10 @@ class APIClient {
 		return this.request(`/users/search?${params.toString()}`);
 	}
 
-	static async getOrganizations(token: string): Promise<unknown[]> {
-		return this.request(`/organizations?token=${encodeURIComponent(token)}`);
+	static async getOrganizations(token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations?${params.toString()}`);
 	}
 
 	static async getOrganization(organizationId: string, token: string): Promise<unknown> {
@@ -281,25 +320,37 @@ class APIClient {
 		});
 	}
 
-	static async getOrganizationMembers(organizationId: string, token: string): Promise<unknown[]> {
-		return this.request(`/organizations/${organizationId}/members?token=${encodeURIComponent(token)}`);
+	static async getOrganizationMembers(organizationId: string, token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations/${organizationId}/members?${params.toString()}`);
 	}
 
-	static async saveOrganizationMember(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+	static async saveOrganizationMember(organizationId: string, token: string, payload: unknown, reauthPassword: string): Promise<unknown> {
 		return this.request(`/organizations/${organizationId}/members`, {
 			method: 'POST',
-			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, confirmation: '确认修改机构成员', reauth_password: reauthPassword })
 		});
 	}
 
-	static async removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown> {
-		return this.request(`/organizations/${organizationId}/members/${userId}?token=${encodeURIComponent(token)}`, {
-			method: 'DELETE'
+	static async removeOrganizationMember(organizationId: string, userId: string, token: string, reauthPassword: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/members/${userId}`, {
+			method: 'DELETE',
+			body: JSON.stringify({ token, confirmation: '确认移除机构成员', reauth_password: reauthPassword })
 		});
 	}
 
-	static async getOrganizationCampuses(organizationId: string, token: string): Promise<unknown[]> {
-		return this.request(`/organizations/${organizationId}/campuses?token=${encodeURIComponent(token)}`);
+	static async saveOrganizationRolePermissions(organizationId: string, roleId: string, token: string, payload: unknown, reauthPassword: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/role-permissions/${encodeURIComponent(roleId)}`, {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, confirmation: '确认修改角色权限', reauth_password: reauthPassword })
+		});
+	}
+
+	static async getOrganizationCampuses(organizationId: string, token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations/${organizationId}/campuses?${params.toString()}`);
 	}
 
 	static async saveOrganizationCampus(organizationId: string, token: string, payload: unknown): Promise<unknown> {
@@ -309,8 +360,10 @@ class APIClient {
 		});
 	}
 
-	static async getOrganizationLearningGroups(organizationId: string, token: string): Promise<unknown[]> {
-		return this.request(`/organizations/${organizationId}/learning-groups?token=${encodeURIComponent(token)}`);
+	static async getOrganizationLearningGroups(organizationId: string, token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations/${organizationId}/learning-groups?${params.toString()}`);
 	}
 
 	static async saveOrganizationLearningGroup(organizationId: string, token: string, payload: unknown): Promise<unknown> {
@@ -320,8 +373,10 @@ class APIClient {
 		});
 	}
 
-	static async getOrganizationCoursePackages(organizationId: string, token: string): Promise<unknown[]> {
-		return this.request(`/organizations/${organizationId}/course-packages?token=${encodeURIComponent(token)}`);
+	static async getOrganizationCoursePackages(organizationId: string, token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations/${organizationId}/course-packages?${params.toString()}`);
 	}
 
 	static async saveOrganizationCoursePackage(organizationId: string, token: string, payload: unknown): Promise<unknown> {
@@ -386,6 +441,17 @@ class APIClient {
 		});
 	}
 
+	static async getPaymentPricing(): Promise<unknown> {
+		return this.request('/payments/pricing');
+	}
+
+	static async updatePaymentPricing(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/admin/payments/pricing', {
+			method: 'PUT',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
 	static async getPaymentOrder(token: string, orderId: string): Promise<unknown> {
 		return this.request(`/payments/orders/${encodeURIComponent(orderId)}?token=${encodeURIComponent(token)}`);
 	}
@@ -401,6 +467,36 @@ class APIClient {
 			method: 'POST',
 			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
 		});
+	}
+
+	static async listAdminPaymentOrders(token: string, filters: Record<string, string | number> = {}): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		Object.entries(filters).forEach(([key, value]) => query.set(key, String(value)));
+		return this.request(`/admin/payments/orders?${query.toString()}`);
+	}
+
+	static async listAdminPaymentRefunds(token: string, filters: Record<string, string | number> = {}): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		Object.entries(filters).forEach(([key, value]) => query.set(key, String(value)));
+		return this.request(`/admin/payments/refunds?${query.toString()}`);
+	}
+
+	static async listAdminPaymentLedger(token: string, filters: Record<string, string | number> = {}): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		Object.entries(filters).forEach(([key, value]) => query.set(key, String(value)));
+		return this.request(`/admin/payments/ledger?${query.toString()}`);
+	}
+
+	static async getAdminPaymentReconciliation(token: string): Promise<unknown> {
+		return this.request(`/admin/payments/reconciliation?token=${encodeURIComponent(token)}`);
+	}
+
+	static async createOrganizationPaymentOrder(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/admin/payments/organization-orders', { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) });
+	}
+
+	static async updatePaymentRefundStatus(token: string, refundId: string, payload: unknown): Promise<unknown> {
+		return this.request(`/admin/payments/refunds/${encodeURIComponent(refundId)}/status`, { method: 'PATCH', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) });
 	}
 
 	static async getInstitutionDashboard(token: string, orgId?: string): Promise<unknown> {
@@ -423,8 +519,22 @@ class APIClient {
 		return this.request(`/institution/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/gradebook?token=${encodeURIComponent(token)}`);
 	}
 
+	static async updateInstitutionSchedule(token: string, organizationId: string, learningGroupId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/institution/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/schedule`, {
+			method: 'PATCH',
+			body: JSON.stringify({ ...payload, token })
+		});
+	}
+
 	static async getInstitutionStudentProfile(token: string, studentId: string): Promise<unknown> {
 		return this.request(`/institution/students/${encodeURIComponent(studentId)}?token=${encodeURIComponent(token)}`);
+	}
+
+	static async addInstitutionTeacherNote(token: string, studentId: string, text: string): Promise<unknown> {
+		return this.request(`/institution/students/${encodeURIComponent(studentId)}/teacher-notes`, {
+			method: 'POST',
+			body: JSON.stringify({ token, text })
+		});
 	}
 
 	static async createLessonPrep(token: string, payload: unknown): Promise<unknown> {
@@ -519,10 +629,10 @@ class APIClient {
 	}
 
 	// 清空错题本
-	static async resetWrongQuestions(userId: string): Promise<unknown> {
+	static async resetWrongQuestions(userId: string, confirmation: string): Promise<unknown> {
 		return this.request(`/wrong-questions/${encodeURIComponent(userId)}/reset`, {
 			method: 'POST',
-			body: '{}'
+			body: JSON.stringify({ confirmation })
 		});
 	}
 
@@ -639,6 +749,10 @@ class APIClient {
 		return this.request('/me/feature-flags');
 	}
 
+	static async getSystemFeatureFlags(): Promise<unknown> {
+		return this.request('/admin/feature-flags/system');
+	}
+
 	static async updateMyFeatureFlags(patch: Record<string, unknown>): Promise<unknown> {
 		return this.request('/me/feature-flags', {
 			method: 'PUT',
@@ -646,17 +760,17 @@ class APIClient {
 		});
 	}
 
-	static async updateSystemFeatureFlags(patch: Record<string, unknown>): Promise<unknown> {
+	static async updateSystemFeatureFlags(patch: Record<string, unknown>, reauthPassword: string): Promise<unknown> {
 		return this.request('/admin/feature-flags/system', {
 			method: 'PUT',
-			body: JSON.stringify(patch)
+			body: JSON.stringify({ ...patch, confirmation: '确认修改系统开关', reauth_password: reauthPassword })
 		});
 	}
 
-	static async updateOrgFeatureFlags(orgId: string, patch: Record<string, unknown>): Promise<unknown> {
+	static async updateOrgFeatureFlags(orgId: string, patch: Record<string, unknown>, reauthPassword: string): Promise<unknown> {
 		return this.request(`/admin/feature-flags/orgs/${encodeURIComponent(orgId)}`, {
 			method: 'PUT',
-			body: JSON.stringify(patch)
+			body: JSON.stringify({ ...patch, confirmation: '确认修改机构开关', reauth_password: reauthPassword })
 		});
 	}
 
@@ -671,10 +785,11 @@ class APIClient {
 		});
 	}
 
-	static async listFeedback(paperId?: string, status?: string): Promise<unknown> {
+	static async listFeedback(paperId?: string, status?: string, options: Record<string, string | number> = {}): Promise<unknown> {
 		const qs = new URLSearchParams();
 		if (paperId) qs.append('paper_id', paperId);
 		if (status) qs.append('status', status);
+		Object.entries(options).forEach(([key, value]) => qs.set(key, String(value)));
 		const suffix = qs.toString() ? `?${qs.toString()}` : '';
 		return this.request(`/feedback${suffix}`);
 	}
@@ -719,6 +834,13 @@ class APIClient {
 
 	static async getAssignmentSubmissions(assignmentId: string): Promise<unknown> {
 		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submissions`);
+	}
+
+	static async reviewAssignmentSubmission(assignmentId: string, studentId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submissions/${encodeURIComponent(studentId)}/review`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
 	}
 
 	static async remindAssignment(assignmentId: string, payload: Record<string, unknown>): Promise<unknown> {

@@ -15,8 +15,10 @@ void registerProfileRoutes(const AppContext &ctx)
         "/api/v1/profile/{1}",
         [ctx](const HttpRequestPtr &req,
               std::function<void(const HttpResponsePtr &)> &&callback,
-              std::string userId) {
+            std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId, "只能查看自己的个人资料");
                 return common::ok(req, ctx.profileService->getProfile(userId));
             });
         },
@@ -29,6 +31,8 @@ void registerProfileRoutes(const AppContext &ctx)
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId, "只能修改自己的个人资料");
                 return common::ok(req, ctx.profileService->updateProfile(userId, body));
             });
         },
@@ -43,6 +47,8 @@ void registerBookmarkRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 return common::ok(req, ctx.bookmarkService->getBookmarks(userId));
             });
         },
@@ -55,6 +61,8 @@ void registerBookmarkRoutes(const AppContext &ctx)
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
                 const auto examId = requireString(body, "exam_id");
                 return common::ok(req, ctx.bookmarkService->addExamBookmark(userId, examId));
             });
@@ -68,6 +76,8 @@ void registerBookmarkRoutes(const AppContext &ctx)
               std::string userId,
               std::string examId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 return common::ok(req, ctx.bookmarkService->removeExamBookmark(userId, examId));
             });
         },
@@ -80,6 +90,8 @@ void registerBookmarkRoutes(const AppContext &ctx)
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
                 auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
                 requireString(body, "exam_id");
                 requireString(body, "question_id");
                 if (!body.isMember("section_index") || !body["section_index"].isIntegral())
@@ -98,6 +110,8 @@ void registerBookmarkRoutes(const AppContext &ctx)
               std::string userId,
               std::string bookmarkId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 return common::ok(req, ctx.bookmarkService->removeQuestionBookmark(userId, bookmarkId));
             });
         },

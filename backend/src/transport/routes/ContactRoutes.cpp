@@ -56,6 +56,14 @@ void registerContactRoutes(const AppContext &ctx)
                     userId, phone, code, referralCode, changeChallengeChannel, changeChallengeCode);
                 if (!session.isNull())
                 {
+                    if (user.get("id", "").asString() != session.get("user_id", "").asString())
+                    {
+                        const auto token = ctx.authService->createSessionForUser(user);
+                        auto out = ctx.authService->verify(token);
+                        out["token"] = token;
+                        out["switched_user"] = true;
+                        return common::ok(req, out, "phone_verified");
+                    }
                     return common::ok(req,
                         ctx.userService->getUser(user.get("id", "").asString()),
                         "phone_verified");

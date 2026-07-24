@@ -1,5 +1,8 @@
 #include "FeatureFlagService.h"
 
+#include <utility>
+#include <vector>
+
 #include <drogon/HttpTypes.h>
 
 #include "common/AppException.h"
@@ -30,7 +33,7 @@ static const std::array<FeatureFlagDef, 24> kRegistry{{
     {"study_goal", "备考目标 / 倒计时", "设置考试日期与每日题量目标", true, true, true},
     {"sync_devices", "多端同步", "跨设备拉取个人数据快照，服务端为准", true, true, true},
     {"leaderboard", "排行榜", "周/月/总榜：连胜 + 答题量 + 正确率", false, true, true},
-    {"oauth_extra", "第三方 OAuth", "Google / Apple 登录（默认 mock 模式）", true, false, false},
+    {"oauth_extra", "第三方 OAuth", "Google 真实登录", true, false, false},
     {"vocab_notebook", "个人生词本", "题面/听力原文点词查词并加入个人词本", true, true, true},
     {"wrong_question_tags", "错题归因维度", "为错题打上词汇/语法/粗心等标签用于复盘", true, true, true},
     {"related_questions", "同考点串题", "基于 target_words 聚合同考点的历届真题", true, true, true},
@@ -191,11 +194,107 @@ Json::Value FeatureFlagService::resolveOne(const std::string &key, const std::st
 
 Json::Value FeatureFlagService::resolveAll(const std::string &userId) const
 {
+    // 批量解析时各层只读取一次。此前逐项调用 resolveOne 会为每个开关重复
+    // 解析 organizations.json / memberships.json，在机构数据增长后会拖慢整个登录流程。
+    const auto systemFlags = repo_.loadSystemFlags();
+    std::vector<std::pair<std::string, Json::Value>> organizationLayers;
+    Json::Value userFlags(Json::objectValue);
+    if (!userId.empty())
+    {
+        const auto organizations = orgRepo_.listOrganizationsForUser(userId);
+        if (organizations.isArray())
+        {
+            for (const auto &organization : organizations)
+            {
+                const auto orgId = organization.get("organization_id", organization.get("id", "")).asString();
+                if (!orgId.empty()) organizationLayers.emplace_back(orgId, repo_.loadOrgFlags(orgId));
+            }
+        }
+        userFlags = repo_.loadUserFlags(userId);
+    }
+
     Json::Value out(Json::objectValue);
     for (const auto &d : kRegistry)
     {
-        const std::string k(d.key);
-        out[k] = resolveOne(k, userId);
+        const std::string key(d.key);
+        bool enabled = d.defaultEnabled;
+        std::string source = "default";
+        bool locked = false;
+        std::string lockedBy;
+        std::string organizationId;
+
+        const auto system = readLayer(systemFlags, key);
+        if (system.has)
+        {
+            enabled = system.enabled;
+            source = "system";
+            if (system.lock)
+            {
+                locked = true;
+                lockedBy = "system";
+            }
+        }
+
+        if (!locked && d.allowOrgOverride)
+        {
+            for (const auto &[orgId, layer] : organizationLayers)
+            {
+                const auto organization = readLayer(layer, key);
+                if (!organization.has) continue;
+                enabled = organization.enabled;
+                source = "org";
+                organizationId = orgId;
+                if (organization.lock)
+                {
+                    locked = true;
+                    lockedBy = "org";
+                }
+                break;
+            }
+        }
+
+        if (!locked && d.allowUserOverride)
+        {
+            const auto user = readLayer(userFlags, key);
+            if (user.has)
+            {
+                enabled = user.enabled;
+                source = "user";
+            }
+        }
+
+        Json::Value resolved(Json::objectValue);
+        resolved["key"] = key;
+        resolved["enabled"] = enabled;
+        resolved["source"] = source;
+        resolved["locked"] = locked;
+        resolved["allow_org_override"] = d.allowOrgOverride;
+        resolved["allow_user_override"] = d.allowUserOverride;
+        if (!organizationId.empty()) resolved["organization_id"] = organizationId;
+        if (locked) resolved["locked_by"] = lockedBy;
+        out[key] = std::move(resolved);
+    }
+    return out;
+}
+
+Json::Value FeatureFlagService::systemSnapshot() const
+{
+    const auto systemFlags = repo_.loadSystemFlags();
+    Json::Value out(Json::objectValue);
+    for (const auto &def : kRegistry)
+    {
+        const std::string key(def.key);
+        const auto configured = readLayer(systemFlags, key);
+        Json::Value entry(Json::objectValue);
+        entry["key"] = key;
+        entry["name"] = std::string(def.nameZh);
+        entry["description"] = std::string(def.descZh);
+        entry["enabled"] = configured.has ? configured.enabled : def.defaultEnabled;
+        entry["source"] = configured.has ? "system" : "default";
+        entry["locked"] = configured.has && configured.lock;
+        entry["allow_org_override"] = def.allowOrgOverride;
+        entry["allow_user_override"] = def.allowUserOverride;
+        out[key] = entry;
     }
     return out;
 }

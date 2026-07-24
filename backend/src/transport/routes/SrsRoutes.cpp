@@ -26,11 +26,10 @@ void registerSrsRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
-                requireSession(*ctx.authService, req);
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "srs", userId);
-                int limit = 20;
-                const auto lim = req->getParameter("limit");
-                if (!lim.empty()) { try { limit = std::stoi(lim); } catch (...) {} }
+                const int limit = readBoundedIntParameter(req, "limit", 20, 1, 100);
                 return common::ok(req, ctx.srsService->listDue(userId, limit));
             });
         },
@@ -43,7 +42,8 @@ void registerSrsRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
-                requireSession(*ctx.authService, req);
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "srs", userId);
                 return common::ok(req, ctx.srsService->listAll(userId));
             });
@@ -58,14 +58,11 @@ void registerSrsRoutes(const AppContext &ctx)
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
-                requireSession(*ctx.authService, req, &body);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "srs", userId);
-                const auto cardId = body.get("card_id", "").asString();
-                const auto grade = body.get("grade", -1).asInt();
-                if (cardId.empty())
-                {
-                    throw common::AppException("VALIDATION_ERROR", "缺少 card_id", drogon::k422UnprocessableEntity);
-                }
+                const auto cardId = requireBoundedString(body, "card_id", 1, 200);
+                const auto grade = readBoundedIntField(body, "grade", -1, 0, 3);
                 return common::ok(req, ctx.srsService->review(userId, cardId, grade));
             });
         },
@@ -79,10 +76,11 @@ void registerSrsRoutes(const AppContext &ctx)
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
-                requireSession(*ctx.authService, req, &body);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "srs", userId);
-                const auto examId = body.get("exam_id", "").asString();
-                const auto qid = body.get("question_id", "").asString();
+                const auto examId = requireBoundedString(body, "exam_id", 1, 120);
+                const auto qid = requireBoundedString(body, "question_id", 1, 120);
                 const auto qtype = body.get("question_type", "").asString();
                 const auto snap = body.get("snapshot", Json::Value(Json::objectValue));
                 const bool created = ctx.srsService->ingestSingle(userId, examId, qid, qtype, snap);
@@ -102,7 +100,8 @@ void registerSrsRoutes(const AppContext &ctx)
               std::string userId,
               std::string cardId) {
             handleRequest(req, std::move(callback), [&]() {
-                requireSession(*ctx.authService, req);
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "srs", userId);
                 const bool removed = ctx.srsService->remove(userId, cardId);
                 Json::Value out(Json::objectValue);

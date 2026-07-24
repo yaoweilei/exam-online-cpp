@@ -28,6 +28,8 @@ class ProfileRepository
                               int credits,
                               const std::string &reason);
 
+    Json::Value recordStudySeconds(const std::string &userId, int deltaSeconds);
+
     // Called on every successful login: updates streak_days / last_active_at.
     void updateStreak(const std::string &userId);
 

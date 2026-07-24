@@ -9,13 +9,15 @@
 #include <json/json.h>
 
 #include "infrastructure/storage/AnswerRepository.h"
+#include "infrastructure/storage/ProfileRepository.h"
 
 namespace application::services
 {
 class StatisticsService
 {
   public:
-    explicit StatisticsService(infrastructure::storage::AnswerRepository &repository);
+    StatisticsService(infrastructure::storage::AnswerRepository &repository,
+                      infrastructure::storage::ProfileRepository &profileRepository);
 
     Json::Value userStatistics(const std::string &userId) const;
 
@@ -28,5 +30,6 @@ class StatisticsService
 
   private:
     infrastructure::storage::AnswerRepository &repository_;
+    infrastructure::storage::ProfileRepository &profileRepository_;
 };
 }  // namespace application::services

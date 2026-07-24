@@ -1,0 +1,14 @@
+{
+  "answered_count" : 1,
+  "answers" : 
+  {
+    "1:1" : 1
+  },
+  "exam_id" : "2023_02",
+  "last_question_index" : 1,
+  "last_section_index" : 1,
+  "started_at" : "2026-07-16T16:08:14.784Z",
+  "total_questions" : 1,
+  "updated_at" : "2026-07-16T16:08:14.784Z",
+  "user_id" : "usr_019f6baf-7829-7e6a-bea0-e82b88d809d0"
+}

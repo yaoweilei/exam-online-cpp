@@ -6,7 +6,7 @@
 //
 // 版本号变更后，新 SW 会清理旧缓存
 
-const CACHE_VERSION = 'v2-2026-06-19-login';
+const CACHE_VERSION = 'v2-2026-07-22-org-action-widths';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 const ALL_CACHES = [STATIC_CACHE, API_CACHE];
@@ -15,8 +15,8 @@ const ALL_CACHES = [STATIC_CACHE, API_CACHE];
 const PRECACHE_URLS = [
 	'/',
 	'/manifest.webmanifest',
-	'/static/style.css?v=20260619-login3',
-	'/static/app/main.js'
+	'/static/style.css?v=20260721-editor-v2',
+	'/static/app/main.js?v=20260721-editor-v2'
 ];
 
 self.addEventListener('install', (event) => {

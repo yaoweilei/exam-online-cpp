@@ -506,6 +506,104 @@ void OrganizationService::removeMember(const std::string &actorUserId, const std
     organizationRepository_.upsertOrganization(organization);
 }
 
+Json::Value OrganizationService::listOrganizationSummaries(const std::string &userId, bool includeAll,
+                                                            const std::string &query, int page, int pageSize) const
+{
+    const auto organizations = includeAll ? organizationRepository_.allOrganizationsArray()
+                                          : organizationRepository_.listOrganizationsForUser(userId);
+    const auto counts = organizationRepository_.memberCounts();
+    std::vector<Json::Value> matches;
+    std::string normalizedQuery = query;
+    std::transform(normalizedQuery.begin(), normalizedQuery.end(), normalizedQuery.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    for (const auto &organization : organizations)
+    {
+        const auto id = organization.get("organization_id", organization.get("scope_id", "")).asString();
+        const auto name = organization.get("name", "").asString();
+        std::string searchable = id + " " + name;
+        std::transform(searchable.begin(), searchable.end(), searchable.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        if (!normalizedQuery.empty() && searchable.find(normalizedQuery) == std::string::npos) continue;
+        Json::Value summary(Json::objectValue);
+        summary["organization_id"] = id;
+        summary["name"] = name;
+        summary["organization_type"] = organization.get("organization_type", "business").asString();
+        summary["status"] = organization.get("status", "active").asString();
+        summary["subscription"] = organization.get("subscription", Json::Value(Json::objectValue));
+        summary["member_count"] = counts.contains(id) ? counts.at(id) : 0;
+        matches.push_back(std::move(summary));
+    }
+    std::stable_sort(matches.begin(), matches.end(), [](const Json::Value &a, const Json::Value &b) {
+        return a.get("name", "").asString() < b.get("name", "").asString();
+    });
+    Json::Value out(Json::objectValue);
+    out["items"] = Json::arrayValue;
+    const int total = static_cast<int>(matches.size());
+    const int begin = (page - 1) * pageSize;
+    for (int i = begin; i < total && i < begin + pageSize; ++i) out["items"].append(matches[static_cast<std::size_t>(i)]);
+    out["total"] = total;
+    out["page"] = page;
+    out["page_size"] = pageSize;
+    out["pages"] = total == 0 ? 0 : (total + pageSize - 1) / pageSize;
+    return out;
+}
+
+Json::Value OrganizationService::updateRolePermissions(const std::string &actorUserId,
+                                                       const std::string &organizationId,
+                                                       const std::string &roleId,
+                                                       const Json::Value &payload)
+{
+    auto organization = requireOrganization(organizationId);
+    std::unordered_set<std::string> allowedRoles;
+    for (const auto &role : allowedRolePermissionRoles())
+    {
+        allowedRoles.insert(role.asString());
+    }
+    if (!allowedRoles.contains(roleId))
+    {
+        throw common::AppException("VALIDATION_ERROR", "Unsupported role for organization permissions", drogon::k422UnprocessableEntity);
+    }
+
+    const auto before = normalizeRolePermissions(organization.get("role_permissions", Json::Value(Json::objectValue)));
+    Json::Value next = before;
+    Json::Value config(Json::objectValue);
+    config["allow"] = normalizePermissionIdArray(payload.get("allow", Json::Value(Json::arrayValue)));
+    config["deny"] = normalizePermissionIdArray(payload.get("deny", Json::Value(Json::arrayValue)));
+
+    std::unordered_set<std::string> denySet;
+    for (const auto &permission : config["deny"])
+    {
+        denySet.insert(permission.asString());
+    }
+    Json::Value cleanAllow(Json::arrayValue);
+    for (const auto &permission : config["allow"])
+    {
+        if (!denySet.contains(permission.asString()))
+        {
+            cleanAllow.append(permission.asString());
+        }
+    }
+    config["allow"] = cleanAllow;
+    next[roleId] = config;
+
+    organization["role_permissions"] = normalizeRolePermissions(next);
+    organization = appendAuditEntry(
+        organization,
+        createAuditEntry(
+            actorUserId,
+            "role_permissions.updated",
+            "更新机构角色权限",
+            [&] {
+                Json::Value details(Json::objectValue);
+                details["role"] = roleId;
+                details["allow"] = config["allow"];
+                details["deny"] = config["deny"];
+                details["previous"] = before.get(roleId, Json::Value(Json::objectValue));
+                return details;
+            }()));
+    return enrichOrganization(organizationRepository_.upsertOrganization(organization));
+}
+
 Json::Value OrganizationService::updateSubscription(const std::string &actorUserId, const std::string &organizationId, const Json::Value &patch)
 {
     const auto before = subscriptionService_.subscriptionForOrganization(organizationId);
@@ -927,6 +1025,7 @@ Json::Value OrganizationService::enrichOrganization(Json::Value organization) co
     {
         organization["audit_logs"] = Json::arrayValue;
     }
+    organization["role_permissions"] = normalizeRolePermissions(organization.get("role_permissions", Json::Value(Json::objectValue)));
     return organization;
 }
 
@@ -1130,6 +1229,17 @@ Json::Value OrganizationService::allowedPermissionTemplates()
     return templates;
 }
 
+Json::Value OrganizationService::allowedRolePermissionRoles()
+{
+    Json::Value roles(Json::arrayValue);
+    roles.append("student");
+    roles.append("assistant");
+    roles.append("teacher");
+    roles.append("orgAdmin");
+    roles.append("contentAdmin");
+    return roles;
+}
+
 bool OrganizationService::hasRole(const Json::Value &roles, const std::string &expected)
 {
     for (const auto &role : roles)
@@ -1253,6 +1363,53 @@ Json::Value OrganizationService::normalizePermissionOverrides(const Json::Value 
     return overrides;
 }
 
+Json::Value OrganizationService::normalizePermissionIdArray(const Json::Value &inputPermissions)
+{
+    Json::Value permissions(Json::arrayValue);
+    if (!inputPermissions.isArray())
+    {
+        return permissions;
+    }
+    std::unordered_set<std::string> seen;
+    for (const auto &item : inputPermissions)
+    {
+        const auto permission = item.asString();
+        if (!isAllowedPermissionOverride(permission) || seen.contains(permission))
+        {
+            continue;
+        }
+        seen.insert(permission);
+        permissions.append(permission);
+    }
+    return permissions;
+}
+
+Json::Value OrganizationService::normalizeRolePermissions(const Json::Value &inputRolePermissions)
+{
+    Json::Value out(Json::objectValue);
+    if (!inputRolePermissions.isObject())
+    {
+        return out;
+    }
+    std::unordered_set<std::string> allowedRoles;
+    for (const auto &role : allowedRolePermissionRoles())
+    {
+        allowedRoles.insert(role.asString());
+    }
+    for (const auto &roleId : inputRolePermissions.getMemberNames())
+    {
+        if (!allowedRoles.contains(roleId) || !inputRolePermissions[roleId].isObject())
+        {
+            continue;
+        }
+        Json::Value config(Json::objectValue);
+        config["allow"] = normalizePermissionIdArray(inputRolePermissions[roleId].get("allow", Json::Value(Json::arrayValue)));
+        config["deny"] = normalizePermissionIdArray(inputRolePermissions[roleId].get("deny", Json::Value(Json::arrayValue)));
+        out[roleId] = config;
+    }
+    return out;
+}
+
 bool OrganizationService::isAllowedPermissionOverride(const std::string &permission)
 {
     static const std::unordered_set<std::string> allowed{
@@ -1275,7 +1432,10 @@ bool OrganizationService::isAllowedPermissionOverride(const std::string &permiss
         "organization.member.manage",
         "organization.billing.manage",
         "payment.refund",
-        "audit.view"};
+        "audit.view",
+        "content.paper.maintain",
+        "content.analysis.review",
+        "content.quality.check"};
     return allowed.contains(permission);
 }
 

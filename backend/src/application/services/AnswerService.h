@@ -20,16 +20,19 @@ class AnswerService
                                const Json::Value &answers,
                                const Json::Value &examData) const;
 
-    void save(const std::string &userId,
-              const std::string &examId,
-              const Json::Value &answers,
-              const Json::Value &statistics);
+    Json::Value save(const std::string &userId,
+                     const std::string &examId,
+                     const Json::Value &answers,
+                     const Json::Value &statistics,
+                     const std::string &submissionId = "");
 
     Json::Value load(const std::string &userId, const std::string &examId) const;
 
     Json::Value progress(const std::string &userId) const;
 
     Json::Value examProgress(const std::string &userId) const;
+
+    Json::Value attempts(const std::string &userId, const std::string &examId, int limit = 20) const;
 
   private:
     static std::string normalizeAnswer(const Json::Value &value);

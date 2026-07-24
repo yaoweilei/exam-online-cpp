@@ -113,7 +113,6 @@ Json::Value InstitutionService::dashboard(const std::string &userId, const Json:
         ? buildTeacherEffectiveness(learningGroups)
         : Json::Value(Json::arrayValue);
     out["class_average_trend"] = buildClassAverageTrend(learningGroups);
-    out["skill_weaknesses"] = buildSkillWeaknessSummary(studentIds);
     if (!featureEnabledForOrg(orgId, "teacher_effectiveness"))
     {
         out["locked_features"].append("teacher_effectiveness");
@@ -129,6 +128,8 @@ Json::Value InstitutionService::dashboard(const std::string &userId, const Json:
     int scoreCount = 0;
     Json::Value risks(Json::arrayValue);
     Json::Value ranking(Json::arrayValue);
+    struct SkillCounter { int total{0}; int wrong{0}; };
+    std::map<std::string, SkillCounter> skillAggregate;
 
     for (const auto &group : learningGroups)
     {
@@ -160,6 +161,14 @@ Json::Value InstitutionService::dashboard(const std::string &userId, const Json:
                 studentScore += score;
                 ++studentScoreCount;
             }
+            const auto results = answer["statistics"]["results"];
+            for (const auto &key : results.getMemberNames())
+            {
+                const auto row = results[key];
+                auto &counter = skillAggregate[classifyAnswerRow(answer, row, key)];
+                ++counter.total;
+                if (row.get("status", "").asString() == "wrong") ++counter.wrong;
+            }
         }
         Json::Value rank(Json::objectValue);
         rank["student"] = buildMemberView(studentId);
@@ -171,6 +180,15 @@ Json::Value InstitutionService::dashboard(const std::string &userId, const Json:
             risks.append(renewalRisk(studentId, answers));
         }
     }
+    Json::Value skillWeaknesses(Json::arrayValue);
+    for (const auto &[skill, counter] : skillAggregate)
+    {
+        Json::Value row(Json::objectValue); row["skill"] = skill; row["total_questions"] = counter.total;
+        row["wrong_count"] = counter.wrong;
+        row["error_rate"] = counter.total > 0 ? std::round(static_cast<double>(counter.wrong) * 10000.0 / counter.total) / 100.0 : 0.0;
+        skillWeaknesses.append(row);
+    }
+    out["skill_weaknesses"] = skillWeaknesses;
     if (!featureEnabledForOrg(orgId, "renewal_risk"))
     {
         out["locked_features"].append("renewal_risk");
@@ -542,7 +560,7 @@ void InstitutionService::requireInstitutionFeature(const std::string &orgId,
 
 Json::Value InstitutionService::visibleLearningGroups(const std::string &userId, const Json::Value &roles, const std::string &orgId) const
 {
-    const auto organizations = canManageInstitution(roles)
+    const auto organizations = stringArrayContains(roles, "superAdmin")
                                    ? organizationRepository_.allOrganizationsArray()
                                    : organizationRepository_.listOrganizationsForUser(userId);
     Json::Value out(Json::arrayValue);
@@ -570,7 +588,7 @@ Json::Value InstitutionService::visibleLearningGroups(const std::string &userId,
 
 Json::Value InstitutionService::visibleOrganizations(const std::string &userId, const Json::Value &roles, const std::string &orgId) const
 {
-    const auto organizations = canManageInstitution(roles)
+    const auto organizations = stringArrayContains(roles, "superAdmin")
                                    ? organizationRepository_.allOrganizationsArray()
                                    : organizationRepository_.listOrganizationsForUser(userId);
     Json::Value out(Json::arrayValue);
@@ -609,7 +627,8 @@ Json::Value InstitutionService::buildAssignmentProgress(const Json::Value &learn
     Json::Value out = assignment;
     const auto examId = assignment.get("exam_id", "").asString();
     int studentCount = 0;
-    int submitted = 0;
+	int submitted = 0;
+	int pendingReview = 0;
     double scoreSum = 0.0;
     int scoreCount = 0;
     Json::Value rows(Json::arrayValue);
@@ -629,11 +648,14 @@ Json::Value InstitutionService::buildAssignmentProgress(const Json::Value &learn
         row["student"] = buildMemberView(studentId);
         row["submitted"] = submission.isObject() && submission.isMember("submitted_at");
         row["saved_at"] = submission.get("submitted_at", answerSavedAt(answer)).asString();
-        row["score"] = readScorePercent(answer);
-        row["attempt_no"] = submission.get("attempt_no", 0).asInt();
-        if (row["submitted"].asBool())
-        {
-            ++submitted;
+		row["score"] = submission.isMember("manual_score") ? submission["manual_score"].asDouble() : readScorePercent(answer);
+		row["attempt_no"] = submission.get("attempt_no", 0).asInt();
+		row["review_status"] = submission.get("review_status", submission.get("status", "")).asString();
+		row["teacher_comment"] = submission.get("teacher_comment", "").asString();
+		if (row["submitted"].asBool())
+		{
+			++submitted;
+			if (row["review_status"].asString().empty() || row["review_status"].asString() == "submitted") ++pendingReview;
         }
         if (row["score"].asDouble() >= 0)
         {
@@ -643,7 +665,8 @@ Json::Value InstitutionService::buildAssignmentProgress(const Json::Value &learn
         rows.append(row);
     }
     out["student_count"] = studentCount;
-    out["submitted_count"] = submitted;
+	out["submitted_count"] = submitted;
+	out["pending_review_count"] = pendingReview;
     out["missing_count"] = studentCount - submitted;
     out["completion_rate"] = studentCount == 0 ? 0.0 : static_cast<double>(submitted) / studentCount;
     out["average_score"] = scoreCount == 0 ? -1.0 : scoreSum / scoreCount;

@@ -1,5 +1,5 @@
 {
-  "count" : 186,
+  "count" : 187,
   "items" : 
   [
     {
@@ -784,6 +784,35 @@
       "subject" : "japanese",
       "title" : "EJU-Japanese-2023_02",
       "year" : "2023"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : true
+      },
+      "checked" : false,
+      "display" : "2024_01",
+      "family" : "eju",
+      "id" : "2024_01",
+      "level" : "",
+      "paper_type" : "complete",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\2024_01.json",
+      "questionCount" : 53,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU-Japanese-2024_01",
+      "year" : "2024"
     },
     {
       "access_level" : "free",
@@ -6680,5 +6709,5 @@
       "year" : "2025"
     }
   ],
-  "updated_at" : "2026-06-19T07:02:04.732Z"
+  "updated_at" : "2026-07-23T00:03:20.519Z"
 }

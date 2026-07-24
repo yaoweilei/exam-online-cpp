@@ -63,6 +63,83 @@ const std::string &reason)
     return true;
 }
 
+Json::Value ProfileRepository::recordStudySeconds(const std::string &userId, int deltaSeconds)
+{
+    if (deltaSeconds <= 0)
+    {
+        deltaSeconds = 0;
+    }
+    if (deltaSeconds > 120)
+    {
+        deltaSeconds = 120;
+    }
+
+    constexpr int kPomodoroSeconds = 25 * 60;
+    constexpr int kDailyXpCap = 2;
+    const auto now = common::nowIso8601();
+    const auto todayDate = now.substr(0, 10);
+
+    std::unique_lock lock(mutex_);
+    const auto path = profileDir_ / (userId + ".json");
+    auto profile = std::filesystem::exists(path) ? normalizeProfile(userId, readJsonFile(path)) : defaultProfile(userId);
+
+    if (!profile.isMember("study_stats") || !profile["study_stats"].isObject())
+    {
+        profile["study_stats"] = Json::Value(Json::objectValue);
+    }
+    auto &study = profile["study_stats"];
+    if (study.get("date", "").asString() != todayDate)
+    {
+        study["date"] = todayDate;
+        study["today_seconds"] = 0;
+        study["today_xp_awarded"] = 0;
+    }
+
+    const int previousTodaySeconds = study.get("today_seconds", 0).asInt();
+    const int todaySeconds = previousTodaySeconds + deltaSeconds;
+    int todayXpAwarded = study.get("today_xp_awarded", 0).asInt();
+    if (todayXpAwarded < 0)
+    {
+        todayXpAwarded = 0;
+    }
+    if (todayXpAwarded > kDailyXpCap)
+    {
+        todayXpAwarded = kDailyXpCap;
+    }
+
+    const int eligibleXp = (std::min)(kDailyXpCap, todaySeconds / kPomodoroSeconds);
+    const int awardedNow = (std::max)(0, eligibleXp - todayXpAwarded);
+    if (awardedNow > 0)
+    {
+        profile["xp"] = profile.get("xp", 0).asInt() + awardedNow;
+        todayXpAwarded += awardedNow;
+        profile["last_xp_reason"] = "study.pomodoro";
+        profile["xp_updated_at"] = now;
+    }
+
+    study["today_seconds"] = todaySeconds;
+    study["today_minutes"] = todaySeconds / 60;
+    study["today_xp_awarded"] = todayXpAwarded;
+    study["pomodoro_seconds"] = kPomodoroSeconds;
+    study["daily_xp_cap"] = kDailyXpCap;
+    study["updated_at"] = now;
+    study["awarded_now"] = awardedNow;
+
+    profile["last_active_at"] = now;
+    writeJsonFileAtomic(path, profile);
+
+    Json::Value out(Json::objectValue);
+    out["date"] = todayDate;
+    out["today_seconds"] = todaySeconds;
+    out["today_minutes"] = todaySeconds / 60;
+    out["today_xp_awarded"] = todayXpAwarded;
+    out["awarded_now"] = awardedNow;
+    out["xp"] = profile.get("xp", 0).asInt();
+    out["pomodoro_seconds"] = kPomodoroSeconds;
+    out["daily_xp_cap"] = kDailyXpCap;
+    return out;
+}
+
 void ProfileRepository::updateStreak(const std::string &userId)
 {
     const auto now = common::nowIso8601();

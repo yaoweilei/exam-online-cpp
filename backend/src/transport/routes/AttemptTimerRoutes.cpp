@@ -28,6 +28,8 @@ void registerAttemptTimerRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "exam_timer", userId);
                 return common::ok(req, ctx.attemptTimerService->get(userId));
             });
@@ -41,8 +43,10 @@ void registerAttemptTimerRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
-                requireFeature(*ctx.featureFlagService, "exam_timer", userId);
                 const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
+                requireFeature(*ctx.featureFlagService, "exam_timer", userId);
                 requireString(body, "exam_id");
                 return common::ok(req, ctx.attemptTimerService->start(userId, body));
             });
@@ -56,8 +60,10 @@ void registerAttemptTimerRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
-                requireFeature(*ctx.featureFlagService, "exam_timer", userId);
                 const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
+                requireFeature(*ctx.featureFlagService, "exam_timer", userId);
                 requireString(body, "exam_id");
                 return common::ok(req, ctx.attemptTimerService->tick(userId, body));
             });
@@ -71,6 +77,8 @@ void registerAttemptTimerRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "exam_timer", userId);
                 Json::Value out(Json::objectValue);
                 out["cleared"] = ctx.attemptTimerService->clear(userId);

@@ -39,14 +39,28 @@ export function buildApiUrl(path: string, baseUrl: string = '/api/v1'): string {
 
 export async function requestApi<T>(path: string, options: RequestInit = {}, baseUrl: string = '/api/v1'): Promise<T> {
 	const token = readStoredToken();
-	const response = await fetch(buildApiUrl(path, baseUrl), {
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...(token ? { Authorization: `Bearer ${token}` } : {}),
-			...(options.headers ?? {})
-		}
-	});
+	const controller = new AbortController();
+	const timeout = window.setTimeout(() => controller.abort(new DOMException('请求超时', 'TimeoutError')), 30000);
+	const forwardAbort = () => controller.abort(options.signal?.reason);
+	options.signal?.addEventListener('abort', forwardAbort, { once: true });
+	let response: Response;
+	try {
+		response = await fetch(buildApiUrl(path, baseUrl), {
+			...options,
+			signal: controller.signal,
+			headers: {
+				'Content-Type': 'application/json',
+				...(token ? { Authorization: `Bearer ${token}` } : {}),
+				...(options.headers ?? {})
+			}
+		});
+	} catch (error) {
+		if (controller.signal.aborted && !options.signal?.aborted) throw new Error('请求超时，请稍后重试');
+		throw error;
+	} finally {
+		window.clearTimeout(timeout);
+		options.signal?.removeEventListener('abort', forwardAbort);
+	}
 
 	const payload: unknown = await response.json().catch(() => ({}));
 	const isEnvelope =

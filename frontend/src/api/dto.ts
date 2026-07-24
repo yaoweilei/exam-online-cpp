@@ -300,6 +300,12 @@ export interface UserView {
 	email_verified: boolean;
 	phone: string;
 	phone_verified: boolean;
+	has_password?: boolean;
+	hasPassword?: boolean;
+	wechat_bound?: boolean;
+	wechatBound?: boolean;
+	wechat_nickname?: string;
+	wechat_bound_at?: string;
 	status: string;
 	created_at: string;
 	roles: RoleId[];

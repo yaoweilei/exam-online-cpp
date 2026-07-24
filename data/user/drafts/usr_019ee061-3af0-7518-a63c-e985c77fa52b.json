@@ -1,0 +1,17 @@
+{
+  "answered_count" : 1,
+  "answers" : 
+  {
+    "0:1" : 4
+  },
+  "attempt_id" : "attempt-c59af428-6c34-4fb7-ae90-7a3a3d55c24f",
+  "attempt_status" : "draft",
+  "exam_id" : "N1_2025_07",
+  "last_question_index" : 0,
+  "last_section_index" : 0,
+  "revision" : 1,
+  "started_at" : "2026-07-21T14:43:26.224Z",
+  "total_questions" : 1,
+  "updated_at" : "2026-07-21T14:43:26.224Z",
+  "user_id" : "usr_019ee061-3af0-7518-a63c-e985c77fa52b"
+}

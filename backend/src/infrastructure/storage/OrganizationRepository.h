@@ -4,11 +4,13 @@
 #include <mutex>
 #include <shared_mutex>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 
 #include <json/json.h>
 
 #include "JsonIo.h"
+#include "SqliteJsonStore.h"
 #include "common/AppException.h"
 #include "common/IdGenerator.h"
 #include "common/TimeUtils.h"
@@ -41,12 +43,16 @@ class OrganizationRepository
 
     int memberCount(const std::string &scopeId) const;
 
+    std::unordered_map<std::string, int> memberCounts() const;
+
   private:
     void ensureBaseline();
 
     Json::Value readOrganizationsUnlocked() const;
 
     Json::Value readMembershipsUnlocked() const;
+    void writeOrganizationsUnlocked(const Json::Value &organizations);
+    void writeMembershipsUnlocked(const Json::Value &memberships);
 
     static std::string membershipStorageKey(const std::string &userId, const std::string &scopeId);
 
@@ -61,5 +67,10 @@ class OrganizationRepository
     std::filesystem::path organizationsFile_;
     std::filesystem::path membershipsFile_;
     mutable std::shared_mutex mutex_;
+    SqliteJsonStore sqliteStore_;
+    mutable Json::Value organizationsCache_{Json::objectValue};
+    mutable Json::Value membershipsCache_{Json::objectValue};
+    mutable bool organizationsCacheLoaded_{false};
+    mutable bool membershipsCacheLoaded_{false};
 };
 }  // namespace infrastructure::storage

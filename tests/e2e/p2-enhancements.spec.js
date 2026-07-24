@@ -3,7 +3,7 @@ const { loginApi, loginWithPassword, openPersonalCenter, stubNoisyPersonalCenter
 
 async function enableSystemFlags(request, token, flags) {
   const response = await request.put('/api/v1/admin/feature-flags/system', {
-    data: { token, ...flags }
+    data: { token, confirmation: '确认修改系统开关', reauth_password: '', ...flags }
   });
   expect(response.ok()).toBeTruthy();
   const payload = await response.json();
@@ -113,41 +113,42 @@ test('P2 增强功能：PWA、备课、运营后台、社区可以走通', async
   await stubNoisyPersonalCenterApis(page);
   await loginWithPassword(page, superLogin);
   await openPersonalCenter(page);
-  await page.locator('button.service-item', { hasText: '运营仪表盘' }).click();
-  const adminModal = page.locator('#admin-dashboard-modal');
-  await expect(adminModal).toBeVisible({ timeout: 20000 });
-  await expect(adminModal).toContainText('用户总数', { timeout: 20000 });
+  const workbenchCard = page.locator('.pc-role-workbench-card');
+  await workbenchCard.locator('.pc-workbench-action[title="全站统计"]').click();
+  await expect(page.locator('.pc-subpage')).toContainText('用户总数', { timeout: 20000 });
+  await page.locator('[data-dashboard-back]').click();
 
-  await adminModal.locator('#ad-user-query').fill(superLogin);
-  await adminModal.locator('#ad-user-search').click();
-  await expect(adminModal.locator('#ad-user-results')).toContainText(superLogin, { timeout: 20000 });
+  await workbenchCard.locator('.pc-workbench-action[title="用户搜索"]').click();
+  await page.locator('[data-platform-user-search-input]').fill(superLogin);
+  await page.locator('[data-platform-user-search-form] button[type="submit"]').click();
+  await expect(page.locator('.pc-subpage')).toContainText(superLogin, { timeout: 20000 });
+  await page.locator('[data-dashboard-back]').click();
 
-  await adminModal.locator('#ad-role-load').click();
-  await expect(adminModal.locator('#ad-role-results')).toContainText(/人|暂无用户/, { timeout: 20000 });
+  await workbenchCard.locator('.pc-workbench-action[title="功能开关"]').click();
+  await expect(page.locator('[data-platform-system-flag-row="community"]')).toContainText('社区讨论', { timeout: 20000 });
+  await page.locator('[data-dashboard-back]').click();
 
-  await adminModal.locator('#ad-flags-load').click();
-  await expect(adminModal.locator('#ad-flags-results')).toContainText('社区讨论', { timeout: 20000 });
-
-  await adminModal.locator('#ad-feedback-load').click();
-  await expect(adminModal.locator('#ad-feedback-results')).toContainText('P2 e2e feedback', { timeout: 20000 });
-
-  await page.locator('#ad-close').click();
-  await expect(adminModal).toBeHidden();
+  await workbenchCard.locator('.pc-workbench-action[title="反馈处理"]').click();
+  await expect(page.locator('.pc-subpage')).toContainText('P2 e2e feedback', { timeout: 20000 });
 
   await loginWithPassword(page, studentLogin);
   await page.evaluate(() => window.openCommunityPanel && window.openCommunityPanel('2023_02'));
   const community = page.locator('#community-modal');
   await expect(community).toBeVisible({ timeout: 20000 });
-  let dialogIndex = 0;
-  page.on('dialog', async (dialog) => {
-    expect(dialog.type()).toBe('prompt');
-    dialogIndex += 1;
-    await dialog.accept(dialogIndex === 1 ? 'P2 社区帖子' : '这是一条 P2 自动化社区内容。');
-  });
   await community.locator('#cm-new').click();
+  let inputDialog = page.locator('.pc-confirm-dialog');
+  await expect(inputDialog).toBeVisible();
+  await inputDialog.locator('[data-pc-input]').fill('P2 社区帖子');
+  await inputDialog.locator('[data-pc-input-ok]').click();
+  inputDialog = page.locator('.pc-confirm-dialog');
+  await expect(inputDialog).toBeVisible();
+  await inputDialog.locator('[data-pc-input]').fill('这是一条 P2 自动化社区内容。');
+  await inputDialog.locator('[data-pc-input-ok]').click();
   await expect(community.locator('#cm-body')).toContainText('P2 社区帖子', { timeout: 20000 });
-  await community.locator('[data-cm-action="like"]').first().click();
-  await expect(community.locator('[data-cm-action="like"]').first()).toContainText('1', { timeout: 20000 });
+  const likeButton = community.locator('[data-cm-action="like"]').first();
+  const likedPostId = await likeButton.getAttribute('data-pid');
+  await likeButton.click();
+  await expect(community.locator(`[data-cm-action="like"][data-pid="${likedPostId}"]`)).toContainText('1', { timeout: 20000 });
   await community.locator('[data-cm-comment-input]').first().fill('P2 评论');
   await community.locator('[data-cm-action="comment"]').first().click();
   await expect(community.locator('#cm-body')).toContainText('P2 评论', { timeout: 20000 });

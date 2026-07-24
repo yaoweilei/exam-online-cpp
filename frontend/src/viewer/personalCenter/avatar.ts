@@ -2,126 +2,427 @@
  *  Copyright (c) 2025 Yaoweilei. All rights reserved.
  *--------------------------------------------------------------------------------------------*/
 
-import type { AvatarPreset, AvatarSeed } from './types.js';
-import { svgToDataUri } from './utils.js';
+import { createAvatar } from '@dicebear/core';
+import * as adventurer from '@dicebear/adventurer';
+import * as adventurerNeutral from '@dicebear/adventurer-neutral';
+import * as avataaars from '@dicebear/avataaars';
+import * as avataaarsNeutral from '@dicebear/avataaars-neutral';
+import * as bigEars from '@dicebear/big-ears';
+import * as bigEarsNeutral from '@dicebear/big-ears-neutral';
+import * as bigSmile from '@dicebear/big-smile';
+import * as bottts from '@dicebear/bottts';
+import * as botttsNeutral from '@dicebear/bottts-neutral';
+import * as croodles from '@dicebear/croodles';
+import * as croodlesNeutral from '@dicebear/croodles-neutral';
+import * as dylan from '@dicebear/dylan';
+import * as funEmoji from '@dicebear/fun-emoji';
+import * as lorelei from '@dicebear/lorelei';
+import * as loreleiNeutral from '@dicebear/lorelei-neutral';
+import * as micah from '@dicebear/micah';
+import * as miniavs from '@dicebear/miniavs';
+import * as notionists from '@dicebear/notionists';
+import * as notionistsNeutral from '@dicebear/notionists-neutral';
+import * as openPeeps from '@dicebear/open-peeps';
+import * as personas from '@dicebear/personas';
+import * as pixelArt from '@dicebear/pixel-art';
+import * as thumbs from '@dicebear/thumbs';
+import * as toonHead from '@dicebear/toon-head';
+import type { AvatarPreset } from './types.js';
 
-export function renderAccessory(kind: AvatarSeed['accessory'], accent: string, line: string): string {
-	const bubble = (inner: string) =>
-		`<g transform="translate(62 58)">
-			<circle cx="10" cy="10" r="9.8" fill="#fff"/>
-			<circle cx="10" cy="10" r="8.7" fill="none" stroke="${accent}" stroke-width="1.7"/>
-			${inner}
-		</g>`;
+/* ------------------------------------------------------------------ */
+/*  Types                                                             */
+/* ------------------------------------------------------------------ */
 
-	switch (kind) {
-		case 'glasses':
-			return `<g fill="none" stroke="${line}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-				<circle cx="40.5" cy="46" r="4.3"/>
-				<circle cx="55.5" cy="46" r="4.3"/>
-				<path d="M44.8 46h6.4"/>
-			</g>`;
-		case 'badge':
-			return bubble(`<circle cx="10" cy="8.2" r="2.6" fill="none" stroke="${accent}" stroke-width="1.5"/><path d="M7.5 13 9.2 10.5 10 12.5 10.8 10.5 12.5 13" fill="none" stroke="${accent}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`);
-		case 'star':
-			return bubble(`<path d="M10 4.1 11.9 7.8 16 8.3 13 11 13.9 15.1 10 13 6.1 15.1 7 11 4 8.3 8.1 7.8Z" fill="${accent}"/>`);
-		case 'book':
-			return bubble(`<g fill="none" stroke="${accent}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 6.4h4.9a2 2 0 0 1 2 2v5H7.5a2.1 2.1 0 0 0-2.3 2.1Z"/><path d="M14.8 6.4H10a2 2 0 0 0-2 2v7.1a2.1 2.1 0 0 1 2.3-2.1h4.5Z"/></g>`);
-		case 'bolt':
-			return bubble(`<path d="M11.2 3.9 7.2 9.6h3.2l-1.7 6.1 5.6-7.3h-3.1Z" fill="${accent}"/>`);
-		case 'leaf':
-			return bubble(`<g fill="none" stroke="${accent}" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"><path d="M14.9 5.4c-5.3 0-8.5 3.5-8.5 8.1 0 1 .2 1.9.5 2.7 5.2-.2 9.2-4.1 9.5-9.2-.4-.1-1-.2-1.5-.2Z"/><path d="M7.1 15.5c2-2 4.5-4 7.2-5.6"/></g>`);
-		case 'ribbon':
-			return `<g fill="none" stroke="${accent}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M34.5 24.5c1.8 0 3.1 1.1 3.1 2.8 0 1.5-.8 2.8-2.9 4.3"/><path d="M61.5 24.5c-1.8 0-3.1 1.1-3.1 2.8 0 1.5.8 2.8 2.9 4.3"/></g>`;
-		case 'none':
-		default:
-			return '';
+export interface StyleInfo {
+	key: string;
+	displayName: string;
+	style: Record<string, unknown>;
+	thumbnail: string;
+}
+
+export interface ControlDef {
+	key: string;
+	label: string;
+	type: 'select' | 'toggle' | 'color';
+	options?: string[];
+	defaultValue?: string | boolean | null;
+	parentKey?: string; // for toggles, the component they control
+}
+
+export interface TabDef {
+	id: string;
+	label: string;
+	controls: ControlDef[];
+}
+
+export interface EditorState {
+	styleKey: string;
+	seed: string;
+	options: Record<string, string | boolean | null>;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Style registry                                                    */
+/* ------------------------------------------------------------------ */
+
+const ALL_STYLES: Record<string, Record<string, unknown>> = {
+	adventurer, adventurerNeutral, avataaars, avataaarsNeutral,
+	bigEars, bigEarsNeutral, bigSmile, bottts, botttsNeutral,
+	croodles, croodlesNeutral, dylan, funEmoji,
+	lorelei, loreleiNeutral, micah, miniavs,
+	notionists, notionistsNeutral, openPeeps, personas, pixelArt,
+	thumbs, toonHead,
+};
+
+const STYLE_DISPLAY_NAMES: Record<string, string> = {
+	adventurer: 'Adventurer', adventurerNeutral: 'Adventurer N',
+	avataaars: 'Avataaars', avataaarsNeutral: 'Avataaars N',
+	bigEars: 'Big Ears', bigEarsNeutral: 'Big Ears N',
+	bigSmile: 'Big Smile', bottts: 'Bottts', botttsNeutral: 'Bottts N',
+	croodles: 'Croodles', croodlesNeutral: 'Croodles N',
+	dylan: 'Dylan', funEmoji: 'Fun Emoji',
+	lorelei: 'Lorelei', loreleiNeutral: 'Lorelei N',
+	micah: 'Micah', miniavs: 'Mini Avs',
+	notionists: 'Notionists', notionistsNeutral: 'Notionists N',
+	openPeeps: 'Open Peeps', personas: 'Personas',
+	pixelArt: 'Pixel Art',
+	thumbs: 'Thumbs', toonHead: 'Toon Head',
+};
+
+let styleRegistry: StyleInfo[] | null = null;
+
+export function buildStyleRegistry(): StyleInfo[] {
+	if (styleRegistry) return styleRegistry;
+	styleRegistry = Object.keys(ALL_STYLES).map((key) => {
+		const style = ALL_STYLES[key];
+		return {
+			key,
+			displayName: STYLE_DISPLAY_NAMES[key] || key,
+			style,
+			thumbnail: createAvatar(style as any, { seed: 'preview' }).toDataUri(),
+		};
+	});
+	return styleRegistry;
+}
+
+export function getStyleByKey(key: string): Record<string, unknown> | undefined {
+	return ALL_STYLES[key];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Schema parsing → TabDef[]                                         */
+/* ------------------------------------------------------------------ */
+
+const FACE_KEYS = new Set(['hair', 'eyes', 'mouth', 'nose', 'head', 'base', 'eyebrows', 'eye', 'eyebrow']);
+const ACC_KEYS = new Set(['glasses', 'beard', 'earrings', 'freckles', 'accessories', 'features', 'hairAccessories']);
+
+export function parseStyleSchema(style: Record<string, unknown>): TabDef[] {
+	const schema = (style as any)?.schema;
+	if (!schema?.properties) {
+		return [{ id: 'basic', label: '基础', controls: [] }];
 	}
-}
 
-export function renderHair(kind: AvatarSeed['hairStyle'], color: string): string {
-	switch (kind) {
-		case 'part':
-			return `<path d="M30.4 39c.7-11.7 8.5-20 18.2-20 8.2 0 15.9 5.9 18.5 16.3-5.7-3.3-11.4-4.6-16.6-4.6l-3.3 4.4-1.7-4.4c-4.6.5-9.2 3-15.1 8.3Z" fill="${color}"/>`;
-		case 'bob':
-			return `<path d="M28.8 36.8c1-11.3 8.8-19.2 19.2-19.2 10.9 0 19.1 8.1 19.6 19.5-1 4.8-3.1 8-6 10-2.8-5.6-7.4-8.2-13.5-8.2-6.2 0-10.9 2.7-13.9 8.3-3.7-2.3-5.1-5.8-5.4-10.4Z" fill="${color}"/>`;
-		case 'buzz':
-			return `<path d="M31.6 38c2.9-9.7 10.4-15.3 17.5-15.3 9.1 0 16 5.9 18.1 15.6-6.1-2.5-12.1-3.7-18-3.7-5.9 0-11.9 1.2-17.6 3.4Z" fill="${color}"/>`;
-		case 'wave':
-			return `<path d="M27.8 39c1.3-11.7 9.7-20.1 20.3-20.1 9.1 0 16.9 6.2 19.8 16.5-4.4-3-7.7-4.4-10.9-4.4-4.1 0-7.4 1.5-10.1 4.3-2.7-1.7-5.1-2.4-7.6-2.4-3.8 0-7.2 1.8-11.5 6.1Z" fill="${color}"/>`;
-		case 'cap':
-			return `<path d="M28.2 37.2c3.7-9.8 11.5-15.7 21.3-15.7 8.2 0 15.3 3.9 20 10.1L29 37.8Z" fill="${color}"/><path d="M28.8 37.8h41.6c-2 4.7-6.7 7.2-13.8 7.2H40.1c-5.8 0-9.6-2.3-11.3-7.2Z" fill="${color}" opacity="0.95"/>`;
-		case 'short':
-		default:
-			return `<path d="M30.2 39c.6-11.1 8.4-19.4 18.5-19.4 10.7 0 18.4 7.9 19 19.2-4.8-4.9-10.8-7-18.6-7-7.1 0-13.3 2.2-18.9 7.2Z" fill="${color}"/>`;
+	const props = schema.properties as Record<string, any>;
+	const faceControls: ControlDef[] = [];
+	const colorControls: ControlDef[] = [];
+	const accControls: ControlDef[] = [];
+	const handled = new Set<string>();
+
+	// First pass: find all probability toggles and their parent keys
+	const probs: Record<string, string> = {};
+	for (const key of Object.keys(props)) {
+		const m = key.match(/^(.*)Probability$/);
+		if (m) probs[m[1]] = key;
 	}
+
+	for (const [key, prop] of Object.entries(props)) {
+		if (handled.has(key)) continue;
+
+		// Color properties
+		if (key.endsWith('Color') || key.endsWith('colour')) {
+			const items = prop.items || {};
+			if (items.pattern?.includes('hex') || items.pattern?.includes('[a-fA-F0-9]')) {
+				const parent = key.replace(/Color$/i, '').replace(/colour$/i, '');
+				colorControls.push({
+					key,
+					label: labelForKey(key, parent),
+					type: 'color',
+					defaultValue: (prop.default?.[0] || '000000'),
+				});
+				handled.add(key);
+				continue;
+			}
+		}
+
+		// Probability → toggle
+		if (key.endsWith('Probability')) {
+			const parent = key.replace(/Probability$/, '');
+			handled.add(key);
+			if (props[parent]) {
+				accControls.push({
+					key,
+					label: labelForKey(key, parent),
+					type: 'toggle',
+					defaultValue: false,
+					parentKey: parent,
+				});
+			}
+			continue;
+		}
+
+		// Array with enum → select
+		if (prop.type === 'array' && prop.items?.enum) {
+			const parent = key;
+			const tab = assignTab(key, FACE_KEYS, ACC_KEYS);
+			const target = tab === 'acc' ? accControls : faceControls;
+			// If there's a linked probability toggle, skip the array — toggle handles it
+			if (probs[key]) {
+				// The toggle will control it
+				continue;
+			}
+			target.push({
+				key,
+				label: labelForKey(key, ''),
+				type: 'select',
+				options: prop.items.enum,
+				defaultValue: null, // null = random
+			});
+			handled.add(key);
+			continue;
+		}
+	}
+
+	const tabs: TabDef[] = [];
+	if (faceControls.length > 0) tabs.push({ id: 'face', label: '面部', controls: faceControls });
+	if (colorControls.length > 0) tabs.push({ id: 'colors', label: '颜色', controls: colorControls });
+	if (accControls.length > 0) tabs.push({ id: 'acc', label: '配饰', controls: accControls });
+	return tabs;
 }
 
-export function buildAvatarSvg(seed: AvatarSeed): string {
-	const gradientId = `bg-${seed.id}`.replace(/[^a-zA-Z0-9_-]/g, '');
-	const shirtId = `shirt-${seed.id}`.replace(/[^a-zA-Z0-9_-]/g, '');
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="${seed.label}">
-		<defs>
-			<linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#ffffff"/>
-				<stop offset="100%" stop-color="${seed.palette.bg}"/>
-			</linearGradient>
-			<linearGradient id="${shirtId}" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="${seed.palette.shirt}"/>
-				<stop offset="100%" stop-color="${seed.palette.accent}"/>
-			</linearGradient>
-		</defs>
-		<rect width="96" height="96" rx="24" fill="url(#${gradientId})"/>
-		<circle cx="78" cy="18" r="11" fill="${seed.palette.accent}" opacity="0.1"/>
-		<circle cx="18" cy="77" r="14" fill="${seed.palette.accent}" opacity="0.08"/>
-		<path d="M14 96c3-17.8 16-31.4 34-31.4S79 78.2 82 96" fill="url(#${shirtId})"/>
-		<path d="M30 96c2.2-10.8 9.2-17.2 18-17.2s15.8 6.4 18 17.2" fill="${seed.palette.shirt}" opacity="0.88"/>
-		<path d="M42 57h12v11.2a6 6 0 0 1-12 0Z" fill="${seed.palette.skin}"/>
-		<circle cx="31.2" cy="43.8" r="3.3" fill="${seed.palette.skin}" opacity="0.92"/>
-		<circle cx="64.8" cy="43.8" r="3.3" fill="${seed.palette.skin}" opacity="0.92"/>
-		<circle cx="48" cy="42.4" r="18.8" fill="${seed.palette.skin}"/>
-		${renderHair(seed.hairStyle, seed.palette.hair)}
-		<path d="M37.6 41.3c1-.8 2.2-1.2 3.5-1.2 1.1 0 2.3.4 3.5 1.2" fill="none" stroke="${seed.palette.line}" stroke-width="1.3" stroke-linecap="round" opacity="0.35"/>
-		<path d="M51.4 41.3c1-.8 2.2-1.2 3.5-1.2 1.1 0 2.3.4 3.5 1.2" fill="none" stroke="${seed.palette.line}" stroke-width="1.3" stroke-linecap="round" opacity="0.35"/>
-		<ellipse cx="40.6" cy="46.1" rx="1.9" ry="2.1" fill="${seed.palette.line}"/>
-		<ellipse cx="55.4" cy="46.1" rx="1.9" ry="2.1" fill="${seed.palette.line}"/>
-		<path d="M48 46.8v3.5" fill="none" stroke="${seed.palette.line}" stroke-width="1.4" stroke-linecap="round" opacity="0.45"/>
-		<path d="M42.8 53.1c1.9 2.3 4 3.1 5.2 3.1 1.4 0 3.4-.8 5.2-3.1" fill="none" stroke="${seed.palette.line}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-		<circle cx="37.2" cy="50.8" r="2.1" fill="${seed.palette.accent}" opacity="0.12"/>
-		<circle cx="58.8" cy="50.8" r="2.1" fill="${seed.palette.accent}" opacity="0.12"/>
-		${renderAccessory(seed.accessory, seed.palette.accent, seed.palette.line)}
-	</svg>`;
+function assignTab(key: string, face: Set<string>, acc: Set<string>): 'face' | 'acc' {
+	if (face.has(key)) return 'face';
+	if (acc.has(key)) return 'acc';
+	// Guess by prefix
+	for (const f of face) if (key.startsWith(f)) return 'face';
+	for (const a of acc) if (key.startsWith(a)) return 'acc';
+	return 'face';
 }
 
-export function buildEmojiAvatarSvg(label: string, emoji: string, background: string, accent: string): string {
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="${label}">
-		<rect width="96" height="96" rx="24" fill="${background}"/>
-		<circle cx="76" cy="20" r="10" fill="${accent}" opacity="0.14"/>
-		<circle cx="18" cy="78" r="14" fill="${accent}" opacity="0.1"/>
-		<rect x="12" y="12" width="72" height="72" rx="22" fill="#fff" opacity="0.82"/>
-		<text x="48" y="55" text-anchor="middle" font-size="36" font-family="'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${emoji}</text>
-	</svg>`;
+function labelForKey(key: string, parent: string): string {
+	const enLabels: Record<string, string> = {
+		hair: '发型', eyes: '眼睛', mouth: '嘴巴', nose: '鼻子',
+		head: '头型', base: '基础', eyebrows: '眉毛', eyebrow: '眉毛',
+		glasses: '眼镜', beard: '胡须', earrings: '耳环', freckles: '雀斑',
+		features: '特征', hairAccessories: '发饰', accessories: '配饰',
+		hairColor: '发色', skinColor: '肤色', eyesColor: '眼色',
+		mouthColor: '唇色', glassesColor: '镜框色', beardColor: '胡须色',
+		earringsColor: '耳环色', eyebrowsColor: '眉色', frecklesColor: '雀斑色',
+		noseColor: '鼻色', hairAccessoriesColor: '发饰色',
+		hairProbability: '发型出现', glassesProbability: '眼镜开关',
+		beardProbability: '胡须开关', earringsProbability: '耳环开关',
+		frecklesProbability: '雀斑开关', featuresProbability: '特征开关',
+		hairAccessoriesProbability: '发饰开关',
+	};
+	return enLabels[key] || enLabels[parent] || key;
 }
+
+/* ------------------------------------------------------------------ */
+/*  LORELEI-specific editor (for backward compat with current editor) */
+/* ------------------------------------------------------------------ */
+
+export interface AvatarEditorOptions {
+	seed: string;
+	hair: string | null;
+	eyes: string | null;
+	mouth: string | null;
+	glasses: string | null;
+	beard: string | null;
+	hairColor: string;
+	skinColor: string;
+}
+
+const HAIR_COLORS = [
+	'000000', '2d1c0a', '4a2c1a', '6c4545', '7a4a3a',
+	'8b4513', 'a55742', 'c46b3f', 'd99b5a', 'e8c48a',
+	'f4e3c6', '1a1a2e', 'e05a5a', '2980b9', '27ae60',
+	'f1c40f', 'c0392b', '8e44ad',
+];
+const SKIN_COLORS = [
+	'f8d5c0', 'fce8d2', 'f0c8a0', 'e0ac80',
+	'd4a574', 'c68e62', 'b57d52', 'a06b42',
+	'8a5a35', '6a4526', '4a2c1a', 'dbb88e',
+];
+const HAIR_VARIANTS = Array.from({length: 48}, (_, i) => `variant${String(i + 1).padStart(2, '0')}`);
+const EYE_VARIANTS   = Array.from({length: 24}, (_, i) => `variant${String(i + 1).padStart(2, '0')}`);
+const MOUTH_VARIANTS = [
+	...Array.from({length: 18}, (_, i) => `happy${String(i + 1).padStart(2, '0')}`),
+	...Array.from({length: 9},  (_, i) => `sad${String(i + 1).padStart(2, '0')}`),
+];
+const GLASS_VARIANTS = Array.from({length: 5},  (_, i) => `variant${String(i + 1).padStart(2, '0')}`);
+const BEARD_VARIANTS = ['variant01', 'variant02'];
+
+function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+
+export function generateRandomSeed(): string {
+	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	let result = '';
+	for (let i = 0; i < 12; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+	return result;
+}
+
+export function randomEditorOptions(): AvatarEditorOptions {
+	return {
+		seed:      generateRandomSeed(),
+		hair:      pick(HAIR_VARIANTS),
+		eyes:      pick(EYE_VARIANTS),
+		mouth:     pick(MOUTH_VARIANTS),
+		glasses:   Math.random() < 0.3 ? pick(GLASS_VARIANTS) : null,
+		beard:     Math.random() < 0.2 ? pick(BEARD_VARIANTS) : null,
+		hairColor: pick(HAIR_COLORS),
+		skinColor: pick(SKIN_COLORS),
+	};
+}
+
+export function optionsToAvatarUrl(options: AvatarEditorOptions): string {
+	const opts: Record<string, unknown> = { seed: options.seed };
+	if (options.hair !== null) opts.hair = [options.hair];
+	if (options.eyes !== null) opts.eyes = [options.eyes];
+	if (options.mouth !== null) opts.mouth = [options.mouth];
+	if (options.glasses !== null) { opts.glasses = [options.glasses]; opts.glassesProbability = 100; }
+	else { opts.glassesProbability = 0; }
+	if (options.beard !== null) { opts.beard = [options.beard]; opts.beardProbability = 100; }
+	else { opts.beardProbability = 0; }
+	opts.hairColor = [options.hairColor];
+	opts.skinColor = [options.skinColor];
+	return createAvatar(lorelei as any, opts).toDataUri();
+}
+
+/* ------------------------------------------------------------------ */
+/*  Multi-style avatar builder                                        */
+/* ------------------------------------------------------------------ */
+
+export function buildAvatarUrl(editorState: EditorState): string {
+	const style = ALL_STYLES[editorState.styleKey];
+	if (!style) return '';
+	const opts: Record<string, unknown> = { seed: editorState.seed };
+	const schema = (style as any)?.schema;
+	const props: Record<string, any> = schema?.properties || {};
+
+	for (const [key, value] of Object.entries(editorState.options)) {
+		const prop = props[key];
+		if (!prop) continue;
+		if (key.endsWith('Probability')) {
+			opts[key] = value ? 100 : 0;
+		} else if (prop.type === 'array') {
+			const items = prop.items || {};
+			if (items.pattern?.includes('hex') || items.pattern?.includes('[a-fA-F0-9]')) {
+				opts[key] = [value ?? prop.default?.[0] ?? '000000'];
+			} else if (items.enum) {
+				opts[key] = value ? [value] : undefined;
+			}
+		}
+	}
+	return createAvatar(style as any, opts).toDataUri();
+}
+
+/** Randomize all options for a given style */
+export function randomizeEditorState(styleKey: string): EditorState {
+	const style = ALL_STYLES[styleKey];
+	const tabs = parseStyleSchema(style);
+	const options: Record<string, string | boolean | null> = {};
+	for (const tab of tabs) {
+		for (const ctrl of tab.controls) {
+			if (ctrl.type === 'toggle') {
+				options[ctrl.key] = Math.random() < 0.3; // 30% chance on
+			} else if (ctrl.type === 'select') {
+				const opts = ctrl.options || [];
+				options[ctrl.key] = Math.random() < 0.85 ? pick(opts) : null;
+			} else if (ctrl.type === 'color') {
+				options[ctrl.key] = ctrl.defaultValue as string;
+			}
+		}
+	}
+	return { styleKey, seed: generateRandomSeed(), options };
+}
+
+export function getHairVariants(): string[]        { return HAIR_VARIANTS; }
+export function getEyeVariants(): string[]          { return EYE_VARIANTS; }
+export function getMouthVariants(): string[]        { return MOUTH_VARIANTS; }
+export function getGlassVariants(): string[]        { return GLASS_VARIANTS; }
+export function getBeardVariants(): string[]        { return BEARD_VARIANTS; }
+export function getHairColors(): string[]           { return HAIR_COLORS; }
+export function getSkinColors(): string[]           { return SKIN_COLORS; }
+export function getVariantLabel(v: string): string {
+	if (v.startsWith('happy')) return `开心 ${v.replace('happy', '')}`;
+	if (v.startsWith('sad'))   return `难过 ${v.replace('sad', '')}`;
+	if (v.startsWith('variant')) return `样式 ${v.replace('variant', '')}`;
+	return v;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Presets (unchanged)                                               */
+/* ------------------------------------------------------------------ */
+
+interface RolePreset {
+	id: string;
+	label: string;
+	role: string;
+	seed: string;
+}
+
+const ROLE_PRESETS: RolePreset[] = [
+	{ id: 'ava-01', label: '元气少女', role: '活力', seed: 'Mochi' },
+	{ id: 'ava-02', label: '短发酷哥', role: '清爽', seed: 'Bamboo' },
+	{ id: 'ava-03', label: '温柔卷发', role: '亲和', seed: 'Honey' },
+	{ id: 'ava-04', label: '眼镜学霸', role: '知识', seed: 'Splash' },
+	{ id: 'ava-05', label: '马尾女孩', role: '阳光', seed: 'Nova' },
+	{ id: 'ava-06', label: '辫子少年', role: '机灵', seed: 'Ember' },
+	{ id: 'ava-07', label: '丸子头', role: '可爱', seed: 'Twilight' },
+	{ id: 'ava-08', label: '长发御姐', role: '优雅', seed: 'Merlin' },
+	{ id: 'ava-09', label: '刺头少年', role: '个性', seed: 'Zephyr' },
+	{ id: 'ava-10', label: '双马尾', role: '甜美', seed: 'Frosty' },
+	{ id: 'ava-11', label: '侧分短发', role: '干练', seed: 'Cotton' },
+	{ id: 'ava-12', label: '贝雷帽', role: '文艺', seed: 'Luna' },
+	{ id: 'ava-13', label: '棒球帽', role: '运动', seed: 'Simba' },
+	{ id: 'ava-14', label: '麻花辫', role: '田园', seed: 'Maple' },
+	{ id: 'ava-15', label: '大背头', role: '自信', seed: 'Athena' },
+	{ id: 'ava-16', label: '披肩长发', role: '温婉', seed: 'Willow' },
+	{ id: 'ava-17', label: '碎盖头', role: '慵懒', seed: 'Whisper' },
+	{ id: 'ava-18', label: '半边辫', role: '俏皮', seed: 'Pixel' },
+	{ id: 'ava-19', label: '羊毛卷', role: '复古', seed: 'Meadow' },
+	{ id: 'ava-20', label: '寸头', role: '硬朗', seed: 'Cedar' },
+	{ id: 'ava-21', label: '公主头', role: '优雅', seed: 'Rosie' },
+	{ id: 'ava-22', label: '刘海短发', role: '清新', seed: 'Jasmine' },
+	{ id: 'ava-23', label: '黑长直', role: '文静', seed: 'Sakura' },
+	{ id: 'ava-24', label: '爆炸头', role: '嘻哈', seed: 'Rhythm' },
+	{ id: 'ava-25', label: '高马尾', role: '飒爽', seed: 'Storm' },
+	{ id: 'ava-26', label: '大胡子', role: '狂野', seed: 'Timber' },
+	{ id: 'ava-27', label: '波波头', role: '俏丽', seed: 'Pepper' },
+	{ id: 'ava-28', label: '鸡冠头', role: '摇滚', seed: 'Raven' },
+	{ id: 'ava-29', label: '丸子双髻', role: '萌系', seed: 'Pebble' },
+	{ id: 'ava-30', label: '长辫', role: '古典', seed: 'Amber' },
+	{ id: 'ava-31', label: '微卷中分', role: '知性', seed: 'Iris' },
+	{ id: 'ava-32', label: '圆寸', role: '阳光', seed: 'Blaze' },
+	{ id: 'ava-33', label: '蝴蝶结', role: '少女', seed: 'Cherry' },
+	{ id: 'ava-34', label: '脏辫', role: '个性', seed: 'Rumble' },
+	{ id: 'ava-35', label: '发带运动', role: '活力', seed: 'Dash' },
+	{ id: 'ava-36', label: '侧扎小辫', role: '可爱', seed: 'Tulip' },
+	{ id: 'ava-37', label: '书卷气质', role: '文艺', seed: 'Quill' },
+	{ id: 'ava-38', label: '花环装饰', role: '自然', seed: 'Fern' },
+	{ id: 'ava-39', label: '英伦礼帽', role: '绅士', seed: 'Winston' },
+	{ id: 'ava-40', label: '围巾女孩', role: '温暖', seed: 'Puffy' },
+	{ id: 'ava-41', label: '连帽衫', role: '休闲', seed: 'Cozy' },
+	{ id: 'ava-42', label: '耳钉酷盖', role: '痞帅', seed: 'Jett' },
+];
 
 export function buildAvatarPresets(): AvatarPreset[] {
-	const presets = [
-		{ id: 'student-female', label: '女学生', role: '学生', emoji: '👩‍🎓', background: '#eef4ff', accent: '#5b7cf1' },
-		{ id: 'student-male', label: '男学生', role: '学生', emoji: '👨‍🎓', background: '#edf7ff', accent: '#4e8dda' },
-		{ id: 'teacher-female', label: '女教师', role: '教师', emoji: '👩‍🏫', background: '#fff3ea', accent: '#cb8c4a' },
-		{ id: 'teacher-male', label: '男教师', role: '教师', emoji: '👨‍🏫', background: '#fff6e7', accent: '#b98743' },
-		{ id: 'admin-female', label: '女管理员', role: '管理员', emoji: '👩‍💼', background: '#f4f1ff', accent: '#7f6ad6' },
-		{ id: 'admin-male', label: '男管理员', role: '管理员', emoji: '👨‍💼', background: '#eff4f8', accent: '#71839a' },
-		{ id: 'assistant', label: '教学运营', role: '运营', emoji: '🧑‍💼', background: '#eefaf4', accent: '#3e9b6f' },
-		{ id: 'content-admin', label: '内容管理员', role: '内容', emoji: '🧑‍💻', background: '#fff0f6', accent: '#c86b93' },
-		{ id: 'superadmin', label: '平台超级管理员', role: '超管', emoji: '👑', background: '#fff8e9', accent: '#cf9622' }
-	];
-
 	return [
 		{ id: 'default', label: '默认', role: '系统', avatarUrl: '' },
-		...presets.map((preset) => ({
-			id: preset.id,
-			label: preset.label,
-			role: preset.role,
-			avatarUrl: svgToDataUri(buildEmojiAvatarSvg(preset.label, preset.emoji, preset.background, preset.accent))
-		}))
+		...ROLE_PRESETS.map(({ id, label, role, seed }) => ({
+			id,
+			label,
+			role,
+			avatarUrl: createAvatar(lorelei as any, { seed }).toDataUri(),
+		})),
 	];
 }

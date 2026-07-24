@@ -23,6 +23,8 @@ void registerStreakRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "streak", userId);
                 return common::ok(req, ctx.streakService->summary(userId));
             });
@@ -35,13 +37,10 @@ void registerStreakRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "streak", userId);
-                int days = 90;  // 默认 90 天
-                const auto raw = req->getParameter("days");
-                if (!raw.empty())
-                {
-                    try { days = std::stoi(raw); } catch (...) {}
-                }
+                const int days = readBoundedIntParameter(req, "days", 90, 1, 365);
                 return common::ok(req, ctx.streakService->heatmap(userId, days));
             });
         },
@@ -53,13 +52,11 @@ void registerStreakRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
-                requireFeature(*ctx.featureFlagService, "streak", userId);
                 const auto body = parseJsonBody(req);
-                int q = 30;
-                if (body.isMember("daily_questions") && body["daily_questions"].isIntegral())
-                {
-                    q = body["daily_questions"].asInt();
-                }
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
+                requireFeature(*ctx.featureFlagService, "streak", userId);
+                const int q = readBoundedIntField(body, "daily_questions", 30, 1, 500);
                 return common::ok(req, ctx.streakService->updateDailyGoal(userId, q));
             });
         },

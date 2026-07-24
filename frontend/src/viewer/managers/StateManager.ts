@@ -22,6 +22,7 @@ interface StateManagedExamViewer {
 		renderCurrentQuestion: () => void;
 	};
 	renderQuestionNavigation: () => void;
+	canNavigateToSection?: (sectionIndex: number) => boolean;
 	[key: string]: unknown;
 }
 
@@ -46,6 +47,7 @@ class StateManager {
 	 * 更新导航状态
 	 */
 	updateNavigationState(sectionIndex: number, questionIndex: number, categoryId: string | null = null): void {
+		if (this.examViewer.canNavigateToSection && !this.examViewer.canNavigateToSection(sectionIndex)) return;
 		this.logger.debug('updateNavigationState called:', {
 			sectionIndex,
 			questionIndex,

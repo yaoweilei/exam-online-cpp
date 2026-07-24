@@ -44,6 +44,19 @@ export class ApiClient {
 		return this.request('/roles');
 	}
 
+	listPlatformRoleTemplates(token: string): Promise<unknown> { return this.request(`/admin/role-templates?token=${encodeURIComponent(token)}`); }
+	previewPlatformRoleTemplate(token: string, roleId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/role-templates/${encodeURIComponent(roleId)}/preview`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	updatePlatformRoleTemplate(token: string, roleId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/role-templates/${encodeURIComponent(roleId)}`, { method: 'PUT', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	getPlatformUserAccess(token: string, userId: string): Promise<unknown> { return this.request(`/admin/users/${encodeURIComponent(userId)}/platform-access?token=${encodeURIComponent(token)}`); }
+	previewPlatformUserAccess(token: string, userId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/users/${encodeURIComponent(userId)}/platform-access/preview`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	updatePlatformUserAccess(token: string, userId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/users/${encodeURIComponent(userId)}/platform-access`, { method: 'PUT', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	listContentWorkflow(token: string): Promise<unknown> { return this.request(`/admin/content/workflow?token=${encodeURIComponent(token)}`); }
+	inspectContentWorkflow(token: string, examId: string): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/inspect`, { method: 'POST', body: JSON.stringify({ token }) }); }
+	reviewContentWorkflow(token: string, examId: string, stage: string, payload: unknown): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/reviews/${encodeURIComponent(stage)}`, { method: 'PUT', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	publishContentWorkflow(token: string, examId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/publish`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+	listContentVersions(token: string, examId: string): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/versions?token=${encodeURIComponent(token)}`); }
+	rollbackContentVersion(token: string, examId: string, versionId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/versions/${encodeURIComponent(versionId)}/rollback`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
+
 	getProfile(userId: string): Promise<unknown> {
 		return this.request(`/profile/${userId}`);
 	}
@@ -53,6 +66,10 @@ export class ApiClient {
 			method: 'PUT',
 			body: JSON.stringify(patch)
 		});
+	}
+
+	listRecentLearning(userId: string, limit = 3): Promise<unknown> {
+		return this.request(`/recent-learning/${encodeURIComponent(userId)}?limit=${encodeURIComponent(String(limit))}`);
 	}
 
 	logout(token: string): Promise<unknown> {
@@ -70,6 +87,20 @@ export class ApiClient {
 				current_password: currentPassword,
 				new_password: newPassword
 			})
+		});
+	}
+
+	bindWechat(token: string, code: string): Promise<unknown> {
+		return this.request('/auth/wechat/bind', {
+			method: 'POST',
+			body: JSON.stringify({ token, code })
+		});
+	}
+
+	deleteAccount(token: string, confirmation: string, phone: string, phoneCode: string, reason = 'user_requested'): Promise<unknown> {
+		return this.request('/auth/account/delete', {
+			method: 'POST',
+			body: JSON.stringify({ token, confirmation, phone, phone_code: phoneCode, reason })
 		});
 	}
 
@@ -184,25 +215,30 @@ export class ApiClient {
 		});
 	}
 
-	getOrganizationMembers(organizationId: string, token: string): Promise<unknown[]> {
-		return this.request(`/organizations/${organizationId}/members?token=${encodeURIComponent(token)}`);
+	getOrganizationMembers(organizationId: string, token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations/${organizationId}/members?${params.toString()}`);
 	}
 
-	saveOrganizationMember(organizationId: string, token: string, payload: unknown): Promise<unknown> {
+	saveOrganizationMember(organizationId: string, token: string, payload: unknown, reauthPassword: string): Promise<unknown> {
 		return this.request(`/organizations/${organizationId}/members`, {
 			method: 'POST',
-			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token, confirmation: '确认修改机构成员', reauth_password: reauthPassword })
 		});
 	}
 
-	removeOrganizationMember(organizationId: string, userId: string, token: string): Promise<unknown> {
-		return this.request(`/organizations/${organizationId}/members/${userId}?token=${encodeURIComponent(token)}`, {
-			method: 'DELETE'
+	removeOrganizationMember(organizationId: string, userId: string, token: string, reauthPassword: string): Promise<unknown> {
+		return this.request(`/organizations/${organizationId}/members/${userId}`, {
+			method: 'DELETE',
+			body: JSON.stringify({ token, confirmation: '确认移除机构成员', reauth_password: reauthPassword })
 		});
 	}
 
-	getOrganizationCampuses(organizationId: string, token: string): Promise<unknown[]> {
-		return this.request(`/organizations/${organizationId}/campuses?token=${encodeURIComponent(token)}`);
+	getOrganizationCampuses(organizationId: string, token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations/${organizationId}/campuses?${params.toString()}`);
 	}
 
 	saveOrganizationCampus(organizationId: string, token: string, payload: unknown): Promise<unknown> {
@@ -212,8 +248,10 @@ export class ApiClient {
 		});
 	}
 
-	getOrganizationLearningGroups(organizationId: string, token: string): Promise<unknown[]> {
-		return this.request(`/organizations/${organizationId}/learning-groups?token=${encodeURIComponent(token)}`);
+	getOrganizationLearningGroups(organizationId: string, token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations/${organizationId}/learning-groups?${params.toString()}`);
 	}
 
 	saveOrganizationLearningGroup(organizationId: string, token: string, payload: unknown): Promise<unknown> {
@@ -223,8 +261,10 @@ export class ApiClient {
 		});
 	}
 
-	getOrganizationCoursePackages(organizationId: string, token: string): Promise<unknown[]> {
-		return this.request(`/organizations/${organizationId}/course-packages?token=${encodeURIComponent(token)}`);
+	getOrganizationCoursePackages(organizationId: string, token: string, options: Record<string, string | number> = {}): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
+		return this.request(`/organizations/${organizationId}/course-packages?${params.toString()}`);
 	}
 
 	saveOrganizationCoursePackage(organizationId: string, token: string, payload: unknown): Promise<unknown> {
@@ -306,6 +346,40 @@ export class ApiClient {
 		});
 	}
 
+	listAdminPaymentOrders(token: string, filters: Record<string, string | number> = {}): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		Object.entries(filters).forEach(([key, value]) => query.set(key, String(value)));
+		return this.request(`/admin/payments/orders?${query.toString()}`);
+	}
+
+	listAdminPaymentRefunds(token: string, filters: Record<string, string | number> = {}): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		Object.entries(filters).forEach(([key, value]) => query.set(key, String(value)));
+		return this.request(`/admin/payments/refunds?${query.toString()}`);
+	}
+
+	listAdminPaymentLedger(token: string, filters: Record<string, string | number> = {}): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		Object.entries(filters).forEach(([key, value]) => query.set(key, String(value)));
+		return this.request(`/admin/payments/ledger?${query.toString()}`);
+	}
+
+	getAdminPaymentReconciliation(token: string): Promise<unknown> {
+		return this.request(`/admin/payments/reconciliation?token=${encodeURIComponent(token)}`);
+	}
+
+	createOrganizationPaymentOrder(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/admin/payments/organization-orders', {
+			method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	updatePaymentRefundStatus(token: string, refundId: string, payload: unknown): Promise<unknown> {
+		return this.request(`/admin/payments/refunds/${encodeURIComponent(refundId)}/status`, {
+			method: 'PATCH', body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
 	getInstitutionDashboard(token: string, orgId?: string): Promise<unknown> {
 		const query = new URLSearchParams({ token });
 		if (orgId) query.set('org_id', orgId);
@@ -326,8 +400,22 @@ export class ApiClient {
 		return this.request(`/institution/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/gradebook?token=${encodeURIComponent(token)}`);
 	}
 
+	updateInstitutionSchedule(token: string, organizationId: string, learningGroupId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/institution/organizations/${encodeURIComponent(organizationId)}/learning-groups/${encodeURIComponent(learningGroupId)}/schedule`, {
+			method: 'PATCH',
+			body: JSON.stringify({ ...payload, token })
+		});
+	}
+
 	getInstitutionStudentProfile(token: string, studentId: string): Promise<unknown> {
 		return this.request(`/institution/students/${encodeURIComponent(studentId)}?token=${encodeURIComponent(token)}`);
+	}
+
+	addInstitutionTeacherNote(token: string, studentId: string, text: string): Promise<unknown> {
+		return this.request(`/institution/students/${encodeURIComponent(studentId)}/teacher-notes`, {
+			method: 'POST',
+			body: JSON.stringify({ token, text })
+		});
 	}
 
 	createLessonPrep(token: string, payload: unknown): Promise<unknown> {
@@ -424,10 +512,10 @@ export class ApiClient {
 	}
 
 	// 清空错题本
-	resetWrongQuestions(userId: string): Promise<unknown> {
+	resetWrongQuestions(userId: string, confirmation: string): Promise<unknown> {
 		return this.request(`/wrong-questions/${encodeURIComponent(userId)}/reset`, {
 			method: 'POST',
-			body: '{}'
+			body: JSON.stringify({ confirmation })
 		});
 	}
 
@@ -507,6 +595,10 @@ export class ApiClient {
 		return this.request('/me/feature-flags');
 	}
 
+	getSystemFeatureFlags(): Promise<unknown> {
+		return this.request('/admin/feature-flags/system');
+	}
+
 	updateMyFeatureFlags(patch: Record<string, unknown>): Promise<unknown> {
 		return this.request('/me/feature-flags', {
 			method: 'PUT',
@@ -514,17 +606,17 @@ export class ApiClient {
 		});
 	}
 
-	updateSystemFeatureFlags(patch: Record<string, unknown>): Promise<unknown> {
+	updateSystemFeatureFlags(patch: Record<string, unknown>, reauthPassword: string): Promise<unknown> {
 		return this.request('/admin/feature-flags/system', {
 			method: 'PUT',
-			body: JSON.stringify(patch)
+			body: JSON.stringify({ ...patch, confirmation: '确认修改系统开关', reauth_password: reauthPassword })
 		});
 	}
 
-	updateOrgFeatureFlags(orgId: string, patch: Record<string, unknown>): Promise<unknown> {
+	updateOrgFeatureFlags(orgId: string, patch: Record<string, unknown>, reauthPassword: string): Promise<unknown> {
 		return this.request(`/admin/feature-flags/orgs/${encodeURIComponent(orgId)}`, {
 			method: 'PUT',
-			body: JSON.stringify(patch)
+			body: JSON.stringify({ ...patch, confirmation: '确认修改机构开关', reauth_password: reauthPassword })
 		});
 	}
 
@@ -539,10 +631,11 @@ export class ApiClient {
 		});
 	}
 
-	listFeedback(paperId?: string, status?: string): Promise<unknown> {
+	listFeedback(paperId?: string, status?: string, options: Record<string, string | number> = {}): Promise<unknown> {
 		const qs = new URLSearchParams();
 		if (paperId) qs.append('paper_id', paperId);
 		if (status) qs.append('status', status);
+		Object.entries(options).forEach(([key, value]) => qs.set(key, String(value)));
 		const suffix = qs.toString() ? `?${qs.toString()}` : '';
 		return this.request(`/feedback${suffix}`);
 	}
@@ -587,6 +680,13 @@ export class ApiClient {
 
 	getAssignmentSubmissions(assignmentId: string): Promise<unknown> {
 		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submissions`);
+	}
+
+	reviewAssignmentSubmission(assignmentId: string, studentId: string, payload: Record<string, unknown>): Promise<unknown> {
+		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submissions/${encodeURIComponent(studentId)}/review`, {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
 	}
 
 	remindAssignment(assignmentId: string, payload: Record<string, unknown>): Promise<unknown> {

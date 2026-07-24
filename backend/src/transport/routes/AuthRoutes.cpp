@@ -41,7 +41,7 @@ void registerAuthRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                const auto currentPassword = requireString(body, "current_password");
+                const auto currentPassword = body.get("current_password", "").asString();
                 const auto newPassword = requireString(body, "new_password");
                 return common::ok(req,
                     ctx.authService->changePassword(
@@ -49,6 +49,40 @@ void registerAuthRoutes(const AppContext &ctx)
                         currentPassword,
                         newPassword),
                     "password_changed");
+            });
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v1/auth/account/delete",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto confirmation = requireString(body, "confirmation");
+                if (confirmation != "注销账号")
+                {
+                    throw common::AppException("CONFIRMATION_REQUIRED", "Type 注销账号 to confirm account deletion", k422UnprocessableEntity);
+                }
+                const auto phone = requireString(body, "phone");
+                const auto phoneCode = requireString(body, "phone_code");
+                ctx.phoneService->verifyCurrentPhoneCode(
+                    session.get("user_id", "").asString(),
+                    phone,
+                    phoneCode);
+                const auto actorId = session.get("user_id", session.get("id", "")).asString();
+                const auto reason = body.get("reason", "user_requested").asString();
+                const auto result = ctx.authService->deactivateAccount(actorId, reason);
+                Json::Value details(Json::objectValue);
+                details["reason"] = reason;
+                ctx.auditLogService->record(
+                    "account.deactivated",
+                    actorId,
+                    "注销账号",
+                    details);
+                return common::ok(req,
+                    result,
+                    "account_deactivated");
             });
         },
         {Post});

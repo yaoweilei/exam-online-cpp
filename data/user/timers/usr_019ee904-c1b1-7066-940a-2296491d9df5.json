@@ -1,0 +1,13 @@
+{
+  "elapsed_seconds" : 300,
+  "exam_id" : "2023_02",
+  "section_elapsed_seconds" : 
+  {
+    "2" : 300
+  },
+  "section_limits_seconds" : [],
+  "started_at" : "2026-06-21T15:15:15.204Z",
+  "total_limit_seconds" : 0,
+  "updated_at" : "2026-06-21T15:20:18.473Z",
+  "user_id" : "usr_019ee904-c1b1-7066-940a-2296491d9df5"
+}

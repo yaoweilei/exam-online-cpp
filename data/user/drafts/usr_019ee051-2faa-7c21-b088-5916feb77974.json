@@ -1,0 +1,15 @@
+{
+  "answered_count" : 2,
+  "answers" : 
+  {
+    "0:1" : 3,
+    "0:2" : 2
+  },
+  "exam_id" : "N2_2024_12",
+  "last_question_index" : 1,
+  "last_section_index" : 0,
+  "started_at" : "2026-06-24T12:44:32.953Z",
+  "total_questions" : 2,
+  "updated_at" : "2026-06-24T12:44:36.006Z",
+  "user_id" : "usr_019ee051-2faa-7c21-b088-5916feb77974"
+}

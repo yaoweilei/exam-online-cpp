@@ -1,0 +1,35 @@
+{
+  "avatar_url" : "",
+  "credits" : 0,
+  "credits_updated_at" : "",
+  "daily_target" : 20,
+  "display_name" : "",
+  "goal_date" : "",
+  "goal_level" : "",
+  "last_active_at" : "2026-07-22T12:51:22.030Z",
+  "last_credit_reason" : "",
+  "locale" : "zh-CN",
+  "longest_streak" : 4,
+  "notification_enabled" : true,
+  "organization_type" : "",
+  "plan" : "free",
+  "plan_expires" : "",
+  "plan_expires_at" : "",
+  "plan_status" : "active",
+  "scope_id" : "usr_019ee90c-6364-77fb-8fb2-92d80cfdecfa",
+  "scope_type" : "personal",
+  "streak_days" : 1,
+  "study_stats" : 
+  {
+    "awarded_now" : 0,
+    "daily_xp_cap" : 2,
+    "date" : "2026-06-27",
+    "pomodoro_seconds" : 1500,
+    "today_minutes" : 1,
+    "today_seconds" : 60,
+    "today_xp_awarded" : 0,
+    "updated_at" : "2026-06-27T05:09:22.208Z"
+  },
+  "user_id" : "usr_019ee90c-6364-77fb-8fb2-92d80cfdecfa",
+  "xp" : 0
+}

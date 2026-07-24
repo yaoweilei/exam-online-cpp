@@ -48,6 +48,7 @@ class FeatureFlagService
 
     // 给前端用：注册表 + 当前用户解析结果
     Json::Value listRegistry() const;
+    Json::Value systemSnapshot() const;
     Json::Value resolveAll(const std::string &userId) const;
 
     // 路由保护：true 表示放行；userId 为空时按 system + 默认值

@@ -73,6 +73,9 @@ async function bootstrap(): Promise<void> {
 		const currentUser = store.getState().user;
 		const token = !currentUser.guest ? currentUser.token : '';
 		viewerLogout?.();
+		// Clear local credentials immediately; the network revocation may be slow or fail.
+		clearSession(store);
+		syncViewerUserState();
 		if (token) {
 			try {
 				await api.logout(token);
@@ -80,8 +83,6 @@ async function bootstrap(): Promise<void> {
 				console.warn('[main] backend logout failed:', error);
 			}
 		}
-		clearSession(store);
-		syncViewerUserState();
 	};
 
 	logAppReady(Object.keys(store.getState().examsByLevel).length);

@@ -10,6 +10,7 @@ option(BUILD_TESTING "Build tests" ON)
 
 find_package(Drogon REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -17,7 +18,7 @@ file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS
 
 add_executable(exam_online_cpp ${APP_SOURCES})
 target_include_directories(exam_online_cpp PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(exam_online_cpp PRIVATE Drogon::Drogon OpenSSL::Crypto)
+target_link_libraries(exam_online_cpp PRIVATE Drogon::Drogon OpenSSL::Crypto unofficial::sqlite3::sqlite3)
 
 if(MSVC)
     target_compile_options(exam_online_cpp PRIVATE /W4 /permissive- /utf-8)
@@ -45,6 +46,7 @@ if(BUILD_TESTING)
         src/application/services/EmailVerificationService.cpp
         src/application/services/AuthService.cpp
         src/infrastructure/storage/SessionRepository.cpp
+        src/infrastructure/storage/SqliteJsonStore.cpp
         src/application/services/ExamService.cpp
         src/application/services/ProfileService.cpp
         src/application/services/BookmarkService.cpp
@@ -79,7 +81,7 @@ if(BUILD_TESTING)
         src/application/services/OAuthService.cpp
     )
     target_include_directories(smoke_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-    target_link_libraries(smoke_tests PRIVATE Drogon::Drogon)
+    target_link_libraries(smoke_tests PRIVATE Drogon::Drogon unofficial::sqlite3::sqlite3)
     if(MSVC)
         target_compile_options(smoke_tests PRIVATE /utf-8)
         target_compile_definitions(smoke_tests PRIVATE _CRT_SECURE_NO_WARNINGS NOMINMAX)

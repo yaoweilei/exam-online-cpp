@@ -4,6 +4,44 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+	<script type="importmap">
+	{
+		"imports": {
+			"@dicebear/adventurer": "/static/vendor/@dicebear/adventurer/lib/index.js",
+			"@dicebear/adventurer-neutral": "/static/vendor/@dicebear/adventurer-neutral/lib/index.js",
+			"@dicebear/avataaars": "/static/vendor/@dicebear/avataaars/lib/index.js",
+			"@dicebear/avataaars-neutral": "/static/vendor/@dicebear/avataaars-neutral/lib/index.js",
+			"@dicebear/big-ears": "/static/vendor/@dicebear/big-ears/lib/index.js",
+			"@dicebear/big-ears-neutral": "/static/vendor/@dicebear/big-ears-neutral/lib/index.js",
+			"@dicebear/big-smile": "/static/vendor/@dicebear/big-smile/lib/index.js",
+			"@dicebear/bottts": "/static/vendor/@dicebear/bottts/lib/index.js",
+			"@dicebear/bottts-neutral": "/static/vendor/@dicebear/bottts-neutral/lib/index.js",
+			"@dicebear/core": "/static/vendor/@dicebear/core/lib/index.js",
+			"@dicebear/croodles": "/static/vendor/@dicebear/croodles/lib/index.js",
+			"@dicebear/croodles-neutral": "/static/vendor/@dicebear/croodles-neutral/lib/index.js",
+			"@dicebear/dylan": "/static/vendor/@dicebear/dylan/lib/index.js",
+			"@dicebear/fun-emoji": "/static/vendor/@dicebear/fun-emoji/lib/index.js",
+			"@dicebear/glass": "/static/vendor/@dicebear/glass/lib/index.js",
+			"@dicebear/icons": "/static/vendor/@dicebear/icons/lib/index.js",
+			"@dicebear/identicon": "/static/vendor/@dicebear/identicon/lib/index.js",
+			"@dicebear/initials": "/static/vendor/@dicebear/initials/lib/index.js",
+			"@dicebear/lorelei": "/static/vendor/@dicebear/lorelei/lib/index.js",
+			"@dicebear/lorelei-neutral": "/static/vendor/@dicebear/lorelei-neutral/lib/index.js",
+			"@dicebear/micah": "/static/vendor/@dicebear/micah/lib/index.js",
+			"@dicebear/miniavs": "/static/vendor/@dicebear/miniavs/lib/index.js",
+			"@dicebear/notionists": "/static/vendor/@dicebear/notionists/lib/index.js",
+			"@dicebear/notionists-neutral": "/static/vendor/@dicebear/notionists-neutral/lib/index.js",
+			"@dicebear/open-peeps": "/static/vendor/@dicebear/open-peeps/lib/index.js",
+			"@dicebear/personas": "/static/vendor/@dicebear/personas/lib/index.js",
+			"@dicebear/pixel-art": "/static/vendor/@dicebear/pixel-art/lib/index.js",
+			"@dicebear/pixel-art-neutral": "/static/vendor/@dicebear/pixel-art-neutral/lib/index.js",
+			"@dicebear/rings": "/static/vendor/@dicebear/rings/lib/index.js",
+			"@dicebear/shapes": "/static/vendor/@dicebear/shapes/lib/index.js",
+			"@dicebear/thumbs": "/static/vendor/@dicebear/thumbs/lib/index.js",
+			"@dicebear/toon-head": "/static/vendor/@dicebear/toon-head/lib/index.js"
+		}
+	}
+	</script>
 	<meta http-equiv="Pragma" content="no-cache">
 	<meta http-equiv="Expires" content="0">
 	<title>在线试卷系统</title>
@@ -13,10 +51,11 @@
 	<meta name="theme-color" content="#1f1914">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<link href="/static/style.css?v=20260619-login3" rel="stylesheet">
+	<link href="/static/style.css?v=20260721-editor-v2" rel="stylesheet">
 </head>
 
 <body>
+	<div id="network-status-banner" class="network-status-banner" role="status" aria-live="polite" hidden></div>
 	<script>
 		window.__WEB_APP_MODE__ = true;
 		window.__API_BASE__ = "/api/v1";
@@ -28,24 +67,23 @@
 
 	<div id="exam-content">
 		<!-- 登录弹窗 -->
-		<div id="login-modal" class="login-mode-phone">
-			<div class="login-box">
+		<div id="login-modal" class="login-mode-phone" role="presentation" aria-hidden="true">
+			<div class="login-box" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
 				<button class="login-close" type="button" data-login-close aria-label="关闭登录">×</button>
 				<div class="login-brand">
 					<div class="login-brand-mark">試</div>
-					<div class="login-title">在线试卷</div>
+					<div id="login-modal-title" class="login-title">在线试卷</div>
 				</div>
 
 				<!-- WeChat 面板 -->
 				<div class="login-panel" data-panel="wechat">
-					<div class="qr-wrapper">
+					<div id="wechat-qr-wrapper" class="qr-wrapper">
 						<img id="wechat-qr-img" class="qr-img" src="" alt="二维码" />
 					</div>
 					<div id="wechat-qr-text" class="qr-hint">待扫码</div>
 					<div id="wechat-status" class="login-status"></div>
-					<button id="wechat-stub-btn" class="btn-stub" style="display:none">🔧 模拟扫码（开发模式）</button>
-					<div id="wechat-test-id-list" class="login-test-id-list" style="display:none"></div>
-					<button class="login-back-phone" type="button" data-mode="phone">手机号验证码登录</button>
+					<div id="wechat-test-id-list" class="login-test-id-list" aria-label="微信开发测试账号" hidden></div>
+					<button class="login-back-phone" type="button" data-login-phone-back>手机号验证码登录</button>
 				</div>
 
 				<!-- 手机号面板 -->
@@ -61,47 +99,52 @@
 					</div>
 				</div>
 
-				<!-- 用户名密码面板 -->
+				<!-- 手机号密码面板 -->
 				<div class="login-panel" data-panel="password">
-					<div class="login-password-tabs">
-						<button class="login-password-tab active" data-password-view="login" type="button">登录</button>
-						<button class="login-password-tab" data-password-view="register" type="button">注册</button>
-						<button class="login-password-tab" data-password-view="reset" type="button">找回密码</button>
-					</div>
 					<div class="login-password-view is-active" data-password-panel="login">
-						<input id="login-username" class="login-input" type="text" placeholder="用户名 / user_id / member_no（学号/工号）/ 测试 ID" />
-						<input id="login-password" class="login-input" type="password" placeholder="密码（开发测试可留空）" />
+						<input id="login-password-phone" class="login-input" type="text" placeholder="手机号 / 用户名 / 邮箱" autocomplete="username" />
+						<div class="login-password-field">
+							<input id="login-password" class="login-input" type="password" placeholder="请输入密码" autocomplete="current-password" />
+							<button id="login-password-toggle" class="login-password-toggle" type="button" aria-label="显示密码" aria-pressed="false">
+								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+									<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+									<circle cx="12" cy="12" r="3"></circle>
+								</svg>
+							</button>
+						</div>
 						<button id="login-btn-password" class="btn-primary-login">登录</button>
+						<div class="login-password-links"><button type="button" data-password-view="register">注册账号</button><button type="button" data-password-view="reset">忘记密码</button></div>
 					</div>
 					<div class="login-password-view" data-password-panel="register">
-						<input id="register-username" class="login-input" type="text" placeholder="设置用户名" />
-						<input id="register-email" class="login-input" type="email" placeholder="邮箱（可选）" />
-						<input id="register-password" class="login-input" type="password" placeholder="设置密码：至少8位，含字母和数字" />
-						<input id="register-password-confirm" class="login-input" type="password" placeholder="再次输入密码" />
+						<input id="register-username" class="login-input" type="text" placeholder="用户名" autocomplete="username" />
+						<input id="register-email" class="login-input" type="email" placeholder="邮箱" autocomplete="email" />
+						<input id="register-password" class="login-input" type="password" placeholder="密码（至少 8 位，含字母和数字）" autocomplete="new-password" />
+						<input id="register-password-confirm" class="login-input" type="password" placeholder="确认密码" autocomplete="new-password" />
 						<button id="login-btn-register" class="btn-primary-login">注册并登录</button>
+						<button type="button" data-password-view="login">返回登录</button>
 					</div>
 					<div class="login-password-view" data-password-panel="reset">
-						<input id="reset-login-id" class="login-input" type="text" placeholder="用户名 / 邮箱 / 手机号 / 学号" />
-						<div class="login-code-row">
-							<input id="reset-code" class="login-input code-input" type="text" placeholder="验证码" />
-							<button id="login-btn-reset-send-code" class="btn-send-code">发送验证码</button>
-						</div>
-						<input id="reset-new-password" class="login-input" type="password" placeholder="新密码：至少8位，含字母和数字" />
+						<input id="reset-login-id" class="login-input" type="text" placeholder="手机号 / 用户名 / 邮箱" autocomplete="username" />
+						<button id="login-btn-reset-send-code" class="btn-send-code" type="button">发送验证码</button>
+						<input id="reset-code" class="login-input" type="text" placeholder="验证码" autocomplete="one-time-code" />
+						<input id="reset-new-password" class="login-input" type="password" placeholder="新密码（至少 8 位，含字母和数字）" autocomplete="new-password" />
 						<button id="login-btn-reset-password" class="btn-primary-login">重置并登录</button>
+						<button type="button" data-password-view="login">返回登录</button>
 					</div>
-					<button class="login-back-phone" type="button" data-mode="phone">手机号验证码登录</button>
+					<button class="login-back-phone" type="button" data-login-phone-back>手机号验证码登录</button>
 				</div>
 
 				<div id="login-error" class="login-error" style="display:none"></div>
 
 				<!-- 底部同意协议 -->
 				<div class="login-agree">
-					<label><input type="checkbox" checked /> <span>我已阅读并同意</span> <a href="#">《用户协议》</a> <span>和</span> <a href="#">《隐私政策》</a></label>
+					<label><input id="login-agreement" type="checkbox" /> <span>我已阅读并同意</span> <a href="/static/legal/user-agreement.html" target="_blank" rel="noopener">《用户协议》</a> <span>和</span> <a href="/static/legal/privacy-policy.html" target="_blank" rel="noopener">《隐私政策》</a></label>
 				</div>
 
 				<!-- 模式切换图标 -->
 				<div class="login-mode-bar">
-					<button class="login-mode-icon login-password-shortcut" data-mode="password" title="用户名密码登录">
+					<button class="login-mode-icon" data-mode="phone" title="手机号验证码登录"><span>验证码</span></button>
+					<button class="login-mode-icon login-password-shortcut" data-mode="password" title="手机号密码登录">
 						<span class="login-mode-symbol" aria-hidden="true">
 							<svg viewBox="0 0 24 24" focusable="false">
 								<circle cx="7.5" cy="14.5" r="3.5"></circle>
@@ -119,10 +162,25 @@
 					</button>
 					<button class="login-mode-icon login-social-icon" data-oauth="google" title="使用 Google 登录"><span>G</span></button>
 				</div>
+				<div id="login-dev-users" class="login-dev-users" hidden>
+					<div class="login-dev-title">测试账号</div>
+					<div class="login-dev-grid">
+						<button type="button" data-dev-login="student_demo">学员 student_demo</button>
+						<button type="button" data-dev-login="teacher_demo">老师 teacher_demo</button>
+						<button type="button" data-dev-login="assistant_demo">教学运营 assistant_demo</button>
+						<button type="button" data-dev-login="orgadmin_demo">机构管理员 orgadmin_demo</button>
+						<button type="button" data-dev-login="contentadmin_demo">内容管理员 contentadmin_demo</button>
+						<button type="button" data-dev-login="superadmin_demo">超级管理员 superadmin_demo</button>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div id="exam-workarea">
 			<div id="exam-library-panel">
+				<select id="exam-mode-select" class="btn-secondary" autocomplete="off" aria-label="答题模式" title="选择答题模式">
+					<option value="practice">学习练习</option>
+					<option value="mock">模拟考试</option>
+				</select>
 				<select id="exam-family-select" class="btn-secondary" autocomplete="off">
 					<option value="jlpt">JLPT</option>
 				</select>
@@ -140,6 +198,7 @@
 					<span class="theme-icon">🌙</span>
 					<span class="theme-text">深色</span>
 				</button>
+				<span id="answer-save-status" class="answer-save-status" role="status" aria-live="polite">尚未作答</span>
 			</div>
 
 			<div id="exam-header"></div>
@@ -149,6 +208,7 @@
 				<button id="open-question-map" class="btn-secondary" title="题目选择面板">答题卡</button>
 				<button id="top-prev" class="btn-secondary" title="上一题(←)">上一题</button>
 				<button id="top-next" class="btn-secondary" title="下一题(→)">下一题</button>
+				<button id="submit-exam" class="btn-secondary submit-exam-btn" title="提交当前试卷">提交试卷</button>
 				<button id="toggle-explanations" class="btn-secondary">补充解析</button>
 				<button id="toggle-reading-kana" class="btn-secondary" title="阅读原文上方显示假名">假名</button>
 				<button id="toggle-reading-zh" class="btn-secondary" title="阅读原文下方显示中文">中文</button>
@@ -169,8 +229,11 @@
 			<div id="question-navigation"></div>
 		</div>
 	</div>
+	<div id="exam-result-modal" class="exam-result-modal" role="dialog" aria-modal="true" aria-labelledby="exam-result-title" aria-hidden="true" hidden>
+		<div id="exam-result-panel" class="exam-result-panel"></div>
+	</div>
 
-	<script type="module" src="/static/app/main.js?v=20260503b"></script>
+	<script type="module" src="/static/app/main.js?v=20260721-editor-v2"></script>
 
 	<script>
 		(function() {

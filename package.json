@@ -11,7 +11,9 @@
     "e2e:auto:headed": "powershell -ExecutionPolicy Bypass -File ./run-e2e.ps1 -Headed",
     "e2e:auto:ui": "powershell -ExecutionPolicy Bypass -File ./run-e2e.ps1 -Ui",
     "audit:content": "node tools/audit_exam_content.mjs",
-    "audit:content:strict": "node tools/audit_exam_content.mjs --strict-timestamps"
+    "audit:content:strict": "node tools/audit_exam_content.mjs --strict-timestamps",
+    "audit:gaps": "node tools/audit_paper_library_gaps.mjs",
+    "audit:gaps:write": "node tools/audit_paper_library_gaps.mjs --write"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2"

@@ -84,16 +84,29 @@ Json::Value StudyGoalService::normalize(const Json::Value &payload)
         throw common::AppException("VALIDATION_ERROR", "target_date 必须为 YYYY-MM-DD", drogon::k422UnprocessableEntity);
     out["title"] = title;
     out["target_date"] = targetDate;
-    if (payload.isMember("exam_target")) out["exam_target"] = payload.get("exam_target", "").asString();
+    if (payload.isMember("exam_target"))
+    {
+        if (!payload["exam_target"].isString() || payload["exam_target"].asString().size() > 80)
+            throw common::AppException("VALIDATION_ERROR", "exam_target 最多 80 字符", drogon::k422UnprocessableEntity);
+        out["exam_target"] = payload["exam_target"].asString();
+    }
     if (payload.isMember("daily_question_target"))
     {
-        const int n = payload.get("daily_question_target", 0).asInt();
-        out["daily_question_target"] = std::clamp(n, 0, 1000);
+        if (!payload["daily_question_target"].isIntegral())
+            throw common::AppException("VALIDATION_ERROR", "daily_question_target 必须是整数", drogon::k422UnprocessableEntity);
+        const int n = payload["daily_question_target"].asInt();
+        if (n < 0 || n > 1000)
+            throw common::AppException("VALIDATION_ERROR", "daily_question_target 必须在 0-1000 之间", drogon::k422UnprocessableEntity);
+        out["daily_question_target"] = n;
     }
     if (payload.isMember("note"))
     {
-        const auto note = payload.get("note", "").asString();
-        out["note"] = note.size() > 500 ? note.substr(0, 500) : note;
+        if (!payload["note"].isString())
+            throw common::AppException("VALIDATION_ERROR", "note 必须是文本", drogon::k422UnprocessableEntity);
+        const auto note = payload["note"].asString();
+        if (note.size() > 500)
+            throw common::AppException("VALIDATION_ERROR", "note 最多 500 字符", drogon::k422UnprocessableEntity);
+        out["note"] = note;
     }
     return out;
 }

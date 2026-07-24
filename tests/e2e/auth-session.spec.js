@@ -47,9 +47,9 @@ async function openLoginModal(page) {
 }
 
 async function fillPasswordLogin(page, loginId, password) {
+	await page.locator('#login-agreement').check();
   await page.locator('[data-mode="password"]').click();
-  await page.locator('[data-password-view="login"]').click();
-  await page.locator('#login-username').fill(loginId);
+  await page.locator('#login-password-phone, #login-username').first().fill(loginId);
   await page.locator('#login-password').fill(password);
   await page.locator('#login-btn-password').click();
 }
@@ -89,6 +89,29 @@ test('游客状态只打开登录入口，不写入本地账号 session', async 
   const stored = await readStoredSession(page);
   expect(stored.token).toBeNull();
   expect(stored.user).toBeNull();
+});
+
+test('登录弹窗在手机端支持初始焦点、Esc 关闭和焦点归还', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await clearBrowserSession(page);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  const loginEntry = await expectGuestEntry(page);
+  await loginEntry.focus();
+  await loginEntry.click();
+  const modal = page.locator('#login-modal');
+  await expect(modal).toBeVisible();
+  await expect(modal).toHaveAttribute('aria-hidden', 'false');
+  await expect(modal.locator('[role="dialog"]')).toHaveAttribute('aria-modal', 'true');
+  await expect(page.locator('#login-phone')).toBeFocused();
+  expect(await modal.locator('.login-box').evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    return box.left >= 0 && box.right <= window.innerWidth && box.top >= 0 && box.bottom <= window.innerHeight;
+  })).toBeTruthy();
+  await page.keyboard.press('Escape');
+  await expect(modal).toBeHidden();
+  await expect(modal).toHaveAttribute('aria-hidden', 'true');
+  await expect(loginEntry).toBeFocused();
 });
 
 test('密码登录后可以刷新恢复 session，退出后旧 token 失效', async ({ page, request }) => {
@@ -136,6 +159,7 @@ test('新用户可以通过注册入口创建账号并自动登录', async ({ pa
   const loginEntry = await expectGuestEntry(page);
   await loginEntry.click();
   await expect(page.locator('#login-modal')).toBeVisible();
+	await page.locator('#login-agreement').check();
   await page.locator('[data-mode="password"]').click();
   await page.locator('[data-password-view="register"]').click();
   await page.locator('#register-username').fill(loginId);
@@ -157,6 +181,7 @@ test('手机号验证码可以通过登录弹窗自动创建账号并登录', as
 
   await stubNoisyPersonalCenterApis(page);
   await openLoginModal(page);
+	await page.locator('#login-agreement').check();
   await page.locator('[data-mode="phone"]').click();
   await page.locator('#login-phone').fill(phone);
 
@@ -197,6 +222,7 @@ test('忘记密码可以通过验证码重置，并用新密码登录', async ({
 
   await stubNoisyPersonalCenterApis(page);
   await openLoginModal(page);
+	await page.locator('#login-agreement').check();
   await page.locator('[data-mode="password"]').click();
   await page.locator('[data-password-view="reset"]').click();
   await page.locator('#reset-login-id').fill(loginId);
@@ -224,45 +250,77 @@ test('登录后可以在个人中心修改密码，旧密码失效新密码生�
   const loginId = uniqueLoginId('student_change_password');
   await registerUserApi(request, loginId, 'OldPass12345');
 
+  const initialLogin = await request.post('/api/v1/auth/login', {
+    data: { username: loginId, password: 'OldPass12345' }
+  });
+  expect(initialLogin.ok()).toBeTruthy();
+  const initialPayload = await initialLogin.json();
+  expect(initialPayload.code).toBe('OK');
+  const session = initialPayload.data;
+  const context = await getMeContext(request, session.token);
+
   await stubNoisyPersonalCenterApis(page);
-  await openLoginModal(page);
-  await fillPasswordLogin(page, loginId, 'OldPass12345');
-  await expectLoggedIn(page, loginId);
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await clearBrowserSession(page);
+  await page.evaluate(({ session, context }) => {
+    localStorage.setItem('exam_v2_token', session.token);
+    localStorage.setItem('exam_v2_user', JSON.stringify({
+      ...context.user,
+      guest: false,
+      token: session.token,
+      profile: context.profile,
+      membership: context.membership,
+      permissions: context.permissions,
+      session_expires_at: context.session?.expires_at || '',
+      subscription: context.subscription
+    }));
+  }, { session, context });
+  await page.reload({ waitUntil: 'domcontentloaded' });
 
   await openPersonalCenter(page);
-  await page.locator('button.service-item[data-intent="gotoProfile"]').click();
-  await expect(page.locator('form[data-password-change-form]')).toBeVisible();
-  await page.locator('#pc-current-password').fill('OldPass12345');
-  await page.locator('#pc-new-password').fill('NewPass12345');
-  await page.locator('form[data-password-change-form] button[type="submit"]').click();
+  await page.locator('[data-dashboard-page="account-core"]').click();
+  await page.locator('[data-account-action="password"]').click();
+  const passwordForm = page.locator('form[data-account-password-form]');
+  await expect(passwordForm).toBeVisible();
+  await passwordForm.locator('[data-account-current-password]').fill('OldPass12345');
+  await passwordForm.locator('[data-account-new-password]').fill('NewPass12345');
+  await passwordForm.locator('[data-account-confirm-password]').fill('NewPass12345');
+  await passwordForm.locator('button[type="submit"]').click();
   await expect(page.locator('#pc-toast')).toContainText('密码已更新', { timeout: 20000 });
 
   await page.locator('.pc-logout-action').click();
   await expectGuestEntry(page);
 
-  await page.locator('#user-menu-trigger').first().click();
-  await fillPasswordLogin(page, loginId, 'OldPass12345');
-  await expect(page.locator('#login-error')).toContainText(/invalid|登录失败|用户名|密码/i, { timeout: 20000 });
+  const oldPasswordLogin = await request.post('/api/v1/auth/login', {
+    data: { username: loginId, password: 'OldPass12345' }
+  });
+  const oldPasswordPayload = await oldPasswordLogin.json();
+  expect(oldPasswordLogin.ok()).toBeFalsy();
+  expect(oldPasswordPayload.code).not.toBe('OK');
 
-  await page.locator('#login-password').fill('NewPass12345');
-  await page.locator('#login-btn-password').click();
-  await expectLoggedIn(page, loginId);
+  const newPasswordLogin = await request.post('/api/v1/auth/login', {
+    data: { username: loginId, password: 'NewPass12345' }
+  });
+  expect(newPasswordLogin.ok()).toBeTruthy();
+  expect((await newPasswordLogin.json()).code).toBe('OK');
 });
 
-test('微信开发存根可以通过登录弹窗建立登录态', async ({ page }) => {
+test('微信开发存根返回的测试账号可以通过登录弹窗建立登录态', async ({ page }) => {
   await stubNoisyPersonalCenterApis(page);
   await openLoginModal(page);
+	await page.locator('#login-agreement').check();
+	await page.locator('[data-mode="wechat"]').click();
   await expect(page.locator('#wechat-test-id-list')).toBeVisible({ timeout: 20000 });
-  await page.locator('#wechat-test-id-list .login-test-id-item', { hasText: 'wxdev_001' }).click();
+  await page.locator('#wechat-test-id-list .login-test-id-item', { hasText: 'student_demo' }).click();
 
   await expect(page.locator('#login-modal')).toBeHidden({ timeout: 20000 });
   await expect(page.locator('#user-menu-trigger').first()).toHaveAttribute('aria-label', /打开个人中心/);
   const stored = await readStoredSession(page);
   expect(stored.token).toBeTruthy();
-  expect(stored.user).toContain('wxdev_001');
+  expect(stored.user).toContain('student_demo');
 });
 
-test('OAuth mock 回调可以建立前端登录态', async ({ page }) => {
+test('OAuth 只展示已支持入口，未配置提供方由后端明确拒绝', async ({ page, request }) => {
   await stubNoisyPersonalCenterApis(page);
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await clearBrowserSession(page);
@@ -271,12 +329,11 @@ test('OAuth mock 回调可以建立前端登录态', async ({ page }) => {
   const loginEntry = await expectGuestEntry(page);
   await loginEntry.click();
   await expect(page.locator('#login-modal')).toBeVisible();
-  await page.locator('.login-oauth-btn[data-oauth="github"]').click();
-
-  await expect(page.locator('#user-menu-trigger').first()).toHaveAttribute('aria-label', /打开个人中心/, { timeout: 20000 });
-  const stored = await readStoredSession(page);
-  expect(stored.token).toBeTruthy();
-  expect(stored.user).toContain('mock-github@example.com');
+  await expect(page.locator('[data-oauth="google"]')).toBeVisible();
+  await expect(page.locator('[data-oauth="github"]')).toHaveCount(0);
+  const response = await request.get('/api/v1/auth/oauth/github/start');
+  expect(response.status()).toBe(503);
+  expect((await response.json()).code).toBe('OAUTH_PROVIDER_DISABLED');
 });
 
 test('开发测试账号可以识别 student、teacher、orgAdmin、superAdmin 角色与权限', async ({ request }) => {

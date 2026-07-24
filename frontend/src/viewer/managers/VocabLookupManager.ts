@@ -38,6 +38,10 @@ class VocabLookupManager {
 	}
 
 	private onSelectionMaybeChanged(_ev: Event): void {
+		if (this.examViewer?.examMode === 'mock' && !this.examViewer?.isSubmitted) {
+			this.hide();
+			return;
+		}
 		// 若用户开关 vocab_notebook 关闭，则不弹
 		try {
 			const enabled = (window as any).isFeatureEnabled?.('vocab_notebook', true) ?? true;

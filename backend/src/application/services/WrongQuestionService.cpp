@@ -311,6 +311,10 @@ Json::Value WrongQuestionService::list(const std::string &userId, const ListFilt
     out["page"] = page;
     out["page_size"] = pageSize;
     out["summary"] = summary(userId);
+    if (doc.isMember("reset_audit") && doc["reset_audit"].isObject())
+    {
+        out["reset_audit"] = doc["reset_audit"];
+    }
     return out;
 }
 
@@ -329,9 +333,9 @@ bool WrongQuestionService::unmarkMastered(const std::string &userId, const std::
     return repository_.unmarkMastered(userId, questionId);
 }
 
-void WrongQuestionService::reset(const std::string &userId)
+void WrongQuestionService::reset(const std::string &userId, const std::string &actorUserId)
 {
-    repository_.reset(userId);
+    repository_.reset(userId, actorUserId);
 }
 
 Json::Value WrongQuestionService::sample(const std::string &userId, int count) const

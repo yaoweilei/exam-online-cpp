@@ -60,6 +60,44 @@ body:not(.light-theme) .qr-wrapper { border-color: rgba(31, 25, 20, 0.08); backg
 	color: #fff;
 }
 
+.login-dev-users {
+	width: 100%;
+	margin-top: calc(var(--login-scale, 0.367px) * 42);
+	padding: 0 calc(var(--login-scale, 0.367px) * 12);
+	box-sizing: border-box;
+}
+
+.login-dev-users[hidden] {
+	display: none !important;
+}
+
+.login-dev-title {
+	margin-bottom: calc(var(--login-scale, 0.367px) * 16);
+	color: rgba(91, 86, 82, 0.72);
+	font-size: calc(var(--login-scale, 0.367px) * 26);
+	line-height: 1;
+}
+
+.login-dev-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: calc(var(--login-scale, 0.367px) * 16);
+}
+
+.login-dev-grid button {
+	min-height: calc(var(--login-scale, 0.367px) * 62);
+	border: 1px solid rgba(255, 126, 95, 0.36);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.72);
+	color: #f16452;
+	font-size: calc(var(--login-scale, 0.367px) * 28);
+	cursor: pointer;
+}
+
+.login-dev-grid button:hover {
+	background: rgba(255, 126, 95, 0.1);
+}
+
 /* Inputs */
 .login-input {
 	display: block;
@@ -78,6 +116,18 @@ body:not(.light-theme) .login-input {
 	color: #222;
 }
 .login-input:focus { outline: 2px solid rgba(255, 126, 95, 0.35); }
+
+.login-box button:focus-visible,
+.login-box input:focus-visible,
+.login-box a:focus-visible {
+	outline: 2px solid #2563eb;
+	outline-offset: 2px;
+}
+
+.login-box button[aria-busy="true"] {
+	opacity: 0.62;
+	cursor: wait;
+}
 
 .login-phone-entry {
 	display: grid;
@@ -129,6 +179,58 @@ body:not(.light-theme) .login-country-code { color: #2b2724; border-right-color:
 }
 
 .login-phone-code-sent .login-phone-code-row { display: flex; }
+
+.login-password-view {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--login-scale, 0.367px) * 28);
+}
+
+.login-password-view .login-input {
+	margin: 0;
+}
+
+.login-password-field {
+	position: relative;
+	width: 100%;
+}
+
+.login-password-field .login-input {
+	padding-right: 54px;
+}
+
+.login-password-toggle {
+	position: absolute;
+	right: 14px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 34px;
+	height: 34px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: rgba(31, 25, 20, 0.48);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.login-password-toggle:hover,
+.login-password-toggle.is-visible {
+	color: #f16452;
+	background: rgba(255, 126, 95, 0.1);
+}
+
+.login-password-toggle svg {
+	width: 21px;
+	height: 21px;
+	stroke: currentColor;
+	fill: none;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
 
 .btn-send-code {
 	padding: 12px 18px;
@@ -373,6 +475,10 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 		min-height: var(--login-mobile-input-height);
 	}
 
+	.login-password-view {
+		gap: calc(var(--login-scale, 0.367px) * 28);
+	}
+
 	.btn-primary-login {
 		min-height: var(--login-mobile-button-height);
 		margin-top: 0;
@@ -433,5 +539,9 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 
 	.login-social-icon[data-oauth="google"] {
 		font-size: calc(var(--login-scale, 0.367px) * 42);
+	}
+
+	.login-dev-users {
+		margin-top: calc(var(--login-scale, 0.367px) * 42);
 	}
 }

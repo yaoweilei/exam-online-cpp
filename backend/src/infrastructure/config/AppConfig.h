@@ -31,6 +31,10 @@ struct AppConfig
     std::string wechatAppId;
     std::string wechatAppSecret;
     std::string wechatCallbackBaseUrl;  // e.g. "https://example.com"
+    // Google OAuth
+    std::string googleOAuthClientId;
+    std::string googleOAuthClientSecret;
+    std::string googleOAuthRedirectUri;
     // SMS (Aliyun / Tencent)
     std::string smsAccessKeyId;
     std::string smsAccessKeySecret;
@@ -136,8 +140,9 @@ inline AppConfig loadConfig()
     config.documentRoot = config.baseDir;
     config.host = readEnv("HOST", config.host);
     config.port = static_cast<uint16_t>(std::stoi(readEnv("PORT", std::to_string(config.port))));
-    config.threads = static_cast<size_t>(std::stoul(readEnv("THREADS", std::to_string(config.threads))));
     config.appEnv = toLowerCopy(readEnv("APP_ENV", config.appEnv));
+    const auto defaultThreads = isDevelopmentEnv(config.appEnv) ? static_cast<size_t>(1) : config.threads;
+    config.threads = static_cast<size_t>(std::stoul(readEnv("THREADS", std::to_string(defaultThreads))));
     config.baseDir = std::filesystem::path(readEnv("BASE_DIR", config.baseDir.string()));
     config.documentRoot = std::filesystem::path(readEnv("DOCUMENT_ROOT", config.baseDir.string()));
     config.dataPaperDir = config.baseDir / "data" / "paper";
@@ -156,6 +161,12 @@ inline AppConfig loadConfig()
     config.wechatAppId = readEnv("WECHAT_APP_ID", "");
     config.wechatAppSecret = readEnv("WECHAT_APP_SECRET", "");
     config.wechatCallbackBaseUrl = readEnv("WECHAT_CALLBACK_BASE_URL", "");
+    // Google OAuth. GOOGLE_CLIENT_* aliases are accepted for common deployment platforms.
+    config.googleOAuthClientId = readEnv("GOOGLE_OAUTH_CLIENT_ID", readEnv("GOOGLE_CLIENT_ID", ""));
+    config.googleOAuthClientSecret = readEnv("GOOGLE_OAUTH_CLIENT_SECRET", readEnv("GOOGLE_CLIENT_SECRET", ""));
+    config.googleOAuthRedirectUri = readEnv(
+        "GOOGLE_OAUTH_REDIRECT_URI",
+        readEnv("GOOGLE_REDIRECT_URI", config.publicWebBaseUrl + "/api/v1/auth/oauth/google/callback"));
     // SMS
     config.smsAccessKeyId = readEnv("SMS_ACCESS_KEY_ID", "");
     config.smsAccessKeySecret = readEnv("SMS_ACCESS_KEY_SECRET", "");

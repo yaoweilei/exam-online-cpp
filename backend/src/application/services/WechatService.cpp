@@ -44,6 +44,16 @@ WechatService::Config config)
 
 Json::Value WechatService::generateQrcode()
 {
+    return generateAuthorizationEntry(false);
+}
+
+Json::Value WechatService::generateMobileAuthorization()
+{
+    return generateAuthorizationEntry(true);
+}
+
+Json::Value WechatService::generateAuthorizationEntry(bool mobile)
+{
     const auto state = common::generateRequestId();
 
     Json::Value out(Json::objectValue);
@@ -53,7 +63,9 @@ Json::Value WechatService::generateQrcode()
     if (config_.appId.empty())
     {
         // Development stub: return a fake QR code URL
+        const auto stubCallback = "/api/v1/auth/wechat/callback?code=student_demo&state=" + urlEncode(state);
         out["qrcode_url"] = "https://stub.wechat.example/qrcode?state=" + state;
+        out["auth_url"] = stubCallback;
         out["stub"] = true;
         Json::Value testIds(Json::arrayValue);
         for (const auto &testId : defaultDevelopmentTestIds())
@@ -65,16 +77,18 @@ Json::Value WechatService::generateQrcode()
     else
     {
         const auto callbackUrl = config_.callbackBaseUrl + "/api/v1/auth/wechat/callback";
-        out["qrcode_url"] = "https://open.weixin.qq.com/connect/qrconnect"
-                            "?appid=" + config_.appId +
-                            "&redirect_uri=" + urlEncode(callbackUrl) +
-                            "&response_type=code"
-                            "&scope=snsapi_login"
-                            "&state=" + urlEncode(state) + "#wechat_redirect";
+        const auto authUrl = std::string("https://open.weixin.qq.com/connect/qrconnect")
+                             + "?appid=" + config_.appId +
+                             "&redirect_uri=" + urlEncode(callbackUrl) +
+                             "&response_type=code"
+                             "&scope=snsapi_login"
+                             "&state=" + urlEncode(state) + "#wechat_redirect";
+        out["qrcode_url"] = authUrl;
+        out["auth_url"] = authUrl;
     }
 
     std::unique_lock lock(mutex_);
-    pendingStates_[state] = PendingAuth{.state = state};
+    pendingStates_[state] = PendingAuth{.state = state, .mobile = mobile};
     return out;
 }
 
@@ -118,6 +132,13 @@ std::string WechatService::handleCallback(const std::string &code, const std::st
     return sessionToken;
 }
 
+bool WechatService::isMobileState(const std::string &state) const
+{
+    std::unique_lock lock(mutex_);
+    const auto it = pendingStates_.find(state);
+    return it != pendingStates_.end() && it->second.mobile;
+}
+
 Json::Value WechatService::poll(const std::string &state)
 {
     std::unique_lock lock(mutex_);
@@ -140,16 +161,57 @@ Json::Value WechatService::poll(const std::string &state)
     return out;
 }
 
+Json::Value WechatService::bindToUser(const std::string &userId, const std::string &code)
+{
+    if (userId.empty() || userId == "guest")
+    {
+        throw common::AppException("AUTH_REQUIRED", "Login is required before binding WeChat", drogon::k401Unauthorized);
+    }
+    if (code.empty())
+    {
+        throw common::AppException("WECHAT_CODE_REQUIRED", "WeChat code is required", drogon::k422UnprocessableEntity);
+    }
+
+    std::string openid;
+    std::string nickname;
+    std::string avatarUrl;
+    std::string loginIdHint;
+    if (config_.appId.empty())
+    {
+        openid = "stub_openid_" + code;
+        nickname = code;
+        loginIdHint = code;
+    }
+    else
+    {
+        const auto tokenResp = exchangeCodeForToken(code);
+        openid = tokenResp.get("openid", "").asString();
+        nickname = tokenResp.get("nickname", "").asString();
+        avatarUrl = tokenResp.get("headimgurl", "").asString();
+        if (openid.empty())
+        {
+            throw common::AppException("WECHAT_AUTH_FAILED", "Failed to get openid from WeChat", drogon::k502BadGateway);
+        }
+    }
+
+    const auto user = userRepository_.bindWechat(userId, openid, nickname, avatarUrl, loginIdHint);
+    Json::Value out(Json::objectValue);
+    out["user_id"] = user.get("id", "").asString();
+    out["wechat_bound"] = true;
+    out["wechat_nickname"] = user.get("wechat_nickname", "").asString();
+    out["wechat_bound_at"] = user.get("wechat_bound_at", "").asString();
+    return out;
+}
+
 const std::vector<std::string> &WechatService::defaultDevelopmentTestIds()
 {
     static const std::vector<std::string> testIds = {
-        "wxdev_001",
-        "wxdev_002",
-        "wxdev_003",
-        "admin_001",
-        "teacher_001",
-        "assistant_001",
-        "content_001"};
+        "student_demo",
+        "teacher_demo",
+        "assistant_demo",
+        "orgadmin_demo",
+        "contentadmin_demo",
+        "superadmin_demo"};
     return testIds;
 }
 

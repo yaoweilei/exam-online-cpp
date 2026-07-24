@@ -30,12 +30,7 @@ void registerRelatedQuestionsRoutes(const AppContext &ctx)
                     throw common::AppException("BAD_REQUEST", "exam_id/question_id required",
                                                drogon::k400BadRequest);
                 }
-                int limit = 10;
-                const auto l = req->getParameter("limit");
-                if (!l.empty())
-                {
-                    try { limit = std::stoi(l); } catch (...) {}
-                }
+                const int limit = readBoundedIntParameter(req, "limit", 10, 1, 50);
                 return common::ok(req, ctx.relatedQuestionsService->findByQuestion(examId, questionId, limit));
             });
         },

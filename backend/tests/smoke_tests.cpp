@@ -7,19 +7,25 @@
 #include <vector>
 
 #include "application/services/ContactChangeChallengeService.h"
+#include "application/services/DraftService.h"
 #include "application/services/EmailVerificationService.h"
 #include "application/services/AnswerService.h"
 #include "application/services/AuthService.h"
+#include "application/services/AuditLogService.h"
 #include "application/services/OrganizationService.h"
 #include "application/services/PhoneService.h"
 #include "application/services/SubscriptionService.h"
 #include "application/services/UserService.h"
 #include "common/RequestId.h"
+#include "common/AppException.h"
 #include "infrastructure/storage/AnswerRepository.h"
+#include "infrastructure/storage/AttemptTimerRepository.h"
+#include "infrastructure/storage/DraftRepository.h"
 #include "infrastructure/storage/OrganizationRepository.h"
 #include "infrastructure/storage/ProfileRepository.h"
 #include "infrastructure/storage/SessionRepository.h"
 #include "infrastructure/storage/UserRepository.h"
+#include "infrastructure/storage/JsonIo.h"
 
 namespace
 {
@@ -310,11 +316,23 @@ void testPasswordLifecycle()
     assert(session.get("username", "").asString() == "password_lifecycle_smoke");
 
     const auto userId = session.get("user_id", "").asString();
+    authService.requirePasswordReauthentication(userId, "Start12345");
+    expectAppException("REAUTH_FAILED", [&]() {
+        authService.requirePasswordReauthentication(userId, "wrong-password");
+    });
     authService.changePassword(userId, "Start12345", "Changed12345");
     expectAppException("INVALID_CREDENTIALS", [&]() {
         (void)authService.login("password_lifecycle_smoke", "Start12345");
     });
-    assert(!authService.login("password_lifecycle_smoke", "Changed12345").get("token", "").asString().empty());
+    const auto firstChangedToken = authService.login("password_lifecycle_smoke", "Changed12345").get("token", "").asString();
+    const auto secondChangedToken = authService.login("password_lifecycle_smoke", "Changed12345").get("token", "").asString();
+    assert(!firstChangedToken.empty());
+    assert(!secondChangedToken.empty());
+    assert(authService.revokeSessionsForUser(userId, firstChangedToken) >= 1);
+    assert(authService.verify(firstChangedToken).get("user_id", "").asString() == userId);
+    expectAppException("TOKEN_INVALID", [&]() {
+        (void)authService.verify(secondChangedToken);
+    });
 
     const auto sent = authService.sendPasswordResetCode("password_lifecycle_smoke");
     assert(sent.get("channel", "").asString() == "email");
@@ -584,6 +602,87 @@ void testCompositeAnswerKeysAreScoredPerSection()
     assert(score["results"]["0:1"].get("question_id", "").asString() == "1");
     assert(score["results"]["1:1"].get("section_index", -1).asInt() == 1);
 }
+
+void testDraftRevisionConflictAndForcedOverwrite()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::DraftRepository repository(tempDir.path());
+    application::services::DraftService service(repository);
+    Json::Value initial(Json::objectValue);
+    initial["exam_id"] = "exam-a";
+    initial["attempt_id"] = "attempt-a";
+    initial["answers"]["0:1"] = 1;
+    const auto first = service.save("student-a", initial);
+    assert(first.get("revision", 0).asInt() == 1);
+
+    Json::Value stale = initial;
+    stale["base_revision"] = 0;
+    bool sawConflict = false;
+    try { service.save("student-a", stale); }
+    catch (const common::AppException &error) { sawConflict = error.code() == "DRAFT_CONFLICT"; }
+    assert(sawConflict);
+
+    stale["force_overwrite"] = true;
+    const auto forced = service.save("student-a", stale);
+    assert(forced.get("revision", 0).asInt() == 2);
+
+    service.markSubmitted("student-a", "exam-a", "attempt-a");
+    bool sawSubmitted = false;
+    try { service.save("student-a", forced); }
+    catch (const common::AppException &error) { sawSubmitted = error.code() == "ATTEMPT_SUBMITTED"; }
+    assert(sawSubmitted);
+}
+
+void testExpiredSectionsPersistInTimerSnapshot()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::AttemptTimerRepository repository(tempDir.path());
+    Json::Value start(Json::objectValue);
+    start["exam_id"] = "exam-a";
+    start["section_limits_seconds"].append(30);
+    repository.start("student-a", start);
+    Json::Value tick(Json::objectValue);
+    tick["exam_id"] = "exam-a";
+    tick["section_index"] = 0;
+    tick["delta_seconds"] = 30;
+    const auto snapshot = repository.tick("student-a", tick);
+    assert(snapshot["expired_section_indexes"].isArray());
+    assert(snapshot["expired_section_indexes"][0].asInt() == 0);
+}
+
+void testAnswerSubmissionIdempotencyAndHistory()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::AnswerRepository repository(tempDir.path());
+    Json::Value answers(Json::objectValue);
+    answers["0:1"] = 1;
+    Json::Value statistics(Json::objectValue);
+    statistics["score"] = 100;
+    const auto first = repository.saveAnswer("student-a", "exam-a", answers, statistics, "submission-a");
+    const auto replay = repository.saveAnswer("student-a", "exam-a", answers, statistics, "submission-a");
+    assert(!first.get("idempotent_replay", true).asBool());
+    assert(replay.get("idempotent_replay", false).asBool());
+    assert(repository.listAttempts("student-a", "exam-a").size() == 1);
+}
+
+void testAuditLogsRotateAndRemainQueryable()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::OrganizationRepository organizationRepository(tempDir.path());
+    application::services::AuditLogService service(tempDir.path(), organizationRepository, 2);
+
+    service.record("feature_flags.system.updated", "admin-a", "第一次修改");
+    service.record("feature_flags.system.updated", "admin-a", "第二次修改");
+    service.record("feature_flags.system.updated", "admin-a", "第三次修改");
+
+    assert(std::filesystem::exists(tempDir.path() / "core.sqlite3"));
+
+    application::services::AuditLogQuery query;
+    query.action = "feature_flags.system.updated";
+    const auto result = service.query(query);
+    assert(result.get("total", 0).asInt() == 3);
+    assert(result["items"][0].get("action_label", "").asString() == "修改系统功能开关");
+}
 }  // namespace
 
 int main()
@@ -598,5 +697,9 @@ int main()
     testOrganizationMemberPermissionOverrides();
     testOrganizationLearningModel();
     testCompositeAnswerKeysAreScoredPerSection();
+    testDraftRevisionConflictAndForcedOverwrite();
+    testAnswerSubmissionIdempotencyAndHistory();
+    testExpiredSectionsPersistInTimerSnapshot();
+    testAuditLogsRotateAndRemainQueryable();
     return 0;
 }

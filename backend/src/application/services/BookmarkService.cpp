@@ -37,4 +37,9 @@ Json::Value BookmarkService::removeQuestionBookmark(const std::string &userId, c
     return repository_.loadBookmarks(userId);
 }
 
+bool BookmarkService::clearQuestionFolder(const std::string &userId, const std::string &folderId)
+{
+    return repository_.clearQuestionFolder(userId, folderId);
+}
+
 }  // namespace application::services

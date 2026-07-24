@@ -1,0 +1,14 @@
+{
+  "elapsed_seconds" : 15,
+  "exam_id" : "2024_01",
+  "expired_section_indexes" : [],
+  "section_elapsed_seconds" : 
+  {
+    "0" : 15
+  },
+  "section_limits_seconds" : [],
+  "started_at" : "2026-07-19T02:33:05.644Z",
+  "total_limit_seconds" : 0,
+  "updated_at" : "2026-07-19T02:33:20.256Z",
+  "user_id" : "usr_019f7838-47be-736d-a9b4-9d1839a753fe"
+}

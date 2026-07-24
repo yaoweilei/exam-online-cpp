@@ -1,0 +1,12 @@
+{
+  "items" : [],
+  "reset_audit" : 
+  {
+    "actor_user_id" : "usr_019f6ec2-5325-77e8-bf64-5d53c1b9aaf5",
+    "previous_question_count" : 0,
+    "reset_at" : "2026-07-17T06:27:37.628Z",
+    "reset_count" : 1
+  },
+  "updated_at" : "2026-07-17T06:27:37.628Z",
+  "user_id" : "usr_019f6ec2-5325-77e8-bf64-5d53c1b9aaf5"
+}

@@ -51,14 +51,24 @@ class WechatService
     // Returns { state, qrcode_url, expires_in }
     Json::Value generateQrcode();
 
+    // Mobile web login entry. Returns { state, auth_url, expires_in } and marks
+    // the callback as same-window, so callback can set a token cookie and
+    // redirect back to the app.
+    Json::Value generateMobileAuthorization();
+
     // Step 2: Called by the OAuth2 callback.
     // Exchanges `code` for openid, upserts user, then stores session token.
     // Returns the internal session token.
     std::string handleCallback(const std::string &code, const std::string &state);
 
+    bool isMobileState(const std::string &state) const;
+
     // Step 3: Frontend polls this to get the session token.
     // Returns { done, token?, user_id?, username?, roles? }
     Json::Value poll(const std::string &state);
+
+    // Bind a WeChat identity to the currently logged-in account.
+    Json::Value bindToUser(const std::string &userId, const std::string &code);
 
   private:
     static const std::vector<std::string> &defaultDevelopmentTestIds();
@@ -75,12 +85,15 @@ class WechatService
         std::string username;
         Json::Value roles{Json::arrayValue};
         bool done{false};
+        bool mobile{false};
     };
+
+    Json::Value generateAuthorizationEntry(bool mobile);
 
     infrastructure::storage::UserRepository &userRepository_;
     AuthService &authService_;
     Config config_;
     std::map<std::string, PendingAuth> pendingStates_;
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
 };
 }  // namespace application::services

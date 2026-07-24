@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cctype>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <memory>
 #include <optional>
@@ -85,6 +86,160 @@ bool hasAnyRole(const Json::Value &roles, std::initializer_list<const char *> ex
     }
     return false;
 }
+
+Json::Value defaultPricingConfig()
+{
+    Json::Value config(Json::objectValue);
+    config["version"] = 1;
+    config["default_currency"] = "cny";
+    config["default_provider"] = "wechat";
+    config["durations"] = Json::arrayValue;
+    config["durations"].append(30);
+    config["durations"].append(90);
+    config["durations"].append(365);
+    config["providers"] = Json::arrayValue;
+    config["providers"].append("wechat");
+    config["providers"].append("alipay");
+    config["providers"].append("stripe");
+
+    Json::Value cny(Json::objectValue);
+    cny["pro"]["30"] = 1290;
+    cny["pro"]["90"] = 3870;
+    cny["pro"]["365"] = 15480;
+    cny["ultra"]["30"] = 3900;
+    cny["ultra"]["90"] = 9900;
+    cny["ultra"]["365"] = 29900;
+
+    Json::Value usd(Json::objectValue);
+    usd["pro"]["30"] = 399;
+    usd["pro"]["90"] = 999;
+    usd["pro"]["365"] = 2999;
+    usd["ultra"]["30"] = 699;
+    usd["ultra"]["90"] = 1799;
+    usd["ultra"]["365"] = 4999;
+
+    config["prices_cents"]["cny"] = cny;
+    config["prices_cents"]["usd"] = usd;
+    config["updated_at"] = "";
+    return config;
+}
+
+int readPriceCents(const Json::Value &pricing,
+                   const std::string &currency,
+                   const std::string &plan,
+                   int days)
+{
+    const auto key = std::to_string(days);
+    const auto amount = pricing["prices_cents"][currency][plan].get(key, 0).asInt();
+    return amount > 0 ? amount : 0;
+}
+
+int normalizePriceCents(const Json::Value &value, int fallback)
+{
+    if (!value.isInt() && !value.isUInt() && !value.isDouble())
+    {
+        return fallback;
+    }
+    const int amount = value.asInt();
+    if (amount < 0)
+    {
+        return fallback;
+    }
+    if (amount > 99999999)
+    {
+        return 99999999;
+    }
+    return amount;
+}
+
+Json::Value normalizePricingConfig(const Json::Value &payload)
+{
+    auto config = defaultPricingConfig();
+    const auto source = payload.isObject() && payload.isMember("prices_cents") ? payload : Json::Value(Json::objectValue);
+    for (const auto &currency : {"cny", "usd"})
+    {
+        for (const auto &plan : {"pro", "ultra"})
+        {
+            for (const auto days : {30, 90, 365})
+            {
+                const auto key = std::to_string(days);
+                config["prices_cents"][currency][plan][key] = normalizePriceCents(
+                    source["prices_cents"][currency][plan][key],
+                    config["prices_cents"][currency][plan][key].asInt());
+            }
+        }
+    }
+
+    const auto defaultProvider = payload.get("default_provider", config["default_provider"].asString()).asString();
+    config["default_provider"] = (defaultProvider == "alipay" || defaultProvider == "stripe") ? defaultProvider : "wechat";
+    config["updated_at"] = common::nowIso8601();
+    return config;
+}
+
+Json::Value paginateRecords(const Json::Value &records, const Json::Value &filters)
+{
+    const auto status = filters.get("status", "").asString();
+    const auto provider = filters.get("provider", "").asString();
+    const auto scopeType = filters.get("scope_type", "").asString();
+    const auto userId = filters.get("user_id", "").asString();
+    const auto orderId = filters.get("order_id", "").asString();
+    const auto query = filters.get("q", "").asString();
+    const auto sortField = filters.get("sort", "created_at").asString();
+    const bool ascending = filters.get("order", "desc").asString() == "asc";
+    const int page = std::max(1, filters.get("page", 1).asInt());
+    const int pageSize = std::clamp(filters.get("page_size", 20).asInt(), 1, 100);
+    Json::Value matches(Json::arrayValue);
+    for (const auto &record : records)
+    {
+        if (!status.empty() && record.get("status", "").asString() != status) continue;
+        if (!provider.empty() && record.get("provider", "").asString() != provider) continue;
+        if (!scopeType.empty() && record.get("scope_type", "user").asString() != scopeType) continue;
+        if (!userId.empty() && record.get("user_id", "").asString() != userId) continue;
+        if (!orderId.empty() && record.get("order_id", record.get("id", "")).asString() != orderId) continue;
+        if (!query.empty())
+        {
+            Json::StreamWriterBuilder writer;
+            writer["indentation"] = "";
+            if (Json::writeString(writer, record).find(query) == std::string::npos) continue;
+        }
+        matches.append(record);
+    }
+    std::vector<Json::Value> sorted;
+    sorted.reserve(matches.size());
+    for (const auto &record : matches) sorted.push_back(record);
+    const auto fieldValue = [&](const Json::Value &record) {
+        if (sortField == "status") return record.get("status", "").asString();
+        return record.get("created_at", record.get("updated_at", "")).asString();
+    };
+    std::stable_sort(sorted.begin(), sorted.end(), [&](const Json::Value &left, const Json::Value &right) {
+        if (sortField == "amount")
+        {
+            const auto a = left.get("amount_cents", 0).asInt64(), b = right.get("amount_cents", 0).asInt64();
+            return ascending ? a < b : a > b;
+        }
+        const auto a = fieldValue(left), b = fieldValue(right);
+        return ascending ? a < b : a > b;
+    });
+    Json::Value items(Json::arrayValue);
+    const int total = static_cast<int>(sorted.size());
+    const int begin = (page - 1) * pageSize;
+    for (int offset = 0; offset < pageSize && begin + offset < total; ++offset)
+    {
+        items.append(sorted[static_cast<std::size_t>(begin + offset)]);
+    }
+    Json::Value out(Json::objectValue);
+    out["items"] = items;
+    out["total"] = total;
+    out["page"] = page;
+    out["page_size"] = pageSize;
+    out["pages"] = total == 0 ? 0 : (total + pageSize - 1) / pageSize;
+    return out;
+}
+
+bool isSuccessfulRefundStatus(const std::string &status)
+{
+    return status == "succeeded" || status == "success" || status == "SUCCESS";
+}
 }  // namespace
 
 PaymentService::PaymentService(std::filesystem::path userRootDir,
@@ -94,9 +249,14 @@ PaymentService::PaymentService(std::filesystem::path userRootDir,
       ledgerFile_(paymentsDir_ / "ledger.json"),
       refundsFile_(paymentsDir_ / "refunds.json"),
       webhookEventsFile_(paymentsDir_ / "webhook_events.json"),
+      pricingFile_(paymentsDir_ / "pricing.json"),
+      sqliteStore_(paymentsDir_ / "payments.sqlite3"),
       subscriptionService_(subscriptionService)
 {
     std::filesystem::create_directories(paymentsDir_);
+    if (sqliteStore_.count("payment_orders") == 0 && std::filesystem::exists(ordersFile_)) sqliteStore_.replace("payment_orders", infrastructure::storage::readJsonFile(ordersFile_));
+    if (sqliteStore_.count("payment_refunds") == 0 && std::filesystem::exists(refundsFile_)) sqliteStore_.replace("payment_refunds", infrastructure::storage::readJsonFile(refundsFile_));
+    if (sqliteStore_.count("payment_ledger") == 0 && std::filesystem::exists(ledgerFile_)) sqliteStore_.replace("payment_ledger", infrastructure::storage::readJsonFile(ledgerFile_));
 }
 
 Json::Value PaymentService::createOrder(const std::string &userId, const Json::Value &payload)
@@ -108,7 +268,7 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     }
     const auto days = normalizeDays(payload.get("days", 30).asInt());
     const auto currency = normalizeCurrency(payload.get("currency", "cny").asString());
-    const auto provider = normalizeProvider(payload.get("provider", "stripe").asString());
+    const auto provider = normalizeProvider(payload.get("provider", "wechat").asString());
     const auto amountCents = priceCents(plan, days, currency);
     if (amountCents <= 0)
     {
@@ -122,6 +282,8 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     Json::Value order(Json::objectValue);
     order["id"] = makeId("pay");
     order["user_id"] = userId;
+    order["scope_type"] = "user";
+    order["scope_id"] = userId;
     order["provider"] = provider;
     order["status"] = "pending";
     order["plan"] = plan;
@@ -137,6 +299,63 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
 
     orders.append(order);
     appendLedgerEntry(ledger, userId, order["id"].asString(), "order.created", amountCents, currency, "创建支付订单");
+    saveOrders(orders);
+    saveLedger(ledger);
+    return order;
+}
+
+Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
+                                                    const std::string &organizationId,
+                                                    const Json::Value &payload)
+{
+    if (organizationId.empty())
+    {
+        throw common::AppException("PAYMENT_ORGANIZATION_REQUIRED", "organization_id is required", drogon::k422UnprocessableEntity);
+    }
+    const auto plan = normalizePlan(payload.get("plan", "pro").asString());
+    if (plan == "free")
+    {
+        throw common::AppException("PAYMENT_PLAN_INVALID", "Paid order requires pro or ultra plan", drogon::k422UnprocessableEntity);
+    }
+    const auto days = normalizeDays(payload.get("days", 30).asInt());
+    const auto seats = std::clamp(payload.get("seats", 1).asInt(), 1, 100000);
+    const auto currency = normalizeCurrency(payload.get("currency", "cny").asString());
+    const auto provider = normalizeProvider(payload.get("provider", "wechat").asString());
+    const auto unitPrice = priceCents(plan, days, currency);
+    if (unitPrice <= 0 || static_cast<long long>(unitPrice) * seats > 999999999LL)
+    {
+        throw common::AppException("PAYMENT_PRICE_INVALID", "Organization order price is invalid", drogon::k422UnprocessableEntity);
+    }
+
+    // Validate the organization before persisting or contacting a payment provider.
+    subscriptionService_.subscriptionForOrganization(organizationId);
+    std::unique_lock lock(mutex_);
+    auto orders = loadOrders();
+    auto ledger = loadLedger();
+    Json::Value order(Json::objectValue);
+    order["id"] = makeId("pay");
+    order["user_id"] = actorId;
+    order["actor_id"] = actorId;
+    order["scope_type"] = "organization";
+    order["scope_id"] = organizationId;
+    order["organization_id"] = organizationId;
+    order["provider"] = provider;
+    order["status"] = "pending";
+    order["plan"] = plan;
+    order["days"] = days;
+    order["seats"] = seats;
+    order["currency"] = currency;
+    order["unit_price_cents"] = unitPrice;
+    order["amount_cents"] = unitPrice * seats;
+    order["amount"] = order["amount_cents"].asInt() / 100.0;
+    order["description"] = "机构扩席：" + plan + " 套餐 " + std::to_string(seats) + " 席 / " + std::to_string(days) + " 天";
+    order["created_at"] = nowIso();
+    order["updated_at"] = order["created_at"].asString();
+    order["metadata"] = payload.get("metadata", Json::Value(Json::objectValue));
+    order["metadata"]["organization_id"] = organizationId;
+    order["provider_payload"] = buildProviderPayload(order);
+    orders.append(order);
+    appendLedgerEntry(ledger, actorId, order["id"].asString(), "order.created", order["amount_cents"].asInt(), currency, "创建机构扩席订单");
     saveOrders(orders);
     saveLedger(ledger);
     return order;
@@ -177,6 +396,24 @@ Json::Value PaymentService::listLedger(const std::string &userId, const Json::Va
     return out;
 }
 
+Json::Value PaymentService::listOrders(const Json::Value &filters) const
+{
+    std::scoped_lock lock(mutex_);
+    return paginateRecords(loadOrders(), filters);
+}
+
+Json::Value PaymentService::listRefunds(const Json::Value &filters) const
+{
+    std::scoped_lock lock(mutex_);
+    return paginateRecords(loadRefunds(), filters);
+}
+
+Json::Value PaymentService::listAllLedger(const Json::Value &filters) const
+{
+    std::scoped_lock lock(mutex_);
+    return paginateRecords(loadLedger(), filters);
+}
+
 Json::Value PaymentService::requestRefund(const std::string &userId, const Json::Value &roles, const Json::Value &payload)
 {
     const auto orderId = payload.get("order_id", "").asString();
@@ -198,7 +435,26 @@ Json::Value PaymentService::requestRefund(const std::string &userId, const Json:
     {
         throw common::AppException("FORBIDDEN", "You do not have access to this payment order", drogon::k403Forbidden);
     }
-    if (order.get("status", "").asString() != "paid")
+    const auto idempotencyKey = payload.get("idempotency_key", "").asString();
+    for (const auto &existing : refunds)
+    {
+        if (existing.get("idempotency_key", "").asString() == idempotencyKey &&
+            existing.get("requested_by", "").asString() == userId)
+        {
+            if (existing.get("order_id", "").asString() != orderId)
+            {
+                throw common::AppException(
+                    "IDEMPOTENCY_KEY_REUSED",
+                    "Idempotency key was already used for another refund",
+                    drogon::k409Conflict);
+            }
+            Json::Value replay = existing;
+            replay["idempotent_replay"] = true;
+            return replay;
+        }
+    }
+    const auto orderStatus = order.get("status", "").asString();
+    if (orderStatus != "paid" && orderStatus != "partially_refunded")
     {
         throw common::AppException("PAYMENT_REFUND_NOT_ALLOWED", "Only paid orders can be refunded", drogon::k409Conflict);
     }
@@ -207,6 +463,23 @@ Json::Value PaymentService::requestRefund(const std::string &userId, const Json:
     if (amount <= 0 || amount > order.get("amount_cents", 0).asInt())
     {
         throw common::AppException("PAYMENT_REFUND_AMOUNT_INVALID", "Refund amount is invalid", drogon::k422UnprocessableEntity);
+    }
+    int alreadyRefunded = 0;
+    for (const auto &existing : refunds)
+    {
+        const auto status = existing.get("status", "").asString();
+        if (existing.get("order_id", "").asString() == orderId &&
+            status != "failed" && status != "rejected" && status != "cancelled")
+        {
+            alreadyRefunded += existing.get("amount_cents", 0).asInt();
+        }
+    }
+    if (amount > order.get("amount_cents", 0).asInt() - alreadyRefunded)
+    {
+        throw common::AppException(
+            "PAYMENT_REFUND_AMOUNT_EXCEEDED",
+            "Refund amount exceeds the remaining refundable amount",
+            drogon::k409Conflict);
     }
 
     Json::Value refund(Json::objectValue);
@@ -220,6 +493,9 @@ Json::Value PaymentService::requestRefund(const std::string &userId, const Json:
     refund["status"] = "requested";
     refund["created_at"] = nowIso();
     refund["provider_reference"] = "";
+    refund["requested_by"] = userId;
+    refund["idempotency_key"] = idempotencyKey;
+    refund["idempotent_replay"] = false;
 
     if (order.get("provider", "").asString() == "stripe" && !env("STRIPE_SECRET_KEY").empty())
     {
@@ -235,7 +511,8 @@ Json::Value PaymentService::requestRefund(const std::string &userId, const Json:
             request->setBody(
                 "payment_intent=" + urlEncode(paymentIntent) +
                 "&amount=" + std::to_string(amount) +
-                "&metadata[order_id]=" + urlEncode(orderId));
+                "&metadata[order_id]=" + urlEncode(orderId) +
+                "&metadata[refund_id]=" + urlEncode(refund["id"].asString()));
             const auto [result, response] = client->sendRequest(request);
             if (result == drogon::ReqResult::Ok && response && response->statusCode() >= drogon::k200OK && response->statusCode() < drogon::k300MultipleChoices)
             {
@@ -259,7 +536,7 @@ Json::Value PaymentService::requestRefund(const std::string &userId, const Json:
         body["out_trade_no"] = orderId;
         body["out_refund_no"] = refund["id"].asString();
         body["reason"] = refund["reason"].asString();
-        body["notify_url"] = env("WECHAT_PAY_REFUND_NOTIFY_URL", env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhook/wechat");
+        body["notify_url"] = env("WECHAT_PAY_REFUND_NOTIFY_URL", env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhooks/wechat");
         body["amount"]["refund"] = amount;
         body["amount"]["total"] = order.get("amount_cents", 0).asInt();
         body["amount"]["currency"] = "CNY";
@@ -375,10 +652,145 @@ Json::Value PaymentService::requestRefund(const std::string &userId, const Json:
     }
 
     refunds.append(refund);
-    appendLedgerEntry(ledger, refund["user_id"].asString(), orderId, "refund." + refund["status"].asString(), -amount, refund["currency"].asString(), "退款申请");
+    appendLedgerEntry(ledger, refund["user_id"].asString(), orderId, "refund.requested", -amount, refund["currency"].asString(), "退款申请");
+    if (isSuccessfulRefundStatus(refund["status"].asString()))
+    {
+        settleSuccessfulRefundUnlocked(orders, refunds, ledger, refunds[refunds.size() - 1]);
+        refund = refunds[refunds.size() - 1];
+    }
+    saveOrders(orders);
     saveRefunds(refunds);
     saveLedger(ledger);
     return refund;
+}
+
+Json::Value PaymentService::updateRefundStatus(const std::string &refundId,
+                                               const std::string &status,
+                                               const std::string &actorId,
+                                               const Json::Value &payload)
+{
+    static const std::vector<std::string> allowed{
+        "processing", "succeeded", "failed", "rejected", "cancelled", "requires_manual_review", "requires_provider_console"};
+    if (std::find(allowed.begin(), allowed.end(), status) == allowed.end())
+    {
+        throw common::AppException("PAYMENT_REFUND_STATUS_INVALID", "Refund status is invalid", drogon::k422UnprocessableEntity);
+    }
+    std::unique_lock lock(mutex_);
+    auto orders = loadOrders();
+    auto refunds = loadRefunds();
+    auto ledger = loadLedger();
+    for (auto &refund : refunds)
+    {
+        if (refund.get("id", "").asString() != refundId) continue;
+        const auto previous = refund.get("status", "requested").asString();
+        if (previous == status) return refund;
+        if (isSuccessfulRefundStatus(previous) || previous == "rejected" || previous == "cancelled")
+        {
+            throw common::AppException("PAYMENT_REFUND_STATUS_FINAL", "Refund is already in a final state", drogon::k409Conflict);
+        }
+        refund["status"] = status;
+        refund["updated_at"] = nowIso();
+        refund["processed_by"] = actorId;
+        refund["processing_note"] = payload.get("note", "").asString();
+        if (status == "succeeded")
+        {
+            settleSuccessfulRefundUnlocked(orders, refunds, ledger, refund);
+        }
+        else
+        {
+            appendLedgerEntry(ledger, refund.get("user_id", "").asString(), refund.get("order_id", "").asString(),
+                              "refund." + status, 0, refund.get("currency", "cny").asString(), "退款状态更新");
+        }
+        saveOrders(orders);
+        saveRefunds(refunds);
+        saveLedger(ledger);
+        return refund;
+    }
+    throw common::AppException("PAYMENT_REFUND_NOT_FOUND", "Refund not found", drogon::k404NotFound);
+}
+
+Json::Value PaymentService::reconciliation() const
+{
+    std::scoped_lock lock(mutex_);
+    const auto orders = loadOrders();
+    const auto refunds = loadRefunds();
+    const auto ledger = loadLedger();
+    Json::Value anomalies(Json::arrayValue);
+    auto add = [&](const std::string &type, const std::string &severity, const std::string &orderId,
+                   const std::string &refundId, const std::string &summary) {
+        Json::Value item(Json::objectValue);
+        item["id"] = type + ":" + (!refundId.empty() ? refundId : orderId);
+        item["type"] = type;
+        item["severity"] = severity;
+        item["order_id"] = orderId;
+        item["refund_id"] = refundId;
+        item["summary"] = summary;
+        anomalies.append(item);
+    };
+    for (const auto &order : orders)
+    {
+        const auto orderId = order.get("id", "").asString();
+        bool paymentEntry = false;
+        bool grantEntry = false;
+        for (const auto &entry : ledger)
+        {
+            if (entry.get("order_id", "").asString() != orderId) continue;
+            paymentEntry = paymentEntry || entry.get("type", "").asString() == "payment.succeeded";
+            grantEntry = grantEntry || entry.get("type", "").asString() == "subscription.granted";
+        }
+        if (order.get("status", "").asString() == "paid" && !paymentEntry)
+            add("paid_without_payment_ledger", "high", orderId, "", "订单已支付，但缺少支付成功流水");
+        if (order.get("status", "").asString() == "paid" && (!grantEntry || !order.isMember("subscription")))
+            add("paid_without_entitlement", "high", orderId, "", "订单已支付，但权益发放记录不完整");
+        if (order.get("status", "").asString() == "pending" && order.get("provider_payment_id", "").asString().size() > 0)
+            add("pending_with_provider_payment", "medium", orderId, "", "订单仍待支付，但已存在渠道支付号");
+    }
+    for (const auto &refund : refunds)
+    {
+        if (!isSuccessfulRefundStatus(refund.get("status", "").asString())) continue;
+        bool successEntry = false;
+        for (const auto &entry : ledger)
+        {
+            if (entry.get("order_id", "").asString() == refund.get("order_id", "").asString() &&
+                entry.get("type", "").asString() == "refund.succeeded") successEntry = true;
+        }
+        if (!successEntry)
+            add("refund_without_ledger", "high", refund.get("order_id", "").asString(), refund.get("id", "").asString(), "退款成功但缺少成功流水");
+        if (refund.get("entitlement_reversal_status", "").asString() == "manual_required")
+            add("entitlement_reversal_required", "high", refund.get("order_id", "").asString(), refund.get("id", "").asString(), "退款已完成，权益需要人工核对或回收");
+    }
+    for (const auto &entry : ledger)
+    {
+        const auto orderId = entry.get("order_id", "").asString();
+        if (orderId.empty()) continue;
+        bool found = false;
+        for (const auto &order : orders) if (order.get("id", "").asString() == orderId) { found = true; break; }
+        if (!found) add("orphan_ledger", "medium", orderId, "", "流水关联的订单不存在");
+    }
+    Json::Value out(Json::objectValue);
+    out["items"] = anomalies;
+    out["total"] = anomalies.size();
+    out["generated_at"] = nowIso();
+    return out;
+}
+
+Json::Value PaymentService::getPricingConfig() const
+{
+    std::scoped_lock lock(mutex_);
+    const auto pricing = loadPricingConfig();
+    if (!std::filesystem::exists(pricingFile_))
+    {
+        savePricingConfig(pricing);
+    }
+    return pricing;
+}
+
+Json::Value PaymentService::updatePricingConfig(const Json::Value &payload)
+{
+    std::scoped_lock lock(mutex_);
+    const auto pricing = normalizePricingConfig(payload);
+    savePricingConfig(pricing);
+    return pricing;
 }
 
 Json::Value PaymentService::handleWebhook(const std::string &provider,
@@ -395,6 +807,7 @@ Json::Value PaymentService::handleWebhook(const std::string &provider,
     std::unique_lock lock(mutex_);
     auto orders = loadOrders();
     auto ledger = loadLedger();
+    auto refunds = loadRefunds();
     auto webhookEvents = std::filesystem::exists(webhookEventsFile_)
                              ? infrastructure::storage::readJsonFile(webhookEventsFile_)
                              : Json::Value(Json::arrayValue);
@@ -406,9 +819,29 @@ Json::Value PaymentService::handleWebhook(const std::string &provider,
     std::string orderId;
     std::string providerPaymentId;
     std::string eventId = payload.get("id", "").asString();
+    bool refundEvent = false;
     if (normalizedProvider == "stripe")
     {
         const auto type = payload.get("type", "").asString();
+        refundEvent = type.find("refund") != std::string::npos;
+        if (refundEvent)
+        {
+            if (!eventId.empty() && hasProcessedWebhookEvent(webhookEvents, eventId))
+            {
+                Json::Value duplicate(Json::objectValue);
+                duplicate["ignored"] = true;
+                duplicate["duplicate"] = true;
+                duplicate["event_id"] = eventId;
+                return duplicate;
+            }
+            const auto result = updateRefundFromWebhookUnlocked(orders, refunds, ledger, normalizedProvider, payload, eventId);
+            if (!eventId.empty()) rememberWebhookEvent(webhookEvents, eventId, normalizedProvider);
+            saveOrders(orders);
+            saveRefunds(refunds);
+            saveLedger(ledger);
+            infrastructure::storage::writeJsonFileAtomic(webhookEventsFile_, webhookEvents);
+            return result;
+        }
         if (type != "checkout.session.completed" && type != "payment_intent.succeeded")
         {
             Json::Value ignored(Json::objectValue);
@@ -442,6 +875,27 @@ Json::Value PaymentService::handleWebhook(const std::string &provider,
             throw common::AppException("PAYMENT_WEBHOOK_SIGNATURE_INVALID", "Payment webhook secret is invalid", drogon::k401Unauthorized);
         }
         const auto status = payload.get("status", "").asString();
+        refundEvent = payload.isMember("refund_id") || payload.isMember("out_refund_no") ||
+                      payload.get("event_type", "").asString().find("refund") != std::string::npos;
+        if (refundEvent)
+        {
+            eventId = payload.get("event_id", normalizedProvider + ":refund:" + payload.get("refund_id", payload.get("out_refund_no", "")).asString()).asString();
+            if (!eventId.empty() && hasProcessedWebhookEvent(webhookEvents, eventId))
+            {
+                Json::Value duplicate(Json::objectValue);
+                duplicate["ignored"] = true;
+                duplicate["duplicate"] = true;
+                duplicate["event_id"] = eventId;
+                return duplicate;
+            }
+            const auto result = updateRefundFromWebhookUnlocked(orders, refunds, ledger, normalizedProvider, payload, eventId);
+            if (!eventId.empty()) rememberWebhookEvent(webhookEvents, eventId, normalizedProvider);
+            saveOrders(orders);
+            saveRefunds(refunds);
+            saveLedger(ledger);
+            infrastructure::storage::writeJsonFileAtomic(webhookEventsFile_, webhookEvents);
+            return result;
+        }
         if (status != "paid" && status != "success" && status != "TRADE_SUCCESS")
         {
             Json::Value ignored(Json::objectValue);
@@ -482,47 +936,47 @@ Json::Value PaymentService::handleWebhook(const std::string &provider,
 
 Json::Value PaymentService::loadOrders() const
 {
-    if (!std::filesystem::exists(ordersFile_))
-    {
-        return emptyArray();
-    }
-    auto data = infrastructure::storage::readJsonFile(ordersFile_);
-    return data.isArray() ? data : emptyArray();
+    return sqliteStore_.list("payment_orders");
 }
 
 Json::Value PaymentService::loadLedger() const
 {
-    if (!std::filesystem::exists(ledgerFile_))
-    {
-        return emptyArray();
-    }
-    auto data = infrastructure::storage::readJsonFile(ledgerFile_);
-    return data.isArray() ? data : emptyArray();
+    return sqliteStore_.list("payment_ledger");
 }
 
 Json::Value PaymentService::loadRefunds() const
 {
-    if (!std::filesystem::exists(refundsFile_))
+    return sqliteStore_.list("payment_refunds");
+}
+
+Json::Value PaymentService::loadPricingConfig() const
+{
+    if (!std::filesystem::exists(pricingFile_))
     {
-        return emptyArray();
+        return defaultPricingConfig();
     }
-    auto data = infrastructure::storage::readJsonFile(refundsFile_);
-    return data.isArray() ? data : emptyArray();
+    auto data = infrastructure::storage::readJsonFile(pricingFile_);
+    return data.isObject() ? normalizePricingConfig(data) : defaultPricingConfig();
 }
 
 void PaymentService::saveOrders(const Json::Value &orders) const
 {
-    infrastructure::storage::writeJsonFileAtomic(ordersFile_, orders);
+    sqliteStore_.replace("payment_orders", orders);
 }
 
 void PaymentService::saveLedger(const Json::Value &ledger) const
 {
-    infrastructure::storage::writeJsonFileAtomic(ledgerFile_, ledger);
+    sqliteStore_.replace("payment_ledger", ledger);
 }
 
 void PaymentService::saveRefunds(const Json::Value &refunds) const
 {
-    infrastructure::storage::writeJsonFileAtomic(refundsFile_, refunds);
+    sqliteStore_.replace("payment_refunds", refunds);
+}
+
+void PaymentService::savePricingConfig(const Json::Value &pricing) const
+{
+    infrastructure::storage::writeJsonFileAtomic(pricingFile_, pricing);
 }
 
 Json::Value PaymentService::findOrderUnlocked(const Json::Value &orders, const std::string &orderId) const
@@ -595,7 +1049,7 @@ Json::Value PaymentService::buildStripeCheckoutSession(const Json::Value &order)
 
 Json::Value PaymentService::buildProviderPayload(const Json::Value &order) const
 {
-    const auto providerName = order.get("provider", "stripe").asString();
+    const auto providerName = order.get("provider", "wechat").asString();
     Json::Value provider(Json::objectValue);
     provider["provider"] = providerName;
     if (providerName == "stripe")
@@ -638,7 +1092,8 @@ Json::Value PaymentService::markOrderPaidUnlocked(Json::Value &orders,
         {
             continue;
         }
-        if (order.get("status", "").asString() == "paid")
+        const auto currentStatus = order.get("status", "").asString();
+        if (currentStatus == "paid" || currentStatus == "refunded" || currentStatus == "partially_refunded")
         {
             return order;
         }
@@ -648,7 +1103,8 @@ Json::Value PaymentService::markOrderPaidUnlocked(Json::Value &orders,
         order["provider_payment_id"] = providerPaymentId;
         order["provider_payment_intent"] = providerPaymentId;
         order["provider_event"] = providerEvent;
-        order["subscription"] = grantSubscriptionForOrder(order);
+        order["previous_subscription"] = currentEntitlementForOrder(order);
+        order["subscription"] = grantEntitlementForOrder(order);
         appendLedgerEntry(
             ledger,
             order.get("user_id", "").asString(),
@@ -666,6 +1122,81 @@ Json::Value PaymentService::markOrderPaidUnlocked(Json::Value &orders,
             order.get("currency", "cny").asString(),
             "套餐权益已发放");
         return order;
+    }
+    throw common::AppException("PAYMENT_ORDER_NOT_FOUND", "Payment order not found", drogon::k404NotFound);
+}
+
+Json::Value PaymentService::updateRefundFromWebhookUnlocked(Json::Value &orders,
+                                                            Json::Value &refunds,
+                                                            Json::Value &ledger,
+                                                            const std::string &provider,
+                                                            const Json::Value &payload,
+                                                            const std::string &eventId)
+{
+    const auto object = provider == "stripe" ? payload["data"]["object"] : payload;
+    const auto externalId = object.get("id", object.get("refund_id", object.get("provider_refund_id", ""))).asString();
+    const auto localId = object["metadata"].get("refund_id", object.get("out_refund_no", object.get("refund_id", ""))).asString();
+    auto providerStatus = object.get("status", object.get("refund_status", "")).asString();
+    std::string status = "processing";
+    if (providerStatus == "succeeded" || providerStatus == "success" || providerStatus == "SUCCESS") status = "succeeded";
+    else if (providerStatus == "failed" || providerStatus == "FAILED" || providerStatus == "CLOSED" || providerStatus == "ABNORMAL") status = "failed";
+
+    for (auto &refund : refunds)
+    {
+        if ((!localId.empty() && refund.get("id", "").asString() == localId) ||
+            (!externalId.empty() && refund.get("provider_reference", "").asString() == externalId))
+        {
+            const auto previous = refund.get("status", "requested").asString();
+            refund["status"] = status;
+            refund["provider_status"] = providerStatus;
+            refund["provider_event"] = payload;
+            refund["provider_event_id"] = eventId;
+            refund["updated_at"] = nowIso();
+            if (refund.get("provider_reference", "").asString().empty()) refund["provider_reference"] = externalId;
+            if (status == "succeeded" && !isSuccessfulRefundStatus(previous))
+                settleSuccessfulRefundUnlocked(orders, refunds, ledger, refund);
+            else if (status != previous)
+                appendLedgerEntry(ledger, refund.get("user_id", "").asString(), refund.get("order_id", "").asString(),
+                                  "refund." + status, 0, refund.get("currency", "cny").asString(), "退款渠道回调");
+            return refund;
+        }
+    }
+    throw common::AppException("PAYMENT_REFUND_NOT_FOUND", "Webhook refund was not found", drogon::k404NotFound);
+}
+
+void PaymentService::settleSuccessfulRefundUnlocked(Json::Value &orders,
+                                                    Json::Value &refunds,
+                                                    Json::Value &ledger,
+                                                    Json::Value &refund)
+{
+    const auto orderId = refund.get("order_id", "").asString();
+    for (auto &order : orders)
+    {
+        if (order.get("id", "").asString() != orderId) continue;
+        int succeededAmount = 0;
+        for (const auto &item : refunds)
+            if (item.get("order_id", "").asString() == orderId && isSuccessfulRefundStatus(item.get("status", "").asString()))
+                succeededAmount += item.get("amount_cents", 0).asInt();
+        const bool fullyRefunded = succeededAmount >= order.get("amount_cents", 0).asInt();
+        order["status"] = fullyRefunded ? "refunded" : "partially_refunded";
+        order["refunded_amount_cents"] = succeededAmount;
+        order["updated_at"] = nowIso();
+        refund["status"] = "succeeded";
+        refund["updated_at"] = nowIso();
+        if (fullyRefunded && order.isMember("previous_subscription") && order["previous_subscription"].isObject())
+        {
+            refund["entitlement_reversal"] = restoreEntitlementForOrder(order, order["previous_subscription"]);
+            refund["entitlement_reversal_status"] = "succeeded";
+            appendLedgerEntry(ledger, refund.get("user_id", "").asString(), orderId, "subscription.reversed", 0,
+                              refund.get("currency", "cny").asString(), "退款后权益已回收");
+        }
+        else
+        {
+            refund["entitlement_reversal_status"] = "manual_required";
+        }
+        appendLedgerEntry(ledger, refund.get("user_id", "").asString(), orderId, "refund.succeeded",
+                          -refund.get("amount_cents", 0).asInt(), refund.get("currency", "cny").asString(), "退款成功");
+        return;
     }
     throw common::AppException("PAYMENT_ORDER_NOT_FOUND", "Payment order not found", drogon::k404NotFound);
 }
@@ -691,15 +1222,40 @@ Json::Value PaymentService::appendLedgerEntry(Json::Value &ledger,
     return entry;
 }
 
-Json::Value PaymentService::grantSubscriptionForOrder(const Json::Value &order)
+Json::Value PaymentService::currentEntitlementForOrder(const Json::Value &order) const
 {
-    const auto userId = order.get("user_id", "").asString();
-    const auto current = subscriptionService_.subscriptionForUser(userId);
+    if (order.get("scope_type", "user").asString() == "organization")
+        return subscriptionService_.subscriptionForOrganization(order.get("scope_id", order.get("organization_id", "")).asString());
+    return subscriptionService_.subscriptionForUser(order.get("scope_id", order.get("user_id", "")).asString());
+}
+
+Json::Value PaymentService::grantEntitlementForOrder(const Json::Value &order)
+{
+    const auto current = currentEntitlementForOrder(order);
     Json::Value patch(Json::objectValue);
     patch["plan"] = order.get("plan", "pro").asString();
     patch["status"] = "active";
     patch["expires_at"] = nextExpiryDate(current.get("expires_at", "").asString(), order.get("days", 30).asInt());
-    return subscriptionService_.updateUserSubscription(userId, patch);
+    if (order.get("scope_type", "user").asString() == "organization")
+    {
+        patch["seats"] = order.get("seats", current.get("seats", 1)).asInt();
+        return subscriptionService_.updateOrganizationSubscription(order.get("scope_id", order.get("organization_id", "")).asString(), patch);
+    }
+    return subscriptionService_.updateUserSubscription(order.get("scope_id", order.get("user_id", "")).asString(), patch);
+}
+
+Json::Value PaymentService::restoreEntitlementForOrder(const Json::Value &order, const Json::Value &snapshot)
+{
+    Json::Value patch(Json::objectValue);
+    patch["plan"] = snapshot.get("plan", "free").asString();
+    patch["status"] = snapshot.get("status", "active").asString();
+    patch["expires_at"] = snapshot.get("expires_at", "").asString();
+    if (order.get("scope_type", "user").asString() == "organization")
+    {
+        patch["seats"] = snapshot.get("seats", 1).asInt();
+        return subscriptionService_.updateOrganizationSubscription(order.get("scope_id", order.get("organization_id", "")).asString(), patch);
+    }
+    return subscriptionService_.updateUserSubscription(order.get("scope_id", order.get("user_id", "")).asString(), patch);
 }
 
 bool PaymentService::canAccessOrder(const Json::Value &order, const std::string &userId, const Json::Value &roles) const
@@ -776,7 +1332,7 @@ std::string PaymentService::normalizeProvider(const std::string &provider)
     {
         return value;
     }
-    return "stripe";
+    return "wechat";
 }
 
 std::string PaymentService::normalizePlan(const std::string &plan)
@@ -812,21 +1368,16 @@ int PaymentService::normalizeDays(int days)
     return 30;
 }
 
-int PaymentService::priceCents(const std::string &plan, int days, const std::string &currency)
+int PaymentService::priceCents(const std::string &plan, int days, const std::string &currency) const
 {
-    if (currency == "usd")
+    const auto pricing = loadPricingConfig();
+    const auto configured = readPriceCents(pricing, currency, plan, days);
+    if (configured > 0)
     {
-        if (plan == "ultra")
-        {
-            return days == 365 ? 4999 : (days == 90 ? 1799 : 699);
-        }
-        return days == 365 ? 2999 : (days == 90 ? 999 : 399);
+        return configured;
     }
-    if (plan == "ultra")
-    {
-        return days == 365 ? 29900 : (days == 90 ? 9900 : 3900);
-    }
-    return days == 365 ? 15900 : (days == 90 ? 4900 : 1900);
+    const auto fallback = defaultPricingConfig();
+    return readPriceCents(fallback, currency, plan, days);
 }
 
 std::string PaymentService::makeId(const std::string &prefix)
@@ -1044,7 +1595,7 @@ std::string PaymentService::buildAlipayPagePayUrl(const Json::Value &order)
         return "";
     }
     const auto gateway = env("ALIPAY_GATEWAY", "https://openapi.alipay.com/gateway.do");
-    const auto notifyUrl = env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhook/alipay";
+    const auto notifyUrl = env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhooks/alipay";
     const auto returnUrl = env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/?payment=success&order_id=" + order.get("id", "").asString();
     std::ostringstream biz;
     biz << "{\"out_trade_no\":\"" << order.get("id", "").asString()
@@ -1119,7 +1670,7 @@ Json::Value PaymentService::buildWechatNativePayOrder(const Json::Value &order)
     provider["provider"] = "wechat";
     const auto appId = env("WECHAT_PAY_APP_ID");
     const auto mchId = env("WECHAT_PAY_MCH_ID");
-    const auto notifyUrl = env("WECHAT_PAY_NOTIFY_URL", env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhook/wechat");
+    const auto notifyUrl = env("WECHAT_PAY_NOTIFY_URL", env("PUBLIC_WEB_BASE_URL", "http://127.0.0.1:8000") + "/api/v1/payments/webhooks/wechat");
     if (appId.empty() || mchId.empty() || env("WECHAT_PAY_CERT_SERIAL_NO").empty() || env("WECHAT_PAY_PRIVATE_KEY_PATH").empty())
     {
         provider["configured"] = false;

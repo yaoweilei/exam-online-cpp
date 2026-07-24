@@ -23,6 +23,8 @@ class BookmarkService
 
     Json::Value removeQuestionBookmark(const std::string &userId, const std::string &bookmarkId);
 
+    bool clearQuestionFolder(const std::string &userId, const std::string &folderId);
+
   private:
     infrastructure::storage::BookmarkRepository &repository_;
 };

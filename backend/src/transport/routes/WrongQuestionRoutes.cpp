@@ -30,34 +30,17 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
                 application::services::WrongQuestionService::ListFilter filter;
                 filter.examId = req->getParameter("exam_id");
                 filter.questionType = req->getParameter("type");
                 filter.status = req->getParameter("status");
                 filter.sort = req->getParameter("sort");
-                const auto minWrong = req->getParameter("min_wrong");
-                if (!minWrong.empty())
-                {
-                    try
-                    {
-                        filter.minWrongCount = std::stoi(minWrong);
-                    }
-                    catch (...)
-                    {
-                        // 参数非法忽略，等同 0
-                    }
-                }
-                const auto pageStr = req->getParameter("page");
-                if (!pageStr.empty())
-                {
-                    try { filter.page = std::stoi(pageStr); } catch (...) {}
-                }
-                const auto pageSizeStr = req->getParameter("page_size");
-                if (!pageSizeStr.empty())
-                {
-                    try { filter.pageSize = std::stoi(pageSizeStr); } catch (...) {}
-                }
+                filter.minWrongCount = readBoundedIntParameter(req, "min_wrong", 0, 0, 100000);
+                filter.page = readBoundedIntParameter(req, "page", 1, 1, 100000);
+                filter.pageSize = readBoundedIntParameter(req, "page_size", 20, 1, 100);
                 return common::ok(req, ctx.wrongQuestionService->list(userId, filter));
             });
         },
@@ -70,6 +53,8 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
                 return common::ok(req, ctx.wrongQuestionService->summary(userId));
             });
@@ -83,13 +68,11 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
-                requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
-                int count = 10;
                 const auto body = parseJsonBody(req);
-                if (body.isMember("count") && body["count"].isIntegral())
-                {
-                    count = body["count"].asInt();
-                }
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
+                requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
+                const int count = readBoundedIntField(body, "count", 10, 1, 50);
                 return common::ok(req, ctx.wrongQuestionService->sample(userId, count));
             });
         },
@@ -103,6 +86,8 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
               std::string userId,
               std::string questionId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
                 Json::Value out(Json::objectValue);
                 out["removed"] = ctx.wrongQuestionService->removeOne(userId, questionId);
@@ -119,6 +104,8 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
               std::string userId,
               std::string questionId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
                 Json::Value out(Json::objectValue);
                 out["mastered"] = ctx.wrongQuestionService->markMastered(userId, questionId);
@@ -135,6 +122,8 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
               std::string userId,
               std::string questionId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
                 Json::Value out(Json::objectValue);
                 out["unmastered"] = ctx.wrongQuestionService->unmarkMastered(userId, questionId);
@@ -150,8 +139,27 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
-                ctx.wrongQuestionService->reset(userId);
+                const auto confirmation = requireBoundedString(body, "confirmation", 1, 20);
+                if (confirmation != "清空错题本")
+                {
+                    throw common::AppException(
+                        "CONFIRMATION_REQUIRED",
+                        "请输入“清空错题本”确认此操作",
+                        drogon::k422UnprocessableEntity);
+                }
+                const auto actorId = session.get("user_id", session.get("id", "")).asString();
+                ctx.wrongQuestionService->reset(userId, actorId);
+                Json::Value auditDetails(Json::objectValue);
+                auditDetails["target_user_id"] = userId;
+                ctx.auditLogService->record(
+                    "wrong_questions.reset",
+                    actorId,
+                    "清空错题本",
+                    auditDetails);
                 Json::Value out(Json::objectValue);
                 out["ok"] = true;
                 return common::ok(req, out);
@@ -183,7 +191,8 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
               std::string questionId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
-                requireSession(*ctx.authService, req, &body);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
                 std::vector<std::string> tags;
                 if (body.isMember("tags") && body["tags"].isArray())

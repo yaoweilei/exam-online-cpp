@@ -1,9 +1,8 @@
 #pragma once
 
-// 业务功能 22：第三方 OAuth Service（Google / Apple）
-//   - 该模块以 mock 模式为默认（无真实外呼）：start 接口直接 302 到 callback?mock_*=
-//   - 当 appsettings.security.oauth.{provider}.mock=false 时，可用真实 client_id 跳转
-//   - 真实 token 交换/userinfo 拉取需后续实现 HTTP client；此处保留 throwIfMissingClient 钩子
+// 业务功能 22：第三方 OAuth Service
+//   - Google 使用真实 OpenID Connect：授权 code -> access_token -> userinfo
+//   - mock 仅保留为测试钩子，生产 provider 不启用 mock
 //   - 用户落地：复用 UserRepository::upsertWechatUser(openid="{provider}:{sub}", nickname, avatar)
 //   - 颁发本应用 session 由路由调用 AuthService::createSessionForUser 完成
 

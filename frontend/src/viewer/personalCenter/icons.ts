@@ -21,6 +21,10 @@ export function renderOutlineIcon(name: string, className = ''): string {
 			return svg('<circle cx="12" cy="8" r="3"/><path d="M9 16.5h6"/><path d="M7 19l3-1.5 2-5"/><path d="M17 19l-3-1.5-2-5"/>');
 		case 'chart':
 			return svg('<path d="M5 18.5h14"/><path d="M7.5 15.5v-3"/><path d="M12 15.5v-6"/><path d="M16.5 15.5v-8"/><path d="M7.5 12.5 12 9.5 16.5 7.5"/>');
+		case 'clock':
+			return svg('<circle cx="12" cy="12" r="7.5"/><path d="M12 8v4.4l3 1.8"/>');
+		case 'heart':
+			return svg('<path d="M19.2 6.9c-1.6-1.7-4.1-1.7-5.7 0L12 8.4l-1.5-1.5c-1.6-1.7-4.1-1.7-5.7 0-1.7 1.8-1.7 4.6 0 6.3L12 20l7.2-6.8c1.7-1.7 1.7-4.5 0-6.3Z"/>');
 		case 'settings':
 			return svg('<circle cx="12" cy="12" r="3"/><path d="M12 4.5v2"/><path d="M12 17.5v2"/><path d="M4.5 12h2"/><path d="M17.5 12h2"/><path d="M6.7 6.7l1.4 1.4"/><path d="M15.9 15.9l1.4 1.4"/><path d="M17.3 6.7l-1.4 1.4"/><path d="M8.1 15.9l-1.4 1.4"/>');
 		case 'brandMark':

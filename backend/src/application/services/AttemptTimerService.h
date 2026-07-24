@@ -7,13 +7,15 @@
 #include <json/json.h>
 
 #include "infrastructure/storage/AttemptTimerRepository.h"
+#include "infrastructure/storage/ProfileRepository.h"
 
 namespace application::services
 {
 class AttemptTimerService
 {
   public:
-    explicit AttemptTimerService(infrastructure::storage::AttemptTimerRepository &repository);
+    explicit AttemptTimerService(infrastructure::storage::AttemptTimerRepository &repository,
+                                 infrastructure::storage::ProfileRepository &profileRepository);
 
     // 拉取当前计时；不存在返回 Json::nullValue
     Json::Value get(const std::string &userId) const;
@@ -32,5 +34,6 @@ class AttemptTimerService
     Json::Value enrich(const Json::Value &doc, int sectionIndex) const;
 
     infrastructure::storage::AttemptTimerRepository &repository_;
+    infrastructure::storage::ProfileRepository &profileRepository_;
 };
 }  // namespace application::services

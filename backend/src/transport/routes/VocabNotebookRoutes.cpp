@@ -23,6 +23,8 @@ void registerVocabNotebookRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "vocab_notebook", userId);
                 return common::ok(req, ctx.vocabNotebookService->list(userId));
             });
@@ -36,7 +38,8 @@ void registerVocabNotebookRoutes(const AppContext &ctx)
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
-                requireSession(*ctx.authService, req, &body);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "vocab_notebook", userId);
                 const auto word = requireString(body, "word");
                 const auto reading = body.get("reading", "").asString();
@@ -57,7 +60,8 @@ void registerVocabNotebookRoutes(const AppContext &ctx)
               std::string userId,
               std::string wordId) {
             handleRequest(req, std::move(callback), [&]() {
-                requireSession(*ctx.authService, req, nullptr);
+                const auto session = requireSession(*ctx.authService, req, nullptr);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "vocab_notebook", userId);
                 return common::ok(req, ctx.vocabNotebookService->removeWord(userId, wordId));
             });
@@ -72,7 +76,8 @@ void registerVocabNotebookRoutes(const AppContext &ctx)
               std::string wordId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
-                requireSession(*ctx.authService, req, &body);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "vocab_notebook", userId);
                 const auto note = body.get("note", "").asString();
                 return common::ok(req, ctx.vocabNotebookService->updateNote(userId, wordId, note));

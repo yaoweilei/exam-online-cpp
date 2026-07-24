@@ -149,6 +149,38 @@ class BookmarkRepository
         writeJsonFileAtomic(path, bm);
     }
 
+    bool clearQuestionFolder(const std::string &userId, const std::string &folderId)
+    {
+        std::unique_lock lock(mutex_);
+        const auto path = bookmarkDir_ / (userId + ".json");
+        if (!std::filesystem::exists(path) || folderId.empty())
+        {
+            return false;
+        }
+
+        auto bm = readJsonFile(path);
+        if (!bm["questions"].isArray())
+        {
+            return false;
+        }
+
+        bool changed = false;
+        for (auto &item : bm["questions"])
+        {
+            if (item.get("folder_id", "").asString() == folderId)
+            {
+                item["folder_id"] = "";
+                changed = true;
+            }
+        }
+        if (changed)
+        {
+            bm["updated_at"] = common::nowIso8601();
+            writeJsonFileAtomic(path, bm);
+        }
+        return changed;
+    }
+
   private:
     static std::string makeQuestionBookmarkId(const std::string &examId, int sectionIndex, const std::string &questionId)
     {

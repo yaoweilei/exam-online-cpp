@@ -52,8 +52,7 @@ Json::Value buildRecommendations(const AppContext &ctx, const std::string &userI
 
 int readRecommendationLimit(const HttpRequestPtr &req)
 {
-    const auto limitParam = req->getParameter("limit");
-    return limitParam.empty() ? 5 : (std::max)(1, std::stoi(limitParam));
+    return readBoundedIntParameter(req, "limit", 5, 1, 50);
 }
 }  // namespace
 
@@ -65,6 +64,8 @@ void registerStatisticsRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 return common::ok(req, ctx.statisticsService->userStatistics(userId));
             });
         },
@@ -76,6 +77,8 @@ void registerStatisticsRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 return common::ok(req, ctx.statisticsService->weakPoints(userId));
             });
         },
@@ -87,8 +90,9 @@ void registerStatisticsRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
-                const auto daysParam = req->getParameter("days");
-                const int days = daysParam.empty() ? 30 : (std::max)(1, std::stoi(daysParam));
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
+                const int days = readBoundedIntParameter(req, "days", 30, 1, 365);
                 return common::ok(req, ctx.statisticsService->learningCurve(userId, days));
             });
         },
@@ -100,6 +104,8 @@ void registerStatisticsRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 return common::ok(req, buildRecommendations(ctx, userId, readRecommendationLimit(req)));
             });
         },
@@ -111,6 +117,8 @@ void registerStatisticsRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string userId) {
             handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
                 return common::ok(req, buildRecommendations(ctx, userId, readRecommendationLimit(req)));
             });
         },

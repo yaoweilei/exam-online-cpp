@@ -167,7 +167,26 @@ Json::Value AssignmentService::assignmentSubmissions(const std::string &assignme
     out["assignment"] = assignment;
     out["learning_group"] = getLearningGroup(assignment.get("organization_id", "").asString(), assignmentLearningGroupId(assignment));
     out["submissions"] = assignmentRepository_.listSubmissions(assignmentId);
-    return out;
+	return out;
+}
+
+Json::Value AssignmentService::reviewSubmission(const std::string &assignmentId,
+	                                              const std::string &studentId,
+	                                              const std::string &reviewedBy,
+	                                              const Json::Value &payload)
+{
+	getAssignment(assignmentId);
+	Json::Value review(Json::objectValue);
+	review["action"] = payload.get("action", "reviewed").asString();
+	review["comment"] = payload.get("comment", "").asString();
+	review["reviewed_by"] = reviewedBy;
+	if (payload.isMember("manual_score")) review["manual_score"] = payload["manual_score"].asDouble();
+	const auto saved = assignmentRepository_.reviewSubmission(assignmentId, studentId, review);
+	if (saved.isNull())
+	{
+		throw common::AppException("SUBMISSION_NOT_FOUND", "作业提交不存在", drogon::k404NotFound);
+	}
+	return saved;
 }
 
 Json::Value AssignmentService::remindAssignment(const std::string &assignmentId,
@@ -178,7 +197,8 @@ Json::Value AssignmentService::remindAssignment(const std::string &assignmentId,
     const auto group = getLearningGroup(assignment.get("organization_id", "").asString(), assignmentLearningGroupId(assignment));
     Json::Value reminder(Json::objectValue);
     reminder["created_by"] = createdBy;
-    reminder["message"] = payload.get("message", "请按时完成作业").asString();
+    reminder["message"] = payload["message"].asString();
+    reminder["idempotency_key"] = payload["idempotency_key"].asString();
     reminder["target_student_ids"] = Json::Value(Json::arrayValue);
     if (payload.isMember("student_ids") && payload["student_ids"].isArray())
     {

@@ -57,7 +57,7 @@ class WrongQuestionService
     static Json::Value attributionTagRegistry();
 
     // 清空整份错题本
-    void reset(const std::string &userId);
+    void reset(const std::string &userId, const std::string &actorUserId);
 
     // 复习用：随机抽取若干道未掌握的错题，返回完整 question_snapshot 列表
     Json::Value sample(const std::string &userId, int count) const;

@@ -8,6 +8,19 @@ using namespace drogon;
 
 namespace transport::routes
 {
+namespace
+{
+std::string sessionUserId(const Json::Value &session)
+{
+    auto userId = session.get("user_id", "").asString();
+    if (userId.empty())
+    {
+        userId = session.get("id", "").asString();
+    }
+    return userId;
+}
+}
+
 // ---------------------------------------------------------------------------
 // 业务功能 16：每日一练 路由
 //   GET  /api/v1/me/daily-practice            获取（或当天首次生成）今日清单
@@ -18,22 +31,19 @@ namespace transport::routes
 // ---------------------------------------------------------------------------
 void registerDailyPracticeRoutes(const AppContext &ctx)
 {
-    auto getHandler = [ctx](const HttpRequestPtr &req,
-                            std::function<void(const HttpResponsePtr &)> &&callback) {
-        handleRequest(req, std::move(callback), [&]() {
-            const auto session = requireSession(*ctx.authService, req);
-            const auto userId = session.get("user_id", session.get("id", "")).asString();
-            requireFeature(*ctx.featureFlagService, "daily_practice", userId);
-            const auto countStr = req->getParameter("count");
-            int count = 10;
-            if (!countStr.empty())
-            {
-                try { count = std::stoi(countStr); } catch (...) { count = 10; }
-            }
-            return common::ok(req, ctx.dailyPracticeService->getOrCreateToday(userId, count));
-        });
-    };
-    app().registerHandler("/api/v1/me/daily-practice", getHandler, {Get});
+    app().registerHandler(
+        "/api/v1/me/daily-practice",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                const auto userId = sessionUserId(session);
+                requireFeature(*ctx.featureFlagService, "daily_practice", userId);
+                const int count = readBoundedIntParameter(req, "count", 10, 1, 50);
+                return common::ok(req, ctx.dailyPracticeService->getOrCreateToday(userId, count));
+            });
+        },
+        {Get});
 
     app().registerHandler(
         "/api/v1/me/daily-practice/regenerate",
@@ -41,10 +51,10 @@ void registerDailyPracticeRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
-                const auto userId = session.get("user_id", session.get("id", "")).asString();
+                const auto userId = sessionUserId(session);
                 requireFeature(*ctx.featureFlagService, "daily_practice", userId);
                 const auto body = parseJsonBody(req);
-                int count = body.get("count", 10).asInt();
+                const int count = readBoundedIntField(body, "count", 10, 1, 50);
                 return common::ok(req, ctx.dailyPracticeService->regenerate(userId, count));
             });
         },
@@ -56,14 +66,10 @@ void registerDailyPracticeRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
-                const auto userId = session.get("user_id", session.get("id", "")).asString();
+                const auto userId = sessionUserId(session);
                 requireFeature(*ctx.featureFlagService, "daily_practice", userId);
                 const auto body = parseJsonBody(req);
-                const auto qid = body.get("question_id", "").asString();
-                if (qid.empty())
-                {
-                    throw common::AppException("VALIDATION_ERROR", "question_id 必填", drogon::k422UnprocessableEntity);
-                }
+                const auto qid = requireBoundedString(body, "question_id", 1, 200);
                 return common::ok(req, ctx.dailyPracticeService->markComplete(userId, qid));
             });
         },

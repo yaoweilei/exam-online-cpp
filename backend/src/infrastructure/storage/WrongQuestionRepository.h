@@ -79,7 +79,7 @@ class WrongQuestionRepository
                             const std::vector<std::string> &tags);
 
     // 清空整份错题本
-    void reset(const std::string &userId);
+    void reset(const std::string &userId, const std::string &actorUserId);
 
   private:
     // 构造一份默认空集合

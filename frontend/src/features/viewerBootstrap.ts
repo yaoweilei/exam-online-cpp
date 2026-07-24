@@ -13,6 +13,7 @@ interface ViewerExamMeta {
 	year?: string;
 	session?: string;
 	checked?: boolean;
+	questionCount?: number;
 	[key: string]: unknown;
 }
 
@@ -61,7 +62,7 @@ const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'CategoryNavigationManager', path: '../viewer/managers/CategoryNavigationManager.js' },
 	{ name: 'QuestionRenderer', path: '../viewer/renderers/QuestionRenderer.js' },
 	{ name: 'ExamViewer', path: '../viewer/core/ExamViewer.js' },
-	{ name: 'PersonalCenter', path: '../viewer/personalCenter.js' }
+	{ name: 'PersonalCenter', path: '../viewer/personalCenter.js?v=20260630-member-search-text1' }
 ];
 
 const REQUIRED_GLOBALS = [
@@ -119,6 +120,10 @@ function normalizeExamMeta(raw: unknown): ViewerExamMeta | null {
 	if (!id) {
 		return null;
 	}
+	const questionCount = typeof data.questionCount === 'number' ? data.questionCount : undefined;
+	if (questionCount !== undefined && questionCount <= 0) {
+		return null;
+	}
 
 	let level = typeof data.level === 'string' ? data.level : '';
 	if (!level) {
@@ -147,7 +152,8 @@ function normalizeExamMeta(raw: unknown): ViewerExamMeta | null {
 		year,
 		session,
 		display,
-		checked: Boolean(data.checked)
+		checked: Boolean(data.checked),
+		questionCount
 	};
 }
 
@@ -499,8 +505,10 @@ async function initExamSelectors(): Promise<void> {
 		return;
 	}
 
+	let examLoadSequence = 0;
 	paperSelect.addEventListener('change', async () => {
 		const examId = paperSelect.value;
+		const loadSequence = ++examLoadSequence;
 		if (!examId) {
 			return;
 		}
@@ -513,6 +521,9 @@ async function initExamSelectors(): Promise<void> {
 
 			const examLoader = globalWindow.ExamLoader as ViewerExamApi | undefined;
 			const examData = examLoader ? await examLoader.getExam(examId) : null;
+			if (loadSequence !== examLoadSequence || paperSelect.value !== examId) {
+				return;
+			}
 			if (!examData) {
 				throw new Error('试卷数据为空');
 			}
@@ -537,6 +548,7 @@ async function initExamSelectors(): Promise<void> {
 				});
 			}
 		} catch (error) {
+			if (loadSequence !== examLoadSequence || paperSelect.value !== examId) return;
 			console.error('[viewerBootstrap] Failed to load exam:', error);
 			const accessError = error as { status?: number; code?: string; message?: string };
 			if (accessError.status === 403 || accessError.code === 'EXAM_ACCESS_DENIED') {

@@ -82,6 +82,7 @@
 #open-question-map { grid-area: questionmap; }
 #top-prev { grid-area: prev; }
 #top-next { grid-area: next; }
+#submit-exam { grid-area: submit; }
 #toggle-reading-kana { grid-area: kana; }
 #toggle-reading-zh { grid-area: zh; }
 #exam-controls .category-slot[data-slot="1"] { grid-area: slot1; }
@@ -91,16 +92,27 @@
 
 #exam-controls.toolbar-grid.family-jlpt {
 	grid-template-areas:
-		"questionmap prev next ."
+		"questionmap prev next submit"
 		"answers explanations kana zh"
 		"slot1 slot2 slot3 .";
 }
 
 #exam-controls.toolbar-grid.family-eju {
 	grid-template-areas:
-		"questionmap prev next ."
+		"questionmap prev next submit"
 		"answers explanations kana zh"
 		"slot1 slot2 slot3 slot4";
+}
+
+#exam-controls .submit-exam-btn {
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border-color: var(--vscode-button-border, var(--vscode-button-background));
+}
+
+#exam-controls .learning-assist-locked {
+	opacity: .48;
+	cursor: not-allowed;
 }
 
 #exam-controls .btn-secondary,

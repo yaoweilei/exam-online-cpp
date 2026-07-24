@@ -288,13 +288,26 @@ bool WrongQuestionRepository::setAttributionTags(const std::string &userId,
     return true;
 }
 
-void WrongQuestionRepository::reset(const std::string &userId)
+void WrongQuestionRepository::reset(const std::string &userId, const std::string &actorUserId)
 {
     // 直接覆写为默认空集合（保留 user_id），不删除文件
     const auto path = wrongDir_ / (userId + ".json");
     std::unique_lock lock(mutex_);
+    Json::Value previous;
+    if (std::filesystem::exists(path))
+    {
+        previous = readJsonFile(path);
+    }
     auto doc = defaultDoc(userId);
-    doc["updated_at"] = common::nowIso8601();
+    const auto resetAt = common::nowIso8601();
+    const auto previousItems = previous.get("items", Json::Value(Json::arrayValue));
+    Json::Value audit(Json::objectValue);
+    audit["actor_user_id"] = actorUserId;
+    audit["reset_at"] = resetAt;
+    audit["previous_question_count"] = previousItems.isArray() ? static_cast<Json::UInt64>(previousItems.size()) : 0;
+    audit["reset_count"] = previous.get("reset_audit", Json::Value(Json::objectValue)).get("reset_count", 0).asUInt64() + 1;
+    doc["reset_audit"] = audit;
+    doc["updated_at"] = resetAt;
     writeJsonFileAtomic(path, doc);
 }
 

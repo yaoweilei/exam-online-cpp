@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <json/json.h>
+#include "SqliteJsonStore.h"
 
 namespace infrastructure::storage
 {
@@ -34,7 +35,11 @@ class AssignmentRepository
 
     Json::Value submit(const std::string &assignmentId, const std::string &studentId, const Json::Value &submission);
 
-    Json::Value listSubmissions(const std::string &assignmentId) const;
+	Json::Value listSubmissions(const std::string &assignmentId) const;
+
+	Json::Value reviewSubmission(const std::string &assignmentId,
+	                            const std::string &studentId,
+	                            const Json::Value &review);
 
     Json::Value addReminder(const std::string &assignmentId, const Json::Value &reminder);
 
@@ -43,7 +48,12 @@ class AssignmentRepository
     bool remove(const std::string &assignmentId);
 
   private:
+    Json::Value loadDoc() const;
+    void saveDoc(const Json::Value &doc);
     std::filesystem::path filePath_;
     mutable std::shared_mutex mutex_;
+    SqliteJsonStore sqliteStore_;
+    mutable Json::Value cache_{Json::objectValue};
+    mutable bool cacheLoaded_{false};
 };
 }  // namespace infrastructure::storage

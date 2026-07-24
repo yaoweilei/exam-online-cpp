@@ -37,6 +37,10 @@ export interface PCUser {
 	emailVerified?: boolean;
 	phone?: string;
 	phoneVerified?: boolean;
+	hasPassword?: boolean;
+	wechatBound?: boolean;
+	wechatNickname?: string;
+	wechatBoundAt?: string;
 	avatar?: string | null;
 	lastLoginAt?: string;
 	status?: string;
@@ -65,6 +69,10 @@ export interface PCContext {
 	emailVerified?: boolean;
 	phone?: string;
 	phoneVerified?: boolean;
+	hasPassword?: boolean;
+	wechatBound?: boolean;
+	wechatNickname?: string;
+	wechatBoundAt?: string;
 	avatar?: string | null;
 	lastLoginAt?: string;
 	status?: string;
@@ -105,6 +113,11 @@ export interface PermissionOverride {
 	scope: 'personal' | 'learningGroup' | 'campus' | 'organization';
 	scopeId?: string;
 	expiresAt?: string;
+}
+
+export interface OrganizationRolePermissionConfig {
+	allow: string[];
+	deny: string[];
 }
 
 export interface ManagedOrganizationInvitation {
@@ -215,6 +228,7 @@ export interface ManagedOrganization {
 	coursePackages: ManagedCoursePackage[];
 	invitations: ManagedOrganizationInvitation[];
 	auditLogs: ManagedOrganizationAuditLog[];
+	rolePermissions: Record<string, OrganizationRolePermissionConfig>;
 }
 
 export interface OrganizationMemberDraft {
@@ -222,8 +236,6 @@ export interface OrganizationMemberDraft {
 	searchResults: PCUser[];
 	selectedUserId: string;
 	memberNo: string;
-	permissionTemplates: PermissionTemplateId[];
-	batchText: string;
 	inviteContact: string;
 	inviteMemberNo: string;
 	inviteMessage: string;
@@ -276,20 +288,41 @@ export interface AvatarPreset {
 	avatarUrl: string;
 }
 
-export interface AvatarPalette {
-	bg: string;
-	hair: string;
-	shirt: string;
-	skin: string;
-	accent: string;
-	line: string;
+export interface AvatarEditorOptions {
+	seed: string;
+	hair: string | null;
+	eyes: string | null;
+	mouth: string | null;
+	glasses: string | null;
+	beard: string | null;
+	hairColor: string;
+	skinColor: string;
 }
 
-export interface AvatarSeed {
+export interface StyleInfo {
+	key: string;
+	displayName: string;
+	style: Record<string, unknown>;
+	thumbnail: string;
+}
+
+export interface ControlDef {
+	key: string;
+	label: string;
+	type: 'select' | 'toggle' | 'color';
+	options?: string[];
+	defaultValue?: string | boolean | null;
+	parentKey?: string;
+}
+
+export interface TabDef {
 	id: string;
 	label: string;
-	role: string;
-	hairStyle: 'short' | 'part' | 'bob' | 'buzz' | 'wave' | 'cap';
-	accessory: 'none' | 'glasses' | 'badge' | 'star' | 'book' | 'bolt' | 'leaf' | 'ribbon';
-	palette: AvatarPalette;
+	controls: ControlDef[];
+}
+
+export interface EditorState {
+	styleKey: string;
+	seed: string;
+	options: Record<string, string | boolean | null>;
 }

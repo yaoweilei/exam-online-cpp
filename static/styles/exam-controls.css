@@ -13,6 +13,20 @@
 	/* 供 #width-drag-handle 绝对定位 */
 }
 
+#exam-timer-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid var(--vscode-panel-border);
+	font-size: 13px;
+}
+
+#exam-timer-bar strong { color: var(--vscode-button-background); }
+#exam-timer-bar.is-expired strong { color: var(--vscode-errorForeground, #c53030); }
+
 /* 仅题目正文区域受宽度控制（左对齐，不居中） */
 #exam-workarea {
 	--exam-content-width-internal: auto;
@@ -95,5 +109,22 @@ body.resizing-width #width-drag-handle::before {
 .question-item.active {
 	background-color: var(--vscode-button-background);
 	color: var(--vscode-button-foreground);
+}
+
+.answer-card-question-btn.section-expired {
+	border-style: dashed;
+	opacity: .55;
+	filter: grayscale(.65);
+}
+
+.answer-card-question-btn.section-expired::after {
+	content: '锁';
+	margin-left: 3px;
+	font-size: 9px;
+}
+
+.answer-card-question-btn.section-locked {
+	opacity: .42;
+	cursor: not-allowed;
 }
 

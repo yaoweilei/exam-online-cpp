@@ -1,0 +1,93 @@
+[
+  {
+    "amount_cents" : 1290,
+    "created_at" : "2026-07-18T01:18:18.518Z",
+    "currency" : "cny",
+    "entitlement_reversal" : 
+    {
+      "accessible_levels" : 
+      [
+        "N5",
+        "N4"
+      ],
+      "entitlements" : [],
+      "expires_at" : "",
+      "is_active" : true,
+      "organization_type" : "",
+      "plan" : "free",
+      "scope_id" : "usr_019f72cd-7d54-74a7-a979-27599c9d623a",
+      "scope_type" : "personal",
+      "status" : "active"
+    },
+    "entitlement_reversal_status" : "succeeded",
+    "id" : "ref_1784337498518_b5b318fa48eaf9b7",
+    "idempotency_key" : "refund-e2e-success-1784337498365",
+    "idempotent_replay" : false,
+    "order_id" : "pay_1784337498148_161ae0616b9f13be",
+    "processed_by" : "usr_019f72cd-7ea4-7025-9f31-1e25221dbcbb",
+    "processing_note" : "已核对渠道退款单",
+    "provider" : "stripe",
+    "provider_event" : 
+    {
+      "data" : 
+      {
+        "object" : 
+        {
+          "id" : "re_ref_1784337498518_b5b318fa48eaf9b7",
+          "metadata" : 
+          {
+            "order_id" : "pay_1784337498148_161ae0616b9f13be",
+            "refund_id" : "ref_1784337498518_b5b318fa48eaf9b7"
+          },
+          "status" : "succeeded"
+        }
+      },
+      "id" : "evt_refund_success_ref_1784337498518_b5b318fa48eaf9b7",
+      "type" : "refund.updated"
+    },
+    "provider_event_id" : "evt_refund_success_ref_1784337498518_b5b318fa48eaf9b7",
+    "provider_reference" : "re_ref_1784337498518_b5b318fa48eaf9b7",
+    "provider_status" : "succeeded",
+    "reason" : "e2e_closure",
+    "requested_by" : "usr_019f72cd-7ea4-7025-9f31-1e25221dbcbb",
+    "status" : "succeeded",
+    "updated_at" : "2026-07-18T01:18:18.688Z",
+    "user_id" : "usr_019f72cd-7d54-74a7-a979-27599c9d623a"
+  },
+  {
+    "amount_cents" : 1290,
+    "created_at" : "2026-07-18T01:18:20.047Z",
+    "currency" : "cny",
+    "id" : "ref_1784337500047_a85b7b0afb814a57",
+    "idempotency_key" : "refund-e2e-failed-1784337499915",
+    "idempotent_replay" : false,
+    "order_id" : "pay_1784337499823_fe40787f407ca09b",
+    "provider" : "stripe",
+    "provider_event" : 
+    {
+      "data" : 
+      {
+        "object" : 
+        {
+          "id" : "re_ref_1784337500047_a85b7b0afb814a57",
+          "metadata" : 
+          {
+            "order_id" : "pay_1784337499823_fe40787f407ca09b",
+            "refund_id" : "ref_1784337500047_a85b7b0afb814a57"
+          },
+          "status" : "failed"
+        }
+      },
+      "id" : "evt_refund_failed_ref_1784337500047_a85b7b0afb814a57",
+      "type" : "refund.updated"
+    },
+    "provider_event_id" : "evt_refund_failed_ref_1784337500047_a85b7b0afb814a57",
+    "provider_reference" : "re_ref_1784337500047_a85b7b0afb814a57",
+    "provider_status" : "failed",
+    "reason" : "e2e_closure",
+    "requested_by" : "usr_019f72cd-85c1-78d3-ad8e-cf02d3d3a25f",
+    "status" : "failed",
+    "updated_at" : "2026-07-18T01:18:20.068Z",
+    "user_id" : "usr_019f72cd-8454-74de-a85a-2f8655a97264"
+  }
+]

@@ -3,6 +3,9 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <shared_mutex>
+#include <mutex>
+#include <unordered_map>
 
 #include <json/json.h>
 
@@ -10,6 +13,9 @@
 
 namespace infrastructure::storage
 {
+struct JsonFileCacheEntry { Json::Value value; std::filesystem::file_time_type modified; std::uintmax_t size{0}; };
+inline std::unordered_map<std::string, JsonFileCacheEntry> &jsonFileCache() { static std::unordered_map<std::string, JsonFileCacheEntry> cache; return cache; }
+inline std::shared_mutex &jsonFileCacheMutex() { static std::shared_mutex mutex; return mutex; }
 inline Json::Value parseJson(const std::string &raw, const std::string &sourceName)
 {
     Json::CharReaderBuilder builder;
@@ -29,6 +35,16 @@ inline Json::Value parseJson(const std::string &raw, const std::string &sourceNa
 
 inline Json::Value readJsonFile(const std::filesystem::path &path)
 {
+    std::error_code metadataError;
+    const auto absolute = std::filesystem::absolute(path).lexically_normal().string();
+    const auto modified = std::filesystem::last_write_time(path, metadataError);
+    const auto size = metadataError ? 0 : std::filesystem::file_size(path, metadataError);
+    if (!metadataError)
+    {
+        std::shared_lock cacheLock(jsonFileCacheMutex());
+        const auto it = jsonFileCache().find(absolute);
+        if (it != jsonFileCache().end() && it->second.modified == modified && it->second.size == size) return it->second.value;
+    }
     std::ifstream in(path, std::ios::binary);
     if (!in)
     {
@@ -38,7 +54,9 @@ inline Json::Value readJsonFile(const std::filesystem::path &path)
             drogon::k500InternalServerError);
     }
     std::string raw((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-    return parseJson(raw, path.string());
+    auto value = parseJson(raw, path.string());
+    if (!metadataError) { std::unique_lock cacheLock(jsonFileCacheMutex()); jsonFileCache()[absolute] = {value, modified, size}; }
+    return value;
 }
 
 inline void writeJsonFileAtomic(const std::filesystem::path &path, const Json::Value &value)
@@ -70,5 +88,10 @@ inline void writeJsonFileAtomic(const std::filesystem::path &path, const Json::V
             ec);
         std::filesystem::remove(tmpPath, ec);
     }
+    std::error_code metadataError;
+    const auto absolute = std::filesystem::absolute(path).lexically_normal().string();
+    const auto modified = std::filesystem::last_write_time(path, metadataError);
+    const auto size = metadataError ? 0 : std::filesystem::file_size(path, metadataError);
+    if (!metadataError) { std::unique_lock cacheLock(jsonFileCacheMutex()); jsonFileCache()[absolute] = {value, modified, size}; }
 }
 }  // namespace infrastructure::storage

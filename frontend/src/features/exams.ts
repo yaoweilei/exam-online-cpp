@@ -10,6 +10,7 @@ export interface ExamSummary {
 	display: string;
 	checked?: boolean;
 	access_level?: string;
+	questionCount?: number;
 	[key: string]: unknown;
 }
 
@@ -51,6 +52,11 @@ export async function loadExams(api: ApiClient, store: AppStore): Promise<ExamsB
 	const grouped: ExamsByFamily = {};
 
 	for (const exam of exams) {
+		// Defense in depth for older backends or cached indexes: placeholders with
+		// no questions must not appear as selectable papers.
+		if (typeof exam.questionCount === 'number' && exam.questionCount <= 0) {
+			continue;
+		}
 		const family = String(exam.family || 'jlpt').toLowerCase();
 		if (!isEnabledExamFamily(family)) {
 			continue;

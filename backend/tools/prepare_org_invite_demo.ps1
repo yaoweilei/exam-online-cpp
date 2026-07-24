@@ -94,7 +94,13 @@ function Invoke-ApiRequest {
         $params.ContentType = "application/json"
         $params.Body = ($Body | ConvertTo-Json -Depth 16)
     }
-    return Invoke-RestMethod @params
+    try {
+        return Invoke-RestMethod @params
+    }
+    catch {
+        Write-Host "[prepare-org-invite] request failed: $Method $Url"
+        throw
+    }
 }
 
 function As-Array {
@@ -232,6 +238,8 @@ Invoke-ApiRequest -Url "$BaseUrl/subscription/$organizationId/grant" -Method "Po
     plan = "pro"
     status = "active"
     seats = 20
+    confirmation = "CONFIRM_ORGANIZATION_SUBSCRIPTION"
+    reauth_password = ""
 } | Out-Null
 
 $membersResponse = Invoke-ApiRequest -Url "$BaseUrl/organizations/${organizationId}/members?token=$([System.Uri]::EscapeDataString($adminToken))" -Method "Get" -Body $null
@@ -239,7 +247,14 @@ $members = As-Array $membersResponse.data
 
 $inviteeMembership = $members | Where-Object { [string]$_.user_id -eq $inviteeUserId } | Select-Object -First 1
 if ($null -ne $inviteeMembership) {
-    Invoke-ApiRequest -Url "$BaseUrl/organizations/${organizationId}/members/${inviteeUserId}?token=$([System.Uri]::EscapeDataString($adminToken))" -Method "Delete" -Body $null | Out-Null
+    Invoke-ApiRequest -Url "$BaseUrl/organizations/${organizationId}/members/${inviteeUserId}" -Method "Delete" -Body @{
+        token = $adminToken
+        confirmation = "CONFIRM_REMOVE_ORGANIZATION_MEMBER"
+        reauth_password = ""
+    } | Out-Null
+    # Removing a member intentionally revokes that user's sessions; obtain a fresh token for invitation checks.
+    $inviteeLogin = Invoke-ApiRequest -Url "$BaseUrl/auth/login" -Method "Post" -Body @{ username = $InviteeLoginId; password = "" }
+    $inviteeToken = [string]$inviteeLogin.data.token
 }
 
 $currentOrganization = Invoke-ApiRequest -Url "$BaseUrl/organizations/${organizationId}?token=$([System.Uri]::EscapeDataString($adminToken))" -Method "Get" -Body $null

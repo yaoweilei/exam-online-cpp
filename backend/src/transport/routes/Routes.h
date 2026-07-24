@@ -70,4 +70,5 @@ void registerRedeemRoutes(const AppContext &ctx);
 void registerPaymentRoutes(const AppContext &ctx);
 // 机构端管理工作台
 void registerInstitutionRoutes(const AppContext &ctx);
+void registerContentWorkflowRoutes(const AppContext &ctx);
 }  // namespace transport::routes

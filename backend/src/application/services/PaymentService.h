@@ -7,6 +7,7 @@
 #include <json/json.h>
 
 #include "application/services/SubscriptionService.h"
+#include "infrastructure/storage/SqliteJsonStore.h"
 
 namespace application::services
 {
@@ -17,9 +18,22 @@ class PaymentService
                             SubscriptionService &subscriptionService);
 
     Json::Value createOrder(const std::string &userId, const Json::Value &payload);
+    Json::Value createOrganizationOrder(const std::string &actorId,
+                                        const std::string &organizationId,
+                                        const Json::Value &payload);
     Json::Value getOrder(const std::string &userId, const Json::Value &roles, const std::string &orderId) const;
     Json::Value listLedger(const std::string &userId, const Json::Value &roles, const std::string &targetUserId) const;
+    Json::Value listOrders(const Json::Value &filters) const;
+    Json::Value listRefunds(const Json::Value &filters) const;
+    Json::Value listAllLedger(const Json::Value &filters) const;
+    Json::Value reconciliation() const;
+    Json::Value updateRefundStatus(const std::string &refundId,
+                                   const std::string &status,
+                                   const std::string &actorId,
+                                   const Json::Value &payload);
     Json::Value requestRefund(const std::string &userId, const Json::Value &roles, const Json::Value &payload);
+    Json::Value getPricingConfig() const;
+    Json::Value updatePricingConfig(const Json::Value &payload);
     Json::Value handleWebhook(const std::string &provider,
                               const std::string &rawBody,
                               const Json::Value &payload,
@@ -29,9 +43,11 @@ class PaymentService
     Json::Value loadOrders() const;
     Json::Value loadLedger() const;
     Json::Value loadRefunds() const;
+    Json::Value loadPricingConfig() const;
     void saveOrders(const Json::Value &orders) const;
     void saveLedger(const Json::Value &ledger) const;
     void saveRefunds(const Json::Value &refunds) const;
+    void savePricingConfig(const Json::Value &pricing) const;
 
     Json::Value findOrderUnlocked(const Json::Value &orders, const std::string &orderId) const;
     Json::Value buildStripeCheckoutSession(const Json::Value &order) const;
@@ -41,6 +57,19 @@ class PaymentService
                                       const std::string &orderId,
                                       const std::string &providerPaymentId,
                                       const Json::Value &providerEvent);
+    Json::Value updateRefundFromWebhookUnlocked(Json::Value &orders,
+                                                Json::Value &refunds,
+                                                Json::Value &ledger,
+                                                const std::string &provider,
+                                                const Json::Value &payload,
+                                                const std::string &eventId);
+    void settleSuccessfulRefundUnlocked(Json::Value &orders,
+                                        Json::Value &refunds,
+                                        Json::Value &ledger,
+                                        Json::Value &refund);
+    Json::Value grantEntitlementForOrder(const Json::Value &order);
+    Json::Value currentEntitlementForOrder(const Json::Value &order) const;
+    Json::Value restoreEntitlementForOrder(const Json::Value &order, const Json::Value &snapshot);
     Json::Value appendLedgerEntry(Json::Value &ledger,
                                   const std::string &userId,
                                   const std::string &orderId,
@@ -48,8 +77,6 @@ class PaymentService
                                   int amountCents,
                                   const std::string &currency,
                                   const std::string &summary) const;
-    Json::Value grantSubscriptionForOrder(const Json::Value &order);
-
     bool canAccessOrder(const Json::Value &order, const std::string &userId, const Json::Value &roles) const;
     bool canManagePayments(const Json::Value &roles) const;
     bool verifyStripeSignature(const std::string &rawBody, const std::string &signatureHeader) const;
@@ -61,7 +88,7 @@ class PaymentService
     static std::string normalizePlan(const std::string &plan);
     static std::string normalizeCurrency(const std::string &currency);
     static int normalizeDays(int days);
-    static int priceCents(const std::string &plan, int days, const std::string &currency);
+    int priceCents(const std::string &plan, int days, const std::string &currency) const;
     static std::string makeId(const std::string &prefix);
     static std::string nowIso();
     static std::string nextExpiryDate(const std::string &currentExpiresAt, int days);
@@ -86,6 +113,8 @@ class PaymentService
     std::filesystem::path ledgerFile_;
     std::filesystem::path refundsFile_;
     std::filesystem::path webhookEventsFile_;
+    std::filesystem::path pricingFile_;
+    mutable infrastructure::storage::SqliteJsonStore sqliteStore_;
     SubscriptionService &subscriptionService_;
     mutable std::mutex mutex_;
 };

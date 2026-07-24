@@ -72,5 +72,6 @@ void ApiRouter::registerRoutes() const
     routes::registerPaymentRoutes(context_);
     // 机构端管理工作台
     routes::registerInstitutionRoutes(context_);
+    routes::registerContentWorkflowRoutes(context_);
 }
 }  // namespace transport

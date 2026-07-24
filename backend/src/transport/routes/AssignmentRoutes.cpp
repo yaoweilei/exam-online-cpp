@@ -243,26 +243,88 @@ void registerAssignmentRoutes(const AppContext &ctx)
         },
         {Get});
 
-    app().registerHandler(
-        "/api/v1/assignments/{1}/reminders",
+	app().registerHandler(
+		"/api/v1/assignments/{1}/submissions/{2}/review",
+		[ctx](const HttpRequestPtr &req,
+		      std::function<void(const HttpResponsePtr &)> &&callback,
+		      std::string assignmentId,
+		      std::string studentId) {
+			handleRequest(req, std::move(callback), [&]() {
+				const auto body = parseJsonBody(req);
+				const auto session = requireSession(*ctx.authService, req, &body);
+				const auto assignment = ctx.assignmentService->getAssignment(assignmentId);
+				requireLearningGroupStaffOrAdmin(
+					ctx,
+					session,
+					assignment.get("organization_id", "").asString(),
+					assignment.get("learning_group_id", assignment.get("group_id", "")).asString());
+				const auto action = body.get("action", "reviewed").asString();
+				if (action != "reviewed" && action != "returned")
+				{
+					throw common::AppException("VALIDATION_ERROR", "action 必须是 reviewed 或 returned", k422UnprocessableEntity);
+				}
+				const auto comment = body.get("comment", "").asString();
+				if (comment.size() > 1000 || (action == "returned" && comment.empty()))
+				{
+					throw common::AppException("VALIDATION_ERROR", "退回重做必须填写评语，且评语不能超过 1000 字", k422UnprocessableEntity);
+				}
+				if (body.isMember("manual_score"))
+				{
+					const auto score = body["manual_score"].asDouble();
+					if (!body["manual_score"].isNumeric() || score < 0.0 || score > 100.0)
+					{
+						throw common::AppException("VALIDATION_ERROR", "manual_score 必须在 0 到 100 之间", k422UnprocessableEntity);
+					}
+				}
+				const auto actorId = session.get("user_id", session.get("id", "")).asString();
+				const auto submission = ctx.assignmentService->reviewSubmission(assignmentId, studentId, actorId, body);
+				Json::Value details(Json::objectValue);
+				details["assignment_id"] = assignmentId;
+				details["student_id"] = studentId;
+				details["action"] = action;
+				ctx.auditLogService->record(
+					action == "returned" ? "assignment.submission.returned" : "assignment.submission.reviewed",
+					actorId,
+					action == "returned" ? "退回作业重做" : "批改作业提交",
+					details,
+					assignment.get("organization_id", "").asString());
+				return common::ok(req, submission, action == "returned" ? "submission_returned" : "submission_reviewed");
+			});
+		},
+		{Post, Patch});
+
+	app().registerHandler(
+		"/api/v1/assignments/{1}/reminders",
         [ctx](const HttpRequestPtr &req,
               std::function<void(const HttpResponsePtr &)> &&callback,
               std::string assignmentId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
+                requireBoundedString(body, "message", 1, 500);
+                requireBoundedString(body, "idempotency_key", 8, 120);
                 const auto assignment = ctx.assignmentService->getAssignment(assignmentId);
                 requireLearningGroupStaffOrAdmin(
                     ctx,
                     session,
                     assignment.get("organization_id", "").asString(),
                     assignment.get("learning_group_id", assignment.get("group_id", "")).asString());
-                return common::ok(
-                    req,
-                    ctx.assignmentService->remindAssignment(
-                        assignmentId,
-                        session.get("user_id", session.get("id", "")).asString(),
-                        body));
+                const auto actorId = session.get("user_id", session.get("id", "")).asString();
+                const auto reminder = ctx.assignmentService->remindAssignment(assignmentId, actorId, body);
+                if (!reminder.get("idempotent_replay", false).asBool())
+                {
+                    Json::Value details(Json::objectValue);
+                    details["assignment_id"] = assignmentId;
+                    details["reminder_id"] = reminder.get("reminder_id", "");
+                    details["target_count"] = reminder.get("target_student_ids", Json::Value(Json::arrayValue)).size();
+                    ctx.auditLogService->record(
+                        "assignment.reminder.sent",
+                        actorId,
+                        "发送作业催交提醒",
+                        details,
+                        assignment.get("organization_id", "").asString());
+                }
+                return common::ok(req, reminder);
             });
         },
         {Post});

@@ -8,6 +8,7 @@
 #include <json/json.h>
 
 #include "WalStore.h"
+#include "SqliteJsonStore.h"
 
 namespace infrastructure::storage
 {
@@ -20,6 +21,11 @@ class UserRepository
 
     Json::Value users() const;
     Json::Value roles() const;
+    Json::Value updateRoleTemplate(const std::string &roleId, const Json::Value &payload);
+    Json::Value updatePlatformAccess(const std::string &userId, const Json::Value &payload);
+    Json::Value platformAccess(const std::string &userId) const;
+    Json::Value effectivePlatformRoles(const std::string &userId) const;
+    std::size_t countUsersWithRole(const std::string &roleId) const;
 
     Json::Value findUserByUsername(const std::string &username) const;
     Json::Value findUserByEmail(const std::string &email) const;
@@ -43,6 +49,13 @@ class UserRepository
 
     Json::Value bindPhone(const std::string &userId, const std::string &phone);
     Json::Value bindEmail(const std::string &userId, const std::string &email);
+    Json::Value bindWechat(const std::string &userId,
+                           const std::string &openid,
+                           const std::string &nickname,
+                           const std::string &avatarUrl,
+                           const std::string &loginIdHint = "");
+    Json::Value bindWechatFromUserToPhoneOwner(const std::string &sourceUserId, const std::string &phone);
+    Json::Value deactivateUser(const std::string &userId, const std::string &reason);
 
     Json::Value createPhoneUser(const std::string &phone, const std::string &referralCode = "");
 
@@ -95,6 +108,8 @@ class UserRepository
     static std::string sanitizePhone(const std::string &phone);
     static int extractPrefixedSerial(const std::string &value, const std::string &prefix);
     static std::string generateUserId();
+    Json::Value readUsersUnlocked() const;
+    void writeUsersUnlocked(const Json::Value &users);
 
     template <typename Func>
     static void forEachUserValue(const Json::Value &usersJson, Func visitor)
@@ -178,6 +193,9 @@ class UserRepository
     std::filesystem::path usersFile_;
     std::filesystem::path rolesFile_;
     mutable std::shared_mutex mutex_;
+    SqliteJsonStore sqliteStore_;
+    mutable Json::Value usersCache_{Json::objectValue};
+    mutable bool usersCacheLoaded_{false};
     WalStore wal_;
     std::size_t recoveredEvents_{0};
 };

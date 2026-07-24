@@ -22,6 +22,11 @@ void registerChapterRoutes(const AppContext &ctx)
               std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto userId = req->getParameter("user_id");
+                if (!userId.empty())
+                {
+                    const auto session = requireSession(*ctx.authService, req);
+                    requireDataOwnerOrAdmin(session, userId);
+                }
                 requireFeature(*ctx.featureFlagService, "chapter_path", userId);
                 const auto family = req->getParameter("family");
                 const auto level = req->getParameter("level");
@@ -37,6 +42,11 @@ void registerChapterRoutes(const AppContext &ctx)
               std::string chapterId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto userId = req->getParameter("user_id");
+                if (!userId.empty())
+                {
+                    const auto session = requireSession(*ctx.authService, req);
+                    requireDataOwnerOrAdmin(session, userId);
+                }
                 requireFeature(*ctx.featureFlagService, "chapter_path", userId);
                 if (chapterId == "rebuild")
                 {

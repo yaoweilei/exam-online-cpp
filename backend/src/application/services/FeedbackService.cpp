@@ -13,8 +13,19 @@ namespace application::services
 namespace
 {
 // 受控类别枚举，避免数据库被污染（同时方便运营按类型筛选）
-constexpr std::array<std::string_view, 5> kCategories{
-    "wrong_answer", "typo", "translation", "audio", "other"};
+constexpr std::array<std::string_view, 12> kCategories{
+    "question",
+    "answer",
+    "content",
+    "paper",
+    "analysis",
+    "payment",
+    "account",
+    "wrong_answer",
+    "typo",
+    "translation",
+    "audio",
+    "other"};
 
 bool isValidCategory(const std::string &c)
 {
@@ -99,10 +110,10 @@ Json::Value FeedbackService::update(const std::string &paperId,
     if (patch.isMember("status"))
     {
         const auto s = patch["status"].asString();
-        if (s != "open" && s != "resolved" && s != "rejected")
+        if (s != "open" && s != "reviewing" && s != "resolved" && s != "rejected")
         {
             throw common::AppException("VALIDATION_ERROR",
-                                       "status 必须是 open / resolved / rejected",
+                                       "status 必须是 open / reviewing / resolved / rejected",
                                        drogon::k422UnprocessableEntity);
         }
     }

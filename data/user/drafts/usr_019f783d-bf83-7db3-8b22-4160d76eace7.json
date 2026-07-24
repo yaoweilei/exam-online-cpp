@@ -1,0 +1,17 @@
+{
+  "answered_count" : 1,
+  "answers" : 
+  {
+    "1:1" : 1
+  },
+  "attempt_id" : "attempt-7fc81e61-2868-4b90-a0cc-fc1b2dd47dfa",
+  "attempt_status" : "draft",
+  "exam_id" : "2023_02",
+  "last_question_index" : 1,
+  "last_section_index" : 1,
+  "revision" : 1,
+  "started_at" : "2026-07-19T02:39:05.183Z",
+  "total_questions" : 1,
+  "updated_at" : "2026-07-19T02:39:05.183Z",
+  "user_id" : "usr_019f783d-bf83-7db3-8b22-4160d76eace7"
+}

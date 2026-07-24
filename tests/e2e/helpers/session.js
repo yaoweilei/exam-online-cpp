@@ -38,15 +38,38 @@ async function expectGuestEntry(page) {
 async function loginWithPassword(page, loginId) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await clearBrowserSession(page);
+  await page.evaluate(async (id) => {
+    const unwrap = async (response) => {
+      if (!response.ok) {
+        throw new Error(`request failed: ${response.status}`);
+      }
+      const payload = await response.json();
+      if (payload.code && payload.code !== 'OK') {
+        throw new Error(payload.message || payload.code);
+      }
+      return payload.data ?? payload;
+    };
+
+    const session = await unwrap(await fetch('/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: id, password: '' })
+    }));
+    const context = await unwrap(await fetch(`/api/v1/me/context?token=${encodeURIComponent(session.token)}`));
+    const user = {
+      ...context.user,
+      guest: false,
+      token: session.token,
+      profile: context.profile,
+      membership: context.membership,
+      permissions: context.permissions,
+      session_expires_at: context.session?.expires_at || '',
+      subscription: context.subscription
+    };
+    localStorage.setItem('exam_v2_user', JSON.stringify(user));
+    localStorage.setItem('exam_v2_token', session.token);
+  }, loginId);
   await page.reload({ waitUntil: 'domcontentloaded' });
-  const loginEntry = await expectGuestEntry(page);
-  await loginEntry.click();
-  await expect(page.locator('#login-modal')).toBeVisible();
-  await page.locator('[data-mode="password"]').click();
-  await page.locator('#login-username').fill(loginId);
-  await page.locator('#login-password').fill('');
-  await page.locator('#login-btn-password').click();
-  await expect(page.locator('#login-modal')).toBeHidden({ timeout: 20000 });
   await expect(page.locator('#user-menu-trigger, [aria-label*="打开个人中心"]').first()).toHaveAttribute('aria-label', /打开个人中心/);
 }
 
@@ -58,6 +81,7 @@ async function openPersonalCenter(page) {
 
 async function stubNoisyPersonalCenterApis(page, options = {}) {
   const includeInvitations = options.includeInvitations !== false;
+  const includeDrafts = options.includeDrafts !== false;
   const ok = (data) => ({
     code: 'OK',
     message: 'ok',
@@ -67,13 +91,24 @@ async function stubNoisyPersonalCenterApis(page, options = {}) {
   });
   const rules = [
     [/\/api\/v1\/streaks\/[^/]+\/summary/, {}],
-    [/\/api\/v1\/drafts\/[^/?]+/, {}],
     [/\/api\/v1\/me\/assignments/, []],
     [/\/api\/v1\/me\/study-goals/, {}],
-    [/\/api\/v1\/me\/daily-practice/, {}]
+    [/\/api\/v1\/me\/daily-practice/, options.dailyPractice || {}]
   ];
+  if (includeDrafts) {
+    rules.push([/\/api\/v1\/drafts\/[^/?]+/, {}]);
+  }
   if (includeInvitations) {
     rules.push([/\/api\/v1\/me\/invitations/, []]);
+  }
+  if (Object.prototype.hasOwnProperty.call(options, 'recentLearning')) {
+    rules.push([/\/api\/v1\/recent-learning\/[^/?]+/, { items: options.recentLearning }]);
+  }
+  if (Object.prototype.hasOwnProperty.call(options, 'bookmarkFolders')) {
+    rules.push([/\/api\/v1\/bookmark-folders\/[^/?]+/, { items: options.bookmarkFolders }]);
+  }
+  if (Object.prototype.hasOwnProperty.call(options, 'bookmarks')) {
+    rules.push([/\/api\/v1\/bookmarks\/[^/?]+/, options.bookmarks]);
   }
 
   await page.route('**/api/v1/**', async (route) => {

@@ -44,9 +44,15 @@ class AuthService
 
     Json::Value verify(const std::string &token);
 
+    void requirePasswordReauthentication(const std::string &userId, const std::string &password) const;
+
+    int revokeSessionsForUser(const std::string &userId, const std::string &keepToken = "");
+
     Json::Value changePassword(const std::string &userId,
                                const std::string &currentPassword,
                                const std::string &newPassword);
+
+    Json::Value deactivateAccount(const std::string &userId, const std::string &reason);
 
     Json::Value sendPasswordResetCode(const std::string &loginId);
 

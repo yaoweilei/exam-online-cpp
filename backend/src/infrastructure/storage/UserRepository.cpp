@@ -21,6 +21,7 @@ UserRepository::UserRepository(std::filesystem::path userRootDir)
     : userRootDir_(std::move(userRootDir)),
       usersFile_(userRootDir_ / "users.json"),
       rolesFile_(userRootDir_ / "roles.json"),
+      sqliteStore_(userRootDir_ / "core.sqlite3"),
       wal_(userRootDir_ / "_users.wal.log", userRootDir_ / "_users.wal.snapshot.json")
 {
     std::filesystem::create_directories(userRootDir_);
@@ -31,9 +32,12 @@ UserRepository::UserRepository(std::filesystem::path userRootDir)
 void UserRepository::ensureBaseline()
 {
     std::unique_lock lock(mutex_);
-    if (!std::filesystem::exists(usersFile_))
+    if (sqliteStore_.count("users") == 0)
     {
-        Json::Value users(Json::objectValue);
+        Json::Value users = std::filesystem::exists(usersFile_) ? readJsonFile(usersFile_) : Json::Value(Json::objectValue);
+        if (!users.isObject()) users = Json::Value(Json::objectValue);
+        if (users.empty())
+        {
         users["guest"]["id"] = "guest";
         users["guest"]["user_id"] = "guest";
         users["guest"]["username"] = "guest";
@@ -51,7 +55,8 @@ void UserRepository::ensureBaseline()
         users["guest"]["roles"] = Json::arrayValue;
         users["guest"]["roles"].append("guest");
         users["guest"]["created_at"] = common::nowIso8601();
-        writeJsonFileAtomic(usersFile_, users);
+        }
+        writeUsersUnlocked(users);
     }
 
     if (!std::filesystem::exists(rolesFile_))
@@ -91,10 +96,37 @@ void UserRepository::ensureBaseline()
     writeJsonFileAtomic(rolesFile_, normalized);
 }
 
+Json::Value UserRepository::readUsersUnlocked() const
+{
+    if (usersCacheLoaded_) return usersCache_;
+    Json::Value users(Json::objectValue);
+    for (const auto &entry : sqliteStore_.list("users"))
+    {
+        const auto user = normalizeUser(entry);
+        const auto id = user.get("id", user.get("user_id", "")).asString();
+        if (!id.empty()) users[id] = user;
+    }
+    usersCache_ = users;
+    usersCacheLoaded_ = true;
+    return usersCache_;
+}
+
+void UserRepository::writeUsersUnlocked(const Json::Value &users)
+{
+    Json::Value items(Json::arrayValue);
+    forEachUserValue(users, [&items](const Json::Value &entry) {
+        const auto user = normalizeUser(entry);
+        if (!user.get("id", user.get("user_id", "")).asString().empty()) items.append(user);
+    });
+    sqliteStore_.replace("users", items, "id");
+    usersCache_ = users;
+    usersCacheLoaded_ = true;
+}
+
 Json::Value UserRepository::users() const
 {
     std::shared_lock lock(mutex_);
-    auto rawUsers = readJsonFile(usersFile_);
+    auto rawUsers = readUsersUnlocked();
     Json::Value normalized(Json::objectValue);
     forEachUserValue(rawUsers, [&normalized](const Json::Value &entry) {
         const auto user = normalizeUser(entry);
@@ -127,7 +159,7 @@ Json::Value UserRepository::roles() const
 Json::Value UserRepository::findUserByUsername(const std::string &username) const
 {
     std::shared_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value result(Json::nullValue);
     forEachUserValue(usersJson, [&result, &username](const Json::Value &entry) {
         if (!result.isNull())
@@ -146,7 +178,7 @@ Json::Value UserRepository::findUserByUsername(const std::string &username) cons
 Json::Value UserRepository::findUserByEmail(const std::string &email) const
 {
     std::shared_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value result(Json::nullValue);
     forEachUserValue(usersJson, [&result, &email](const Json::Value &entry) {
         if (!result.isNull())
@@ -165,7 +197,7 @@ Json::Value UserRepository::findUserByEmail(const std::string &email) const
 Json::Value UserRepository::findUserByLoginId(const std::string &loginId) const
 {
     std::shared_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value result(Json::nullValue);
     forEachUserValue(usersJson, [&result, &loginId](const Json::Value &entry) {
         if (!result.isNull())
@@ -184,7 +216,7 @@ Json::Value UserRepository::findUserByLoginId(const std::string &loginId) const
 Json::Value UserRepository::findUserById(const std::string &userId) const
 {
     std::shared_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value result(Json::nullValue);
     forEachUserValue(usersJson, [&result, &userId](const Json::Value &entry) {
         if (!result.isNull())
@@ -204,7 +236,7 @@ Json::Value UserRepository::usersByRole(const std::string &roleId) const
 {
     const auto normalizedRole = normalizeRoleId(roleId);
     std::shared_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value result(Json::arrayValue);
     forEachUserValue(usersJson, [&result, &normalizedRole](const Json::Value &entry) {
         const auto user = normalizeUser(entry);
@@ -235,7 +267,7 @@ Json::Value UserRepository::createUser(const std::string &username,
                        const std::string &referralCode)
 {
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     if (containsUsername(usersJson, username))
     {
         throw common::AppException("USER_EXISTS", "Username already exists", drogon::k400BadRequest);
@@ -278,14 +310,14 @@ Json::Value UserRepository::createUser(const std::string &username,
     usersJson[key]["referral_reward_status"] = referrer.isNull() ? "none" : "pending";
 
     wal_.append("user_created", usersJson[key]);
-    writeJsonFileAtomic(usersFile_, usersJson);
+    writeUsersUnlocked(usersJson);
     return normalizeUser(usersJson[key]);
 }
 
 Json::Value UserRepository::createDevelopmentUser(const std::string &loginId)
 {
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value existing(Json::nullValue);
     forEachUserValue(usersJson, [&existing, &loginId](const Json::Value &entry) {
         if (!existing.isNull())
@@ -329,7 +361,7 @@ Json::Value UserRepository::createDevelopmentUser(const std::string &loginId)
     usersJson[key]["created_at"] = common::nowIso8601();
 
     wal_.append("development_user_created", usersJson[key]);
-    writeJsonFileAtomic(usersFile_, usersJson);
+    writeUsersUnlocked(usersJson);
     return normalizeUser(usersJson[key]);
 }
 
@@ -347,10 +379,113 @@ bool UserRepository::verifyPassword(const Json::Value &user, const std::string &
     return false;
 }
 
+Json::Value UserRepository::updateRoleTemplate(const std::string &roleId, const Json::Value &payload)
+{
+    const auto normalizedId = normalizeRoleId(roleId);
+    if (normalizedId.empty() || normalizedId == "guest")
+        throw common::AppException("ROLE_TEMPLATE_INVALID", "Role template cannot be modified", drogon::k422UnprocessableEntity);
+    std::unique_lock lock(mutex_);
+    auto rolesJson = readJsonFile(rolesFile_);
+    if (!rolesJson.isObject() || !rolesJson.isMember(normalizedId))
+        throw common::AppException("ROLE_NOT_FOUND", "Role template not found", drogon::k404NotFound);
+    auto role = mergeRoleDefinition(defaultRolesMap()[normalizedId], rolesJson[normalizedId], normalizedId);
+    if (payload.isMember("name")) role["name"] = payload.get("name", role.get("name", normalizedId)).asString();
+    if (payload.isMember("description")) role["description"] = payload.get("description", role.get("description", "")).asString();
+    if (payload.isMember("permissions"))
+    {
+        Json::Value permissions(Json::arrayValue);
+        appendUniqueStrings(permissions, payload["permissions"]);
+        if (normalizedId == "superAdmin")
+        {
+            permissions = Json::arrayValue;
+            permissions.append("*");
+        }
+        role["permissions"] = permissions;
+    }
+    role["allow_organization_override"] = payload.get("allow_organization_override", role.get("allow_organization_override", normalizedId != "superAdmin")).asBool();
+    role["updated_at"] = common::nowIso8601();
+    rolesJson[normalizedId] = role;
+    wal_.append("role_template_updated", role);
+    writeJsonFileAtomic(rolesFile_, rolesJson);
+    return role;
+}
+
+Json::Value UserRepository::updatePlatformAccess(const std::string &userId, const Json::Value &payload)
+{
+    std::unique_lock lock(mutex_);
+    auto usersJson = readUsersUnlocked();
+    Json::Value updated(Json::nullValue);
+    forEachUserValue(usersJson, [&](Json::Value &entry) {
+        if (!updated.isNull() || entry.get("id", entry.get("user_id", "")).asString() != userId) return;
+        if (payload.isMember("roles")) entry["roles"] = normalizeRolesArray(payload["roles"]);
+        if (payload.isMember("temporary_grants") && payload["temporary_grants"].isArray())
+        {
+            Json::Value grants(Json::arrayValue);
+            for (const auto &source : payload["temporary_grants"])
+            {
+                if (!source.isObject()) continue;
+                Json::Value grant(Json::objectValue);
+                grant["id"] = source.get("id", common::generateOpaqueId("grant_")).asString();
+                grant["role_id"] = normalizeRoleId(source.get("role_id", "").asString());
+                grant["effect"] = source.get("effect", "allow").asString() == "deny" ? "deny" : "allow";
+                grant["expires_at"] = source.get("expires_at", "").asString();
+                grant["permissions"] = Json::arrayValue;
+                appendUniqueStrings(grant["permissions"], source.get("permissions", Json::Value(Json::arrayValue)));
+                if (!grant["role_id"].asString().empty() || !grant["permissions"].empty()) grants.append(grant);
+            }
+            entry["temporary_grants"] = grants;
+        }
+        entry["access_updated_at"] = common::nowIso8601();
+        updated = normalizeUser(entry);
+    });
+    if (updated.isNull()) throw common::AppException("USER_NOT_FOUND", "User not found", drogon::k404NotFound);
+    wal_.append("platform_access_updated", updated);
+    writeUsersUnlocked(usersJson);
+    return updated;
+}
+
+Json::Value UserRepository::platformAccess(const std::string &userId) const
+{
+    const auto user = findUserById(userId);
+    if (user.isNull()) throw common::AppException("USER_NOT_FOUND", "User not found", drogon::k404NotFound);
+    Json::Value out(Json::objectValue);
+    out["user_id"] = userId;
+    out["roles"] = user.get("roles", Json::Value(Json::arrayValue));
+    out["temporary_grants"] = user.get("temporary_grants", Json::Value(Json::arrayValue));
+    out["updated_at"] = user.get("access_updated_at", "");
+    return out;
+}
+
+Json::Value UserRepository::effectivePlatformRoles(const std::string &userId) const
+{
+    const auto access = platformAccess(userId);
+    Json::Value result = access["roles"];
+    const auto now = common::nowIso8601();
+    for (const auto &grant : access["temporary_grants"])
+    {
+        const auto expiresAt = grant.get("expires_at", "").asString();
+        if (!expiresAt.empty() && expiresAt <= now) continue;
+        const auto roleId = normalizeRoleId(grant.get("role_id", "").asString());
+        if (!roleId.empty()) appendUniqueRole(result, roleId);
+    }
+    return result;
+}
+
+std::size_t UserRepository::countUsersWithRole(const std::string &roleId) const
+{
+    const auto usersJson = users();
+    std::size_t count = 0;
+    forEachUserValue(usersJson, [&](const Json::Value &entry) {
+        for (const auto &role : entry.get("roles", Json::Value(Json::arrayValue)))
+            if (role.asString() == roleId) { ++count; break; }
+    });
+    return count;
+}
+
 Json::Value UserRepository::updatePassword(const std::string &userId, const std::string &password)
 {
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value result(Json::nullValue);
     forEachUserValue(usersJson, [&result, &userId, &password](Json::Value &entry) {
         if (!result.isNull())
@@ -369,7 +504,7 @@ Json::Value UserRepository::updatePassword(const std::string &userId, const std:
     if (!result.isNull())
     {
         wal_.append("password_updated", result);
-        writeJsonFileAtomic(usersFile_, usersJson);
+        writeUsersUnlocked(usersJson);
         return result;
     }
     throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
@@ -379,7 +514,7 @@ Json::Value UserRepository::updatePassword(const std::string &userId, const std:
 Json::Value UserRepository::bindPhone(const std::string &userId, const std::string &phone)
 {
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     forEachUserValue(usersJson, [&phone, &userId](Json::Value &entry) {
         const auto user = normalizeUser(entry);
         if (user.get("phone", "").asString() == phone && user.get("id", "").asString() != userId)
@@ -404,7 +539,7 @@ Json::Value UserRepository::bindPhone(const std::string &userId, const std::stri
     if (!result.isNull())
     {
         wal_.append("phone_bound", result);
-        writeJsonFileAtomic(usersFile_, usersJson);
+        writeUsersUnlocked(usersJson);
         return result;
     }
     throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
@@ -413,7 +548,7 @@ Json::Value UserRepository::bindPhone(const std::string &userId, const std::stri
 Json::Value UserRepository::bindEmail(const std::string &userId, const std::string &email)
 {
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     forEachUserValue(usersJson, [&email, &userId](Json::Value &entry) {
         const auto user = normalizeUser(entry);
         if (user.get("email", "").asString() == email && user.get("id", "").asString() != userId)
@@ -438,7 +573,173 @@ Json::Value UserRepository::bindEmail(const std::string &userId, const std::stri
     if (!result.isNull())
     {
         wal_.append("email_bound", result);
-        writeJsonFileAtomic(usersFile_, usersJson);
+        writeUsersUnlocked(usersJson);
+        return result;
+    }
+    throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
+}
+
+Json::Value UserRepository::bindWechat(const std::string &userId,
+                       const std::string &openid,
+                       const std::string &nickname,
+                       const std::string &avatarUrl,
+                       const std::string &loginIdHint)
+{
+    if (openid.empty())
+    {
+        throw common::AppException("WECHAT_OPENID_REQUIRED", "WeChat openid is required", drogon::k422UnprocessableEntity);
+    }
+
+    std::unique_lock lock(mutex_);
+    auto usersJson = readUsersUnlocked();
+    forEachUserValue(usersJson, [&openid, &userId](Json::Value &entry) {
+        const auto user = normalizeUser(entry);
+        if (user.get("wechat_openid", "").asString() == openid && user.get("id", "").asString() != userId)
+        {
+            throw common::AppException("WECHAT_ALREADY_BOUND", "This WeChat account is already bound to another user", drogon::k409Conflict);
+        }
+    });
+
+    Json::Value result(Json::nullValue);
+    forEachUserValue(usersJson, [&result, &userId, &openid, &nickname, &avatarUrl, &loginIdHint](Json::Value &entry) {
+        if (!result.isNull())
+        {
+            return;
+        }
+        const auto user = normalizeUser(entry);
+        if (user.get("id", "").asString() == userId)
+        {
+            entry["wechat_openid"] = openid;
+            entry["wechat_bound_at"] = common::nowIso8601();
+            if (!nickname.empty())
+            {
+                entry["wechat_nickname"] = nickname;
+            }
+            if (!avatarUrl.empty())
+            {
+                entry["wechat_avatar"] = avatarUrl;
+            }
+            if (!loginIdHint.empty())
+            {
+                entry["dev_login_id"] = loginIdHint;
+            }
+            result = normalizeUser(entry);
+        }
+    });
+    if (!result.isNull())
+    {
+        wal_.append("wechat_bound", result);
+        writeUsersUnlocked(usersJson);
+        return result;
+    }
+    throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
+}
+
+Json::Value UserRepository::bindWechatFromUserToPhoneOwner(const std::string &sourceUserId, const std::string &phone)
+{
+    std::unique_lock lock(mutex_);
+    auto usersJson = readUsersUnlocked();
+
+    Json::Value source(Json::nullValue);
+    Json::Value target(Json::nullValue);
+    forEachUserValue(usersJson, [&source, &target, &sourceUserId, &phone](const Json::Value &entry) {
+        const auto user = normalizeUser(entry);
+        if (user.get("id", "").asString() == sourceUserId)
+        {
+            source = user;
+        }
+        if (user.get("phone", "").asString() == phone)
+        {
+            target = user;
+        }
+    });
+
+    if (source.isNull())
+    {
+        throw common::AppException("USER_NOT_FOUND", "User not found: " + sourceUserId, drogon::k404NotFound);
+    }
+    if (target.isNull())
+    {
+        throw common::AppException("PHONE_NOT_FOUND", "Phone owner not found", drogon::k404NotFound);
+    }
+    if (target.get("id", "").asString() == sourceUserId)
+    {
+        return target;
+    }
+
+    const auto openid = source.get("wechat_openid", "").asString();
+    if (openid.empty())
+    {
+        throw common::AppException("WECHAT_NOT_BOUND", "Source user has no WeChat identity", drogon::k409Conflict);
+    }
+    const auto targetOpenid = target.get("wechat_openid", "").asString();
+    if (!targetOpenid.empty() && targetOpenid != openid)
+    {
+        throw common::AppException("WECHAT_ALREADY_BOUND", "The phone owner already has another WeChat account", drogon::k409Conflict);
+    }
+
+    Json::Value result(Json::nullValue);
+    forEachUserValue(usersJson, [&result, &source, &target, &sourceUserId, &phone, &openid](Json::Value &entry) {
+        const auto user = normalizeUser(entry);
+        if (user.get("id", "").asString() == target.get("id", "").asString())
+        {
+            entry["wechat_openid"] = openid;
+            entry["wechat_bound_at"] = common::nowIso8601();
+            entry["wechat_nickname"] = source.get("wechat_nickname", "").asString();
+            entry["wechat_avatar"] = source.get("wechat_avatar", "").asString();
+            const auto loginIdHint = source.get("dev_login_id", "").asString();
+            if (!loginIdHint.empty() && entry.get("dev_login_id", "").asString().empty())
+            {
+                entry["dev_login_id"] = loginIdHint;
+            }
+            result = normalizeUser(entry);
+        }
+        else if (user.get("id", "").asString() == sourceUserId)
+        {
+            entry["wechat_openid"] = "";
+            entry["wechat_bound_at"] = "";
+            entry["wechat_nickname"] = "";
+            entry["wechat_avatar"] = "";
+            entry["status"] = "merged";
+            entry["merged_into_user_id"] = target.get("id", "").asString();
+            entry["merged_reason"] = "wechat_phone_owner";
+            entry["merged_phone"] = phone;
+            entry["merged_at"] = common::nowIso8601();
+        }
+    });
+
+    if (!result.isNull())
+    {
+        wal_.append("wechat_merged_to_phone_owner", result);
+        writeUsersUnlocked(usersJson);
+        return result;
+    }
+    throw common::AppException("USER_NOT_FOUND", "Phone owner not found", drogon::k404NotFound);
+}
+
+Json::Value UserRepository::deactivateUser(const std::string &userId, const std::string &reason)
+{
+    std::unique_lock lock(mutex_);
+    auto usersJson = readUsersUnlocked();
+    Json::Value result(Json::nullValue);
+    forEachUserValue(usersJson, [&result, &userId, &reason](Json::Value &entry) {
+        if (!result.isNull())
+        {
+            return;
+        }
+        const auto user = normalizeUser(entry);
+        if (user.get("id", "").asString() == userId)
+        {
+            entry["status"] = "disabled";
+            entry["deactivated_at"] = common::nowIso8601();
+            entry["deactivation_reason"] = reason.empty() ? "user_requested" : reason;
+            result = normalizeUser(entry);
+        }
+    });
+    if (!result.isNull())
+    {
+        wal_.append("user_deactivated", result);
+        writeUsersUnlocked(usersJson);
         return result;
     }
     throw common::AppException("USER_NOT_FOUND", "User not found: " + userId, drogon::k404NotFound);
@@ -447,7 +748,7 @@ Json::Value UserRepository::bindEmail(const std::string &userId, const std::stri
 Json::Value UserRepository::findUserByPhone(const std::string &phone) const
 {
     std::shared_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value result(Json::nullValue);
     forEachUserValue(usersJson, [&result, &phone](const Json::Value &entry) {
         if (!result.isNull())
@@ -466,7 +767,7 @@ Json::Value UserRepository::findUserByPhone(const std::string &phone) const
 Json::Value UserRepository::createPhoneUser(const std::string &phone, const std::string &referralCode)
 {
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value existing(Json::nullValue);
     forEachUserValue(usersJson, [&existing, &phone](const Json::Value &entry) {
         if (!existing.isNull())
@@ -523,7 +824,7 @@ Json::Value UserRepository::createPhoneUser(const std::string &phone, const std:
     usersJson[key]["referral_reward_status"] = referrer.isNull() ? "none" : "pending";
 
     wal_.append("phone_user_created", usersJson[key]);
-    writeJsonFileAtomic(usersFile_, usersJson);
+    writeUsersUnlocked(usersJson);
     return normalizeUser(usersJson[key]);
 }
 
@@ -536,7 +837,7 @@ Json::Value UserRepository::findUserByReferralCode(const std::string &referralCo
     }
 
     std::shared_lock lock(mutex_);
-    return findUserByReferralCodeUnlocked(readJsonFile(usersFile_), normalizedCode);
+    return findUserByReferralCodeUnlocked(readUsersUnlocked(), normalizedCode);
 }
 
 Json::Value UserRepository::claimReferral(const std::string &userId, const std::string &referralCode)
@@ -548,7 +849,7 @@ Json::Value UserRepository::claimReferral(const std::string &userId, const std::
     }
 
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     const auto referrer = findUserByReferralCodeUnlocked(usersJson, normalizedCode);
     if (referrer.isNull())
     {
@@ -588,7 +889,7 @@ Json::Value UserRepository::claimReferral(const std::string &userId, const std::
     }
 
     wal_.append("referral_claimed", updated);
-    writeJsonFileAtomic(usersFile_, usersJson);
+    writeUsersUnlocked(usersJson);
     return updated;
 }
 
@@ -598,7 +899,7 @@ bool UserRepository::grantReferralRewardIfPending(const std::string &userId,
                                   const std::string &rewardRecipientUserId)
 {
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value updated(Json::nullValue);
     bool changed = false;
     forEachUserValue(usersJson, [&updated, &userId, &trigger, &rewardCredits, &rewardRecipientUserId, &changed](Json::Value &entry) {
@@ -639,7 +940,7 @@ bool UserRepository::grantReferralRewardIfPending(const std::string &userId,
     }
 
     wal_.append("referral_reward_granted", updated);
-    writeJsonFileAtomic(usersFile_, usersJson);
+    writeUsersUnlocked(usersJson);
     return true;
 }
 
@@ -647,7 +948,7 @@ bool UserRepository::grantReferralRewardIfPending(const std::string &userId,
 Json::Value UserRepository::findUserByOpenid(const std::string &openid) const
 {
     std::shared_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
     Json::Value result(Json::nullValue);
     forEachUserValue(usersJson, [&result, &openid](const Json::Value &entry) {
         if (!result.isNull())
@@ -670,7 +971,7 @@ Json::Value UserRepository::upsertWechatUser(const std::string &openid,
                             const std::string &loginIdHint)
 {
     std::unique_lock lock(mutex_);
-    auto usersJson = readJsonFile(usersFile_);
+    auto usersJson = readUsersUnlocked();
 
     // Search for existing user with this openid
     Json::Value updated(Json::nullValue);
@@ -712,7 +1013,7 @@ Json::Value UserRepository::upsertWechatUser(const std::string &openid,
     if (!updated.isNull())
     {
         wal_.append("wechat_user_updated", updated);
-        writeJsonFileAtomic(usersFile_, usersJson);
+        writeUsersUnlocked(usersJson);
         return updated;
     }
 
@@ -743,7 +1044,7 @@ Json::Value UserRepository::upsertWechatUser(const std::string &openid,
     usersJson[key]["created_at"] = common::nowIso8601();
 
     wal_.append("wechat_user_created", usersJson[key]);
-    writeJsonFileAtomic(usersFile_, usersJson);
+    writeUsersUnlocked(usersJson);
     return normalizeUser(usersJson[key]);
 }
 
@@ -846,8 +1147,16 @@ Json::Value UserRepository::normalizeUser(const Json::Value &input)
     user["avatar_url"] = user.get("avatar_url", user["avatar"].asString()).asString();
     user["password_hash"] = user.get("password_hash", user.get("passwordHash", "")).asString();
     user["password_algo"] = user.get("password_algo", user["password_hash"].asString().empty() ? "sha256" : "sha256").asString();
+    user["has_password"] = user["password_algo"].asString() == "sha256" && !user["password_hash"].asString().empty();
+    user["hasPassword"] = user["has_password"].asBool();
     user["phone"] = user.get("phone", "").asString();
     user["phone_verified"] = user.get("phone_verified", false).asBool();
+    user["wechat_openid"] = user.get("wechat_openid", "").asString();
+    user["wechat_bound"] = !user["wechat_openid"].asString().empty();
+    user["wechatBound"] = user["wechat_bound"].asBool();
+    user["wechat_nickname"] = user.get("wechat_nickname", "").asString();
+    user["wechat_avatar"] = user.get("wechat_avatar", "").asString();
+    user["wechat_bound_at"] = user.get("wechat_bound_at", "").asString();
     user["status"] = normalizeStatus(user.get("status", "active").asString());
     user["scope_type"] = normalizeScopeType(user.get("scope_type", "personal").asString());
     user["scope_id"] = user.get("scope_id", userId).asString();
@@ -1125,6 +1434,7 @@ bool UserRepository::matchesLoginId(const Json::Value &user, const std::string &
          user.get("member_no", "").asString() == loginId ||
            user.get("student_no", "").asString() == loginId ||
          user.get("employee_no", "").asString() == loginId ||
+           user.get("phone", "").asString() == loginId ||
            user.get("dev_login_id", "").asString() == loginId;
 }
 

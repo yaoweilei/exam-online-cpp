@@ -169,7 +169,15 @@ Json::Value DailyPracticeService::getOrCreateToday(const std::string &userId, in
     next["user_id"] = userId;
     next["date"] = td;
     next["target_count"] = targetCount;
-    next["items"] = buildItems(userId, targetCount);
+    try
+    {
+        next["items"] = buildItems(userId, targetCount);
+    }
+    catch (...)
+    {
+        // 个别旧学习数据损坏时仍返回可用的空清单，不让个人中心整体加载失败。
+        next["items"] = Json::Value(Json::arrayValue);
+    }
     next["completed_question_ids"] = Json::Value(Json::arrayValue);
     next["generated_at"] = common::nowIso8601();
     infrastructure::storage::writeJsonFileAtomic(path, next);

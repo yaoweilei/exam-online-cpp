@@ -30,20 +30,6 @@ std::optional<std::string> getOpt(const drogon::HttpRequestPtr &req, const std::
     return v;
 }
 
-int getInt(const drogon::HttpRequestPtr &req, const std::string &key, int def)
-{
-    const auto v = req->getParameter(key);
-    if (v.empty()) return def;
-    try
-    {
-        return std::stoi(v);
-    }
-    catch (...)
-    {
-        return def;
-    }
-}
-
 // 取 actor 第一个所属 org，用于 orgAdmin 强制注入（委托给 service）
 std::string firstOrgIdOf(application::services::AuditLogService &svc, const std::string &userId)
 {
@@ -73,8 +59,8 @@ void registerAuditLogRoutes(const AppContext &ctx)
                 q.action = getOpt(req, "action");
                 q.since = getOpt(req, "since");
                 q.until = getOpt(req, "until");
-                q.limit = getInt(req, "limit", 50);
-                q.offset = getInt(req, "offset", 0);
+                q.limit = readBoundedIntParameter(req, "limit", 50, 1, 200);
+                q.offset = readBoundedIntParameter(req, "offset", 0, 0, 1000000);
                 if (isSuper)
                 {
                     q.orgId = getOpt(req, "org_id");

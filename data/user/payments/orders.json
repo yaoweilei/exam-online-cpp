@@ -1,0 +1,314 @@
+[
+  {
+    "amount" : 299.0,
+    "amount_cents" : 29900,
+    "created_at" : "2026-06-22T14:54:45.133Z",
+    "currency" : "cny",
+    "days" : 365,
+    "description" : "ultra 套餐 365 天",
+    "id" : "pay_1782140085133_f959e2b012199fd3",
+    "metadata" : {},
+    "plan" : "ultra",
+    "provider" : "wechat",
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "WeChat Pay is not configured. Set WECHAT_PAY_APP_ID, WECHAT_PAY_MCH_ID, WECHAT_PAY_CERT_SERIAL_NO, and WECHAT_PAY_PRIVATE_KEY_PATH.",
+      "provider" : "wechat"
+    },
+    "status" : "pending",
+    "updated_at" : "2026-06-22T14:54:45.133Z",
+    "user_id" : "usr_019ee051-2faa-7c21-b088-5916feb77974"
+  },
+  {
+    "amount" : 12.9,
+    "amount_cents" : 1290,
+    "created_at" : "2026-06-22T16:28:07.446Z",
+    "currency" : "cny",
+    "days" : 30,
+    "description" : "pro 套餐 30 天",
+    "id" : "pay_1782145687446_bc26ce80d28ddeb2",
+    "metadata" : {},
+    "plan" : "pro",
+    "provider" : "wechat",
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "WeChat Pay is not configured. Set WECHAT_PAY_APP_ID, WECHAT_PAY_MCH_ID, WECHAT_PAY_CERT_SERIAL_NO, and WECHAT_PAY_PRIVATE_KEY_PATH.",
+      "provider" : "wechat"
+    },
+    "status" : "pending",
+    "updated_at" : "2026-06-22T16:28:07.446Z",
+    "user_id" : "usr_019ef029-1e27-7f4d-9886-1980200197da"
+  },
+  {
+    "amount" : 12.9,
+    "amount_cents" : 1290,
+    "created_at" : "2026-06-22T16:36:55.172Z",
+    "currency" : "cny",
+    "days" : 30,
+    "description" : "pro 套餐 30 天",
+    "id" : "pay_1782146215172_ce8b4c588e5a3c3c",
+    "metadata" : {},
+    "plan" : "pro",
+    "provider" : "wechat",
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "WeChat Pay is not configured. Set WECHAT_PAY_APP_ID, WECHAT_PAY_MCH_ID, WECHAT_PAY_CERT_SERIAL_NO, and WECHAT_PAY_PRIVATE_KEY_PATH.",
+      "provider" : "wechat"
+    },
+    "status" : "pending",
+    "updated_at" : "2026-06-22T16:36:55.172Z",
+    "user_id" : "usr_019ef031-2b93-7bff-99a9-31ec0bff1aad"
+  },
+  {
+    "amount" : 12.9,
+    "amount_cents" : 1290,
+    "created_at" : "2026-06-22T17:08:41.677Z",
+    "currency" : "cny",
+    "days" : 30,
+    "description" : "pro 套餐 30 天",
+    "id" : "pay_1782148121677_2f49daffb1dd4f7a",
+    "metadata" : {},
+    "plan" : "pro",
+    "provider" : "wechat",
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "WeChat Pay is not configured. Set WECHAT_PAY_APP_ID, WECHAT_PAY_MCH_ID, WECHAT_PAY_CERT_SERIAL_NO, and WECHAT_PAY_PRIVATE_KEY_PATH.",
+      "provider" : "wechat"
+    },
+    "status" : "pending",
+    "updated_at" : "2026-06-22T17:08:41.677Z",
+    "user_id" : "usr_019ef04e-42cf-7ded-b294-350715caba59"
+  },
+  {
+    "amount" : 12.9,
+    "amount_cents" : 1290,
+    "created_at" : "2026-07-17T22:47:27.239Z",
+    "currency" : "cny",
+    "days" : 30,
+    "description" : "pro 套餐 30 天",
+    "id" : "pay_1784328447239_50503934bb532ed1",
+    "metadata" : {},
+    "plan" : "pro",
+    "provider" : "wechat",
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "WeChat Pay is not configured. Set WECHAT_PAY_APP_ID, WECHAT_PAY_MCH_ID, WECHAT_PAY_CERT_SERIAL_NO, and WECHAT_PAY_PRIVATE_KEY_PATH.",
+      "provider" : "wechat"
+    },
+    "status" : "pending",
+    "updated_at" : "2026-07-17T22:47:27.239Z",
+    "user_id" : "usr_019f7243-62b0-7c98-b77a-4733b64a224f"
+  },
+  {
+    "amount" : 12.9,
+    "amount_cents" : 1290,
+    "created_at" : "2026-07-17T22:48:27.873Z",
+    "currency" : "cny",
+    "days" : 30,
+    "description" : "pro 套餐 30 天",
+    "id" : "pay_1784328507873_72556d8200fbeb8",
+    "metadata" : {},
+    "plan" : "pro",
+    "provider" : "wechat",
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "WeChat Pay is not configured. Set WECHAT_PAY_APP_ID, WECHAT_PAY_MCH_ID, WECHAT_PAY_CERT_SERIAL_NO, and WECHAT_PAY_PRIVATE_KEY_PATH.",
+      "provider" : "wechat"
+    },
+    "status" : "pending",
+    "updated_at" : "2026-07-17T22:48:27.873Z",
+    "user_id" : "usr_019f7244-4f36-76a4-a8c3-5767132a07f9"
+  },
+  {
+    "amount" : 12.9,
+    "amount_cents" : 1290,
+    "created_at" : "2026-07-18T01:18:18.148Z",
+    "currency" : "cny",
+    "days" : 30,
+    "description" : "pro 套餐 30 天",
+    "id" : "pay_1784337498148_161ae0616b9f13be",
+    "metadata" : {},
+    "paid_at" : "2026-07-18T01:18:18.162Z",
+    "plan" : "pro",
+    "previous_subscription" : 
+    {
+      "accessible_levels" : 
+      [
+        "N5",
+        "N4"
+      ],
+      "entitlements" : [],
+      "expires_at" : "",
+      "is_active" : true,
+      "organization_type" : "",
+      "plan" : "free",
+      "scope_id" : "usr_019f72cd-7d54-74a7-a979-27599c9d623a",
+      "scope_type" : "personal",
+      "status" : "active"
+    },
+    "provider" : "stripe",
+    "provider_event" : 
+    {
+      "data" : 
+      {
+        "object" : 
+        {
+          "client_reference_id" : "pay_1784337498148_161ae0616b9f13be",
+          "id" : "cs_pay_1784337498148_161ae0616b9f13be",
+          "payment_intent" : "pi_pay_1784337498148_161ae0616b9f13be"
+        }
+      },
+      "id" : "evt_paid_pay_1784337498148_161ae0616b9f13be",
+      "type" : "checkout.session.completed"
+    },
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "Stripe is not configured. Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY."
+    },
+    "provider_payment_id" : "pi_pay_1784337498148_161ae0616b9f13be",
+    "provider_payment_intent" : "pi_pay_1784337498148_161ae0616b9f13be",
+    "refunded_amount_cents" : 1290,
+    "scope_id" : "usr_019f72cd-7d54-74a7-a979-27599c9d623a",
+    "scope_type" : "user",
+    "status" : "refunded",
+    "subscription" : 
+    {
+      "accessible_levels" : 
+      [
+        "N5",
+        "N4",
+        "N3",
+        "N2"
+      ],
+      "entitlements" : 
+      [
+        "bookmark",
+        "weak_points",
+        "recommendation"
+      ],
+      "expires_at" : "2026-08-17",
+      "is_active" : true,
+      "organization_type" : "",
+      "plan" : "pro",
+      "scope_id" : "usr_019f72cd-7d54-74a7-a979-27599c9d623a",
+      "scope_type" : "personal",
+      "status" : "active"
+    },
+    "updated_at" : "2026-07-18T01:18:18.688Z",
+    "user_id" : "usr_019f72cd-7d54-74a7-a979-27599c9d623a"
+  },
+  {
+    "amount" : 12.9,
+    "amount_cents" : 1290,
+    "created_at" : "2026-07-18T01:18:19.823Z",
+    "currency" : "cny",
+    "days" : 30,
+    "description" : "pro 套餐 30 天",
+    "id" : "pay_1784337499823_fe40787f407ca09b",
+    "metadata" : {},
+    "paid_at" : "2026-07-18T01:18:19.837Z",
+    "plan" : "pro",
+    "previous_subscription" : 
+    {
+      "accessible_levels" : 
+      [
+        "N5",
+        "N4"
+      ],
+      "entitlements" : [],
+      "expires_at" : "",
+      "is_active" : true,
+      "organization_type" : "",
+      "plan" : "free",
+      "scope_id" : "usr_019f72cd-8454-74de-a85a-2f8655a97264",
+      "scope_type" : "personal",
+      "status" : "active"
+    },
+    "provider" : "stripe",
+    "provider_event" : 
+    {
+      "data" : 
+      {
+        "object" : 
+        {
+          "client_reference_id" : "pay_1784337499823_fe40787f407ca09b",
+          "id" : "cs_pay_1784337499823_fe40787f407ca09b",
+          "payment_intent" : "pi_pay_1784337499823_fe40787f407ca09b"
+        }
+      },
+      "id" : "evt_paid_pay_1784337499823_fe40787f407ca09b",
+      "type" : "checkout.session.completed"
+    },
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "Stripe is not configured. Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY."
+    },
+    "provider_payment_id" : "pi_pay_1784337499823_fe40787f407ca09b",
+    "provider_payment_intent" : "pi_pay_1784337499823_fe40787f407ca09b",
+    "scope_id" : "usr_019f72cd-8454-74de-a85a-2f8655a97264",
+    "scope_type" : "user",
+    "status" : "paid",
+    "subscription" : 
+    {
+      "accessible_levels" : 
+      [
+        "N5",
+        "N4",
+        "N3",
+        "N2"
+      ],
+      "entitlements" : 
+      [
+        "bookmark",
+        "weak_points",
+        "recommendation"
+      ],
+      "expires_at" : "2026-08-17",
+      "is_active" : true,
+      "organization_type" : "",
+      "plan" : "pro",
+      "scope_id" : "usr_019f72cd-8454-74de-a85a-2f8655a97264",
+      "scope_type" : "personal",
+      "status" : "active"
+    },
+    "updated_at" : "2026-07-18T01:18:19.837Z",
+    "user_id" : "usr_019f72cd-8454-74de-a85a-2f8655a97264"
+  },
+  {
+    "actor_id" : "usr_019f72cd-85c1-78d3-ad8e-cf02d3d3a25f",
+    "amount" : 38.700000000000003,
+    "amount_cents" : 3870,
+    "created_at" : "2026-07-18T01:18:20.530Z",
+    "currency" : "cny",
+    "days" : 30,
+    "description" : "机构扩席：pro 套餐 3 席 / 30 天",
+    "id" : "pay_1784337500530_acd788ae5759e2c",
+    "metadata" : 
+    {
+      "organization_id" : "org_019f72cd-882b-7327-94d9-c7535685133a"
+    },
+    "organization_id" : "org_019f72cd-882b-7327-94d9-c7535685133a",
+    "plan" : "pro",
+    "provider" : "stripe",
+    "provider_payload" : 
+    {
+      "configured" : false,
+      "message" : "Stripe is not configured. Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY."
+    },
+    "scope_id" : "org_019f72cd-882b-7327-94d9-c7535685133a",
+    "scope_type" : "organization",
+    "seats" : 3,
+    "status" : "pending",
+    "unit_price_cents" : 1290,
+    "updated_at" : "2026-07-18T01:18:20.530Z",
+    "user_id" : "usr_019f72cd-85c1-78d3-ad8e-cf02d3d3a25f"
+  }
+]

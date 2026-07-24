@@ -1,0 +1,408 @@
+{
+  "items" : 
+  {
+    "2023_02" : 
+    {
+      "inspection" : 
+      {
+        "assets" : 
+        [
+          {
+            "field" : "/exam_info/sections/2/passages/0/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_06.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/0/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q01.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/1/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_07.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/1/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q02.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/2/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_08.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/2/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q03.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/3/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_09.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/3/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q04.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/4/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_10.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/4/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q05.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/5/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_11.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/5/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q06.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/6/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_12.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/6/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q07.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/7/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_13.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/7/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q08.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/8/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_14.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/8/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q09.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/9/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_15.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/9/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q10.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/10/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_16.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/10/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q11.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/11/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_17.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/11/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q12.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/0/audio",
+            "path" : "/data/audio/eju/2023_02/track_22.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/0/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q13.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/1/audio",
+            "path" : "/data/audio/eju/2023_02/track_23.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/1/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q14.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/2/audio",
+            "path" : "/data/audio/eju/2023_02/track_24.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/2/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q15.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/3/audio",
+            "path" : "/data/audio/eju/2023_02/track_25.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/3/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q16.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/4/audio",
+            "path" : "/data/audio/eju/2023_02/track_26.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/4/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q17.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/5/audio",
+            "path" : "/data/audio/eju/2023_02/track_27.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/5/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q18.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/6/audio",
+            "path" : "/data/audio/eju/2023_02/track_28.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/6/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q19.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/7/audio",
+            "path" : "/data/audio/eju/2023_02/track_29.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/7/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q20.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/8/audio",
+            "path" : "/data/audio/eju/2023_02/track_30.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/8/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q21.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/9/audio",
+            "path" : "/data/audio/eju/2023_02/track_31.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/9/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q22.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/10/audio",
+            "path" : "/data/audio/eju/2023_02/track_32.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/10/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q23.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/11/audio",
+            "path" : "/data/audio/eju/2023_02/track_33.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/11/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q24.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/12/audio",
+            "path" : "/data/audio/eju/2023_02/track_34.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/12/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q25.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/13/audio",
+            "path" : "/data/audio/eju/2023_02/track_35.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/13/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q26.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/14/audio",
+            "path" : "/data/audio/eju/2023_02/track_36.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/14/script_layout_image",
+            "path" : "/data/image/eju/2023_02/transcript_q27.jpg",
+            "type" : "image"
+          },
+          {
+            "field" : "/source_files/audio_dir",
+            "path" : "downloads\\EJU日本语\\【2】日本语听力音频+听力原文\\听力音频2002-2023\\2023令和5年第二回",
+            "type" : "audio"
+          }
+        ],
+        "audio_count" : 28,
+        "checked_at" : "2026-07-19T02:36:20.687Z",
+        "errors" : 
+        [
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/0/questions/0"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/0"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/1"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/2"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/3"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/4"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/5"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/6"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/7"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/8"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/9"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/10"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/11"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/12"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/13"
+          },
+          {
+            "code" : "QUESTION_TEXT_MISSING",
+            "message" : "题干为空",
+            "path" : "/exam_info/sections/3/questions/14"
+          }
+        ],
+        "exam_id" : "2023_02",
+        "explanation_count" : 52,
+        "image_count" : 27,
+        "passed" : false,
+        "question_count" : 53,
+        "warnings" : 
+        [
+          {
+            "code" : "EXPLANATION_MISSING",
+            "message" : "缺少解析",
+            "path" : "/exam_info/sections/0/questions/0"
+          }
+        ]
+      },
+      "reviews" : 
+      {
+        "analysis" : 
+        {
+          "note" : "解析审核通过",
+          "reviewed_at" : "2026-07-19T02:36:20.784Z",
+          "reviewed_by" : "usr_019f783b-4d96-793f-8e89-888fdefe13ea",
+          "status" : "approved"
+        },
+        "secondary" : 
+        {
+          "note" : "复核通过",
+          "reviewed_at" : "2026-07-19T02:36:20.880Z",
+          "reviewed_by" : "usr_019f783b-4d96-793f-8e89-888fdefe13ea",
+          "status" : "approved"
+        }
+      },
+      "status" : "secondary_approved",
+      "updated_at" : "2026-07-19T02:36:20.880Z",
+      "updated_by" : "usr_019f783b-4d96-793f-8e89-888fdefe13ea"
+    }
+  },
+  "queue" : []
+}

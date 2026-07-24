@@ -33,6 +33,11 @@ class UserService
     Json::Value searchUsers(const std::string &query, std::size_t limit = 12) const;
 
     Json::Value allRoles() const;
+    Json::Value platformRoleTemplates() const;
+    Json::Value previewRoleTemplate(const std::string &roleId, const Json::Value &payload) const;
+    Json::Value updateRoleTemplate(const std::string &roleId, const Json::Value &payload);
+    Json::Value previewPlatformAccess(const std::string &userId, const Json::Value &payload) const;
+    Json::Value updatePlatformAccess(const std::string &actorId, const std::string &userId, const Json::Value &payload);
 
     Json::Value permissions(const std::string &userId) const;
 
@@ -74,6 +79,7 @@ class UserService
                                 const int containsScore);
 
     static int scoreUserSearchMatch(const Json::Value &user, const Json::Value &profile, const std::string &needle);
+    Json::Value resolvePlatformAccess(const Json::Value &access, const Json::Value &roles) const;
 
   private:
     infrastructure::storage::UserRepository &repository_;

@@ -33,7 +33,12 @@ class AssignmentService
                                  const Json::Value &answers,
                                  const Json::Value &score);
 
-    Json::Value assignmentSubmissions(const std::string &assignmentId) const;
+	Json::Value assignmentSubmissions(const std::string &assignmentId) const;
+
+	Json::Value reviewSubmission(const std::string &assignmentId,
+	                            const std::string &studentId,
+	                            const std::string &reviewedBy,
+	                            const Json::Value &payload);
 
     Json::Value remindAssignment(const std::string &assignmentId,
                                  const std::string &createdBy,

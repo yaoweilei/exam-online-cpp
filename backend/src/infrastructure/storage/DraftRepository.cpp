@@ -1,10 +1,22 @@
 #include "DraftRepository.h"
 
+#include <cctype>
+
 #include "JsonIo.h"
+#include "common/AppException.h"
 #include "common/TimeUtils.h"
 
 namespace infrastructure::storage
 {
+namespace
+{
+std::string safeAttemptId(const std::string &value)
+{
+    std::string out;
+    for (const unsigned char c : value) out.push_back(std::isalnum(c) || c == '-' || c == '_' ? static_cast<char>(c) : '_');
+    return out;
+}
+}
 
 DraftRepository::DraftRepository(std::filesystem::path userRootDir)
     : draftDir_(std::move(userRootDir) / "drafts")
@@ -29,6 +41,16 @@ Json::Value DraftRepository::save(const std::string &userId, const Json::Value &
     const auto path = draftDir_ / (userId + ".json");
     std::unique_lock lock(mutex_);
 
+    const auto attemptId = patch.get("attempt_id", "").asString();
+    if (!attemptId.empty())
+    {
+        const auto submittedPath = draftDir_ / "_submitted" / userId / (safeAttemptId(attemptId) + ".json");
+        if (std::filesystem::exists(submittedPath))
+        {
+            throw common::AppException("ATTEMPT_SUBMITTED", "该次答题已在其他页面提交", drogon::k409Conflict);
+        }
+    }
+
     // 读取旧草稿（若 exam_id 不同，则视为新会话，重置 started_at）
     Json::Value doc;
     const bool exists = std::filesystem::exists(path);
@@ -44,8 +66,19 @@ Json::Value DraftRepository::save(const std::string &userId, const Json::Value &
     const auto newExamId = patch.get("exam_id", "").asString();
     const auto oldExamId = doc.get("exam_id", "").asString();
     const bool isNewSession = newExamId != oldExamId;
+    const int currentRevision = isNewSession ? 0 : doc.get("revision", 0).asInt();
+    const bool forceOverwrite = patch.get("force_overwrite", false).asBool();
+    if (!isNewSession && patch.isMember("base_revision") && !forceOverwrite
+        && patch["base_revision"].asInt() != currentRevision)
+    {
+        throw common::AppException("DRAFT_CONFLICT",
+                                   "草稿已在其他设备更新，请选择保留版本",
+                                   drogon::k409Conflict);
+    }
 
     doc["user_id"] = userId;
+    doc["attempt_status"] = "draft";
+    if (!attemptId.empty()) doc["attempt_id"] = attemptId;
     if (!newExamId.empty())
     {
         doc["exam_id"] = newExamId;
@@ -82,6 +115,7 @@ Json::Value DraftRepository::save(const std::string &userId, const Json::Value &
         doc["started_at"] = now;
     }
     doc["updated_at"] = now;
+    doc["revision"] = currentRevision + 1;
 
     writeJsonFileAtomic(path, doc);
     return doc;
@@ -98,6 +132,23 @@ bool DraftRepository::clear(const std::string &userId)
     std::error_code ec;
     std::filesystem::remove(path, ec);
     return !ec;
+}
+
+void DraftRepository::markSubmitted(const std::string &userId,
+                                    const std::string &examId,
+                                    const std::string &attemptId)
+{
+    if (attemptId.empty()) return;
+    std::unique_lock lock(mutex_);
+    const auto dir = draftDir_ / "_submitted" / userId;
+    std::filesystem::create_directories(dir);
+    Json::Value marker(Json::objectValue);
+    marker["user_id"] = userId;
+    marker["exam_id"] = examId;
+    marker["attempt_id"] = attemptId;
+    marker["attempt_status"] = "submitted";
+    marker["submitted_at"] = common::nowIso8601();
+    writeJsonFileAtomic(dir / (safeAttemptId(attemptId) + ".json"), marker);
 }
 
 }  // namespace infrastructure::storage

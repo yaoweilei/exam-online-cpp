@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -40,6 +41,7 @@
 #include "application/services/RedeemService.h"
 #include "application/services/PaymentService.h"
 #include "application/services/InstitutionService.h"
+#include "application/services/ContentWorkflowService.h"
 #include "application/services/ContactChangeChallengeService.h"
 #include "application/services/EmailVerificationService.h"
 #include "application/services/ExamService.h"
@@ -70,6 +72,7 @@
 #include "infrastructure/storage/ExamRepository.h"
 #include "infrastructure/storage/OrganizationRepository.h"
 #include "infrastructure/storage/ProfileRepository.h"
+#include "infrastructure/storage/RecentLearningRepository.h"
 #include "infrastructure/storage/SessionRepository.h"
 #include "infrastructure/storage/UserRepository.h"
 #include "transport/ApiRouter.h"
@@ -117,6 +120,12 @@ std::unique_ptr<application::services::EmailService> buildEmailService(const inf
             .fromName = cfg.emailFromName,
             .apiBaseUrl = cfg.emailApiBaseUrl});
     }
+
+    if (!infrastructure::config::isDevelopmentEnv(cfg.appEnv))
+    {
+        throw std::runtime_error(
+            "EMAIL_PROVIDER must be configured for a real provider in production; stub delivery is disabled");
+    }
     return std::make_unique<application::services::StubEmailService>();
 }
 
@@ -129,6 +138,12 @@ std::unique_ptr<application::services::SmsService> buildSmsService(const infrast
             .authToken = cfg.smsAuthToken,
             .fromNumber = cfg.smsFromNumber,
             .apiBaseUrl = cfg.smsApiBaseUrl});
+    }
+
+    if (!infrastructure::config::isDevelopmentEnv(cfg.appEnv))
+    {
+        throw std::runtime_error(
+            "SMS_PROVIDER must be configured for a real provider in production; stub delivery is disabled");
     }
     return std::make_unique<application::services::StubSmsService>();
 }
@@ -154,6 +169,7 @@ int main()
     infrastructure::storage::StreakRepository streakRepo(cfg.dataUserDir);
     // 续考草稿 Repository（业务功能 4）
     infrastructure::storage::DraftRepository draftRepo(cfg.dataUserDir);
+    infrastructure::storage::RecentLearningRepository recentLearningRepo(cfg.dataUserDir);
     // 答题计时 Repository（业务功能 3）
     infrastructure::storage::AttemptTimerRepository attemptTimerRepo(cfg.dataUserDir);
     application::services::SubscriptionService subscriptionService(
@@ -172,7 +188,7 @@ int main()
         &sessionRepo,
         emailService.get(),
         smsService.get());
-    application::services::StatisticsService statisticsService(answerRepo);
+    application::services::StatisticsService statisticsService(answerRepo, profileRepo);
     application::services::UserService userService(userRepo, profileRepo, organizationRepo, subscriptionService);
     application::services::ProfileService profileService(profileRepo);
     application::services::ContactChangeChallengeService contactChangeChallengeService(userRepo, *emailService, *smsService);
@@ -191,7 +207,7 @@ int main()
     // 续考草稿 Service（业务功能 4）
     application::services::DraftService draftService(draftRepo);
     // 答题计时 Service（业务功能 3）
-    application::services::AttemptTimerService attemptTimerService(attemptTimerRepo);
+    application::services::AttemptTimerService attemptTimerService(attemptTimerRepo, profileRepo);
     // 功能开关 Repository + Service（横切基础设施）
     infrastructure::storage::FeatureFlagRepository featureFlagRepo(cfg.dataSystemDir, organizationRepo, profileRepo);
     application::services::FeatureFlagService featureFlagService(featureFlagRepo, organizationRepo);
@@ -233,12 +249,17 @@ int main()
     application::services::SyncService syncService(cfg.dataUserDir);
     // 排行榜 Service（业务功能 21）
     application::services::LeaderboardService leaderboardService(cfg.dataSystemDir, cfg.dataUserDir, userRepo, profileRepo);
-    // 第三方 OAuth Service（业务功能 22）—默认 mock 模式，生产可在其他地方加载配置
+    // 第三方 OAuth Service（业务功能 22）—Google 使用真实 OpenID Connect 流程；未配置时禁用。
     std::unordered_map<std::string, application::services::OAuthClientConfig> oauthProviders{
-        {"google", application::services::OAuthClientConfig{}},
-        {"apple", application::services::OAuthClientConfig{}},
-        {"github", application::services::OAuthClientConfig{}},
-        {"line", application::services::OAuthClientConfig{}}};
+        {"google",
+         application::services::OAuthClientConfig{
+             .clientId = cfg.googleOAuthClientId,
+             .clientSecret = cfg.googleOAuthClientSecret,
+             .redirectUri = cfg.googleOAuthRedirectUri,
+             .authUrl = "https://accounts.google.com/o/oauth2/v2/auth",
+             .tokenUrl = "https://oauth2.googleapis.com/token",
+             .userinfoUrl = "https://openidconnect.googleapis.com/v1/userinfo",
+             .mock = false}}};
     application::services::OAuthService oauthService(userRepo, std::move(oauthProviders));
     // 同考点串题 Service（功能 #17）—复用 ExamRepository，懒加载反向索引
     application::services::RelatedQuestionsService relatedQuestionsService(examRepo);
@@ -246,6 +267,7 @@ int main()
     application::services::ChapterService chapterService(examRepo, answerRepo);
     application::services::RedeemService redeemService(cfg.dataSystemDir, profileRepo, subscriptionService);
     application::services::PaymentService paymentService(cfg.dataUserDir, subscriptionService);
+    application::services::ContentWorkflowService contentWorkflowService(cfg.dataSystemDir, examRepo);
     application::services::InstitutionService institutionService(
         assignmentRepo,
         answerRepo,
@@ -311,6 +333,8 @@ int main()
         .redeemService = &redeemService,
         .paymentService = &paymentService,
         .institutionService = &institutionService,
+        .contentWorkflowService = &contentWorkflowService,
+        .recentLearningRepository = &recentLearningRepo,
         .recommendationStrategy = &recommendationStrategy};
 
     transport::ApiRouter router(context);
@@ -365,6 +389,7 @@ int main()
     std::cout << "data_user_dir=" << cfg.dataUserDir << "\n";
     std::cout << "static_dir=" << cfg.staticDir << "\n";
     std::cout << "app_env=" << cfg.appEnv << "\n";
+    std::cout << "threads=" << cfg.threads << "\n";
     std::cout << "log_dir=" << cfg.logDir << "\n";
     std::cout << "log_level=" << cfg.logLevel << "\n";
 

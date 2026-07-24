@@ -3,8 +3,9 @@
 namespace application::services
 {
 
-AttemptTimerService::AttemptTimerService(infrastructure::storage::AttemptTimerRepository &repository)
-    : repository_(repository)
+AttemptTimerService::AttemptTimerService(infrastructure::storage::AttemptTimerRepository &repository,
+                                         infrastructure::storage::ProfileRepository &profileRepository)
+    : repository_(repository), profileRepository_(profileRepository)
 {
 }
 
@@ -21,18 +22,29 @@ Json::Value AttemptTimerService::get(const std::string &userId) const
 Json::Value AttemptTimerService::start(const std::string &userId, const Json::Value &patch)
 {
     auto doc = repository_.start(userId, patch);
-    return enrich(doc, -1);
+    return enrich(doc, patch.get("current_section_index", -1).asInt());
 }
 
 Json::Value AttemptTimerService::tick(const std::string &userId, const Json::Value &payload)
 {
+    int delta = payload.get("delta_seconds", 0).asInt();
+    if (delta < 0)
+    {
+        delta = 0;
+    }
+    if (delta > 120)
+    {
+        delta = 120;
+    }
     auto doc = repository_.tick(userId, payload);
     if (!doc.isObject())
     {
         return Json::Value(Json::nullValue);
     }
     const int sectionIndex = payload.get("section_index", -1).asInt();
-    return enrich(doc, sectionIndex);
+    auto out = enrich(doc, sectionIndex);
+    out["study"] = profileRepository_.recordStudySeconds(userId, delta);
+    return out;
 }
 
 bool AttemptTimerService::clear(const std::string &userId)
@@ -83,6 +95,7 @@ Json::Value AttemptTimerService::enrich(const Json::Value &doc, int sectionIndex
             const int remaining = sectionLimit - sectionElapsed;
             out["section_remaining_seconds"] = remaining > 0 ? remaining : 0;
             out["section_expired"] = remaining <= 0;
+            out["section_limit_seconds"] = sectionLimit;
         }
         else
         {

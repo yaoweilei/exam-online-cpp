@@ -23,6 +23,8 @@ class DraftService
     // 删除草稿
     bool clear(const std::string &userId);
 
+    void markSubmitted(const std::string &userId, const std::string &examId, const std::string &attemptId);
+
   private:
     infrastructure::storage::DraftRepository &repository_;
 };

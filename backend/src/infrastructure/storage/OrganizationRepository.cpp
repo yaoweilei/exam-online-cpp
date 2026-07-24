@@ -5,8 +5,9 @@ namespace infrastructure::storage
 {
 
 OrganizationRepository::OrganizationRepository(std::filesystem::path userRootDir)
-: organizationsFile_(std::move(userRootDir) / "organizations.json"),
-membershipsFile_(organizationsFile_.parent_path() / "memberships.json")
+: organizationsFile_(userRootDir / "organizations.json"),
+membershipsFile_(userRootDir / "memberships.json"),
+sqliteStore_(std::move(userRootDir) / "core.sqlite3")
 {
     ensureBaseline();
 }
@@ -82,7 +83,7 @@ Json::Value OrganizationRepository::upsertOrganization(const Json::Value &organi
         normalized["created_at"] = organizations[organizationId].get("created_at", common::nowIso8601()).asString();
     }
     organizations[organizationId] = normalized;
-    writeJsonFileAtomic(organizationsFile_, organizations);
+    writeOrganizationsUnlocked(organizations);
     return normalized;
 }
 
@@ -158,7 +159,7 @@ Json::Value OrganizationRepository::upsertMembership(const Json::Value &membersh
         normalized["membership_id"] = common::generateOpaqueId("mem_");
     }
     memberships[key] = normalized;
-    writeJsonFileAtomic(membershipsFile_, memberships);
+    writeMembershipsUnlocked(memberships);
     return memberships[key];
 }
 
@@ -170,7 +171,7 @@ void OrganizationRepository::removeMembership(const std::string &userId, const s
     if (memberships.isMember(key))
     {
         memberships.removeMember(key);
-        writeJsonFileAtomic(membershipsFile_, memberships);
+        writeMembershipsUnlocked(memberships);
         return;
     }
 
@@ -180,7 +181,7 @@ void OrganizationRepository::removeMembership(const std::string &userId, const s
         if (membership.get("user_id", "").asString() == userId && membership.get("scope_id", "").asString() == scopeId)
         {
             memberships.removeMember(membershipId);
-            writeJsonFileAtomic(membershipsFile_, memberships);
+            writeMembershipsUnlocked(memberships);
             return;
         }
     }
@@ -205,32 +206,73 @@ int OrganizationRepository::memberCount(const std::string &scopeId) const
 void OrganizationRepository::ensureBaseline()
 {
     std::unique_lock lock(mutex_);
-    if (!std::filesystem::exists(organizationsFile_))
+    if (sqliteStore_.count("organizations") == 0 && std::filesystem::exists(organizationsFile_))
     {
-        writeJsonFileAtomic(organizationsFile_, Json::Value(Json::objectValue));
+        const auto legacy = readJsonFile(organizationsFile_);
+        if (legacy.isObject() && !legacy.empty()) writeOrganizationsUnlocked(legacy);
     }
-    if (!std::filesystem::exists(membershipsFile_))
+    if (sqliteStore_.count("memberships") == 0 && std::filesystem::exists(membershipsFile_))
     {
-        writeJsonFileAtomic(membershipsFile_, Json::Value(Json::objectValue));
+        const auto legacy = readJsonFile(membershipsFile_);
+        if (legacy.isObject() && !legacy.empty()) writeMembershipsUnlocked(legacy);
     }
 }
 
 Json::Value OrganizationRepository::readOrganizationsUnlocked() const
 {
-    if (!std::filesystem::exists(organizationsFile_))
+    if (organizationsCacheLoaded_) return organizationsCache_;
+    Json::Value out(Json::objectValue);
+    for (const auto &entry : sqliteStore_.list("organizations"))
     {
-        return Json::Value(Json::objectValue);
+        const auto id = entry.get("organization_id", entry.get("scope_id", "")).asString();
+        if (!id.empty()) out[id] = entry;
     }
-    return readJsonFile(organizationsFile_);
+    organizationsCache_ = out;
+    organizationsCacheLoaded_ = true;
+    return organizationsCache_;
 }
 
 Json::Value OrganizationRepository::readMembershipsUnlocked() const
 {
-    if (!std::filesystem::exists(membershipsFile_))
+    if (membershipsCacheLoaded_) return membershipsCache_;
+    Json::Value out(Json::objectValue);
+    for (const auto &entry : sqliteStore_.list("memberships"))
     {
-        return Json::Value(Json::objectValue);
+        const auto userId = entry.get("user_id", "").asString();
+        const auto scopeId = entry.get("scope_id", "").asString();
+        if (!userId.empty() && !scopeId.empty()) out[membershipStorageKey(userId, scopeId)] = entry;
     }
-    return readJsonFile(membershipsFile_);
+    membershipsCache_ = out;
+    membershipsCacheLoaded_ = true;
+    return membershipsCache_;
+}
+
+std::unordered_map<std::string, int> OrganizationRepository::memberCounts() const
+{
+	return sqliteStore_.groupCount("memberships", "$.scope_id");
+}
+
+void OrganizationRepository::writeOrganizationsUnlocked(const Json::Value &organizations)
+{
+    Json::Value items(Json::arrayValue);
+    if (organizations.isObject()) for (const auto &id : organizations.getMemberNames()) items.append(normalizeOrganization(organizations[id], id));
+    sqliteStore_.replace("organizations", items, "organization_id");
+    organizationsCache_ = organizations;
+    organizationsCacheLoaded_ = true;
+}
+
+void OrganizationRepository::writeMembershipsUnlocked(const Json::Value &memberships)
+{
+    Json::Value items(Json::arrayValue);
+    if (memberships.isObject()) for (const auto &key : memberships.getMemberNames())
+    {
+        auto entry = normalizeMembership(memberships[key], key);
+        entry["_storage_key"] = membershipStorageKey(entry.get("user_id", "").asString(), entry.get("scope_id", "").asString());
+        items.append(entry);
+    }
+    sqliteStore_.replace("memberships", items, "_storage_key");
+    membershipsCache_ = memberships;
+    membershipsCacheLoaded_ = true;
 }
 
 std::string OrganizationRepository::membershipStorageKey(const std::string &userId, const std::string &scopeId)
@@ -282,6 +324,10 @@ Json::Value OrganizationRepository::normalizeOrganization(const Json::Value &inp
     if (!organization.isMember("audit_logs") || !organization["audit_logs"].isArray())
     {
         organization["audit_logs"] = Json::arrayValue;
+    }
+    if (!organization.isMember("role_permissions") || !organization["role_permissions"].isObject())
+    {
+        organization["role_permissions"] = Json::Value(Json::objectValue);
     }
     return organization;
 }

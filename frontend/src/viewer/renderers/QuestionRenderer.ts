@@ -6,6 +6,7 @@
  *  via any medium, is strictly prohibited without prior written permission.
  *--------------------------------------------------------------------------------------------*/
 
+import { requestAppText, showAppToast } from '../../ui/dialogs.js';
 
 type RendererAnyRecord = Record<string, any>;
 
@@ -22,7 +23,7 @@ interface RendererExamViewer {
 	audioManager: RendererAnyRecord;
 	answerManager: RendererAnyRecord;
 }
-class QuestionRenderer {
+export class QuestionRenderer {
 	private readonly examViewer: RendererExamViewer;
 	constructor(examViewer: RendererExamViewer) {
 		this.examViewer = examViewer;
@@ -750,18 +751,18 @@ class QuestionRenderer {
 	async openQuestionBookmarkDialog(question: RendererAnyRecord, sectionIndex: number, questionIndex: number) {
 		const userId = this.examViewer.userId;
 		if (!userId || userId === 'guest') {
-			alert('请先登录后再收藏题目');
+			showAppToast('请先登录后再收藏题目', 'error');
 			return;
 		}
 		const examId = this.getViewerExamId();
 		if (!examId) {
-			alert('当前试卷信息不完整，暂时不能收藏');
+			showAppToast('当前试卷信息不完整，暂时不能收藏', 'error');
 			return;
 		}
 
 		const api = window.APIClient;
 		if (!api || typeof api.addQuestionBookmark !== 'function') {
-			alert('收藏接口未就绪');
+			showAppToast('收藏接口未就绪', 'error');
 			return;
 		}
 
@@ -777,23 +778,45 @@ class QuestionRenderer {
 
 		const overlay = document.createElement('div');
 		overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		const previousFocus = document.activeElement as HTMLElement | null;
 		const card = document.createElement('div');
-		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;min-width:360px;max-width:520px;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
-		const folderOptions = ['<option value="">未分类</option>']
-			.concat(
-				folders.map((f) => {
-					const id = this.escapeHtml(String(f.folder_id || ''));
-					const name = this.escapeHtml(String(f.name || '未命名'));
-					return `<option value="${id}">${name}</option>`;
-				})
-			)
-			.join('');
+		card.setAttribute('role', 'dialog');
+		card.setAttribute('aria-modal', 'true');
+		card.setAttribute('aria-labelledby', 'qb-title');
+		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;width:min(520px,94vw);box-sizing:border-box;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
+		const renderFolderOptions = (items: Array<Record<string, unknown>>, selectedId = '') =>
+			['<option value="">未分类</option>']
+				.concat(
+					items.map((f) => {
+						const rawId = String(f.folder_id || '');
+						const id = this.escapeHtml(rawId);
+						const name = this.escapeHtml(String(f.name || '未命名'));
+						const selected = rawId === selectedId ? ' selected' : '';
+						return `<option value="${id}"${selected}>${name}</option>`;
+					})
+				)
+				.join('');
+		const reloadFolderOptions = async (selectedId = '') => {
+			if (typeof api.listBookmarkFolders !== 'function') {
+				return;
+			}
+			const data = (await api.listBookmarkFolders(userId)) as { items?: Array<Record<string, unknown>> } | null;
+			folders = Array.isArray(data?.items) ? data!.items : [];
+			const select = card.querySelector('.qb-folder') as HTMLSelectElement | null;
+			if (select) {
+				select.innerHTML = renderFolderOptions(folders, selectedId);
+			}
+		};
 		card.innerHTML = `
-			<h3 style="margin:0 0 12px;font-size:16px;">收藏当前题</h3>
+			<h3 id="qb-title" style="margin:0 0 12px;font-size:16px;">收藏当前题</h3>
 			<label style="display:block;margin-bottom:6px;font-size:13px;">分类</label>
-			<select class="qb-folder" style="width:100%;padding:6px;margin-bottom:12px;">${folderOptions}</select>
+			<div style="display:flex;gap:8px;margin-bottom:12px;">
+				<select class="qb-folder" style="flex:1;min-width:0;padding:6px;">${renderFolderOptions(folders)}</select>
+				<button class="qb-new-folder" type="button" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:4px;background:#fff;cursor:pointer;white-space:nowrap;">新建文件夹</button>
+			</div>
 			<label style="display:block;margin-bottom:6px;font-size:13px;">收藏原因 / 复习备注</label>
 			<textarea class="qb-reason" rows="4" maxlength="500" style="width:100%;padding:6px;box-sizing:border-box;" placeholder="例如：选项陷阱、句子没读懂、听力关键词没抓住"></textarea>
+			<div class="qb-status" role="status" aria-live="polite" style="min-height:18px;margin-top:6px;font-size:12px;color:#666;"></div>
 			<div style="text-align:right;margin-top:14px;">
 				<button class="qb-cancel" style="margin-right:8px;padding:6px 14px;">取消</button>
 				<button class="qb-submit" style="padding:6px 14px;background:#1976d2;color:#fff;border:0;border-radius:4px;cursor:pointer;">保存收藏</button>
@@ -802,13 +825,43 @@ class QuestionRenderer {
 		overlay.appendChild(card);
 		document.body.appendChild(overlay);
 
-		const close = () => overlay.remove();
+		const close = () => { overlay.remove(); if (previousFocus?.isConnected) previousFocus.focus(); };
 		(card.querySelector('.qb-cancel') as HTMLButtonElement).onclick = close;
+		const newFolderButton = card.querySelector('.qb-new-folder') as HTMLButtonElement;
+		const bookmarkStatus = card.querySelector('.qb-status') as HTMLElement;
+		newFolderButton.onclick = async () => {
+			if (typeof api.createBookmarkFolder !== 'function') {
+				bookmarkStatus.textContent = '新建文件夹接口未就绪';
+				return;
+			}
+			const normalizedName = await requestAppText('请输入文件夹名称', { placeholder: '例如：听力易错题', confirmText: '创建', maxLength: 60 });
+			if (normalizedName === null || newFolderButton.disabled) return;
+			newFolderButton.disabled = true;
+			newFolderButton.setAttribute('aria-busy', 'true');
+			const originalLabel = newFolderButton.textContent || '新建文件夹';
+			newFolderButton.textContent = '创建中…';
+			try {
+				const created = (await api.createBookmarkFolder(userId, normalizedName)) as Record<string, unknown>;
+				const folderId = String(created?.folder_id || '');
+				await reloadFolderOptions(folderId);
+				bookmarkStatus.textContent = '文件夹已创建';
+			} catch (err) {
+				const message = err instanceof Error ? err.message : '新建文件夹失败';
+				bookmarkStatus.textContent = message || '新建文件夹失败';
+			} finally {
+				newFolderButton.disabled = false;
+				newFolderButton.removeAttribute('aria-busy');
+				newFolderButton.textContent = originalLabel;
+			}
+		};
 		overlay.addEventListener('click', (e) => {
 			if (e.target === overlay) close();
 		});
+		overlay.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !document.querySelector('.app-dialog-overlay')) { event.preventDefault(); close(); } });
 
-		(card.querySelector('.qb-submit') as HTMLButtonElement).onclick = async () => {
+		const bookmarkSubmit = card.querySelector('.qb-submit') as HTMLButtonElement;
+		bookmarkSubmit.onclick = async () => {
+			if (bookmarkSubmit.disabled) return;
 			const folderId = (card.querySelector('.qb-folder') as HTMLSelectElement).value;
 			const reason = (card.querySelector('.qb-reason') as HTMLTextAreaElement).value.trim();
 			const section = this.getCurrentSection();
@@ -828,15 +881,24 @@ class QuestionRenderer {
 					explanation: String(question.explanation || '')
 				}
 			};
+			bookmarkSubmit.disabled = true;
+			bookmarkSubmit.setAttribute('aria-busy', 'true');
+			const originalLabel = bookmarkSubmit.textContent || '保存收藏';
+			bookmarkSubmit.textContent = '保存中…';
 			try {
 				await api.addQuestionBookmark(userId, payload);
 				close();
-				alert('已收藏当前题');
+				showAppToast('已收藏当前题', 'success');
 			} catch (err) {
 				const message = err instanceof Error ? err.message : '收藏失败';
-				alert(message || '收藏失败');
+				bookmarkStatus.textContent = message || '收藏失败';
+			} finally {
+				bookmarkSubmit.disabled = false;
+				bookmarkSubmit.removeAttribute('aria-busy');
+				bookmarkSubmit.textContent = originalLabel;
 			}
 		};
+		(card.querySelector('.qb-folder') as HTMLSelectElement).focus();
 	}
 
 	/**
@@ -848,17 +910,21 @@ class QuestionRenderer {
 		// 必须已登录
 		const userId = this.examViewer.userId;
 		if (!userId || userId === 'guest') {
-			alert('请先登录后再提交反馈');
+			showAppToast('请先登录后再提交反馈', 'error');
 			return;
 		}
 
 		// 简单 modal：覆盖层 + 卡片
 		const overlay = document.createElement('div');
 		overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+		const previousFocus = document.activeElement as HTMLElement | null;
 		const card = document.createElement('div');
-		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;min-width:360px;max-width:520px;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
+		card.setAttribute('role', 'dialog');
+		card.setAttribute('aria-modal', 'true');
+		card.setAttribute('aria-labelledby', 'fb-title');
+		card.style.cssText = 'background:#fff;border-radius:8px;padding:20px;width:min(520px,94vw);box-sizing:border-box;box-shadow:0 6px 24px rgba(0,0,0,0.2);';
 		card.innerHTML = `
-			<h3 style="margin:0 0 12px;font-size:16px;">反馈题目问题（题号：${question.id}）</h3>
+			<h3 id="fb-title" style="margin:0 0 12px;font-size:16px;">反馈题目问题（题号：${question.id}）</h3>
 			<label style="display:block;margin-bottom:6px;font-size:13px;">问题类别</label>
 			<select class="fb-category" style="width:100%;padding:6px;margin-bottom:12px;">
 				<option value="wrong_answer">答案错误</option>
@@ -869,6 +935,7 @@ class QuestionRenderer {
 			</select>
 			<label style="display:block;margin-bottom:6px;font-size:13px;">详细描述（最多 1000 字）</label>
 			<textarea class="fb-desc" rows="5" maxlength="1000" style="width:100%;padding:6px;box-sizing:border-box;" placeholder="请描述您发现的问题…"></textarea>
+			<div class="fb-status" role="status" aria-live="polite" style="min-height:18px;margin-top:6px;font-size:12px;color:#666;"></div>
 			<div style="text-align:right;margin-top:14px;">
 				<button class="fb-cancel" style="margin-right:8px;padding:6px 14px;">取消</button>
 				<button class="fb-submit" style="padding:6px 14px;background:#1976d2;color:#fff;border:0;border-radius:4px;cursor:pointer;">提交</button>
@@ -877,19 +944,32 @@ class QuestionRenderer {
 		overlay.appendChild(card);
 		document.body.appendChild(overlay);
 
-		const close = () => overlay.remove();
+		const close = () => { overlay.remove(); if (previousFocus?.isConnected) previousFocus.focus(); };
 		(card.querySelector('.fb-cancel') as HTMLButtonElement).onclick = close;
 		overlay.addEventListener('click', (e) => {
 			if (e.target === overlay) close();
 		});
+		overlay.addEventListener('keydown', (event) => { if (event.key === 'Escape') { event.preventDefault(); close(); } });
 
-		(card.querySelector('.fb-submit') as HTMLButtonElement).onclick = async () => {
+		const feedbackSubmit = card.querySelector('.fb-submit') as HTMLButtonElement;
+		const feedbackStatus = card.querySelector('.fb-status') as HTMLElement;
+		feedbackSubmit.onclick = async () => {
+			if (feedbackSubmit.disabled) return;
 			const category = (card.querySelector('.fb-category') as HTMLSelectElement).value;
 			const description = (card.querySelector('.fb-desc') as HTMLTextAreaElement).value.trim();
 			const examId = this.examViewer._currentExamId || '';
+			if (!description) {
+				feedbackStatus.textContent = '请填写详细描述';
+				(card.querySelector('.fb-desc') as HTMLTextAreaElement).focus();
+				return;
+			}
+			feedbackSubmit.disabled = true;
+			feedbackSubmit.setAttribute('aria-busy', 'true');
+			const originalLabel = feedbackSubmit.textContent || '提交';
+			feedbackSubmit.textContent = '提交中…';
 			try {
 				if (!window.APIClient) {
-					alert('客户端未初始化');
+					feedbackStatus.textContent = '客户端未初始化';
 					return;
 				}
 				await window.APIClient.submitFeedback({
@@ -901,19 +981,27 @@ class QuestionRenderer {
 					category,
 					description
 				});
-				alert('反馈已提交，感谢您的帮助！');
 				close();
+				showAppToast('反馈已提交，感谢您的帮助！', 'success');
 			} catch (err) {
 				console.error('[QuestionRenderer] submitFeedback failed', err);
-				alert('提交失败：' + (err instanceof Error ? err.message : String(err)));
+				feedbackStatus.textContent = '提交失败：' + (err instanceof Error ? err.message : String(err));
+			} finally {
+				feedbackSubmit.disabled = false;
+				feedbackSubmit.removeAttribute('aria-busy');
+				feedbackSubmit.textContent = originalLabel;
 			}
 		};
+		(card.querySelector('.fb-category') as HTMLSelectElement).focus();
 	}
 
 	/**
 	 * 打开编辑对话框
 	 */
 	openEditDialog(type: string, target: RendererAnyRecord) {
+		const previousFocus = document.activeElement as HTMLElement | null;
+		const previousEditButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.edit-btn'));
+		const previousEditIndex = previousFocus instanceof HTMLButtonElement ? previousEditButtons.indexOf(previousFocus) : -1;
 		const title = type === 'question'
 			? '编辑题目'
 			: (type === 'script' ? '编辑听力原文' : (type === 'passage' ? '编辑文章 / 作文要求' : '编辑详解'));
@@ -1056,12 +1144,34 @@ class QuestionRenderer {
 		document.body.appendChild(dialog);
 
 		// 绑定事件
+		const panel = dialog.querySelector('.edit-dialog') as HTMLDivElement | null;
+		const titleNode = dialog.querySelector('.edit-dialog-header h3') as HTMLHeadingElement | null;
 		const closeBtn = dialog.querySelector('.edit-dialog-close') as HTMLButtonElement | null;
 		const cancelBtn = dialog.querySelector('.edit-dialog-cancel') as HTMLButtonElement | null;
 		const saveBtn = dialog.querySelector('.edit-dialog-save') as HTMLButtonElement | null;
+		const footer = dialog.querySelector('.edit-dialog-footer') as HTMLDivElement | null;
+		const status = document.createElement('div');
+		status.className = 'edit-dialog-status';
+		status.setAttribute('role', 'status');
+		status.setAttribute('aria-live', 'polite');
+		footer?.prepend(status);
+		if (panel) {
+			panel.setAttribute('role', 'dialog');
+			panel.setAttribute('aria-modal', 'true');
+			panel.setAttribute('aria-labelledby', 'edit-dialog-title');
+		}
+		if (titleNode) titleNode.id = 'edit-dialog-title';
+		if (closeBtn) { closeBtn.type = 'button'; closeBtn.setAttribute('aria-label', '关闭编辑'); }
+		if (cancelBtn) cancelBtn.type = 'button';
+		if (saveBtn) saveBtn.type = 'button';
 
 		const closeDialog = () => {
-			document.body.removeChild(dialog);
+			if (saveBtn?.disabled || !dialog.isConnected) return;
+			dialog.remove();
+			const focusTarget = previousFocus?.isConnected
+				? previousFocus
+				: previousEditIndex >= 0 ? document.querySelectorAll<HTMLButtonElement>('.edit-btn')[previousEditIndex] : null;
+			focusTarget?.focus({ preventScroll: true });
 		};
 
 		if (closeBtn) {
@@ -1073,10 +1183,28 @@ class QuestionRenderer {
 		dialog.onclick = (e) => {
 			if (e.target === dialog) { closeDialog(); }
 		};
+		dialog.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') { event.preventDefault(); closeDialog(); return; }
+			if (event.key !== 'Tab' || !panel) return;
+			const focusable = Array.from(panel.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled])'));
+			if (!focusable.length) return;
+			const first = focusable[0];
+			const last = focusable[focusable.length - 1];
+			if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+			else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+		});
 
 		if (saveBtn) {
-			saveBtn.onclick = () => {
-				let shouldClose = true;
+			saveBtn.onclick = async () => {
+				if (saveBtn.disabled) return;
+				saveBtn.disabled = true;
+				saveBtn.setAttribute('aria-busy', 'true');
+				if (cancelBtn) cancelBtn.disabled = true;
+				if (closeBtn) closeBtn.disabled = true;
+				const originalLabel = saveBtn.textContent || '保存';
+				saveBtn.textContent = '保存中…';
+				status.textContent = '正在保存修改…';
+				let saved = false;
 				if (type === 'question') {
 					const questionInput = dialog.querySelector('.edit-question') as HTMLTextAreaElement | null;
 					const optionInputs = Array.from(dialog.querySelectorAll('.edit-option')) as HTMLInputElement[];
@@ -1085,23 +1213,33 @@ class QuestionRenderer {
 					const newOptions = optionInputs.map((input) => input.value);
 					const newAnswer = Number.parseInt(answerSelect?.value ?? '1', 10);
 
-					this.saveQuestionEdit(target, newQuestion, newOptions, newAnswer);
+					saved = await this.saveQuestionEdit(target, newQuestion, newOptions, newAnswer);
 				} else if (type === 'script') {
 					const scriptInput = dialog.querySelector('.edit-script-json') as HTMLTextAreaElement | null;
 					const raw = scriptInput?.value ?? '[]';
-					shouldClose = this.saveScriptEdit(target, raw);
+					saved = await this.saveScriptEdit(target, raw);
 				} else if (type === 'passage') {
 					const passageTitleInput = dialog.querySelector('.edit-passage-title') as HTMLInputElement | null;
 					const passageValueInput = dialog.querySelector('.edit-passage-value') as HTMLTextAreaElement | null;
-					this.savePassageEdit(target, passageTitleInput?.value ?? '', passageValueInput?.value ?? '');
+					saved = await this.savePassageEdit(target, passageTitleInput?.value ?? '', passageValueInput?.value ?? '');
 				} else {
 					const explanationInput = dialog.querySelector('.edit-textarea') as HTMLTextAreaElement | null;
 					const newExplanation = explanationInput?.value ?? '';
-					this.saveEdit('explanation', target, newExplanation);
+					saved = await this.saveEdit('explanation', target, newExplanation);
 				}
-				if (shouldClose) {
+				if (saved) {
+					status.textContent = '保存成功';
+					saveBtn.disabled = false;
 					closeDialog();
+					showAppToast('内容已保存', 'success');
+					return;
 				}
+				status.textContent = '保存失败，请检查内容后重试';
+				saveBtn.disabled = false;
+				saveBtn.removeAttribute('aria-busy');
+				saveBtn.textContent = originalLabel;
+				if (cancelBtn) cancelBtn.disabled = false;
+				if (closeBtn) closeBtn.disabled = false;
 			};
 		}
 
@@ -1113,7 +1251,7 @@ class QuestionRenderer {
 	/**
 	 * 保存题目编辑（包含题干、选项、答案）
 	 */
-	saveQuestionEdit(question: RendererAnyRecord, newQuestion: string, newOptions: string[], newAnswer: number) {
+	async saveQuestionEdit(question: RendererAnyRecord, newQuestion: string, newOptions: string[], newAnswer: number): Promise<boolean> {
 		question.question = newQuestion;
 		if (this.isWritingQuestion(question)) {
 			delete question.options;
@@ -1123,10 +1261,10 @@ class QuestionRenderer {
 			question.options = newOptions;
 			question.correct_answer = newAnswer;
 		}
-		void this.persistCurrentExam(`question ${question.id}`);
+		return this.persistCurrentExam(`question ${question.id}`);
 	}
 
-	savePassageEdit(passage: RendererAnyRecord, newTitle: string, newValue: string) {
+	async savePassageEdit(passage: RendererAnyRecord, newTitle: string, newValue: string): Promise<boolean> {
 		passage.title = newTitle;
 		passage.value = newValue;
 		const currentSection = this.getCurrentSection();
@@ -1152,13 +1290,13 @@ class QuestionRenderer {
 				};
 			}
 		}
-		void this.persistCurrentExam(`passage ${newTitle || 'untitled'}`);
+		return this.persistCurrentExam(`passage ${newTitle || 'untitled'}`);
 	}
 
 	/**
 	 * 保存编辑
 	 */
-	saveEdit(type: string, question: RendererAnyRecord, newValue: string) {
+	async saveEdit(type: string, question: RendererAnyRecord, newValue: string): Promise<boolean> {
 		// 更新内存中的数据
 		if (type === 'question') {
 			question.question = newValue;
@@ -1170,19 +1308,19 @@ class QuestionRenderer {
 		} else {
 			question.explanation = newValue;
 		}
-		void this.persistCurrentExam(`${type} ${question.id}`);
+		return this.persistCurrentExam(`${type} ${question.id}`);
 	}
 
-	saveScriptEdit(question: RendererAnyRecord, rawJson: string): boolean {
+	async saveScriptEdit(question: RendererAnyRecord, rawJson: string): Promise<boolean> {
 		let parsed: unknown;
 		try {
 			parsed = JSON.parse(rawJson);
 		} catch (error) {
-			alert(`script JSON 解析失败：${error instanceof Error ? error.message : String(error)}`);
+			showAppToast(`script JSON 解析失败：${error instanceof Error ? error.message : String(error)}`, 'error');
 			return false;
 		}
 		if (!Array.isArray(parsed)) {
-			alert('script 必须是数组');
+			showAppToast('script 必须是数组', 'error');
 			return false;
 		}
 		let normalized: Record<string, string>[];
@@ -1209,25 +1347,24 @@ class QuestionRenderer {
 				return out;
 			});
 		} catch (error) {
-			alert(`script 校验失败：${error instanceof Error ? error.message : String(error)}`);
+			showAppToast(`script 校验失败：${error instanceof Error ? error.message : String(error)}`, 'error');
 			return false;
 		}
 		question.script = normalized;
-		void this.persistCurrentExam(`script ${question.id}`);
-		return true;
+		return this.persistCurrentExam(`script ${question.id}`);
 	}
 
-	private async persistCurrentExam(reason: string) {
+	private async persistCurrentExam(reason: string): Promise<boolean> {
 		if (!this.examViewer.currentExam) {
-			alert('当前试卷未加载，无法保存');
-			return;
+			showAppToast('当前试卷未加载，无法保存', 'error');
+			return false;
 		}
 		const examId = this.examViewer._currentExamId
 			|| this.examViewer.currentExam?.exam_info?.exam_id
 			|| '';
 		if (!examId) {
-			alert('当前试卷缺少 examId，无法保存');
-			return;
+			showAppToast('当前试卷缺少 examId，无法保存', 'error');
+			return false;
 		}
 		this.normalizeWritingSections(this.examViewer.currentExam);
 		const payload = JSON.parse(JSON.stringify(this.examViewer.currentExam));
@@ -1243,9 +1380,11 @@ class QuestionRenderer {
 			}
 			this.examViewer.questionRenderer.renderCurrentQuestion();
 			console.log(`[QuestionRenderer] Persisted ${reason}`);
+			return true;
 		} catch (error) {
 			console.error('[QuestionRenderer] persistCurrentExam failed', error);
-			alert(`保存失败：${error instanceof Error ? error.message : String(error)}`);
+			showAppToast(`保存失败：${error instanceof Error ? error.message : String(error)}`, 'error');
+			return false;
 		}
 	}
 

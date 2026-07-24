@@ -1,0 +1,32 @@
+{
+  "avatar_url" : "",
+  "credits" : 0,
+  "credits_updated_at" : "",
+  "daily_target" : 20,
+  "display_name" : "",
+  "goal_date" : "",
+  "goal_level" : "",
+  "last_active_at" : "2026-07-19T02:36:49.586Z",
+  "last_credit_reason" : "",
+  "locale" : "zh-CN",
+  "longest_streak" : 1,
+  "notification_enabled" : true,
+  "organization_type" : "",
+  "plan" : "free",
+  "plan_expires" : "",
+  "plan_expires_at" : "",
+  "plan_status" : "active",
+  "scope_id" : "usr_019f783b-bf31-7f82-bee3-dc571abf457a",
+  "scope_type" : "personal",
+  "streak_days" : 1,
+  "teacher_notes" : 
+  [
+    {
+      "created_at" : "2026-07-19T02:36:54.256Z",
+      "created_by" : "usr_019f783b-bd5e-74c2-97fd-89b4e9fbdd99",
+      "text" : "电话跟进：已确认下次上课时间。"
+    }
+  ],
+  "user_id" : "usr_019f783b-bf31-7f82-bee3-dc571abf457a",
+  "xp" : 0
+}

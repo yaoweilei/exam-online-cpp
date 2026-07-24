@@ -39,6 +39,10 @@ class PhoneService
                               const std::string &changeChallengeChannel = "",
                               const std::string &changeChallengeCode = "");
 
+    Json::Value verifyCurrentPhoneCode(const std::string &userId,
+                                       const std::string &phone,
+                                       const std::string &code);
+
   private:
     void notifyPreviousPhoneIfChanged(const std::string &previousPhone,
                                       bool previousPhoneVerified,
