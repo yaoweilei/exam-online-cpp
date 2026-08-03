@@ -33,6 +33,12 @@ class SubscriptionService
 
     void requireAccess(const std::string &userId, const std::string &examAccessLevel) const;
 
+    bool hasEntitlement(const std::string &userId, const std::string &entitlementKey) const;
+
+    void requireEntitlement(const std::string &userId,
+                            const std::string &entitlementKey,
+                            const std::string &errorMessage = "") const;
+
     bool isPremium(const std::string &userId) const;
 
     void grantPremium(const std::string &userId, const std::string &expiresAt);
@@ -50,7 +56,11 @@ class SubscriptionService
 
     static Json::Value entitlementsForPlan(const std::string &plan, const std::string &scopeType);
 
+    static Json::Value entitlementAccessForPlan(const std::string &plan, const std::string &scopeType);
+
     static Json::Value accessibleLevelsForPlan(const std::string &plan);
+
+    static std::string minimumPlanForEntitlement(const std::string &entitlementKey);
 
     static int defaultSeatsForPlan(const std::string &plan);
 

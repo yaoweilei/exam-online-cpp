@@ -105,6 +105,15 @@ const std::string &changeChallengeCode)
     }
     if (it->second.code != code)
     {
+        ++it->second.failedAttempts;
+        if (it->second.failedAttempts >= 5)
+        {
+            pending_.erase(it);
+            throw common::AppException(
+                "EMAIL_CODE_ATTEMPTS_EXCEEDED",
+                "Too many invalid verification attempts; request a new code",
+                drogon::k429TooManyRequests);
+        }
         throw common::AppException("EMAIL_CODE_INVALID", "Verification code is incorrect", drogon::k400BadRequest);
     }
     lock.unlock();

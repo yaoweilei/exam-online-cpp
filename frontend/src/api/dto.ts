@@ -125,8 +125,13 @@ export interface SubscriptionView {
 	expires_at: string;
 	seats?: number;
 	entitlements: string[];
+	entitlement_access: Record<string, {
+		granted: boolean;
+		required_plan: PlanId;
+	}>;
 	accessible_levels: string[];
 	is_active: boolean;
+	effective_plan: PlanId;
 	user_id?: string;
 }
 

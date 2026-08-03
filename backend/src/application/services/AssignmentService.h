@@ -28,6 +28,8 @@ class AssignmentService
 
     Json::Value getAssignment(const std::string &assignmentId) const;
 
+    Json::Value getAssignmentForStudent(const std::string &assignmentId, const std::string &userId) const;
+
     Json::Value submitAssignment(const std::string &assignmentId,
                                  const std::string &studentId,
                                  const Json::Value &answers,
@@ -43,6 +45,9 @@ class AssignmentService
     Json::Value remindAssignment(const std::string &assignmentId,
                                  const std::string &createdBy,
                                  const Json::Value &payload);
+
+    // 扫描已进入提醒窗口的作业。nowIso 可注入，便于运维回放和自动化测试。
+    Json::Value runAutomaticReminderJobs(const std::string &nowIso = "");
 
     Json::Value updateAssignment(const std::string &assignmentId, const Json::Value &patch);
 

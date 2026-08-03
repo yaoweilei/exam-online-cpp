@@ -54,6 +54,19 @@ int readRecommendationLimit(const HttpRequestPtr &req)
 {
     return readBoundedIntParameter(req, "limit", 5, 1, 50);
 }
+
+void requireUserEntitlement(const AppContext &ctx,
+                            const Json::Value &session,
+                            const std::string &userId,
+                            const std::string &entitlementKey,
+                            const std::string &message)
+{
+    if (hasAnyRole(session["roles"], {"superAdmin"}))
+    {
+        return;
+    }
+    requireEntitlement(*ctx.subscriptionService, userId, entitlementKey, message);
+}
 }  // namespace
 
 void registerStatisticsRoutes(const AppContext &ctx)
@@ -79,6 +92,8 @@ void registerStatisticsRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 requireDataOwnerOrAdmin(session, userId);
+                requireUserEntitlement(
+                    ctx, session, userId, "analytics.full", "完整薄弱项分析需要升级到 PRO 套餐");
                 return common::ok(req, ctx.statisticsService->weakPoints(userId));
             });
         },
@@ -93,6 +108,11 @@ void registerStatisticsRoutes(const AppContext &ctx)
                 const auto session = requireSession(*ctx.authService, req);
                 requireDataOwnerOrAdmin(session, userId);
                 const int days = readBoundedIntParameter(req, "days", 30, 1, 365);
+                if (days > 7)
+                {
+                    requireUserEntitlement(
+                        ctx, session, userId, "analytics.full", "超过 7 天的学习趋势需要升级到 PRO 套餐");
+                }
                 return common::ok(req, ctx.statisticsService->learningCurve(userId, days));
             });
         },
@@ -106,7 +126,14 @@ void registerStatisticsRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 requireDataOwnerOrAdmin(session, userId);
-                return common::ok(req, buildRecommendations(ctx, userId, readRecommendationLimit(req)));
+                const int limit = readRecommendationLimit(req);
+                requireUserEntitlement(
+                    ctx,
+                    session,
+                    userId,
+                    "recommendation.personalized",
+                    "个性化推荐需要升级到 PRO 套餐");
+                return common::ok(req, buildRecommendations(ctx, userId, limit));
             });
         },
         {Get});
@@ -119,7 +146,14 @@ void registerStatisticsRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 requireDataOwnerOrAdmin(session, userId);
-                return common::ok(req, buildRecommendations(ctx, userId, readRecommendationLimit(req)));
+                const int limit = readRecommendationLimit(req);
+                requireUserEntitlement(
+                    ctx,
+                    session,
+                    userId,
+                    "recommendation.personalized",
+                    "个性化推荐需要升级到 PRO 套餐");
+                return common::ok(req, buildRecommendations(ctx, userId, limit));
             });
         },
         {Get});

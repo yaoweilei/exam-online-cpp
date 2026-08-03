@@ -124,6 +124,11 @@
 	background-color: var(--vscode-input-background);
 }
 
+.audio-time.is-error {
+	color: var(--vscode-errorForeground, #c73e36);
+	font-weight: 600;
+}
+
 /* 听力脚本行基础样式 */
 .script-line {
 	display: grid;

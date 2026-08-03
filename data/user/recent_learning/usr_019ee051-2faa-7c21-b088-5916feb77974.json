@@ -3,14 +3,14 @@
   [
     {
       "answered_count" : 2,
-      "created_at" : "2026-07-17T02:20:49.937Z",
+      "created_at" : "2026-07-28T03:48:23.325Z",
       "exam_id" : "N2_2024_12",
       "last_question_index" : 1,
       "last_section_index" : 0,
       "paper_id" : "",
       "status" : "draft",
       "total_questions" : 2,
-      "updated_at" : "2026-07-17T02:20:49.937Z",
+      "updated_at" : "2026-07-28T03:48:23.325Z",
       "user_id" : "usr_019ee051-2faa-7c21-b088-5916feb77974"
     },
     {
@@ -26,6 +26,6 @@
       "user_id" : "usr_019ee051-2faa-7c21-b088-5916feb77974"
     }
   ],
-  "updated_at" : "2026-07-17T02:20:49.937Z",
+  "updated_at" : "2026-07-28T03:48:23.325Z",
   "user_id" : "usr_019ee051-2faa-7c21-b088-5916feb77974"
 }

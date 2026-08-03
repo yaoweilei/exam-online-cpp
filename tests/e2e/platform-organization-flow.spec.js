@@ -119,12 +119,18 @@ test('平台到机构教学再到内容反馈形成真实闭环', async ({ page,
   await loginWithPassword(page, orgAdminLoginId);
   await openPersonalCenter(page);
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="权限管理"]').click();
+  const memberOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
+  await expect(memberOrganizationCard).toBeVisible({ timeout: 20000 });
+  await memberOrganizationCard.locator('summary').click();
   await expect(page.locator('.pc-subpage')).toContainText(studentLoginId, { timeout: 20000 });
   await page.locator('[data-org-member-role][data-role-id="teacher"]').click();
   await expect(page.locator('.pc-subpage')).toContainText(teacherLoginId, { timeout: 20000 });
   await page.locator('[data-dashboard-back]').click();
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="学习组"]').click();
+  const learningOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
+  await expect(learningOrganizationCard).toBeVisible({ timeout: 20000 });
+  await learningOrganizationCard.locator('summary').click();
   await expect(page.locator('.pc-subpage')).toContainText(groupName, { timeout: 20000 });
   await expect(page.locator('.pc-subpage')).toContainText(studentLoginId);
 
@@ -136,7 +142,7 @@ test('平台到机构教学再到内容反馈形成真实闭环', async ({ page,
   await stubNoisyPersonalCenterApis(page);
   await loginWithPassword(page, contentAdminLoginId);
   await openPersonalCenter(page);
-  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="解析审核"]').click();
+  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="内容反馈"]').click();
   await expect(page.locator('.pc-subpage')).toContainText(feedbackText, { timeout: 20000 });
   const feedbackRow = page.locator('.pc-feedback-row').filter({ hasText: feedbackText }).first();
   await feedbackRow.getByRole('button', { name: '关闭' }).click();

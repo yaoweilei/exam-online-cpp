@@ -62,9 +62,31 @@ export class QuestionRenderer {
 		const sectionInfo = document.createElement("div");
 		sectionInfo.className = "section-info";
 		const sectionTitle = currentSection.section_title || '';
-		sectionInfo.innerHTML = `
-			<h3>${sectionTitle}</h3>
-		`;
+		const sectionHeading = document.createElement('h3');
+		const sectionInstructionToggle = document.createElement('button');
+		sectionInstructionToggle.type = 'button';
+		sectionInstructionToggle.className = 'section-instruction-toggle';
+		sectionInstructionToggle.setAttribute('aria-expanded', 'false');
+		sectionInstructionToggle.title = '展开题型说明';
+
+		const sectionInstructionText = document.createElement('span');
+		sectionInstructionText.className = 'section-instruction-text';
+		sectionInstructionText.textContent = sectionTitle;
+
+		const sectionInstructionAction = document.createElement('span');
+		sectionInstructionAction.className = 'section-instruction-action';
+		sectionInstructionAction.setAttribute('aria-hidden', 'true');
+		sectionInstructionAction.textContent = '展开';
+
+		sectionInstructionToggle.append(sectionInstructionText, sectionInstructionAction);
+		sectionInstructionToggle.addEventListener('click', () => {
+			const expanded = sectionInstructionToggle.getAttribute('aria-expanded') === 'true';
+			sectionInstructionToggle.setAttribute('aria-expanded', String(!expanded));
+			sectionInstructionToggle.title = expanded ? '展开题型说明' : '收起题型说明';
+			sectionInstructionAction.textContent = expanded ? '展开' : '收起';
+		});
+		sectionHeading.appendChild(sectionInstructionToggle);
+		sectionInfo.appendChild(sectionHeading);
 
 		const questionContent = document.createElement("div");
 		questionContent.className = "question-content";

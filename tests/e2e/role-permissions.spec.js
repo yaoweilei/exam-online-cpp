@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect, request: requestFactory } = require('@playwright/test');
 const { loginApi, uniqueLoginId } = require('./helpers/session');
 
 const roleCases = [
@@ -202,8 +202,15 @@ test('游客和普通角色不能访问高权限 API', async ({ request }) => {
     sessions[item.role] = await loginApi(request, uniqueLoginId(item.prefix));
   }
 
-  await expectApiCode(await request.get('/api/v1/admin/statistics/overview'), 'AUTH_REQUIRED');
-  await expectApiCode(await request.post('/api/v1/chapters/rebuild'), 'AUTH_REQUIRED');
+  const anonymous = await requestFactory.newContext({
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:8000'
+  });
+  try {
+    await expectApiCode(await anonymous.get('/api/v1/admin/statistics/overview'), 'AUTH_REQUIRED');
+    await expectApiCode(await anonymous.post('/api/v1/chapters/rebuild'), 'AUTH_REQUIRED');
+  } finally {
+    await anonymous.dispose();
+  }
 
   for (const role of ['student', 'assistant', 'teacher', 'orgAdmin', 'contentAdmin']) {
     const adminResponse = await request.get(
@@ -220,6 +227,36 @@ test('游客和普通角色不能访问高权限 API', async ({ request }) => {
   }
 });
 
+test('用户搜索按角色开放并隐藏机构管理员不需要的敏感字段', async ({ request }) => {
+  const targetLogin = uniqueLoginId('student_search_privacy');
+  await loginApi(request, targetLogin);
+  const orgAdmin = await loginApi(request, uniqueLoginId('orgadmin_search_privacy'));
+  const superAdmin = await loginApi(request, uniqueLoginId('superadmin_search_privacy'));
+  const student = await loginApi(request, uniqueLoginId('student_search_denied'));
+
+  const orgSearch = await getOkJson(await request.get(
+    `/api/v1/users/search?token=${encodeURIComponent(orgAdmin.token)}&q=${encodeURIComponent(targetLogin)}&limit=10`
+  ));
+  expect(orgSearch.data).toHaveLength(1);
+  expect(orgSearch.data[0].username).toBe(targetLogin);
+  for (const field of ['email', 'phone', 'subscription', 'entitlements', 'balance', 'referral']) {
+    expect(orgSearch.data[0]).not.toHaveProperty(field);
+  }
+
+  const platformSearch = await getOkJson(await request.get(
+    `/api/v1/users/search?token=${encodeURIComponent(superAdmin.token)}&q=${encodeURIComponent(targetLogin)}&limit=10`
+  ));
+  expect(platformSearch.data).toHaveLength(1);
+  expect(platformSearch.data[0]).toHaveProperty('email');
+  expect(platformSearch.data[0]).toHaveProperty('subscription');
+  expect(platformSearch.data[0]).toHaveProperty('balance');
+
+  const denied = await request.get(
+    `/api/v1/users/search?token=${encodeURIComponent(student.token)}&q=${encodeURIComponent(targetLogin)}&limit=10`
+  );
+  await expectApiCode(denied, 'FORBIDDEN');
+});
+
 test('平台级权限只开放给 contentAdmin 和 superAdmin 的对应能力', async ({ request }) => {
   const contentAdmin = await loginApi(request, uniqueLoginId('contentadmin_content_perm'));
   const superAdmin = await loginApi(request, uniqueLoginId('superadmin_content_perm'));
@@ -228,6 +265,30 @@ test('平台级权限只开放给 contentAdmin 和 superAdmin 的对应能力', 
     `/api/v1/related-questions/rebuild?token=${encodeURIComponent(contentAdmin.token)}`
   );
   await getOkJson(relatedRebuild);
+
+  const inspectResponse = await request.post('/api/v1/admin/content/workflow/2023_02/inspect', {
+    data: { token: contentAdmin.token }
+  });
+  await getOkJson(inspectResponse);
+
+  const contentAudit = await getOkJson(await request.get('/api/v1/admin/audit-logs?limit=200', {
+    headers: { Authorization: `Bearer ${contentAdmin.token}` }
+  }));
+  expect(contentAudit.data.items.length).toBeGreaterThan(0);
+  expect(contentAudit.data.items.every((item) => String(item.action).startsWith('content.'))).toBeTruthy();
+  expect(contentAudit.data.items.some((item) => item.actor_user_id === contentAdmin.user_id)).toBeTruthy();
+
+  const contentActions = await getOkJson(await request.get('/api/v1/admin/audit-logs/actions', {
+    headers: { Authorization: `Bearer ${contentAdmin.token}` }
+  }));
+  expect(contentActions.data.actions.length).toBeGreaterThan(0);
+  expect(contentActions.data.actions.every((action) => String(action).startsWith('content.'))).toBeTruthy();
+
+  const hiddenPaymentAudit = await getOkJson(await request.get(
+    `/api/v1/admin/audit-logs?action=${encodeURIComponent('payment.refund')}`,
+    { headers: { Authorization: `Bearer ${contentAdmin.token}` } }
+  ));
+  expect(hiddenPaymentAudit.data.total).toBe(0);
 
   const superStats = await request.get(
     `/api/v1/admin/statistics/overview?token=${encodeURIComponent(superAdmin.token)}`
@@ -407,14 +468,24 @@ test('套餐价格配置只允许超级管理员维护，订单金额读取配�
 
   const publicPricing = await request.get('/api/v1/payments/pricing');
   const publicPayload = await getOkJson(publicPricing);
-  expect(publicPayload.data.prices_cents.cny.pro['30']).toBe(1290);
+  expect(publicPayload.data.prices_cents.cny.pro['30']).toBe(1900);
+  expect(publicPayload.data.version).toBe(4);
+  expect(publicPayload.data.catalogs.organization.prices_cents.cny.pro['30']).toBe(1500);
+  expect(publicPayload.data.catalogs.organization.prices_cents.cny.pro['365']).toBe(11900);
+  expect(publicPayload.data.catalogs.organization.plans.pro.minimum_seats).toBe(20);
+  expect(publicPayload.data.catalogs.organization.custom_quote_min_seats).toBe(200);
+  expect(publicPayload.data.catalogs.personal.offers.map((offer) => offer.id)).toEqual([
+    'first_purchase',
+    'renewal',
+    'campaign'
+  ]);
 
   const pricingPayload = {
     token: student.token,
     default_provider: 'wechat',
     prices_cents: {
       cny: {
-        pro: { 30: 1290, 90: 3870, 365: 15480 },
+        pro: { 30: 1900, 90: 4900, 365: 15900 },
         ultra: { 30: 3900, 90: 9900, 365: 29900 }
       }
     }
@@ -427,7 +498,7 @@ test('套餐价格配置只允许超级管理员维护，订单金额读取配�
   });
   const updatedPayload = await getOkJson(updated);
   expect(updatedPayload.data.default_provider).toBe('wechat');
-  expect(updatedPayload.data.prices_cents.cny.pro['30']).toBe(1290);
+  expect(updatedPayload.data.prices_cents.cny.pro['30']).toBe(1900);
 
   const order = await request.post('/api/v1/payments/orders', {
     data: {
@@ -439,7 +510,7 @@ test('套餐价格配置只允许超级管理员维护，订单金额读取配�
     }
   });
   const orderPayload = await getOkJson(order);
-  expect(orderPayload.data.amount_cents).toBe(1290);
+  expect(orderPayload.data.amount_cents).toBe(1900);
   expect(orderPayload.data.provider).toBe('wechat');
 });
 
@@ -476,6 +547,37 @@ test('机构和学习组权限按 orgAdmin、teacher、assistant、student、con
     expect(replay.data.reminder_id).toBe(first.data.reminder_id);
     expect(replay.data.idempotent_replay).toBe(true);
   }
+
+  const studentAssignmentsResponse = await request.get('/api/v1/me/assignments', {
+    headers: { Authorization: `Bearer ${sessions.student.token}` }
+  });
+  const studentAssignments = await getOkJson(studentAssignmentsResponse);
+  const studentAssignment = studentAssignments.data.items.find((item) => item.assignment_id === assignmentId);
+  expect(studentAssignment).toBeTruthy();
+  expect(studentAssignment.submissions).toBeUndefined();
+  expect(studentAssignment.reminders).toBeUndefined();
+  expect(studentAssignment.own_reminders).toHaveLength(4);
+  expect(studentAssignment.own_reminders.every((item) => !Object.hasOwn(item, 'target_student_ids'))).toBeTruthy();
+
+  const updateAutoReminderResponse = await request.patch(`/api/v1/assignments/${encodeURIComponent(assignmentId)}`, {
+    data: {
+      token: sessions.teacher.token,
+      auto_reminder_enabled: true,
+      auto_reminder_hours_before: [12]
+    }
+  });
+  const updatedAssignment = await getOkJson(updateAutoReminderResponse);
+  expect(updatedAssignment.data.auto_reminder_enabled).toBe(true);
+  expect(updatedAssignment.data.auto_reminder_hours_before).toEqual([12]);
+
+  const forbiddenAutoReminderUpdate = await request.patch(`/api/v1/assignments/${encodeURIComponent(assignmentId)}`, {
+    data: {
+      token: sessions.student.token,
+      auto_reminder_enabled: false,
+      auto_reminder_hours_before: [24]
+    }
+  });
+  await expectApiCode(forbiddenAutoReminderUpdate, 'FORBIDDEN');
 
   for (const role of ['student', 'contentAdmin']) {
     const response = await request.post(`/api/v1/assignments/${encodeURIComponent(assignmentId)}/reminders`, {

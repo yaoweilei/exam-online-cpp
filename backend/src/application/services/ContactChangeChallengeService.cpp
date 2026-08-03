@@ -118,6 +118,15 @@ const std::string &challengeCode)
     }
     if (it->second.code != challengeCode)
     {
+        ++it->second.failedAttempts;
+        if (it->second.failedAttempts >= 5)
+        {
+            pending_.erase(it);
+            throw common::AppException(
+                "CONTACT_CHANGE_CODE_ATTEMPTS_EXCEEDED",
+                "Too many invalid confirmation attempts; request a new code",
+                drogon::k429TooManyRequests);
+        }
         throw common::AppException("CONTACT_CHANGE_CODE_INVALID", "Confirmation code is incorrect", drogon::k400BadRequest);
     }
     pending_.erase(it);

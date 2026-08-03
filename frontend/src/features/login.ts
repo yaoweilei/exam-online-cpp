@@ -423,7 +423,7 @@ export class LoginModal {
 		if (!finishAction) return;
 
 		try {
-			const data = await this.api.request<{ token: string; user_id: string; username: string; roles: string[] }>(
+			const data = await this.api.request<{ token?: string; user_id: string; username: string; roles: string[] }>(
 				'/auth/login',
 				{ method: 'POST', body: JSON.stringify({ username: loginId, password }) }
 			);
@@ -445,7 +445,7 @@ export class LoginModal {
 		const button = this.modal.querySelector<HTMLButtonElement>('#login-btn-register');
 		const finish = this.beginLoginAction(button, '注册中…'); if (!finish) return;
 		try {
-			const data = await this.api.request<{ token: string; user_id: string; username: string; roles: string[] }>('/auth/register', { method: 'POST', body: JSON.stringify({ username, email, password, referral_code: readPendingReferralCode() }) });
+			const data = await this.api.request<{ token?: string; user_id: string; username: string; roles: string[] }>('/auth/register', { method: 'POST', body: JSON.stringify({ username, email, password, referral_code: readPendingReferralCode() }) });
 			await this.onLoginSuccess(data);
 		} catch (e) { this.showError((e as Error).message || '注册失败'); } finally { finish(); }
 	}
@@ -469,7 +469,7 @@ export class LoginModal {
 		const button = this.modal.querySelector<HTMLButtonElement>('#login-btn-reset-password');
 		const finish = this.beginLoginAction(button, '重置中…'); if (!finish) return;
 		try {
-			const data = await this.api.request<{ token: string; user_id: string; username: string; roles: string[] }>('/auth/password/reset', { method: 'POST', body: JSON.stringify({ login_id: loginId, code, new_password: newPassword }) });
+			const data = await this.api.request<{ token?: string; user_id: string; username: string; roles: string[] }>('/auth/password/reset', { method: 'POST', body: JSON.stringify({ login_id: loginId, code, new_password: newPassword }) });
 			await this.onLoginSuccess(data);
 		} catch (e) { this.showError((e as Error).message || '密码重置失败'); } finally { finish(); }
 	}
@@ -539,12 +539,9 @@ export class LoginModal {
 				{ method: 'POST', body: JSON.stringify({ user_id: 'guest', phone: phoneDigits, code }) }
 			);
 			if (data.user_id) {
-				// auto-login as the bound user if token available
-				if (data.token) {
-					this.rememberLoginPhone(phoneDigits);
-					await this.onLoginSuccess({ token: data.token, user_id: data.user_id, username: data.username ?? phoneDigits, roles: data.roles ?? [] });
-					return;
-				}
+				this.rememberLoginPhone(phoneDigits);
+				await this.onLoginSuccess({ token: data.token, user_id: data.user_id, username: data.username ?? phoneDigits, roles: data.roles ?? [] });
+				return;
 			}
 			this.showError('手机号验证成功，但没有返回登录凭证，请刷新后重试');
 		} catch (e) {
@@ -554,8 +551,9 @@ export class LoginModal {
 
 	// ─── Common ──────────────────────────────────────────────────────────────
 
-	private async onLoginSuccess(payload: { token: string; user_id: string; username: string; roles: string[] }): Promise<void> {
-		let context = (await this.api.getMeContext(payload.token)) as MeContext;
+	private async onLoginSuccess(payload: { token?: string; user_id: string; username: string; roles: string[] }): Promise<void> {
+		const compatibilityToken = payload.token || '';
+		let context = (await this.api.getMeContext(compatibilityToken)) as MeContext;
 		const pendingReferralCode = readPendingReferralCode();
 		const hasReferrer = Boolean(context.user?.referral?.hasReferrer ?? context.user?.referral?.has_referrer);
 		const ownReferralCode = (context.user?.referral?.code || context.user?.referral?.referral_code || '').trim().toUpperCase();
@@ -564,15 +562,15 @@ export class LoginModal {
 				clearPendingReferralCode();
 			} else {
 				try {
-					await this.api.claimReferralCode(payload.token, pendingReferralCode);
+					await this.api.claimReferralCode(compatibilityToken, pendingReferralCode);
 					clearPendingReferralCode();
-					context = (await this.api.getMeContext(payload.token)) as MeContext;
+					context = (await this.api.getMeContext(compatibilityToken)) as MeContext;
 				} catch {
 					// Keep the pending code for a later eligible sign-in.
 				}
 			}
 		}
-		const user = buildCurrentUser(context, payload.token);
+		const user = buildCurrentUser(context, compatibilityToken);
 		const shouldPromptPhoneBinding = this.currentMode === 'wechat' && !user.phone_verified;
 		if (user.phone) this.rememberLoginPhone(user.phone);
 		persistSession(user);

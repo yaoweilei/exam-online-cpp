@@ -32,6 +32,7 @@ interface CategoryMenuItem {
 }
 
 interface CategoryNavigationExamViewer {
+	currentCategory: string | null;
 	currentExam?: {
 		family?: string;
 		exam_info?: {
@@ -82,6 +83,7 @@ class CategoryNavigationManager {
 			const label = document.createElement('div');
 			label.className = 'category-dropdown-label';
 			label.textContent = category.label;
+			(slot as HTMLElement).dataset.categoryId = category.id;
 			label.addEventListener('click', () => {
 				this.toggleCategoryDropdown(dropdown);
 			});
@@ -113,6 +115,7 @@ class CategoryNavigationManager {
 			slot.appendChild(dropdown);
 			console.log(`[CategoryNavigationManager] Dropdown created for slot ${index}`);
 		});
+		this.syncActiveCategory();
 
 		if (!document.__exam_category_click_registered) {
 			document.addEventListener('click', (event) => {
@@ -125,6 +128,15 @@ class CategoryNavigationManager {
 			});
 			document.__exam_category_click_registered = true;
 		}
+	}
+
+	/** 让工具栏只高亮当前正在作答的分类。 */
+	syncActiveCategory(): void {
+		const currentCategory = this.examViewer.currentCategory;
+		document.querySelectorAll<HTMLElement>('#exam-controls .category-slot').forEach((slot) => {
+			const active = Boolean(currentCategory) && slot.dataset.categoryId === currentCategory;
+			slot.querySelector('.category-dropdown-label')?.classList.toggle('active', active);
+		});
 	}
 
 	/**
@@ -293,6 +305,9 @@ class CategoryNavigationManager {
 		category.sectionIndexes.forEach((sectionIndex) => {
 			const section = sections[sectionIndex];
 			const questions = section?.questions || [];
+			const mergedSectionType = category.id === 'writing_reading'
+				? String(section?.section_type || '').toLowerCase()
+				: '';
 			if (questions.length === 0) {
 				items.push({
 					label: '暂无题目',
@@ -303,8 +318,14 @@ class CategoryNavigationManager {
 			}
 
 			questions.forEach((question, questionIndex) => {
+				const questionLabel = this.getEjuQuestionLabel(question, questionIndex);
+				const label = mergedSectionType === 'writing'
+					? '記述'
+					: mergedSectionType === 'reading'
+						? `読解 ${questionLabel}`
+						: questionLabel;
 				items.push({
-					label: this.getEjuQuestionLabel(question, questionIndex),
+					label,
 					value: `question-${sectionIndex}-${questionIndex}`
 				});
 			});
@@ -384,13 +405,20 @@ class CategoryNavigationManager {
 	 */
 	selectCategory(categoryId: string): void {
 		this.examViewer.audioManager.stopAllAudio();
-		const category = this.examViewer.getCategories().find((entry) => entry.id === categoryId);
+		const categories = this.examViewer.getCategories();
+		const mergedEjuCategory = (categoryId === 'writing' || categoryId === 'reading')
+			? categories.find((entry) => entry.id === 'writing_reading')
+			: undefined;
+		const category = categories.find((entry) => entry.id === categoryId) || mergedEjuCategory;
 		const sections = this.examViewer.currentExam?.exam_info?.sections || [];
-		const sectionIndex = category?.sectionIndexes.find((index) => {
+		const preferredSectionIndex = mergedEjuCategory?.sectionIndexes.find((index) => {
+			return String(sections[index]?.section_type || '').toLowerCase() === categoryId;
+		});
+		const sectionIndex = preferredSectionIndex ?? category?.sectionIndexes.find((index) => {
 			const section = sections[index];
 			return Array.isArray(section?.questions) && section.questions.length > 0;
 		});
-		this.examViewer.stateManager.updateNavigationState(sectionIndex ?? 0, 0, categoryId);
+		this.examViewer.stateManager.updateNavigationState(sectionIndex ?? 0, 0, category?.id || categoryId);
 	}
 }
 

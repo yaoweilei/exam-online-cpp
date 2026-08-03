@@ -85,7 +85,7 @@ body:not(.light-theme) .qr-wrapper { border-color: rgba(31, 25, 20, 0.08); backg
 }
 
 .login-dev-grid button {
-	min-height: calc(var(--login-scale, 0.367px) * 62);
+	min-height: 36px;
 	border: 1px solid rgba(255, 126, 95, 0.36);
 	border-radius: 999px;
 	background: rgba(255, 255, 255, 0.72);
@@ -317,8 +317,8 @@ body:not(.light-theme) .login-country-code { color: #2b2724; border-right-color:
 }
 
 .login-agree input {
-	width: calc(var(--login-scale, 0.367px) * 32);
-	height: calc(var(--login-scale, 0.367px) * 32);
+	width: 18px;
+	height: 18px;
 	appearance: none;
 	border: 0;
 	border-radius: 50%;
@@ -361,7 +361,7 @@ body:not(.light-theme) .login-country-code { color: #2b2724; border-right-color:
 .login-mode-icon {
 	box-sizing: border-box;
 	min-width: var(--login-mobile-social-size);
-	height: var(--login-mobile-social-size);
+	height: max(40px, var(--login-mobile-social-size));
 	padding: 0 16px;
 	border-radius: 999px;
 	border: 0;
@@ -386,7 +386,7 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 
 .login-password-shortcut {
 	min-width: calc(var(--login-scale, 0.367px) * 316);
-	height: var(--login-mobile-social-size);
+	height: max(40px, var(--login-mobile-social-size));
 	color: #2b2724;
 	font-size: calc(var(--login-scale, 0.367px) * 36);
 	font-weight: 400;
@@ -416,7 +416,7 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 .login-social-icon {
 	box-sizing: border-box;
 	width: var(--login-mobile-social-size);
-	height: var(--login-mobile-social-size);
+	height: max(40px, var(--login-mobile-social-size));
 	padding: 0;
 	color: #fff;
 	font-size: 21px;
@@ -495,8 +495,8 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 	}
 
 	.login-agree input {
-		width: calc(var(--login-scale, 0.367px) * 32);
-		height: calc(var(--login-scale, 0.367px) * 32);
+		width: 18px;
+		height: 18px;
 	}
 
 	.login-mode-bar {
@@ -506,13 +506,17 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 
 	.login-mode-icon {
 		min-width: var(--login-mobile-social-size);
-		height: var(--login-mobile-social-size);
+		height: 44px;
 		line-height: 1;
+	}
+
+	.login-dev-grid button {
+		min-height: 44px;
 	}
 
 	.login-password-shortcut {
 		min-width: calc(var(--login-scale, 0.367px) * 316);
-		height: var(--login-mobile-social-size);
+		height: 44px;
 		font-size: calc(var(--login-scale, 0.367px) * 36);
 		font-weight: 400;
 	}
@@ -524,7 +528,7 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 
 	.login-social-icon {
 		width: var(--login-mobile-social-size);
-		height: var(--login-mobile-social-size);
+		height: 44px;
 		min-width: var(--login-mobile-social-size);
 		padding: 0;
 		align-items: center;

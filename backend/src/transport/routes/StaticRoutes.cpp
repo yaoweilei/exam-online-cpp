@@ -5,6 +5,7 @@
 
 #include "transport/RouteUtils.h"
 #include "transport/routes/Routes.h"
+#include "infrastructure/config/AppConfig.h"
 
 using namespace drogon;
 
@@ -141,7 +142,7 @@ void registerStaticRoutes(const AppContext &ctx)
         {Get});
 }
 
-void registerHealthRoutes(const AppContext & /*ctx*/)
+void registerHealthRoutes(const AppContext &ctx)
 {
     auto healthHandler = [](const HttpRequestPtr &req,
                             std::function<void(const HttpResponsePtr &)> &&callback) {
@@ -152,5 +153,49 @@ void registerHealthRoutes(const AppContext & /*ctx*/)
     };
     app().registerHandler("/healthz", healthHandler, {Get});
     app().registerHandler("/api/v1/health", healthHandler, {Get});
+
+    app().registerHandler(
+        "/readyz",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            Json::Value checks(Json::objectValue);
+            const auto staticReady = std::filesystem::is_regular_file(ctx.staticDir / "index.html");
+            const auto paperReady = std::filesystem::is_directory(ctx.dataRoot / "paper");
+            const auto userReady = std::filesystem::is_directory(ctx.dataRoot / "user");
+            const auto systemReady = std::filesystem::is_directory(ctx.dataRoot / "system");
+            const auto servicesReady = ctx.examService && ctx.authService && ctx.paymentService &&
+                                       ctx.organizationService && ctx.contentWorkflowService;
+            checks["static"] = staticReady;
+            checks["paper_store"] = paperReady;
+            checks["user_store"] = userReady;
+            checks["system_store"] = systemReady;
+            checks["core_services"] = servicesReady;
+
+            bool diskReady = false;
+            std::uintmax_t availableBytes = 0;
+            try
+            {
+                availableBytes = std::filesystem::space(ctx.dataRoot).available;
+                const auto minimumMbText = infrastructure::config::readEnv("READY_MIN_FREE_DISK_MB", "256");
+                const auto minimumBytes = static_cast<std::uintmax_t>(std::stoull(minimumMbText)) * 1024ULL * 1024ULL;
+                diskReady = availableBytes >= minimumBytes;
+            }
+            catch (...)
+            {
+                diskReady = false;
+            }
+            checks["disk_space"] = diskReady;
+            checks["available_disk_mb"] = static_cast<Json::UInt64>(availableBytes / 1024ULL / 1024ULL);
+
+            const auto ready = staticReady && paperReady && userReady && systemReady && servicesReady && diskReady;
+            Json::Value out(Json::objectValue);
+            out["status"] = ready ? "ready" : "not_ready";
+            out["service"] = "exam-online-cpp";
+            out["checks"] = checks;
+            auto response = ready
+                                ? common::ok(req, out)
+                                : common::fail(req, k503ServiceUnavailable, "SERVICE_NOT_READY", "Service dependencies are not ready", out);
+            callback(response);
+        },
+        {Get});
 }
 }  // namespace transport::routes

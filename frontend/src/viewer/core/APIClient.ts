@@ -59,6 +59,25 @@ class APIClient {
 		});
 	}
 
+	static async getAuthSessions(token: string): Promise<unknown> {
+		const params = new URLSearchParams({ token });
+		return this.request(`/auth/sessions?${params.toString()}`);
+	}
+
+	static async revokeOtherAuthSessions(token: string): Promise<unknown> {
+		return this.request('/auth/sessions/revoke-others', {
+			method: 'POST',
+			body: JSON.stringify({ token })
+		});
+	}
+
+	static async revokeAuthSession(token: string, sessionId: string): Promise<unknown> {
+		return this.request(`/auth/sessions/${encodeURIComponent(sessionId)}`, {
+			method: 'DELETE',
+			body: JSON.stringify({ token })
+		});
+	}
+
 	static async sendContactChangeChallenge(token: string, channel: 'email' | 'phone'): Promise<unknown> {
 		return this.request('/auth/contact-change/send-code', {
 			method: 'POST',
@@ -231,6 +250,7 @@ class APIClient {
 	static async updatePlatformUserAccess(token: string, userId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/users/${encodeURIComponent(userId)}/platform-access`, { method: 'PUT', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
 	static async listContentWorkflow(token: string): Promise<unknown> { return this.request(`/admin/content/workflow?token=${encodeURIComponent(token)}`); }
 	static async inspectContentWorkflow(token: string, examId: string): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/inspect`, { method: 'POST', body: JSON.stringify({ token }) }); }
+	static async inspectContentWorkflowBatch(token: string, examIds: string[]): Promise<unknown> { return this.request('/admin/content/workflow/inspect-batch', { method: 'POST', body: JSON.stringify({ token, exam_ids: examIds }) }); }
 	static async reviewContentWorkflow(token: string, examId: string, stage: string, payload: unknown): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/reviews/${encodeURIComponent(stage)}`, { method: 'PUT', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
 	static async publishContentWorkflow(token: string, examId: string, payload: unknown): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/publish`, { method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token }) }); }
 	static async listContentVersions(token: string, examId: string): Promise<unknown> { return this.request(`/admin/content/workflow/${encodeURIComponent(examId)}/versions?token=${encodeURIComponent(token)}`); }
@@ -436,6 +456,61 @@ class APIClient {
 
 	static async createPaymentOrder(token: string, payload: unknown): Promise<unknown> {
 		return this.request('/payments/orders', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async getPaymentQuote(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/payments/quote', {
+			method: 'POST',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async getAutoRenewal(token: string, scopeType: 'personal' | 'organization' = 'personal', organizationId = ''): Promise<unknown> {
+		const query = new URLSearchParams({ token, scope_type: scopeType });
+		if (organizationId) query.set('organization_id', organizationId);
+		return this.request(`/payments/auto-renewal?${query.toString()}`);
+	}
+
+	static async updateAutoRenewal(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/payments/auto-renewal', {
+			method: 'PUT',
+			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async getPaymentNotifications(token: string, unreadOnly = false, page = 1, pageSize = 20): Promise<unknown> {
+		const query = new URLSearchParams({
+			token,
+			unread_only: unreadOnly ? 'true' : 'false',
+			page: String(page),
+			page_size: String(pageSize)
+		});
+		return this.request(`/payments/notifications?${query.toString()}`);
+	}
+
+	static async markPaymentNotificationRead(token: string, notificationId: string): Promise<unknown> {
+		return this.request(`/payments/notifications/${encodeURIComponent(notificationId)}/read`, {
+			method: 'PATCH',
+			body: JSON.stringify({ token })
+		});
+	}
+
+	static async markAllPaymentNotificationsRead(token: string): Promise<unknown> {
+		return this.request('/payments/notifications/read-all', {
+			method: 'POST',
+			body: JSON.stringify({ token })
+		});
+	}
+
+	static async getRenewalOperations(token: string): Promise<unknown> {
+		return this.request(`/admin/payments/renewal-operations?token=${encodeURIComponent(token)}`);
+	}
+
+	static async runRenewalJob(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/admin/payments/renewal-jobs/run', {
 			method: 'POST',
 			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
 		});

@@ -9,13 +9,22 @@
 #include "application/services/SubscriptionService.h"
 #include "infrastructure/storage/SqliteJsonStore.h"
 
+namespace infrastructure::storage
+{
+class UserRepository;
+}
+
 namespace application::services
 {
+class EmailService;
+
 class PaymentService
 {
   public:
     explicit PaymentService(std::filesystem::path userRootDir,
-                            SubscriptionService &subscriptionService);
+                            SubscriptionService &subscriptionService,
+                            infrastructure::storage::UserRepository *userRepository = nullptr,
+                            EmailService *emailService = nullptr);
 
     Json::Value createOrder(const std::string &userId, const Json::Value &payload);
     Json::Value createOrganizationOrder(const std::string &actorId,
@@ -34,6 +43,30 @@ class PaymentService
     Json::Value requestRefund(const std::string &userId, const Json::Value &roles, const Json::Value &payload);
     Json::Value getPricingConfig() const;
     Json::Value updatePricingConfig(const Json::Value &payload);
+    Json::Value quote(const std::string &actorId,
+                      const Json::Value &roles,
+                      const Json::Value &payload) const;
+    Json::Value getAutoRenewal(const std::string &actorId,
+                               const std::string &scopeType,
+                               const std::string &scopeId) const;
+    Json::Value updateAutoRenewal(const std::string &actorId,
+                                  const std::string &scopeType,
+                                  const std::string &scopeId,
+                                  const Json::Value &payload);
+    Json::Value listNotifications(const std::string &userId,
+                                  bool unreadOnly,
+                                  int page,
+                                  int pageSize) const;
+    Json::Value markNotificationRead(const std::string &userId,
+                                     const std::string &notificationId);
+    Json::Value markAllNotificationsRead(const std::string &userId);
+    Json::Value runRenewalJobs(const std::string &asOfDate = "",
+                               bool forceNotificationRetries = false);
+    Json::Value renewalOperations() const;
+    Json::Value handleAutoRenewalWebhook(const std::string &provider,
+                                         const std::string &rawBody,
+                                         const Json::Value &payload,
+                                         const std::string &signatureHeader);
     Json::Value handleWebhook(const std::string &provider,
                               const std::string &rawBody,
                               const Json::Value &payload,
@@ -83,12 +116,33 @@ class PaymentService
     bool verifyGenericHmacSignature(const std::string &rawBody, const std::string &signatureHeader, const std::string &secret) const;
     bool hasProcessedWebhookEvent(Json::Value &events, const std::string &eventId) const;
     void rememberWebhookEvent(Json::Value &events, const std::string &eventId, const std::string &provider) const;
+    Json::Value enqueueNotification(const Json::Value &renewal,
+                                    const std::string &dedupeKey,
+                                    const std::string &type,
+                                    const std::string &title,
+                                    const std::string &message,
+                                    const std::string &level = "info");
+    Json::Value deliverNotificationEmail(Json::Value &notification);
+    Json::Value processNotificationDeliveries(bool force);
+    Json::Value createRenewalAttempt(Json::Value &renewal,
+                                     const std::string &asOfDate);
+    Json::Value settleRenewalSuccessUnlocked(Json::Value &renewal,
+                                             const std::string &provider,
+                                             const std::string &providerPaymentId,
+                                             const std::string &eventId,
+                                             const Json::Value &providerEvent);
 
     static std::string normalizeProvider(const std::string &provider);
     static std::string normalizePlan(const std::string &plan);
     static std::string normalizeCurrency(const std::string &currency);
     static int normalizeDays(int days);
-    int priceCents(const std::string &plan, int days, const std::string &currency) const;
+    int priceCents(const std::string &scopeType,
+                   const std::string &plan,
+                   int days,
+                   const std::string &currency,
+                   int seats = 1) const;
+    int minimumOrganizationSeats(const std::string &plan) const;
+    int customQuoteMinimumSeats() const;
     static std::string makeId(const std::string &prefix);
     static std::string nowIso();
     static std::string nextExpiryDate(const std::string &currentExpiresAt, int days);
@@ -116,6 +170,12 @@ class PaymentService
     std::filesystem::path pricingFile_;
     mutable infrastructure::storage::SqliteJsonStore sqliteStore_;
     SubscriptionService &subscriptionService_;
+    infrastructure::storage::UserRepository *userRepository_{nullptr};
+    EmailService *emailService_{nullptr};
+    // Serializes renewal configuration, scheduled scans and provider callbacks.
+    // Deterministic IDs make writes idempotent; this lock also prevents stale
+    // agreement snapshots from overwriting a concurrent callback result.
+    mutable std::mutex renewalWorkflowMutex_;
     mutable std::mutex mutex_;
 };
 }  // namespace application::services

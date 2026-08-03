@@ -17,8 +17,9 @@ namespace transport::routes
 //     query: org_id?, actor_id?, action?, since?, until?, limit?, offset?
 //   GET /api/v1/admin/audit-logs/actions   去重 action 列表（用于筛选下拉）
 //
-// 权限：登录 + (superAdmin | orgAdmin)；FeatureFlag audit_log_viewer
+// 权限：登录 + (superAdmin | orgAdmin | contentAdmin)；FeatureFlag audit_log_viewer
 //   - orgAdmin：强制 org_id 限制为其所属组织（任一），传别的会被忽略覆盖
+//   - contentAdmin：只返回 action 以 content. 开头的内容变更日志
 // ---------------------------------------------------------------------------
 
 namespace
@@ -47,12 +48,15 @@ void registerAuditLogRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 requireRole(session,
-                            {"superAdmin", "orgAdmin"},
-                            "需要超级管理员或组织管理员权限");
+                            {"superAdmin", "orgAdmin", "contentAdmin"},
+                            "需要超级管理员、组织管理员或内容管理员权限");
                 const auto actorId = session.get("user_id", session.get("id", "")).asString();
                 requireFeature(*ctx.featureFlagService, "audit_log_viewer", actorId);
 
-                const bool isSuper = hasAnyRole(session.get("roles", Json::Value(Json::arrayValue)), {"superAdmin"});
+                const auto roles = session.get("roles", Json::Value(Json::arrayValue));
+                const bool isSuper = hasAnyRole(roles, {"superAdmin"});
+                const bool isOrgAdmin = hasAnyRole(roles, {"orgAdmin"});
+                const bool isContentAdmin = hasAnyRole(roles, {"contentAdmin"});
 
                 application::services::AuditLogQuery q;
                 q.actorId = getOpt(req, "actor_id");
@@ -64,6 +68,10 @@ void registerAuditLogRoutes(const AppContext &ctx)
                 if (isSuper)
                 {
                     q.orgId = getOpt(req, "org_id");
+                }
+                else if (isContentAdmin && !isOrgAdmin)
+                {
+                    q.actionPrefix = "content.";
                 }
                 else
                 {
@@ -89,16 +97,24 @@ void registerAuditLogRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 requireRole(session,
-                            {"superAdmin", "orgAdmin"},
-                            "需要超级管理员或组织管理员权限");
+                            {"superAdmin", "orgAdmin", "contentAdmin"},
+                            "需要超级管理员、组织管理员或内容管理员权限");
                 const auto actorId = session.get("user_id", session.get("id", "")).asString();
                 requireFeature(*ctx.featureFlagService, "audit_log_viewer", actorId);
 
-                const bool isSuper = hasAnyRole(session.get("roles", Json::Value(Json::arrayValue)), {"superAdmin"});
+                const auto roles = session.get("roles", Json::Value(Json::arrayValue));
+                const bool isSuper = hasAnyRole(roles, {"superAdmin"});
+                const bool isOrgAdmin = hasAnyRole(roles, {"orgAdmin"});
+                const bool isContentAdmin = hasAnyRole(roles, {"contentAdmin"});
                 std::optional<std::string> orgId;
+                std::optional<std::string> actionPrefix;
                 if (isSuper)
                 {
                     orgId = getOpt(req, "org_id");
+                }
+                else if (isContentAdmin && !isOrgAdmin)
+                {
+                    actionPrefix = "content.";
                 }
                 else
                 {
@@ -109,7 +125,7 @@ void registerAuditLogRoutes(const AppContext &ctx)
                     }
                     orgId = myOrg;
                 }
-                return common::ok(req, ctx.auditLogService->listActions(orgId));
+                return common::ok(req, ctx.auditLogService->listActions(orgId, actionPrefix));
             });
         },
         {Get});

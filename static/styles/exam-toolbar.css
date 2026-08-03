@@ -80,8 +80,6 @@
 #toggle-answers { grid-area: answers; }
 #toggle-explanations { grid-area: explanations; }
 #open-question-map { grid-area: questionmap; }
-#top-prev { grid-area: prev; }
-#top-next { grid-area: next; }
 #submit-exam { grid-area: submit; }
 #toggle-reading-kana { grid-area: kana; }
 #toggle-reading-zh { grid-area: zh; }
@@ -92,15 +90,15 @@
 
 #exam-controls.toolbar-grid.family-jlpt {
 	grid-template-areas:
-		"questionmap prev next submit"
-		"answers explanations kana zh"
+		"questionmap submit answers explanations"
+		"kana zh . ."
 		"slot1 slot2 slot3 .";
 }
 
 #exam-controls.toolbar-grid.family-eju {
 	grid-template-areas:
-		"questionmap prev next submit"
-		"answers explanations kana zh"
+		"questionmap submit answers explanations"
+		"kana zh . ."
 		"slot1 slot2 slot3 slot4";
 }
 

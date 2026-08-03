@@ -62,13 +62,13 @@ void registerOAuthRoutes(const AppContext &ctx)
                 const auto mockName = req->getParameter("mock_name");
                 const auto result =
                     ctx.oauthService->handleCallback(provider, code, state, mockEmail, mockSub, mockName);
-                const auto token = ctx.authService->createSessionForUser(result.user);
+                const auto token = ctx.authService->createSessionForUser(
+                    result.user,
+                    req->peerAddr().toIp(),
+                    req->getHeader("User-Agent"));
                 // 写 cookie + 重定向回首页（前端会读取 cookie 调用 /verify 拉取 session）
                 auto resp = redirectTo("/");
-                drogon::Cookie cookie("token", token);
-                cookie.setPath("/");
-                cookie.setHttpOnly(false);
-                resp->addCookie(std::move(cookie));
+                addSessionCookie(resp, token, ctx.secureCookies);
                 return resp;
             });
         },

@@ -44,10 +44,7 @@ void registerWechatRoutes(const AppContext &ctx)
                 if (isMobile)
                 {
                     auto resp = HttpResponse::newRedirectionResponse("/");
-                    drogon::Cookie cookie("token", token);
-                    cookie.setPath("/");
-                    cookie.setHttpOnly(false);
-                    resp->addCookie(std::move(cookie));
+                    addSessionCookie(resp, token, ctx.secureCookies);
                     return resp;
                 }
                 auto resp = HttpResponse::newHttpResponse();
@@ -55,6 +52,7 @@ void registerWechatRoutes(const AppContext &ctx)
                 resp->setContentTypeCode(CT_TEXT_HTML);
                 resp->setBody("<html><body><script>window.close();</script>"
                               "<p>Login successful. You may close this window.</p></body></html>");
+                addSessionCookie(resp, token, ctx.secureCookies);
                 return resp;
             });
         },

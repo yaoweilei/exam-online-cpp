@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect, request: requestFactory } = require('@playwright/test');
 const {
 	loginApi,
 	loginWithPassword,
@@ -13,23 +13,65 @@ async function loadEjuPaper(page, paperId = '2023_02') {
 	const paperSelect = page.locator('#exam-paper-select');
 
 	await expect(familySelect).toContainText('EJU', { timeout: 20000 });
+	if (!await familySelect.isVisible()) {
+		const paperToggle = page.locator('#mobile-paper-toggle');
+		await expect(paperToggle).toBeVisible();
+		await paperToggle.click();
+	}
 	await familySelect.selectOption('eju');
 	await expect(paperSelect).toContainText(paperId, { timeout: 20000 });
 	await paperSelect.selectOption(paperId);
 
-	await expect(page.locator('#exam-header')).toContainText(`EJU-Japanese-${paperId}`, { timeout: 20000 });
-	await page.waitForFunction(() => {
+	await page.waitForFunction((expectedTitle) => {
 		const viewer = window.examViewer;
-		return Boolean(viewer?.currentExam?.exam_info?.sections?.length);
-	});
+		return viewer?.currentExam?.exam_info?.title === expectedTitle
+			&& Boolean(viewer?.currentExam?.exam_info?.sections?.length);
+	}, `EJU-Japanese-${paperId}`);
 }
 
 async function selectViewerCategory(page, categoryId) {
 	await page.evaluate((id) => {
 		window.examViewer?.selectCategory?.(id);
 	}, categoryId);
-	await page.waitForFunction((id) => window.examViewer?.currentCategory === id, categoryId);
+	const expectedCategoryId = ['writing', 'reading'].includes(categoryId) ? 'writing_reading' : categoryId;
+	await page.waitForFunction((id) => window.examViewer?.currentCategory === id, expectedCategoryId);
 }
+
+async function requestExamMode(page, mode) {
+	await page.locator('#exam-mode-select').evaluate((select, nextMode) => {
+		select.value = nextMode;
+		select.dispatchEvent(new Event('change', { bubbles: true }));
+	}, mode);
+}
+
+test('手机端答题工具栏、题目和底部导航不产生横向溢出', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 844 });
+	await loadEjuPaper(page);
+	const layout = await page.evaluate(() => {
+		const toolbar = document.querySelector('#exam-controls');
+		const question = document.querySelector('#current-question-container');
+		const navigation = document.querySelector('#question-navigation');
+		const viewportWidth = document.documentElement.clientWidth;
+		const insideViewport = (element) => {
+			const rect = element?.getBoundingClientRect();
+			return Boolean(rect && rect.left >= -1 && rect.right <= viewportWidth + 1);
+		};
+		return {
+			overflow: document.documentElement.scrollWidth > viewportWidth + 1,
+			toolbarInside: insideViewport(toolbar),
+			questionInside: insideViewport(question),
+			navigationInside: insideViewport(navigation),
+			controlHeights: [...document.querySelectorAll('#exam-controls > *')]
+				.filter((element) => element.getBoundingClientRect().width > 0)
+				.map((element) => Math.round(element.getBoundingClientRect().height))
+		};
+	});
+	expect(layout.overflow).toBeFalsy();
+	expect(layout.toolbarInside).toBeTruthy();
+	expect(layout.questionInside).toBeTruthy();
+	expect(layout.navigationInside).toBeTruthy();
+	expect(layout.controlHeights.every((height) => height >= 40)).toBeTruthy();
+});
 
 test('试卷查看器可以通过 Web 选择 EJU 试卷并打开学习辅助面板', async ({ page }) => {
 	await loadEjuPaper(page);
@@ -114,6 +156,8 @@ test('EJU 听力核心支持播放、暂停、transcript 阶段显示和逐句�
 				this.readyState = 1;
 				this.dispatchEvent(new Event('loadedmetadata'));
 			}
+
+			setAttribute() {}
 		}
 
 		window.Audio = MockAudio;
@@ -296,8 +340,15 @@ test('私人学习数据接口拒绝访问其他用户', async ({ request }) => 
 		`/api/v1/wrong-questions/${encodeURIComponent(owner.user_id)}`,
 		`/api/v1/statistics/${encodeURIComponent(owner.user_id)}`
 	]) {
-		const response = await request.get(path);
-		expect(response.status()).toBe(401);
+		const anonymous = await requestFactory.newContext({
+			baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:8000'
+		});
+		try {
+			const response = await anonymous.get(path);
+			expect(response.status()).toBe(401);
+		} finally {
+			await anonymous.dispose();
+		}
 	}
 	const ownDraft = await request.get(`/api/v1/drafts/${encodeURIComponent(attacker.user_id)}`, { headers });
 	expect(ownDraft.ok()).toBeTruthy();
@@ -329,6 +380,46 @@ test('数字查询参数非法时返回可读校验错误而不是服务异常',
 		{ headers }
 	);
 	expect(valid.ok()).toBeTruthy();
+});
+
+test('FREE 套餐权益由订阅快照声明并由接口统一拦截', async ({ request }) => {
+	const user = await loginApi(request, uniqueLoginId('student_free_entitlements'));
+	const headers = { Authorization: `Bearer ${user.token}` };
+	const subscriptionResponse = await request.get(
+		`/api/v1/subscription/${encodeURIComponent(user.user_id)}`,
+		{ headers }
+	);
+	expect(subscriptionResponse.ok()).toBeTruthy();
+	const subscription = (await subscriptionResponse.json()).data;
+	expect(subscription.effective_plan).toBe('free');
+	expect(subscription.accessible_levels).toEqual(expect.arrayContaining(['N1', 'N2', 'N3', 'N4', 'N5']));
+	expect(subscription.entitlement_access['export.standard']).toEqual({
+		granted: false,
+		required_plan: 'pro'
+	});
+
+	const allowed = [
+		'/api/v1/me/learning-report?period=week',
+		`/api/v1/statistics/${encodeURIComponent(user.user_id)}/learning-curve?days=7`
+	];
+	for (const path of allowed) {
+		const response = await request.get(path, { headers });
+		expect(response.ok()).toBeTruthy();
+	}
+
+	const protectedPaths = [
+		'/api/v1/me/learning-report?period=month',
+		`/api/v1/statistics/${encodeURIComponent(user.user_id)}/learning-curve?days=30`,
+		`/api/v1/recommendations/${encodeURIComponent(user.user_id)}?limit=5`,
+		`/api/v1/data-export/${encodeURIComponent(user.user_id)}`,
+		'/api/v1/related-questions?exam_id=missing&question_id=missing'
+	];
+	for (const path of protectedPaths) {
+		const response = await request.get(path, { headers });
+		expect(response.status()).toBe(403);
+		const payload = await response.json();
+		expect(payload.code).toBe('ENTITLEMENT_REQUIRED');
+	}
 });
 
 test('关键写接口拒绝越界请求体并返回真实每日一练', async ({ request }) => {
@@ -368,6 +459,10 @@ test('关键写接口拒绝越界请求体并返回真实每日一练', async ({
 	expect(daily.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 	expect(daily.target_count).toBe(1);
 	expect(Array.isArray(daily.items)).toBeTruthy();
+	expect(daily.items).toHaveLength(1);
+	expect(daily.items[0].source).toBe('recommended');
+	expect(daily.items[0].exam_id).toBeTruthy();
+	expect(daily.items[0].question_id).toBeTruthy();
 	expect(Array.isArray(daily.completed_question_ids)).toBeTruthy();
 
 	const reset = await request.post(`/api/v1/wrong-questions/${encodeURIComponent(user.user_id)}/reset`, {
@@ -389,6 +484,15 @@ test('关键写接口拒绝越界请求体并返回真实每日一练', async ({
 	expect(auditResponse.ok()).toBeTruthy();
 	const audit = (await auditResponse.json()).data;
 	expect(audit.items.some((item) => item.details?.target_user_id === user.user_id)).toBeTruthy();
+});
+
+test('EJU 对象题干可以正常建立学习路径索引', async ({ request }) => {
+	const response = await request.get('/api/v1/chapters?family=eju');
+	expect(response.ok()).toBeTruthy();
+	const payload = await response.json();
+	expect(payload.code).toBe('OK');
+	expect(Array.isArray(payload.data?.items)).toBeTruthy();
+	expect(payload.data.items.length).toBeGreaterThan(0);
 });
 
 test('交卷结果支持错题复盘和再做一次', async ({ page }) => {
@@ -459,18 +563,20 @@ test('断网和网络恢复状态对用户可见', async ({ page }) => {
 	await expect(banner).toBeHidden({ timeout: 5000 });
 });
 
-test('模拟考试提交前锁定学习辅助，保存答案并在提交后解锁', async ({ page }) => {
+test('模拟考试提交前隐藏学习辅助，保存答案并在提交后显示', async ({ page }) => {
 	const loginId = uniqueLoginId('student_mock_mode');
 	await stubNoisyPersonalCenterApis(page);
 	await loginWithPassword(page, loginId);
-	await page.selectOption('#exam-mode-select', 'mock');
+	await requestExamMode(page, 'mock');
 	await loadEjuPaper(page);
 	await selectViewerCategory(page, 'reading');
 
-	await expect(page.locator('#toggle-answers')).toBeDisabled();
-	await expect(page.locator('#toggle-explanations')).toBeDisabled();
-	await expect(page.locator('#toggle-reading-kana')).toBeDisabled();
-	await expect(page.locator('#toggle-reading-zh')).toBeDisabled();
+	await expect(page.locator('#exam-mode-select')).toBeVisible();
+	await expect(page.locator('#exam-mode-select')).toHaveValue('mock');
+	await expect(page.locator('#toggle-answers')).toBeHidden();
+	await expect(page.locator('#toggle-explanations')).toBeHidden();
+	await expect(page.locator('#toggle-reading-kana')).toBeHidden();
+	await expect(page.locator('#toggle-reading-zh')).toBeHidden();
 	await expect(page.locator('#submit-exam')).toBeEnabled();
 
 	await page.locator('#current-question-container .option').first().click();
@@ -481,26 +587,28 @@ test('模拟考试提交前锁定学习辅助，保存答案并在提交后解�
 	await page.locator('.app-dialog [data-app-dialog-confirm]').click();
 	await expect.poll(async () => page.evaluate(() => window.examViewer.isSubmitted)).toBe(true);
 
+	await expect(page.locator('#toggle-answers')).toBeVisible();
 	await expect(page.locator('#toggle-answers')).toBeEnabled();
+	await expect(page.locator('#toggle-reading-kana')).toBeVisible();
 	await expect(page.locator('#toggle-reading-kana')).toBeEnabled();
 	await expect(page.locator('#submit-exam')).toBeDisabled();
 	await expect(page.locator('#answer-save-status')).toHaveText('已提交');
 });
 
-test('切换答题模式使用站内确认并在取消后恢复焦点', async ({ page }) => {
+test('答题模式选择使用站内确认安全切换', async ({ page }) => {
 	await loadEjuPaper(page);
 	await selectViewerCategory(page, 'reading');
 	await page.locator('#current-question-container .option').first().click();
 	const modeSelect = page.locator('#exam-mode-select');
-	await modeSelect.selectOption('mock');
+	await requestExamMode(page, 'mock');
 	await expect(page.locator('.app-dialog')).toContainText('清空当前答案');
 	await expect(modeSelect).toBeDisabled();
 	await page.keyboard.press('Escape');
 	await expect(page.locator('.app-dialog')).toHaveCount(0);
 	await expect(modeSelect).toHaveValue('practice');
-	await expect(modeSelect).toBeFocused();
+	await expect(modeSelect).toBeVisible();
 
-	await modeSelect.selectOption('mock');
+	await requestExamMode(page, 'mock');
 	await page.locator('.app-dialog [data-app-dialog-confirm]').click();
 	await expect(modeSelect).toHaveValue('mock');
 	expect(await page.evaluate(() => Object.values(window.examViewer.userAnswers).filter((value) => value !== null && value !== undefined && value !== '').length)).toBe(0);
@@ -510,7 +618,7 @@ test('刷新页面后恢复草稿答案和上次答题位置', async ({ page }) 
 	const loginId = uniqueLoginId('student_resume_draft');
 	await stubNoisyPersonalCenterApis(page, { includeDrafts: false });
 	await loginWithPassword(page, loginId);
-	await page.selectOption('#exam-mode-select', 'practice');
+	await requestExamMode(page, 'practice');
 	await loadEjuPaper(page);
 	await selectViewerCategory(page, 'reading');
 
@@ -521,7 +629,7 @@ test('刷新页面后恢复草稿答案和上次答题位置', async ({ page }) 
 		return { examId: viewer._currentExamId, sectionIndex: viewer.currentSectionIndex, questionId: String(question.id) };
 	});
 	await page.locator('#current-question-container .option').first().click();
-	await page.locator('#top-next').click();
+	await page.locator('#question-navigation .next-btn').click();
 	const savedPosition = await page.evaluate(() => ({
 		sectionIndex: window.examViewer.currentSectionIndex,
 		questionIndex: window.examViewer.currentQuestionIndex
@@ -651,7 +759,7 @@ test('重复点击交卷只发送一次请求并可查看历史', async ({ page 
 
 test('模拟考试分段超时后进入下一部分且不能返回', async ({ page }) => {
 	await loadEjuPaper(page);
-	await page.selectOption('#exam-mode-select', 'mock');
+	await requestExamMode(page, 'mock');
 	const early = await page.evaluate(() => {
 		const viewer = window.examViewer;
 		viewer.currentExam.exam_info.allow_early_section_advance = false;
@@ -675,6 +783,7 @@ test('模拟考试分段超时后进入下一部分且不能返回', async ({ pa
 
 test('分段计时展示剩余时间并发出五分钟和一分钟提醒', async ({ page }) => {
 	await loadEjuPaper(page);
+	await requestExamMode(page, 'mock');
 	await page.evaluate(() => {
 		window.__timerToasts = [];
 		window.showToast = (message) => window.__timerToasts.push(message);
@@ -683,7 +792,8 @@ test('分段计时展示剩余时间并发出五分钟和一分钟提醒', async
 		manager.renderBar();
 		manager.checkExpiry();
 	});
-	await expect(page.locator('#exam-timer-bar')).toContainText('本部分剩余 05:00');
+	await expect(page.locator('#exam-library-panel #exam-timer-bar')).toContainText('本部分 05:00');
+	await expect(page.locator('#exam-header')).toBeHidden();
 	expect(await page.evaluate(() => window.__timerToasts)).toContain('第 1 部分还剩 5 分钟');
 	await page.evaluate(() => {
 		const manager = window.examViewer.examTimerManager;
@@ -691,15 +801,28 @@ test('分段计时展示剩余时间并发出五分钟和一分钟提醒', async
 		manager.renderBar();
 		manager.checkExpiry();
 	});
-	await expect(page.locator('#exam-timer-bar')).toContainText('本部分剩余 01:00');
+	await expect(page.locator('#exam-library-panel #exam-timer-bar')).toContainText('本部分 01:00');
 	expect(await page.evaluate(() => window.__timerToasts)).toContain('第 1 部分还剩 1 分钟');
+});
+
+test('学习练习不启动或展示考试计时', async ({ page }) => {
+	const loginId = uniqueLoginId('student_practice_without_timer');
+	await stubNoisyPersonalCenterApis(page);
+	await loginWithPassword(page, loginId);
+	await requestExamMode(page, 'practice');
+	await loadEjuPaper(page);
+
+	expect(await page.evaluate(() => window.examViewer.examTimerManager.currentExamId)).toBeNull();
+	await expect(page.locator('#exam-timer-bar')).toHaveCount(0);
+	await expect(page.locator('#exam-timer-slot')).toBeHidden();
+	await expect(page.locator('#exam-header')).toBeHidden();
 });
 
 test('模拟考试时间到后自动交卷', async ({ page }) => {
 	const loginId = uniqueLoginId('student_timer_submit');
 	await stubNoisyPersonalCenterApis(page);
 	await loginWithPassword(page, loginId);
-	await page.selectOption('#exam-mode-select', 'mock');
+	await requestExamMode(page, 'mock');
 	await loadEjuPaper(page);
 
 	page.on('dialog', async (dialog) => {

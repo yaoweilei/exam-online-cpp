@@ -84,7 +84,8 @@ Json::Value InstitutionService::plans() const
     if (!std::filesystem::exists(plansFile_))
     {
         Json::Value fallback(Json::objectValue);
-        fallback["currency"] = "CNY";
+        fallback["version"] = 2;
+        fallback["pricing_source"] = "payments.pricing.v2";
         fallback["plans"] = Json::Value(Json::arrayValue);
         return fallback;
     }
@@ -491,23 +492,23 @@ Json::Value InstitutionService::activePlanForOrg(const std::string &orgId) const
 {
     const auto catalog = plans();
     const auto planList = catalog["plans"];
-    std::string planId = "standard";
+    std::string planId = "pro";
     if (!orgId.empty())
     {
         const auto org = organizationRepository_.findOrganization(orgId);
         const auto subscription = org.get("subscription", Json::Value(Json::objectValue));
-        planId = subscription.get("institution_plan", subscription.get("plan_id", subscription.get("plan", "standard"))).asString();
-        if (planId == "free")
+        planId = subscription.get("institution_plan", subscription.get("plan_id", subscription.get("plan", "pro"))).asString();
+        if (planId == "starter")
         {
-            planId = "starter";
+            planId = "free";
         }
-        else if (planId == "pro")
+        else if (planId == "small_class" || planId == "standard")
         {
-            planId = "standard";
+            planId = "pro";
         }
-        else if (planId == "ultra")
+        else if (planId == "professional" || planId == "campus")
         {
-            planId = "professional";
+            planId = "ultra";
         }
     }
     if (planList.isArray())
@@ -521,7 +522,7 @@ Json::Value InstitutionService::activePlanForOrg(const std::string &orgId) const
         }
         for (const auto &plan : planList)
         {
-            if (plan.get("id", "").asString() == "standard")
+            if (plan.get("id", "").asString() == "pro")
             {
                 return plan;
             }
@@ -532,8 +533,8 @@ Json::Value InstitutionService::activePlanForOrg(const std::string &orgId) const
         }
     }
     Json::Value fallback(Json::objectValue);
-    fallback["id"] = "standard";
-    fallback["name"] = "标准版";
+    fallback["id"] = "pro";
+    fallback["name"] = "机构 PRO";
     fallback["features"]["learning_groups"] = true;
     fallback["features"]["assignments"] = true;
     fallback["features"]["auto_grading"] = true;

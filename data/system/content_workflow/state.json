@@ -284,7 +284,7 @@
           }
         ],
         "audio_count" : 28,
-        "checked_at" : "2026-07-19T02:36:20.687Z",
+        "checked_at" : "2026-08-01T07:45:12.968Z",
         "errors" : 
         [
           {
@@ -387,21 +387,21 @@
         "analysis" : 
         {
           "note" : "解析审核通过",
-          "reviewed_at" : "2026-07-19T02:36:20.784Z",
-          "reviewed_by" : "usr_019f783b-4d96-793f-8e89-888fdefe13ea",
+          "reviewed_at" : "2026-08-01T07:44:46.593Z",
+          "reviewed_by" : "usr_019fbc48-554f-7114-82d8-819d39241ffe",
           "status" : "approved"
         },
         "secondary" : 
         {
           "note" : "复核通过",
-          "reviewed_at" : "2026-07-19T02:36:20.880Z",
-          "reviewed_by" : "usr_019f783b-4d96-793f-8e89-888fdefe13ea",
+          "reviewed_at" : "2026-08-01T07:44:46.848Z",
+          "reviewed_by" : "usr_019fbc48-554f-7114-82d8-819d39241ffe",
           "status" : "approved"
         }
       },
-      "status" : "secondary_approved",
-      "updated_at" : "2026-07-19T02:36:20.880Z",
-      "updated_by" : "usr_019f783b-4d96-793f-8e89-888fdefe13ea"
+      "status" : "quality_failed",
+      "updated_at" : "2026-08-01T07:45:12.968Z",
+      "updated_by" : "usr_019fbc48-b9ca-7400-b4f3-c10f2449dfac"
     }
   },
   "queue" : []

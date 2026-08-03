@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <filesystem>
+#include <stdexcept>
 #include <string>
 
 namespace infrastructure::config
@@ -15,6 +16,7 @@ struct AppConfig
     std::string appEnv{"development"};
     std::filesystem::path baseDir{std::filesystem::current_path()};
     std::filesystem::path documentRoot{std::filesystem::current_path()};
+    std::filesystem::path dataRoot;
     std::filesystem::path dataPaperDir;
     std::filesystem::path dataUserDir;
     std::filesystem::path dataSystemDir;
@@ -51,6 +53,12 @@ struct AppConfig
     std::string emailFromAddress;
     std::string emailFromName{"Exam Online"};
     std::string emailApiBaseUrl{"https://api.resend.com"};
+    // Production payment provider. Stripe is the only provider whose checkout,
+    // refund and official webhook protocol are currently release-approved.
+    std::string paymentPrimaryProvider{"stripe"};
+    std::string stripeSecretKey;
+    std::string stripePublishableKey;
+    std::string stripeWebhookSecret;
     int referralRewardCredits{10};
 };
 
@@ -107,6 +115,95 @@ inline bool isDevelopmentEnv(const std::string &appEnv)
     return appEnv == "development" || appEnv == "dev" || appEnv == "local";
 }
 
+inline bool startsWithHttps(const std::string &value)
+{
+    return value.rfind("https://", 0) == 0;
+}
+
+inline void validateAppConfig(const AppConfig &config)
+{
+    if (config.port == 0)
+    {
+        throw std::invalid_argument("PORT must be between 1 and 65535");
+    }
+    if (config.threads == 0)
+    {
+        throw std::invalid_argument("THREADS must be at least 1");
+    }
+    if (config.emailProvider != "stub" && config.emailProvider != "resend")
+    {
+        throw std::invalid_argument("EMAIL_PROVIDER must be stub or resend");
+    }
+    if (config.emailProvider == "resend" &&
+        (config.emailApiKey.empty() || config.emailFromAddress.empty()))
+    {
+        throw std::invalid_argument(
+            "EMAIL_API_KEY and EMAIL_FROM_ADDRESS are required when EMAIL_PROVIDER=resend");
+    }
+    if (config.smsProvider != "stub" && config.smsProvider != "twilio")
+    {
+        throw std::invalid_argument("SMS_PROVIDER must be stub or twilio");
+    }
+    if (config.smsProvider == "twilio" &&
+        (config.smsAccountSid.empty() || config.smsAuthToken.empty() || config.smsFromNumber.empty()))
+    {
+        throw std::invalid_argument(
+            "SMS_ACCOUNT_SID, SMS_AUTH_TOKEN and SMS_FROM_NUMBER are required when SMS_PROVIDER=twilio");
+    }
+
+    const bool googleConfigured = !config.googleOAuthClientId.empty() ||
+                                  !config.googleOAuthClientSecret.empty();
+    if (googleConfigured &&
+        (config.googleOAuthClientId.empty() || config.googleOAuthClientSecret.empty() ||
+         config.googleOAuthRedirectUri.empty()))
+    {
+        throw std::invalid_argument(
+            "Google OAuth client id, secret and redirect URI must be configured together");
+    }
+    const bool wechatConfigured = !config.wechatAppId.empty() ||
+                                  !config.wechatAppSecret.empty() ||
+                                  !config.wechatCallbackBaseUrl.empty();
+    if (wechatConfigured &&
+        (config.wechatAppId.empty() || config.wechatAppSecret.empty() ||
+         config.wechatCallbackBaseUrl.empty()))
+    {
+        throw std::invalid_argument(
+            "WeChat app id, secret and callback base URL must be configured together");
+    }
+
+    if (!isDevelopmentEnv(config.appEnv))
+    {
+        if (!startsWithHttps(config.publicWebBaseUrl))
+        {
+            throw std::invalid_argument("PUBLIC_WEB_BASE_URL must use HTTPS outside development");
+        }
+        if (config.emailProvider == "stub" || config.smsProvider == "stub")
+        {
+            throw std::invalid_argument(
+                "Stub email and SMS providers are disabled outside development");
+        }
+        if (googleConfigured && !startsWithHttps(config.googleOAuthRedirectUri))
+        {
+            throw std::invalid_argument("Google OAuth redirect URI must use HTTPS outside development");
+        }
+        if (wechatConfigured && !startsWithHttps(config.wechatCallbackBaseUrl))
+        {
+            throw std::invalid_argument("WeChat callback base URL must use HTTPS outside development");
+        }
+        if (config.paymentPrimaryProvider != "stripe")
+        {
+            throw std::invalid_argument(
+                "PAYMENT_PRIMARY_PROVIDER must be stripe outside development until official WeChat Pay or Alipay callbacks are implemented");
+        }
+        if (config.stripeSecretKey.empty() || config.stripePublishableKey.empty() ||
+            config.stripeWebhookSecret.empty())
+        {
+            throw std::invalid_argument(
+                "STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY and STRIPE_WEBHOOK_SECRET are required outside development");
+        }
+    }
+}
+
 inline bool looksLikeBaseDir(const std::filesystem::path &candidate)
 {
     return std::filesystem::exists(candidate / "data" / "paper")
@@ -145,9 +242,11 @@ inline AppConfig loadConfig()
     config.threads = static_cast<size_t>(std::stoul(readEnv("THREADS", std::to_string(defaultThreads))));
     config.baseDir = std::filesystem::path(readEnv("BASE_DIR", config.baseDir.string()));
     config.documentRoot = std::filesystem::path(readEnv("DOCUMENT_ROOT", config.baseDir.string()));
-    config.dataPaperDir = config.baseDir / "data" / "paper";
-    config.dataUserDir = config.baseDir / "data" / "user";
-    config.dataSystemDir = config.baseDir / "data" / "system";
+    config.dataRoot = std::filesystem::path(
+        readEnv("DATA_ROOT", (config.baseDir / "data").string()));
+    config.dataPaperDir = config.dataRoot / "paper";
+    config.dataUserDir = config.dataRoot / "user";
+    config.dataSystemDir = config.dataRoot / "system";
     config.staticDir = config.baseDir / "static";
     config.templatesDir = config.baseDir / "templates";
     config.publicWebBaseUrl = readEnv("PUBLIC_WEB_BASE_URL", config.publicWebBaseUrl);
@@ -183,11 +282,16 @@ inline AppConfig loadConfig()
     config.emailFromAddress = readEnv("EMAIL_FROM_ADDRESS", "");
     config.emailFromName = readEnv("EMAIL_FROM_NAME", config.emailFromName);
     config.emailApiBaseUrl = readEnv("EMAIL_API_BASE_URL", config.emailApiBaseUrl);
+    config.paymentPrimaryProvider = toLowerCopy(readEnv("PAYMENT_PRIMARY_PROVIDER", config.paymentPrimaryProvider));
+    config.stripeSecretKey = readEnv("STRIPE_SECRET_KEY", "");
+    config.stripePublishableKey = readEnv("STRIPE_PUBLISHABLE_KEY", "");
+    config.stripeWebhookSecret = readEnv("STRIPE_WEBHOOK_SECRET", "");
     config.referralRewardCredits = readEnvInt("REFERRAL_REWARD_CREDITS", config.referralRewardCredits);
     if (config.referralRewardCredits < 0)
     {
         config.referralRewardCredits = 0;
     }
+    validateAppConfig(config);
     return config;
 }
 }  // namespace infrastructure::config

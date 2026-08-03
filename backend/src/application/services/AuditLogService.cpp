@@ -34,12 +34,21 @@ std::string actionLabel(const std::string &action)
         {"account.deactivated", "注销账号"},
         {"assignment.create", "创建作业"},
         {"assignment.remind", "催交作业"},
+        {"assignment.auto_reminder.updated", "更新作业自动催交"},
+        {"assignment.reminder.auto_sent", "自动发送作业催交通知"},
         {"assignment.reminder.sent", "发送作业催交通知"},
         {"assignment.review", "批改作业"},
         {"campus.created", "创建校区"},
         {"campus.updated", "更新校区"},
         {"course_package.created", "创建课程包"},
         {"course_package.updated", "更新课程包"},
+        {"content.exam.deleted", "删除试卷内容"},
+        {"content.exam.imported", "导入试卷内容"},
+        {"content.exam.updated", "修改试卷内容"},
+        {"content.published", "发布内容版本"},
+        {"content.quality.inspected", "执行内容质量检查"},
+        {"content.review.updated", "更新内容审核"},
+        {"content.rolled_back", "回滚内容版本"},
         {"feature_flags.organization.updated", "修改机构功能开关"},
         {"feature_flags.system.updated", "修改系统功能开关"},
         {"feedback.status.updated", "修改反馈状态"},
@@ -54,6 +63,9 @@ std::string actionLabel(const std::string &action)
         {"member.updated", "更新机构成员"},
         {"organization.created", "创建机构"},
         {"organization.member.manage", "管理机构成员"},
+        {"payment.auto_renewal.disabled", "关闭自动续费"},
+        {"payment.auto_renewal.enabled", "开启自动续费授权"},
+        {"payment.renewal_job.executed", "执行自动续费任务"},
         {"payment.refund", "处理退款"},
         {"payment.refund.requested", "申请退款"},
         {"role_permissions.updated", "更新角色权限"},
@@ -149,7 +161,8 @@ Json::Value AuditLogService::query(const AuditLogQuery &q) const
     const int offset = (std::max)(0, q.offset);
     const int limit = (std::max)(1, (std::min)(500, q.limit));
     std::size_t total = 0;
-    auto items = sqliteStore_.queryAudit("audit_logs", q.orgId, q.actorId, q.action, q.since, q.until, limit, offset, total);
+    auto items = sqliteStore_.queryAudit(
+        "audit_logs", q.orgId, q.actorId, q.action, q.actionPrefix, q.since, q.until, limit, offset, total);
     for (auto &item : items) item["action_label"] = actionLabel(item.get("action", "").asString());
 
     Json::Value out(Json::objectValue);
@@ -161,13 +174,15 @@ Json::Value AuditLogService::query(const AuditLogQuery &q) const
     return out;
 }
 
-Json::Value AuditLogService::listActions(const std::optional<std::string> &orgId) const
+Json::Value AuditLogService::listActions(const std::optional<std::string> &orgId,
+                                         const std::optional<std::string> &actionPrefix) const
 {
     auto all = loadAllLogs(orgId);
     std::set<std::string> uniq;
     for (const auto &log : all)
     {
         const auto a = log.get("action", "").asString();
+        if (actionPrefix && a.rfind(*actionPrefix, 0) != 0) continue;
         if (!a.empty()) uniq.insert(a);
     }
     Json::Value arr(Json::arrayValue);

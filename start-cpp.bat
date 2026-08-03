@@ -8,6 +8,8 @@ set TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 set POWERSHELL_EXE=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
 
 if "%APP_ENV%"=="" set APP_ENV=development
+if "%HOST%"=="" set HOST=0.0.0.0
+if "%PORT%"=="" set PORT=8000
 if /I "%APP_ENV%"=="production" (
   if "%LOG_LEVEL%"=="" set LOG_LEVEL=INFO
   if "%BUILD_CONFIG%"=="" set BUILD_CONFIG=Release
@@ -38,11 +40,14 @@ if not exist data\user\roles.json (
 )
 
 echo [start-cpp] APP_ENV=%APP_ENV%
+echo [start-cpp] HOST=%HOST%
+echo [start-cpp] PORT=%PORT%
 echo [start-cpp] LOG_LEVEL=%LOG_LEVEL%
 echo [start-cpp] THREADS=%THREADS%
 echo [start-cpp] BUILD_CONFIG=%BUILD_CONFIG%
 echo [start-cpp] LOG_DIR=%LOG_DIR%
 echo [start-cpp] LOG_FILE_BASENAME=%LOG_FILE_BASENAME%
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/show_lan_urls.ps1 -Port %PORT%
 
 if exist "%BUILD_DIR%\%BUILD_CONFIG%\exam_online_cpp.exe" (
   powershell -NoProfile -ExecutionPolicy Bypass -File backend/tools/stop_running_backend.ps1 -ExePath "%BUILD_DIR%\%BUILD_CONFIG%\exam_online_cpp.exe"

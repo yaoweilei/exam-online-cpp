@@ -10,11 +10,30 @@ export function normalizeSubscription(value: unknown): PCSubscription | undefine
 	if (!raw) {
 		return undefined;
 	}
+	const rawAccess = asRecord(raw.entitlementAccess) || asRecord(raw.entitlement_access);
+	const entitlementAccess: NonNullable<PCSubscription['entitlementAccess']> = {};
+	if (rawAccess) {
+		for (const [key, value] of Object.entries(rawAccess)) {
+			const decision = asRecord(value);
+			const granted = decision ? readBoolean(decision.granted) : undefined;
+			if (!decision || granted === undefined) {
+				continue;
+			}
+			entitlementAccess[key] = {
+				granted,
+				requiredPlan: readString(decision.requiredPlan) || readString(decision.required_plan)
+			};
+		}
+	}
 	return {
 		plan: readString(raw.plan) || 'free',
+		effectivePlan: readString(raw.effectivePlan) || readString(raw.effective_plan),
 		status: readString(raw.status) || 'active',
 		expiresAt: readString(raw.expiresAt) || readString(raw.expires_at) || '',
-		seats: readCount(raw.seats)
+		seats: readCount(raw.seats),
+		isActive: readBoolean(raw.isActive) ?? readBoolean(raw.is_active),
+		entitlements: readStringArray(raw.entitlements),
+		entitlementAccess: rawAccess ? entitlementAccess : undefined
 	};
 }
 

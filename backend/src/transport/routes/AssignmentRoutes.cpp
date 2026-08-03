@@ -188,10 +188,7 @@ void registerAssignmentRoutes(const AppContext &ctx)
                     !ctx.organizationService->canManageOrganization(userId, session["roles"], organizationId) &&
                     !hasAnyRole(session["roles"], {"superAdmin"}))
                 {
-                    const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
-                    assignment["own_submission"] = submissions.get(userId, Json::Value(Json::nullValue));
-                    assignment.removeMember("submissions");
-                    assignment.removeMember("reminders");
+                    assignment = ctx.assignmentService->getAssignmentForStudent(assignmentId, userId);
                 }
                 return common::ok(req, assignment);
             });
@@ -343,7 +340,23 @@ void registerAssignmentRoutes(const AppContext &ctx)
                     session,
                     assignment.get("organization_id", "").asString(),
                     assignment.get("learning_group_id", assignment.get("group_id", "")).asString());
-                return common::ok(req, ctx.assignmentService->updateAssignment(assignmentId, body));
+                const auto updated = ctx.assignmentService->updateAssignment(assignmentId, body);
+                if (body.isMember("auto_reminder_enabled") || body.isMember("auto_reminder_hours_before"))
+                {
+                    Json::Value details(Json::objectValue);
+                    details["assignment_id"] = assignmentId;
+                    details["enabled"] = updated.get("auto_reminder_enabled", false);
+                    details["hours_before"] = updated.get(
+                        "auto_reminder_hours_before",
+                        Json::Value(Json::arrayValue));
+                    ctx.auditLogService->record(
+                        "assignment.auto_reminder.updated",
+                        session.get("user_id", session.get("id", "")).asString(),
+                        "更新作业自动催交规则",
+                        details,
+                        assignment.get("organization_id", "").asString());
+                }
+                return common::ok(req, updated);
             });
         },
         {Patch});

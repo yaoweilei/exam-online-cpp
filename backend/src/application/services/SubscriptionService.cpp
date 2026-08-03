@@ -134,6 +134,35 @@ void SubscriptionService::requireAccess(const std::string &userId, const std::st
         drogon::k403Forbidden);
 }
 
+bool SubscriptionService::hasEntitlement(const std::string &userId, const std::string &entitlementKey) const
+{
+    if (entitlementKey.empty())
+    {
+        return true;
+    }
+    return contains(currentSubscription(userId)["entitlements"], entitlementKey);
+}
+
+void SubscriptionService::requireEntitlement(const std::string &userId,
+                                             const std::string &entitlementKey,
+                                             const std::string &errorMessage) const
+{
+    if (hasEntitlement(userId, entitlementKey))
+    {
+        return;
+    }
+
+    const auto requiredPlan = minimumPlanForEntitlement(entitlementKey);
+    auto message = errorMessage;
+    if (message.empty())
+    {
+        message = requiredPlan.empty()
+                      ? "当前套餐不包含该功能"
+                      : "该功能需要升级到 " + requiredPlan + " 套餐";
+    }
+    throw common::AppException("ENTITLEMENT_REQUIRED", message, drogon::k403Forbidden);
+}
+
 bool SubscriptionService::isPremium(const std::string &userId) const
 {
     const auto subscription = currentSubscription(userId);
@@ -190,9 +219,12 @@ int seats)
     out["plan"] = normalizePlan(plan);
     out["status"] = normalizeStatus(status);
     out["expires_at"] = expiresAt;
-    out["entitlements"] = entitlementsForPlan(out["plan"].asString(), scopeType);
-    out["accessible_levels"] = accessibleLevelsForPlan(out["plan"].asString());
     out["is_active"] = isActive(out["status"].asString(), expiresAt);
+    const auto effectivePlan = out["is_active"].asBool() ? out["plan"].asString() : std::string("free");
+    out["effective_plan"] = effectivePlan;
+    out["entitlements"] = entitlementsForPlan(effectivePlan, scopeType);
+    out["entitlement_access"] = entitlementAccessForPlan(effectivePlan, scopeType);
+    out["accessible_levels"] = accessibleLevelsForPlan(effectivePlan);
     if (scopeType == "organization")
     {
         out["seats"] = seats > 0 ? seats : defaultSeatsForPlan(out["plan"].asString());
@@ -203,40 +235,146 @@ int seats)
 Json::Value SubscriptionService::entitlementsForPlan(const std::string &plan, const std::string &scopeType)
 {
     Json::Value entitlements(Json::arrayValue);
+    entitlements.append("question_bank.basic");
+    entitlements.append("answer.basic");
+    entitlements.append("history.read");
+    entitlements.append("weak_points.read");
+    entitlements.append("bookmark.read");
+    entitlements.append("analytics.basic");
+    entitlements.append("recommendation.daily");
+    entitlements.append("training.basic");
+    entitlements.append("sync.basic");
     if (plan == "pro" || plan == "ultra")
     {
-        entitlements.append("bookmark");
-        entitlements.append("weak_points");
-        entitlements.append("recommendation");
+        entitlements.append("question_bank.full");
+        entitlements.append("answer.deep_analysis");
+        entitlements.append("weak_points.unlimited");
+        entitlements.append("recommendation.personalized");
+        entitlements.append("training.specialized");
+        entitlements.append("analytics.full");
+        entitlements.append("ai.explain");
+        entitlements.append("ai.study_plan");
+        entitlements.append("export.standard");
+        entitlements.append("sync.full");
     }
     if (plan == "ultra")
     {
-        entitlements.append("training.specialized");
-        entitlements.append("export");
-        entitlements.append("organization.portal");
+        entitlements.append("training.smart_compose");
+        entitlements.append("analytics.prediction");
+        entitlements.append("export.full_report");
+        entitlements.append("recommendation.realtime");
+        entitlements.append("ai.study_plan.dynamic");
+        entitlements.append("service.priority");
     }
-    if (scopeType == "organization")
+    if (scopeType == "organization" && (plan == "pro" || plan == "ultra"))
     {
+        entitlements.append("organization.portal");
         entitlements.append("organization.member_manage");
+        entitlements.append("organization.bulk_import");
+        entitlements.append("organization.campus_manage");
+        entitlements.append("organization.group_manage");
+        entitlements.append("organization.course_package");
+        entitlements.append("organization.assignment");
+        entitlements.append("organization.analytics.basic");
+        entitlements.append("organization.export.standard");
+    }
+    if (scopeType == "organization" && plan == "ultra")
+    {
+        entitlements.append("organization.analytics.advanced");
+        entitlements.append("organization.risk_alert");
+        entitlements.append("organization.report.automatic");
+        entitlements.append("organization.branding");
+        entitlements.append("organization.api");
+        entitlements.append("organization.sso");
     }
     return entitlements;
 }
 
-Json::Value SubscriptionService::accessibleLevelsForPlan(const std::string &plan)
+Json::Value SubscriptionService::entitlementAccessForPlan(const std::string &plan, const std::string &scopeType)
+{
+    const auto grantedEntitlements = entitlementsForPlan(plan, scopeType);
+    Json::Value access(Json::objectValue);
+    const auto appendDecision = [&](const std::string &key) {
+        Json::Value decision(Json::objectValue);
+        decision["granted"] = contains(grantedEntitlements, key);
+        decision["required_plan"] = minimumPlanForEntitlement(key);
+        access[key] = decision;
+    };
+
+    for (const auto *key : {
+             "question_bank.full",
+             "answer.deep_analysis",
+             "weak_points.unlimited",
+             "recommendation.personalized",
+             "training.specialized",
+             "training.smart_compose",
+             "analytics.full",
+             "analytics.prediction",
+             "ai.explain",
+             "ai.study_plan",
+             "ai.study_plan.dynamic",
+             "export.standard",
+             "export.full_report",
+             "recommendation.realtime",
+             "service.priority",
+             "sync.full"})
+    {
+        appendDecision(key);
+    }
+    if (scopeType == "organization")
+    {
+        for (const auto *key : {
+                 "organization.portal",
+                 "organization.member_manage",
+                 "organization.bulk_import",
+                 "organization.campus_manage",
+                 "organization.group_manage",
+                 "organization.course_package",
+                 "organization.assignment",
+                 "organization.analytics.basic",
+                 "organization.export.standard",
+                 "organization.analytics.advanced",
+                 "organization.risk_alert",
+                 "organization.report.automatic",
+                 "organization.branding",
+                 "organization.api",
+                 "organization.sso"})
+        {
+            appendDecision(key);
+        }
+    }
+    return access;
+}
+
+Json::Value SubscriptionService::accessibleLevelsForPlan(const std::string &)
 {
     Json::Value levels(Json::arrayValue);
-    levels.append("N5");
+    levels.append("N1");
+    levels.append("N2");
+    levels.append("N3");
     levels.append("N4");
-    if (plan == "pro" || plan == "ultra")
-    {
-        levels.append("N3");
-        levels.append("N2");
-    }
-    if (plan == "ultra")
-    {
-        levels.append("N1");
-    }
+    levels.append("N5");
     return levels;
+}
+
+std::string SubscriptionService::minimumPlanForEntitlement(const std::string &entitlementKey)
+{
+    if (entitlementKey == "training.smart_compose" ||
+        entitlementKey == "analytics.prediction" ||
+        entitlementKey == "export.full_report" ||
+        entitlementKey == "recommendation.realtime" ||
+        entitlementKey == "ai.study_plan.dynamic" ||
+        entitlementKey == "service.priority" ||
+        entitlementKey == "organization.analytics.advanced" ||
+        entitlementKey == "organization.risk_alert" ||
+        entitlementKey == "organization.report.automatic" ||
+        entitlementKey == "organization.branding" ||
+        entitlementKey == "organization.api" ||
+        entitlementKey == "organization.sso")
+    {
+        return "ultra";
+    }
+    return "pro";
 }
 
 int SubscriptionService::defaultSeatsForPlan(const std::string &plan)
@@ -289,7 +427,9 @@ bool SubscriptionService::isActive(const std::string &status, const std::string 
 bool SubscriptionService::qualifiesForReferralReward(const Json::Value &subscription)
 {
     const auto plan = normalizePlan(subscription.get("plan", "free").asString());
-    return subscription.get("status", "active").asString() == "active" && (plan == "pro" || plan == "ultra");
+    return subscription.get("is_active", false).asBool() &&
+           subscription.get("status", "active").asString() == "active" &&
+           (plan == "pro" || plan == "ultra");
 }
 
 std::string SubscriptionService::normalizePlan(const std::string &plan)

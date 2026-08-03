@@ -10,9 +10,16 @@ export interface PCBalance {
 
 export interface PCSubscription {
 	plan: string;
+	effectivePlan?: string;
 	status: string;
 	expiresAt: string;
 	seats?: number;
+	isActive?: boolean;
+	entitlements?: string[];
+	entitlementAccess?: Record<string, {
+		granted: boolean;
+		requiredPlan?: string;
+	}>;
 }
 
 export interface PCReferral {

@@ -27,7 +27,7 @@ ENV/
 .venv
 
 # 环境变量
-#.env
+.env
 .env.local
 
 # IDE
@@ -45,10 +45,13 @@ logs/
 *.db
 *.sqlite
 *.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
 
 # 备份文件
 *.backup
 *.bak
+backups/
 
 # 操作系统
 .DS_Store

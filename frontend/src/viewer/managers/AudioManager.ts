@@ -116,6 +116,8 @@ class AudioManager {
 		playBtn.className = 'audio-btn';
 		playBtn.dataset.questionId = questionKey;
 		playBtn.dataset.playing = 'false';
+		playBtn.type = 'button';
+		playBtn.setAttribute('aria-label', '播放音频');
 		playBtn.addEventListener('click', () => this.togglePlayPause(question, playBtn));
 
 		const progressDiv = document.createElement('div');
@@ -132,6 +134,8 @@ class AudioManager {
 		timeDisplay.className = 'audio-time';
 		timeDisplay.textContent = '0:00 / 0:00';
 		timeDisplay.dataset.questionId = questionKey;
+		timeDisplay.setAttribute('role', 'status');
+		timeDisplay.setAttribute('aria-live', 'polite');
 
 		controlsDiv.appendChild(playBtn);
 		controlsDiv.appendChild(progressDiv);
@@ -144,6 +148,88 @@ class AudioManager {
 		}
 
 		return audioDiv;
+	}
+
+	private createManagedAudio(
+		question: AudioQuestion,
+		questionKey: string,
+		playBtn: HTMLButtonElement | null
+	): HTMLAudioElement {
+		const audio = new Audio(question.audio || '');
+		audio.preload = 'metadata';
+		audio.setAttribute('playsinline', '');
+		this.applyEnhanceToAudio(questionKey, audio);
+
+		const refreshDuration = () => {
+			if (Number.isFinite(audio.duration) && audio.duration > 0) {
+				this.updateProgressBar(questionKey, audio.currentTime, audio.duration);
+			}
+		};
+		audio.addEventListener('loadedmetadata', refreshDuration);
+		audio.addEventListener('durationchange', refreshDuration);
+		audio.addEventListener('timeupdate', () => {
+			this.updateScriptHighlight(questionKey, audio.currentTime);
+			this.updateProgressBar(questionKey, audio.currentTime, audio.duration);
+		});
+		audio.addEventListener('playing', () => this.setPlaybackState(playBtn, true));
+		audio.addEventListener('pause', () => this.setPlaybackState(playBtn, false));
+		audio.addEventListener('ended', () => {
+			this.setPlaybackState(playBtn, false);
+			this.updateProgressBar(questionKey, 0, audio.duration);
+		});
+		audio.addEventListener('error', () => {
+			this.reportAudioFailure(questionKey, playBtn, question.audio || '', audio.error);
+		});
+		return audio;
+	}
+
+	private setPlaybackState(playBtn: HTMLButtonElement | null, playing: boolean): void {
+		if (!playBtn) return;
+		playBtn.dataset.playing = String(playing);
+		playBtn.setAttribute('aria-label', playing ? '暂停音频' : '播放音频');
+		if (playing) delete playBtn.dataset.audioError;
+	}
+
+	private reportAudioFailure(
+		questionKey: string,
+		playBtn: HTMLButtonElement | null,
+		audioUrl: string,
+		error: MediaError | null = null
+	): void {
+		this.setPlaybackState(playBtn, false);
+		if (playBtn) playBtn.dataset.audioError = 'true';
+		const timeDisplay = document.querySelector(
+			`.audio-time[data-question-id="${questionKey}"]`
+		) as HTMLSpanElement | null;
+		if (timeDisplay) {
+			timeDisplay.textContent = '音频加载失败';
+			timeDisplay.classList.add('is-error');
+			timeDisplay.title = '请检查网络后重试';
+		}
+		console.warn('[AudioManager] Audio playback failed', {
+			audioUrl,
+			mediaErrorCode: error?.code ?? 0,
+			mediaErrorMessage: error?.message ?? ''
+		});
+	}
+
+	private playManagedAudio(
+		audio: HTMLAudioElement,
+		questionKey: string,
+		playBtn: HTMLButtonElement | null
+	): void {
+		const timeDisplay = document.querySelector(
+			`.audio-time[data-question-id="${questionKey}"]`
+		) as HTMLSpanElement | null;
+		if (timeDisplay) {
+			timeDisplay.classList.remove('is-error');
+			timeDisplay.title = '';
+		}
+		void audio.play().then(() => {
+			this.setPlaybackState(playBtn, true);
+		}).catch(() => {
+			this.reportAudioFailure(questionKey, playBtn, audio.src, audio.error);
+		});
 	}
 
 	/**
@@ -565,33 +651,17 @@ class AudioManager {
 				return;
 			}
 
-			const createdAudio = new Audio(question.audio);
+			const createdAudio = this.createManagedAudio(question, questionKey, playBtn);
 			audio = createdAudio;
 			this.audioPlayers.set(questionKey, createdAudio);
-			// 业务功能 9：应用倍速/循环/AB 段循环
-			this.applyEnhanceToAudio(questionKey, createdAudio);
-
-			createdAudio.addEventListener('timeupdate', () => {
-				this.updateScriptHighlight(questionKey, createdAudio.currentTime);
-				this.updateProgressBar(questionKey, createdAudio.currentTime, createdAudio.duration);
-			});
-
-			createdAudio.addEventListener('ended', () => {
-				playBtn.dataset.playing = 'false';
-				this.updateProgressBar(questionKey, 0, createdAudio.duration);
-			});
-
-			void createdAudio.play();
-			playBtn.dataset.playing = 'true';
+			this.playManagedAudio(createdAudio, questionKey, playBtn);
 			return;
 		}
 
 		if (audio.paused) {
-			void audio.play();
-			playBtn.dataset.playing = 'true';
+			this.playManagedAudio(audio, questionKey, playBtn);
 		} else {
 			audio.pause();
-			playBtn.dataset.playing = 'false';
 		}
 	}
 
@@ -723,23 +793,9 @@ class AudioManager {
 				return;
 			}
 
-			const createdAudio = new Audio(question.audio);
+			const createdAudio = this.createManagedAudio(question, questionId, playBtn);
 			audio = createdAudio;
 			this.audioPlayers.set(questionId, createdAudio);
-			// 业务功能 9：脚本行触发首次创建时也要应用增强
-			this.applyEnhanceToAudio(questionId, createdAudio);
-
-			createdAudio.addEventListener('timeupdate', () => {
-				this.updateScriptHighlight(questionId, createdAudio.currentTime);
-				this.updateProgressBar(questionId, createdAudio.currentTime, createdAudio.duration);
-			});
-
-			createdAudio.addEventListener('ended', () => {
-				if (playBtn) {
-					playBtn.dataset.playing = 'false';
-				}
-				this.updateProgressBar(questionId, 0, createdAudio.duration);
-			});
 		}
 
 		const activeAudio = audio;
@@ -753,7 +809,7 @@ class AudioManager {
 
 		lineDiv.classList.add('active');
 		this.scrollScriptLineIntoView(lineDiv);
-		this.seekAndPlayScriptLine(activeAudio, start, playBtn, wasPlaying || activeAudio.paused);
+		this.seekAndPlayScriptLine(activeAudio, start, questionId, playBtn, wasPlaying || activeAudio.paused);
 	}
 
 	private getScriptLineSeekStart(lineDiv: HTMLElement): number {
@@ -764,6 +820,7 @@ class AudioManager {
 	private seekAndPlayScriptLine(
 		audio: HTMLAudioElement,
 		start: number,
+		questionKey: string,
 		playBtn: HTMLButtonElement | null,
 		shouldPlay: boolean
 	): void {
@@ -781,12 +838,7 @@ class AudioManager {
 				window.clearTimeout(metadataFallbackTimer);
 			}
 			if (!shouldPlay) return;
-			void audio.play().catch(() => {
-				console.log('Audio play failed');
-			});
-			if (playBtn) {
-				playBtn.dataset.playing = 'true';
-			}
+			this.playManagedAudio(audio, questionKey, playBtn);
 		};
 
 		const seekThenPlay = () => {

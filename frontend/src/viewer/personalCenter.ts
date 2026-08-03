@@ -24,6 +24,7 @@ import { buildStyleRegistry, getStyleByKey, parseStyleSchema, buildAvatarUrl, ra
 import type { AvatarEditorOptions, StyleInfo, TabDef, ControlDef, EditorState } from './personalCenter/types.js';
 import { renderOutlineIcon } from './personalCenter/icons.js';
 import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } from './personalCenter/normalize.js';
+import { resolveEntitlement } from '../features/entitlements.js';
 
 
 (function () {
@@ -223,12 +224,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			gate: (u) => hasAnyRole(u, ['superAdmin']) && (window.isFeatureEnabled?.('admin_dashboard') ?? true)
 		},
 		{
-			// 业务功能 15：审计日志可视化（功能开关：audit_log_viewer，superAdmin / orgAdmin）
+			// 业务功能 15：审计日志可视化。内容管理员由后端强制限制为 content.* 日志。
 			id: 'auditLog',
 			title: '审计日志',
 			icon: 'badge',
 			intent: 'openAuditLog',
-			gate: (u) => hasAnyRole(u, ['superAdmin', 'orgAdmin']) && (window.isFeatureEnabled?.('audit_log_viewer') ?? true)
+			gate: (u) => hasAnyRole(u, ['superAdmin', 'orgAdmin', 'contentAdmin']) && (window.isFeatureEnabled?.('audit_log_viewer') ?? true)
 		},
 		{
 			// 业务功能 14：PWA 安装入口（功能开关：pwa；按钮仅在浏览器触发 beforeinstallprompt 后可用）
@@ -291,6 +292,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	type WorkbenchId = 'student' | 'teacher' | 'assistant' | 'orgAdmin' | 'contentAdmin' | 'superAdmin';
 	type ManagedOrganizationMode = 'platform' | 'permissions' | 'groups' | 'settings' | 'coursePackages' | 'subscription' | 'members';
 	let activeWorkbench: WorkbenchId | '' = '';
+	let personalCenterIdentityKey = '';
 	let allUsers: PCUser[] = [];
 	let localContext: PCContext = { guest: true };
 	let riskModal: HTMLDivElement | null = null;
@@ -335,7 +337,19 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		changeChallengeCode: ''
 	};
 	let activeContactVerificationEditor: ContactVerificationKind | '' = '';
-	let activeAccountEditor: 'password' | 'phone' | 'wechat' | 'delete' | '' = '';
+	type AccountSession = {
+		sessionId: string;
+		current: boolean;
+		createdAt: string;
+		lastSeenAt: string;
+		expiresAt: string;
+		clientIp: string;
+		userAgent: string;
+	};
+	let activeAccountEditor: 'password' | 'phone' | 'wechat' | 'sessions' | 'delete' | '' = '';
+	let accountSessions: AccountSession[] = [];
+	let accountSessionsLoaded = false;
+	let accountSessionsLoading = false;
 	let accountSecurityDraft = {
 		currentPassword: '',
 		newPassword: '',
@@ -356,12 +370,19 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	let recentLearningCacheKey = '';
 	let recentLearningLoading: Promise<void> | null = null;
 	let recentLearningItems: Record<string, unknown>[] = [];
+	let myAssignmentsCacheKey = '';
+	let myAssignmentsLoading: Promise<void> | null = null;
+	let myAssignmentItems: Record<string, unknown>[] = [];
+	let myAssignmentsError = '';
 	let institutionRoleWorkbenchCacheKey = '';
 	let institutionRoleWorkbenchLoading: Promise<void> | null = null;
 	let institutionRoleWorkbenchData: Record<string, unknown> | null = null;
 	let contentPublishExamItems: Record<string, unknown>[] = [];
 	let contentWorkflowItems: Record<string, unknown>[] = [];
 	let contentWorkflowMessages: Record<string, string> = {};
+	let contentWorkflowSelection = new Set<string>();
+	let contentWorkflowBatchBusy = false;
+	let contentWorkflowBatchMessage = '';
 	let platformRoleTemplates: Record<string, unknown>[] = [];
 	let platformRoleTemplatesLoaded = false;
 	let platformRoleTemplatePreviews: Record<string, Record<string, unknown>> = {};
@@ -848,7 +869,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		if (ctx.token && ctx.token.trim()) {
 			return ctx.token.trim();
 		}
-		return (localStorage.getItem('exam_v2_token') || '').trim();
+		const legacyToken = (localStorage.getItem('exam_v2_token') || '').trim();
+		if (legacyToken) {
+			return legacyToken;
+		}
+		// Existing API helpers still accept a token argument. This marker carries
+		// no credential and tells the backend to fall back to the HttpOnly cookie.
+		return ctx.id && ctx.id !== 'guest' ? '__cookie_session__' : '';
 	}
 
 	function managedOrganizationsKey(ctx: PCContext): string {
@@ -1037,7 +1064,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				log('load pending invitations failed', error);
 			} finally {
 				pendingInvitationsLoading = null;
-				if (activeSection === 'dashboard' && isOpen()) {
+				// Pending invitations are rendered only on the dashboard landing page.
+				// Avoid replacing an account or role subpage that the user opened while
+				// this background request was still in flight.
+				if (activeSection === 'dashboard' && !activeDashboardSubpage && isOpen()) {
 					renderSectionContent();
 				}
 			}
@@ -1143,6 +1173,57 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		await recentLearningLoading;
 	}
 
+	function assignmentCacheKey(ctx: PCContext): string {
+		return `${ctx.id || 'guest'}:${activeToken(ctx)}`;
+	}
+
+	async function ensureMyAssignments(ctx: PCContext, force = false): Promise<void> {
+		const cacheKey = assignmentCacheKey(ctx);
+		if (ctx.guest || !ctx.id) {
+			myAssignmentsCacheKey = cacheKey;
+			myAssignmentItems = [];
+			myAssignmentsError = '';
+			myAssignmentsLoading = null;
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.listMyAssignments !== 'function') {
+			myAssignmentsCacheKey = cacheKey;
+			myAssignmentItems = [];
+			myAssignmentsError = '作业接口暂不可用';
+			return;
+		}
+		if (!force && myAssignmentsCacheKey === cacheKey) {
+			if (myAssignmentsLoading) await myAssignmentsLoading;
+			return;
+		}
+		myAssignmentsCacheKey = cacheKey;
+		myAssignmentsError = '';
+		myAssignmentsLoading = (async () => {
+			try {
+				const data = asRecord(await api.listMyAssignments());
+				myAssignmentItems = Array.isArray(data?.items)
+					? data.items.map(asRecord).filter((item): item is Record<string, unknown> => Boolean(item))
+					: [];
+				myAssignmentItems.sort((a, b) => {
+					const left = readString(a.due_at);
+					const right = readString(b.due_at);
+					if (!left && !right) return 0;
+					if (!left) return 1;
+					if (!right) return -1;
+					return left.localeCompare(right);
+				});
+			} catch (error) {
+				myAssignmentItems = [];
+				myAssignmentsError = readErrorMessage(error, '作业加载失败');
+			} finally {
+				myAssignmentsLoading = null;
+				if (shouldRefreshRoleContent('student-assignments')) renderSectionContent({ preserveScroll: true });
+			}
+		})();
+		await myAssignmentsLoading;
+	}
+
 	async function ensureContentPublishQueue(): Promise<void> {
 		if (contentPublishQueueLoaded || contentPublishQueueLoading) {
 			if (contentPublishQueueLoading) await contentPublishQueueLoading;
@@ -1183,8 +1264,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return [
 			'teacher-students', 'teacher-groups', 'teacher-schedule', 'teacher-arrange',
 			'teacher-review', 'teacher-assign', 'teacher-gradebook', 'teacher-prep',
-			'assistant-remind', 'assistant-followup', 'assistant-contact', 'assistant-renewal',
-			'assistant-package', 'assistant-arrange', 'assistant-contact-log', 'assistant-alerts',
+			'assistant-remind', 'assistant-followup', 'assistant-renewal',
+			'assistant-package', 'assistant-arrange', 'assistant-alerts',
 			'org-dashboard'
 		].includes(key) ||
 			key.startsWith('teacher-student:') ||
@@ -1196,6 +1277,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	function invalidateInstitutionRoleWorkbench(): void {
 		institutionRoleWorkbenchData = null;
 		institutionRoleWorkbenchCacheKey = '';
+		accountSessions = [];
+		accountSessionsLoaded = false;
+		accountSessionsLoading = false;
 		institutionRoleWorkbenchLoading = null;
 	}
 
@@ -1357,10 +1441,114 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	type PersonalPlan = 'free' | 'pro' | 'ultra';
 	type PaidPersonalPlan = Exclude<PersonalPlan, 'free'>;
+	type PricingScope = 'personal' | 'organization';
+	type PaymentPriceMatrix = Record<string, Record<PaidPersonalPlan, Record<string, number>>>;
+	type OrganizationPriceTier = {
+		minSeats: number;
+		maxSeats: number;
+		pricesCents: PaymentPriceMatrix;
+	};
+	type PaymentPricingOffer = {
+		id: 'first_purchase' | 'renewal' | 'campaign';
+		kind: 'first_purchase' | 'renewal' | 'campaign';
+		label: string;
+		enabled: boolean;
+		discountPercent: number;
+		startsAt: string;
+		endsAt: string;
+	};
+	type PaymentQuote = {
+		baseUnitPriceCents: number;
+		unitPriceCents: number;
+		baseAmountCents: number;
+		amountCents: number;
+		discountCents: number;
+		offer: PaymentPricingOffer | null;
+	};
+	type AutoRenewalNotice = {
+		type: string;
+		level: string;
+		title: string;
+		message: string;
+		previousAmountCents?: number;
+		currentAmountCents?: number;
+		daysRemaining?: number;
+	};
+	type AutoRenewalView = {
+		scopeType: PricingScope;
+		scopeId: string;
+		enabled: boolean;
+		status: string;
+		chargeReady: boolean;
+		plan: PersonalPlan;
+		days: number;
+		seats: number;
+		provider: string;
+		currency: string;
+		priceSnapshotCents: number;
+		consentAt: string;
+		nextChargeAt: string;
+		daysUntilRenewal?: number;
+		gracePeriodDays: number;
+		notifyEmail: boolean;
+		reminderSchedule: Array<{ daysBefore: number; scheduledFor: string }>;
+		notices: AutoRenewalNotice[];
+		currentQuote: PaymentQuote | null;
+		subscription: {
+			plan: PersonalPlan;
+			status: string;
+			expiresAt: string;
+			seats: number;
+			isActive: boolean;
+		};
+	};
+		type PaymentNotification = {
+		id: string;
+		type: string;
+		level: string;
+		title: string;
+		message: string;
+		createdAt: string;
+			readAt: string;
+			emailStatus: string;
+			emailAttempts: number;
+			emailNextAttemptAt: string;
+		};
+	type PaymentNotificationInbox = {
+		items: PaymentNotification[];
+		total: number;
+		unreadCount: number;
+	};
+	type RenewalOperationsView = {
+		agreementsTotal: number;
+		attemptsTotal: number;
+			notificationsTotal: number;
+			statusCounts: Record<string, number>;
+			emailDeliveryCounts: Record<string, number>;
+			lastRun: Record<string, unknown> | null;
+		};
 	type PaymentPricingConfig = {
-		pricesCents: Record<string, Record<PaidPersonalPlan, Record<string, number>>>;
 		defaultProvider: string;
-		durations: number[];
+		renewal: {
+			reminderDays: number[];
+			priceChangeNoticeDays: number;
+			gracePeriodDays: number;
+		};
+		catalogs: {
+			personal: {
+				durations: number[];
+				pricesCents: PaymentPriceMatrix;
+				offers: PaymentPricingOffer[];
+			};
+			organization: {
+				durations: number[];
+				pricesCents: PaymentPriceMatrix;
+				minimumSeats: Record<PaidPersonalPlan, number>;
+				customQuoteMinSeats: number;
+				seatTiers: OrganizationPriceTier[];
+				offers: PaymentPricingOffer[];
+			};
+		};
 	};
 
 	const personalPlanOptions: Array<{
@@ -1374,41 +1562,91 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			id: 'free',
 			name: 'FREE',
 			price: '免费',
-			desc: '适合先体验基础刷题。',
-			features: ['N5 / N4 访问', '基础做题记录', '基础个人资料']
+			desc: '可长期使用的基础学习版。',
+			features: ['基础题库与开放试卷', '近 7 天学习统计', '历史成绩永久保留']
 		},
 		{
 			id: 'pro',
 			name: 'PRO',
-			price: '¥12.9 / 30天起',
-			desc: '适合日常自学和系统复盘。',
-			features: ['开放 N3 / N2', '错题与弱项复盘', '推荐与收藏能力']
+			price: '¥19 / 30天起',
+			desc: '长期备考主套餐，覆盖完整学习闭环。',
+			features: ['完整题库与深度解析', '完整趋势与薄弱项', '个性化推荐与标准导出']
 		},
 		{
 			id: 'ultra',
 			name: 'ULTRA',
 			price: '¥39 / 30天起',
-			desc: '适合冲刺和深度训练。',
-			features: ['开放 N1', '专项训练权益', '数据导出与高级能力']
+			desc: '适合高频学习、AI 辅助和考前冲刺。',
+			features: ['智能组卷与动态计划', '预测和深度诊断', '更高 AI 额度与完整报告']
 		}
 	];
 	const defaultPaymentPricing: PaymentPricingConfig = {
 		defaultProvider: 'wechat',
-		durations: [30, 90, 365],
-		pricesCents: {
-			cny: {
-				pro: { '30': 1290, '90': 3870, '365': 15480 },
-				ultra: { '30': 3900, '90': 9900, '365': 29900 }
+		renewal: {
+			reminderDays: [7, 3, 1],
+			priceChangeNoticeDays: 7,
+			gracePeriodDays: 7
+		},
+		catalogs: {
+			personal: {
+				durations: [30, 90, 365],
+				offers: [
+					{ id: 'first_purchase', kind: 'first_purchase', label: '个人首购优惠', enabled: false, discountPercent: 20, startsAt: '', endsAt: '' },
+					{ id: 'renewal', kind: 'renewal', label: '个人续费优惠', enabled: false, discountPercent: 10, startsAt: '', endsAt: '' },
+					{ id: 'campaign', kind: 'campaign', label: '个人限时活动', enabled: false, discountPercent: 15, startsAt: '', endsAt: '' }
+				],
+				pricesCents: {
+					cny: {
+						pro: { '30': 1900, '90': 4900, '365': 15900 },
+						ultra: { '30': 3900, '90': 9900, '365': 29900 }
+					},
+					usd: {
+						pro: { '30': 399, '90': 999, '365': 2999 },
+						ultra: { '30': 699, '90': 1799, '365': 4999 }
+					}
+				}
 			},
-			usd: {
-				pro: { '30': 399, '90': 999, '365': 2999 },
-				ultra: { '30': 699, '90': 1799, '365': 4999 }
+			organization: {
+				durations: [30, 365],
+				minimumSeats: { pro: 20, ultra: 30 },
+				customQuoteMinSeats: 200,
+				offers: [
+					{ id: 'first_purchase', kind: 'first_purchase', label: '机构首购优惠', enabled: false, discountPercent: 10, startsAt: '', endsAt: '' },
+					{ id: 'renewal', kind: 'renewal', label: '机构续费优惠', enabled: false, discountPercent: 5, startsAt: '', endsAt: '' },
+					{ id: 'campaign', kind: 'campaign', label: '机构限时活动', enabled: false, discountPercent: 10, startsAt: '', endsAt: '' }
+				],
+				pricesCents: {
+					cny: {
+						pro: { '30': 1500, '365': 11900 },
+						ultra: { '30': 2900, '365': 22900 }
+					},
+					usd: {
+						pro: { '30': 299, '365': 1999 },
+						ultra: { '30': 499, '365': 3799 }
+					}
+				},
+				seatTiers: [
+					{ minSeats: 20, maxSeats: 29, pricesCents: { cny: { pro: { '365': 11900 }, ultra: { '365': 0 } }, usd: { pro: { '365': 1999 }, ultra: { '365': 0 } } } },
+					{ minSeats: 30, maxSeats: 49, pricesCents: { cny: { pro: { '365': 11900 }, ultra: { '365': 22900 } }, usd: { pro: { '365': 1999 }, ultra: { '365': 3799 } } } },
+					{ minSeats: 50, maxSeats: 99, pricesCents: { cny: { pro: { '365': 10900 }, ultra: { '365': 21900 } }, usd: { pro: { '365': 1799 }, ultra: { '365': 3599 } } } },
+					{ minSeats: 100, maxSeats: 199, pricesCents: { cny: { pro: { '365': 9900 }, ultra: { '365': 20900 } }, usd: { pro: { '365': 1599 }, ultra: { '365': 3399 } } } }
+				]
 			}
 		}
 	};
 	let paymentPricingConfig: PaymentPricingConfig = defaultPaymentPricing;
 	let paymentPricingLoaded = false;
 	let paymentPricingPromise: Promise<PaymentPricingConfig> | null = null;
+	const autoRenewalViews = new Map<string, AutoRenewalView>();
+	const autoRenewalLoading = new Set<string>();
+	const autoRenewalErrors = new Map<string, string>();
+	let paymentNotificationInbox: PaymentNotificationInbox | null = null;
+	let paymentNotificationOwnerId = '';
+	let paymentNotificationsLoading = false;
+	let paymentNotificationsError = '';
+	let renewalOperationsView: RenewalOperationsView | null = null;
+	let renewalOperationsLoading = false;
+	let renewalOperationsError = '';
 	let platformUserSearchQuery = '';
 	let platformUserSearchResults: PCUser[] = [];
 	let platformUserSearchLoading = false;
@@ -1444,27 +1682,86 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	function normalizePaymentPricing(raw: unknown): PaymentPricingConfig {
 		const record = asRecord(raw);
-		const prices = asRecord(record?.prices_cents);
-		const durationsRaw = Array.isArray(record?.durations) ? record?.durations : defaultPaymentPricing.durations;
-		const durations = durationsRaw
-			.map((item) => Number(item))
-			.filter((value) => value === 30 || value === 90 || value === 365);
-		const config: PaymentPricingConfig = {
-			defaultProvider: readString(record?.default_provider) || defaultPaymentPricing.defaultProvider,
-			durations: durations.length ? durations : defaultPaymentPricing.durations,
-			pricesCents: JSON.parse(JSON.stringify(defaultPaymentPricing.pricesCents)) as PaymentPricingConfig['pricesCents']
-		};
-		for (const currency of ['cny', 'usd']) {
-			const currencyRecord = asRecord(prices?.[currency]);
-			for (const plan of ['pro', 'ultra'] as PaidPersonalPlan[]) {
-				const planRecord = asRecord(currencyRecord?.[plan]);
-				for (const days of ['30', '90', '365']) {
-					const amount = Number(planRecord?.[days]);
-					if (Number.isFinite(amount) && amount >= 0) {
-						config.pricesCents[currency][plan][days] = Math.round(amount);
+		const catalogs = asRecord(record?.catalogs);
+		const personalRaw = asRecord(catalogs?.personal) || record;
+		const organizationRaw = asRecord(catalogs?.organization);
+		const config = JSON.parse(JSON.stringify(defaultPaymentPricing)) as PaymentPricingConfig;
+		config.defaultProvider = readString(record?.default_provider) || defaultPaymentPricing.defaultProvider;
+		const renewalRaw = asRecord(record?.renewal);
+		if (renewalRaw) {
+			const reminderDays = Array.isArray(renewalRaw.reminder_days)
+				? renewalRaw.reminder_days
+					.map((value) => Number(value))
+					.filter((value) => Number.isInteger(value) && value >= 1 && value <= 30)
+				: [];
+			if (reminderDays.length) config.renewal.reminderDays = [...new Set(reminderDays)].sort((a, b) => b - a);
+			const noticeDays = readCount(renewalRaw.price_change_notice_days);
+			const graceDays = readCount(renewalRaw.grace_period_days);
+			if (noticeDays && noticeDays <= 30) config.renewal.priceChangeNoticeDays = noticeDays;
+			if (typeof graceDays === 'number' && graceDays <= 30) config.renewal.gracePeriodDays = graceDays;
+		}
+		const normalizeMatrix = (
+			target: PaymentPriceMatrix,
+			rawMatrix: unknown,
+			durations: number[]
+		): void => {
+			const prices = asRecord(rawMatrix);
+			for (const currency of ['cny', 'usd']) {
+				const currencyRecord = asRecord(prices?.[currency]);
+				for (const plan of ['pro', 'ultra'] as PaidPersonalPlan[]) {
+					const planRecord = asRecord(currencyRecord?.[plan]);
+					for (const days of durations.map(String)) {
+						const amount = Number(planRecord?.[days]);
+						if (Number.isFinite(amount) && amount >= 0) {
+							target[currency][plan][days] = Math.round(amount);
+						}
 					}
 				}
 			}
+		};
+		const normalizeOffers = (target: PaymentPricingOffer[], rawOffers: unknown): void => {
+			if (!Array.isArray(rawOffers)) return;
+			for (const offer of target) {
+				const source = rawOffers.map(asRecord).find((item) => readString(item?.id) === offer.id);
+				if (!source) continue;
+				offer.enabled = source.enabled === true;
+				const discount = readNumber(source.discount_percent);
+				if (typeof discount === 'number' && discount >= 0 && discount <= 90) {
+					offer.discountPercent = Math.round(discount);
+				}
+				offer.startsAt = readString(source.starts_at) || '';
+				offer.endsAt = readString(source.ends_at) || '';
+			}
+		};
+		normalizeMatrix(
+			config.catalogs.personal.pricesCents,
+			personalRaw?.prices_cents,
+			config.catalogs.personal.durations
+		);
+		normalizeOffers(config.catalogs.personal.offers, personalRaw?.offers);
+		if (organizationRaw) {
+			normalizeMatrix(
+				config.catalogs.organization.pricesCents,
+				organizationRaw.prices_cents,
+				config.catalogs.organization.durations
+			);
+			const planRules = asRecord(organizationRaw.plans);
+			for (const plan of ['pro', 'ultra'] as PaidPersonalPlan[]) {
+				const rule = asRecord(planRules?.[plan]);
+				const minimum = readCount(rule?.minimum_seats);
+				if (minimum && minimum > 0) config.catalogs.organization.minimumSeats[plan] = minimum;
+			}
+			const customQuote = readCount(organizationRaw.custom_quote_min_seats);
+			if (customQuote && customQuote > 1) config.catalogs.organization.customQuoteMinSeats = customQuote;
+			if (Array.isArray(organizationRaw.seat_tiers)) {
+				organizationRaw.seat_tiers.slice(0, config.catalogs.organization.seatTiers.length).forEach((item, index) => {
+					const tierRaw = asRecord(item);
+					if (!tierRaw) return;
+					const tier = config.catalogs.organization.seatTiers[index];
+					normalizeMatrix(tier.pricesCents, tierRaw.prices_cents, [365]);
+				});
+			}
+			normalizeOffers(config.catalogs.organization.offers, organizationRaw.offers);
 		}
 		return config;
 	}
@@ -1497,21 +1794,43 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return paymentPricingPromise;
 	}
 
-	function pricingAmountCents(plan: PersonalPlan, days = 30, currency = 'cny'): number {
+	function pricingAmountCents(
+		plan: PersonalPlan,
+		days = 30,
+		currency = 'cny',
+		scope: PricingScope = 'personal',
+		seats = 1
+	): number {
 		if (plan === 'free') return 0;
 		const key = String(days);
-		return paymentPricingConfig.pricesCents[currency]?.[plan]?.[key] ?? defaultPaymentPricing.pricesCents.cny[plan][key];
+		const catalog = paymentPricingConfig.catalogs[scope];
+		let amount = catalog.pricesCents[currency]?.[plan]?.[key]
+			?? defaultPaymentPricing.catalogs[scope].pricesCents.cny[plan][key];
+		if (scope === 'organization' && days === 365) {
+			const tier = paymentPricingConfig.catalogs.organization.seatTiers
+				.find((item) => seats >= item.minSeats && seats <= item.maxSeats);
+			const tierAmount = tier?.pricesCents[currency]?.[plan]?.[key];
+			if (typeof tierAmount === 'number' && tierAmount > 0) amount = tierAmount;
+		}
+		return amount;
 	}
 
 	function formatAmountCny(cents: number): string {
 		if (cents <= 0) return '免费';
 		const amount = cents / 100;
-		return `¥${Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(1)}`;
+		return `¥${amount.toFixed(2).replace(/\.00$/, '').replace(/(\.\d)0$/, '$1')}`;
 	}
 
 	function planPriceText(plan: PersonalPlan, days = 30): string {
 		if (plan === 'free') return '免费';
 		return `${formatAmountCny(pricingAmountCents(plan, days))} / ${days}天起`;
+	}
+
+	function personalPlanPriceSummary(plan: PersonalPlan): string {
+		if (plan === 'free') return '免费';
+		return paymentPricingConfig.catalogs.personal.durations
+			.map((days) => `${days}天 ${formatAmountCny(pricingAmountCents(plan, days))}`)
+			.join(' · ');
 	}
 
 	function normalizePersonalPlan(value: string | undefined): PersonalPlan {
@@ -1538,12 +1857,470 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	}
 
 	let rechargeModal: HTMLDivElement | null = null;
+	let paymentQuoteRequestSequence = 0;
+	let organizationQuoteRequestSequence = 0;
 
 	function paymentProviderLabel(provider: string): string {
 		if (provider === 'wechat') return '微信支付';
 		if (provider === 'alipay') return '支付宝';
 		if (provider === 'stripe') return 'Stripe（海外卡/国际支付）';
 		return provider || '微信支付';
+	}
+
+	function normalizePaymentQuote(raw: unknown): PaymentQuote | null {
+		const record = asRecord(raw);
+		if (!record) return null;
+		const offerRaw = asRecord(record.offer);
+		const offerId = readString(offerRaw?.id);
+		const offer: PaymentPricingOffer | null = offerId === 'first_purchase' || offerId === 'renewal' || offerId === 'campaign'
+			? {
+				id: offerId,
+				kind: offerId,
+				label: readString(offerRaw?.label) || '订单优惠',
+				enabled: true,
+				discountPercent: readNumber(offerRaw?.discount_percent) ?? 0,
+				startsAt: readString(offerRaw?.starts_at) || '',
+				endsAt: readString(offerRaw?.ends_at) || ''
+			}
+			: null;
+		const amountCents = readNumber(record.amount_cents);
+		if (typeof amountCents !== 'number' || amountCents <= 0) return null;
+		return {
+			baseUnitPriceCents: readNumber(record.base_unit_price_cents) ?? amountCents,
+			unitPriceCents: readNumber(record.unit_price_cents) ?? amountCents,
+			baseAmountCents: readNumber(record.base_amount_cents) ?? amountCents,
+			amountCents,
+			discountCents: readNumber(record.discount_cents) ?? 0,
+			offer
+		};
+	}
+
+	function autoRenewalKey(scopeType: PricingScope, scopeId: string): string {
+		return `${scopeType}:${scopeId}`;
+	}
+
+	function normalizeAutoRenewal(raw: unknown): AutoRenewalView | null {
+		const record = asRecord(raw);
+		if (!record) return null;
+		const scopeType: PricingScope = readString(record.scope_type) === 'organization' ? 'organization' : 'personal';
+		const subscriptionRaw = asRecord(record.subscription);
+		const plan = normalizePersonalPlan(readString(record.plan) || readString(subscriptionRaw?.plan));
+		const notices = (Array.isArray(record.notices) ? record.notices : []).flatMap((value) => {
+			const notice = asRecord(value);
+			if (!notice) return [];
+			const previousAmountCents = readNumber(notice.previous_amount_cents);
+			const currentAmountCents = readNumber(notice.current_amount_cents);
+			const daysRemaining = readNumber(notice.days_remaining);
+			return [{
+				type: readString(notice.type) || 'renewal_notice',
+				level: readString(notice.level) || 'info',
+				title: readString(notice.title) || '续费提示',
+				message: readString(notice.message) || '',
+				...(typeof previousAmountCents === 'number' ? { previousAmountCents } : {}),
+				...(typeof currentAmountCents === 'number' ? { currentAmountCents } : {}),
+				...(typeof daysRemaining === 'number' ? { daysRemaining } : {})
+			}];
+		});
+		const reminderSchedule = (Array.isArray(record.reminder_schedule) ? record.reminder_schedule : []).flatMap((value) => {
+			const schedule = asRecord(value);
+			const daysBefore = readNumber(schedule?.days_before);
+			if (!schedule || typeof daysBefore !== 'number') return [];
+			return [{ daysBefore, scheduledFor: readString(schedule.scheduled_for) || '' }];
+		});
+		const daysUntilRenewal = readNumber(record.days_until_renewal);
+		return {
+			scopeType,
+			scopeId: readString(record.scope_id) || '',
+			enabled: readBoolean(record.enabled) === true,
+			status: readString(record.status) || 'disabled',
+			chargeReady: readBoolean(record.charge_ready) === true,
+			plan,
+			days: readCount(record.days) || 365,
+			seats: readCount(record.seats) || readCount(subscriptionRaw?.seats) || 1,
+			provider: readString(record.provider) || paymentPricingConfig.defaultProvider,
+			currency: readString(record.currency) || 'cny',
+			priceSnapshotCents: readNumber(record.price_snapshot_cents) || 0,
+			consentAt: readString(record.consent_at) || '',
+			nextChargeAt: readString(record.next_charge_at) || readString(subscriptionRaw?.expires_at) || '',
+			...(typeof daysUntilRenewal === 'number' ? { daysUntilRenewal } : {}),
+			gracePeriodDays: readCount(record.grace_period_days) ?? paymentPricingConfig.renewal.gracePeriodDays,
+			notifyEmail: readBoolean(record.notify_email) !== false,
+			reminderSchedule,
+			notices,
+			currentQuote: normalizePaymentQuote(record.current_quote),
+			subscription: {
+				plan: normalizePersonalPlan(readString(subscriptionRaw?.plan)),
+				status: readString(subscriptionRaw?.status) || 'active',
+				expiresAt: readString(subscriptionRaw?.expires_at) || '',
+				seats: readCount(subscriptionRaw?.seats) || 1,
+				isActive: readBoolean(subscriptionRaw?.is_active) === true
+			}
+		};
+	}
+
+	async function ensureAutoRenewal(scopeType: PricingScope, scopeId: string, force = false): Promise<void> {
+		const key = autoRenewalKey(scopeType, scopeId);
+		if (!scopeId || autoRenewalLoading.has(key) || (!force && autoRenewalViews.has(key))) return;
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.getAutoRenewal !== 'function') {
+			autoRenewalErrors.set(key, '自动续费接口暂不可用');
+			return;
+		}
+		autoRenewalLoading.add(key);
+		autoRenewalErrors.delete(key);
+		try {
+			const normalized = normalizeAutoRenewal(await api.getAutoRenewal(
+				token,
+				scopeType,
+				scopeType === 'organization' ? scopeId : ''
+			));
+			if (!normalized) throw new Error('自动续费状态格式无效');
+			autoRenewalViews.set(key, normalized);
+		} catch (error) {
+			autoRenewalErrors.set(key, readErrorMessage(error, '自动续费状态加载失败'));
+		} finally {
+			autoRenewalLoading.delete(key);
+			renderSectionContent({ preserveScroll: true });
+		}
+	}
+
+	function renderAutoRenewalCard(
+		scopeType: PricingScope,
+		scopeId: string,
+		fallback: { plan: string; status: string; expiresAt: string; seats?: number }
+	): string {
+		const key = autoRenewalKey(scopeType, scopeId);
+		const renewal = autoRenewalViews.get(key);
+		const error = autoRenewalErrors.get(key);
+		if (!renewal && !error) void ensureAutoRenewal(scopeType, scopeId);
+		if (!renewal) {
+			return `<section class="pc-auto-renew-card" data-auto-renew-card data-renew-scope="${scopeType}" data-renew-id="${escapeHtml(scopeId)}">
+				<div class="pc-auto-renew-head"><div><h4>自动续费</h4><p>${error ? escapeHtml(error) : '正在读取授权和提醒设置…'}</p></div><span class="pc-tag muted">${error ? '加载失败' : '加载中'}</span></div>
+				${error ? '<div class="pc-org-form-actions"><button class="pc-inline-ghost" type="button" data-auto-renew-retry>重新加载</button></div>' : ''}
+			</section>`;
+		}
+		const currentPlan = renewal.subscription.plan !== 'free'
+			? renewal.subscription.plan
+			: normalizePersonalPlan(fallback.plan);
+		const isActive = renewal.subscription.isActive
+			|| (fallback.status === 'active' && currentPlan !== 'free');
+		const canEnable = isActive && currentPlan !== 'free';
+		const statusLabel = !renewal.enabled
+			? '已关闭'
+			: renewal.chargeReady
+				? '渠道签约完成'
+				: '已授权 · 待渠道签约';
+		const statusClass = renewal.enabled ? (renewal.chargeReady ? 'is-ready' : 'is-pending') : '';
+		const amount = renewal.currentQuote?.amountCents || renewal.priceSnapshotCents;
+		const expiry = renewal.nextChargeAt || renewal.subscription.expiresAt || fallback.expiresAt;
+		const reminderDays = renewal.reminderSchedule.length
+			? renewal.reminderSchedule.map((item) => item.daysBefore)
+			: paymentPricingConfig.renewal.reminderDays;
+		const notices = renewal.notices.map((notice) => {
+			const priceChange = typeof notice.previousAmountCents === 'number' && typeof notice.currentAmountCents === 'number'
+				? `<span><s>${formatAmountCny(notice.previousAmountCents)}</s> → <b>${formatAmountCny(notice.currentAmountCents)}</b></span>`
+				: '';
+			return `<div class="pc-auto-renew-notice${notice.level === 'warning' ? ' is-warning' : ''}">
+				<strong>${escapeHtml(notice.title)}</strong>${priceChange}<p>${escapeHtml(notice.message)}</p>
+			</div>`;
+		}).join('');
+		const durationOptions = paymentPricingConfig.catalogs[scopeType].durations
+			.map((days) => `<option value="${days}"${renewal.days === days ? ' selected' : ''}>${days === 365 ? '年付（365 天）' : days === 30 ? '月付（30 天）' : `${days} 天`}</option>`)
+			.join('');
+		return `<section class="pc-auto-renew-card" data-auto-renew-card data-renew-scope="${scopeType}" data-renew-id="${escapeHtml(scopeId)}">
+			<div class="pc-auto-renew-head"><div><h4>自动续费</h4><p>单独授权，默认关闭；关闭后当前已付周期仍可继续使用。</p></div><span class="pc-auto-renew-status ${statusClass}">${statusLabel}</span></div>
+			${notices ? `<div class="pc-auto-renew-notices">${notices}</div>` : ''}
+			<div class="pc-auto-renew-summary">
+				<span><small>续费套餐</small><b>${escapeHtml(planLabel(currentPlan))} · ${renewal.days} 天</b></span>
+				<span><small>预计金额</small><b>${amount > 0 ? formatAmountCny(amount) : '开启时确认'}</b></span>
+				<span><small>下次续费日</small><b>${expiry ? escapeHtml(organizationExpiryLabel(expiry)) : '长期套餐'}</b></span>
+				<span><small>提醒安排</small><b>提前 ${escapeHtml(reminderDays.join('、'))} 天</b></span>
+			</div>
+			${renewal.enabled && !renewal.chargeReady ? '<div class="pc-admin-note">授权已保存，但尚未取得支付渠道签约凭证；在渠道签约完成前不会自动扣款。</div>' : ''}
+			<div class="pc-auto-renew-controls">
+				<label class="pc-org-field"><span>续费周期</span><select class="pc-profile-input" data-auto-renew-days${renewal.enabled ? ' disabled' : ''}>${durationOptions}</select></label>
+				<label class="pc-org-field"><span>支付渠道</span><select class="pc-profile-input" data-auto-renew-provider${renewal.enabled ? ' disabled' : ''}>
+					<option value="wechat"${renewal.provider === 'wechat' ? ' selected' : ''}>微信支付</option>
+					<option value="alipay"${renewal.provider === 'alipay' ? ' selected' : ''}>支付宝</option>
+					<option value="stripe"${renewal.provider === 'stripe' ? ' selected' : ''}>Stripe</option>
+				</select></label>
+				<label class="pc-auto-renew-check"><input type="checkbox" data-auto-renew-email${renewal.notifyEmail ? ' checked' : ''}${renewal.enabled ? ' disabled' : ''} /><span>同时接收邮件提醒</span></label>
+				<button class="${renewal.enabled ? 'pc-inline-ghost' : 'pc-inline-btn'}" type="button" data-auto-renew-toggle data-renew-enabled="${renewal.enabled ? 'true' : 'false'}"${!renewal.enabled && !canEnable ? ' disabled' : ''}>${renewal.enabled ? '关闭自动续费' : canEnable ? '开启自动续费' : '购买付费套餐后可开启'}</button>
+			</div>
+			<div class="pc-auto-renew-footnote">续费前按当前配置展示下期价格；价格变化不影响本期。扣款失败后保留 ${renewal.gracePeriodDays} 天宽限期。</div>
+		</section>`;
+	}
+
+	async function toggleAutoRenewal(button: HTMLButtonElement): Promise<void> {
+		const card = button.closest<HTMLElement>('[data-auto-renew-card]');
+		if (!card) return;
+		const scopeType: PricingScope = card.dataset.renewScope === 'organization' ? 'organization' : 'personal';
+		const scopeId = card.dataset.renewId || '';
+		const enabled = button.dataset.renewEnabled === 'true';
+		const nextEnabled = !enabled;
+		const confirmationMessage = nextEnabled
+			? '确认开启自动续费？系统会保存一份独立授权；只有支付渠道签约完成后才会自动扣款，续费前会按设置发送提醒。'
+			: '确认关闭自动续费？关闭只影响下一周期，当前已支付的套餐权益会保留到到期日。';
+		if (!await requestConfirmation(confirmationMessage, nextEnabled ? '确认开启' : '确认关闭')) return;
+		let reauthPassword = '';
+		if (nextEnabled) {
+			const password = await requestHighRiskPassword('开启自动续费');
+			if (password === null) return;
+			reauthPassword = password;
+		}
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.updateAutoRenewal !== 'function') {
+			showToast('自动续费接口暂不可用');
+			return;
+		}
+		const finishSubmitting = beginOrganizationAction(button, nextEnabled ? '授权中…' : '关闭中…');
+		if (!finishSubmitting) return;
+		try {
+			const days = Number((card.querySelector('[data-auto-renew-days]') as HTMLSelectElement | null)?.value || '365');
+			const provider = (card.querySelector('[data-auto-renew-provider]') as HTMLSelectElement | null)?.value || paymentPricingConfig.defaultProvider;
+			const notifyEmail = (card.querySelector('[data-auto-renew-email]') as HTMLInputElement | null)?.checked !== false;
+			const updated = await api.updateAutoRenewal(token, {
+				scope_type: scopeType,
+				...(scopeType === 'organization' ? { organization_id: scopeId } : {}),
+				enabled: nextEnabled,
+				consent: nextEnabled,
+				confirmation: nextEnabled ? '确认开启自动续费' : '确认关闭自动续费',
+				days,
+				provider,
+				currency: 'cny',
+				notify_email: notifyEmail,
+				...(nextEnabled ? { reauth_password: reauthPassword } : {})
+			});
+			const normalized = normalizeAutoRenewal(updated);
+			if (!normalized) throw new Error('自动续费状态格式无效');
+			autoRenewalViews.set(autoRenewalKey(scopeType, scopeId), normalized);
+			autoRenewalErrors.delete(autoRenewalKey(scopeType, scopeId));
+			showToast(nextEnabled ? '自动续费授权已保存，等待支付渠道完成签约' : '自动续费已关闭，当前套餐权益不受影响');
+			renderSectionContent({ preserveScroll: true });
+		} catch (error) {
+			showToast(readErrorMessage(error, nextEnabled ? '自动续费授权失败' : '关闭自动续费失败'));
+		} finally {
+			finishSubmitting();
+		}
+	}
+
+	function normalizePaymentNotificationInbox(raw: unknown): PaymentNotificationInbox {
+		const record = asRecord(raw);
+		const items = (Array.isArray(record?.items) ? record.items : []).flatMap((value) => {
+			const item = asRecord(value);
+			if (!item) return [];
+			const delivery = asRecord(item.delivery);
+			const email = asRecord(delivery?.email);
+			return [{
+				id: readString(item.id) || '',
+				type: readString(item.type) || 'renewal_notice',
+				level: readString(item.level) || 'info',
+				title: readString(item.title) || '续费通知',
+				message: readString(item.message) || '',
+					createdAt: readString(item.created_at) || '',
+					readAt: readString(item.read_at) || '',
+					emailStatus: readString(email?.status) || 'skipped',
+					emailAttempts: readCount(email?.attempts) || 0,
+					emailNextAttemptAt: readString(email?.next_attempt_at) || ''
+				}];
+		});
+		return {
+			items,
+			total: readCount(record?.total) || items.length,
+			unreadCount: readCount(record?.unread_count) || 0
+		};
+	}
+
+	async function ensurePaymentNotifications(force = false): Promise<void> {
+		const ctx = getContext();
+		const ownerId = ctx.id || '';
+		if (!ownerId) return;
+		if (paymentNotificationOwnerId !== ownerId) {
+			paymentNotificationOwnerId = ownerId;
+			paymentNotificationInbox = null;
+			paymentNotificationsError = '';
+		}
+		if (paymentNotificationsLoading || (!force && paymentNotificationInbox)) return;
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.getPaymentNotifications !== 'function') {
+			paymentNotificationsError = '续费通知接口暂不可用';
+			return;
+		}
+		paymentNotificationsLoading = true;
+		paymentNotificationsError = '';
+		try {
+			paymentNotificationInbox = normalizePaymentNotificationInbox(
+				await api.getPaymentNotifications(token, false, 1, 20)
+			);
+		} catch (error) {
+			paymentNotificationsError = readErrorMessage(error, '续费通知加载失败');
+		} finally {
+			paymentNotificationsLoading = false;
+			renderSectionContent({ preserveScroll: true });
+		}
+	}
+
+	function renderPaymentNotificationInbox(): string {
+		if (!paymentNotificationInbox && !paymentNotificationsError) void ensurePaymentNotifications();
+		const inbox = paymentNotificationInbox;
+		const emailStatusText = (item: PaymentNotification): string => {
+			if (item.emailStatus === 'delivered') return '邮件已发送';
+			if (item.emailStatus === 'pending') return '邮件待发送';
+			if (item.emailStatus === 'retry_scheduled') {
+				return item.emailNextAttemptAt
+					? `邮件将在 ${formatDateTime(item.emailNextAttemptAt)} 重试`
+					: '邮件等待自动重试';
+			}
+			if (item.emailStatus === 'dead_letter') return '邮件多次发送失败，站内通知仍有效';
+			if (item.emailStatus === 'failed') return '邮件发送失败，等待重试';
+			return '未启用邮件提醒';
+		};
+		const rows = inbox?.items.map((item) => `<article class="pc-renewal-notification${item.readAt ? '' : ' is-unread'}">
+			<div><div class="pc-renewal-notification-title"><strong>${escapeHtml(item.title)}</strong>${item.readAt ? '' : '<span>未读</span>'}</div>
+			<p>${escapeHtml(item.message)}</p><small>${escapeHtml(formatDateTime(item.createdAt))} · ${escapeHtml(emailStatusText(item))}${item.emailAttempts ? ` · 已尝试 ${item.emailAttempts} 次` : ''}</small></div>
+			${item.readAt ? '' : `<button class="pc-inline-ghost" type="button" data-payment-notification-read="${escapeHtml(item.id)}">标为已读</button>`}
+		</article>`).join('') || '';
+		return `<section class="pc-card pc-lite-list-card pc-renewal-inbox" data-payment-notification-inbox>
+			<div class="pc-auto-renew-head"><div><h4>续费通知</h4><p>到期、调价、渠道签约和扣款结果会保存在这里。</p></div><span class="pc-auto-renew-status${inbox?.unreadCount ? ' is-pending' : ''}">${inbox?.unreadCount || 0} 条未读</span></div>
+			${paymentNotificationsError ? `<div class="pc-admin-note">${escapeHtml(paymentNotificationsError)}</div>` : ''}
+			${paymentNotificationsLoading && !inbox ? '<div class="pc-admin-note">正在读取续费通知…</div>' : rows || '<div class="pc-org-empty">暂时没有续费通知。</div>'}
+			<div class="pc-org-form-actions pc-org-form-actions-end">
+				<button class="pc-inline-ghost" type="button" data-payment-notifications-refresh>刷新</button>
+				<button class="pc-inline-btn" type="button" data-payment-notifications-read-all${!inbox?.unreadCount ? ' disabled' : ''}>全部已读</button>
+			</div>
+		</section>`;
+	}
+
+	async function markPaymentNotificationRead(notificationId?: string): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api) return;
+		try {
+			if (notificationId && typeof api.markPaymentNotificationRead === 'function') {
+				await api.markPaymentNotificationRead(token, notificationId);
+			} else if (!notificationId && typeof api.markAllPaymentNotificationsRead === 'function') {
+				await api.markAllPaymentNotificationsRead(token);
+			}
+			await ensurePaymentNotifications(true);
+		} catch (error) {
+			showToast(readErrorMessage(error, '通知状态更新失败'));
+		}
+	}
+
+	function normalizeRenewalOperations(raw: unknown): RenewalOperationsView {
+		const record = asRecord(raw);
+		const counts = asRecord(record?.status_counts);
+		const statusCounts: Record<string, number> = {};
+		for (const [key, value] of Object.entries(counts || {})) {
+			const count = readCount(value);
+			if (typeof count === 'number') statusCounts[key] = count;
+		}
+		const emailCounts = asRecord(record?.email_delivery_counts);
+		const emailDeliveryCounts: Record<string, number> = {};
+		for (const [key, value] of Object.entries(emailCounts || {})) {
+			const count = readCount(value);
+			if (typeof count === 'number') emailDeliveryCounts[key] = count;
+		}
+		return {
+			agreementsTotal: readCount(record?.agreements_total) || 0,
+			attemptsTotal: readCount(record?.attempts_total) || 0,
+			notificationsTotal: readCount(record?.notifications_total) || 0,
+			statusCounts,
+			emailDeliveryCounts,
+			lastRun: asRecord(record?.last_run)
+		};
+	}
+
+	async function ensureRenewalOperations(force = false): Promise<void> {
+		if (renewalOperationsLoading || (!force && renewalOperationsView)) return;
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.getRenewalOperations !== 'function') {
+			renewalOperationsError = '续费任务状态接口暂不可用';
+			return;
+		}
+		renewalOperationsLoading = true;
+		renewalOperationsError = '';
+		try {
+			renewalOperationsView = normalizeRenewalOperations(await api.getRenewalOperations(token));
+		} catch (error) {
+			renewalOperationsError = readErrorMessage(error, '续费任务状态加载失败');
+		} finally {
+			renewalOperationsLoading = false;
+			renderSectionContent({ preserveScroll: true });
+		}
+	}
+
+	function renderRenewalOperationsCard(): string {
+		if (!renewalOperationsView && !renewalOperationsError) void ensureRenewalOperations();
+		const operations = renewalOperationsView;
+		const lastRun = operations?.lastRun;
+		const pendingEmailCount = ['pending', 'failed', 'retry_scheduled']
+			.reduce((total, status) => total + (operations?.emailDeliveryCounts[status] || 0), 0);
+		const deadLetterCount = operations?.emailDeliveryCounts.dead_letter || 0;
+		const statusText = operations
+			? Object.entries(operations.statusCounts).map(([status, count]) => `${status} ${count}`).join(' · ') || '暂无授权记录'
+			: renewalOperationsLoading ? '正在读取运行状态…' : renewalOperationsError || '暂无运行记录';
+		return `<div class="pc-card pc-lite-list-card pc-renewal-operations">
+			<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">续费任务运行状态</div><p>服务启动时执行一次，之后每 15 分钟扫描提醒、调价、待扣款和宽限期任务。</p></div><span class="pc-tag">${lastRun ? '运行正常' : '等待首次运行'}</span></div>
+			<div class="pc-auto-renew-summary">
+				<span><small>授权记录</small><b>${operations?.agreementsTotal || 0}</b></span>
+				<span><small>扣款尝试</small><b>${operations?.attemptsTotal || 0}</b></span>
+				<span><small>通知记录</small><b>${operations?.notificationsTotal || 0}</b></span>
+				<span><small>邮件待重试</small><b>${pendingEmailCount}</b></span>
+				<span><small>投递异常</small><b>${deadLetterCount}</b></span>
+				<span><small>上次运行</small><b>${lastRun ? escapeHtml(formatDateTime(readString(lastRun.run_at))) : '尚未运行'}</b></span>
+			</div>
+			<div class="pc-admin-note">${escapeHtml(statusText)}</div>
+			<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-ghost" type="button" data-renewal-operations-refresh>刷新</button><button class="pc-inline-btn" type="button" data-renewal-job-run>立即扫描</button></div>
+		</div>`;
+	}
+
+	async function runRenewalJob(button: HTMLButtonElement): Promise<void> {
+		if (!await requestConfirmation('确认立即扫描自动续费任务？系统会创建到期提醒、调价通知及符合条件的渠道扣款请求。', '确认执行')) return;
+		const password = await requestHighRiskPassword('执行自动续费任务');
+		if (password === null) return;
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!token || !api || typeof api.runRenewalJob !== 'function') {
+			showToast('续费任务接口暂不可用');
+			return;
+		}
+		const finishSubmitting = beginOrganizationAction(button, '扫描中…');
+		if (!finishSubmitting) return;
+		try {
+			const result = asRecord(await api.runRenewalJob(token, {
+				confirmation: '确认执行续费任务',
+				reauth_password: password
+			}));
+				const delivery = asRecord(result?.notification_delivery);
+				showToast(`续费扫描完成：${readCount(result?.scanned) || 0} 条授权，${readCount(result?.reminders_enqueued) || 0} 条提醒，邮件成功 ${readCount(delivery?.delivered) || 0} 条`);
+			await ensureRenewalOperations(true);
+		} catch (error) {
+			showToast(readErrorMessage(error, '续费任务执行失败'));
+		} finally {
+			finishSubmitting();
+		}
+	}
+
+	function paymentQuoteMarkup(quote: PaymentQuote, unitSuffix = ''): string {
+		const price = `<b>${formatAmountCny(quote.amountCents)}${unitSuffix}</b>`;
+		if (!quote.offer || quote.discountCents <= 0) {
+			return `${price}<span>当前按基础价格结算。</span>`;
+		}
+		const windowText = quote.offer.endsAt
+			? ` · 有效至 ${new Date(quote.offer.endsAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`
+			: '';
+		return `<strong>${escapeHtml(quote.offer.label)} · ${quote.offer.discountPercent}% 优惠</strong>
+			<span><s>${formatAmountCny(quote.baseAmountCents)}</s> ${price} · 已优惠 ${formatAmountCny(quote.discountCents)}${escapeHtml(windowText)}</span>`;
 	}
 
 	function ensureRechargeModal(): HTMLDivElement {
@@ -1584,7 +2361,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 						<div style="flex:1;">
 							<div style="display:flex;justify-content:space-between;gap:12px;">
 								<strong>${escapeHtml(plan.name)}</strong>
-								<span style="color:#1976d2;font-weight:600;">${escapeHtml(plan.id === 'free' ? plan.price : planPriceText(plan.id))}</span>
+								<span style="color:#1976d2;font-weight:600;text-align:right;">${escapeHtml(personalPlanPriceSummary(plan.id))}</span>
 							</div>
 							<div style="font-size:12px;color:#666;margin-top:3px;">${escapeHtml(plan.desc)}</div>
 							<ul style="margin:8px 0 0 18px;padding:0;font-size:12px;color:#555;line-height:1.7;">${featureList}</ul>
@@ -1603,20 +2380,18 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
 					<label style="font-size:12px;color:#666;">续费时长
 						<select id="recharge-days" style="display:block;width:100%;height:38px;margin-top:4px;padding:7px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;background:#fff;">
-							<option value="30" selected>30 天</option>
-							<option value="90">90 天</option>
-							<option value="365">365 天</option>
+							${paymentPricingConfig.catalogs.personal.durations.map((days) => `<option value="${days}"${days === 365 ? ' selected' : ''}>${days} 天${days === 365 ? ' · 推荐' : ''}</option>`).join('')}
 						</select>
 					</label>
 					<label style="font-size:12px;color:#666;">支付渠道
 						<select id="recharge-provider" style="display:block;width:100%;height:38px;margin-top:4px;padding:7px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;background:#fff;">
-							<option value="wechat" selected>微信支付</option>
-							<option value="alipay">支付宝</option>
-							<option value="stripe">Stripe（海外卡/国际支付）</option>
+							<option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信支付</option>
+							<option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option>
+							<option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe（海外卡/国际支付）</option>
 						</select>
 					</label>
 				</div>
-				<div id="recharge-preview" style="margin-top:12px;padding:10px;border-radius:6px;background:#f5f9ff;color:#345;font-size:12px;"></div>
+				<div id="recharge-preview" class="pc-pricing-order-preview" style="margin-top:12px;"></div>
 				<div style="margin-top:10px;color:#999;font-size:11px;line-height:1.6;">
 					付费套餐会先创建支付订单；只有支付渠道回调确认成功后，系统才会发放套餐权益并写入流水。
 				</div>
@@ -1628,7 +2403,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		</div>`;
 	}
 
-	function updateRechargePreview(modal: HTMLDivElement, ctx: PCContext): void {
+	async function updateRechargePreview(modal: HTMLDivElement, ctx: PCContext): Promise<void> {
 		const plan = normalizePersonalPlan((modal.querySelector('input[name="recharge-plan"]:checked') as HTMLInputElement | null)?.value);
 		const days = Number((modal.querySelector('#recharge-days') as HTMLSelectElement | null)?.value || 365);
 		const preview = modal.querySelector('#recharge-preview') as HTMLDivElement | null;
@@ -1638,7 +2413,27 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			return;
 		}
 		const provider = (modal.querySelector('#recharge-provider') as HTMLSelectElement | null)?.value || 'wechat';
-		preview.textContent = `将创建 ${planLabel(plan)} ${days} 天支付订单，渠道为 ${paymentProviderLabel(provider)}。支付成功后到期时间预计为 ${nextSubscriptionExpiry(ctx, days)}，仍有效的套餐会从当前到期日顺延。`;
+		const baseAmount = pricingAmountCents(plan, days);
+		preview.innerHTML = `<strong>${planLabel(plan)} · ${days} 天</strong><span>${formatAmountCny(baseAmount)} · ${escapeHtml(paymentProviderLabel(provider))} · 正在确认可用优惠…</span>`;
+		const api = window.APIClient;
+		const token = activeToken(ctx);
+		const sequence = ++paymentQuoteRequestSequence;
+		if (!token || !api || typeof api.getPaymentQuote !== 'function') return;
+		try {
+			const quote = normalizePaymentQuote(await api.getPaymentQuote(token, {
+				scope_type: 'personal',
+				plan,
+				days,
+				currency: 'cny'
+			}));
+			if (sequence !== paymentQuoteRequestSequence || !quote || !preview.isConnected) return;
+			preview.innerHTML = `${paymentQuoteMarkup(quote)}
+				<span>渠道：${escapeHtml(paymentProviderLabel(provider))} · 支付成功后预计到期 ${escapeHtml(nextSubscriptionExpiry(ctx, days))}</span>`;
+		} catch (error) {
+			if (sequence !== paymentQuoteRequestSequence || !preview.isConnected) return;
+			preview.innerHTML = `<strong>${planLabel(plan)} · ${days} 天 · ${formatAmountCny(baseAmount)}</strong>
+				<span>暂未取得优惠报价，将由后端在创建订单时按有效规则重新计算。</span>`;
+		}
 	}
 
 	async function submitRecharge(modal: HTMLDivElement, ctx: PCContext): Promise<void> {
@@ -1705,7 +2500,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			}
 			const preview = modal.querySelector('#recharge-preview') as HTMLDivElement | null;
 			if (preview) {
-				preview.textContent = `订单 ${readString(order.id) || ''} 已创建，状态：${readString(order.status) || 'pending'}。支付成功后将通过回调自动发放套餐。`;
+				const orderOffer = asRecord(order.offer);
+				const offerLabel = readString(orderOffer?.label);
+				const orderAmount = readNumber(order.amount_cents) ?? 0;
+				preview.textContent = `订单 ${readString(order.id) || ''} 已创建，金额 ${formatAmountCny(orderAmount)}${offerLabel ? `，已使用“${offerLabel}”` : ''}，状态：${readString(order.status) || 'pending'}。`;
 			}
 		} catch (error) {
 			const message = readErrorMessage(error, '支付订单创建失败');
@@ -1732,9 +2530,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		if (!body) return;
 		body.innerHTML = renderRechargePanel(ctx);
 		showLegacyModal(modal, '#recharge-close');
-		updateRechargePreview(modal, ctx);
+		void updateRechargePreview(modal, ctx);
 		modal.querySelectorAll('input[name="recharge-plan"], #recharge-days, #recharge-provider').forEach((el) => {
-			(el as HTMLInputElement | HTMLSelectElement).onchange = () => updateRechargePreview(modal, ctx);
+			(el as HTMLInputElement | HTMLSelectElement).onchange = () => { void updateRechargePreview(modal, ctx); };
 		});
 		const cancel = modal.querySelector('#recharge-cancel') as HTMLButtonElement | null;
 		if (cancel) {
@@ -2687,8 +3485,20 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	async function refreshManagedOrganizations(): Promise<void> {
 		const ctx = getContext();
+		// The list endpoint intentionally returns summaries only. Preserve which
+		// organizations already had details loaded, then hydrate those records
+		// again after refreshing the summaries. Otherwise a successful campus,
+		// group or course-package mutation makes the UI fall back to empty arrays.
+		const loadedOrganizationIds = Object.entries(managedOrganizationDetailState)
+			.filter(([, state]) => state === 'loaded')
+			.map(([organizationId]) => organizationId);
 		invalidateManagedOrganizations();
 		await ensureManagedOrganizations(ctx);
+		for (const organizationId of loadedOrganizationIds) {
+			if (managedOrganizations.some((organization) => organization.id === organizationId)) {
+				await loadManagedOrganizationDetails(organizationId);
+			}
+		}
 		renderSectionContent();
 	}
 
@@ -3998,7 +4808,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	}
 
 	async function loadManagedOrganizationDetails(organizationId: string): Promise<void> {
-		if (managedOrganizationDetailState[organizationId] === 'loading' || managedOrganizationDetailState[organizationId] === 'loaded') return;
+		if (managedOrganizationDetailState[organizationId] === 'loading') return;
+		if (managedOrganizationDetailState[organizationId] === 'loaded') {
+			// The collapsed summary deliberately omits detail DOM. Re-render when
+			// reopening cached data so the selected management panel is inserted.
+			renderSectionContent({ preserveScroll: true });
+			return;
+		}
 		const organization = managedOrganizations.find((item) => item.id === organizationId);
 		const ctx = getContext();
 		const token = activeToken(ctx);
@@ -4080,7 +4896,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const upgradeNote = hasAnyRole(getContext(), ['superAdmin'])
 			? '升级或扩席应优先从平台支付管理创建机构订单；直接修改会写入审计日志。'
 			: '升级、续期或扩席必须通过支付订单完成；此处仅允许降级、停用或减少未使用席位。';
-		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>套餐与席位</h4><span>${escapeHtml(subscriptionExpirySummary(organization.expiresAt, organization.status))}</span></div><form class="pc-org-add-form" data-org-subscription-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input pc-org-select" data-org-plan><option value="free"${organization.plan === 'free' ? ' selected' : ''}>FREE</option><option value="pro"${organization.plan === 'pro' ? ' selected' : ''}>PRO</option><option value="ultra"${organization.plan === 'ultra' ? ' selected' : ''}>ULTRA</option></select></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-status><option value="active"${organization.status === 'active' ? ' selected' : ''}>active</option><option value="trial"${organization.status === 'trial' ? ' selected' : ''}>trial</option><option value="expired"${organization.status === 'expired' ? ' selected' : ''}>expired</option><option value="canceled"${organization.status === 'canceled' ? ' selected' : ''}>canceled</option></select></label><label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-seats value="${escapeHtml(String(organization.seats || defaultSeatsForPlan(organization.plan)))}" /></label></div><div class="pc-org-form-grid"><label class="pc-org-field"><span>到期日期</span><input class="pc-profile-input" type="date" data-org-expires-at value="${escapeHtml(expiryInput)}" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存套餐</button></div></div><div class="pc-admin-note">当前成员 ${escapeHtml(String(organization.memberCount))} 人，建议席位不低于成员数。${escapeHtml(upgradeNote)}</div></form></div>`;
+		const subscriptionEditor = `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>套餐与席位</h4><span>${escapeHtml(subscriptionExpirySummary(organization.expiresAt, organization.status))}</span></div><form class="pc-org-add-form" data-org-subscription-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input pc-org-select" data-org-plan><option value="free"${organization.plan === 'free' ? ' selected' : ''}>FREE</option><option value="pro"${organization.plan === 'pro' ? ' selected' : ''}>PRO</option><option value="ultra"${organization.plan === 'ultra' ? ' selected' : ''}>ULTRA</option></select></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-status><option value="active"${organization.status === 'active' ? ' selected' : ''}>active</option><option value="trial"${organization.status === 'trial' ? ' selected' : ''}>trial</option><option value="expired"${organization.status === 'expired' ? ' selected' : ''}>expired</option><option value="canceled"${organization.status === 'canceled' ? ' selected' : ''}>canceled</option></select></label><label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-seats value="${escapeHtml(String(organization.seats || defaultSeatsForPlan(organization.plan)))}" /></label></div><div class="pc-org-form-grid"><label class="pc-org-field"><span>到期日期</span><input class="pc-profile-input" type="date" data-org-expires-at value="${escapeHtml(expiryInput)}" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存套餐</button></div></div><div class="pc-admin-note">当前成员 ${escapeHtml(String(organization.memberCount))} 人，建议席位不低于成员数。${escapeHtml(upgradeNote)}</div></form></div>`;
+		return `${subscriptionEditor}${renderAutoRenewalCard('organization', organization.id, {
+			plan: organization.plan,
+			status: organization.status,
+			expiresAt: organization.expiresAt || '',
+			seats: organization.seats
+		})}`;
 	}
 
 	function organizationMemberLabelById(organization: ManagedOrganization, userId: string): string {
@@ -4492,9 +5314,78 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return Boolean(root?.classList.contains('pc-open'));
 	}
 
+	function contextIdentityKey(ctx: PCContext): string {
+		if (ctx.guest) return 'guest';
+		return `${ctx.id || ctx.username || 'anonymous'}|${[...(ctx.roles || [])].sort().join(',')}`;
+	}
+
+	function resetPersonalCenterNavigationState(): void {
+		activeSection = 'dashboard';
+		activeDashboardSubpage = '';
+		activeRoleContent = '';
+		activeWorkbench = '';
+		activeFavoriteFolderId = '';
+		activeAccountEditor = '';
+		activeContactVerificationEditor = '';
+		managedOrganizationOpenState = {};
+		const content = document.getElementById('pc-content');
+		if (content) content.scrollTop = 0;
+	}
+
+	function resetPersonalCenterIdentityState(): void {
+		resetPersonalCenterNavigationState();
+		organizationMemberDrafts = {};
+		activeOrganizationRolePermissionRoles = {};
+		activeOrganizationMemberRoles = {};
+		organizationLearningGroupCampusFilters = {};
+		managedOrganizations = [];
+		managedOrganizationsCacheKey = '';
+		managedOrganizationListPage = { page: 1, pageSize: 20, pages: 0, total: 0, query: '' };
+		managedOrganizationDetailState = {};
+		organizationMemberListPages = {};
+		organizationLearningGroupListPages = {};
+		organizationCampusListPages = {};
+		organizationCoursePackageListPages = {};
+		pendingInvitations = [];
+		pendingInvitationsCacheKey = '';
+		favoriteBookmarkQuestions = [];
+		favoriteBookmarkFolders = [];
+		favoriteBookmarksCacheKey = '';
+		recentLearningItems = [];
+		recentLearningCacheKey = '';
+		institutionRoleWorkbenchData = null;
+		institutionRoleWorkbenchCacheKey = '';
+		referralCodeDraft = '';
+		contactVerificationDraft = {
+			email: '',
+			emailCode: '',
+			phone: '',
+			phoneCode: '',
+			changeChallengeChannel: '',
+			changeChallengeCode: ''
+		};
+		accountSecurityDraft = {
+			currentPassword: '',
+			newPassword: '',
+			confirmPassword: '',
+			wechatCode: 'wxdev_001',
+			deleteConfirmation: '',
+			deletePhoneCode: ''
+		};
+		auditLogModal?.remove();
+		auditDetailModal?.remove();
+		auditLogModal = null;
+		auditDetailModal = null;
+		auditLogState.offset = 0;
+		auditLogState.lastTotal = 0;
+		auditLogState.lastItems = [];
+		auditLogState.actions = [];
+		auditLogState.actionLabels = {};
+	}
+
 	function openPanel(): void {
 		const root = ensureRoot();
-		activeSection = 'dashboard';
+		resetPersonalCenterNavigationState();
 		organizationInviteTokenDraft = organizationInviteTokenDraft || inviteTokenFromUrl();
 		seedContactVerificationDraft(getContext());
 		root.classList.remove('pc-hidden');
@@ -4550,6 +5441,19 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	function syncHeaderActions(): void {
 		const backBtn = document.getElementById('pc-header-back') as HTMLButtonElement | null;
+		const panel = document.querySelector('#personal-center .pc-panel');
+		const isSupportPage = activeRoleContent.startsWith('support-');
+		// 简单列表不需要占用完整管理工作区；复杂表格和配置页才使用宽面板。
+		const needsMediumWorkspace = activeSection === 'dashboard'
+			&& activeDashboardSubpage === 'role-content'
+			&& activeRoleContent === 'platform-users';
+		const needsWideWorkspace = activeSection === 'admin-hub'
+			|| (activeSection === 'dashboard'
+				&& activeDashboardSubpage === 'role-content'
+				&& !isSupportPage
+				&& !needsMediumWorkspace);
+		panel?.classList.toggle('pc-panel-medium', needsMediumWorkspace);
+		panel?.classList.toggle('pc-panel-wide', needsWideWorkspace);
 		if (!backBtn) {
 			return;
 		}
@@ -4903,14 +5807,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			banner.innerHTML = '';
 			return;
 		}
-		const api = window.APIClient;
-		if (!api || typeof api.listMyAssignments !== 'function') {
-			banner.hidden = true;
-			return;
-		}
 		try {
-			const data = (await api.listMyAssignments()) as { items?: Array<Record<string, unknown>> } | null;
-			const items = Array.isArray(data?.items) ? (data!.items as Array<Record<string, unknown>>) : [];
+			await ensureMyAssignments(ctx);
+			const items = myAssignmentItems.slice();
 			if (items.length === 0) {
 				banner.hidden = true;
 				banner.innerHTML = '';
@@ -4936,11 +5835,19 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					const submitted = !!readString(ownSubmission.submitted_at);
 					const returned = readString(ownSubmission.review_status) === 'returned' || readString(ownSubmission.status) === 'returned';
 					const teacherComment = readString(ownSubmission.teacher_comment);
+					const ownReminders = Array.isArray(it.own_reminders)
+						? it.own_reminders.map((item) => asRecord(item) || {})
+						: [];
+					const latestReminder = ownReminders
+						.slice()
+						.sort((a, b) => (readString(b.created_at) || '').localeCompare(readString(a.created_at) || ''))[0];
+					const reminderMessage = !submitted ? readString(latestReminder?.message) : '';
 					return `
 						<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px dashed #eee;">
 							<div>
 								<div style="font-size:13px;">${title}${returned ? ' · 已退回重做' : submitted ? ' · 已交' : ''}</div>
 								<div style="font-size:12px;color:#888;">截止：${dueAt} · 试卷 <code>${escapeHtmlSafe(examId)}</code>${returned && teacherComment ? ` · 评语：${escapeHtmlSafe(teacherComment)}` : ''}</div>
+								${reminderMessage ? `<div class="pc-assignment-reminder-message">催交提醒：${escapeHtmlSafe(reminderMessage)}</div>` : ''}
 							</div>
 							<button class="risk-btn" data-asg-action="open" data-exam-id="${escapeHtmlSafe(examId)}" data-assignment-id="${escapeHtmlSafe(assignmentId)}">${returned ? '重新提交' : submitted ? '再做一次' : '去做题'}</button>
 						</div>`;
@@ -5273,6 +6180,17 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		gate?: (ctx: PCContext) => boolean;
 	}
 
+	interface StudentContentEntry extends WorkbenchAction {
+		dashboardPage?: DashboardSubpage;
+		entitlement?: string;
+	}
+
+	interface StudentContentGroup {
+		id: string;
+		title: string;
+		items: StudentContentEntry[];
+	}
+
 	interface WorkbenchDef {
 		id: WorkbenchId;
 		label: string;
@@ -5299,6 +6217,97 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	function visibleAction(ctx: PCContext, action: WorkbenchAction): boolean {
 		return action.gate ? action.gate(ctx) : true;
+	}
+
+	function studentFeatureEntry(id: string, desc: string, entitlement?: string): StudentContentEntry {
+		const feature = featureById(id);
+		return {
+			title: feature?.title || id,
+			desc,
+			icon: feature?.icon || 'book',
+			intent: feature?.intent || '',
+			gate: feature?.gate,
+			entitlement
+		};
+	}
+
+	function studentContentGroups(): StudentContentGroup[] {
+		return [
+			{
+				id: 'today',
+				title: '今日学习',
+				items: [
+					{ title: '最近学习', desc: '继续上次进度', icon: 'clock', intent: '', dashboardPage: 'recent' },
+					studentFeatureEntry('dailyPractice', '今日推荐练习'),
+					studentFeatureEntry('srsReview', '按计划巩固'),
+					{ title: '我的作业', desc: '老师布置任务', icon: 'folder', intent: 'openAssignments' }
+				]
+			},
+			{
+				id: 'review',
+				title: '巩固整理',
+				items: [
+					studentFeatureEntry('wrongQuestions', '订正与掌握'),
+					{
+						...studentFeatureEntry('bookmarkFolders', '收藏题与清单'),
+						title: '收藏',
+						icon: 'heart',
+						dashboardPage: 'favorites'
+					},
+					studentFeatureEntry('vocabNotebook', '生词与复习'),
+					studentFeatureEntry('recommendedReview', '智能推荐题目', 'recommendation.personalized')
+				]
+			},
+			{
+				id: 'progress',
+				title: '学习规划',
+				items: [
+					studentFeatureEntry('chapterPath', '按章节学习'),
+					studentFeatureEntry('learningReport', '趋势与薄弱项'),
+					studentFeatureEntry('studyGoal', '目标与倒计时'),
+					studentFeatureEntry('community', '参与试卷讨论')
+				]
+			}
+		];
+	}
+
+	function entitlementUpgradeIntent(entitlementKey: string, requiredPlan?: string): string {
+		return `openEntitlementUpgrade:${encodeURIComponent(entitlementKey)}:${encodeURIComponent(requiredPlan || '')}`;
+	}
+
+	function renderStudentContentEntry(ctx: PCContext, entry: StudentContentEntry): string {
+		const decision = entry.entitlement
+			? resolveEntitlement(ctx.subscription, entry.entitlement)
+			: { granted: true, known: false };
+		const locked = decision.known && !decision.granted;
+		const action = entry.dashboardPage
+			? ` data-dashboard-page="${escapeHtml(entry.dashboardPage)}"`
+			: ` data-intent="${escapeHtml(locked && entry.entitlement
+				? entitlementUpgradeIntent(entry.entitlement, decision.requiredPlan)
+				: entry.intent)}"`;
+		const lockAttributes = locked
+			? ` data-entitlement-locked="true" aria-label="${escapeHtml(`${entry.title}，${(decision.requiredPlan || '更高').toUpperCase()} 套餐解锁`)}"`
+			: '';
+		return `<button type="button" class="service-item pc-my-content-item${locked ? ' is-entitlement-locked' : ''}"${action}${lockAttributes}>
+			<div class="pc-my-content-icon">${renderOutlineIcon(entry.icon, 'pc-service-icon')}</div>
+			<div>
+				<strong>${escapeHtml(entry.title)}</strong>
+				<span>${escapeHtml(entry.desc || '')}</span>
+				${locked ? `<b class="pc-entitlement-badge">${escapeHtml((decision.requiredPlan || '升级').toUpperCase())}</b>` : ''}
+			</div>
+		</button>`;
+	}
+
+	function renderStudentContentGroups(ctx: PCContext): string {
+		const groups = studentContentGroups()
+			.map((group) => ({ ...group, items: group.items.filter((item) => visibleAction(ctx, item)) }))
+			.filter((group) => group.items.length > 0);
+		return `<div class="pc-student-content-groups">
+			${groups.map((group) => `<section class="pc-student-content-group" data-student-content-group="${escapeHtml(group.id)}">
+				<h3 class="pc-student-content-title">${escapeHtml(group.title)}</h3>
+				<div class="pc-my-content-grid">${group.items.map((item) => renderStudentContentEntry(ctx, item)).join('')}</div>
+			</section>`).join('')}
+		</div>`;
 	}
 
 	function availableWorkbenches(ctx: PCContext): WorkbenchDef[] {
@@ -5370,14 +6379,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				actions: [
 					{ title: '催交作业', desc: '未提交与逾期', icon: 'book', intent: 'openRoleContent:assistant-remind' },
 					{ title: '学员跟进', desc: '联系记录与备注', icon: 'profileMark', intent: 'openRoleContent:assistant-followup' },
-					{ title: '待联系学生', desc: '今日触达名单', icon: 'profileMark', intent: 'openRoleContent:assistant-contact' },
-					{ title: '续费风险', desc: '课时与流失风险', icon: 'chart', intent: 'openRoleContent:assistant-renewal' }
+					{ title: '续费风险', desc: '课时与流失风险', icon: 'chart', intent: 'openRoleContent:assistant-renewal' },
+					{ title: '异常提醒', desc: '逾期与学习中断', icon: 'badge', intent: 'openRoleContent:assistant-alerts' }
 				],
 				more: [
+					{ title: '学习组', icon: 'folder', intent: 'openRoleContent:teacher-groups' },
+					{ title: '课程表', icon: 'clock', intent: 'openRoleContent:teacher-schedule' },
 					{ title: '课程包', icon: 'ticket', intent: 'openRoleContent:assistant-package' },
-					{ title: '安排课程', icon: 'clock', intent: 'openRoleContent:assistant-arrange' },
-					{ title: '联系记录', icon: 'community', intent: 'openRoleContent:assistant-contact-log' },
-					{ title: '异常提醒', icon: 'badge', intent: 'openRoleContent:assistant-alerts' }
+					{ title: '安排课程', icon: 'clock', intent: 'openRoleContent:assistant-arrange' }
 				]
 			},
 			orgAdmin: {
@@ -5399,19 +6408,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				id: 'contentAdmin',
 				label: '内容管理',
 				title: '内容工作台',
-				subtitle: '维护试卷、音频、图片、答案和解析。',
+				subtitle: '处理内容反馈，并完成质检、复核、发布和回滚。',
 				actions: [
-					{ title: '试卷维护', desc: '题干和选项', icon: 'book', intent: 'openRoleContent:content-paper' },
-					{ title: '解析审核', desc: '答案与补充解析', icon: 'profileMark', intent: 'openRoleContent:content-analysis' },
-					{ title: '音频检查', desc: '切割和时间戳', icon: 'sync', intent: 'openRoleContent:content-audio' },
-					{ title: '质量检查', desc: '缺失和错误项', icon: 'chart', intent: 'openRoleContent:content-quality' }
+					{ title: '内容反馈', desc: '题目、答案、图片和音频问题', icon: 'community', intent: 'openRoleContent:content-feedback' },
+					{ title: '发布工作流', desc: '质检、双人复核与发布', icon: 'badge', intent: 'openRoleContent:content-publish' },
+					{ title: '内容日志', desc: '发布、回滚与审核记录', icon: 'settings', intent: 'openAuditLog' }
 				],
-				more: [
-					{ title: '图片检查', icon: 'folder', intent: 'openRoleContent:content-images' },
-					{ title: '答案检查', icon: 'book', intent: 'openRoleContent:content-answers' },
-					{ title: '发布队列', icon: 'badge', intent: 'openRoleContent:content-publish' },
-					{ title: '内容日志', icon: 'settings', intent: 'openAuditLog' }
-				]
+				more: []
 			},
 			superAdmin: {
 				id: 'superAdmin',
@@ -5768,9 +6771,18 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	}
 
 	function renderAccountCorePage(ctx: PCContext): string {
+		const exportDecision = resolveEntitlement(ctx.subscription, 'export.standard');
+		const exportLocked = exportDecision.known && !exportDecision.granted;
 		const accountDataRows: RoleContentRow[] = [
 			{ title: '个人资料与联系人', desc: '维护头像、邮箱、手机号和推荐关系', meta: '管理', intent: 'gotoProfile' },
-			{ title: '数据导出', desc: '导出个人资料、学习记录和收藏数据', meta: '导出', intent: 'openDataExport' },
+			{
+				title: '数据导出',
+				desc: exportLocked ? '完整导出个人资料、学习记录和收藏数据' : '导出个人资料、学习记录和收藏数据',
+				meta: exportLocked ? `${(exportDecision.requiredPlan || '升级').toUpperCase()} 解锁` : '导出',
+				intent: exportLocked
+					? entitlementUpgradeIntent('export.standard', exportDecision.requiredPlan)
+					: 'openDataExport'
+			},
 			{ title: 'Google 绑定', desc: '当前未绑定 Google 账号', meta: '未绑定' }
 		];
 		const syncFeature = featureItems.find((feature) => feature.id === 'syncDevices');
@@ -5787,8 +6799,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			{ title: '当前套餐', desc: `${planLabel(subscription?.plan)} · ${subscription?.status || 'active'} · ${subscription?.expiresAt || '长期'}`, meta: '当前' },
 			{ title: '续费 / 升级', desc: '选择个人套餐并创建支付订单', meta: '进入', intent: 'openRecharge' },
 			{ title: '支付流水', desc: '查看真实订单、支付成功、退款申请和权益发放记录', meta: '流水', intent: 'openPaymentLedger' }
-		])}`;
-		return renderDashboardSubpage('套餐', body, '查看当前套餐、订单、支付流水和退款记录。');
+		])}${renderAutoRenewalCard('personal', ctx.id || '', {
+			plan: subscription?.plan || 'free',
+			status: subscription?.status || 'active',
+			expiresAt: subscription?.expiresAt || ctx.planExpiresAt || '',
+			seats: 1
+		})}${renderPaymentNotificationInbox()}`;
+		return renderDashboardSubpage('套餐', body, '查看当前套餐、自动续费授权、到期提醒、订单和退款记录。');
 	}
 
 	function renderAccountCouponsPage(ctx: PCContext): string {
@@ -6195,7 +7212,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		} else if (key === 'teacher-schedule') {
 			page = { title: '课程表', subtitle: '已排时间的班课、约课和待确认课次。', rows: institutionScheduleRows(data) };
 		} else if (key === 'teacher-arrange' || key === 'assistant-arrange') {
-			page = { title: '安排课程', subtitle: '当前已有排课；新建课程仍从机构管理的学习组表单创建。', rows: institutionScheduleRows(data) };
+			page = { title: '安排课程', subtitle: '选择学习组进入排课详情，可设置开始时间、结束时间和课程状态。', rows: institutionGroupRows(data) };
 		} else if (key === 'teacher-review') {
 			page = { title: '待批改', subtitle: '数据来自机构成绩接口，只显示已有真实提交且尚未完成批改的作业。', rows: institutionAssignmentRows(data, false, true) };
 		} else if (key === 'teacher-assign') {
@@ -6208,16 +7225,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			page = { title: '催交作业', subtitle: '只列出真实作业中尚有学员未提交的项目。', rows: institutionAssignmentRows(data, true) };
 		} else if (key === 'assistant-package') {
 			page = { title: '课程包', subtitle: '课次余额和到期状态来自机构课程包接口。', rows: institutionCoursePackageRoleRows(data) };
-		} else if (key === 'assistant-renewal' || key === 'assistant-contact') {
+		} else if (key === 'assistant-renewal') {
 			page = {
-				title: key === 'assistant-renewal' ? '续费风险' : '待联系学生',
+				title: '续费风险',
 				subtitle: '名单由真实套餐到期时间和学习活跃度计算。',
 				rows: institutionRenewalRiskRows(data)
 			};
 		} else if (key === 'assistant-followup') {
 			page = { title: '学员跟进', subtitle: '打开真实学员档案，查看学习中断风险并新增跟进记录。', rows: institutionStudentRows(data) };
-		} else if (key === 'assistant-contact-log') {
-			page = { title: '联系记录', subtitle: '当前接口未提供独立联系日志；可从真实学员档案继续查看记录。', rows: institutionStudentRows(data) };
 		} else {
 			page = { title: '异常提醒', subtitle: '由真实未交作业和续费风险合并生成。', rows: [...institutionAssignmentRows(data, true), ...institutionRenewalRiskRows(data)] };
 		}
@@ -6260,17 +7275,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			'teacher-prep': emptyRows('备课', '备课方案来自机构备课接口。', '当前没有已保存的备课方案。'),
 			'assistant-remind': emptyRows('催交作业', '只展示真实作业的未交和逾期情况。', '当前没有需要催交的作业。'),
 			'assistant-followup': emptyRows('学员跟进', '学员状态来自真实学习记录和课程包。', '当前没有需要跟进的学员。'),
-			'assistant-contact': emptyRows('待联系学生', '待联系名单来自真实续费风险和学习活跃度。', '当前没有待联系学员。'),
 			'assistant-renewal': emptyRows('续费风险', '续费风险来自套餐到期时间和真实学习活跃度。', '当前没有续费风险记录。'),
 			'assistant-package': emptyRows('课程包', '课程包余额来自机构课程包接口。', '当前没有可查看的课程包。', openRoleContentIntent('org-course-packages')),
-			'assistant-contact-log': emptyRows('联系记录', '联系记录只展示真实老师备注和后台操作记录。', '当前没有真实联系记录。'),
 			'assistant-alerts': emptyRows('异常提醒', '异常由真实作业逾期、学习中断和套餐状态计算。', '当前没有异常提醒。'),
-			'content-paper': emptyRows('试卷维护', '队列来自真实内容反馈。', '当前没有待处理的试卷反馈。'),
-			'content-analysis': emptyRows('解析审核', '队列来自真实答案、解析和翻译反馈。', '当前没有待审核的解析反馈。'),
-			'content-quality': emptyRows('质量检查', '队列来自真实缺失、错位和复核反馈。', '当前没有质量问题反馈。'),
-			'content-audio': emptyRows('音频检查', '音频问题来自真实内容反馈。', '当前没有音频问题反馈。', openRoleContentIntent('platform-feedback')),
-			'content-images': emptyRows('图片检查', '图片问题来自真实内容反馈。', '当前没有图片问题反馈。', openRoleContentIntent('platform-feedback')),
-			'content-answers': emptyRows('答案检查', '答案问题来自真实内容反馈。', '当前没有答案问题反馈。', openRoleContentIntent('platform-feedback')),
 			'content-publish': emptyRows('发布队列', '发布候选来自真实试卷索引。', '当前没有待发布的真实试卷。'),
 			'content-log': emptyRows('内容日志', '内容变更记录来自审计日志。', '打开审计日志查看真实内容操作记录。', 'openAuditLog'),
 			'platform-audit': emptyRows('审计日志', '审计日志只展示真实高危操作和后台记录。', '打开审计日志查看记录。', 'openAuditLog'),
@@ -6772,7 +7779,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			platformFeedbackLoaded = true;
 		} finally {
 			platformFeedbackLoading = false;
-			if (shouldRefreshRoleContent('platform-feedback', 'content-analysis', 'content-quality', 'content-paper')) {
+			if (shouldRefreshRoleContent('platform-feedback', 'content-feedback')) {
 				renderSectionContent({ preserveScroll: true });
 			}
 		}
@@ -6874,7 +7881,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		}
 		if (!platformPaymentsLoaded && !platformPaymentsLoading) void loadPlatformPayments();
 		const { orders, refunds, ledger, anomalies, totalOrders, totalRefunds, totalLedger, pages } = platformPaymentState;
-		const paymentLink = (label: string, intent: string) => `<button class="pc-inline-ghost service-item" type="button" data-intent="${escapeHtml(intent)}">${escapeHtml(label)}</button>`;
+		const paymentLink = (label: string, intent: string) => `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(intent)}">${escapeHtml(label)}</button>`;
 		const orderRows = orders.length ? orders.map((order) => {
 			const id = readString(order.id) || '';
 			const scope = readString(order.scope_type) || 'user';
@@ -6905,7 +7912,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				<div class="pc-admin-note">退款接口只接受已支付订单；微信/支付宝/Stripe 商户参数齐全时会尝试调用渠道退款，否则进入人工/渠道后台处理状态。</div>
 			</form>
 		</div>`;
-		const organizationOrderForm = `<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">创建机构扩席订单</div><form class="pc-org-add-form" data-organization-payment-order-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>机构 ID</span><input class="pc-profile-input" data-org-payment-organization-id required /></label><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input" data-org-payment-plan><option value="pro">PRO</option><option value="ultra">ULTRA</option></select></label><label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" value="10" data-org-payment-seats /></label><label class="pc-org-field"><span>时长</span><select class="pc-profile-input" data-org-payment-days><option value="30">30 天</option><option value="90">90 天</option><option value="365">365 天</option></select></label><label class="pc-org-field"><span>渠道</span><select class="pc-profile-input" data-org-payment-provider><option value="wechat">微信</option><option value="alipay">支付宝</option><option value="stripe">Stripe</option></select></label><label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-org-payment-password /></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">创建扩席订单</button></div><div class="pc-admin-note">金额按当前套餐单席价格 × 席位数计算；支付成功后自动发放机构套餐与席位权益。</div></form></div>`;
+		const organizationOrderForm = `<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">创建机构套餐订单</div><form class="pc-org-add-form" data-organization-payment-order-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>机构 ID</span><input class="pc-profile-input" data-org-payment-organization-id required /></label><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input" data-org-payment-plan><option value="pro">机构 PRO</option><option value="ultra">机构 ULTRA</option></select></label><label class="pc-org-field"><span>有效成员席位</span><input class="pc-profile-input" type="number" min="${paymentPricingConfig.catalogs.organization.minimumSeats.pro}" max="${paymentPricingConfig.catalogs.organization.customQuoteMinSeats - 1}" value="${paymentPricingConfig.catalogs.organization.minimumSeats.pro}" data-org-payment-seats /></label><label class="pc-org-field"><span>计费周期</span><select class="pc-profile-input" data-org-payment-days><option value="30">月付 · 30 天</option><option value="365" selected>年付 · 365 天（推荐）</option></select></label><label class="pc-org-field"><span>渠道</span><select class="pc-profile-input" data-org-payment-provider><option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信</option><option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option><option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe</option></select></label><label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-org-payment-password /></label></div><div class="pc-pricing-order-preview" data-org-payment-preview>${organizationPaymentPreviewText('pro', 365, paymentPricingConfig.catalogs.organization.minimumSeats.pro)}</div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">创建机构订单</button></div><div class="pc-admin-note">教师与管理员不占付费席位；${paymentPricingConfig.catalogs.organization.customQuoteMinSeats} 席及以上转企业销售定制报价。</div></form></div>`;
 		const shortcuts = renderRoleListCard('支付配置', [
 			{ title: '套餐价格', desc: '维护 PRO / ULTRA 的 30、90、365 天真实价格', meta: '设置', intent: openRoleContentIntent('platform-pricing') },
 			{ title: '我的支付流水', desc: '从用户视角核对当前管理员账号的支付流水', meta: '查看', intent: 'openPaymentLedger' }
@@ -6926,7 +7933,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const relatedLedger = platformPaymentState.ledger.filter((row) => readString(row.order_id) === orderId);
 		const fields = Object.entries(item).filter(([, value]) => ['string', 'number', 'boolean'].includes(typeof value)).map(([key, value]) => `<div class="pc-info-row"><span>${escapeHtml(key)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join('');
 		const userId = readString(item.user_id) || '';
-		const links = `<div class="pc-org-form-actions"><button class="pc-inline-ghost service-item" type="button" data-intent="${escapeHtml(openRoleContentIntent('platform-payments'))}">返回支付管理</button>${userId ? `<button class="pc-inline-ghost service-item" type="button" data-intent="${escapeHtml(openRoleContentIntent(`user:${encodeURIComponent(userId)}`))}">查看用户</button>` : ''}${kind === 'refund' ? `<button class="pc-inline-ghost service-item" type="button" data-intent="${escapeHtml(openRoleContentIntent(`platform-payment-order:${encodeURIComponent(orderId)}`))}">查看订单</button>` : ''}</div>`;
+		const links = `<div class="pc-org-form-actions"><button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent('platform-payments'))}">返回支付管理</button>${userId ? `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent(`user:${encodeURIComponent(userId)}`))}">查看用户</button>` : ''}${kind === 'refund' ? `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent(`platform-payment-order:${encodeURIComponent(orderId)}`))}">查看订单</button>` : ''}</div>`;
 		const relations = `<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">关联退款（${relatedRefunds.length}）</div>${relatedRefunds.map((row) => `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(readString(row.id))}</strong><em>${escapeHtml(readString(row.status))} · ${escapeHtml(formatPaymentAmount(-(readNumber(row.amount_cents) ?? 0), readString(row.currency) || 'cny'))}</em></span></div>`).join('') || '<div class="pc-admin-note">无关联退款</div>'}</div><div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">关联流水（${relatedLedger.length}）</div>${relatedLedger.map((row) => `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(readString(row.type))}</strong><em>${escapeHtml(readString(row.summary))} · ${escapeHtml(readString(row.created_at))}</em></span></div>`).join('') || '<div class="pc-admin-note">无关联流水</div>'}</div>`;
 		return renderDashboardSubpage(kind === 'order' ? `订单 ${id}` : `退款 ${id}`, `${links}<div class="pc-card pc-info-card">${fields}</div>${relations}`, '订单、用户、退款和流水的关联详情。');
 	}
@@ -6988,6 +7995,63 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		}
 	}
 
+	function organizationPaymentPreviewText(plan: PaidPersonalPlan, days: number, seats: number): string {
+		const catalog = paymentPricingConfig.catalogs.organization;
+		if (seats >= catalog.customQuoteMinSeats) {
+			return `<strong>定制报价</strong><span>${seats} 席已达到企业销售门槛，请转销售合同流程。</span>`;
+		}
+		const minimumSeats = catalog.minimumSeats[plan];
+		if (seats < minimumSeats) {
+			return `<strong>最低 ${minimumSeats} 席</strong><span>${plan.toUpperCase()} 当前席位数不足，无法创建自助订单。</span>`;
+		}
+		const unitCents = pricingAmountCents(plan, days, 'cny', 'organization', seats);
+		const totalCents = unitCents * seats;
+		const monthlyEquivalent = days === 365 ? totalCents / 12 : totalCents;
+		return `<strong>${plan.toUpperCase()} · ${seats} 席 · ${days === 365 ? '年付' : '月付'}</strong>
+			<span>单价 ${formatAmountCny(unitCents)}/席/${days === 365 ? '年' : '月'} · 合计 ${formatAmountCny(totalCents)}${days === 365 ? ` · 折合 ${formatAmountCny(Math.round(monthlyEquivalent))}/月` : '/月'}</span>`;
+	}
+
+	async function updateOrganizationPaymentPreview(form: HTMLFormElement, enforceMinimum = false): Promise<void> {
+		const plan = ((form.querySelector('[data-org-payment-plan]') as HTMLSelectElement | null)?.value === 'ultra'
+			? 'ultra'
+			: 'pro') as PaidPersonalPlan;
+		const days = Number((form.querySelector('[data-org-payment-days]') as HTMLSelectElement | null)?.value || '365');
+		const seatsInput = form.querySelector('[data-org-payment-seats]') as HTMLInputElement | null;
+		const minimumSeats = paymentPricingConfig.catalogs.organization.minimumSeats[plan];
+		if (seatsInput) {
+			seatsInput.min = String(minimumSeats);
+			if (enforceMinimum && Number(seatsInput.value) < minimumSeats) seatsInput.value = String(minimumSeats);
+		}
+		const seats = Number(seatsInput?.value || minimumSeats);
+		const preview = form.querySelector('[data-org-payment-preview]') as HTMLElement | null;
+		if (!preview) return;
+		preview.innerHTML = organizationPaymentPreviewText(plan, days, seats);
+		if (seats < minimumSeats || seats >= paymentPricingConfig.catalogs.organization.customQuoteMinSeats) return;
+		const organizationId = ((form.querySelector('[data-org-payment-organization-id]') as HTMLInputElement | null)?.value || '').trim();
+		const api = window.APIClient;
+		const token = activeToken(getContext());
+		const sequence = ++organizationQuoteRequestSequence;
+		if (!organizationId || !token || !api || typeof api.getPaymentQuote !== 'function') return;
+		preview.insertAdjacentHTML('beforeend', '<span>正在确认该机构可用的首购、续费或活动优惠…</span>');
+		try {
+			const quote = normalizePaymentQuote(await api.getPaymentQuote(token, {
+				scope_type: 'organization',
+				organization_id: organizationId,
+				plan,
+				days,
+				seats,
+				currency: 'cny'
+			}));
+			if (sequence !== organizationQuoteRequestSequence || !quote || !preview.isConnected) return;
+			preview.innerHTML = `${paymentQuoteMarkup(quote)}
+				<span>优惠后单价 ${formatAmountCny(quote.unitPriceCents)}/席/${days === 365 ? '年' : '月'} · ${plan.toUpperCase()} · ${seats} 席</span>`;
+		} catch (error) {
+			if (sequence !== organizationQuoteRequestSequence || !preview.isConnected) return;
+			preview.innerHTML = organizationPaymentPreviewText(plan, days, seats);
+			preview.insertAdjacentHTML('beforeend', '<span>填写有效机构 ID 后可确认该机构的专属优惠。</span>');
+		}
+	}
+
 	async function submitOrganizationPaymentOrder(form: HTMLFormElement): Promise<void> {
 		clearFormFieldErrors(form);
 		const token = activeToken(getContext());
@@ -7000,8 +8064,16 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			else showToast('机构扩席订单接口不可用');
 			return;
 		}
+		const plan = ((form.querySelector('[data-org-payment-plan]') as HTMLSelectElement | null)?.value === 'ultra'
+			? 'ultra'
+			: 'pro') as PaidPersonalPlan;
 		const seats = Number(seatsInput?.value || '0');
-		if (!Number.isInteger(seats) || seats < 1) { setFieldError(seatsInput, '席位数必须是大于 0 的整数'); return; }
+		const minimumSeats = paymentPricingConfig.catalogs.organization.minimumSeats[plan];
+		if (!Number.isInteger(seats) || seats < minimumSeats) { setFieldError(seatsInput, `${plan.toUpperCase()} 最低购买 ${minimumSeats} 席`); return; }
+		if (seats >= paymentPricingConfig.catalogs.organization.customQuoteMinSeats) {
+			setFieldError(seatsInput, `${paymentPricingConfig.catalogs.organization.customQuoteMinSeats} 席及以上需要企业定制报价`);
+			return;
+		}
 		if (!await requestConfirmation(`确认创建机构 ${organizationId} 的扩席支付订单？`)) return;
 		const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
 		if (submit?.disabled) return;
@@ -7009,7 +8081,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		try {
 			const order = asRecord(await api.createOrganizationPaymentOrder(token, {
 				organization_id: organizationId,
-				plan: (form.querySelector('[data-org-payment-plan]') as HTMLSelectElement | null)?.value || 'pro',
+				plan,
 				seats,
 				days: Number((form.querySelector('[data-org-payment-days]') as HTMLSelectElement | null)?.value || '30'),
 				provider: (form.querySelector('[data-org-payment-provider]') as HTMLSelectElement | null)?.value || 'wechat',
@@ -7149,39 +8221,108 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		if (!hasAnyRole(ctx, ['superAdmin'])) {
 			return renderDashboardSubpage('套餐价格', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">需要超级管理员权限。</div></div>', '维护平台套餐价格。');
 		}
-		const renderInput = (plan: PaidPersonalPlan, days: number) => {
-			const yuan = pricingAmountCents(plan, days) / 100;
-			return `<label class="pc-org-field">
-				<span>${plan.toUpperCase()} ${days} 天</span>
-				<input class="pc-profile-input" type="number" min="0" step="0.1" data-price-plan="${plan}" data-price-days="${days}" value="${escapeHtml(String(yuan))}" />
-			</label>`;
+		const renderPriceInput = (scope: PricingScope, plan: PaidPersonalPlan, days: number) => {
+			const yuan = pricingAmountCents(plan, days, 'cny', scope) / 100;
+			return `<input class="pc-profile-input pc-pricing-input" aria-label="${scope === 'personal' ? '个人' : '机构'} ${plan.toUpperCase()} ${days} 天价格"
+				type="number" min="0.01" step="0.01" data-price-scope="${scope}" data-price-plan="${plan}" data-price-days="${days}" value="${escapeHtml(String(yuan))}" />`;
 		};
-		const body = `<div class="pc-card pc-lite-list-card">
-			<div class="pc-my-content-head">套餐价格</div>
-			<form data-pricing-form>
-				<div class="pc-admin-note">单位为 RMB 元。保存后，续费弹窗展示价和后端创建订单金额都会使用这份配置。</div>
-				<div class="pc-org-form-grid pc-org-form-grid-3">
-					${renderInput('pro', 30)}
-					${renderInput('pro', 90)}
-					${renderInput('pro', 365)}
-					${renderInput('ultra', 30)}
-					${renderInput('ultra', 90)}
-					${renderInput('ultra', 365)}
+		const organization = paymentPricingConfig.catalogs.organization;
+		const personalRows = (['pro', 'ultra'] as PaidPersonalPlan[]).map((plan) => `<tr>
+			<th scope="row">${plan.toUpperCase()}${plan === 'pro' ? '<small>主推长期订阅</small>' : '<small>AI 与冲刺能力</small>'}</th>
+			${paymentPricingConfig.catalogs.personal.durations.map((days) => `<td>${renderPriceInput('personal', plan, days)}</td>`).join('')}
+		</tr>`).join('');
+		const organizationRows = (['pro', 'ultra'] as PaidPersonalPlan[]).map((plan) => `<tr>
+			<th scope="row">${plan.toUpperCase()}${plan === 'pro' ? '<small>单校区 / 小型机构</small>' : '<small>多校区 / 深度分析</small>'}</th>
+			<td>${renderPriceInput('organization', plan, 30)}</td>
+			<td>${renderPriceInput('organization', plan, 365)}</td>
+			<td><input class="pc-profile-input pc-pricing-input" aria-label="机构 ${plan.toUpperCase()} 最低席位" type="number" min="1" step="1" data-price-min-seats="${plan}" value="${organization.minimumSeats[plan]}" /></td>
+		</tr>`).join('');
+		const tierRows = organization.seatTiers.map((tier, index) => `<tr>
+			<th scope="row">${tier.minSeats}～${tier.maxSeats} 席</th>
+			<td><input class="pc-profile-input pc-pricing-input" aria-label="${tier.minSeats} 到 ${tier.maxSeats} 席 PRO 年单价" type="number" min="0.01" step="0.01" data-price-tier="${index}" data-price-plan="pro" value="${tier.pricesCents.cny.pro['365'] / 100}" /></td>
+			<td>${tier.pricesCents.cny.ultra['365'] > 0
+				? `<input class="pc-profile-input pc-pricing-input" aria-label="${tier.minSeats} 到 ${tier.maxSeats} 席 ULTRA 年单价" type="number" min="0.01" step="0.01" data-price-tier="${index}" data-price-plan="ultra" value="${tier.pricesCents.cny.ultra['365'] / 100}" />`
+				: '<span class="pc-pricing-na">不适用</span>'}</td>
+		</tr>`).join('');
+		const offerDateValue = (value: string): string => {
+			if (!value) return '';
+			const date = new Date(value);
+			if (Number.isNaN(date.getTime())) return '';
+			return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+		};
+		const offerDescription: Record<PaymentPricingOffer['id'], string> = {
+			first_purchase: '仅从未产生过成功付费订单的客户',
+			renewal: '仅当前仍有有效付费套餐的客户',
+			campaign: '时间范围内的所有新订单'
+		};
+		const renderOfferCards = (scope: PricingScope): string => paymentPricingConfig.catalogs[scope].offers.map((offer) => `
+			<div class="pc-pricing-offer-card" data-price-offer-card data-offer-scope="${scope}" data-offer-id="${offer.id}">
+				<div class="pc-pricing-offer-head">
+					<div><strong>${escapeHtml(offer.label)}</strong><small>${escapeHtml(offerDescription[offer.id])}</small></div>
+					<label class="pc-pricing-switch"><input type="checkbox" data-offer-enabled${offer.enabled ? ' checked' : ''} /><span>启用</span></label>
 				</div>
-				<label class="pc-org-field" style="margin-top:12px;">
-					<span>默认支付渠道</span>
-					<select class="pc-profile-input" data-pricing-default-provider>
+				<div class="pc-pricing-offer-fields">
+					<label class="pc-org-field"><span>优惠比例</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="0" max="90" step="1" data-offer-discount value="${offer.discountPercent}" /><b>%</b></div></label>
+					<label class="pc-org-field"><span>开始时间（可留空）</span><input class="pc-profile-input" type="datetime-local" data-offer-start value="${escapeHtml(offerDateValue(offer.startsAt))}" /></label>
+					<label class="pc-org-field"><span>结束时间（可留空）</span><input class="pc-profile-input" type="datetime-local" data-offer-end value="${escapeHtml(offerDateValue(offer.endsAt))}" /></label>
+				</div>
+			</div>`).join('');
+		const body = `<form data-pricing-form class="pc-pricing-form">
+			<div class="pc-card pc-lite-list-card pc-pricing-overview">
+				<div class="pc-my-content-head">价格商品目录</div>
+				<div class="pc-admin-note">统一维护个人订阅与机构席位商品。所有金额单位为人民币元；保存后，购买页展示价和后端订单金额同时生效。</div>
+				<div class="pc-pricing-summary">
+					<span><b>个人</b> 30 / 90 / 365 天</span>
+					<span><b>机构</b> 30 / 365 天 · 按有效席位</span>
+					<span><b>优惠</b> 首购 / 续费 / 限时活动</span>
+					<span><b>提醒</b> 提前 ${paymentPricingConfig.renewal.reminderDays.join(' / ')} 天</span>
+					<span><b>大客户</b> ${organization.customQuoteMinSeats} 席起转定制报价</span>
+				</div>
+			</div>
+			${renderRenewalOperationsCard()}
+			<div class="pc-card pc-lite-list-card">
+				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">个人套餐</div><p>PRO 是长期订阅主档；ULTRA 的差异集中在 AI、自动化和高级分析。</p></div><span class="pc-tag">按周期定价</span></div>
+				<div class="pc-responsive-table-region" role="region" aria-label="个人套餐价格" tabindex="0">
+					<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天</th><th>90 天</th><th>365 天</th></tr></thead><tbody>${personalRows}</tbody></table>
+				</div>
+			</div>
+			<div class="pc-card pc-lite-list-card">
+				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">运营优惠规则</div><p>优惠不叠加；同一订单满足多项条件时自动使用折扣最高的一项。留空时间表示不限制该边界。</p></div><span class="pc-tag">自动择优</span></div>
+				<div class="pc-pricing-offer-scope"><h4>个人订阅</h4><div class="pc-pricing-offer-grid">${renderOfferCards('personal')}</div></div>
+				<div class="pc-pricing-offer-scope"><h4>机构 / 企业订阅</h4><div class="pc-pricing-offer-grid">${renderOfferCards('organization')}</div></div>
+			</div>
+			<div class="pc-card pc-lite-list-card">
+				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">续费与通知</div><p>统一控制个人和机构订阅的到期提醒、价格变更告知及扣款失败宽限期。</p></div><span class="pc-tag">默认不自动续费</span></div>
+				<div class="pc-pricing-controls pc-pricing-renewal-controls">
+					<label class="pc-org-field"><span>到期提醒（提前天数）</span><input class="pc-profile-input" type="text" inputmode="numeric" data-renewal-reminder-days value="${escapeHtml(paymentPricingConfig.renewal.reminderDays.join(', '))}" placeholder="7, 3, 1" /><small>使用英文逗号分隔，范围 1～30 天。</small></label>
+					<label class="pc-org-field"><span>价格变更至少提前</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="1" max="30" step="1" data-renewal-price-notice-days value="${paymentPricingConfig.renewal.priceChangeNoticeDays}" /><b>天</b></div></label>
+					<label class="pc-org-field"><span>扣款失败宽限期</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="0" max="30" step="1" data-renewal-grace-days value="${paymentPricingConfig.renewal.gracePeriodDays}" /><b>天</b></div></label>
+				</div>
+				<div class="pc-admin-note">自动续费必须由客户单独授权；关闭只影响下一周期。价格调整不改变当前周期，系统会保留授权时价格快照并展示下期差额。</div>
+			</div>
+			<div class="pc-card pc-lite-list-card">
+				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构 / 企业套餐</div><p>教师和管理员不占席位；PRO、ULTRA 分别设置月付、年付及最低购买席位。</p></div><span class="pc-tag">有效席位计费</span></div>
+				<div class="pc-responsive-table-region" role="region" aria-label="机构套餐价格" tabindex="0">
+					<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天 / 席</th><th>365 天 / 席</th><th>最低席位</th></tr></thead><tbody>${organizationRows}</tbody></table>
+				</div>
+			</div>
+			<div class="pc-card pc-lite-list-card">
+				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构年付阶梯价</div><p>订单按席位数量自动选择年单价；达到定制门槛后不再创建自助订单。</p></div><span class="pc-tag">自动套用</span></div>
+				<div class="pc-responsive-table-region" role="region" aria-label="机构年付阶梯价格" tabindex="0">
+					<table class="pc-pricing-table"><thead><tr><th>有效席位</th><th>PRO 年单价</th><th>ULTRA 年单价</th></tr></thead><tbody>${tierRows}</tbody></table>
+				</div>
+				<div class="pc-pricing-controls">
+					<label class="pc-org-field"><span>转定制报价席位数</span><input class="pc-profile-input" type="number" min="2" step="1" data-price-custom-quote value="${organization.customQuoteMinSeats}" /></label>
+					<label class="pc-org-field"><span>默认支付渠道</span><select class="pc-profile-input" data-pricing-default-provider>
 						<option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信支付</option>
 						<option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option>
 						<option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe（海外卡/国际支付）</option>
-					</select>
-				</label>
-				<div class="pc-org-form-actions pc-org-form-actions-end" style="margin-top:14px;">
-					<button class="pc-inline-btn" type="submit">保存价格配置</button>
+					</select></label>
 				</div>
-			</form>
-		</div>`;
-		return renderDashboardSubpage('套餐价格', body, '超级管理员维护个人套餐价格。');
+				<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存全部价格</button></div>
+			</div>
+		</form>`;
+		return renderDashboardSubpage('套餐价格', body, '超级管理员统一维护个人与机构套餐价格、运营优惠、最低席位和年付阶梯。');
 	}
 
 	async function savePaymentPricingForm(form: HTMLFormElement): Promise<void> {
@@ -7193,34 +8334,147 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			showToast('价格配置接口暂不可用');
 			return;
 		}
-		const payload = JSON.parse(JSON.stringify(defaultPaymentPricing)) as {
-			default_provider: string;
-			prices_cents: Record<string, Record<PaidPersonalPlan, Record<string, number>>>;
+		const payload = {
+			default_provider: (form.querySelector('[data-pricing-default-provider]') as HTMLSelectElement | null)?.value || 'wechat',
+			renewal: {
+				reminder_days: [...paymentPricingConfig.renewal.reminderDays],
+				price_change_notice_days: paymentPricingConfig.renewal.priceChangeNoticeDays,
+				grace_period_days: paymentPricingConfig.renewal.gracePeriodDays
+			},
+			catalogs: {
+				personal: {
+					durations: [...paymentPricingConfig.catalogs.personal.durations],
+					prices_cents: JSON.parse(JSON.stringify(paymentPricingConfig.catalogs.personal.pricesCents)) as PaymentPriceMatrix,
+					offers: paymentPricingConfig.catalogs.personal.offers.map((offer) => ({
+						id: offer.id,
+						kind: offer.kind,
+						label: offer.label,
+						enabled: offer.enabled,
+						discount_percent: offer.discountPercent,
+						starts_at: offer.startsAt,
+						ends_at: offer.endsAt
+					}))
+				},
+				organization: {
+					durations: [...paymentPricingConfig.catalogs.organization.durations],
+					prices_cents: JSON.parse(JSON.stringify(paymentPricingConfig.catalogs.organization.pricesCents)) as PaymentPriceMatrix,
+					plans: {
+						pro: { minimum_seats: paymentPricingConfig.catalogs.organization.minimumSeats.pro },
+						ultra: { minimum_seats: paymentPricingConfig.catalogs.organization.minimumSeats.ultra }
+					},
+					custom_quote_min_seats: paymentPricingConfig.catalogs.organization.customQuoteMinSeats,
+					offers: paymentPricingConfig.catalogs.organization.offers.map((offer) => ({
+						id: offer.id,
+						kind: offer.kind,
+						label: offer.label,
+						enabled: offer.enabled,
+						discount_percent: offer.discountPercent,
+						starts_at: offer.startsAt,
+						ends_at: offer.endsAt
+					})),
+					seat_tiers: paymentPricingConfig.catalogs.organization.seatTiers.map((tier) => ({
+						min_seats: tier.minSeats,
+						max_seats: tier.maxSeats,
+						prices_cents: JSON.parse(JSON.stringify(tier.pricesCents)) as PaymentPriceMatrix
+					}))
+				}
+			}
 		};
-		payload.default_provider = (form.querySelector('[data-pricing-default-provider]') as HTMLSelectElement | null)?.value || 'wechat';
-		payload.prices_cents = JSON.parse(JSON.stringify(defaultPaymentPricing.pricesCents));
 		let invalidPriceInput: HTMLInputElement | null = null;
-		form.querySelectorAll<HTMLInputElement>('[data-price-plan][data-price-days]').forEach((input) => {
+		form.querySelectorAll<HTMLInputElement>('[data-price-scope][data-price-plan][data-price-days]').forEach((input) => {
+			const scope = input.dataset.priceScope as PricingScope;
 			const plan = input.dataset.pricePlan as PaidPersonalPlan;
 			const days = input.dataset.priceDays || '30';
 			const yuan = Number(input.value);
-			if ((plan === 'pro' || plan === 'ultra') && ['30', '90', '365'].includes(days) && Number.isFinite(yuan) && yuan >= 0) {
-				payload.prices_cents.cny[plan][days] = Math.round(yuan * 100);
+			if ((scope === 'personal' || scope === 'organization') && (plan === 'pro' || plan === 'ultra') && Number.isFinite(yuan) && yuan > 0) {
+				payload.catalogs[scope].prices_cents.cny[plan][days] = Math.round(yuan * 100);
 			} else if (!invalidPriceInput) invalidPriceInput = input;
 		});
-		if (invalidPriceInput) { setFieldError(invalidPriceInput, '价格必须是大于或等于 0 的有效数字'); return; }
+		form.querySelectorAll<HTMLInputElement>('[data-price-min-seats]').forEach((input) => {
+			const plan = input.dataset.priceMinSeats as PaidPersonalPlan;
+			const value = Number(input.value);
+			if ((plan === 'pro' || plan === 'ultra') && Number.isInteger(value) && value > 0) {
+				payload.catalogs.organization.plans[plan].minimum_seats = value;
+			} else if (!invalidPriceInput) invalidPriceInput = input;
+		});
+		form.querySelectorAll<HTMLInputElement>('[data-price-tier][data-price-plan]').forEach((input) => {
+			const index = Number(input.dataset.priceTier);
+			const plan = input.dataset.pricePlan as PaidPersonalPlan;
+			const yuan = Number(input.value);
+			if (Number.isInteger(index) && payload.catalogs.organization.seat_tiers[index] && (plan === 'pro' || plan === 'ultra') && Number.isFinite(yuan) && yuan > 0) {
+				payload.catalogs.organization.seat_tiers[index].prices_cents.cny[plan]['365'] = Math.round(yuan * 100);
+			} else if (!invalidPriceInput) invalidPriceInput = input;
+		});
+		const customQuoteInput = form.querySelector('[data-price-custom-quote]') as HTMLInputElement | null;
+		const customQuote = Number(customQuoteInput?.value || '0');
+		if (Number.isInteger(customQuote) && customQuote > 1) {
+			payload.catalogs.organization.custom_quote_min_seats = customQuote;
+		} else if (!invalidPriceInput) invalidPriceInput = customQuoteInput;
+		const reminderInput = form.querySelector('[data-renewal-reminder-days]') as HTMLInputElement | null;
+		const reminderDays = (reminderInput?.value || '')
+			.split(/[,，\s]+/)
+			.filter(Boolean)
+			.map(Number);
+		const priceNoticeInput = form.querySelector('[data-renewal-price-notice-days]') as HTMLInputElement | null;
+		const graceInput = form.querySelector('[data-renewal-grace-days]') as HTMLInputElement | null;
+		const priceNoticeDays = Number(priceNoticeInput?.value || '0');
+		const graceDays = Number(graceInput?.value || '-1');
+		if (reminderDays.length && reminderDays.every((value) => Number.isInteger(value) && value >= 1 && value <= 30)) {
+			payload.renewal.reminder_days = [...new Set(reminderDays)].sort((left, right) => right - left);
+		} else if (!invalidPriceInput) invalidPriceInput = reminderInput;
+		if (Number.isInteger(priceNoticeDays) && priceNoticeDays >= 1 && priceNoticeDays <= 30) {
+			payload.renewal.price_change_notice_days = priceNoticeDays;
+		} else if (!invalidPriceInput) invalidPriceInput = priceNoticeInput;
+		if (Number.isInteger(graceDays) && graceDays >= 0 && graceDays <= 30) {
+			payload.renewal.grace_period_days = graceDays;
+		} else if (!invalidPriceInput) invalidPriceInput = graceInput;
+		form.querySelectorAll<HTMLElement>('[data-price-offer-card]').forEach((card) => {
+			const scope = card.dataset.offerScope as PricingScope;
+			const id = card.dataset.offerId as PaymentPricingOffer['id'];
+			const offers = scope === 'personal'
+				? payload.catalogs.personal.offers
+				: payload.catalogs.organization.offers;
+			const offer = offers.find((item) => item.id === id);
+			const discountInput = card.querySelector('[data-offer-discount]') as HTMLInputElement | null;
+			const startInput = card.querySelector('[data-offer-start]') as HTMLInputElement | null;
+			const endInput = card.querySelector('[data-offer-end]') as HTMLInputElement | null;
+			const discount = Number(discountInput?.value || '0');
+			const toIso = (value: string): string => value ? new Date(value).toISOString() : '';
+			if (!offer || !Number.isInteger(discount) || discount < 0 || discount > 90) {
+				if (!invalidPriceInput) invalidPriceInput = discountInput;
+				return;
+			}
+			let startsAt = '';
+			let endsAt = '';
+			try {
+				startsAt = toIso(startInput?.value || '');
+				endsAt = toIso(endInput?.value || '');
+			} catch {
+				if (!invalidPriceInput) invalidPriceInput = startInput || endInput;
+				return;
+			}
+			if (startsAt && endsAt && startsAt >= endsAt) {
+				if (!invalidPriceInput) invalidPriceInput = endInput;
+				return;
+			}
+			offer.enabled = (card.querySelector('[data-offer-enabled]') as HTMLInputElement | null)?.checked === true;
+			offer.discount_percent = discount;
+			offer.starts_at = startsAt;
+			offer.ends_at = endsAt;
+		});
+		if (invalidPriceInput) { setFieldError(invalidPriceInput, '请检查价格、席位、提醒天数、优惠比例或生效时间'); return; }
 		const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]') || undefined;
 		const finishSubmitting = beginOrganizationAction(submit, '等待确认…');
 		if (!finishSubmitting) return;
 		try {
-			if (!await requestConfirmation('确认修改全平台套餐价格？保存后新创建的支付订单会立即使用新价格。', '确认修改')) return;
+			if (!await requestConfirmation('确认修改个人、机构套餐价格、续费提醒及运营优惠？保存后新创建的报价和订单会立即使用新配置。', '确认修改')) return;
 			const reauthPassword = await requestHighRiskPassword('修改套餐价格');
 			if (reauthPassword === null) return;
 			if (submit) submit.textContent = '保存中…';
 			const updated = await api.updatePaymentPricing(token, { ...payload, confirmation: '确认修改套餐价格', reauth_password: reauthPassword });
 			paymentPricingConfig = normalizePaymentPricing(updated);
 			paymentPricingLoaded = true;
-			showToast('套餐价格已保存');
+			showToast('套餐价格、续费提醒与优惠规则已保存');
 			renderSectionContent({ preserveScroll: true });
 		} catch (error) {
 			const message = readErrorMessage(error, '套餐价格保存失败');
@@ -7234,8 +8488,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		if (contentPublishQueueLoading && !contentPublishQueueLoaded) {
 			return renderDashboardSubpage('发布队列', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">正在读取真实试卷索引...</div></div>', '根据试卷接口返回的题量和校验状态展示发布就绪情况。');
 		}
+		const availableExamIds = contentPublishExamItems.map((item) => readString(item.id) || '').filter(Boolean);
+		contentWorkflowSelection = new Set([...contentWorkflowSelection].filter((examId) => availableExamIds.includes(examId)));
+		const allSelectableIds = availableExamIds.slice(0, 100);
+		const allSelected = allSelectableIds.length > 0 && allSelectableIds.every((examId) => contentWorkflowSelection.has(examId));
 		const rows = contentPublishExamItems.map((item) => {
 			const examId = readString(item.id) || '';
+			const selected = contentWorkflowSelection.has(examId);
 			const workflow = contentWorkflowItems.find((entry) => readString(entry.exam_id) === examId);
 			const inspection = asRecord(workflow?.inspection);
 			const reviews = asRecord(workflow?.reviews);
@@ -7252,13 +8511,86 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				const versionId = readString(version.id) || '';
 				return `<span class="pc-tag muted">${escapeHtml(readString(version.kind) || '版本')} · ${escapeHtml(readString(version.created_at) || '')}<button class="pc-inline-ghost" type="button" data-content-workflow-action="rollback" data-exam-id="${escapeHtml(examId)}" data-version-id="${escapeHtml(versionId)}" aria-label="回滚到版本 ${escapeHtml(versionId)}">回滚</button></span>`;
 			}).join('') || '<span class="pc-admin-note">暂无版本记录</span>';
-			return `<div class="pc-lite-row pc-lite-row-static" data-content-workflow-row data-exam-id="${escapeHtml(examId)}"><span><strong>${escapeHtml(readString(item.title) || readString(item.display) || examId)}</strong><em>${escapeHtml(examId)} · ${escapeHtml(readString(workflow?.status) || '未进入工作流')} · 错误 ${errorCount} · 解析审核 ${escapeHtml(readString(analysis?.status) || '待审核')} · 复核 ${escapeHtml(readString(secondary?.status) || '待复核')}</em><span class="pc-feedback-actions" aria-label="最近版本">${versionRows}</span><span class="pc-admin-note" data-content-workflow-message role="alert"${workflowMessage ? '' : ' hidden'}>${escapeHtml(workflowMessage)}</span></span><div class="pc-feedback-actions"><button class="pc-inline-ghost" type="button" data-content-workflow-action="inspect" data-exam-id="${escapeHtml(examId)}">质量检查</button><button class="pc-inline-ghost" type="button" data-content-workflow-action="analysis" data-exam-id="${escapeHtml(examId)}"${qualityPassed ? '' : ' disabled title="请先通过质量检查"'}>解析通过</button><button class="pc-inline-ghost" type="button" data-content-workflow-action="secondary" data-exam-id="${escapeHtml(examId)}"${analysisApproved ? '' : ' disabled title="请先通过解析审核"'}>复核通过</button><button class="pc-inline-btn" type="button" data-content-workflow-action="publish" data-exam-id="${escapeHtml(examId)}"${publishReady ? '' : ' disabled title="质检和两次审核均通过后才能发布"'}>发布</button></div></div>`;
+			return `<div class="pc-lite-row pc-lite-row-static" data-content-workflow-row data-exam-id="${escapeHtml(examId)}"><label class="pc-content-workflow-select"><input type="checkbox" data-content-workflow-select="${escapeHtml(examId)}" aria-label="选择试卷 ${escapeHtml(readString(item.title) || examId)}"${selected ? ' checked' : ''}${contentWorkflowBatchBusy ? ' disabled' : ''}></label><span><strong>${escapeHtml(readString(item.title) || readString(item.display) || examId)}</strong><em>${escapeHtml(examId)} · ${escapeHtml(readString(workflow?.status) || '未进入工作流')} · 错误 ${errorCount} · 解析审核 ${escapeHtml(readString(analysis?.status) || '待审核')} · 复核 ${escapeHtml(readString(secondary?.status) || '待复核')}</em><span class="pc-feedback-actions" aria-label="最近版本">${versionRows}</span><span class="pc-admin-note" data-content-workflow-message role="alert"${workflowMessage ? '' : ' hidden'}>${escapeHtml(workflowMessage)}</span></span><div class="pc-feedback-actions"><button class="pc-inline-ghost" type="button" data-content-workflow-action="open" data-exam-id="${escapeHtml(examId)}">查看试卷</button><button class="pc-inline-ghost" type="button" data-content-workflow-action="inspect" data-exam-id="${escapeHtml(examId)}">质量检查</button><button class="pc-inline-ghost" type="button" data-content-workflow-action="analysis" data-exam-id="${escapeHtml(examId)}"${qualityPassed ? '' : ' disabled title="请先通过质量检查"'}>解析通过</button><button class="pc-inline-ghost" type="button" data-content-workflow-action="secondary" data-exam-id="${escapeHtml(examId)}"${analysisApproved ? '' : ' disabled title="请先通过解析审核"'}>复核通过</button><button class="pc-inline-btn" type="button" data-content-workflow-action="publish" data-exam-id="${escapeHtml(examId)}"${publishReady ? '' : ' disabled title="质检和两次审核均通过后才能发布"'}>发布</button></div></div>`;
 		}).join('') || '<div class="pc-admin-note">暂无真实试卷；请先通过受保护的试卷导入接口创建草稿。</div>';
 		return renderDashboardSubpage(
 			'发布队列',
-			`<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">内容生产工作流</div><div class="pc-admin-note">质量检查同时检查题干、解析、图片和音频关联；解析审核和二次复核都通过后才能发布并生成版本。</div><div class="pc-lite-list">${rows}</div></div>`,
+			`<div class="pc-card pc-lite-list-card"><div class="pc-content-workflow-toolbar"><div><div class="pc-my-content-head">内容生产工作流</div><div class="pc-admin-note">质量检查同时检查题干、解析、图片和音频关联；解析审核和二次复核都通过后才能发布并生成版本。</div></div><div class="pc-feedback-actions"><label class="pc-content-workflow-select-all"><input type="checkbox" data-content-workflow-select-all${allSelected ? ' checked' : ''}${!allSelectableIds.length || contentWorkflowBatchBusy ? ' disabled' : ''}> 选择前 ${Math.min(100, allSelectableIds.length)} 份</label><button class="pc-inline-btn" type="button" data-content-workflow-batch-inspect${!contentWorkflowSelection.size || contentWorkflowBatchBusy ? ' disabled' : ''}>${contentWorkflowBatchBusy ? '批量检查中…' : `批量质检（${contentWorkflowSelection.size}）`}</button></div></div>${contentWorkflowBatchMessage ? `<div class="pc-admin-note" data-content-workflow-batch-message role="status">${escapeHtml(contentWorkflowBatchMessage)}</div>` : ''}<div class="pc-lite-list">${rows}</div></div>`,
 			'题目导入 → 质量检查 → 解析审核 → 复核 → 发布版本。'
 		);
+	}
+
+	function renderMyAssignmentsPage(ctx: PCContext): string {
+		void ensureMyAssignments(ctx);
+		if (myAssignmentsLoading) {
+			return renderDashboardSubpage('我的作业', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">正在读取老师布置的作业...</div></div>', '按截止时间排列，可查看提交、退回和催交状态。');
+		}
+		const rows = myAssignmentItems.map((item) => {
+			const assignmentId = readString(item.assignment_id) || '';
+			const examId = readString(item.exam_id) || '';
+			const submission = asRecord(item.own_submission) || {};
+			const submittedAt = readString(submission.submitted_at) || '';
+			const returned = readString(submission.review_status) === 'returned' || readString(submission.status) === 'returned';
+			const teacherComment = readString(submission.teacher_comment) || '';
+			const dueAt = readString(item.due_at) || '';
+			const overdue = !submittedAt && Boolean(dueAt) && Date.parse(dueAt) < Date.now();
+			const reminders = Array.isArray(item.own_reminders)
+				? item.own_reminders.map(asRecord).filter((entry): entry is Record<string, unknown> => Boolean(entry))
+				: [];
+			const latestReminder = reminders.slice().sort((a, b) => (readString(b.created_at) || '').localeCompare(readString(a.created_at) || ''))[0];
+			const status = returned ? '已退回' : submittedAt ? '已提交' : overdue ? '已逾期' : '待完成';
+			const details = [
+				`截止：${dueAt ? formatDateTime(dueAt) : '不限期'}`,
+				examId ? `试卷：${examId}` : '未关联试卷',
+				submittedAt ? `提交：${formatDateTime(submittedAt)}` : '',
+				teacherComment ? `老师评语：${teacherComment}` : '',
+				!submittedAt && latestReminder ? `催交：${readString(latestReminder.message) || '老师提醒尽快完成'}` : ''
+			].filter(Boolean).join(' · ');
+			const intent = examId ? `openAssignmentExam:${encodeURIComponent(assignmentId)}:${encodeURIComponent(examId)}` : '';
+			return {
+				title: readString(item.title) || '未命名作业',
+				desc: details,
+				meta: status,
+				intent
+			};
+		});
+		const body = myAssignmentsError
+			? `<div class="pc-card pc-lite-list-card"><div class="pc-admin-note" role="alert">${escapeHtml(myAssignmentsError)}</div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-ghost" type="button" data-intent="refreshAssignments">重试</button></div></div>`
+			: renderRoleListCard('作业列表', rows.length ? rows : [{ title: '暂无作业', desc: '老师布置作业后会显示在这里；无需反复刷新首页。', meta: '' }]);
+		return renderDashboardSubpage('我的作业', body, '按截止时间排列，可查看提交、退回、评语和催交状态。');
+	}
+
+	async function runContentWorkflowBatchInspection(button: HTMLButtonElement): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		const examIds = [...contentWorkflowSelection];
+		if (!token || !api || typeof api.inspectContentWorkflowBatch !== 'function') { showToast('批量质检接口不可用'); return; }
+		if (!examIds.length) { showToast('请至少选择一份试卷'); return; }
+		if (examIds.length > 100) { showToast('单次最多检查 100 份试卷'); return; }
+		const finishSubmitting = beginOrganizationAction(button, '批量检查中…');
+		if (!finishSubmitting) return;
+		contentWorkflowBatchBusy = true;
+		contentWorkflowBatchMessage = '';
+		renderSectionContent({ preserveScroll: true });
+		try {
+			const result = asRecord(await api.inspectContentWorkflowBatch(token, examIds));
+			const processed = readCount(result?.processed_count);
+			const passed = readCount(result?.passed_count);
+			const failed = readCount(result?.failed_count);
+			const unavailable = readCount(result?.unavailable_count);
+			contentWorkflowBatchMessage = `已检查 ${processed} 份：通过 ${passed}，发现阻断问题 ${failed}${unavailable ? `，无法读取 ${unavailable}` : ''}。`;
+			contentWorkflowSelection.clear();
+			contentPublishQueueLoaded = false;
+			await ensureContentPublishQueue();
+			showToast('批量质量检查已完成');
+		} catch (error) {
+			contentWorkflowBatchMessage = readErrorMessage(error, '批量质量检查失败');
+			showToast(contentWorkflowBatchMessage);
+		} finally {
+			contentWorkflowBatchBusy = false;
+			finishSubmitting();
+			renderSectionContent({ preserveScroll: true });
+		}
 	}
 
 	async function runContentWorkflowAction(button: HTMLButtonElement): Promise<void> {
@@ -7267,6 +8599,10 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const examId = button.dataset.examId || '';
 		const action = button.dataset.contentWorkflowAction || '';
 		const versionId = button.dataset.versionId || '';
+		if (action === 'open' && examId) {
+			void resumeExam(examId, null);
+			return;
+		}
 		if (!token || !api || !examId) { showToast('内容工作流接口不可用'); return; }
 		const row = button.closest('[data-content-workflow-row]');
 		if (row instanceof HTMLElement && row.dataset.contentWorkflowBusy === 'true') return;
@@ -7448,6 +8784,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	}
 
 	function renderRoleContentPage(ctx: PCContext): string {
+		if (activeRoleContent === 'student-assignments') {
+			return renderMyAssignmentsPage(ctx);
+		}
 		if (activeRoleContent.startsWith('platform-payment-order:')) {
 			return renderPlatformPaymentDetailPage(ctx, 'order', decodeRoleContentPart(activeRoleContent.slice('platform-payment-order:'.length)));
 		}
@@ -7499,6 +8838,9 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		if (activeRoleContent === 'platform-feedback') {
 			return renderFeedbackQueuePage(ctx, '反馈处理', '用户反馈、支付问题和内容问题。', 'all');
 		}
+		if (activeRoleContent === 'content-feedback') {
+			return renderFeedbackQueuePage(ctx, '内容反馈', '统一处理题目、答案、解析、图片和音频问题。', 'all');
+		}
 		if (activeRoleContent === 'support-feedback') {
 			return renderSupportFeedbackSubmitPage(ctx);
 		}
@@ -7513,14 +8855,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		}
 		if (isInstitutionRoleContent(activeRoleContent)) {
 			return renderInstitutionRoleContentPage(ctx, activeRoleContent);
-		}
-		if (['content-analysis', 'content-quality', 'content-paper', 'content-audio', 'content-images', 'content-answers'].includes(activeRoleContent)) {
-			const queueKind = activeRoleContent === 'content-paper'
-				? 'paper'
-				: activeRoleContent === 'content-analysis' || activeRoleContent === 'content-answers'
-					? 'analysis'
-					: 'quality';
-			return renderFeedbackQueuePage(ctx, roleContentRows(activeRoleContent).title, roleContentRows(activeRoleContent).subtitle, queueKind);
 		}
 		const page = roleContentRows(activeRoleContent);
 		const body = renderRoleListCard(page.title, page.rows);
@@ -7562,24 +8896,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			</div>
 			<div class="pc-card pc-my-content-card">
 				<div class="pc-my-content-head">我的内容</div>
-				<div class="pc-my-content-grid">
-					<button type="button" class="service-item pc-my-content-item" data-dashboard-page="recent">
-						<div class="pc-my-content-icon">${renderOutlineIcon('clock', 'pc-service-icon')}</div>
-						<div>
-							<strong>最近学习</strong>
-							<span>继续上次进度</span>
-						</div>
-					</button>
-					<button type="button" class="service-item pc-my-content-item" data-dashboard-page="favorites">
-						<div class="pc-my-content-icon">${renderOutlineIcon('heart', 'pc-service-icon')}</div>
-						<div>
-							<strong>收藏</strong>
-							<span>收藏题与清单</span>
-						</div>
-					</button>
-					<div class="pc-my-content-placeholder" aria-hidden="true"></div>
-					<div class="pc-my-content-placeholder" aria-hidden="true"></div>
-				</div>
+				${renderStudentContentGroups(ctx)}
 			</div>
 			${renderMyAccountPage(ctx)}
 			${renderPendingInvitationPanel(ctx)}
@@ -7599,6 +8916,60 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return `<div class="pc-dashboard pc-dashboard-simple pc-role-dashboard">
 			${renderRoleWorkbenchCard(ctx, workbench)}
 			${renderMyAccountPage(ctx)}
+		</div>`;
+	}
+
+	function accountSessionDeviceLabel(userAgent: string): string {
+		const browser = /Edg\//.test(userAgent)
+			? 'Edge'
+			: /Firefox\//.test(userAgent)
+				? 'Firefox'
+				: /Chrome\//.test(userAgent)
+					? 'Chrome'
+					: /Safari\//.test(userAgent)
+						? 'Safari'
+						: '浏览器';
+		const system = /Windows/i.test(userAgent)
+			? 'Windows'
+			: /Android/i.test(userAgent)
+				? 'Android'
+				: /iPhone|iPad/i.test(userAgent)
+					? 'iOS'
+					: /Mac OS/i.test(userAgent)
+						? 'macOS'
+						: /Linux/i.test(userAgent)
+							? 'Linux'
+							: '未知设备';
+		return `${system} · ${browser}`;
+	}
+
+	function renderAccountSessionEditor(): string {
+		if (accountSessionsLoading) {
+			return '<div class="pc-account-editor"><div class="pc-admin-note">正在读取登录设备...</div></div>';
+		}
+		if (!accountSessionsLoaded) {
+			return '<div class="pc-account-editor"><div class="pc-admin-note">展开后会显示当前账号最近仍有效的登录设备。</div></div>';
+		}
+		const otherSessionCount = accountSessions.filter((session) => !session.current).length;
+		const visibleSessions = accountSessions.slice(0, 10);
+		const hiddenSessionCount = Math.max(0, accountSessions.length - visibleSessions.length);
+		const rows = visibleSessions.map((session) => `<div class="pc-account-session-row">
+			<div class="pc-account-session-main">
+				<strong>${escapeHtml(accountSessionDeviceLabel(session.userAgent))}${session.current ? ' <span class="pc-tag">当前设备</span>' : ''}</strong>
+				<span>最近使用 ${escapeHtml(formatDateTime(session.lastSeenAt || session.createdAt))}${session.clientIp ? ` · IP ${escapeHtml(session.clientIp)}` : ''}</span>
+				<em>有效期至 ${escapeHtml(formatDateTime(session.expiresAt))}</em>
+			</div>
+			${session.current
+				? ''
+				: `<button class="pc-inline-ghost" type="button" data-account-revoke-session="${escapeHtml(session.sessionId)}">退出</button>`}
+		</div>`).join('');
+		return `<div class="pc-account-editor">
+			<div class="pc-account-session-list">${rows || '<div class="pc-admin-note">没有可用会话，请重新登录。</div>'}</div>
+			${hiddenSessionCount ? `<div class="pc-admin-note">另有 ${hiddenSessionCount} 个历史会话未展开；可以使用“退出其他设备”一次清理。</div>` : ''}
+			<div class="pc-account-actions">
+				<button class="pc-inline-ghost" type="button" data-account-refresh-sessions>刷新</button>
+				<button class="pc-inline-btn" type="button" data-account-revoke-other-sessions${otherSessionCount ? '' : ' disabled'}>退出其他设备${otherSessionCount ? `（${otherSessionCount}）` : ''}</button>
+			</div>
 		</div>`;
 	}
 
@@ -7629,6 +9000,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					<div class="pc-account-actions"><button class="pc-inline-btn" type="submit">绑定微信</button><button class="pc-inline-ghost" type="button" data-account-action="">取消</button></div>
 				</form>`
 				: '';
+		const sessionEditor = activeAccountEditor === 'sessions' ? renderAccountSessionEditor() : '';
 		const deleteEditor =
 			activeAccountEditor === 'delete'
 				? `<form class="pc-account-editor pc-account-danger-zone" data-account-delete-form>
@@ -7657,6 +9029,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				${phoneEditor}
 				${row('💬', '微信登录', '绑定后可使用微信快捷登录本账号', activeAccountEditor === 'wechat' ? '收起' : wechatStatus, 'wechat')}
 				${wechatEditor}
+				${row('🖥️', '登录设备', '查看有效会话并退出其他设备', activeAccountEditor === 'sessions' ? '收起' : (accountSessionsLoaded ? `${accountSessions.length} 个` : '管理'), 'sessions')}
+				${sessionEditor}
 				${row('⌫', '注销账号', '停用账号并退出当前登录', activeAccountEditor === 'delete' ? '收起' : '谨慎操作', 'delete', true)}
 				${deleteEditor}
 			</div>
@@ -8203,6 +9577,85 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		return false;
 	}
 
+	async function loadAccountSessions(force = false): Promise<void> {
+		if (accountSessionsLoading || (accountSessionsLoaded && !force)) return;
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		if (!token || !api || typeof api.getAuthSessions !== 'function') {
+			showToast('登录设备接口暂不可用');
+			return;
+		}
+		accountSessionsLoading = true;
+		renderSectionContent({ preserveScroll: true });
+		try {
+			const raw = await api.getAuthSessions(token);
+			accountSessions = (Array.isArray(raw) ? raw : []).flatMap((value) => {
+				const session = asRecord(value);
+				const sessionId = readString(session?.session_id);
+				if (!session || !sessionId) return [];
+				return [{
+					sessionId,
+					current: session.current === true,
+					createdAt: readString(session.created_at) || '',
+					lastSeenAt: readString(session.last_seen_at) || '',
+					expiresAt: readString(session.expires_at) || '',
+					clientIp: readString(session.client_ip) || '',
+					userAgent: readString(session.user_agent) || ''
+				}];
+			}).sort((a, b) => Number(b.current) - Number(a.current) || Date.parse(b.lastSeenAt) - Date.parse(a.lastSeenAt));
+			accountSessionsLoaded = true;
+		} catch (error) {
+			showToast(readErrorMessage(error, '登录设备加载失败'));
+		} finally {
+			accountSessionsLoading = false;
+			renderSectionContent({ preserveScroll: true });
+		}
+	}
+
+	async function revokeAccountSession(sessionId: string, button?: HTMLButtonElement): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		if (!token || !sessionId || !api || typeof api.revokeAuthSession !== 'function') {
+			showToast('登录设备接口暂不可用');
+			return;
+		}
+		if (!await requestConfirmation('确认退出这台设备吗？该设备需要重新登录。', '确认退出')) return;
+		const finishAction = beginOrganizationAction(button, '退出中…');
+		if (button && !finishAction) return;
+		try {
+			await api.revokeAuthSession(token, sessionId);
+			accountSessionsLoaded = false;
+			await loadAccountSessions(true);
+			showToast('该设备已退出');
+		} catch (error) {
+			showToast(readErrorMessage(error, '设备退出失败'));
+		} finally {
+			finishAction?.();
+		}
+	}
+
+	async function revokeOtherAccountSessions(button?: HTMLButtonElement): Promise<void> {
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		if (!token || !api || typeof api.revokeOtherAuthSessions !== 'function') {
+			showToast('登录设备接口暂不可用');
+			return;
+		}
+		if (!await requestConfirmation('确认退出除当前设备以外的全部登录吗？', '全部退出')) return;
+		const finishAction = beginOrganizationAction(button, '退出中…');
+		if (button && !finishAction) return;
+		try {
+			const result = asRecord(await api.revokeOtherAuthSessions(token)) || {};
+			accountSessionsLoaded = false;
+			await loadAccountSessions(true);
+			showToast(`已退出 ${readCount(result.revoked_sessions) ?? 0} 个其他设备`);
+		} catch (error) {
+			showToast(readErrorMessage(error, '其他设备退出失败'));
+		} finally {
+			finishAction?.();
+		}
+	}
+
 	async function changeCurrentPassword(currentPassword: string, newPassword: string, confirmPassword: string, form: HTMLFormElement): Promise<void> {
 		const token = activeToken(getContext());
 		const api = window.APIClient;
@@ -8230,15 +9683,17 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const finishAction = submit ? beginOrganizationAction(submit, '保存中…') : null;
 		if (submit && !finishAction) return;
 		try {
-			await api.changePassword(token, currentPassword, newPassword);
+			const result = asRecord(await api.changePassword(token, currentPassword, newPassword)) || {};
 			form.reset();
 			accountSecurityDraft.currentPassword = '';
 			accountSecurityDraft.newPassword = '';
 			accountSecurityDraft.confirmPassword = '';
+			accountSessionsLoaded = false;
 			activeAccountEditor = '';
 			await refreshCurrentContextFromApi();
 			renderSectionContent({ preserveScroll: true });
-			showToast('密码已更新');
+			const revoked = readCount(result.revoked_sessions) ?? 0;
+			showToast(revoked > 0 ? `密码已更新，并退出 ${revoked} 个其他设备` : '密码已更新');
 		} catch (error) {
 			log('change password failed', error);
 			const message = readErrorMessage(error, '密码更新失败');
@@ -8362,9 +9817,31 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		}
 	}
 
+	function handleAccountSessionClick(target: HTMLElement | null): boolean {
+		const refreshButton = target?.closest('[data-account-refresh-sessions]') as HTMLButtonElement | null;
+		if (refreshButton) {
+			void loadAccountSessions(true);
+			return true;
+		}
+		const revokeOthersButton = target?.closest('[data-account-revoke-other-sessions]') as HTMLButtonElement | null;
+		if (revokeOthersButton) {
+			void revokeOtherAccountSessions(revokeOthersButton);
+			return true;
+		}
+		const revokeButton = target?.closest('[data-account-revoke-session]') as HTMLButtonElement | null;
+		if (revokeButton) {
+			void revokeAccountSession(revokeButton.dataset.accountRevokeSession || '', revokeButton);
+			return true;
+		}
+		return false;
+	}
+
 	function attachProfileHandlers(container: HTMLElement): void {
 		container.onclick = (event: MouseEvent) => {
 			const target = event.target as HTMLElement | null;
+			if (handleAccountSessionClick(target)) {
+				return;
+			}
 			if (handleContactVerificationClick(target, container)) {
 				return;
 			}
@@ -8388,6 +9865,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					seedContactVerificationDraft(getContext());
 				}
 				renderSectionContent({ preserveScroll: true });
+				if (activeAccountEditor === 'sessions') void loadAccountSessions();
 				return;
 			}
 			const actionBtn = target?.closest('[data-action]') as HTMLElement | null;
@@ -8518,6 +9996,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	}
 
 	function handleFeatureIntent(intent: string): void {
+		if (intent.startsWith('openEntitlementUpgrade:')) {
+			const [, entitlementKey = '', requiredPlan = ''] = intent.split(':');
+			const planLabel = decodeURIComponent(requiredPlan || '').toUpperCase() || '更高';
+			showToast(`该功能需要 ${planLabel} 套餐`);
+			void openRechargePanel();
+			return;
+		}
 		if (intent.startsWith('openRoleContent:')) {
 			activeSection = 'dashboard';
 			activeDashboardSubpage = 'role-content';
@@ -8530,6 +10015,20 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			const [, examId = '', questionId = '', sectionIndexRaw = ''] = intent.split(':');
 			const sectionIndex = Number(sectionIndexRaw);
 			void openExamQuestion(examId, questionId, Number.isFinite(sectionIndex) ? sectionIndex : undefined);
+			return;
+		}
+		if (intent.startsWith('openAssignmentExam:')) {
+			const [, assignmentId = '', examId = ''] = intent.split(':');
+			const decodedAssignmentId = decodeURIComponent(assignmentId);
+			const decodedExamId = decodeURIComponent(examId);
+			if (!decodedExamId) {
+				showToast('该作业未关联可作答试卷');
+				return;
+			}
+			if (decodedAssignmentId) {
+				localStorage.setItem('exam_v2_active_assignment', JSON.stringify({ assignment_id: decodedAssignmentId, exam_id: decodedExamId }));
+			}
+			void resumeExam(decodedExamId, null);
 			return;
 		}
 		switch (intent) {
@@ -8556,12 +10055,15 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				void openReviewWorkbenchPanel();
 				break;
 			case 'openAssignments': {
-				const banner = document.getElementById('pc-assignments-banner') as HTMLElement | null;
-				if (banner && !banner.hidden && banner.textContent?.trim()) {
-					banner.scrollIntoView({ block: 'center', behavior: 'smooth' });
-				} else {
-					showToast('暂无待处理作业');
-				}
+				activeSection = 'dashboard';
+				activeDashboardSubpage = 'role-content';
+				activeRoleContent = 'student-assignments';
+				renderSections();
+				renderSectionContent();
+				break;
+			}
+			case 'refreshAssignments': {
+				void ensureMyAssignments(getContext(), true).then(() => renderSectionContent({ preserveScroll: true }));
 				break;
 			}
 			case 'openRecentLearning': {
@@ -8573,9 +10075,6 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				}
 				break;
 			}
-			case 'openHelpFeedback':
-				showToast('帮助与反馈入口会进入客服、邀请好友和协议说明');
-				break;
 			case 'openIssueFeedback':
 				activeSection = 'dashboard';
 				activeDashboardSubpage = 'role-content';
@@ -8774,6 +10273,11 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const workflowButton = target?.closest('[data-content-workflow-action]') as HTMLButtonElement | null;
 		if (workflowButton) {
 			void runContentWorkflowAction(workflowButton);
+			return true;
+		}
+		const workflowBatchButton = target?.closest('[data-content-workflow-batch-inspect]') as HTMLButtonElement | null;
+		if (workflowBatchButton) {
+			void runContentWorkflowBatchInspection(workflowBatchButton);
 			return true;
 		}
 		const paymentRefresh = target?.closest('[data-platform-payments-refresh]') as HTMLButtonElement | null;
@@ -9287,8 +10791,54 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		container.querySelectorAll<HTMLFormElement>('form[data-org-subscription-form], form[data-org-course-package-form]').forEach((form) => { form.noValidate = true; });
 		container.onclick = (event: MouseEvent) => {
 			const target = eventTargetElement(event.target);
+			if (handleAccountSessionClick(target)) {
+				return;
+			}
+			const autoRenewRetry = target?.closest('[data-auto-renew-retry]') as HTMLButtonElement | null;
+			if (autoRenewRetry) {
+				const card = autoRenewRetry.closest<HTMLElement>('[data-auto-renew-card]');
+				if (card) {
+					void ensureAutoRenewal(
+						card.dataset.renewScope === 'organization' ? 'organization' : 'personal',
+						card.dataset.renewId || '',
+						true
+					);
+					renderSectionContent({ preserveScroll: true });
+				}
+				return;
+			}
+			const autoRenewToggle = target?.closest('[data-auto-renew-toggle]') as HTMLButtonElement | null;
+			if (autoRenewToggle) {
+				void toggleAutoRenewal(autoRenewToggle);
+				return;
+			}
+			const notificationRead = target?.closest('[data-payment-notification-read]') as HTMLButtonElement | null;
+			if (notificationRead) {
+				void markPaymentNotificationRead(notificationRead.dataset.paymentNotificationRead || '');
+				return;
+			}
+			if (target?.closest('[data-payment-notifications-read-all]')) {
+				void markPaymentNotificationRead();
+				return;
+			}
+			if (target?.closest('[data-payment-notifications-refresh]')) {
+				void ensurePaymentNotifications(true);
+				return;
+			}
+			if (target?.closest('[data-renewal-operations-refresh]')) {
+				void ensureRenewalOperations(true);
+				return;
+			}
+			const runRenewalJobButton = target?.closest('[data-renewal-job-run]') as HTMLButtonElement | null;
+			if (runRenewalJobButton) {
+				void runRenewalJob(runRenewalJobButton);
+				return;
+			}
 			if (handleContactVerificationClick(target, container)) {
 				return;
+			}
+			if (target?.closest('summary.pc-managed-org-summary')) {
+				event.preventDefault();
 			}
 			if (handleDashboardOrganizationClick(target)) {
 				return;
@@ -9350,7 +10900,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			}
 			const assignmentRemindButton = target?.closest('[data-inst-assignment-remind]') as HTMLButtonElement | null;
 			if (assignmentRemindButton) {
-				void remindInstitutionAssignment(assignmentRemindButton.dataset.instAssignmentRemind || '', assignmentRemindButton);
+				void remindInstitutionAssignment(container, assignmentRemindButton.dataset.instAssignmentRemind || '', assignmentRemindButton);
+				return;
+			}
+			const assignmentAutoSaveButton = target?.closest('[data-inst-assignment-auto-save]') as HTMLButtonElement | null;
+			if (assignmentAutoSaveButton) {
+				void saveInstitutionAutomaticReminder(container, assignmentAutoSaveButton);
 				return;
 			}
 			const rolePrepAssignmentButton = target?.closest('[data-role-prep-create-assignment]') as HTMLButtonElement | null;
@@ -9418,6 +10973,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					seedContactVerificationDraft(getContext());
 				}
 				renderSectionContent({ preserveScroll: true });
+				if (activeAccountEditor === 'sessions') void loadAccountSessions();
 				return;
 			}
 			const workbenchButton = target?.closest('[data-workbench]') as HTMLButtonElement | null;
@@ -9502,6 +11058,11 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			if (!target) {
 				return;
 			}
+			const paymentForm = target.closest('form[data-organization-payment-order-form]') as HTMLFormElement | null;
+			if (paymentForm && target.matches('[data-org-payment-seats]')) {
+				void updateOrganizationPaymentPreview(paymentForm);
+				return;
+			}
 			if (handleContactVerificationInput(target)) {
 				return;
 			}
@@ -9543,8 +11104,35 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		};
 		container.onchange = (event: Event) => {
 			const target = event.target as HTMLElement | null;
+			const workflowSelection = target?.closest('[data-content-workflow-select]') as HTMLInputElement | null;
+			if (workflowSelection) {
+				const examId = workflowSelection.dataset.contentWorkflowSelect || '';
+				if (examId) {
+					if (workflowSelection.checked) contentWorkflowSelection.add(examId);
+					else contentWorkflowSelection.delete(examId);
+					renderSectionContent({ preserveScroll: true });
+				}
+				return;
+			}
+			const workflowSelectAll = target?.closest('[data-content-workflow-select-all]') as HTMLInputElement | null;
+			if (workflowSelectAll) {
+				contentWorkflowSelection.clear();
+				if (workflowSelectAll.checked) {
+					contentPublishExamItems.slice(0, 100).forEach((item) => {
+						const examId = readString(item.id) || '';
+						if (examId) contentWorkflowSelection.add(examId);
+					});
+				}
+				renderSectionContent({ preserveScroll: true });
+				return;
+			}
 			const editedForm = target?.closest('form');
 			if (editedForm) editedForm.dataset.pcDirty = 'true';
+			const paymentForm = target?.closest('form[data-organization-payment-order-form]') as HTMLFormElement | null;
+			if (paymentForm && target?.matches('[data-org-payment-plan], [data-org-payment-days], [data-org-payment-organization-id]')) {
+				void updateOrganizationPaymentPreview(paymentForm, target.matches('[data-org-payment-plan]'));
+				return;
+			}
 			if (handleDashboardOrganizationChange(target)) {
 				return;
 			}
@@ -9726,30 +11314,40 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		</div>`;
 	}
 
-	function renderInstitutionPlanCatalog(planCatalog: Record<string, unknown>): string {
-		const plans = Array.isArray(planCatalog.plans) ? planCatalog.plans : [];
-		if (plans.length === 0) {
-			return '';
+	function renderInstitutionPlanCatalog(_planCatalog: Record<string, unknown>): string {
+		if (!paymentPricingLoaded) {
+			void loadPaymentPricing().then(() => {
+				if (activeSection === 'dashboard' && activeDashboardSubpage === 'role-content') {
+					renderSectionContent({ preserveScroll: true });
+				}
+			});
 		}
-		const cards = plans.map((item) => {
-			const raw = asRecord(item) || {};
-			const features = asRecord(raw.features) || {};
-			const enabled = Object.keys(features).filter((key) => features[key] === true).slice(0, 7);
-			const recommended = readBoolean(raw.recommended);
-			return `<div style="border:1px solid ${recommended ? '#1976d2' : '#e3e8ef'};border-radius:8px;padding:12px;background:#fff;">
-				<div style="display:flex;justify-content:space-between;gap:8px;">
-					<strong>${escapeHtml(readString(raw.name) || '')}${recommended ? ' · 推荐' : ''}</strong>
-					<span style="color:#1976d2;font-weight:600;">¥${institutionNumber(raw.monthly_price)}/月</span>
-				</div>
-				<div style="font-size:12px;color:#777;margin-top:4px;">${escapeHtml(readString(raw.target) || '')}</div>
-				<div style="font-size:12px;color:#555;margin-top:8px;">${institutionNumber(raw.included_seats)} 席 · 超出 ¥${institutionNumber(raw.extra_seat_price)}/人/月 · 年付 ¥${institutionNumber(raw.yearly_price)}</div>
-				<div style="font-size:12px;color:#555;margin-top:8px;line-height:1.6;">${enabled.map(institutionFeatureLabel).map(escapeHtml).join('、')}</div>
+		const catalog = paymentPricingConfig.catalogs.organization;
+		const definitions: Record<PaidPersonalPlan, { target: string; features: string[] }> = {
+			pro: {
+				target: '单校区、小型培训机构和小型团队',
+				features: ['完整教学闭环', '1 个校区', '3 个机构管理员', '基础统计与标准导出']
+			},
+			ultra: {
+				target: '多校区、中型机构及深度分析需求',
+				features: ['跨校区分析', '风险预警与自动报告', '5 个校区', '10 个机构管理员']
+			}
+		};
+		const cards = (['pro', 'ultra'] as PaidPersonalPlan[]).map((plan) => {
+			const monthly = pricingAmountCents(plan, 30, 'cny', 'organization', catalog.minimumSeats[plan]);
+			const yearly = pricingAmountCents(plan, 365, 'cny', 'organization', catalog.minimumSeats[plan]);
+			const monthlyEquivalent = Math.round(yearly / 12);
+			return `<div class="pc-pricing-plan-card${plan === 'ultra' ? ' is-recommended' : ''}">
+				<div class="pc-pricing-plan-head"><strong>机构 ${plan.toUpperCase()}${plan === 'ultra' ? ' · 推荐' : ''}</strong><span>${formatAmountCny(monthly)}/席/月</span></div>
+				<div class="pc-pricing-plan-target">${escapeHtml(definitions[plan].target)}</div>
+				<div class="pc-pricing-plan-year">年付 ${formatAmountCny(yearly)}/席 · 折合 ${formatAmountCny(monthlyEquivalent)}/席/月</div>
+				<div class="pc-pricing-plan-meta">最低 ${catalog.minimumSeats[plan]} 席 · ${definitions[plan].features.map(escapeHtml).join(' · ')}</div>
 			</div>`;
 		}).join('');
 		return `<div class="pc-card pc-info-card" style="margin-top:12px;">
 			<div class="pc-service-header">机构套餐价格</div>
-			<div class="pc-admin-note">价格和权益来自 data/system/institution_plans.json，可随时调整。核心教学能力各档都有，高级管理能力随席位规模开放。</div>
-			<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px;">${cards}</div>
+			<div class="pc-admin-note">价格来自统一支付商品目录。教师和管理员不占席位；${catalog.customQuoteMinSeats} 席及以上进入企业定制报价。</div>
+			<div class="pc-pricing-plan-grid">${cards}</div>
 		</div>`;
 	}
 
@@ -10053,6 +11651,23 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			const visibleStudentIds = studentIds.length ? studentIds : Object.keys(submissions);
 			const dueAt = readString(assignment.due_at);
 			const overdue = !!dueAt && Date.parse(dueAt) < Date.now();
+			const reminders = Array.isArray(assignment.reminders)
+				? assignment.reminders.map((item) => asRecord(item) || {})
+				: [];
+			const reminderHours = Array.isArray(assignment.auto_reminder_hours_before)
+				? assignment.auto_reminder_hours_before.map((item) => Number(item)).filter((item) => Number.isInteger(item) && item > 0)
+				: [24];
+			const automaticReminderEnabled = dueAt
+				? (typeof assignment.auto_reminder_enabled === 'boolean' ? assignment.auto_reminder_enabled : true)
+				: false;
+			const selectedReminderHours = reminderHours[0] || 24;
+			const latestReminder = reminders
+				.slice()
+				.sort((a, b) => (readString(b.created_at) || '').localeCompare(readString(a.created_at) || ''))[0];
+			const reminderTargetCount = reminders.reduce(
+				(sum, reminder) => sum + (Array.isArray(reminder.target_student_ids) ? reminder.target_student_ids.length : 0),
+				0
+			);
 			const rows = visibleStudentIds.map((studentId) => {
 				const sub = asRecord(submissions[studentId]) || {};
 				const score = asRecord(sub.score) || {};
@@ -10085,7 +11700,28 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 					</div>
 				</div>`;
 			}).join('');
-			detail.innerHTML = `<div class="pc-card pc-info-card"><div class="pc-service-header">作业提交：${escapeHtml(readString(assignment.title) || assignmentId)}</div><div class="pc-admin-note">${escapeHtml(readString(assignment.description) || '')}${dueAt ? ` · 截止 ${escapeHtml(formatDateTime(dueAt))}` : ''}</div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="button" data-inst-assignment-remind="${escapeHtml(assignmentId)}">催交未提交学员</button></div></div><div class="pc-assignment-submission-list">${rows || '<div class="pc-admin-note">暂无学员</div>'}</div>`;
+			const reminderOptions = [
+				{ value: 'off', label: '关闭' },
+				{ value: '6', label: '截止前 6 小时' },
+				{ value: '12', label: '截止前 12 小时' },
+				{ value: '24', label: '截止前 24 小时' },
+				{ value: '48', label: '截止前 48 小时' }
+			].map((option) => `<option value="${option.value}" ${automaticReminderEnabled && String(selectedReminderHours) === option.value || !automaticReminderEnabled && option.value === 'off' ? 'selected' : ''}>${option.label}</option>`).join('');
+			detail.innerHTML = `<div class="pc-card pc-info-card">
+				<div class="pc-service-header">作业提交：${escapeHtml(readString(assignment.title) || assignmentId)}</div>
+				<div class="pc-admin-note">${escapeHtml(readString(assignment.description) || '')}${dueAt ? ` · 截止 ${escapeHtml(formatDateTime(dueAt))}` : ' · 未设置截止时间'}</div>
+				<div class="pc-info-list pc-assignment-reminder-status">
+					<div class="pc-info-row"><span>自动催交</span><strong>${automaticReminderEnabled ? `已开启 · 截止前 ${selectedReminderHours} 小时` : '已关闭'}</strong></div>
+					<div class="pc-info-row"><span>催交记录</span><strong>${reminders.length} 次 · 累计 ${reminderTargetCount} 人${latestReminder ? ` · 最近 ${escapeHtml(formatDateTime(readString(latestReminder.created_at)))}` : ''}</strong></div>
+				</div>
+				<div class="pc-assignment-reminder-config" data-assignment-reminder-config="${escapeHtml(assignmentId)}">
+					<label class="pc-org-field"><span>提醒规则</span><select class="pc-profile-input" data-assignment-reminder-hours ${dueAt ? '' : 'disabled'}>${reminderOptions}</select></label>
+					<div class="pc-org-form-actions pc-org-form-actions-end">
+						<button class="pc-inline-ghost" type="button" data-inst-assignment-auto-save="${escapeHtml(assignmentId)}" ${dueAt ? '' : 'disabled'}>保存自动催交</button>
+						<button class="pc-inline-btn" type="button" data-inst-assignment-remind="${escapeHtml(assignmentId)}">立即催交未提交学员</button>
+					</div>
+				</div>
+			</div><div class="pc-assignment-submission-list">${rows || '<div class="pc-admin-note">暂无学员</div>'}</div>`;
 			detail.querySelectorAll<HTMLButtonElement>('[data-inst-submission-review]').forEach((reviewButton) => {
 				reviewButton.onclick = (event) => {
 					event.stopPropagation();
@@ -10175,7 +11811,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	const pendingAssignmentReminders = new Set<string>();
 
-	async function remindInstitutionAssignment(assignmentId: string, button?: HTMLButtonElement): Promise<void> {
+	async function remindInstitutionAssignment(container: HTMLElement, assignmentId: string, button?: HTMLButtonElement): Promise<void> {
 		const api = window.APIClient;
 		if (!assignmentId || pendingAssignmentReminders.has(assignmentId) || !api || typeof api.remindAssignment !== 'function') return;
 		const message = (await requestTextInput('催交内容', '请按时完成作业，有问题可以联系老师。', { multiline: true }) || '').trim();
@@ -10190,11 +11826,41 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			const data = asRecord(await api.remindAssignment(assignmentId, { message, idempotency_key: idempotencyKey })) || {};
 			const targets = Array.isArray(data.target_student_ids) ? data.target_student_ids.length : 0;
 			showToast(`已记录催交，目标 ${targets} 人`);
+			if (button?.closest('[data-assignment-reminder-config]')) {
+				await openInstitutionAssignmentSubmissions(container, assignmentId);
+			}
 		} catch (error) {
 			showToast(readErrorMessage(error, '催交失败'));
 		} finally {
 			pendingAssignmentReminders.delete(assignmentId);
 			if (button) button.disabled = false;
+		}
+	}
+
+	const pendingAutomaticReminderUpdates = new Set<string>();
+
+	async function saveInstitutionAutomaticReminder(container: HTMLElement, button: HTMLButtonElement): Promise<void> {
+		const assignmentId = button.dataset.instAssignmentAutoSave || '';
+		const api = window.APIClient;
+		const config = button.closest('[data-assignment-reminder-config]') as HTMLElement | null;
+		const select = config?.querySelector('[data-assignment-reminder-hours]') as HTMLSelectElement | null;
+		const value = select?.value || 'off';
+		if (!assignmentId || !api || typeof api.updateAssignment !== 'function' || pendingAutomaticReminderUpdates.has(assignmentId)) return;
+		const enabled = value !== 'off';
+		pendingAutomaticReminderUpdates.add(assignmentId);
+		button.disabled = true;
+		try {
+			await api.updateAssignment(assignmentId, {
+				auto_reminder_enabled: enabled,
+				auto_reminder_hours_before: [enabled ? Number(value) : 24]
+			});
+			showToast(enabled ? `已开启截止前 ${value} 小时自动催交` : '已关闭自动催交');
+			await openInstitutionAssignmentSubmissions(container, assignmentId);
+		} catch (error) {
+			showToast(readErrorMessage(error, '自动催交设置保存失败'));
+		} finally {
+			pendingAutomaticReminderUpdates.delete(assignmentId);
+			button.disabled = false;
 		}
 	}
 
@@ -10590,7 +12256,12 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			}
 			const remindButton = target?.closest('[data-inst-assignment-remind]') as HTMLButtonElement | null;
 			if (remindButton) {
-				void remindInstitutionAssignment(remindButton.dataset.instAssignmentRemind || '', remindButton);
+				void remindInstitutionAssignment(container, remindButton.dataset.instAssignmentRemind || '', remindButton);
+				return;
+			}
+			const autoReminderSaveButton = target?.closest('[data-inst-assignment-auto-save]') as HTMLButtonElement | null;
+			if (autoReminderSaveButton) {
+				void saveInstitutionAutomaticReminder(container, autoReminderSaveButton);
 				return;
 			}
 			const invitationCancelButton = target?.closest('[data-org-invitation-cancel]') as HTMLButtonElement | null;
@@ -11111,6 +12782,15 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const masterBtn = mastered
 			? `<button class="risk-btn" data-wq-action="unmaster" data-qid="${escapeHtmlSafe(qid)}">取消掌握</button>`
 			: `<button class="risk-btn" data-wq-action="master" data-qid="${escapeHtmlSafe(qid)}">标记掌握</button>`;
+		const relatedDecision = resolveEntitlement(getContext().subscription, 'answer.deep_analysis');
+		const relatedLocked = relatedDecision.known && !relatedDecision.granted;
+		const relatedButton = `<button class="risk-btn${relatedLocked ? ' is-entitlement-locked' : ''}"
+			data-wq-action="related"
+			data-qid="${escapeHtmlSafe(qid)}"
+			data-exam="${escapeHtmlSafe(examId)}"
+			${relatedLocked ? `data-entitlement-locked="true" data-required-plan="${escapeHtmlSafe(relatedDecision.requiredPlan || '')}"` : ''}>
+			📚 同考点串题${relatedLocked ? ` · ${escapeHtmlSafe((relatedDecision.requiredPlan || '升级').toUpperCase())}` : ''}
+		</button>`;
 		// 功能 #16：归因标签 chips
 		const activeTags = Array.isArray(item.attribution_tags) ? (item.attribution_tags as unknown[]).map(String) : [];
 		const tagsHtml = WQ_TAG_REGISTRY.map((t) => {
@@ -11140,7 +12820,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			<div class="wq-related" data-qid="${escapeHtmlSafe(qid)}" data-exam="${escapeHtmlSafe(examId)}" style="margin-top:6px;"></div>
 			<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
 				${masterBtn}
-				<button class="risk-btn" data-wq-action="related" data-qid="${escapeHtmlSafe(qid)}" data-exam="${escapeHtmlSafe(examId)}">📚 同考点串题</button>
+				${relatedButton}
 				<button class="risk-btn" data-wq-action="remove" data-qid="${escapeHtmlSafe(qid)}" style="color:#a33;">移出错题本</button>
 			</div>
 		</div>`;
@@ -11287,6 +12967,13 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 				}
 				// 同考点串题：展开到 .wq-related
 				if (action === 'related') {
+					if (btn.dataset.entitlementLocked === 'true') {
+						handleFeatureIntent(entitlementUpgradeIntent(
+							'answer.deep_analysis',
+							btn.dataset.requiredPlan || ''
+						));
+						return;
+					}
 					const examId = btn.dataset.exam || '';
 					if (!examId || typeof api.getRelatedQuestions !== 'function') return;
 					const itemEl = btn.closest('.wq-item') as HTMLElement | null;
@@ -11659,6 +13346,11 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const userId = ctx.id || '';
 		if (!userId) {
 			showToast('请先登录后导出数据');
+			return;
+		}
+		const exportDecision = resolveEntitlement(ctx.subscription, 'export.standard');
+		if (exportDecision.known && !exportDecision.granted) {
+			handleFeatureIntent(entitlementUpgradeIntent('export.standard', exportDecision.requiredPlan));
 			return;
 		}
 		const api = window.APIClient;
@@ -12225,6 +13917,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	function ensureAuditLogModal(): HTMLDivElement {
 		if (auditLogModal) return auditLogModal;
 		const isSuper = hasAnyRole(getContext(), ['superAdmin']);
+		const isContentAdmin = hasAnyRole(getContext(), ['contentAdmin']) && !hasAnyRole(getContext(), ['superAdmin', 'orgAdmin']);
+		const modalTitle = isContentAdmin ? '内容变更日志' : '审计日志';
 		const orgInput = isSuper
 			? `<label style="font-size:12px;color:#666;">组织 ID <input id="al-org" type="text" placeholder="留空=全部" style="margin-left:4px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;width:120px;" /></label>`
 			: '';
@@ -12235,7 +13929,7 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		modal.innerHTML = `
 			<div style="background:#fff;border-radius:8px;padding:20px;min-width:760px;max-width:1080px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
 				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-					<h3 id="al-title" style="margin:0;font-size:16px;">📜 审计日志</h3>
+					<h3 id="al-title" style="margin:0;font-size:16px;">📜 ${modalTitle}</h3>
 					<div>
 						<button id="al-export" style="margin-right:8px;padding:6px 12px;cursor:pointer;">导出 CSV</button>
 						<button type="button" id="al-close" aria-label="关闭审计日志" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
@@ -12744,6 +14438,14 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 			showToast('请先登录后查看推荐');
 			return;
 		}
+		const recommendationDecision = resolveEntitlement(ctx.subscription, 'recommendation.personalized');
+		if (recommendationDecision.known && !recommendationDecision.granted) {
+			handleFeatureIntent(entitlementUpgradeIntent(
+				'recommendation.personalized',
+				recommendationDecision.requiredPlan
+			));
+			return;
+		}
 		const modal = ensureRecommendedReviewModal();
 		showLegacyModal(modal, '#rr-close');
 		await reloadRecommendedReview();
@@ -12792,8 +14494,33 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 		const weekButton = modal.querySelector('#lr-week') as HTMLButtonElement;
 		const monthButton = modal.querySelector('#lr-month') as HTMLButtonElement;
 		weekButton.onclick = () => void loadPeriod(weekButton, 'week');
-		monthButton.onclick = () => void loadPeriod(monthButton, 'month');
+		monthButton.onclick = () => {
+			const decision = resolveEntitlement(getContext().subscription, 'analytics.full');
+			if (decision.known && !decision.granted) {
+				handleFeatureIntent(entitlementUpgradeIntent('analytics.full', decision.requiredPlan));
+				return;
+			}
+			void loadPeriod(monthButton, 'month');
+		};
 		return modal;
+	}
+
+	function configureLearningReportEntitlements(modal: HTMLDivElement): void {
+		const monthButton = modal.querySelector('#lr-month') as HTMLButtonElement | null;
+		if (!monthButton) return;
+		const decision = resolveEntitlement(getContext().subscription, 'analytics.full');
+		const locked = decision.known && !decision.granted;
+		monthButton.textContent = locked
+			? `本月 · ${(decision.requiredPlan || '升级').toUpperCase()}`
+			: '本月';
+		monthButton.classList.toggle('is-entitlement-locked', locked);
+		if (locked) {
+			monthButton.dataset.entitlementLocked = 'true';
+			monthButton.title = `${(decision.requiredPlan || '更高').toUpperCase()} 套餐解锁完整月度分析`;
+		} else {
+			delete monthButton.dataset.entitlementLocked;
+			monthButton.removeAttribute('title');
+		}
 	}
 
 	function renderLearningReport(data: Record<string, unknown>): string {
@@ -12870,6 +14597,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	async function openLearningReportPanel(): Promise<void> {
 		const modal = ensureLearningReportModal();
+		learningReportPeriod = 'week';
+		configureLearningReportEntitlements(modal);
 		showLegacyModal(modal, '#lr-close');
 		await reloadLearningReport();
 	}
@@ -13885,6 +15614,11 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 
 	window.setUserContext = (ctx: Record<string, unknown>) => {
 		const next = normalizeContext(ctx);
+		const nextIdentityKey = contextIdentityKey(next);
+		if (personalCenterIdentityKey !== nextIdentityKey) {
+			resetPersonalCenterIdentityState();
+			personalCenterIdentityKey = nextIdentityKey;
+		}
 		setContext({ ...next, guest: next.guest === true ? true : false });
 		void buildTrigger();
 		if (isOpen()) {
@@ -13895,6 +15629,8 @@ import { normalizeSubscription, normalizeReferral, normalizePendingInvitation } 
 	};
 
 	window.logoutUser = () => {
+		resetPersonalCenterIdentityState();
+		personalCenterIdentityKey = 'guest';
 		setContext({ guest: true });
 		closePanel();
 		void buildTrigger();

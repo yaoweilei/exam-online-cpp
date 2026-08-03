@@ -306,10 +306,91 @@
         }
       ],
       "created_at" : "2026-07-19T02:34:58.521Z",
-      "likes" : [],
+      "likes" : 
+      [
+        "usr_019fb35d-5874-7199-a735-0e2d0e9f116e"
+      ],
       "post_id" : "post_019f783a-0e59-71f4-8fca-09b6765186de",
       "title" : "P2 社区帖子",
       "updated_at" : "2026-07-19T02:34:59.508Z"
+    },
+    {
+      "author_id" : "usr_019fb35d-5874-7199-a735-0e2d0e9f116e",
+      "author_name" : "student_p2_ms7ld6tj_wz87n",
+      "body" : "这是一条 P2 自动化社区内容。",
+      "comments" : 
+      [
+        {
+          "author_id" : "usr_019fb35d-5874-7199-a735-0e2d0e9f116e",
+          "author_name" : "student_p2_ms7ld6tj_wz87n",
+          "body" : "P2 评论",
+          "comment_id" : "cmt_019fb35d-8add-70c2-8d4b-ca2d5dd8cc3a",
+          "created_at" : "2026-07-30T14:11:19.901Z"
+        }
+      ],
+      "created_at" : "2026-07-30T14:11:18.909Z",
+      "likes" : [],
+      "post_id" : "post_019fb35d-86fd-7109-bc95-c5c66e93ea64",
+      "title" : "P2 社区帖子",
+      "updated_at" : "2026-07-30T14:11:19.901Z"
+    },
+    {
+      "author_id" : "usr_019fbbdd-615a-7eb8-b466-91e0bc167ba4",
+      "author_name" : "student_p2_ms9y9s48_xv6eh",
+      "body" : "这是一条 P2 自动化社区内容。",
+      "comments" : 
+      [
+        {
+          "author_id" : "usr_019fbc30-a86f-7430-8b1f-22cab897e5fa",
+          "author_name" : "student_p2_msa1irdr_5ks5b",
+          "body" : "P2 评论",
+          "comment_id" : "cmt_019fbc30-f411-7d3b-b636-fc82d54221f9",
+          "created_at" : "2026-08-01T07:19:12.657Z"
+        }
+      ],
+      "created_at" : "2026-08-01T05:48:14.064Z",
+      "likes" : 
+      [
+        "usr_019fbbdd-615a-7eb8-b466-91e0bc167ba4",
+        "usr_019fbc30-a86f-7430-8b1f-22cab897e5fa"
+      ],
+      "post_id" : "post_019fbbdd-a970-7eee-8d0f-14373f4374e6",
+      "title" : "P2 社区帖子",
+      "updated_at" : "2026-08-01T07:19:12.657Z"
+    },
+    {
+      "author_id" : "usr_019fbc30-a86f-7430-8b1f-22cab897e5fa",
+      "author_name" : "student_p2_msa1irdr_5ks5b",
+      "body" : "这是一条 P2 自动化社区内容。",
+      "comments" : [],
+      "created_at" : "2026-08-01T07:19:12.214Z",
+      "likes" : 
+      [
+        "usr_019fbc44-0e72-7cd5-9131-8727efbf94a1"
+      ],
+      "post_id" : "post_019fbc30-f256-759f-b6d4-72a41b97c34a",
+      "title" : "P2 社区帖子",
+      "updated_at" : "2026-08-01T07:19:12.214Z"
+    },
+    {
+      "author_id" : "usr_019fbc44-0e72-7cd5-9131-8727efbf94a1",
+      "author_name" : "student_p2_msa2a05a_yaeme",
+      "body" : "这是一条 P2 自动化社区内容。",
+      "comments" : 
+      [
+        {
+          "author_id" : "usr_019fbc44-0e72-7cd5-9131-8727efbf94a1",
+          "author_name" : "student_p2_msa2a05a_yaeme",
+          "body" : "P2 评论",
+          "comment_id" : "cmt_019fbc44-65cc-79d8-ab47-ae46aba96724",
+          "created_at" : "2026-08-01T07:40:26.956Z"
+        }
+      ],
+      "created_at" : "2026-08-01T07:40:25.837Z",
+      "likes" : [],
+      "post_id" : "post_019fbc44-616d-7908-8434-20b0d4b0132b",
+      "title" : "P2 社区帖子",
+      "updated_at" : "2026-08-01T07:40:26.956Z"
     }
   ]
 }

@@ -31,6 +31,9 @@ class AssignmentRepository
     // 按多个 learningGroupId 批量列出（学生汇总「我的作业」时用）
     Json::Value listByLearningGroups(const std::vector<std::string> &learningGroupIds) const;
 
+    // 后台任务扫描全部作业；调用方只应在低频批处理场景使用。
+    Json::Value listAll() const;
+
     Json::Value get(const std::string &assignmentId) const;
 
     Json::Value submit(const std::string &assignmentId, const std::string &studentId, const Json::Value &submission);

@@ -6,7 +6,7 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-07-23T00:34:27.373Z",
+  "last_active_at" : "2026-08-03T01:27:25.761Z",
   "last_credit_reason" : "",
   "last_xp_reason" : "study.pomodoro",
   "locale" : "zh-CN",
@@ -19,19 +19,19 @@
   "plan_status" : "active",
   "scope_id" : "usr_019ee061-3af0-7518-a63c-e985c77fa52b",
   "scope_type" : "personal",
-  "streak_days" : 5,
+  "streak_days" : 2,
   "study_stats" : 
   {
     "awarded_now" : 0,
     "daily_xp_cap" : 2,
-    "date" : "2026-07-23",
+    "date" : "2026-08-03",
     "pomodoro_seconds" : 1500,
-    "today_minutes" : 6,
-    "today_seconds" : 375,
+    "today_minutes" : 8,
+    "today_seconds" : 495,
     "today_xp_awarded" : 0,
-    "updated_at" : "2026-07-23T00:34:27.373Z"
+    "updated_at" : "2026-08-03T01:27:25.761Z"
   },
   "user_id" : "usr_019ee061-3af0-7518-a63c-e985c77fa52b",
-  "xp" : 10,
-  "xp_updated_at" : "2026-07-22T15:12:05.118Z"
+  "xp" : 12,
+  "xp_updated_at" : "2026-08-02T14:16:24.086Z"
 }

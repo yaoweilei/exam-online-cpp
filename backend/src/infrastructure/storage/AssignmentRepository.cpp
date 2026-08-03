@@ -89,6 +89,12 @@ Json::Value AssignmentRepository::listByLearningGroups(const std::vector<std::st
     return out;
 }
 
+Json::Value AssignmentRepository::listAll() const
+{
+    std::shared_lock lock(mutex_);
+    return loadDoc().get("assignments", Json::Value(Json::arrayValue));
+}
+
 Json::Value AssignmentRepository::get(const std::string &assignmentId) const
 {
     std::shared_lock lock(mutex_);
@@ -257,6 +263,14 @@ bool AssignmentRepository::update(const std::string &assignmentId, const Json::V
         if (patch.isMember("question_ids") && patch["question_ids"].isArray())
         {
             a["question_ids"] = patch["question_ids"];
+        }
+        if (patch.isMember("auto_reminder_enabled"))
+        {
+            a["auto_reminder_enabled"] = patch["auto_reminder_enabled"].asBool();
+        }
+        if (patch.isMember("auto_reminder_hours_before") && patch["auto_reminder_hours_before"].isArray())
+        {
+            a["auto_reminder_hours_before"] = patch["auto_reminder_hours_before"];
         }
         a["updated_at"] = common::nowIso8601();
         changed = true;

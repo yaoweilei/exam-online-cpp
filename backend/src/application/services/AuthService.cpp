@@ -4,9 +4,16 @@
 #include <algorithm>
 #include <cctype>
 #include <random>
+#include <vector>
+
+#include <drogon/utils/Utilities.h>
 
 namespace application::services
 {
+namespace
+{
+constexpr std::size_t kMaxSessionsPerUser = 10;
+}
 
 AuthService::AuthService(infrastructure::storage::UserRepository &repository,
 infrastructure::storage::ProfileRepository &profileRepository,
@@ -27,8 +34,13 @@ SmsService *smsService)
     }
 }
 
-Json::Value AuthService::login(const std::string &username, const std::string &password)
+Json::Value AuthService::login(const std::string &username,
+                               const std::string &password,
+                               const std::string &clientKey,
+                               const std::string &userAgent)
 {
+    const auto accountKey = normalizeThrottleKey(username);
+    enforceLoginThrottle(accountKey, clientKey);
     auto user = repository_.findUserByLoginId(username);
     if (user.isNull() && developmentMode_ && password.empty())
     {
@@ -37,6 +49,7 @@ Json::Value AuthService::login(const std::string &username, const std::string &p
 
     if (user.isNull())
     {
+        recordLoginFailure(accountKey, clientKey);
         throw common::AppException("INVALID_CREDENTIALS", "Username or password is invalid", drogon::k401Unauthorized);
     }
     if (user.get("status", "active").asString() != "active")
@@ -47,10 +60,12 @@ Json::Value AuthService::login(const std::string &username, const std::string &p
     const auto allowEmptyPassword = developmentMode_ && password.empty() && allowsDevelopmentEmptyPassword(user);
     if (!allowEmptyPassword && !repository_.verifyPassword(user, password))
     {
+        recordLoginFailure(accountKey, clientKey);
         throw common::AppException("INVALID_CREDENTIALS", "Username or password is invalid", drogon::k401Unauthorized);
     }
 
-    const auto token = createSessionForUser(user);
+    recordLoginSuccess(accountKey);
+    const auto token = createSessionForUser(user, clientKey, userAgent);
     auto out = verify(token);
     out["token"] = token;
     return out;
@@ -59,19 +74,24 @@ Json::Value AuthService::login(const std::string &username, const std::string &p
 Json::Value AuthService::registerUser(const std::string &username,
 const std::string &password,
 const std::string &email,
-const std::string &referralCode)
+const std::string &referralCode,
+const std::string &clientKey,
+const std::string &userAgent)
 {
     validatePasswordPolicy(password);
     auto user = repository_.createUser(username, password, email, referralCode);
-    const auto token = createSessionForUser(user);
+    const auto token = createSessionForUser(user, clientKey, userAgent);
     auto out = verify(token);
     out["token"] = token;
     return out;
 }
 
-std::string AuthService::createSessionForUser(const Json::Value &user)
+std::string AuthService::createSessionForUser(const Json::Value &user,
+                                              const std::string &clientKey,
+                                              const std::string &userAgent)
 {
     const auto token = common::generateRequestId();
+    const auto createdAt = common::nowIso8601();
     const auto expiresAt = std::chrono::system_clock::now() + std::chrono::hours(24 * 7);
     {
         std::scoped_lock lock(mutex_);
@@ -80,10 +100,33 @@ std::string AuthService::createSessionForUser(const Json::Value &user)
             .username = user.get("username", "").asString(),
             .roles = repository_.effectivePlatformRoles(user.get("id", "").asString()),
             .expiresAt = expiresAt,
-            .expiresAtIso = toIso8601(expiresAt)};
+            .expiresAtIso = toIso8601(expiresAt),
+            .createdAtIso = createdAt,
+            .lastSeenAtIso = createdAt,
+            .clientIp = clientKey,
+            .userAgent = userAgent};
         if (sessionRepository_)
         {
             sessionRepository_->save(token, sessionToJson(sessions_[token]));
+            sessionRepository_->trimByUserId(
+                user.get("id", "").asString(),
+                kMaxSessionsPerUser,
+                drogon::utils::getSha256(token));
+        }
+        std::vector<std::pair<std::string, std::chrono::system_clock::time_point>> userSessions;
+        for (const auto &[existingToken, session] : sessions_)
+        {
+            if (session.userId == user.get("id", "").asString())
+            {
+                userSessions.emplace_back(existingToken, session.expiresAt);
+            }
+        }
+        std::sort(userSessions.begin(), userSessions.end(), [](const auto &left, const auto &right) {
+            return left.second > right.second;
+        });
+        for (std::size_t index = kMaxSessionsPerUser; index < userSessions.size(); ++index)
+        {
+            sessions_.erase(userSessions[index].first);
         }
     }
     profileRepository_.updateStreak(user.get("id", "").asString());
@@ -125,10 +168,6 @@ Json::Value AuthService::verify(const std::string &token)
         }
         throw common::AppException("TOKEN_EXPIRED", "Token has expired", drogon::k401Unauthorized);
     }
-    if (sessionRepository_)
-    {
-        sessionRepository_->save(token, sessionToJson(it->second));
-    }
     const auto currentUser = repository_.findUserById(it->second.userId);
     if (currentUser.isNull() || currentUser.get("status", "active").asString() != "active")
     {
@@ -140,6 +179,11 @@ Json::Value AuthService::verify(const std::string &token)
         throw common::AppException("ACCOUNT_DISABLED", "This account is disabled", drogon::k403Forbidden);
     }
     it->second.roles = repository_.effectivePlatformRoles(it->second.userId);
+    it->second.lastSeenAtIso = common::nowIso8601();
+    if (sessionRepository_)
+    {
+        sessionRepository_->save(token, sessionToJson(it->second));
+    }
 
     Json::Value out(Json::objectValue);
     out["user_id"] = it->second.userId;
@@ -149,8 +193,83 @@ Json::Value AuthService::verify(const std::string &token)
     return out;
 }
 
-void AuthService::requirePasswordReauthentication(const std::string &userId, const std::string &password) const
+Json::Value AuthService::sessionsForUser(const std::string &userId, const std::string &currentToken)
 {
+    const auto currentSessionId = drogon::utils::getSha256(currentToken);
+    Json::Value sessions(Json::arrayValue);
+    if (sessionRepository_)
+    {
+        sessionRepository_->pruneExpired(toEpochMillis(std::chrono::system_clock::now()));
+        sessionRepository_->trimByUserId(
+            userId,
+            kMaxSessionsPerUser,
+            currentSessionId);
+        sessions = sessionRepository_->listByUserId(userId);
+    }
+    else
+    {
+        std::scoped_lock lock(mutex_);
+        for (const auto &[token, session] : sessions_)
+        {
+            if (session.userId != userId) continue;
+            auto entry = sessionToJson(session);
+            entry["token_hash"] = drogon::utils::getSha256(token);
+            sessions.append(entry);
+        }
+    }
+
+    Json::Value out(Json::arrayValue);
+    for (const auto &entry : sessions)
+    {
+        const auto sessionId = entry.get("token_hash", "").asString();
+        if (sessionId.empty()) continue;
+        Json::Value item(Json::objectValue);
+        item["session_id"] = sessionId;
+        item["current"] = sessionId == currentSessionId;
+        item["created_at"] = entry.get("created_at", "").asString();
+        item["last_seen_at"] = entry.get("last_seen_at", "").asString();
+        item["expires_at"] = entry.get("expires_at", "").asString();
+        item["client_ip"] = entry.get("client_ip", "").asString();
+        item["user_agent"] = entry.get("user_agent", "").asString();
+        out.append(item);
+    }
+    return out;
+}
+
+bool AuthService::revokeSessionForUser(const std::string &userId,
+                                       const std::string &sessionId,
+                                       const std::string &currentToken)
+{
+    if (sessionId.empty() || sessionId == drogon::utils::getSha256(currentToken))
+    {
+        return false;
+    }
+    bool removed = false;
+    {
+        std::scoped_lock lock(mutex_);
+        for (auto it = sessions_.begin(); it != sessions_.end();)
+        {
+            if (it->second.userId == userId &&
+                drogon::utils::getSha256(it->first) == sessionId)
+            {
+                it = sessions_.erase(it);
+                removed = true;
+                continue;
+            }
+            ++it;
+        }
+    }
+    if (sessionRepository_)
+    {
+        removed = sessionRepository_->removeById(userId, sessionId) || removed;
+    }
+    return removed;
+}
+
+void AuthService::requirePasswordReauthentication(const std::string &userId, const std::string &password)
+{
+    const auto throttleKey = "reauth:" + normalizeThrottleKey(userId);
+    enforceLoginThrottle(throttleKey, "");
     const auto user = repository_.findUserById(userId);
     if (user.isNull() || user.get("status", "active").asString() != "active")
     {
@@ -159,8 +278,10 @@ void AuthService::requirePasswordReauthentication(const std::string &userId, con
     const bool allowDevelopmentEmpty = developmentMode_ && password.empty() && allowsDevelopmentEmptyPassword(user);
     if (!allowDevelopmentEmpty && !repository_.verifyPassword(user, password))
     {
+        recordLoginFailure(throttleKey, "");
         throw common::AppException("REAUTH_FAILED", "当前密码验证失败", drogon::k401Unauthorized);
     }
+    recordLoginSuccess(throttleKey);
 }
 
 int AuthService::revokeSessionsForUser(const std::string &userId, const std::string &keepToken)
@@ -197,7 +318,7 @@ const std::string &newPassword)
         throw common::AppException("USER_NOT_FOUND", "User not found", drogon::k404NotFound);
     }
     const auto algo = user.get("password_algo", "").asString();
-    const auto hasPassword = algo == "sha256" || algo == "plain";
+    const auto hasPassword = algo == "scrypt" || algo == "sha256" || algo == "plain";
     if (hasPassword && !repository_.verifyPassword(user, currentPassword))
     {
         throw common::AppException("INVALID_CREDENTIALS", "Current password is invalid", drogon::k401Unauthorized);
@@ -221,8 +342,10 @@ Json::Value AuthService::deactivateAccount(const std::string &userId, const std:
     return out;
 }
 
-Json::Value AuthService::sendPasswordResetCode(const std::string &loginId)
+Json::Value AuthService::sendPasswordResetCode(const std::string &loginId,
+                                               const std::string &clientKey)
 {
+    consumePasswordResetRequest(normalizeThrottleKey(loginId), clientKey);
     const auto user = repository_.findUserByLoginId(loginId);
     Json::Value out(Json::objectValue);
     out["sent"] = true;
@@ -254,7 +377,8 @@ Json::Value AuthService::sendPasswordResetCode(const std::string &loginId)
             .userId = userId,
             .code = code,
             .sentAt = now,
-            .expiresAt = now + std::chrono::minutes(10)};
+            .expiresAt = now + std::chrono::minutes(10),
+            .failedAttempts = 0};
     }
 
     if (!email.empty() && emailService_)
@@ -323,6 +447,15 @@ const std::string &newPassword)
         }
         if (it->second.code != code)
         {
+            ++it->second.failedAttempts;
+            if (it->second.failedAttempts >= 5)
+            {
+                passwordResetCodes_.erase(it);
+                throw common::AppException(
+                    "RESET_CODE_ATTEMPTS_EXCEEDED",
+                    "Too many invalid reset code attempts; request a new code",
+                    drogon::k429TooManyRequests);
+            }
             throw common::AppException("RESET_CODE_INVALID", "Reset code is invalid", drogon::k400BadRequest);
         }
         passwordResetCodes_.erase(it);
@@ -339,6 +472,136 @@ bool AuthService::allowsDevelopmentEmptyPassword(const Json::Value &user)
 {
             const auto algo = user.get("password_algo", "").asString();
             return algo == "wechat" || algo == "dev-empty" || !user.get("dev_login_id", "").asString().empty();
+}
+
+std::string AuthService::normalizeThrottleKey(const std::string &value)
+{
+    std::string normalized;
+    normalized.reserve(value.size());
+    for (const auto ch : value)
+    {
+        if (!std::isspace(static_cast<unsigned char>(ch)))
+        {
+            normalized.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+        }
+    }
+    return normalized.empty() ? "unknown" : normalized;
+}
+
+void AuthService::enforceLoginThrottle(const std::string &accountKey, const std::string &clientKey)
+{
+    const auto now = std::chrono::system_clock::now();
+    std::scoped_lock lock(mutex_);
+    const auto enforceOne = [&](const std::string &key) {
+        if (key.empty())
+        {
+            return;
+        }
+        const auto it = loginFailureWindows_.find(key);
+        if (it != loginFailureWindows_.end() && now < it->second.blockedUntil)
+        {
+            throw common::AppException(
+                "AUTH_RATE_LIMITED",
+                "Too many authentication attempts; please try again later",
+                drogon::k429TooManyRequests);
+        }
+    };
+    enforceOne("account:" + accountKey);
+    if (!clientKey.empty())
+    {
+        enforceOne("client:" + clientKey);
+    }
+}
+
+void AuthService::recordLoginFailure(const std::string &accountKey, const std::string &clientKey)
+{
+    const auto now = std::chrono::system_clock::now();
+    constexpr auto window = std::chrono::minutes(15);
+    constexpr auto blockDuration = std::chrono::minutes(15);
+    bool blocked = false;
+    std::scoped_lock lock(mutex_);
+    const auto recordOne = [&](const std::string &key, int maximumFailures) {
+        if (key.empty())
+        {
+            return;
+        }
+        auto &state = loginFailureWindows_[key];
+        if (state.windowStartedAt.time_since_epoch().count() == 0 ||
+            now - state.windowStartedAt >= window)
+        {
+            state.failures = 0;
+            state.windowStartedAt = now;
+            state.blockedUntil = {};
+        }
+        ++state.failures;
+        if (state.failures >= maximumFailures)
+        {
+            state.blockedUntil = now + blockDuration;
+            blocked = true;
+        }
+    };
+    recordOne("account:" + accountKey, 5);
+    if (!clientKey.empty())
+    {
+        recordOne("client:" + clientKey, 20);
+    }
+    if (blocked)
+    {
+        throw common::AppException(
+            "AUTH_RATE_LIMITED",
+            "Too many authentication attempts; please try again later",
+            drogon::k429TooManyRequests);
+    }
+}
+
+void AuthService::recordLoginSuccess(const std::string &accountKey)
+{
+    std::scoped_lock lock(mutex_);
+    loginFailureWindows_.erase("account:" + accountKey);
+}
+
+void AuthService::consumePasswordResetRequest(const std::string &accountKey,
+                                              const std::string &clientKey)
+{
+    const auto now = std::chrono::system_clock::now();
+    constexpr auto window = std::chrono::hours(1);
+    std::scoped_lock lock(mutex_);
+    const auto consumeOne = [&](const std::string &key, int maximumRequests, bool cooldown) {
+        if (key.empty())
+        {
+            return;
+        }
+        auto &state = passwordResetRequestWindows_[key];
+        if (state.windowStartedAt.time_since_epoch().count() == 0 ||
+            now - state.windowStartedAt >= window)
+        {
+            state.requests = 0;
+            state.windowStartedAt = now;
+            state.lastRequestAt = {};
+        }
+        if (cooldown && state.lastRequestAt.time_since_epoch().count() != 0 &&
+            now - state.lastRequestAt < std::chrono::minutes(1))
+        {
+            throw common::AppException(
+                "RESET_RATE_LIMITED",
+                "Please wait before requesting another code",
+                drogon::k429TooManyRequests);
+        }
+        if (state.requests >= maximumRequests)
+        {
+            throw common::AppException(
+                "RESET_RATE_LIMITED",
+                "Too many password reset requests; please try again later",
+                drogon::k429TooManyRequests);
+        }
+        ++state.requests;
+        state.lastRequestAt = now;
+    };
+    consumeOne("reset-account:" + accountKey, 5, true);
+    if (!clientKey.empty())
+    {
+        consumeOne("reset-client:" + clientKey, 20, false);
+    }
 }
 
 void AuthService::validatePasswordPolicy(const std::string &password)
@@ -407,7 +670,10 @@ Json::Value AuthService::sessionToJson(const Session &session)
     out["roles"] = session.roles;
     out["expires_at"] = session.expiresAtIso;
     out["expires_at_epoch_ms"] = Json::Int64(toEpochMillis(session.expiresAt));
-    out["last_seen_at"] = common::nowIso8601();
+    out["created_at"] = session.createdAtIso;
+    out["last_seen_at"] = session.lastSeenAtIso;
+    out["client_ip"] = session.clientIp;
+    out["user_agent"] = session.userAgent;
     return out;
 }
 
@@ -425,7 +691,11 @@ AuthService::Session AuthService::sessionFromJson(const Json::Value &value)
         .username = value.get("username", "").asString(),
         .roles = roles,
         .expiresAt = expiresAt,
-        .expiresAtIso = value.get("expires_at", "").asString()};
+        .expiresAtIso = value.get("expires_at", "").asString(),
+        .createdAtIso = value.get("created_at", value.get("last_seen_at", "")).asString(),
+        .lastSeenAtIso = value.get("last_seen_at", "").asString(),
+        .clientIp = value.get("client_ip", "").asString(),
+        .userAgent = value.get("user_agent", "").asString()};
 }
 
 }  // namespace application::services

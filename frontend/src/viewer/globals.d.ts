@@ -14,6 +14,9 @@ interface LegacyApiClientShape {
 	register(username: string, password: string, email?: string | null, referralCode?: string): Promise<unknown>;
 	logout(token: string): Promise<unknown>;
 	changePassword(token: string, currentPassword: string, newPassword: string): Promise<unknown>;
+	getAuthSessions(token: string): Promise<unknown>;
+	revokeOtherAuthSessions(token: string): Promise<unknown>;
+	revokeAuthSession(token: string, sessionId: string): Promise<unknown>;
 	sendContactChangeChallenge(token: string, channel: 'email' | 'phone'): Promise<unknown>;
 	sendPhoneVerificationCode(phone: string): Promise<unknown>;
 	verifyPhone(token: string, phone: string, code: string, options?: { changeChallengeChannel?: 'email' | 'phone'; changeChallengeCode?: string }): Promise<unknown>;
@@ -47,6 +50,7 @@ interface LegacyApiClientShape {
 	updatePlatformUserAccess(token: string, userId: string, payload: unknown): Promise<unknown>;
 	listContentWorkflow(token: string): Promise<unknown>;
 	inspectContentWorkflow(token: string, examId: string): Promise<unknown>;
+	inspectContentWorkflowBatch(token: string, examIds: string[]): Promise<unknown>;
 	reviewContentWorkflow(token: string, examId: string, stage: string, payload: unknown): Promise<unknown>;
 	publishContentWorkflow(token: string, examId: string, payload: unknown): Promise<unknown>;
 	listContentVersions(token: string, examId: string): Promise<unknown>;
@@ -84,6 +88,14 @@ interface LegacyApiClientShape {
 	updateOrganizationSubscription(organizationId: string, token: string, payload: unknown): Promise<unknown>;
 	updateUserSubscription(userId: string, token: string, payload: unknown): Promise<unknown>;
 	createPaymentOrder(token: string, payload: unknown): Promise<unknown>;
+	getPaymentQuote(token: string, payload: unknown): Promise<unknown>;
+	getAutoRenewal(token: string, scopeType?: 'personal' | 'organization', organizationId?: string): Promise<unknown>;
+	updateAutoRenewal(token: string, payload: unknown): Promise<unknown>;
+	getPaymentNotifications(token: string, unreadOnly?: boolean, page?: number, pageSize?: number): Promise<unknown>;
+	markPaymentNotificationRead(token: string, notificationId: string): Promise<unknown>;
+	markAllPaymentNotificationsRead(token: string): Promise<unknown>;
+	getRenewalOperations(token: string): Promise<unknown>;
+	runRenewalJob(token: string, payload: unknown): Promise<unknown>;
 	getPaymentPricing(): Promise<unknown>;
 	updatePaymentPricing(token: string, payload: unknown): Promise<unknown>;
 	getPaymentOrder(token: string, orderId: string): Promise<unknown>;

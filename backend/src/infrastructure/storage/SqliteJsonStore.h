@@ -19,10 +19,15 @@ class SqliteJsonStore
     void upsert(const std::string &nameSpace, const std::string &key, const Json::Value &payload);
     Json::Value get(const std::string &nameSpace, const std::string &key) const;
     Json::Value list(const std::string &nameSpace, int limit = 0, int offset = 0) const;
+    Json::Value searchText(const std::string &nameSpace,
+                           const std::string &jsonPath,
+                           const std::string &query,
+                           int limit) const;
     Json::Value queryAudit(const std::string &nameSpace,
                            const std::optional<std::string> &orgId,
                            const std::optional<std::string> &actorId,
                            const std::optional<std::string> &action,
+                           const std::optional<std::string> &actionPrefix,
                            const std::optional<std::string> &since,
                            const std::optional<std::string> &until,
                            int limit,

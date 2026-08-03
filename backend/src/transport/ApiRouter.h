@@ -51,7 +51,9 @@ namespace transport
 struct AppContext
 {
     std::filesystem::path staticDir;
+	std::filesystem::path dataRoot;
 	bool disableStaticCache{false};
+    bool secureCookies{false};
     application::services::ExamService *examService{nullptr};
     application::services::AnswerService *answerService{nullptr};
     application::services::AuthService *authService{nullptr};

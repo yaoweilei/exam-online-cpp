@@ -6,7 +6,22 @@
 
 namespace infrastructure::storage
 {
-namespace { std::string compact(const Json::Value &v) { Json::StreamWriterBuilder b; b["indentation"]=""; return Json::writeString(b,v); } }
+namespace
+{
+std::string compact(const Json::Value &v) { Json::StreamWriterBuilder b; b["indentation"]=""; return Json::writeString(b,v); }
+
+std::string escapeLikePattern(const std::string &value)
+{
+    std::string escaped;
+    escaped.reserve(value.size());
+    for (const auto ch : value)
+    {
+        if (ch == '\\' || ch == '%' || ch == '_') escaped.push_back('\\');
+        escaped.push_back(ch);
+    }
+    return escaped;
+}
+}
 SqliteJsonStore::SqliteJsonStore(const std::filesystem::path &path)
 {
     std::filesystem::create_directories(path.parent_path());
@@ -36,10 +51,45 @@ Json::Value SqliteJsonStore::list(const std::string &ns,int limit,int offset) co
 {
     std::scoped_lock lock(mutex_); sqlite3_stmt *s=nullptr; const char *sql=limit>0?"SELECT payload FROM json_entities WHERE namespace=? ORDER BY updated_at DESC,rowid DESC LIMIT ? OFFSET ?":"SELECT payload FROM json_entities WHERE namespace=? ORDER BY rowid"; sqlite3_prepare_v2(db_,sql,-1,&s,nullptr); sqlite3_bind_text(s,1,ns.c_str(),-1,SQLITE_TRANSIENT); if(limit>0){sqlite3_bind_int(s,2,limit);sqlite3_bind_int(s,3,offset);} Json::Value out(Json::arrayValue); while(sqlite3_step(s)==SQLITE_ROW) out.append(parseJson(reinterpret_cast<const char*>(sqlite3_column_text(s,0)),"sqlite")); sqlite3_finalize(s); return out;
 }
+Json::Value SqliteJsonStore::searchText(const std::string &ns,
+                                        const std::string &jsonPath,
+                                        const std::string &query,
+                                        int limit) const
+{
+    std::scoped_lock lock(mutex_);
+    sqlite3_stmt *stmt=nullptr;
+    const char *sql =
+        "WITH searchable AS ("
+        " SELECT payload, lower(COALESCE(CAST(json_extract(payload, ?) AS TEXT), '')) AS search_value"
+        " FROM json_entities WHERE namespace=?"
+        ")"
+        " SELECT payload FROM searchable"
+        " WHERE search_value LIKE ? ESCAPE '\\'"
+        " ORDER BY CASE"
+        " WHEN search_value=? THEN 0"
+        " WHEN search_value LIKE ? ESCAPE '\\' THEN 1"
+        " ELSE 2 END, search_value"
+        " LIMIT ?";
+    if(sqlite3_prepare_v2(db_,sql,-1,&stmt,nullptr)!=SQLITE_OK) throw std::runtime_error(sqlite3_errmsg(db_));
+    const auto escaped=escapeLikePattern(query);
+    const auto containsPattern="%" + escaped + "%";
+    const auto prefixPattern=escaped + "%";
+    sqlite3_bind_text(stmt,1,jsonPath.c_str(),-1,SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt,2,ns.c_str(),-1,SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt,3,containsPattern.c_str(),-1,SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt,4,query.c_str(),-1,SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt,5,prefixPattern.c_str(),-1,SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt,6,(std::max)(1,limit));
+    Json::Value out(Json::arrayValue);
+    while(sqlite3_step(stmt)==SQLITE_ROW) out.append(parseJson(reinterpret_cast<const char*>(sqlite3_column_text(stmt,0)),"sqlite"));
+    sqlite3_finalize(stmt);
+    return out;
+}
 Json::Value SqliteJsonStore::queryAudit(const std::string &ns,
                                         const std::optional<std::string> &orgId,
                                         const std::optional<std::string> &actorId,
                                         const std::optional<std::string> &action,
+                                        const std::optional<std::string> &actionPrefix,
                                         const std::optional<std::string> &since,
                                         const std::optional<std::string> &until,
                                         int limit,int offset,std::size_t &total) const
@@ -50,6 +100,11 @@ Json::Value SqliteJsonStore::queryAudit(const std::string &ns,
     add("json_extract(payload,'$.org_id')",orgId);
     add("json_extract(payload,'$.actor_user_id')",actorId);
     add("json_extract(payload,'$.action')",action);
+    if(actionPrefix)
+    {
+        where += " AND json_extract(payload,'$.action') GLOB ?";
+        values.push_back(*actionPrefix + "*");
+    }
     add("json_extract(payload,'$.created_at')",since,">=");
     add("json_extract(payload,'$.created_at')",until,"<");
     const auto bind=[&](sqlite3_stmt *stmt) { for(std::size_t i=0;i<values.size();++i) sqlite3_bind_text(stmt,static_cast<int>(i+1),values[i].c_str(),-1,SQLITE_TRANSIENT); };

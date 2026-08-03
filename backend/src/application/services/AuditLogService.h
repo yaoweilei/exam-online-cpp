@@ -9,9 +9,10 @@
 //             details, summary（部分缺失时容忍）
 // 输出：合并 + 过滤 + 倒序 + 分页
 //
-// 安全：路由层 requireRole({superAdmin, orgAdmin})；
+// 安全：路由层 requireRole({superAdmin, orgAdmin, contentAdmin})；
 //   - orgAdmin 必须强制其 orgIdFilter == 自己的 org（路由内注入）
 //   - superAdmin 可不传 orgIdFilter 看全部
+//   - contentAdmin 只能查询 action 以 "content." 开头的内容变更日志
 
 #include <filesystem>
 #include <cstddef>
@@ -32,6 +33,7 @@ struct AuditLogQuery
     std::optional<std::string> orgId;     // 限定组织
     std::optional<std::string> actorId;   // actor_user_id 精确匹配
     std::optional<std::string> action;    // action 精确匹配（如 "subscription.updated"）
+    std::optional<std::string> actionPrefix;  // action 前缀限制（用于内容管理员安全范围）
     std::optional<std::string> since;     // ISO8601 起始（含）
     std::optional<std::string> until;     // ISO8601 结束（不含）
     int limit{50};
@@ -49,7 +51,8 @@ class AuditLogService
     Json::Value query(const AuditLogQuery &q) const;
 
     // 列出去重的 action 类型，用于前端筛选下拉
-    Json::Value listActions(const std::optional<std::string> &orgId) const;
+    Json::Value listActions(const std::optional<std::string> &orgId,
+                            const std::optional<std::string> &actionPrefix = std::nullopt) const;
 
     void record(const std::string &action,
                 const std::string &actorUserId,

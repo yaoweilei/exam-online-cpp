@@ -5,9 +5,11 @@ namespace infrastructure::storage
 {
 
 ProfileRepository::ProfileRepository(std::filesystem::path userRootDir)
-: profileDir_(std::move(userRootDir) / "profile")
+: profileDir_(userRootDir / "profile"),
+  sqliteStore_(std::move(userRootDir) / "core.sqlite3")
 {
     std::filesystem::create_directories(profileDir_);
+    ensureSearchIndex();
 }
 
 Json::Value ProfileRepository::loadProfile(const std::string &userId) const
@@ -24,7 +26,18 @@ Json::Value ProfileRepository::loadProfile(const std::string &userId) const
 void ProfileRepository::saveProfile(const std::string &userId, const Json::Value &data)
 {
     std::unique_lock lock(mutex_);
-    writeJsonFileAtomic(profileDir_ / (userId + ".json"), normalizeProfile(userId, data));
+    const auto profile = normalizeProfile(userId, data);
+    writeJsonFileAtomic(profileDir_ / (userId + ".json"), profile);
+    upsertSearchDocument(profile);
+}
+
+Json::Value ProfileRepository::searchByDisplayName(const std::string &query, std::size_t limit) const
+{
+    return sqliteStore_.searchText(
+        "profile_search",
+        "$.display_name",
+        query,
+        static_cast<int>((std::min)(limit, static_cast<std::size_t>(200))));
 }
 
 bool ProfileRepository::grantCreditsIfAbsent(const std::string &userId,
@@ -60,6 +73,7 @@ const std::string &reason)
     profile["credit_awards"][awardKey] = award;
 
     writeJsonFileAtomic(path, profile);
+    upsertSearchDocument(profile);
     return true;
 }
 
@@ -127,6 +141,7 @@ Json::Value ProfileRepository::recordStudySeconds(const std::string &userId, int
 
     profile["last_active_at"] = now;
     writeJsonFileAtomic(path, profile);
+    upsertSearchDocument(profile);
 
     Json::Value out(Json::objectValue);
     out["date"] = todayDate;
@@ -176,6 +191,52 @@ void ProfileRepository::updateStreak(const std::string &userId)
     profile["last_active_at"] = now;
 
     writeJsonFileAtomic(path, profile);
+    upsertSearchDocument(profile);
+}
+
+void ProfileRepository::ensureSearchIndex()
+{
+    if (sqliteStore_.count("profile_search") > 0)
+    {
+        return;
+    }
+
+    Json::Value documents(Json::arrayValue);
+    for (const auto &entry : std::filesystem::directory_iterator(profileDir_))
+    {
+        if (!entry.is_regular_file() || entry.path().extension() != ".json")
+        {
+            continue;
+        }
+        try
+        {
+            const auto userId = entry.path().stem().string();
+            const auto profile = normalizeProfile(userId, readJsonFile(entry.path()));
+            Json::Value document(Json::objectValue);
+            document["user_id"] = userId;
+            document["display_name"] = profile.get("display_name", "").asString();
+            documents.append(document);
+        }
+        catch (const std::exception &)
+        {
+            // A single damaged legacy profile must not prevent the application
+            // from starting; normal profile reads will still surface the file.
+        }
+    }
+    sqliteStore_.replace("profile_search", documents, "user_id");
+}
+
+void ProfileRepository::upsertSearchDocument(const Json::Value &profile)
+{
+    const auto userId = profile.get("user_id", "").asString();
+    if (userId.empty())
+    {
+        return;
+    }
+    Json::Value document(Json::objectValue);
+    document["user_id"] = userId;
+    document["display_name"] = profile.get("display_name", "").asString();
+    sqliteStore_.upsert("profile_search", userId, document);
 }
 
 Json::Value ProfileRepository::defaultProfile(const std::string &userId)

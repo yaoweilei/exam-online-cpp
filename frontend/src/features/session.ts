@@ -74,7 +74,8 @@ export function buildCurrentUser(context: MeContext, token: string): CurrentUser
 	return {
 		...context.user,
 		guest: false,
-		token,
+		// Authentication is cookie-backed. Never persist the bearer token in browser storage.
+		token: '',
 		profile: context.profile,
 		membership: context.membership,
 		permissions: context.permissions,
@@ -87,8 +88,6 @@ export async function restoreSession(api: ApiClient, store: AppStore): Promise<v
 	try {
 		recordDeviceActivity();
 		const token = localStorage.getItem(TOKEN_KEY) || readCookie('token');
-		if (!token) return;
-
 		const context = (await api.getMeContext(token)) as MeContext;
 		const user = buildCurrentUser(context, token);
 		persistSession(user);
@@ -105,8 +104,9 @@ export function persistSession(user: CurrentUser): void {
 		(typeof rawUser.user_id === 'string' && rawUser.user_id) ||
 		(typeof rawUser.id === 'string' && rawUser.id) ||
 		'';
-	localStorage.setItem(USER_KEY, JSON.stringify(user));
-	localStorage.setItem(TOKEN_KEY, user.token);
+	const safeUser = { ...user, token: '' };
+	localStorage.setItem(USER_KEY, JSON.stringify(safeUser));
+	localStorage.removeItem(TOKEN_KEY);
 	recordDeviceActivity(linkedUserId);
 }
 

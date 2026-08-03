@@ -1,12 +1,13 @@
 // 业务功能 14：PWA Service Worker
 // 缓存策略：
-//   - 静态资源（/static/*、/resource/*、/、/manifest.webmanifest）：stale-while-revalidate
+//   - 页面导航：网络优先，避免旧 HTML 壳与新版模块不兼容
+//   - 静态资源（/static/*、/resource/*、/manifest.webmanifest）：网络优先，离线回退缓存
 //   - API 请求（/api/*）：网络优先，离线时返回缓存（若有）
 //   - 其他：仅网络
 //
 // 版本号变更后，新 SW 会清理旧缓存
 
-const CACHE_VERSION = 'v2-2026-07-22-org-action-widths';
+const CACHE_VERSION = 'v2-2026-07-30-renewal-delivery';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 const ALL_CACHES = [STATIC_CACHE, API_CACHE];
@@ -15,8 +16,8 @@ const ALL_CACHES = [STATIC_CACHE, API_CACHE];
 const PRECACHE_URLS = [
 	'/',
 	'/manifest.webmanifest',
-	'/static/style.css?v=20260721-editor-v2',
-	'/static/app/main.js?v=20260721-editor-v2'
+	'/static/style.css?v=20260730-renewal-delivery',
+	'/static/app/main.js?v=20260730-renewal-delivery'
 ];
 
 self.addEventListener('install', (event) => {
@@ -47,7 +48,6 @@ self.addEventListener('message', (event) => {
 
 function isStatic(url) {
 	return (
-		url.pathname === '/' ||
 		url.pathname === '/manifest.webmanifest' ||
 		url.pathname.startsWith('/static/') ||
 		url.pathname.startsWith('/resource/')
@@ -64,19 +64,44 @@ self.addEventListener('fetch', (event) => {
 	const url = new URL(req.url);
 	if (url.origin !== self.location.origin) return;
 
-	if (isStatic(url)) {
-		// stale-while-revalidate
+	if (req.mode === 'navigate' || url.pathname === '/') {
+		// 页面壳必须优先使用网络版本；离线时才回退缓存。
+		// 否则旧 HTML 可能引用已删除的模块，导致应用在 SW 更新前无法启动。
 		event.respondWith(
-			caches.open(STATIC_CACHE).then(async (cache) => {
-				const cached = await cache.match(req);
-				const network = fetch(req)
-					.then((res) => {
-						if (res && res.status === 200) cache.put(req, res.clone());
-						return res;
-					})
-					.catch(() => cached);
-				return cached || network;
-			})
+			fetch(req)
+				.then((res) => {
+					if (res && res.status === 200) {
+						const clone = res.clone();
+						caches.open(STATIC_CACHE).then((cache) => cache.put('/', clone)).catch(() => {});
+					}
+					return res;
+				})
+				.catch(async () => {
+					const cache = await caches.open(STATIC_CACHE);
+					const cached = await cache.match('/');
+					return cached || Response.error();
+				})
+		);
+		return;
+	}
+
+	if (isStatic(url)) {
+		// 未使用内容哈希的 ES 模块依赖不能返回旧版本，否则入口脚本
+		// 和子模块可能不兼容。在线时使用网络版本，离线时回退缓存。
+		event.respondWith(
+			fetch(req)
+				.then((res) => {
+					if (res && res.status === 200) {
+						const clone = res.clone();
+						caches.open(STATIC_CACHE).then((cache) => cache.put(req, clone)).catch(() => {});
+					}
+					return res;
+				})
+				.catch(async () => {
+					const cache = await caches.open(STATIC_CACHE);
+					const cached = await cache.match(req);
+					return cached || Response.error();
+				})
 		);
 		return;
 	}

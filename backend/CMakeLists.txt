@@ -36,6 +36,7 @@ if(BUILD_TESTING)
         src/infrastructure/storage/ProfileRepository.cpp
         src/infrastructure/storage/ExamRepository.cpp
         src/application/services/OrganizationService.cpp
+        src/application/services/PaymentService.cpp
         src/application/services/SubscriptionService.cpp
         src/application/services/UserService.cpp
         src/application/services/ContactChangeChallengeService.cpp
@@ -81,7 +82,7 @@ if(BUILD_TESTING)
         src/application/services/OAuthService.cpp
     )
     target_include_directories(smoke_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-    target_link_libraries(smoke_tests PRIVATE Drogon::Drogon unofficial::sqlite3::sqlite3)
+    target_link_libraries(smoke_tests PRIVATE Drogon::Drogon OpenSSL::Crypto unofficial::sqlite3::sqlite3)
     if(MSVC)
         target_compile_options(smoke_tests PRIVATE /utf-8)
         target_compile_definitions(smoke_tests PRIVATE _CRT_SECURE_NO_WARNINGS NOMINMAX)

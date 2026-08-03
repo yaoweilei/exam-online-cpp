@@ -30,21 +30,34 @@ class AuthService
                         SmsService *smsService = nullptr)
 ;
 
-    Json::Value login(const std::string &username, const std::string &password);
+    Json::Value login(const std::string &username,
+                      const std::string &password,
+                      const std::string &clientKey = "",
+                      const std::string &userAgent = "");
 
     Json::Value registerUser(const std::string &username,
                              const std::string &password,
                              const std::string &email,
-                             const std::string &referralCode = "");
+                             const std::string &referralCode = "",
+                             const std::string &clientKey = "",
+                             const std::string &userAgent = "");
 
     // Called after WeChat OAuth2 callback completes; creates a session for the user.
-    std::string createSessionForUser(const Json::Value &user);
+    std::string createSessionForUser(const Json::Value &user,
+                                     const std::string &clientKey = "",
+                                     const std::string &userAgent = "");
 
     bool logout(const std::string &token);
 
     Json::Value verify(const std::string &token);
 
-    void requirePasswordReauthentication(const std::string &userId, const std::string &password) const;
+    Json::Value sessionsForUser(const std::string &userId, const std::string &currentToken);
+
+    bool revokeSessionForUser(const std::string &userId,
+                              const std::string &sessionId,
+                              const std::string &currentToken);
+
+    void requirePasswordReauthentication(const std::string &userId, const std::string &password);
 
     int revokeSessionsForUser(const std::string &userId, const std::string &keepToken = "");
 
@@ -54,7 +67,8 @@ class AuthService
 
     Json::Value deactivateAccount(const std::string &userId, const std::string &reason);
 
-    Json::Value sendPasswordResetCode(const std::string &loginId);
+    Json::Value sendPasswordResetCode(const std::string &loginId,
+                                      const std::string &clientKey = "");
 
     Json::Value resetPassword(const std::string &loginId,
                               const std::string &code,
@@ -76,6 +90,10 @@ class AuthService
         Json::Value roles{Json::arrayValue};
         std::chrono::system_clock::time_point expiresAt;
         std::string expiresAtIso;
+        std::string createdAtIso;
+        std::string lastSeenAtIso;
+        std::string clientIp;
+        std::string userAgent;
     };
 
     struct PasswordResetCode
@@ -84,7 +102,28 @@ class AuthService
         std::string code;
         std::chrono::system_clock::time_point sentAt;
         std::chrono::system_clock::time_point expiresAt;
+        int failedAttempts{0};
     };
+
+    struct FailureWindow
+    {
+        int failures{0};
+        std::chrono::system_clock::time_point windowStartedAt{};
+        std::chrono::system_clock::time_point blockedUntil{};
+    };
+
+    struct RequestWindow
+    {
+        int requests{0};
+        std::chrono::system_clock::time_point windowStartedAt{};
+        std::chrono::system_clock::time_point lastRequestAt{};
+    };
+
+    static std::string normalizeThrottleKey(const std::string &value);
+    void enforceLoginThrottle(const std::string &accountKey, const std::string &clientKey);
+    void recordLoginFailure(const std::string &accountKey, const std::string &clientKey);
+    void recordLoginSuccess(const std::string &accountKey);
+    void consumePasswordResetRequest(const std::string &accountKey, const std::string &clientKey);
 
     static std::int64_t toEpochMillis(std::chrono::system_clock::time_point timePoint);
 
@@ -102,6 +141,8 @@ class AuthService
     bool developmentMode_{false};
     std::unordered_map<std::string, Session> sessions_;
     std::unordered_map<std::string, PasswordResetCode> passwordResetCodes_;
+    std::unordered_map<std::string, FailureWindow> loginFailureWindows_;
+    std::unordered_map<std::string, RequestWindow> passwordResetRequestWindows_;
     std::mutex mutex_;
 };
 }  // namespace application::services

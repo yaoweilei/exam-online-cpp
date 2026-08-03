@@ -51,7 +51,7 @@
 	<meta name="theme-color" content="#1f1914">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<link href="/static/style.css?v=20260721-editor-v2" rel="stylesheet">
+	<link href="/static/style.css?v=20260802-mobile-summary1" rel="stylesheet">
 </head>
 
 <body>
@@ -177,10 +177,6 @@
 		</div>
 		<div id="exam-workarea">
 			<div id="exam-library-panel">
-				<select id="exam-mode-select" class="btn-secondary" autocomplete="off" aria-label="答题模式" title="选择答题模式">
-					<option value="practice">学习练习</option>
-					<option value="mock">模拟考试</option>
-				</select>
 				<select id="exam-family-select" class="btn-secondary" autocomplete="off">
 					<option value="jlpt">JLPT</option>
 				</select>
@@ -194,24 +190,46 @@
 				<select id="exam-paper-select" class="btn-secondary" data-level="N1" autocomplete="off">
 					<option value="">-</option>
 				</select>
-				<button id="theme-toggle" class="btn-secondary" title="切换主题">
+				<select id="exam-mode-select" class="btn-secondary" autocomplete="off" aria-label="答题模式" title="选择答题模式">
+					<option value="practice">学习练习</option>
+					<option value="mock">模拟考试</option>
+				</select>
+				<button id="theme-toggle" class="btn-secondary" type="button" title="切换到深色模式" aria-label="切换到深色模式">
 					<span class="theme-icon">🌙</span>
-					<span class="theme-text">深色</span>
 				</button>
-				<span id="answer-save-status" class="answer-save-status" role="status" aria-live="polite">尚未作答</span>
+				<span id="answer-save-status" class="answer-save-status" role="status" aria-live="polite" hidden>尚未作答</span>
+				<div id="exam-timer-slot" class="exam-timer-slot" hidden></div>
+				<button id="mobile-paper-toggle" class="btn-secondary" type="button" aria-expanded="false" title="展开试卷选择">
+					<span id="mobile-paper-summary">选择试卷</span>
+				</button>
 			</div>
 
-			<div id="exam-header"></div>
+			<div id="exam-header" class="is-empty"></div>
 
 			<div id="exam-controls" class="toolbar-grid">
 				<button id="toggle-answers" class="btn-secondary">答案解析</button>
-				<button id="open-question-map" class="btn-secondary" title="题目选择面板">答题卡</button>
-				<button id="top-prev" class="btn-secondary" title="上一题(←)">上一题</button>
-				<button id="top-next" class="btn-secondary" title="下一题(→)">下一题</button>
-				<button id="submit-exam" class="btn-secondary submit-exam-btn" title="提交当前试卷">提交试卷</button>
+				<button id="open-question-map" class="btn-secondary answer-card-trigger" type="button" title="打开答题卡" aria-label="打开答题卡">
+					<span class="answer-card-icon" aria-hidden="true">
+						<svg viewBox="0 0 24 24" focusable="false">
+							<rect x="4" y="3" width="16" height="18" rx="2"></rect>
+							<path d="M8 8h2M14 8h2M8 12h2M14 12h2M8 16h2M14 16h2"></path>
+						</svg>
+					</span>
+					<span class="answer-card-text">答题卡</span>
+				</button>
+				<button id="submit-exam" class="btn-secondary submit-exam-btn submit-exam-trigger" type="button" title="提交试卷" aria-label="提交试卷">
+					<span class="submit-exam-icon" aria-hidden="true">
+						<svg viewBox="0 0 24 24" focusable="false">
+							<path d="M21 3 10.4 13.6"></path>
+							<path d="m21 3-6.7 18-3.9-7.4L3 9.7 21 3Z"></path>
+						</svg>
+					</span>
+					<span class="submit-exam-text">提交试卷</span>
+				</button>
 				<button id="toggle-explanations" class="btn-secondary">补充解析</button>
 				<button id="toggle-reading-kana" class="btn-secondary" title="阅读原文上方显示假名">假名</button>
 				<button id="toggle-reading-zh" class="btn-secondary" title="阅读原文下方显示中文">中文</button>
+				<button id="mobile-tools-toggle" class="btn-secondary" type="button" aria-expanded="false" title="展开更多工具">更多</button>
 				<div class="category-slot" data-slot="1"></div>
 				<div class="category-slot" data-slot="2"></div>
 				<div class="category-slot" data-slot="3"></div>
@@ -233,30 +251,30 @@
 		<div id="exam-result-panel" class="exam-result-panel"></div>
 	</div>
 
-	<script type="module" src="/static/app/main.js?v=20260721-editor-v2"></script>
+	<script type="module" src="/static/app/main.js?v=20260803-eju-merge2"></script>
 
 	<script>
 		(function() {
 			const themeToggle = document.getElementById('theme-toggle');
 			const themeIcon = themeToggle.querySelector('.theme-icon');
-			const themeText = themeToggle.querySelector('.theme-text');
 			const body = document.body;
+			const updateThemeButton = (isLight) => {
+				themeIcon.textContent = isLight ? '☀️' : '🌙';
+				const actionLabel = isLight ? '切换到深色模式' : '切换到浅色模式';
+				themeToggle.title = actionLabel;
+				themeToggle.setAttribute('aria-label', actionLabel);
+			};
 
-			const savedTheme = localStorage.getItem('exam-theme') || 'dark';
+			const savedTheme = localStorage.getItem('exam-theme') || 'light';
 			if (savedTheme === 'light') {
 				body.classList.add('light-theme');
-				themeIcon.textContent = '☀️';
-				themeText.textContent = '浅色';
-			} else {
-				themeIcon.textContent = '🌙';
-				themeText.textContent = '深色';
 			}
+			updateThemeButton(savedTheme === 'light');
 
 			themeToggle.addEventListener('click', function() {
 				body.classList.toggle('light-theme');
 				const isLight = body.classList.contains('light-theme');
-				themeIcon.textContent = isLight ? '☀️' : '🌙';
-				themeText.textContent = isLight ? '浅色' : '深色';
+				updateThemeButton(isLight);
 				localStorage.setItem('exam-theme', isLight ? 'light' : 'dark');
 			});
 		})();

@@ -87,6 +87,202 @@ void registerPaymentRoutes(const AppContext &ctx)
         {Post});
 
     app().registerHandler(
+        "/api/v1/payments/quote",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                return common::ok(
+                    req,
+                    ctx.paymentService->quote(
+                        session.get("user_id", "").asString(),
+                        session["roles"],
+                        body));
+            });
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v1/payments/auto-renewal",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                const auto actorId = session.get("user_id", "").asString();
+                const auto scopeType = req->getParameter("scope_type") == "organization"
+                                           ? std::string("organization")
+                                           : std::string("personal");
+                const auto scopeId = scopeType == "organization"
+                                         ? req->getParameter("organization_id")
+                                         : actorId;
+                if (scopeType == "organization" &&
+                    !ctx.organizationService->canManageOrganization(actorId, session["roles"], scopeId))
+                {
+                    throw common::AppException("FORBIDDEN", "无权查看该机构的自动续费设置", k403Forbidden);
+                }
+                return common::ok(req, ctx.paymentService->getAutoRenewal(actorId, scopeType, scopeId));
+            });
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v1/payments/auto-renewal",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto actorId = session.get("user_id", "").asString();
+                const auto scopeType = body.get("scope_type", "personal").asString() == "organization"
+                                           ? std::string("organization")
+                                           : std::string("personal");
+                const auto scopeId = scopeType == "organization"
+                                         ? requireBoundedString(body, "organization_id", 1, 120)
+                                         : actorId;
+                if (scopeType == "organization" &&
+                    !ctx.organizationService->canManageOrganization(actorId, session["roles"], scopeId))
+                {
+                    throw common::AppException("FORBIDDEN", "无权修改该机构的自动续费设置", k403Forbidden);
+                }
+                const auto enabled = body.get("enabled", false).asBool();
+                const auto expectedConfirmation = enabled ? "确认开启自动续费" : "确认关闭自动续费";
+                if (requireBoundedString(body, "confirmation", 1, 30) != expectedConfirmation)
+                {
+                    throw common::AppException(
+                        "CONFIRMATION_REQUIRED",
+                        "请输入“" + std::string(expectedConfirmation) + "”确认此操作",
+                        k422UnprocessableEntity);
+                }
+                if (enabled)
+                {
+                    if (!body.get("consent", false).asBool())
+                    {
+                        throw common::AppException(
+                            "AUTO_RENEWAL_CONSENT_REQUIRED",
+                            "开启自动续费前必须单独同意自动续费授权",
+                            k422UnprocessableEntity);
+                    }
+                    requirePasswordReauthentication(*ctx.authService, session, body);
+                }
+                const auto result = ctx.paymentService->updateAutoRenewal(
+                    actorId, scopeType, scopeId, body);
+                Json::Value details(Json::objectValue);
+                details["scope_type"] = scopeType;
+                details["scope_id"] = scopeId;
+                details["enabled"] = enabled;
+                details["plan"] = result.get("plan", "");
+                details["days"] = result.get("days", 0);
+                ctx.auditLogService->record(
+                    enabled ? "payment.auto_renewal.enabled" : "payment.auto_renewal.disabled",
+                    actorId,
+                    enabled ? "开启自动续费授权" : "关闭自动续费",
+                    details);
+                return common::ok(
+                    req,
+                    result,
+                    enabled ? "auto_renewal_enabled" : "auto_renewal_disabled");
+            });
+        },
+        {Put});
+
+    app().registerHandler(
+        "/api/v1/payments/notifications",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                int page = 1;
+                int pageSize = 20;
+                try { page = std::max(1, std::stoi(req->getParameter("page"))); } catch (...) {}
+                try { pageSize = std::clamp(std::stoi(req->getParameter("page_size")), 1, 100); } catch (...) {}
+                const auto unreadOnly = req->getParameter("unread_only") == "true" ||
+                                        req->getParameter("unread_only") == "1";
+                return common::ok(
+                    req,
+                    ctx.paymentService->listNotifications(
+                        session.get("user_id", "").asString(),
+                        unreadOnly,
+                        page,
+                        pageSize));
+            });
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v1/payments/notifications/{1}/read",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string notificationId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                return common::ok(
+                    req,
+                    ctx.paymentService->markNotificationRead(
+                        session.get("user_id", "").asString(),
+                        notificationId),
+                    "notification_read");
+            });
+        },
+        {Patch});
+
+    app().registerHandler(
+        "/api/v1/payments/notifications/read-all",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                return common::ok(
+                    req,
+                    ctx.paymentService->markAllNotificationsRead(
+                        session.get("user_id", "").asString()),
+                    "notifications_read");
+            });
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v1/admin/payments/renewal-operations",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireRole(session, {"superAdmin"}, "需要超级管理员权限");
+                return common::ok(req, ctx.paymentService->renewalOperations());
+            });
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v1/admin/payments/renewal-jobs/run",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireRole(session, {"superAdmin"}, "需要超级管理员权限");
+                if (requireBoundedString(body, "confirmation", 1, 30) != "确认执行续费任务")
+                {
+                    throw common::AppException(
+                        "CONFIRMATION_REQUIRED",
+                        "请输入“确认执行续费任务”确认此操作",
+                        k422UnprocessableEntity);
+                }
+                requirePasswordReauthentication(*ctx.authService, session, body);
+                const auto result = ctx.paymentService->runRenewalJobs(
+                    body.get("as_of_date", "").asString(),
+                    true);
+                Json::Value details(Json::objectValue);
+                details["as_of_date"] = result.get("as_of_date", "");
+                details["scanned"] = result.get("scanned", 0);
+                details["charge_requests_created"] = result.get("charge_requests_created", 0);
+                details["notification_delivery"] = result["notification_delivery"];
+                ctx.auditLogService->record(
+                    "payment.renewal_job.executed",
+                    session.get("user_id", "").asString(),
+                    "手工执行自动续费任务",
+                    details);
+                return common::ok(req, result, "renewal_job_executed");
+            });
+        },
+        {Post});
+
+    app().registerHandler(
         "/api/v1/admin/payments/organization-orders",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
@@ -250,6 +446,26 @@ void registerPaymentRoutes(const AppContext &ctx)
                     req,
                     response,
                     "payment_refund_requested");
+            });
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v1/payments/auto-renewal/webhooks/{1}",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string provider) {
+            handleRequest(req, std::move(callback), [&]() {
+                return common::ok(
+                    req,
+                    ctx.paymentService->handleAutoRenewalWebhook(
+                        provider,
+                        std::string(req->body()),
+                        parseRawJsonBody(req),
+                        req->getHeader("Stripe-Signature").empty()
+                            ? req->getHeader("X-Payment-Signature")
+                            : req->getHeader("Stripe-Signature")),
+                    "auto_renewal_webhook_accepted");
             });
         },
         {Post});

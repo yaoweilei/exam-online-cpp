@@ -2,12 +2,21 @@
 #include "UserRepository.h"
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <chrono>
+#include <cstdint>
 #include <random>
+#include <sstream>
+#include <stdexcept>
 #include <string>
+#include <vector>
 
 #include <drogon/HttpTypes.h>
+#include <drogon/utils/Utilities.h>
+#include <openssl/crypto.h>
+#include <openssl/evp.h>
+#include <openssl/rand.h>
 
 #include "JsonIo.h"
 #include "common/AppException.h"
@@ -16,6 +25,66 @@
 
 namespace infrastructure::storage
 {
+namespace
+{
+constexpr std::uint64_t kScryptN = 16384;
+constexpr std::uint64_t kScryptR = 8;
+constexpr std::uint64_t kScryptP = 1;
+constexpr std::size_t kScryptSaltBytes = 16;
+constexpr std::size_t kScryptHashBytes = 32;
+constexpr std::uint64_t kScryptMaxMemory = 64ULL * 1024ULL * 1024ULL;
+
+std::string toHex(const unsigned char *data, std::size_t size)
+{
+    static constexpr char digits[] = "0123456789abcdef";
+    std::string out(size * 2, '0');
+    for (std::size_t index = 0; index < size; ++index)
+    {
+        out[index * 2] = digits[(data[index] >> 4U) & 0x0FU];
+        out[index * 2 + 1] = digits[data[index] & 0x0FU];
+    }
+    return out;
+}
+
+bool fromHex(const std::string &hex, std::vector<unsigned char> &out)
+{
+    if (hex.size() % 2 != 0)
+    {
+        return false;
+    }
+    const auto nibble = [](char value) -> int {
+        if (value >= '0' && value <= '9') return value - '0';
+        if (value >= 'a' && value <= 'f') return value - 'a' + 10;
+        if (value >= 'A' && value <= 'F') return value - 'A' + 10;
+        return -1;
+    };
+    out.resize(hex.size() / 2);
+    for (std::size_t index = 0; index < out.size(); ++index)
+    {
+        const auto high = nibble(hex[index * 2]);
+        const auto low = nibble(hex[index * 2 + 1]);
+        if (high < 0 || low < 0)
+        {
+            out.clear();
+            return false;
+        }
+        out[index] = static_cast<unsigned char>((high << 4) | low);
+    }
+    return true;
+}
+
+std::vector<std::string> splitHash(const std::string &encoded)
+{
+    std::vector<std::string> parts;
+    std::istringstream input(encoded);
+    std::string part;
+    while (std::getline(input, part, '$'))
+    {
+        parts.push_back(part);
+    }
+    return parts;
+}
+}  // namespace
 
 UserRepository::UserRepository(std::filesystem::path userRootDir)
     : userRootDir_(std::move(userRootDir)),
@@ -42,7 +111,7 @@ void UserRepository::ensureBaseline()
         users["guest"]["user_id"] = "guest";
         users["guest"]["username"] = "guest";
         users["guest"]["password_hash"] = hashPassword("guest");
-        users["guest"]["password_algo"] = "sha256";
+        users["guest"]["password_algo"] = "scrypt";
         users["guest"]["status"] = "active";
         users["guest"]["email"] = "";
         users["guest"]["email_verified"] = false;
@@ -291,7 +360,7 @@ Json::Value UserRepository::createUser(const std::string &username,
     usersJson[key]["username"] = username;
     usersJson[key]["member_no"] = nextPersonalMemberNo(usersJson);
     usersJson[key]["password_hash"] = hashPassword(password);
-    usersJson[key]["password_algo"] = "sha256";
+    usersJson[key]["password_algo"] = "scrypt";
     usersJson[key]["email"] = email;
     usersJson[key]["email_verified"] = false;
     usersJson[key]["phone"] = "";
@@ -365,18 +434,158 @@ Json::Value UserRepository::createDevelopmentUser(const std::string &loginId)
     return normalizeUser(usersJson[key]);
 }
 
-bool UserRepository::verifyPassword(const Json::Value &user, const std::string &password) const
+std::string UserRepository::hashPassword(const std::string &password)
+{
+    std::array<unsigned char, kScryptSaltBytes> salt{};
+    std::array<unsigned char, kScryptHashBytes> derived{};
+    if (RAND_bytes(salt.data(), static_cast<int>(salt.size())) != 1 ||
+        EVP_PBE_scrypt(
+            password.data(),
+            password.size(),
+            salt.data(),
+            salt.size(),
+            kScryptN,
+            kScryptR,
+            kScryptP,
+            kScryptMaxMemory,
+            derived.data(),
+            derived.size()) != 1)
+    {
+        throw std::runtime_error("Unable to derive secure password hash");
+    }
+    return "scrypt$" + std::to_string(kScryptN) + "$" + std::to_string(kScryptR) + "$" +
+           std::to_string(kScryptP) + "$" + toHex(salt.data(), salt.size()) + "$" +
+           toHex(derived.data(), derived.size());
+}
+
+bool UserRepository::verifyScryptPassword(const std::string &encodedHash, const std::string &password)
+{
+    const auto parts = splitHash(encodedHash);
+    if (parts.size() != 6 || parts[0] != "scrypt")
+    {
+        return false;
+    }
+    try
+    {
+        const auto n = std::stoull(parts[1]);
+        const auto r = std::stoull(parts[2]);
+        const auto p = std::stoull(parts[3]);
+        if (n < 2 || n > (1ULL << 20U) || r < 1 || r > 64 || p < 1 || p > 16)
+        {
+            return false;
+        }
+        std::vector<unsigned char> salt;
+        std::vector<unsigned char> expected;
+        if (!fromHex(parts[4], salt) || !fromHex(parts[5], expected) ||
+            salt.size() < 16 || expected.size() != kScryptHashBytes)
+        {
+            return false;
+        }
+        std::array<unsigned char, kScryptHashBytes> actual{};
+        if (EVP_PBE_scrypt(
+                password.data(),
+                password.size(),
+                salt.data(),
+                salt.size(),
+                n,
+                r,
+                p,
+                kScryptMaxMemory,
+                actual.data(),
+                actual.size()) != 1)
+        {
+            return false;
+        }
+        return CRYPTO_memcmp(actual.data(), expected.data(), actual.size()) == 0;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+bool UserRepository::verifyPassword(const Json::Value &user, const std::string &password)
 {
     const auto algo = user.get("password_algo", "sha256").asString();
+    const auto storedHash = user.get("password_hash", "").asString();
+    if (algo == "scrypt")
+    {
+        return verifyScryptPassword(storedHash, password);
+    }
     if (algo == "sha256")
     {
-        return user.get("password_hash", "").asString() == hashPassword(password);
+        const auto candidate = drogon::utils::getSha256(password);
+        const bool verified =
+            storedHash.size() == candidate.size() &&
+            CRYPTO_memcmp(storedHash.data(), candidate.data(), storedHash.size()) == 0;
+        if (verified)
+        {
+            upgradeLegacyPasswordHash(
+                user.get("id", user.get("user_id", "")).asString(),
+                password,
+                storedHash,
+                algo);
+        }
+        return verified;
     }
     if (algo == "plain")
     {
-        return user.get("password", "").asString() == password;
+        const auto legacyPassword = user.get("password", "").asString();
+        const bool verified =
+            legacyPassword.size() == password.size() &&
+            CRYPTO_memcmp(legacyPassword.data(), password.data(), password.size()) == 0;
+        if (verified)
+        {
+            upgradeLegacyPasswordHash(
+                user.get("id", user.get("user_id", "")).asString(),
+                password,
+                legacyPassword,
+                algo);
+        }
+        return verified;
     }
     return false;
+}
+
+void UserRepository::upgradeLegacyPasswordHash(const std::string &userId,
+                                               const std::string &password,
+                                               const std::string &expectedLegacyHash,
+                                               const std::string &expectedLegacyAlgo)
+{
+    if (userId.empty())
+    {
+        return;
+    }
+    const auto upgradedHash = hashPassword(password);
+    std::unique_lock lock(mutex_);
+    auto usersJson = readUsersUnlocked();
+    bool upgraded = false;
+    Json::Value upgradedUser(Json::nullValue);
+    forEachUserValue(usersJson, [&](Json::Value &entry) {
+        if (upgraded || entry.get("id", entry.get("user_id", "")).asString() != userId)
+        {
+            return;
+        }
+        const auto currentAlgo = entry.get("password_algo", "sha256").asString();
+        const auto currentSecret = currentAlgo == "plain"
+            ? entry.get("password", "").asString()
+            : entry.get("password_hash", "").asString();
+        if (currentAlgo != expectedLegacyAlgo || currentSecret != expectedLegacyHash)
+        {
+            return;
+        }
+        entry["password_hash"] = upgradedHash;
+        entry["password_algo"] = "scrypt";
+        entry.removeMember("password");
+        entry["password_migrated_at"] = common::nowIso8601();
+        upgradedUser = normalizeUser(entry);
+        upgraded = true;
+    });
+    if (upgraded)
+    {
+        wal_.append("password_hash_migrated", upgradedUser);
+        writeUsersUnlocked(usersJson);
+    }
 }
 
 Json::Value UserRepository::updateRoleTemplate(const std::string &roleId, const Json::Value &payload)
@@ -496,7 +705,7 @@ Json::Value UserRepository::updatePassword(const std::string &userId, const std:
         if (user.get("id", "").asString() == userId)
         {
             entry["password_hash"] = hashPassword(password);
-            entry["password_algo"] = "sha256";
+            entry["password_algo"] = "scrypt";
             entry["password_updated_at"] = common::nowIso8601();
             result = normalizeUser(entry);
         }
@@ -1147,7 +1356,10 @@ Json::Value UserRepository::normalizeUser(const Json::Value &input)
     user["avatar_url"] = user.get("avatar_url", user["avatar"].asString()).asString();
     user["password_hash"] = user.get("password_hash", user.get("passwordHash", "")).asString();
     user["password_algo"] = user.get("password_algo", user["password_hash"].asString().empty() ? "sha256" : "sha256").asString();
-    user["has_password"] = user["password_algo"].asString() == "sha256" && !user["password_hash"].asString().empty();
+    const auto passwordAlgo = user["password_algo"].asString();
+    user["has_password"] =
+        (passwordAlgo == "scrypt" || passwordAlgo == "sha256" || passwordAlgo == "plain") &&
+        (!user["password_hash"].asString().empty() || !user.get("password", "").asString().empty());
     user["hasPassword"] = user["has_password"].asBool();
     user["phone"] = user.get("phone", "").asString();
     user["phone_verified"] = user.get("phone_verified", false).asBool();

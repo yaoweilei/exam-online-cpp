@@ -10,6 +10,35 @@ const {
   uniqueLoginId
 } = require('./helpers/session');
 
+test('运行数据、环境文件和源码不能通过静态文件服务读取', async ({ request }) => {
+	for (const path of [
+		'/data/user/users.json',
+		'/data/system/auth_sessions.json',
+		'/.env',
+		'/backend/src/main.cpp'
+	]) {
+		const response = await request.get(path);
+		expect(response.status(), path).toBe(404);
+	}
+});
+
+test('存储、核心服务和磁盘空间满足就绪门禁', async ({ request }) => {
+  const response = await request.get('/readyz');
+  expect(response.status()).toBe(200);
+  const payload = await response.json();
+  expect(payload.code).toBe('OK');
+  expect(payload.data.status).toBe('ready');
+  expect(payload.data.checks).toMatchObject({
+    static: true,
+    paper_store: true,
+    user_store: true,
+    system_store: true,
+    core_services: true,
+    disk_space: true
+  });
+  expect(payload.data.checks.available_disk_mb).toBeGreaterThan(0);
+});
+
 async function verifyToken(request, token) {
   const response = await request.get(`/api/v1/auth/verify?token=${encodeURIComponent(token)}`);
   return await response.json();
@@ -58,7 +87,8 @@ async function expectLoggedIn(page, loginId) {
   await expect(page.locator('#login-modal')).toBeHidden({ timeout: 20000 });
   await expect(page.locator('#user-menu-trigger').first()).toHaveAttribute('aria-label', /打开个人中心/);
   const stored = await readStoredSession(page);
-  expect(stored.token).toBeTruthy();
+  expect(stored.token).toBeNull();
+  expect(stored.hasSessionCookie).toBeTruthy();
   expect(stored.user).toContain(loginId);
   return stored;
 }
@@ -121,16 +151,18 @@ test('密码登录后可以刷新恢复 session，退出后旧 token 失效', as
   await loginWithPassword(page, loginId);
 
   const storedAfterLogin = await readStoredSession(page);
-  expect(storedAfterLogin.token).toBeTruthy();
+  expect(storedAfterLogin.token).toBeNull();
+  expect(storedAfterLogin.hasSessionCookie).toBeTruthy();
   expect(storedAfterLogin.user).toContain(loginId);
 
-  const verifyBeforeLogout = await verifyToken(request, storedAfterLogin.token);
+  const verifyBeforeLogout = await verifyToken(request, storedAfterLogin.cookieToken);
   expect(verifyBeforeLogout.code).toBe('OK');
 
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#user-menu-trigger').first()).toHaveAttribute('aria-label', /打开个人中心/, { timeout: 20000 });
   const restored = await readStoredSession(page);
-  expect(restored.token).toBe(storedAfterLogin.token);
+  expect(restored.token).toBeNull();
+  expect(restored.cookieToken).toBe(storedAfterLogin.cookieToken);
 
   await openPersonalCenter(page);
   await expect(page.locator('#pc-name')).toContainText(loginId);
@@ -142,9 +174,10 @@ test('密码登录后可以刷新恢复 session，退出后旧 token 失效', as
 
   const storedAfterLogout = await readStoredSession(page);
   expect(storedAfterLogout.token).toBeNull();
+  expect(storedAfterLogout.hasSessionCookie).toBeFalsy();
   expect(storedAfterLogout.user).toBeNull();
 
-  const verifyAfterLogout = await verifyToken(request, storedAfterLogin.token);
+  const verifyAfterLogout = await verifyToken(request, storedAfterLogin.cookieToken);
   expect(verifyAfterLogout.code).toBe('TOKEN_INVALID');
 });
 
@@ -172,7 +205,8 @@ test('新用户可以通过注册入口创建账号并自动登录', async ({ pa
   await expect(page.locator('#user-menu-trigger').first()).toHaveAttribute('aria-label', /打开个人中心/);
 
   const stored = await readStoredSession(page);
-  expect(stored.token).toBeTruthy();
+  expect(stored.token).toBeNull();
+  expect(stored.hasSessionCookie).toBeTruthy();
   expect(stored.user).toContain(loginId);
 });
 
@@ -214,6 +248,131 @@ test('密码登录输错时不会建立 session，并展示错误提示', async 
   const stored = await readStoredSession(page);
   expect(stored.token).toBeNull();
   expect(stored.user).toBeNull();
+});
+
+test('认证会话使用 HttpOnly Cookie，并对连续密码错误执行锁定', async ({ page, request }) => {
+  const loginId = uniqueLoginId('student_security');
+  await registerUserApi(request, loginId, 'Correct12345');
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await clearBrowserSession(page);
+  const loginResponse = await page.evaluate(async ({ username, password }) => {
+    const response = await fetch('/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    return { ok: response.ok, payload: await response.json() };
+  }, { username: loginId, password: 'Correct12345' });
+  expect(loginResponse.ok).toBeTruthy();
+  expect(loginResponse.payload.code).toBe('OK');
+
+  const stored = await readStoredSession(page);
+  expect(stored.token).toBeNull();
+  expect(stored.sessionCookie).toMatchObject({
+    name: 'exam_session',
+    httpOnly: true,
+    sameSite: 'Lax'
+  });
+
+  const health = await request.get('/api/v1/health');
+  expect(health.headers()['x-content-type-options']).toBe('nosniff');
+  expect(health.headers()['x-frame-options']).toBe('DENY');
+  expect(health.headers()['content-security-policy']).toContain("object-src 'none'");
+
+  await clearBrowserSession(page);
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const response = await request.post('/api/v1/auth/login', {
+      data: { username: loginId, password: 'Wrong12345' }
+    });
+    expect(response.status()).toBe(401);
+  }
+  const locked = await request.post('/api/v1/auth/login', {
+    data: { username: loginId, password: 'Wrong12345' }
+  });
+  expect(locked.status()).toBe(429);
+  expect((await locked.json()).code).toBe('AUTH_RATE_LIMITED');
+
+  const correctWhileLocked = await request.post('/api/v1/auth/login', {
+    data: { username: loginId, password: 'Correct12345' }
+  });
+  expect(correctWhileLocked.status()).toBe(429);
+});
+
+test('个人中心可以查看并退出其他登录设备', async ({ page, request }) => {
+  const loginId = uniqueLoginId('student_session_devices');
+  await page.setViewportSize({ width: 390, height: 844 });
+  const firstSession = await registerUserApi(request, loginId, 'Session12345');
+  const secondLogin = await request.post('/api/v1/auth/login', {
+    data: { username: loginId, password: 'Session12345' },
+    headers: { 'User-Agent': 'E2E Second Device Chrome Windows' }
+  });
+  expect(secondLogin.ok()).toBeTruthy();
+  const secondSession = (await secondLogin.json()).data;
+
+  await stubNoisyPersonalCenterApis(page);
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await clearBrowserSession(page);
+  await page.context().addCookies([{
+    name: 'exam_session',
+    value: secondSession.token,
+    url: new URL(page.url()).origin,
+    httpOnly: true,
+    sameSite: 'Lax'
+  }]);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#user-menu-trigger').first()).toHaveAttribute('aria-label', /打开个人中心/, { timeout: 20000 });
+
+  await openPersonalCenter(page);
+  await page.locator('[data-dashboard-page="account-core"]').click();
+  await page.locator('[data-account-action="sessions"]').click();
+  await expect(page.locator('.pc-account-session-row')).toHaveCount(2, { timeout: 20000 });
+  await expect(page.locator('.pc-account-session-row', { hasText: '当前设备' })).toHaveCount(1);
+  expect(await page.locator('.pc-account-editor').evaluate((element) =>
+    element.scrollWidth <= element.clientWidth
+  )).toBeTruthy();
+  const actionWidths = await page.locator('.pc-account-actions button').evaluateAll((buttons) =>
+    buttons.map((button) => Math.round(button.getBoundingClientRect().width))
+  );
+  expect(actionWidths.every((width) => width > 0 && width <= 350)).toBeTruthy();
+
+  await page.locator('[data-account-revoke-session]').click();
+  await page.locator('[data-pc-confirm-ok]').click();
+  await expect(page.locator('#pc-toast')).toContainText('该设备已退出', { timeout: 20000 });
+  await expect(page.locator('.pc-account-session-row')).toHaveCount(1);
+
+  expect((await verifyToken(request, firstSession.token)).code).toBe('TOKEN_INVALID');
+  expect((await verifyToken(request, secondSession.token)).code).toBe('OK');
+});
+
+test('Cookie 会话拒绝跨站写请求并允许本站请求', async ({ request }) => {
+  const loginId = uniqueLoginId('student_csrf');
+  const session = await registerUserApi(request, loginId, 'CsrfTest12345');
+  const cookie = `exam_session=${session.token}`;
+
+  const blocked = await request.post('/api/v1/auth/logout', {
+    headers: {
+      Cookie: cookie,
+      Origin: 'https://evil.example',
+      'Sec-Fetch-Site': 'cross-site'
+    },
+    data: { token: '__cookie_session__' }
+  });
+  expect(blocked.status()).toBe(403);
+  expect((await blocked.json()).code).toBe('CROSS_SITE_REQUEST_BLOCKED');
+  expect((await verifyToken(request, session.token)).code).toBe('OK');
+
+  const allowed = await request.post('/api/v1/auth/logout', {
+    headers: {
+      Cookie: cookie,
+      Origin: 'http://127.0.0.1:8000',
+      'Sec-Fetch-Site': 'same-origin'
+    },
+    data: { token: '__cookie_session__' }
+  });
+  expect(allowed.ok()).toBeTruthy();
+  expect((await allowed.json()).code).toBe('OK');
+  expect((await verifyToken(request, session.token)).code).toBe('TOKEN_INVALID');
 });
 
 test('忘记密码可以通过验证码重置，并用新密码登录', async ({ page, request }) => {
@@ -262,12 +421,19 @@ test('登录后可以在个人中心修改密码，旧密码失效新密码生�
   await stubNoisyPersonalCenterApis(page);
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await clearBrowserSession(page);
+  await page.context().addCookies([{
+    name: 'exam_session',
+    value: session.token,
+    url: new URL(page.url()).origin,
+    httpOnly: true,
+    sameSite: 'Lax'
+  }]);
   await page.evaluate(({ session, context }) => {
-    localStorage.setItem('exam_v2_token', session.token);
+    localStorage.removeItem('exam_v2_token');
     localStorage.setItem('exam_v2_user', JSON.stringify({
       ...context.user,
       guest: false,
-      token: session.token,
+      token: '',
       profile: context.profile,
       membership: context.membership,
       permissions: context.permissions,
@@ -316,7 +482,8 @@ test('微信开发存根返回的测试账号可以通过登录弹窗建立登�
   await expect(page.locator('#login-modal')).toBeHidden({ timeout: 20000 });
   await expect(page.locator('#user-menu-trigger').first()).toHaveAttribute('aria-label', /打开个人中心/);
   const stored = await readStoredSession(page);
-  expect(stored.token).toBeTruthy();
+  expect(stored.token).toBeNull();
+  expect(stored.hasSessionCookie).toBeTruthy();
   expect(stored.user).toContain('student_demo');
 });
 

@@ -21,8 +21,17 @@ void registerRelatedQuestionsRoutes(const AppContext &ctx)
         [ctx](const HttpRequestPtr &req,
               std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
-                // 此功能无须用户态；所有登录用户或访客只读
-                requireFeature(*ctx.featureFlagService, "related_questions", "");
+                const auto session = requireSession(*ctx.authService, req);
+                const auto userId = session.get("user_id", session.get("id", "")).asString();
+                requireFeature(*ctx.featureFlagService, "related_questions", userId);
+                if (!hasAnyRole(session["roles"], {"superAdmin", "contentAdmin"}))
+                {
+                    requireEntitlement(
+                        *ctx.subscriptionService,
+                        userId,
+                        "answer.deep_analysis",
+                        "同考点串题与深度解析需要升级到 PRO 套餐");
+                }
                 const auto examId = req->getParameter("exam_id");
                 const auto questionId = req->getParameter("question_id");
                 if (examId.empty() || questionId.empty())

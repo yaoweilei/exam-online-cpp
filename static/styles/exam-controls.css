@@ -10,6 +10,8 @@
 	flex-direction: column;
 	gap: var(--exam-vertical-gap);
 	position: relative;
+	max-width: 100%;
+	box-sizing: border-box;
 	/* 供 #width-drag-handle 绝对定位 */
 }
 
@@ -34,6 +36,7 @@
 
 #exam-workarea.limited {
 	width: var(--exam-content-width-internal, auto);
+	max-width: 100%;
 	border-right: 1px solid var(--vscode-button-background);
 	transition: width .15s ease-out;
 }

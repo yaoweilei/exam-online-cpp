@@ -15,6 +15,7 @@ async function loginApi(request, loginId) {
 }
 
 async function clearBrowserSession(page) {
+  await page.context().clearCookies();
   await page.evaluate(() => {
     localStorage.removeItem('exam_v2_user');
     localStorage.removeItem('exam_v2_token');
@@ -22,10 +23,17 @@ async function clearBrowserSession(page) {
 }
 
 async function readStoredSession(page) {
-  return await page.evaluate(() => ({
+  const stored = await page.evaluate(() => ({
     user: localStorage.getItem('exam_v2_user'),
     token: localStorage.getItem('exam_v2_token')
   }));
+  const sessionCookie = (await page.context().cookies()).find((cookie) => cookie.name === 'exam_session');
+  return {
+    ...stored,
+    cookieToken: sessionCookie?.value ?? null,
+    hasSessionCookie: Boolean(sessionCookie),
+    sessionCookie
+  };
 }
 
 async function expectGuestEntry(page) {
@@ -55,11 +63,11 @@ async function loginWithPassword(page, loginId) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: id, password: '' })
     }));
-    const context = await unwrap(await fetch(`/api/v1/me/context?token=${encodeURIComponent(session.token)}`));
+    const context = await unwrap(await fetch('/api/v1/me/context'));
     const user = {
       ...context.user,
       guest: false,
-      token: session.token,
+      token: '',
       profile: context.profile,
       membership: context.membership,
       permissions: context.permissions,
@@ -67,7 +75,7 @@ async function loginWithPassword(page, loginId) {
       subscription: context.subscription
     };
     localStorage.setItem('exam_v2_user', JSON.stringify(user));
-    localStorage.setItem('exam_v2_token', session.token);
+    localStorage.removeItem('exam_v2_token');
   }, loginId);
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#user-menu-trigger, [aria-label*="打开个人中心"]').first()).toHaveAttribute('aria-label', /打开个人中心/);
@@ -91,7 +99,7 @@ async function stubNoisyPersonalCenterApis(page, options = {}) {
   });
   const rules = [
     [/\/api\/v1\/streaks\/[^/]+\/summary/, {}],
-    [/\/api\/v1\/me\/assignments/, []],
+    [/\/api\/v1\/me\/assignments/, Object.prototype.hasOwnProperty.call(options, 'assignments') ? { items: options.assignments } : []],
     [/\/api\/v1\/me\/study-goals/, {}],
     [/\/api\/v1\/me\/daily-practice/, options.dailyPractice || {}]
   ];

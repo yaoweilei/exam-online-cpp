@@ -1,10 +1,16 @@
 #include "AssignmentService.h"
 
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <optional>
 #include <set>
+#include <sstream>
 
 #include <drogon/HttpTypes.h>
 
 #include "common/AppException.h"
+#include "common/TimeUtils.h"
 
 namespace application::services
 {
@@ -26,6 +32,91 @@ Json::Value findLearningGroup(const Json::Value &groups, const std::string &lear
         }
     }
     return Json::Value(Json::nullValue);
+}
+
+std::optional<std::chrono::system_clock::time_point> parseIsoTime(const std::string &value)
+{
+    if (value.empty())
+    {
+        return std::nullopt;
+    }
+    std::tm tm{};
+    std::istringstream stream(value.size() == 10 ? value + "T23:59:59" : value.substr(0, 19));
+    stream >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
+    if (stream.fail())
+    {
+        return std::nullopt;
+    }
+    tm.tm_isdst = 0;
+#ifdef _WIN32
+    const auto raw = _mkgmtime(&tm);
+#else
+    const auto raw = timegm(&tm);
+#endif
+    if (raw == static_cast<std::time_t>(-1))
+    {
+        return std::nullopt;
+    }
+    return std::chrono::system_clock::from_time_t(raw);
+}
+
+Json::Value normalizeReminderHours(const Json::Value &value)
+{
+    Json::Value normalized(Json::arrayValue);
+    std::set<int> unique;
+    if (!value.isNull())
+    {
+        if (!value.isArray() || value.empty() || value.size() > 3)
+        {
+            throw common::AppException(
+                "VALIDATION_ERROR",
+                "auto_reminder_hours_before 必须包含 1 到 3 个提醒时间",
+                drogon::k422UnprocessableEntity);
+        }
+        for (const auto &item : value)
+        {
+            if (!item.isIntegral())
+            {
+                throw common::AppException(
+                    "VALIDATION_ERROR",
+                    "自动催交时间必须为整数小时",
+                    drogon::k422UnprocessableEntity);
+            }
+            const int hours = item.asInt();
+            if (hours < 1 || hours > 168)
+            {
+                throw common::AppException(
+                    "VALIDATION_ERROR",
+                    "自动催交时间必须在截止前 1 到 168 小时之间",
+                    drogon::k422UnprocessableEntity);
+            }
+            unique.insert(hours);
+        }
+    }
+    if (unique.empty())
+    {
+        unique.insert(24);
+    }
+    for (auto it = unique.rbegin(); it != unique.rend(); ++it)
+    {
+        normalized.append(*it);
+    }
+    return normalized;
+}
+
+Json::Value storedReminderHours(const Json::Value &assignment)
+{
+    try
+    {
+        return normalizeReminderHours(
+            assignment.get("auto_reminder_hours_before", Json::Value(Json::nullValue)));
+    }
+    catch (...)
+    {
+        Json::Value fallback(Json::arrayValue);
+        fallback.append(24);
+        return fallback;
+    }
 }
 }  // namespace
 
@@ -59,7 +150,33 @@ Json::Value AssignmentService::createAssignment(const std::string &organizationI
     entry["exam_id"] = examId;
     entry["title"] = title;
     entry["description"] = payload.get("description", "").asString();
-    entry["due_at"] = payload.get("due_at", "").asString();
+    if (payload.isMember("due_at") && !payload["due_at"].isString())
+    {
+        throw common::AppException("VALIDATION_ERROR", "due_at 必须是字符串", drogon::k422UnprocessableEntity);
+    }
+    if (payload.isMember("auto_reminder_enabled") && !payload["auto_reminder_enabled"].isBool())
+    {
+        throw common::AppException(
+            "VALIDATION_ERROR",
+            "auto_reminder_enabled 必须是布尔值",
+            drogon::k422UnprocessableEntity);
+    }
+    const auto dueAt = payload.get("due_at", "").asString();
+    if (!dueAt.empty() && !parseIsoTime(dueAt))
+    {
+        throw common::AppException("VALIDATION_ERROR", "due_at 不是有效日期时间", drogon::k422UnprocessableEntity);
+    }
+    const bool autoReminderEnabled = payload.isMember("auto_reminder_enabled")
+                                         ? payload["auto_reminder_enabled"].asBool()
+                                         : !dueAt.empty();
+    if (autoReminderEnabled && dueAt.empty())
+    {
+        throw common::AppException("VALIDATION_ERROR", "开启自动催交前请先设置截止时间", drogon::k422UnprocessableEntity);
+    }
+    entry["due_at"] = dueAt;
+    entry["auto_reminder_enabled"] = autoReminderEnabled;
+    entry["auto_reminder_hours_before"] = normalizeReminderHours(
+        payload.get("auto_reminder_hours_before", Json::Value(Json::nullValue)));
     entry["question_ids"] = payload.get("question_ids", Json::Value(Json::arrayValue));
     if (!entry["question_ids"].isArray())
     {
@@ -126,6 +243,12 @@ Json::Value AssignmentService::getAssignment(const std::string &assignmentId) co
         throw common::AppException("NOT_FOUND", "作业不存在", drogon::k404NotFound);
     }
     return assignment;
+}
+
+Json::Value AssignmentService::getAssignmentForStudent(const std::string &assignmentId,
+                                                       const std::string &userId) const
+{
+    return sanitizeAssignmentForStudent(getAssignment(assignmentId), userId);
 }
 
 Json::Value AssignmentService::submitAssignment(const std::string &assignmentId,
@@ -199,15 +322,34 @@ Json::Value AssignmentService::remindAssignment(const std::string &assignmentId,
     reminder["created_by"] = createdBy;
     reminder["message"] = payload["message"].asString();
     reminder["idempotency_key"] = payload["idempotency_key"].asString();
+    reminder["source"] = payload.get("source", "manual").asString();
+    if (payload.isMember("hours_before"))
+    {
+        reminder["hours_before"] = payload["hours_before"].asInt();
+    }
     reminder["target_student_ids"] = Json::Value(Json::arrayValue);
+    const auto validStudents = studentIdsForLearningGroup(group);
+    const std::set<std::string> validStudentSet(validStudents.begin(), validStudents.end());
     if (payload.isMember("student_ids") && payload["student_ids"].isArray())
     {
-        reminder["target_student_ids"] = payload["student_ids"];
+        std::set<std::string> targets;
+        for (const auto &studentIdValue : payload["student_ids"])
+        {
+            const auto studentId = studentIdValue.asString();
+            if (validStudentSet.count(studentId) > 0)
+            {
+                targets.insert(studentId);
+            }
+        }
+        for (const auto &studentId : targets)
+        {
+            reminder["target_student_ids"].append(studentId);
+        }
     }
     else
     {
         const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
-        for (const auto &studentId : studentIdsForLearningGroup(group))
+        for (const auto &studentId : validStudents)
         {
             if (!submissions.isMember(studentId))
             {
@@ -223,9 +365,144 @@ Json::Value AssignmentService::remindAssignment(const std::string &assignmentId,
     return saved;
 }
 
+Json::Value AssignmentService::runAutomaticReminderJobs(const std::string &nowIso)
+{
+    const auto effectiveNow = nowIso.empty() ? common::nowIso8601() : nowIso;
+    const auto now = parseIsoTime(effectiveNow);
+    if (!now)
+    {
+        throw common::AppException("VALIDATION_ERROR", "自动催交任务时间无效", drogon::k422UnprocessableEntity);
+    }
+
+    Json::Value result(Json::objectValue);
+    result["run_at"] = effectiveNow;
+    result["scanned"] = 0;
+    result["eligible"] = 0;
+    result["reminders_created"] = 0;
+    result["targets"] = 0;
+    result["skipped_invalid_due_at"] = 0;
+    result["failed"] = 0;
+    result["deliveries"] = Json::Value(Json::arrayValue);
+
+    for (const auto &assignment : assignmentRepository_.listAll())
+    {
+        result["scanned"] = result["scanned"].asInt() + 1;
+        const auto dueAt = assignment.get("due_at", "").asString();
+        const bool enabled = assignment.get("auto_reminder_enabled", !dueAt.empty()).asBool();
+        if (!enabled || dueAt.empty())
+        {
+            continue;
+        }
+        const auto due = parseIsoTime(dueAt);
+        if (!due)
+        {
+            result["skipped_invalid_due_at"] = result["skipped_invalid_due_at"].asInt() + 1;
+            continue;
+        }
+        if (*now >= *due)
+        {
+            continue;
+        }
+
+        try
+        {
+            const auto group = getLearningGroup(
+                assignment.get("organization_id", "").asString(),
+                assignmentLearningGroupId(assignment));
+            const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
+            Json::Value missingStudentIds(Json::arrayValue);
+            for (const auto &studentId : studentIdsForLearningGroup(group))
+            {
+                if (!submissions.isMember(studentId))
+                {
+                    missingStudentIds.append(studentId);
+                }
+            }
+            if (missingStudentIds.empty())
+            {
+                continue;
+            }
+
+            for (const auto &hoursValue : storedReminderHours(assignment))
+            {
+                const int hoursBefore = hoursValue.asInt();
+                const auto windowStarts = *due - std::chrono::hours(hoursBefore);
+                if (*now < windowStarts)
+                {
+                    continue;
+                }
+                result["eligible"] = result["eligible"].asInt() + 1;
+                Json::Value payload(Json::objectValue);
+                payload["message"] = "作业《" + assignment.get("title", "未命名作业").asString() +
+                                     "》将在 " + std::to_string(hoursBefore) + " 小时内截止，请及时完成。";
+                payload["idempotency_key"] = "auto:" +
+                                             assignment.get("assignment_id", "").asString() + ":" +
+                                             dueAt + ":" + std::to_string(hoursBefore);
+                payload["student_ids"] = missingStudentIds;
+                payload["source"] = "automatic";
+                payload["hours_before"] = hoursBefore;
+                const auto reminder = remindAssignment(
+                    assignment.get("assignment_id", "").asString(),
+                    "system",
+                    payload);
+                if (reminder.get("idempotent_replay", false).asBool())
+                {
+                    continue;
+                }
+                const auto targetCount = static_cast<int>(
+                    reminder.get("target_student_ids", Json::Value(Json::arrayValue)).size());
+                result["reminders_created"] = result["reminders_created"].asInt() + 1;
+                result["targets"] = result["targets"].asInt() + targetCount;
+                Json::Value delivery(Json::objectValue);
+                delivery["organization_id"] = assignment.get("organization_id", "");
+                delivery["assignment_id"] = assignment.get("assignment_id", "");
+                delivery["reminder_id"] = reminder.get("reminder_id", "");
+                delivery["hours_before"] = hoursBefore;
+                delivery["target_count"] = targetCount;
+                result["deliveries"].append(delivery);
+            }
+        }
+        catch (...)
+        {
+            result["failed"] = result["failed"].asInt() + 1;
+        }
+    }
+    return result;
+}
+
 Json::Value AssignmentService::updateAssignment(const std::string &assignmentId, const Json::Value &patch)
 {
-    if (!assignmentRepository_.update(assignmentId, patch))
+    const auto current = getAssignment(assignmentId);
+    Json::Value safePatch = patch;
+    if (patch.isMember("due_at"))
+    {
+        if (!patch["due_at"].isString())
+        {
+            throw common::AppException("VALIDATION_ERROR", "due_at 必须是字符串", drogon::k422UnprocessableEntity);
+        }
+        const auto dueAt = patch["due_at"].asString();
+        if (!dueAt.empty() && !parseIsoTime(dueAt))
+        {
+            throw common::AppException("VALIDATION_ERROR", "due_at 不是有效日期时间", drogon::k422UnprocessableEntity);
+        }
+    }
+    if (patch.isMember("auto_reminder_enabled") && !patch["auto_reminder_enabled"].isBool())
+    {
+        throw common::AppException("VALIDATION_ERROR", "auto_reminder_enabled 必须是布尔值", drogon::k422UnprocessableEntity);
+    }
+    if (patch.isMember("auto_reminder_hours_before"))
+    {
+        safePatch["auto_reminder_hours_before"] = normalizeReminderHours(patch["auto_reminder_hours_before"]);
+    }
+    const auto finalDueAt = safePatch.get("due_at", current.get("due_at", "")).asString();
+    const bool finalEnabled = safePatch.get(
+        "auto_reminder_enabled",
+        current.get("auto_reminder_enabled", !finalDueAt.empty())).asBool();
+    if (finalEnabled && finalDueAt.empty())
+    {
+        throw common::AppException("VALIDATION_ERROR", "开启自动催交前请先设置截止时间", drogon::k422UnprocessableEntity);
+    }
+    if (!assignmentRepository_.update(assignmentId, safePatch))
     {
         throw common::AppException("NOT_FOUND", "作业不存在", drogon::k404NotFound);
     }
@@ -364,6 +641,34 @@ Json::Value AssignmentService::sanitizeAssignmentForStudent(Json::Value assignme
 {
     const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
     assignment["own_submission"] = submissions.get(userId, Json::Value(Json::nullValue));
+    Json::Value ownReminders(Json::arrayValue);
+    for (const auto &reminder : assignment.get("reminders", Json::Value(Json::arrayValue)))
+    {
+        bool targeted = false;
+        for (const auto &studentId : reminder.get("target_student_ids", Json::Value(Json::arrayValue)))
+        {
+            if (studentId.asString() == userId)
+            {
+                targeted = true;
+                break;
+            }
+        }
+        if (!targeted)
+        {
+            continue;
+        }
+        Json::Value safeReminder(Json::objectValue);
+        safeReminder["reminder_id"] = reminder.get("reminder_id", "");
+        safeReminder["message"] = reminder.get("message", "");
+        safeReminder["created_at"] = reminder.get("created_at", "");
+        safeReminder["source"] = reminder.get("source", "manual");
+        if (reminder.isMember("hours_before"))
+        {
+            safeReminder["hours_before"] = reminder["hours_before"];
+        }
+        ownReminders.append(safeReminder);
+    }
+    assignment["own_reminders"] = ownReminders;
     assignment.removeMember("submissions");
     assignment.removeMember("reminders");
     return assignment;

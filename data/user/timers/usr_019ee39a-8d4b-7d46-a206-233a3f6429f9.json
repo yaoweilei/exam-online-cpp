@@ -1,13 +1,11 @@
 {
-  "elapsed_seconds" : 2655,
-  "exam_id" : "N1_2025_12",
-  "section_elapsed_seconds" : 
-  {
-    "0" : 2655
-  },
+  "elapsed_seconds" : 0,
+  "exam_id" : "N1_2025_07",
+  "expired_section_indexes" : [],
+  "section_elapsed_seconds" : {},
   "section_limits_seconds" : [],
-  "started_at" : "2026-06-29T01:48:30.615Z",
+  "started_at" : "2026-08-01T06:26:30.095Z",
   "total_limit_seconds" : 0,
-  "updated_at" : "2026-06-30T03:30:32.484Z",
+  "updated_at" : "2026-08-01T07:49:07.437Z",
   "user_id" : "usr_019ee39a-8d4b-7d46-a206-233a3f6429f9"
 }

@@ -1,6 +1,5 @@
 import { ApiClient } from './api/client.js';
 import { loadExams } from './features/exams.js';
-import { bootViewerApp } from './features/viewerBootstrap.js';
 import { restoreSession, clearSession, captureReferralCodeFromUrl } from './features/session.js';
 import { AppStore } from './state/store.js';
 import { LoginModal } from './features/login.js';
@@ -16,6 +15,11 @@ function logAppReady(levels: number): void {
 }
 
 async function bootstrap(): Promise<void> {
+	const viewerBootstrapUrl = new URL(
+		'./features/viewerBootstrap.js?v=20260730-renewal-delivery',
+		import.meta.url
+	).href;
+	const { bootViewerApp } = await import(viewerBootstrapUrl) as typeof import('./features/viewerBootstrap.js');
 	(window as Window & { __API_BASE__?: string; __WEB_APP_MODE__?: boolean; __APP_DEBUG__?: boolean }).__API_BASE__ =
 		'/api/v1';
 	(window as Window & { __WEB_APP_MODE__?: boolean }).__WEB_APP_MODE__ = true;
@@ -71,18 +75,20 @@ async function bootstrap(): Promise<void> {
 	const viewerLogout = appWindow.logoutUser;
 	appWindow.logoutUser = async () => {
 		const currentUser = store.getState().user;
-		const token = !currentUser.guest ? currentUser.token : '';
-		viewerLogout?.();
-		// Clear local credentials immediately; the network revocation may be slow or fail.
-		clearSession(store);
-		syncViewerUserState();
-		if (token) {
+		const wasAuthenticated = !currentUser.guest;
+		const token = wasAuthenticated && currentUser.token
+			? currentUser.token
+			: '__cookie_session__';
+		if (wasAuthenticated) {
 			try {
 				await api.logout(token);
 			} catch (error) {
 				console.warn('[main] backend logout failed:', error);
 			}
 		}
+		viewerLogout?.();
+		clearSession(store);
+		syncViewerUserState();
 	};
 
 	logAppReady(Object.keys(store.getState().examsByLevel).length);

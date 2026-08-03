@@ -1,4 +1,237 @@
 {
+  "catalogs" : 
+  {
+    "organization" : 
+    {
+      "custom_quote_min_seats" : 200,
+      "durations" : 
+      [
+        30,
+        365
+      ],
+      "offers" : 
+      [
+        {
+          "discount_percent" : 10,
+          "enabled" : false,
+          "ends_at" : "",
+          "id" : "first_purchase",
+          "kind" : "first_purchase",
+          "label" : "机构首购优惠",
+          "starts_at" : ""
+        },
+        {
+          "discount_percent" : 5,
+          "enabled" : false,
+          "ends_at" : "",
+          "id" : "renewal",
+          "kind" : "renewal",
+          "label" : "机构续费优惠",
+          "starts_at" : ""
+        },
+        {
+          "discount_percent" : 10,
+          "enabled" : false,
+          "ends_at" : "",
+          "id" : "campaign",
+          "kind" : "campaign",
+          "label" : "机构限时活动",
+          "starts_at" : ""
+        }
+      ],
+      "plans" : 
+      {
+        "pro" : 
+        {
+          "minimum_seats" : 20
+        },
+        "ultra" : 
+        {
+          "minimum_seats" : 30
+        }
+      },
+      "prices_cents" : 
+      {
+        "cny" : 
+        {
+          "pro" : 
+          {
+            "30" : 1500,
+            "365" : 11900
+          },
+          "ultra" : 
+          {
+            "30" : 2900,
+            "365" : 22900
+          }
+        },
+        "usd" : 
+        {
+          "pro" : 
+          {
+            "30" : 299,
+            "365" : 1999
+          },
+          "ultra" : 
+          {
+            "30" : 499,
+            "365" : 3799
+          }
+        }
+      },
+      "recommended_duration_days" : 365,
+      "recommended_plan" : "ultra",
+      "seat_tiers" : 
+      [
+        {
+          "max_seats" : 29,
+          "min_seats" : 20,
+          "prices_cents" : 
+          {
+            "cny" : 
+            {
+              "pro" : 
+              {
+                "365" : 11900
+              },
+              "ultra" : 
+              {
+                "365" : 0
+              }
+            }
+          }
+        },
+        {
+          "max_seats" : 49,
+          "min_seats" : 30,
+          "prices_cents" : 
+          {
+            "cny" : 
+            {
+              "pro" : 
+              {
+                "365" : 11900
+              },
+              "ultra" : 
+              {
+                "365" : 22900
+              }
+            }
+          }
+        },
+        {
+          "max_seats" : 99,
+          "min_seats" : 50,
+          "prices_cents" : 
+          {
+            "cny" : 
+            {
+              "pro" : 
+              {
+                "365" : 10900
+              },
+              "ultra" : 
+              {
+                "365" : 21900
+              }
+            }
+          }
+        },
+        {
+          "max_seats" : 199,
+          "min_seats" : 100,
+          "prices_cents" : 
+          {
+            "cny" : 
+            {
+              "pro" : 
+              {
+                "365" : 9900
+              },
+              "ultra" : 
+              {
+                "365" : 20900
+              }
+            }
+          }
+        }
+      ]
+    },
+    "personal" : 
+    {
+      "durations" : 
+      [
+        30,
+        90,
+        365
+      ],
+      "offers" : 
+      [
+        {
+          "discount_percent" : 20,
+          "enabled" : false,
+          "ends_at" : "",
+          "id" : "first_purchase",
+          "kind" : "first_purchase",
+          "label" : "个人首购优惠",
+          "starts_at" : ""
+        },
+        {
+          "discount_percent" : 10,
+          "enabled" : false,
+          "ends_at" : "",
+          "id" : "renewal",
+          "kind" : "renewal",
+          "label" : "个人续费优惠",
+          "starts_at" : ""
+        },
+        {
+          "discount_percent" : 15,
+          "enabled" : false,
+          "ends_at" : "",
+          "id" : "campaign",
+          "kind" : "campaign",
+          "label" : "个人限时活动",
+          "starts_at" : ""
+        }
+      ],
+      "prices_cents" : 
+      {
+        "cny" : 
+        {
+          "pro" : 
+          {
+            "30" : 1900,
+            "365" : 15900,
+            "90" : 4900
+          },
+          "ultra" : 
+          {
+            "30" : 3900,
+            "365" : 29900,
+            "90" : 9900
+          }
+        },
+        "usd" : 
+        {
+          "pro" : 
+          {
+            "30" : 399,
+            "365" : 2999,
+            "90" : 999
+          },
+          "ultra" : 
+          {
+            "30" : 699,
+            "365" : 4999,
+            "90" : 1799
+          }
+        }
+      },
+      "recommended_duration_days" : 365,
+      "recommended_plan" : "pro"
+    }
+  },
   "default_currency" : "cny",
   "default_provider" : "wechat",
   "durations" : 
@@ -13,9 +246,9 @@
     {
       "pro" : 
       {
-        "30" : 1290,
-        "365" : 15480,
-        "90" : 3870
+        "30" : 1900,
+        "365" : 15900,
+        "90" : 4900
       },
       "ultra" : 
       {
@@ -46,6 +279,17 @@
     "alipay",
     "stripe"
   ],
-  "updated_at" : "2026-07-19T02:36:38.363Z",
-  "version" : 1
+  "renewal" : 
+  {
+    "grace_period_days" : 7,
+    "price_change_notice_days" : 7,
+    "reminder_days" : 
+    [
+      7,
+      3,
+      1
+    ]
+  },
+  "updated_at" : "2026-08-01T07:45:34.226Z",
+  "version" : 4
 }

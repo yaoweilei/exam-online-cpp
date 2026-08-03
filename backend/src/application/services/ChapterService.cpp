@@ -90,9 +90,23 @@ std::string makeFallbackChapterId(const std::string &family, const std::string &
     return out;
 }
 
+std::string pickText(const Json::Value &value)
+{
+    if (value.isString()) return value.asString();
+    if (!value.isObject()) return {};
+    for (const auto *key : {"title", "text", "stem", "content"})
+    {
+        const auto &candidate = value[key];
+        if (candidate.isString() && !candidate.asString().empty()) return candidate.asString();
+    }
+    return {};
+}
+
 std::string pickStem(const Json::Value &q)
 {
-    const auto stem = q.get("question", q.get("stem", "")).asString();
+    auto stem = pickText(q["question"]);
+    if (stem.empty()) stem = pickText(q["stem"]);
+    if (stem.empty()) stem = pickText(q["title"]);
     if (stem.size() > 160)
     {
         return stem.substr(0, 160) + "...";

@@ -47,7 +47,14 @@ test('P2 增强功能：PWA、备课、运营后台、社区可以走通', async
 
   const sw = await request.get('/sw.js');
   expect(sw.ok()).toBeTruthy();
-  expect(await sw.text()).toContain('CACHE_VERSION');
+  const swText = await sw.text();
+  expect(swText).toContain('CACHE_VERSION');
+  expect(swText).toContain('v2-2026-07-30-renewal-delivery');
+  expect(swText).toContain("req.mode === 'navigate'");
+  expect(swText.indexOf("req.mode === 'navigate'")).toBeLessThan(swText.indexOf('if (isStatic(url))'));
+  const appShell = await request.get('/');
+  expect(appShell.ok()).toBeTruthy();
+  expect(await appShell.text()).toContain('main.js?v=20260730-renewal-delivery');
 
   const org = await createProfessionalOrganization(request, superSession.token, `P2 测试机构 ${Date.now()}`);
   const orgId = org.organization_id || org.scope_id || org.id;
@@ -122,6 +129,24 @@ test('P2 增强功能：PWA、备课、运营后台、社区可以走通', async
   await page.locator('[data-platform-user-search-input]').fill(superLogin);
   await page.locator('[data-platform-user-search-form] button[type="submit"]').click();
   await expect(page.locator('.pc-subpage')).toContainText(superLogin, { timeout: 20000 });
+
+  const superUserId = superSession.user?.id || superSession.user?.user_id || superSession.user_id;
+  const indexedDisplayName = `平台检索顾问 ${superLogin.slice(-8)}`;
+  const profileUpdate = await request.put(`/api/v1/profile/${encodeURIComponent(superUserId)}`, {
+    data: {
+      token: superSession.token,
+      display_name: indexedDisplayName
+    }
+  });
+  expect(profileUpdate.ok()).toBeTruthy();
+  const fuzzyStartedAt = Date.now();
+  const fuzzySearch = await request.get(
+    `/api/v1/users/search?token=${encodeURIComponent(superSession.token)}&q=${encodeURIComponent('平台检索顾问')}&limit=10`
+  );
+  expect(fuzzySearch.ok()).toBeTruthy();
+  const fuzzyPayload = await fuzzySearch.json();
+  expect(fuzzyPayload.data.some((item) => item.id === superUserId && item.display_name === indexedDisplayName)).toBeTruthy();
+  expect(Date.now() - fuzzyStartedAt).toBeLessThan(5000);
   await page.locator('[data-dashboard-back]').click();
 
   await workbenchCard.locator('.pc-workbench-action[title="功能开关"]').click();

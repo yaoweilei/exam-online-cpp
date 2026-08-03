@@ -13,6 +13,7 @@
 
 #include "application/services/AuthService.h"
 #include "application/services/FeatureFlagService.h"
+#include "application/services/SubscriptionService.h"
 #include "common/ApiResponse.h"
 #include "common/AppException.h"
 
@@ -43,6 +44,13 @@ std::string requireBoundedString(const Json::Value &json,
 
 std::string readToken(const drogon::HttpRequestPtr &req, const Json::Value *json = nullptr);
 
+void addSessionCookie(const drogon::HttpResponsePtr &response,
+                      const std::string &token,
+                      bool secure);
+
+void clearSessionCookie(const drogon::HttpResponsePtr &response,
+                        bool secure);
+
 Json::Value requireSession(application::services::AuthService &authService,
                            const drogon::HttpRequestPtr &req,
                            const Json::Value *json = nullptr);
@@ -69,6 +77,12 @@ void requireFeature(application::services::FeatureFlagService &svc,
                     const std::string &flagKey,
                     const std::string &userId,
                     const std::string &errorMessageZh = "该功能已被管理员关闭");
+
+// 套餐权益路由护栏：功能开关只控制是否上线，权益决定当前用户能否使用。
+void requireEntitlement(application::services::SubscriptionService &svc,
+                        const std::string &userId,
+                        const std::string &entitlementKey,
+                        const std::string &errorMessageZh = "");
 
 // ---- Static asset helpers ---------------------------------------------------
 

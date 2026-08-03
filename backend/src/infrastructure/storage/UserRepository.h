@@ -4,7 +4,6 @@
 #include <shared_mutex>
 #include <string>
 
-#include <drogon/utils/Utilities.h>
 #include <json/json.h>
 
 #include "WalStore.h"
@@ -44,7 +43,7 @@ class UserRepository
 
     Json::Value createDevelopmentUser(const std::string &loginId);
 
-    bool verifyPassword(const Json::Value &user, const std::string &password) const;
+    bool verifyPassword(const Json::Value &user, const std::string &password);
     Json::Value updatePassword(const std::string &userId, const std::string &password);
 
     Json::Value bindPhone(const std::string &userId, const std::string &phone);
@@ -71,10 +70,7 @@ class UserRepository
                                  const std::string &avatarUrl,
                                  const std::string &loginIdHint = "");
 
-    static std::string hashPassword(const std::string &password)
-    {
-        return drogon::utils::getSha256(password);
-    }
+    static std::string hashPassword(const std::string &password);
 
   private:
     static Json::Value defaultRolesMap();
@@ -108,6 +104,11 @@ class UserRepository
     static std::string sanitizePhone(const std::string &phone);
     static int extractPrefixedSerial(const std::string &value, const std::string &prefix);
     static std::string generateUserId();
+    static bool verifyScryptPassword(const std::string &encodedHash, const std::string &password);
+    void upgradeLegacyPasswordHash(const std::string &userId,
+                                   const std::string &password,
+                                   const std::string &expectedLegacyHash,
+                                   const std::string &expectedLegacyAlgo);
     Json::Value readUsersUnlocked() const;
     void writeUsersUnlocked(const Json::Value &users);
 

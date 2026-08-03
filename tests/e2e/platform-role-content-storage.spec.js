@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect, request: requestFactory } = require('@playwright/test');
 const { loginApi, uniqueLoginId } = require('./helpers/session');
 
 async function ok(response) {
@@ -17,8 +17,15 @@ test('用户资料与订阅权益接口拒绝匿名、跨用户和绕过支付�
   const student = await loginApi(request, uniqueLoginId('student_security_boundary'));
   const other = await loginApi(request, uniqueLoginId('student_security_other'));
 
-  expect(await errorCode(await request.get(`/api/v1/users/${encodeURIComponent(student.user_id)}`))).toBe('AUTH_REQUIRED');
-  expect(await errorCode(await request.get('/api/v1/users/by-role/student'))).toBe('AUTH_REQUIRED');
+  const anonymous = await requestFactory.newContext({
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:8000'
+  });
+  try {
+    expect(await errorCode(await anonymous.get(`/api/v1/users/${encodeURIComponent(student.user_id)}`))).toBe('AUTH_REQUIRED');
+    expect(await errorCode(await anonymous.get('/api/v1/users/by-role/student'))).toBe('AUTH_REQUIRED');
+  } finally {
+    await anonymous.dispose();
+  }
   expect(await errorCode(await request.get(`/api/v1/users/${encodeURIComponent(other.user_id)}?token=${encodeURIComponent(student.token)}`))).toBe('FORBIDDEN');
   expect(await errorCode(await request.get(`/api/v1/users/${encodeURIComponent(other.user_id)}/permissions?token=${encodeURIComponent(student.token)}`))).toBe('FORBIDDEN');
   expect(await errorCode(await request.get(`/api/v1/users/by-role/student?token=${encodeURIComponent(student.token)}`))).toBe('FORBIDDEN');
@@ -90,6 +97,13 @@ test('平台角色模板支持差异、临时授权、会话失效和自我超�
 test('内容工作流执行质检、双重复核、发布版本和回滚', async ({ request }) => {
   const admin = await loginApi(request, uniqueLoginId('superadmin_content_workflow'));
   const examId = '2023_02';
+  const batch = await ok(await request.post('/api/v1/admin/content/workflow/inspect-batch', {
+    data: { token: admin.token, exam_ids: [examId, 'missing_exam_for_batch_e2e'] }
+  }));
+  expect(batch).toMatchObject({ requested_count: 2, processed_count: 1, unavailable_count: 1 });
+  expect(batch.items.find((item) => item.exam_id === examId)).toMatchObject({ processed: true });
+  expect(batch.items.find((item) => item.exam_id === 'missing_exam_for_batch_e2e')).toMatchObject({ processed: false });
+
   const inspection = await ok(await request.post(`/api/v1/admin/content/workflow/${examId}/inspect`, { data: { token: admin.token } }));
   expect(inspection.inspection).toHaveProperty('errors');
   expect(inspection.inspection).toHaveProperty('assets');

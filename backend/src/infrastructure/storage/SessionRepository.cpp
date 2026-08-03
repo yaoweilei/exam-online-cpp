@@ -1,5 +1,6 @@
 #include "SessionRepository.h"
 
+#include <algorithm>
 #include <vector>
 
 #include <drogon/utils/Utilities.h>
@@ -74,6 +75,21 @@ Json::Value SessionRepository::find(const std::string &token) const
     return sqliteStore_.get("sessions", key);
 }
 
+Json::Value SessionRepository::listByUserId(const std::string &userId) const
+{
+    Json::Value out(Json::arrayValue);
+    if (userId.empty()) return out;
+    std::shared_lock lock(mutex_);
+    for (const auto &entry : sqliteStore_.list("sessions"))
+    {
+        if (entry.get("user_id", "").asString() == userId)
+        {
+            out.append(entry);
+        }
+    }
+    return out;
+}
+
 bool SessionRepository::remove(const std::string &token)
 {
     if (token.empty())
@@ -83,6 +99,15 @@ bool SessionRepository::remove(const std::string &token)
     std::unique_lock lock(mutex_);
     const auto key = tokenStorageKey(token);
     return sqliteStore_.erase("sessions", key);
+}
+
+bool SessionRepository::removeById(const std::string &userId, const std::string &sessionId)
+{
+    if (userId.empty() || sessionId.empty()) return false;
+    std::unique_lock lock(mutex_);
+    const auto entry = sqliteStore_.get("sessions", sessionId);
+    if (entry.isNull() || entry.get("user_id", "").asString() != userId) return false;
+    return sqliteStore_.erase("sessions", sessionId);
 }
 
 int SessionRepository::removeByUserId(const std::string &userId, const std::string &keepToken)
@@ -97,6 +122,48 @@ int SessionRepository::removeByUserId(const std::string &userId, const std::stri
         const auto key = entry.get("token_hash", "").asString();
         if (key == keepKey || entry.get("user_id", "").asString() != userId) continue;
         if (sqliteStore_.erase("sessions", key)) ++removed;
+    }
+    return removed;
+}
+
+int SessionRepository::trimByUserId(const std::string &userId,
+                                    std::size_t maxSessions,
+                                    const std::string &keepSessionId)
+{
+    if (userId.empty()) return 0;
+    std::unique_lock lock(mutex_);
+    std::vector<Json::Value> sessions;
+    for (const auto &entry : sqliteStore_.list("sessions"))
+    {
+        if (entry.get("user_id", "").asString() == userId) sessions.push_back(entry);
+    }
+    if (sessions.size() <= maxSessions) return 0;
+    std::sort(sessions.begin(), sessions.end(), [](const Json::Value &left, const Json::Value &right) {
+        const auto timestamp = [](const Json::Value &entry) {
+            const auto createdAt = entry.get("created_at", "").asString();
+            if (!createdAt.empty()) return createdAt;
+            const auto lastSeenAt = entry.get("last_seen_at", "").asString();
+            if (!lastSeenAt.empty()) return lastSeenAt;
+            return entry.get("expires_at", "").asString();
+        };
+        return timestamp(left) > timestamp(right);
+    });
+    const bool hasKeptSession = !keepSessionId.empty() &&
+                                std::any_of(sessions.begin(), sessions.end(), [&](const Json::Value &entry) {
+                                    return entry.get("token_hash", "").asString() == keepSessionId;
+                                });
+    std::size_t retained = hasKeptSession ? 1 : 0;
+    int removed = 0;
+    for (const auto &entry : sessions)
+    {
+        const auto sessionId = entry.get("token_hash", "").asString();
+        if (sessionId.empty() || sessionId == keepSessionId) continue;
+        if (retained < maxSessions)
+        {
+            ++retained;
+            continue;
+        }
+        if (sqliteStore_.erase("sessions", sessionId)) ++removed;
     }
     return removed;
 }

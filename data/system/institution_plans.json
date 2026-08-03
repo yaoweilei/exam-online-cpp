@@ -1,19 +1,17 @@
 {
-  "currency": "CNY",
-  "billing": {
-    "monthly_discount_note": "",
-    "yearly_discount_note": "年付按 10 个月计费，相当于赠送 2 个月"
-  },
+  "version": 2,
+  "pricing_source": "payments.pricing.v2",
+  "description": "本文件只维护机构套餐能力与限制；价格、最低席位和阶梯价统一由支付价格配置维护。",
   "plans": [
     {
-      "id": "starter",
-      "name": "机构体验版",
-      "monthly_price": 99,
-      "yearly_price": 990,
-      "included_seats": 10,
-      "extra_seat_price": 10,
-      "max_learning_groups": 1,
-      "target": "小老师 / 小工作室试用",
+      "id": "free",
+      "name": "机构 FREE",
+      "target": "创建机构后的功能体验",
+      "limits": {
+        "campuses": 1,
+        "administrators": 1,
+        "audit_log_days": 0
+      },
       "features": {
         "learning_groups": true,
         "assignments": true,
@@ -27,44 +25,23 @@
         "lesson_prep": false,
         "export_handouts": false,
         "multi_teacher": false,
-        "audit_logs": false
+        "audit_logs": false,
+        "multi_campus": false,
+        "automated_reports": false,
+        "advanced_exports": false,
+        "branding": false
       }
     },
     {
-      "id": "small_class",
-      "name": "小班版",
-      "monthly_price": 199,
-      "yearly_price": 1990,
-      "included_seats": 20,
-      "extra_seat_price": 8,
-      "max_learning_groups": 3,
-      "target": "小工作室 / 1-2 个班",
-      "features": {
-        "learning_groups": true,
-        "assignments": true,
-        "auto_grading": true,
-        "gradebook": true,
-        "student_profiles": true,
-        "institution_dashboard": true,
-        "teacher_effectiveness": false,
-        "renewal_risk": true,
-        "bulk_import": true,
-        "lesson_prep": true,
-        "export_handouts": false,
-        "multi_teacher": false,
-        "audit_logs": false
-      }
-    },
-    {
-      "id": "standard",
-      "name": "标准版",
-      "monthly_price": 399,
-      "yearly_price": 3990,
-      "included_seats": 50,
-      "extra_seat_price": 8,
-      "max_learning_groups": 10,
-      "target": "常规培训机构",
+      "id": "pro",
+      "name": "机构 PRO",
+      "target": "单校区、小型培训机构和小型团队",
       "recommended": true,
+      "limits": {
+        "campuses": 1,
+        "administrators": 3,
+        "audit_log_days": 30
+      },
       "features": {
         "learning_groups": true,
         "assignments": true,
@@ -73,48 +50,27 @@
         "student_profiles": true,
         "institution_dashboard": true,
         "teacher_effectiveness": true,
-        "renewal_risk": true,
+        "renewal_risk": false,
         "bulk_import": true,
         "lesson_prep": true,
         "export_handouts": true,
         "multi_teacher": true,
-        "audit_logs": false
+        "audit_logs": true,
+        "multi_campus": false,
+        "automated_reports": false,
+        "advanced_exports": false,
+        "branding": false
       }
     },
     {
-      "id": "professional",
-      "name": "专业版",
-      "monthly_price": 799,
-      "yearly_price": 7990,
-      "included_seats": 120,
-      "extra_seat_price": 5,
-      "max_learning_groups": 30,
-      "target": "中型机构 / 多老师协作",
-      "features": {
-        "learning_groups": true,
-        "assignments": true,
-        "auto_grading": true,
-        "gradebook": true,
-        "student_profiles": true,
-        "institution_dashboard": true,
-        "teacher_effectiveness": true,
-        "renewal_risk": true,
-        "bulk_import": true,
-        "lesson_prep": true,
-        "export_handouts": true,
-        "multi_teacher": true,
-        "audit_logs": true
-      }
-    },
-    {
-      "id": "campus",
-      "name": "校区版",
-      "monthly_price": 1499,
-      "yearly_price": 14990,
-      "included_seats": 300,
-      "extra_seat_price": 5,
-      "max_learning_groups": 100,
-      "target": "多学习组 / 多校区",
+      "id": "ultra",
+      "name": "机构 ULTRA",
+      "target": "多校区、中型机构和深度管理场景",
+      "limits": {
+        "campuses": 5,
+        "administrators": 10,
+        "audit_log_days": 365
+      },
       "features": {
         "learning_groups": true,
         "assignments": true,
@@ -130,7 +86,9 @@
         "multi_teacher": true,
         "audit_logs": true,
         "multi_campus": true,
-        "custom_success_support": true
+        "automated_reports": true,
+        "advanced_exports": true,
+        "branding": true
       }
     }
   ]

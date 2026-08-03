@@ -48,7 +48,7 @@ const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'ErrorHandler', path: '../viewer/utils/ErrorHandler.js' },
 	{ name: 'DOMUtils', path: '../viewer/utils/DOMUtils.js' },
 	{ name: 'DOMHelpers', path: '../viewer/utils/DOMHelpers.js' },
-	{ name: 'APIClient', path: '../viewer/core/APIClient.js' },
+	{ name: 'APIClient', path: '../viewer/core/APIClient.js?v=20260730-renewal-delivery' },
 	{ name: 'ExamLoader', path: '../viewer/core/ExamLoader.js' },
 	{ name: 'UserContextManager', path: '../viewer/core/UserContextManager.js' },
 	{ name: 'StateManager', path: '../viewer/managers/StateManager.js' },
@@ -62,7 +62,7 @@ const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'CategoryNavigationManager', path: '../viewer/managers/CategoryNavigationManager.js' },
 	{ name: 'QuestionRenderer', path: '../viewer/renderers/QuestionRenderer.js' },
 	{ name: 'ExamViewer', path: '../viewer/core/ExamViewer.js' },
-	{ name: 'PersonalCenter', path: '../viewer/personalCenter.js?v=20260630-member-search-text1' }
+	{ name: 'PersonalCenter', path: '../viewer/personalCenter.js?v=20260730-renewal-delivery' }
 ];
 
 const REQUIRED_GLOBALS = [

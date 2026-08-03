@@ -110,6 +110,13 @@ function warning(code, message) {
 	report.warnings.push({ code, message });
 }
 
+function countByCode(items) {
+	return items.reduce((counts, item) => {
+		counts[item.code] = (counts[item.code] || 0) + 1;
+		return counts;
+	}, {});
+}
+
 function auditEju() {
 	const dir = path.join(root, 'data', 'paper', 'eju');
 	for (const filePath of walkJsonFiles(dir)) {
@@ -270,6 +277,8 @@ const summary = {
 	jlptQuestions: report.jlptQuestions,
 	issues: report.issues.length,
 	warnings: report.warnings.length,
+	issuesByCode: countByCode(report.issues),
+	warningsByCode: countByCode(report.warnings),
 	strictTimestamps
 };
 

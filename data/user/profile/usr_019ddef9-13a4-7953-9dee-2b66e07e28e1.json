@@ -6,7 +6,7 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-07-19T02:10:40.810Z",
+  "last_active_at" : "2026-08-01T07:40:03.129Z",
   "last_credit_reason" : "",
   "locale" : "zh-CN",
   "longest_streak" : 4,
@@ -19,6 +19,17 @@
   "scope_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
   "scope_type" : "personal",
   "streak_days" : 1,
+  "study_stats" : 
+  {
+    "awarded_now" : 0,
+    "daily_xp_cap" : 2,
+    "date" : "2026-08-01",
+    "pomodoro_seconds" : 1500,
+    "today_minutes" : 0,
+    "today_seconds" : 30,
+    "today_xp_awarded" : 0,
+    "updated_at" : "2026-08-01T07:40:03.129Z"
+  },
   "user_id" : "usr_019ddef9-13a4-7953-9dee-2b66e07e28e1",
   "xp" : 0
 }

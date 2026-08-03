@@ -209,6 +209,18 @@ test('机构核心教学能力可以通过 Web 查看和进入', async ({ page, 
   expect(submissionsPayload.data?.submissions?.[demo.student.user_id]?.status).toBe('submitted');
 	await expect(detail.locator('.pc-service-header', { hasText: '作业提交' })).toBeVisible({ timeout: 20000 });
 	await expect(detail).toContainText('已提交');
+	await expect(detail).toContainText('自动催交');
+	await expect(detail.locator('[data-assignment-reminder-hours]')).toHaveValue('24');
+	await detail.locator('[data-assignment-reminder-hours]').selectOption('12');
+	const autoReminderResponse = page.waitForResponse((response) =>
+		response.url().includes(`/api/v1/assignments/${demo.assignment.assignment_id}`) &&
+		response.request().method() === 'PATCH'
+	);
+	await detail.locator(`[data-inst-assignment-auto-save="${demo.assignment.assignment_id}"]`).click();
+	const autoReminderPayload = await (await autoReminderResponse).json();
+	expect(autoReminderPayload.code).toBe('OK');
+	expect(autoReminderPayload.data?.auto_reminder_hours_before).toEqual([12]);
+	await expect(detail.locator('[data-assignment-reminder-hours]')).toHaveValue('12');
 	const submissionCard = detail.locator(`[data-assignment-student="${demo.student.user_id}"]`);
 	await submissionCard.locator('[data-submission-comment]').fill('E2E 批改评语');
 	await submissionCard.locator('[data-submission-score]').fill('91');
@@ -298,6 +310,9 @@ test('机构后台可以维护校区、学习组、课程包和学习组成员',
   await expect(page.locator('#personal-center.pc-open')).toBeVisible();
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="成员管理"]').click();
+  const memberOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
+  await expect(memberOrganizationCard).toBeVisible({ timeout: 20000 });
+  await memberOrganizationCard.locator('summary').click();
   const memberListForm = page.locator('[data-org-member-list-form]').first();
   await expect(memberListForm).toBeVisible({ timeout: 20000 });
   const addMemberForm = page.locator('form[data-org-add-form]').first();
@@ -325,6 +340,9 @@ test('机构后台可以维护校区、学习组、课程包和学习组成员',
   await page.locator('[data-dashboard-back]').click();
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="学习组"]').click();
+  const learningOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
+  await expect(learningOrganizationCard).toBeVisible({ timeout: 20000 });
+  await learningOrganizationCard.locator('summary').click();
   const learningListForm = page.locator('[data-org-learning-list-form]').first();
   await expect(learningListForm).toBeVisible({ timeout: 20000 });
   const learningListResponse = page.waitForResponse((response) =>
@@ -337,6 +355,9 @@ test('机构后台可以维护校区、学习组、课程包和学习组成员',
   await page.locator('[data-dashboard-back]').click();
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="机构设置"]').click();
+  const settingsOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
+  await expect(settingsOrganizationCard).toBeVisible({ timeout: 20000 });
+  await settingsOrganizationCard.locator('summary').click();
   await expect(page.locator('[data-org-campus-list-form]').first()).toBeVisible({ timeout: 20000 });
   const subscriptionForm = page.locator('form[data-org-subscription-form]').first();
   await subscriptionForm.locator('[data-org-seats]').fill('0');
@@ -346,6 +367,9 @@ test('机构后台可以维护校区、学习组、课程包和学习组成员',
   await page.locator('[data-dashboard-back]').click();
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="课程包"]').click();
+  const packageOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
+  await expect(packageOrganizationCard).toBeVisible({ timeout: 20000 });
+  await packageOrganizationCard.locator('summary').click();
   await expect(page.locator('[data-org-package-list-form]').first()).toBeVisible({ timeout: 20000 });
   await page.locator('[data-dashboard-back]').click();
 

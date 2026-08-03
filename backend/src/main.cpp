@@ -1,6 +1,8 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <algorithm>
+#include <cctype>
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -108,6 +110,31 @@ trantor::Logger::LogLevel toLogLevel(const std::string &level)
         return trantor::Logger::kError;
     }
     return trantor::Logger::kInfo;
+}
+
+std::string lowerAscii(std::string value)
+{
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
+        return static_cast<char>(std::tolower(ch));
+    });
+    return value;
+}
+
+std::string originAuthority(const std::string &origin)
+{
+    const auto schemeEnd = origin.find("://");
+    if (schemeEnd == std::string::npos) return {};
+    const auto authorityStart = schemeEnd + 3;
+    const auto authorityEnd = origin.find('/', authorityStart);
+    return lowerAscii(origin.substr(
+        authorityStart,
+        authorityEnd == std::string::npos ? std::string::npos : authorityEnd - authorityStart));
+}
+
+bool isMutationMethod(const drogon::HttpMethod method)
+{
+    return method == drogon::Post || method == drogon::Put ||
+           method == drogon::Patch || method == drogon::Delete;
 }
 
 std::unique_ptr<application::services::EmailService> buildEmailService(const infrastructure::config::AppConfig &cfg)
@@ -240,7 +267,8 @@ int main()
     // 审计日志 Service（业务功能 15）
     application::services::AuditLogService auditLogService(cfg.dataUserDir, organizationRepo);
     // 每日一练 Service（业务功能 16）
-    application::services::DailyPracticeService dailyPracticeService(cfg.dataUserDir, wrongQuestionRepo, srsService);
+    application::services::DailyPracticeService dailyPracticeService(
+        cfg.dataUserDir, wrongQuestionRepo, srsService, examRepo);
     // 学习报告 Service（业务功能 17）
     application::services::LearningReportService learningReportService(answerRepo, wrongQuestionRepo, srsRepo, cfg.dataUserDir);
     // 备考目标 / 倒计时 Service（业务功能 18）
@@ -266,7 +294,11 @@ int main()
     // 章节式学习路径 Service（功能 #18）—复用 Exam + Answer Repository
     application::services::ChapterService chapterService(examRepo, answerRepo);
     application::services::RedeemService redeemService(cfg.dataSystemDir, profileRepo, subscriptionService);
-    application::services::PaymentService paymentService(cfg.dataUserDir, subscriptionService);
+    application::services::PaymentService paymentService(
+        cfg.dataUserDir,
+        subscriptionService,
+        &userRepo,
+        emailService.get());
     application::services::ContentWorkflowService contentWorkflowService(cfg.dataSystemDir, examRepo);
     application::services::InstitutionService institutionService(
         assignmentRepo,
@@ -293,7 +325,9 @@ int main()
 
     transport::AppContext context{
         .staticDir = cfg.staticDir,
+        .dataRoot = cfg.dataRoot,
 		.disableStaticCache = infrastructure::config::isDevelopmentEnv(cfg.appEnv),
+        .secureCookies = !infrastructure::config::isDevelopmentEnv(cfg.appEnv),
         .examService = &examService,
         .answerService = &answerService,
         .authService = &authService,
@@ -349,14 +383,142 @@ int main()
     app().setLogLevel(toLogLevel(cfg.logLevel));
     app().setLogLocalTime(true);
     app().addListener(cfg.host, cfg.port);
-    app().setDocumentRoot(cfg.documentRoot.string());
+    // Only the curated static directory is exposed by Drogon's fallback file
+    // handler. Runtime data, environment files and source files live beside
+    // the application in development and must never become public assets.
+    auto staticDocumentRoot = cfg.staticDir.generic_string();
+    if (staticDocumentRoot.empty() || staticDocumentRoot.back() != '/')
+    {
+        staticDocumentRoot.push_back('/');
+    }
+    app().setDocumentRoot(staticDocumentRoot);
+    // Public assets keep their historical /static/* URLs while the document
+    // root remains confined to the curated static directory.  Without this
+    // location Drogon's built-in static router would resolve /static/app.js
+    // as <staticDir>/static/app.js; pointing the prefix at "." also prevents
+    // source code and runtime data outside staticDir from being downloaded.
+    app().addALocation("/static", "", ".", false, true, true);
+    // Listening audio is a deliberate public asset surface. Keep the rest of
+    // runtime data private while letting Drogon's static router provide byte
+    // range responses required by Safari/iOS media playback.
+    const auto audioAlias = std::filesystem::relative(cfg.dataRoot / "audio", cfg.staticDir).generic_string();
+    app().addALocation("/data/audio", "audio/mpeg", audioAlias, false, false, true);
     app().setFileTypes({"html", "css", "js", "map", "png", "jpg", "jpeg", "svg", "ico", "json", "mp3", "wav"});
     app().enableServerHeader(false);
+
+    app().registerSyncAdvice([](const HttpRequestPtr &req) -> HttpResponsePtr {
+        if (!isMutationMethod(req->method()) ||
+            !req->path().starts_with("/api/") ||
+            req->getCookie("exam_session").empty())
+        {
+            return nullptr;
+        }
+
+        const auto fetchSite = lowerAscii(req->getHeader("Sec-Fetch-Site"));
+        const auto origin = req->getHeader("Origin");
+        const auto host = lowerAscii(req->getHeader("Host"));
+        const auto authority = originAuthority(origin);
+        const bool crossSite = fetchSite == "cross-site";
+        const bool foreignOrigin = !origin.empty() &&
+                                   (origin == "null" || authority.empty() || authority != host);
+        if (!crossSite && !foreignOrigin)
+        {
+            return nullptr;
+        }
+
+        LOG_WARN << "blocked cross-site cookie request path=" << req->path()
+                 << " origin=" << origin
+                 << " host=" << host
+                 << " request_id=" << common::resolveRequestId(req);
+        return common::fail(
+            req,
+            k403Forbidden,
+            "CROSS_SITE_REQUEST_BLOCKED",
+            "该请求来源不受信任，请从本站重新操作");
+    });
 
     app().registerPreRoutingAdvice([](const HttpRequestPtr &req) {
         LOG_INFO << "incoming request "
                  << req->methodString() << " "
                  << req->path() << " request_id=" << common::resolveRequestId(req);
+    });
+
+    const bool productionSecurityHeaders = !infrastructure::config::isDevelopmentEnv(cfg.appEnv);
+    app().registerPreSendingAdvice([productionSecurityHeaders](const HttpRequestPtr &req,
+                                                               const HttpResponsePtr &resp) {
+        resp->addHeader("X-Content-Type-Options", "nosniff");
+        resp->addHeader("X-Frame-Options", "DENY");
+        resp->addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+        resp->addHeader(
+            "Permissions-Policy",
+            "camera=(), microphone=(), geolocation=(), payment=(self)");
+        resp->addHeader(
+            "Content-Security-Policy",
+            "default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; "
+            "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' blob:; "
+            "connect-src 'self' https:; form-action 'self'");
+        if (req->path().rfind("/data/audio/", 0) == 0)
+        {
+            resp->addHeader("Accept-Ranges", "bytes");
+        }
+        if (productionSecurityHeaders)
+        {
+            resp->addHeader(
+                "Strict-Transport-Security",
+                "max-age=31536000; includeSubDomains");
+        }
+    });
+
+    app().registerBeginningAdvice([&paymentService, &assignmentService, &auditLogService]() {
+        const auto runRenewalJob = [&paymentService]() {
+            try
+            {
+                const auto result = paymentService.runRenewalJobs();
+                LOG_INFO << "renewal job completed scanned=" << result.get("scanned", 0).asInt()
+                         << " reminders=" << result.get("reminders_enqueued", 0).asInt()
+                         << " charge_requests=" << result.get("charge_requests_created", 0).asInt()
+                         << " email_attempted=" << result["notification_delivery"].get("attempted", 0).asInt()
+                         << " email_dead_letter=" << result["notification_delivery"].get("dead_letter", 0).asInt();
+            }
+            catch (const std::exception &error)
+            {
+                LOG_ERROR << "renewal job failed: " << error.what();
+            }
+        };
+        const auto runAssignmentReminderJob = [&assignmentService, &auditLogService]() {
+            try
+            {
+                const auto result = assignmentService.runAutomaticReminderJobs();
+                for (const auto &delivery : result.get("deliveries", Json::Value(Json::arrayValue)))
+                {
+                    Json::Value details(Json::objectValue);
+                    details["assignment_id"] = delivery.get("assignment_id", "");
+                    details["reminder_id"] = delivery.get("reminder_id", "");
+                    details["hours_before"] = delivery.get("hours_before", 0);
+                    details["target_count"] = delivery.get("target_count", 0);
+                    auditLogService.record(
+                        "assignment.reminder.auto_sent",
+                        "system",
+                        "自动发送作业催交提醒",
+                        details,
+                        delivery.get("organization_id", "").asString());
+                }
+                LOG_INFO << "assignment reminder job completed scanned=" << result.get("scanned", 0).asInt()
+                         << " eligible=" << result.get("eligible", 0).asInt()
+                         << " reminders=" << result.get("reminders_created", 0).asInt()
+                         << " targets=" << result.get("targets", 0).asInt()
+                         << " failed=" << result.get("failed", 0).asInt();
+            }
+            catch (const std::exception &error)
+            {
+                LOG_ERROR << "assignment reminder job failed: " << error.what();
+            }
+        };
+        runRenewalJob();
+        runAssignmentReminderJob();
+        app().getLoop()->runEvery(15.0 * 60.0, runRenewalJob);
+        app().getLoop()->runEvery(15.0 * 60.0, runAssignmentReminderJob);
     });
 
     if (infrastructure::config::isDevelopmentEnv(cfg.appEnv))
@@ -385,8 +547,10 @@ int main()
 
     std::cout << "exam_online_cpp_v2 starting on " << cfg.host << ":" << cfg.port << "\n";
     std::cout << "base_dir=" << cfg.baseDir << "\n";
+    std::cout << "data_root=" << cfg.dataRoot << "\n";
     std::cout << "data_paper_dir=" << cfg.dataPaperDir << "\n";
     std::cout << "data_user_dir=" << cfg.dataUserDir << "\n";
+    std::cout << "data_system_dir=" << cfg.dataSystemDir << "\n";
     std::cout << "static_dir=" << cfg.staticDir << "\n";
     std::cout << "app_env=" << cfg.appEnv << "\n";
     std::cout << "threads=" << cfg.threads << "\n";

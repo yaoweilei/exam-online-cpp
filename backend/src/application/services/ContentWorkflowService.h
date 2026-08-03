@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <mutex>
 #include <string>
+#include <vector>
 #include <json/json.h>
 
 #include "infrastructure/storage/ExamRepository.h"
@@ -14,6 +15,7 @@ class ContentWorkflowService
   public:
     ContentWorkflowService(std::filesystem::path systemDir, infrastructure::storage::ExamRepository &examRepository);
     Json::Value inspect(const std::string &examId, const std::string &actorId);
+    Json::Value inspectBatch(const std::vector<std::string> &examIds, const std::string &actorId);
     Json::Value review(const std::string &examId, const std::string &stage, const Json::Value &payload, const std::string &actorId);
     Json::Value enqueuePublish(const std::string &examId, const std::string &actorId);
     Json::Value listQueue() const;

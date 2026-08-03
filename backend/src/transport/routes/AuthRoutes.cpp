@@ -7,6 +7,39 @@ using namespace drogon;
 
 namespace transport::routes
 {
+namespace
+{
+std::string clientKey(const HttpRequestPtr &req)
+{
+    return req->peerAddr().toIp();
+}
+
+std::string userAgent(const HttpRequestPtr &req)
+{
+    constexpr std::size_t maxLength = 512;
+    const auto value = req->getHeader("User-Agent");
+    return value.size() <= maxLength ? value : value.substr(0, maxLength);
+}
+
+HttpResponsePtr sessionResponse(const HttpRequestPtr &req,
+                                Json::Value data,
+                                const std::string &message,
+                                bool secureCookies)
+{
+    const auto token = data.get("token", "").asString();
+    if (secureCookies)
+    {
+        data.removeMember("token");
+    }
+    auto response = common::ok(req, data, message);
+    if (!token.empty())
+    {
+        addSessionCookie(response, token, secureCookies);
+    }
+    return response;
+}
+}  // namespace
+
 void registerAuthRoutes(const AppContext &ctx)
 {
     app().registerHandler(
@@ -16,7 +49,11 @@ void registerAuthRoutes(const AppContext &ctx)
                 const auto body = parseJsonBody(req);
                 const auto username = requireString(body, "username");
                 const auto password = body.get("password", "").asString();
-                return common::ok(req, ctx.authService->login(username, password));
+                return sessionResponse(
+                    req,
+                    ctx.authService->login(username, password, clientKey(req), userAgent(req)),
+                    "ok",
+                    ctx.secureCookies);
             });
         },
         {Post});
@@ -30,7 +67,17 @@ void registerAuthRoutes(const AppContext &ctx)
                 const auto password = requireString(body, "password");
                 const auto email = body.get("email", "").asString();
                 const auto referralCode = body.get("referral_code", body.get("ref", "")).asString();
-                return common::ok(req, ctx.authService->registerUser(username, password, email, referralCode));
+                return sessionResponse(
+                    req,
+                    ctx.authService->registerUser(
+                        username,
+                        password,
+                        email,
+                        referralCode,
+                        clientKey(req),
+                        userAgent(req)),
+                    "ok",
+                    ctx.secureCookies);
             });
         },
         {Post});
@@ -40,18 +87,88 @@ void registerAuthRoutes(const AppContext &ctx)
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
+                const auto token = readToken(req, &body);
                 const auto session = requireSession(*ctx.authService, req, &body);
                 const auto currentPassword = body.get("current_password", "").asString();
                 const auto newPassword = requireString(body, "new_password");
-                return common::ok(req,
-                    ctx.authService->changePassword(
+                auto result = ctx.authService->changePassword(
                         session.get("user_id", "").asString(),
                         currentPassword,
-                        newPassword),
+                        newPassword);
+                result["revoked_sessions"] = ctx.authService->revokeSessionsForUser(
+                    session.get("user_id", "").asString(),
+                    token);
+                return common::ok(req,
+                    result,
                     "password_changed");
             });
         },
         {Post});
+
+    app().registerHandler(
+        "/api/v1/auth/sessions",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto token = readToken(req);
+                const auto session = requireSession(*ctx.authService, req);
+                return common::ok(
+                    req,
+                    ctx.authService->sessionsForUser(
+                        session.get("user_id", "").asString(),
+                        token));
+            });
+        },
+        {Get});
+
+    app().registerHandler(
+        "/api/v1/auth/sessions/revoke-others",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto token = readToken(req, &body);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto userId = session.get("user_id", "").asString();
+                Json::Value out(Json::objectValue);
+                out["revoked_sessions"] = ctx.authService->revokeSessionsForUser(userId, token);
+                ctx.auditLogService->record(
+                    "account.sessions.revoked_others",
+                    userId,
+                    "退出其他登录设备",
+                    out);
+                return common::ok(req, out, "other_sessions_revoked");
+            });
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v1/auth/sessions/{1}",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string sessionId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto token = readToken(req, &body);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto userId = session.get("user_id", "").asString();
+                if (!ctx.authService->revokeSessionForUser(userId, sessionId, token))
+                {
+                    throw common::AppException(
+                        "SESSION_NOT_REVOCABLE",
+                        "当前会话不能在这里退出，或该会话已经失效",
+                        k409Conflict);
+                }
+                Json::Value out(Json::objectValue);
+                out["session_id"] = sessionId;
+                out["revoked"] = true;
+                ctx.auditLogService->record(
+                    "account.session.revoked",
+                    userId,
+                    "退出指定登录设备",
+                    out);
+                return common::ok(req, out, "session_revoked");
+            });
+        },
+        {Delete});
 
     app().registerHandler(
         "/api/v1/auth/account/delete",
@@ -93,7 +210,10 @@ void registerAuthRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto loginId = requireString(body, "login_id");
-                return common::ok(req, ctx.authService->sendPasswordResetCode(loginId), "code_sent");
+                return common::ok(
+                    req,
+                    ctx.authService->sendPasswordResetCode(loginId, clientKey(req)),
+                    "code_sent");
             });
         },
         {Post});
@@ -106,7 +226,11 @@ void registerAuthRoutes(const AppContext &ctx)
                 const auto loginId = requireString(body, "login_id");
                 const auto code = requireString(body, "code");
                 const auto newPassword = requireString(body, "new_password");
-                return common::ok(req, ctx.authService->resetPassword(loginId, code, newPassword));
+                return sessionResponse(
+                    req,
+                    ctx.authService->resetPassword(loginId, code, newPassword),
+                    "ok",
+                    ctx.secureCookies);
             });
         },
         {Post});
@@ -116,10 +240,19 @@ void registerAuthRoutes(const AppContext &ctx)
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
-                const auto token = requireString(body, "token");
+                const auto token = readToken(req, &body);
+                if (token.empty())
+                {
+                    throw common::AppException(
+                        "AUTH_REQUIRED",
+                        "请先登录",
+                        k401Unauthorized);
+                }
                 Json::Value out(Json::objectValue);
                 out["success"] = ctx.authService->logout(token);
-                return common::ok(req, out);
+                auto response = common::ok(req, out);
+                clearSessionCookie(response, ctx.secureCookies);
+                return response;
             });
         },
         {Post});
@@ -128,7 +261,7 @@ void registerAuthRoutes(const AppContext &ctx)
         "/api/v1/auth/verify",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
-                const auto token = req->getParameter("token");
+                const auto token = readToken(req);
                 if (token.empty())
                 {
                     throw common::AppException("VALIDATION_ERROR", "Missing token parameter", k422UnprocessableEntity);

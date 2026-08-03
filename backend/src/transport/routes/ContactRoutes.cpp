@@ -42,7 +42,8 @@ void registerContactRoutes(const AppContext &ctx)
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
-                const auto session = body.get("token", "").asString().empty()
+                const auto requestToken = readToken(req, &body);
+                const auto session = requestToken.empty()
                                          ? Json::Value(Json::nullValue)
                                          : requireSession(*ctx.authService, req, &body);
                 const auto userId = session.isNull() ? body.get("user_id", "guest").asString()
@@ -58,20 +59,38 @@ void registerContactRoutes(const AppContext &ctx)
                 {
                     if (user.get("id", "").asString() != session.get("user_id", "").asString())
                     {
-                        const auto token = ctx.authService->createSessionForUser(user);
+                        const auto token = ctx.authService->createSessionForUser(
+                            user,
+                            req->peerAddr().toIp(),
+                            req->getHeader("User-Agent"));
                         auto out = ctx.authService->verify(token);
                         out["token"] = token;
                         out["switched_user"] = true;
-                        return common::ok(req, out, "phone_verified");
+                        if (ctx.secureCookies)
+                        {
+                            out.removeMember("token");
+                        }
+                        auto response = common::ok(req, out, "phone_verified");
+                        addSessionCookie(response, token, ctx.secureCookies);
+                        return response;
                     }
                     return common::ok(req,
                         ctx.userService->getUser(user.get("id", "").asString()),
                         "phone_verified");
                 }
-                const auto token = ctx.authService->createSessionForUser(user);
+                const auto token = ctx.authService->createSessionForUser(
+                    user,
+                    req->peerAddr().toIp(),
+                    req->getHeader("User-Agent"));
                 auto out = ctx.authService->verify(token);
                 out["token"] = token;
-                return common::ok(req, out);
+                if (ctx.secureCookies)
+                {
+                    out.removeMember("token");
+                }
+                auto response = common::ok(req, out);
+                addSessionCookie(response, token, ctx.secureCookies);
+                return response;
             });
         },
         {Post});

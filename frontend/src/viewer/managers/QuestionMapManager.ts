@@ -52,6 +52,7 @@ class QuestionMapManager {
 	private questionMapVisible = false;
 	private questionMapContainer: HTMLDivElement | null = null;
 	private questionMapContent: HTMLDivElement | null = null;
+	private previousFocus: HTMLElement | null = null;
 
 	constructor(examViewer: QuestionMapExamViewer) {
 		this.examViewer = examViewer;
@@ -81,9 +82,12 @@ class QuestionMapManager {
 			return;
 		}
 
+		if (!this.questionMapVisible) this.previousFocus = document.activeElement as HTMLElement | null;
 		this.questionMapVisible = true;
 		this.questionMapContainer.style.display = 'flex';
+		this.questionMapContainer.setAttribute('aria-hidden', 'false');
 		this.renderQuestionMap();
+		requestAnimationFrame(() => this.questionMapContainer?.querySelector<HTMLButtonElement>('[data-question-map-close]')?.focus());
 	}
 
 	/**
@@ -92,8 +96,10 @@ class QuestionMapManager {
 	hideQuestionMap(): void {
 		if (this.questionMapContainer) {
 			this.questionMapContainer.style.display = 'none';
+			this.questionMapContainer.setAttribute('aria-hidden', 'true');
 		}
 		this.questionMapVisible = false;
+		if (this.previousFocus?.isConnected) this.previousFocus.focus();
 	}
 
 	/**
@@ -102,6 +108,8 @@ class QuestionMapManager {
 	createQuestionMapOverlay(): void {
 		this.questionMapContainer = document.createElement('div');
 		this.questionMapContainer.id = 'question-map-overlay';
+		this.questionMapContainer.setAttribute('role', 'presentation');
+		this.questionMapContainer.setAttribute('aria-hidden', 'true');
 		this.questionMapContainer.style.cssText = `
 			position: fixed;
 			top: 0;
@@ -117,6 +125,10 @@ class QuestionMapManager {
 		document.body.appendChild(this.questionMapContainer);
 
 		const mapContent = document.createElement('div');
+		mapContent.className = 'question-map-dialog';
+		mapContent.setAttribute('role', 'dialog');
+		mapContent.setAttribute('aria-modal', 'true');
+		mapContent.setAttribute('aria-labelledby', 'question-map-title');
 		mapContent.style.cssText = `
 			background: white;
 			border-radius: 8px;
@@ -130,6 +142,11 @@ class QuestionMapManager {
 
 		const style = document.createElement('style');
 		style.textContent = `
+			.question-map-dialog {
+				box-sizing: border-box;
+				position: relative;
+			}
+
 			#question-map-content {
 				margin-top: 6px;
 				padding: 0 4px;
@@ -183,14 +200,14 @@ class QuestionMapManager {
 
 			.question-map-section-questions {
 				display: grid;
-				grid-template-columns: repeat(8, 26px);
+				grid-template-columns: repeat(8, 32px);
 				gap: 5px;
 				flex: 1;
 			}
 
 			.question-map-item {
-				width: 26px;
-				height: 26px;
+				width: 32px;
+				height: 32px;
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -203,6 +220,68 @@ class QuestionMapManager {
 				transition: all 0.2s ease;
 				background: var(--vscode-editor-background, white);
 				color: var(--vscode-foreground, black);
+			}
+
+			@media (max-width: 520px) {
+				.question-map-dialog {
+					width: calc(100vw - 16px) !important;
+					max-width: none !important;
+					max-height: min(70dvh, 560px) !important;
+					padding: 8px !important;
+					overflow-x: hidden !important;
+				}
+
+				#question-map-title {
+					margin: 0 44px 8px 4px !important;
+					min-height: 36px;
+					line-height: 36px;
+				}
+
+				#question-map-content {
+					box-sizing: border-box;
+					width: 100%;
+					margin-top: 0;
+					padding: 0 2px;
+					overflow-x: hidden;
+				}
+
+				.question-map-category {
+					box-sizing: border-box;
+					width: 100%;
+					padding: 6px;
+				}
+
+				.question-map-section {
+					align-items: flex-start;
+					gap: 6px;
+				}
+
+				.question-map-section-label {
+					width: 34px;
+					min-width: 34px;
+					line-height: 40px;
+				}
+
+				.question-map-section-questions {
+					min-width: 0;
+					grid-template-columns: repeat(6, minmax(0, 1fr));
+					gap: 4px;
+				}
+				.question-map-item {
+					width: auto;
+					min-width: 0;
+					height: 40px;
+					box-sizing: border-box;
+				}
+
+				.question-map-item:hover {
+					transform: none;
+				}
+
+				.question-map-item.current {
+					outline: 0 !important;
+					box-shadow: inset 0 0 0 2px var(--vscode-button-background, rgba(0,122,204,0.9)) !important;
+				}
 			}
 
 			.question-map-item:hover {
@@ -246,16 +325,18 @@ class QuestionMapManager {
 		mapContent.appendChild(style);
 
 		const closeBtn = document.createElement('button');
+		closeBtn.type = 'button';
+		closeBtn.dataset.questionMapClose = '';
 		closeBtn.setAttribute('aria-label', '关闭');
 		closeBtn.innerHTML = '✕';
 		closeBtn.style.cssText = `
 			position: absolute;
 			top: 6px;
 			right: 6px;
-			width: 20px;
-			height: 20px;
-			line-height: 18px;
-			border-radius: 10px;
+			width: 44px;
+			height: 44px;
+			line-height: 42px;
+			border-radius: 22px;
 			border: none;
 			background: rgba(0,0,0,0.05);
 			font-size: 12px;
@@ -278,6 +359,7 @@ class QuestionMapManager {
 		mapContent.appendChild(closeBtn);
 
 		const title = document.createElement('h3');
+		title.id = 'question-map-title';
 		title.textContent = '答题卡';
 		title.style.marginTop = '0';
 		mapContent.appendChild(title);
@@ -289,6 +371,12 @@ class QuestionMapManager {
 		this.questionMapContainer.appendChild(mapContent);
 		this.questionMapContainer.addEventListener('click', (event) => {
 			if (event.target === this.questionMapContainer) {
+				this.hideQuestionMap();
+			}
+		});
+		this.questionMapContainer.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') {
+				event.preventDefault();
 				this.hideQuestionMap();
 			}
 		});
@@ -378,9 +466,9 @@ class QuestionMapManager {
 						statusClass += ' current';
 					}
 
-					html += `<span class="question-map-item ${statusClass}" data-section="${sectionIndex}" data-question="${questionIndex}">
+					html += `<button type="button" class="question-map-item ${statusClass}" data-section="${sectionIndex}" data-question="${questionIndex}" aria-label="第 ${questionIndex + 1} 题">
 						${questionIndex + 1}
-					</span>`;
+					</button>`;
 				});
 
 				html += '</div></div>';

@@ -45,6 +45,7 @@ class EmailVerificationService
         std::string code;
         std::chrono::system_clock::time_point sentAt;
         std::chrono::system_clock::time_point expiresAt;
+        int failedAttempts{0};
     };
 
     struct DailySendCounter

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <ctime>
+#include <functional>
 #include <set>
 #include <string>
 #include <unordered_set>
@@ -16,12 +17,28 @@ namespace application::services
 namespace
 {
 constexpr const char *kDirName = "daily_practice";
+
+std::string scalarString(const Json::Value &value)
+{
+    if (value.isString()) return value.asString();
+    if (value.isIntegral()) return std::to_string(value.asInt64());
+    return {};
+}
+
+std::string questionKey(const std::string &examId, const std::string &questionId)
+{
+    return examId + '\x1f' + questionId;
+}
 }
 
 DailyPracticeService::DailyPracticeService(std::filesystem::path userRootDir,
                                            infrastructure::storage::WrongQuestionRepository &wrongRepo,
-                                           SrsService &srsService)
-    : rootDir_(std::move(userRootDir) / kDirName), wrongRepo_(wrongRepo), srsService_(srsService)
+                                           SrsService &srsService,
+                                           infrastructure::storage::ExamRepository &examRepo)
+    : rootDir_(std::move(userRootDir) / kDirName),
+      wrongRepo_(wrongRepo),
+      srsService_(srsService),
+      examRepo_(examRepo)
 {
     std::error_code ec;
     std::filesystem::create_directories(rootDir_, ec);
@@ -61,7 +78,7 @@ std::string DailyPracticeService::today()
     return std::string(buf);
 }
 
-// 构造今日题目列表：先从错题本拉 70%（按 last_wrong_at 倒序），剩余从 SRS 到期卡补足
+// 构造今日题目列表：错题优先，SRS 次之，剩余名额由免费试卷推荐题补足。
 Json::Value DailyPracticeService::buildItems(const std::string &userId, int targetCount) const
 {
     Json::Value items(Json::arrayValue);
@@ -89,11 +106,13 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId, int targ
         {
             if (static_cast<int>(items.size()) >= wrongTarget) break;
             const auto qid = x.get("question_id", "").asString();
-            if (qid.empty() || seen.count(qid)) continue;
-            seen.insert(qid);
+            const auto eid = scalarString(x["exam_id"]);
+            const auto key = questionKey(eid, qid);
+            if (qid.empty() || seen.count(key)) continue;
+            seen.insert(key);
             Json::Value item(Json::objectValue);
             item["question_id"] = qid;
-            item["exam_id"] = x.get("exam_id", "");
+            item["exam_id"] = eid;
             item["section_id"] = x.get("section_id", "");
             item["question_type"] = x.get("question_type", "");
             item["source"] = "wrong_question";
@@ -127,14 +146,83 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId, int targ
                         if (qid.empty()) qid = cardId.substr(pos + 1);
                     }
                 }
-                if (qid.empty() || seen.count(qid)) continue;
-                seen.insert(qid);
+                const auto key = questionKey(eid, qid);
+                if (qid.empty() || seen.count(key)) continue;
+                seen.insert(key);
                 Json::Value item(Json::objectValue);
                 item["question_id"] = qid;
                 item["exam_id"] = eid;
                 item["card_id"] = cardId;
                 item["source"] = "srs_due";
                 items.append(item);
+            }
+        }
+    }
+
+    // ---- 免费试卷推荐题兜底 ----
+    // 使用 userId + 日期决定起始试卷，保证同一天首次生成稳定，又避免所有新用户拿到完全相同的题。
+    if (static_cast<int>(items.size()) < targetCount)
+    {
+        auto exams = examRepo_.listExams();
+        exams.erase(
+            std::remove_if(exams.begin(), exams.end(), [](const auto &exam) {
+                return exam.questionCount <= 0 || (!exam.accessLevel.empty() && exam.accessLevel != "free");
+            }),
+            exams.end());
+        std::sort(exams.begin(), exams.end(), [](const auto &left, const auto &right) {
+            return left.id < right.id;
+        });
+
+        const auto start = exams.empty() ? std::size_t{0} : std::hash<std::string>{}(userId + ':' + today()) % exams.size();
+        for (std::size_t scanned = 0; scanned < exams.size() && static_cast<int>(items.size()) < targetCount; ++scanned)
+        {
+            const auto &exam = exams[(start + scanned) % exams.size()];
+            Json::Value payload;
+            try
+            {
+                payload = examRepo_.getExamById(exam.id);
+            }
+            catch (...)
+            {
+                continue;
+            }
+
+            const auto &sections = payload["exam_info"]["sections"];
+            if (!sections.isArray()) continue;
+            int addedFromExam = 0;
+            const auto appendQuestion = [&](const Json::Value &question, const Json::Value &section) {
+                if (static_cast<int>(items.size()) >= targetCount || addedFromExam >= 5) return;
+                const auto questionId = scalarString(question["id"]);
+                if (questionId.empty()) return;
+                const auto key = questionKey(exam.id, questionId);
+                if (!seen.insert(key).second) return;
+
+                Json::Value item(Json::objectValue);
+                item["question_id"] = questionId;
+                item["exam_id"] = exam.id;
+                item["section_id"] = scalarString(section["section_id"]);
+                item["question_type"] = scalarString(question["question_type"]);
+                item["source"] = "recommended";
+                item["question_snapshot"] = question;
+                items.append(item);
+                ++addedFromExam;
+            };
+
+            for (const auto &section : sections)
+            {
+                if (section["questions"].isArray())
+                {
+                    for (const auto &question : section["questions"]) appendQuestion(question, section);
+                }
+                if (section["passages"].isArray())
+                {
+                    for (const auto &passage : section["passages"])
+                    {
+                        if (!passage["questions"].isArray()) continue;
+                        for (const auto &question : passage["questions"]) appendQuestion(question, section);
+                    }
+                }
+                if (static_cast<int>(items.size()) >= targetCount || addedFromExam >= 5) break;
             }
         }
     }

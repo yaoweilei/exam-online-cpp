@@ -91,6 +91,7 @@ class ExamViewer {
 	private _kbBound = false;
 	private _draftRestoreRequest = 0;
 	private submitConfirmationPending = false;
+	private answerStatusHideHandle: number | null = null;
 	private expiredSectionIndexes = new Set<number>();
 	_currentExamId: string | null = null;
 	constructor() {
@@ -289,17 +290,19 @@ class ExamViewer {
 				this.setInitialNavigationPosition();
 				
 				this.renderExam();
-				this.updateNavigation();
 				this.categoryNavigationManager.initCategoryDropdowns();
 				console.log('[ExamViewer] Render completed');
 				this.loadTranslationsForReadingAssist();
 				void this.restoreDraftForCurrentExam();
 
-				// 业务功能 3：试卷渲染完成后启动答题计时（仅登录用户 + 有 examId 时）
+				// 模拟考试才启动正式计时；学习练习不展示或累计考试用时。
 				try {
 					if (this._currentExamId && this.examTimerManager) {
-						const limits = this.extractExamTimerLimits();
-						this.examTimerManager.startForExam(this._currentExamId, limits);
+						if (this.examMode === 'mock') {
+							this.examTimerManager.startForExam(this._currentExamId, this.extractExamTimerLimits());
+						} else {
+							this.examTimerManager.stop();
+						}
 					}
 				} catch (timerErr) {
 					console.warn('[ExamViewer] Failed to start exam timer', timerErr);
@@ -485,19 +488,13 @@ class ExamViewer {
 		}
 		if (!this.currentExam) {
 			console.warn('[ExamViewer] Header render failed: missing exam data');
+			container.classList.add('is-empty');
+			DOMUtils.safeSetInnerHTML(container, '', 'renderExamHeader');
 			return;
 		}
 
-		const examInfo = this.currentExam.exam_info;
-		const headerHTML = this.createExamHeaderHTML(examInfo);
-		container.classList.toggle('is-empty', !headerHTML.trim());
-		DOMUtils.safeSetInnerHTML(container, headerHTML, 'renderExamHeader');
-	}
-
-	createExamHeaderHTML(examInfo: LegacyAnyRecord) {
-		return `
-			<h1 class="exam-title">${examInfo.title || '试卷'}</h1>
-		`;
+		container.classList.remove('is-empty');
+		container.querySelector('.exam-title')?.remove();
 	}
 
 	renderControls() {
@@ -509,6 +506,7 @@ class ExamViewer {
 		controls.classList.remove('family-eju', 'family-jlpt');
 		controls.classList.add(family);
 		// HTML模板中已经定义了所有需要的按钮
+		this.syncMobilePaperSelector();
 		this.updateReadingAssistButtonStates();
 		this.updateLearningAssistAvailability();
 		const modeSelect = document.getElementById('exam-mode-select') as HTMLSelectElement | null;
@@ -517,7 +515,70 @@ class ExamViewer {
 		if (submitButton) submitButton.disabled = !this.currentExam || this.isSubmitted;
 	}
 
+	private syncMobilePaperSelector() {
+		const panel = document.getElementById('exam-library-panel');
+		const toggle = document.getElementById('mobile-paper-toggle') as HTMLButtonElement | null;
+		const summary = document.getElementById('mobile-paper-summary');
+		if (!panel || !toggle || !summary || !this.currentExam) return;
+
+		const family = (document.getElementById('exam-family-select') as HTMLSelectElement | null)?.selectedOptions[0]?.textContent?.trim() || '';
+		const level = (document.getElementById('exam-level-select') as HTMLSelectElement | null)?.selectedOptions[0]?.textContent?.trim() || '';
+		const paper = (document.getElementById('exam-paper-select') as HTMLSelectElement | null)?.selectedOptions[0]?.textContent?.trim() || '';
+		const paperLabel = [family, level, paper].filter(Boolean).join(' · ') || '当前试卷';
+		summary.dataset.paperLabel = paperLabel;
+		const keepExpanded = panel.dataset.mobilePaperExpanded === 'true';
+		summary.textContent = keepExpanded ? '收起' : paperLabel;
+		panel.classList.add('mobile-paper-ready');
+		panel.classList.toggle('mobile-paper-collapsed', !keepExpanded);
+		toggle.setAttribute('aria-expanded', String(keepExpanded));
+		toggle.setAttribute('aria-label', keepExpanded ? '收起试卷选择' : `展开试卷选择，当前${paperLabel}`);
+		toggle.title = keepExpanded ? '收起试卷选择' : '展开试卷选择';
+	}
+
+	private toggleMobilePaperSelector() {
+		const panel = document.getElementById('exam-library-panel');
+		const toggle = document.getElementById('mobile-paper-toggle') as HTMLButtonElement | null;
+		const summary = document.getElementById('mobile-paper-summary');
+		if (!panel || !toggle || !summary) return;
+		const collapsed = panel.classList.toggle('mobile-paper-collapsed');
+		if (collapsed) {
+			delete panel.dataset.mobilePaperExpanded;
+		} else {
+			panel.dataset.mobilePaperExpanded = 'true';
+		}
+		const paperLabel = summary.dataset.paperLabel || '当前试卷';
+		summary.textContent = collapsed ? paperLabel : '收起';
+		toggle.setAttribute('aria-expanded', String(!collapsed));
+		toggle.setAttribute('aria-label', collapsed ? `展开试卷选择，当前${paperLabel}` : '收起试卷选择');
+		toggle.title = collapsed ? '展开试卷选择' : '收起试卷选择';
+	}
+
+	private collapseMobilePaperSelector() {
+		const panel = document.getElementById('exam-library-panel');
+		const toggle = document.getElementById('mobile-paper-toggle') as HTMLButtonElement | null;
+		const summary = document.getElementById('mobile-paper-summary');
+		if (!panel || !toggle || !summary) return;
+		delete panel.dataset.mobilePaperExpanded;
+		panel.classList.add('mobile-paper-collapsed');
+		const paperLabel = summary.dataset.paperLabel || '当前试卷';
+		summary.textContent = paperLabel;
+		toggle.setAttribute('aria-expanded', 'false');
+		toggle.setAttribute('aria-label', `展开试卷选择，当前${paperLabel}`);
+		toggle.title = '展开试卷选择';
+	}
+
+	private toggleMobileTools() {
+		const controls = document.getElementById('exam-controls');
+		const toggle = document.getElementById('mobile-tools-toggle') as HTMLButtonElement | null;
+		if (!controls || !toggle) return;
+		const expanded = controls.classList.toggle('mobile-tools-expanded');
+		toggle.setAttribute('aria-expanded', String(expanded));
+		toggle.textContent = expanded ? '收起' : '更多';
+		toggle.title = expanded ? '收起更多工具' : '展开更多工具';
+	}
+
 	renderQuestionNavigation() {
+		this.categoryNavigationManager.syncActiveCategory();
 		const container = DOMUtils.safeGetElement("question-navigation", "renderQuestionNavigation");
 		if (!container || !this.currentExam) { return; }
 
@@ -858,9 +919,12 @@ class ExamViewer {
 		const normalizedType = rawType.toLowerCase();
 		if (normalizedType) {
 			if (this.isEjuExam()) {
+				// EJU 的記述通常只有一题，与読解合并为同一个入口；
+				// 下拉菜单仍保留两部分内的全部题目和精确跳转。
+				if (normalizedType === 'writing' || normalizedType === 'reading') {
+					return { id: 'writing_reading', label: '記述/読解' };
+				}
 				const labels: Record<string, string> = {
-					writing: '記述',
-					reading: '読解',
 					listening_reading: '読聴解',
 					listeningreading: '読聴解',
 					listening: '聴解'
@@ -941,23 +1005,6 @@ class ExamViewer {
 		return family === 'eju';
 	}
 
-	updateNavigation() {
-		const prevBtn = document.getElementById('top-prev') as HTMLButtonElement | null;
-		const nextBtn = document.getElementById('top-next') as HTMLButtonElement | null;
-
-		if (prevBtn) {
-			prevBtn.disabled = false;
-		}
-
-		if (nextBtn) {
-			const nextPosition = this.navigationManager ?
-				this.navigationManager.calculateNextPosition('next') : null;
-			const canGoNext = nextPosition !== null;
-
-			nextBtn.disabled = !canGoNext;
-		}
-	}
-
 	getCurrentTotalQuestionIndex() {
 		let total = 0;
 		const sections = this.currentExam?.exam_info?.sections || [];
@@ -977,14 +1024,14 @@ class ExamViewer {
 
 	setupGlobalEventDelegation() {
 		const eventMap: Record<string, () => void> = {
-			'#top-prev': () => this.navigateToPreviousQuestion(),
-			'#top-next': () => this.navigateToNextQuestion(),
 			'#toggle-answers': () => this.toggleAnswers(),
 			'#toggle-explanations': () => this.toggleExplanations(),
 			'#toggle-reading-kana': () => this.toggleReadingKana(),
 			'#toggle-reading-zh': () => this.toggleReadingZh(),
 			'#open-question-map': () => this.questionMapManager.showQuestionMap(),
-			'#submit-exam': () => this.submitAnswers()
+			'#submit-exam': () => this.submitAnswers(),
+			'#mobile-paper-toggle': () => this.toggleMobilePaperSelector(),
+			'#mobile-tools-toggle': () => this.toggleMobileTools()
 		};
 
 		document.addEventListener('click', (event: MouseEvent) => {
@@ -1042,6 +1089,13 @@ class ExamViewer {
 					break;
 			}
 		});
+
+		document.addEventListener('change', (event: Event) => {
+			const target = event.target as HTMLElement | null;
+			if (target?.id === 'exam-paper-select') {
+				this.collapseMobilePaperSelector();
+			}
+		});
 	}
 
 	private initializeModeControl() {
@@ -1055,7 +1109,7 @@ class ExamViewer {
 				if (!changed) select.value = this.examMode;
 			}).finally(() => {
 				select.disabled = false;
-				if (select.isConnected) select.focus();
+				if (select.isConnected && !select.hidden) select.focus();
 			});
 		});
 	}
@@ -1155,13 +1209,17 @@ class ExamViewer {
 			const confirmed = await requestAppConfirmation('切换答题模式会清空当前答案，是否继续？', '清空并切换');
 			if (!confirmed) return false;
 			this.answerManager.initializeUserAnswers();
-			this.setAnswerSaveStatus('idle', '答案已清空');
+			this.setAnswerSaveStatus('saved', '答案已清空');
 		}
 		this.examMode = mode;
 		this.isSubmitted = false;
 		try { localStorage.setItem('examViewer.mode', mode); } catch { }
+		this.examTimerManager.stop();
 		if (mode === 'mock') this.hideLearningAssists();
 		if (this.currentExam) this.renderExam();
+		if (mode === 'mock' && this._currentExamId) {
+			this.examTimerManager.startForExam(this._currentExamId, this.extractExamTimerLimits());
+		}
 		return true;
 	}
 
@@ -1178,11 +1236,13 @@ class ExamViewer {
 
 	private updateLearningAssistAvailability() {
 		const locked = !this.canUseLearningAssists();
+		document.getElementById('exam-controls')?.classList.toggle('mock-active', locked);
 		['toggle-answers', 'toggle-explanations', 'toggle-reading-kana', 'toggle-reading-zh'].forEach((id) => {
 			const button = document.getElementById(id) as HTMLButtonElement | null;
 			if (!button) return;
 			if (!button.dataset.defaultTitle) button.dataset.defaultTitle = button.title;
 			button.disabled = locked;
+			button.hidden = locked;
 			button.classList.toggle('learning-assist-locked', locked);
 			button.title = locked ? '模拟考试提交后可以查看' : button.dataset.defaultTitle;
 		});
@@ -1191,8 +1251,21 @@ class ExamViewer {
 	setAnswerSaveStatus(state: 'idle' | 'saving' | 'saved' | 'failed' | 'submitted', text: string) {
 		const status = document.getElementById('answer-save-status');
 		if (!status) return;
+		if (this.answerStatusHideHandle !== null) {
+			window.clearTimeout(this.answerStatusHideHandle);
+			this.answerStatusHideHandle = null;
+		}
 		status.dataset.state = state;
 		status.textContent = text;
+		const transient = state === 'saved' || state === 'submitted';
+		status.hidden = state === 'idle';
+		if (transient) {
+			status.hidden = false;
+			this.answerStatusHideHandle = window.setTimeout(() => {
+				status.hidden = true;
+				this.answerStatusHideHandle = null;
+			}, 1800);
+		}
 	}
 
 	onAnswersSubmitted() {
@@ -1216,7 +1289,9 @@ class ExamViewer {
 		this.renderExam();
 		if (this._currentExamId) {
 			this.examTimerManager.stop();
-			this.examTimerManager.startForExam(this._currentExamId, this.extractExamTimerLimits());
+			if (this.examMode === 'mock') {
+				this.examTimerManager.startForExam(this._currentExamId, this.extractExamTimerLimits());
+			}
 		}
 	}
 

@@ -13,7 +13,7 @@ namespace transport::routes
 // 业务功能 10：用户数据导出 路由
 //   GET /api/v1/data-export/{userId}    →  完整 JSON 快照
 //
-// 权限：登录 + 本人或 superAdmin；功能开关 data_export
+// 权限：登录 + 本人或 superAdmin；功能开关 data_export；本人需具备 export.standard
 // ---------------------------------------------------------------------------
 
 namespace
@@ -42,6 +42,14 @@ void registerDataExportRoutes(const AppContext &ctx)
                 const auto session = requireSession(*ctx.authService, req);
                 requireSelfOrSuperAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "data_export", userId);
+                if (!hasAnyRole(session["roles"], {"superAdmin"}))
+                {
+                    requireEntitlement(
+                        *ctx.subscriptionService,
+                        userId,
+                        "export.standard",
+                        "完整学习数据导出需要升级到 PRO 套餐");
+                }
                 return common::ok(req, ctx.dataExportService->exportUserData(userId));
             });
         },

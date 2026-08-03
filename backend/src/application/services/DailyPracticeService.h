@@ -1,7 +1,8 @@
 #pragma once
 
 // 业务功能 16：每日一练 Service
-//   - 来源混合：错题本（最近 N 条按 last_wrong_at 倒序）+ SRS 到期卡（最多 M 条）
+//   - 来源混合：错题本（最近 N 条按 last_wrong_at 倒序）+ SRS 到期卡；
+//     数量不足时从免费试卷中选择稳定的推荐题，避免新用户清单为空。
 //   - 同一 userId+date(YYYY-MM-DD) 缓存到 data/user/daily_practice/{userId}.json，
 //     当天再请求返回相同列表（保证“每日一练”稳定）
 //   - 提供 markComplete 标记完成；regenerate 强制刷新
@@ -12,6 +13,7 @@
 #include <json/json.h>
 
 #include "application/services/SrsService.h"
+#include "infrastructure/storage/ExamRepository.h"
 #include "infrastructure/storage/WrongQuestionRepository.h"
 
 namespace application::services
@@ -21,7 +23,8 @@ class DailyPracticeService
   public:
     DailyPracticeService(std::filesystem::path userRootDir,
                          infrastructure::storage::WrongQuestionRepository &wrongRepo,
-                         SrsService &srsService);
+                         SrsService &srsService,
+                         infrastructure::storage::ExamRepository &examRepo);
 
     // 获取（或当天首次生成）今日清单
     Json::Value getOrCreateToday(const std::string &userId, int targetCount = 10) const;
@@ -41,5 +44,6 @@ class DailyPracticeService
     std::filesystem::path rootDir_;
     infrastructure::storage::WrongQuestionRepository &wrongRepo_;
     SrsService &srsService_;
+    infrastructure::storage::ExamRepository &examRepo_;
 };
 }  // namespace application::services

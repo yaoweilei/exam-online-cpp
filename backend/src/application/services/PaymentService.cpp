@@ -10,12 +10,14 @@
 #include <memory>
 #include <optional>
 #include <random>
+#include <set>
 #include <sstream>
 
 #include <drogon/HttpClient.h>
 #include <drogon/utils/Utilities.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
+#include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/pem.h>
@@ -23,7 +25,9 @@
 
 #include "common/AppException.h"
 #include "common/TimeUtils.h"
+#include "application/services/NotificationService.h"
 #include "infrastructure/storage/JsonIo.h"
+#include "infrastructure/storage/UserRepository.h"
 
 namespace application::services
 {
@@ -71,6 +75,21 @@ std::string formatDate(const std::chrono::sys_days &date)
     return out.str();
 }
 
+std::string isoAfterMinutes(int minutes)
+{
+    const auto target = std::chrono::system_clock::now() + std::chrono::minutes{minutes};
+    const auto timeValue = std::chrono::system_clock::to_time_t(target);
+    std::tm tm{};
+#ifdef _WIN32
+    gmtime_s(&tm, &timeValue);
+#else
+    gmtime_r(&timeValue, &tm);
+#endif
+    std::ostringstream out;
+    out << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S") << ".000Z";
+    return out.str();
+}
+
 bool hasAnyRole(const Json::Value &roles, std::initializer_list<const char *> expected)
 {
     for (const auto &role : roles)
@@ -87,50 +106,163 @@ bool hasAnyRole(const Json::Value &roles, std::initializer_list<const char *> ex
     return false;
 }
 
+std::string runtimeEnvironmentValue(const char *name, const std::string &fallback = "")
+{
+    const char *value = std::getenv(name);
+    return value && *value ? std::string(value) : fallback;
+}
+
+bool isProductionPaymentPolicyEnabled()
+{
+    const auto appEnv = runtimeEnvironmentValue("APP_ENV", "development");
+    return appEnv != "development" && appEnv != "dev" && appEnv != "local";
+}
+
+std::string primaryPaymentProvider()
+{
+    return runtimeEnvironmentValue("PAYMENT_PRIMARY_PROVIDER", "stripe");
+}
+
+void applyPaymentProviderPolicy(Json::Value &config)
+{
+    if (!isProductionPaymentPolicyEnabled()) return;
+    const auto provider = primaryPaymentProvider();
+    config["default_provider"] = provider;
+    config["providers"] = Json::arrayValue;
+    config["providers"].append(provider);
+}
+
+void requirePaymentProviderEnabled(const std::string &provider)
+{
+    if (isProductionPaymentPolicyEnabled() && provider != primaryPaymentProvider())
+    {
+        throw common::AppException(
+            "PAYMENT_PROVIDER_DISABLED",
+            "The selected payment provider is not enabled in this environment",
+            drogon::k422UnprocessableEntity);
+    }
+}
+
 Json::Value defaultPricingConfig()
 {
     Json::Value config(Json::objectValue);
-    config["version"] = 1;
+    config["version"] = 4;
     config["default_currency"] = "cny";
     config["default_provider"] = "wechat";
-    config["durations"] = Json::arrayValue;
-    config["durations"].append(30);
-    config["durations"].append(90);
-    config["durations"].append(365);
     config["providers"] = Json::arrayValue;
     config["providers"].append("wechat");
     config["providers"].append("alipay");
     config["providers"].append("stripe");
+    config["renewal"]["reminder_days"].append(7);
+    config["renewal"]["reminder_days"].append(3);
+    config["renewal"]["reminder_days"].append(1);
+    config["renewal"]["price_change_notice_days"] = 7;
+    config["renewal"]["grace_period_days"] = 7;
 
-    Json::Value cny(Json::objectValue);
-    cny["pro"]["30"] = 1290;
-    cny["pro"]["90"] = 3870;
-    cny["pro"]["365"] = 15480;
-    cny["ultra"]["30"] = 3900;
-    cny["ultra"]["90"] = 9900;
-    cny["ultra"]["365"] = 29900;
+    auto &personal = config["catalogs"]["personal"];
+    personal["durations"].append(30);
+    personal["durations"].append(90);
+    personal["durations"].append(365);
+    personal["recommended_plan"] = "pro";
+    personal["recommended_duration_days"] = 365;
+    personal["prices_cents"]["cny"]["pro"]["30"] = 1900;
+    personal["prices_cents"]["cny"]["pro"]["90"] = 4900;
+    personal["prices_cents"]["cny"]["pro"]["365"] = 15900;
+    personal["prices_cents"]["cny"]["ultra"]["30"] = 3900;
+    personal["prices_cents"]["cny"]["ultra"]["90"] = 9900;
+    personal["prices_cents"]["cny"]["ultra"]["365"] = 29900;
+    personal["prices_cents"]["usd"]["pro"]["30"] = 399;
+    personal["prices_cents"]["usd"]["pro"]["90"] = 999;
+    personal["prices_cents"]["usd"]["pro"]["365"] = 2999;
+    personal["prices_cents"]["usd"]["ultra"]["30"] = 699;
+    personal["prices_cents"]["usd"]["ultra"]["90"] = 1799;
+    personal["prices_cents"]["usd"]["ultra"]["365"] = 4999;
+    const auto appendOffer = [](Json::Value &catalog,
+                                const std::string &id,
+                                const std::string &label,
+                                int discountPercent) {
+        Json::Value offer(Json::objectValue);
+        offer["id"] = id;
+        offer["kind"] = id;
+        offer["label"] = label;
+        offer["enabled"] = false;
+        offer["discount_percent"] = discountPercent;
+        offer["starts_at"] = "";
+        offer["ends_at"] = "";
+        catalog["offers"].append(offer);
+    };
+    appendOffer(personal, "first_purchase", "个人首购优惠", 20);
+    appendOffer(personal, "renewal", "个人续费优惠", 10);
+    appendOffer(personal, "campaign", "个人限时活动", 15);
 
-    Json::Value usd(Json::objectValue);
-    usd["pro"]["30"] = 399;
-    usd["pro"]["90"] = 999;
-    usd["pro"]["365"] = 2999;
-    usd["ultra"]["30"] = 699;
-    usd["ultra"]["90"] = 1799;
-    usd["ultra"]["365"] = 4999;
+    auto &organization = config["catalogs"]["organization"];
+    organization["durations"].append(30);
+    organization["durations"].append(365);
+    organization["recommended_plan"] = "ultra";
+    organization["recommended_duration_days"] = 365;
+    organization["custom_quote_min_seats"] = 200;
+    organization["plans"]["pro"]["minimum_seats"] = 20;
+    organization["plans"]["ultra"]["minimum_seats"] = 30;
+    organization["prices_cents"]["cny"]["pro"]["30"] = 1500;
+    organization["prices_cents"]["cny"]["pro"]["365"] = 11900;
+    organization["prices_cents"]["cny"]["ultra"]["30"] = 2900;
+    organization["prices_cents"]["cny"]["ultra"]["365"] = 22900;
+    organization["prices_cents"]["usd"]["pro"]["30"] = 299;
+    organization["prices_cents"]["usd"]["pro"]["365"] = 1999;
+    organization["prices_cents"]["usd"]["ultra"]["30"] = 499;
+    organization["prices_cents"]["usd"]["ultra"]["365"] = 3799;
+    appendOffer(organization, "first_purchase", "机构首购优惠", 10);
+    appendOffer(organization, "renewal", "机构续费优惠", 5);
+    appendOffer(organization, "campaign", "机构限时活动", 10);
 
-    config["prices_cents"]["cny"] = cny;
-    config["prices_cents"]["usd"] = usd;
+    const auto appendTier = [&](int minSeats, int maxSeats, int proYearCents, int ultraYearCents) {
+        Json::Value tier(Json::objectValue);
+        tier["min_seats"] = minSeats;
+        tier["max_seats"] = maxSeats;
+        tier["prices_cents"]["cny"]["pro"]["365"] = proYearCents;
+        tier["prices_cents"]["cny"]["ultra"]["365"] = ultraYearCents;
+        organization["seat_tiers"].append(tier);
+    };
+    appendTier(20, 29, 11900, 0);
+    appendTier(30, 49, 11900, 22900);
+    appendTier(50, 99, 10900, 21900);
+    appendTier(100, 199, 9900, 20900);
+
+    // v1 compatibility aliases: old clients treat the root matrix as personal pricing.
+    config["durations"] = personal["durations"];
+    config["prices_cents"] = personal["prices_cents"];
     config["updated_at"] = "";
+    applyPaymentProviderPolicy(config);
     return config;
 }
 
 int readPriceCents(const Json::Value &pricing,
+                   const std::string &scopeType,
                    const std::string &currency,
                    const std::string &plan,
-                   int days)
+                   int days,
+                   int seats)
 {
     const auto key = std::to_string(days);
-    const auto amount = pricing["prices_cents"][currency][plan].get(key, 0).asInt();
+    const auto scope = scopeType == "organization" ? "organization" : "personal";
+    auto amount = pricing["catalogs"][scope]["prices_cents"][currency][plan].get(key, 0).asInt();
+    if (scopeType == "organization" && days == 365)
+    {
+        for (const auto &tier : pricing["catalogs"]["organization"]["seat_tiers"])
+        {
+            const auto minSeats = tier.get("min_seats", 0).asInt();
+            const auto maxSeats = tier.get("max_seats", 0).asInt();
+            if (seats >= minSeats && seats <= maxSeats)
+            {
+                const auto tierAmount = tier["prices_cents"][currency][plan].get(key, amount).asInt();
+                if (tierAmount > 0)
+                {
+                    amount = tierAmount;
+                }
+                break;
+            }
+        }
+    }
     return amount > 0 ? amount : 0;
 }
 
@@ -152,10 +284,137 @@ int normalizePriceCents(const Json::Value &value, int fallback)
     return amount;
 }
 
+std::string normalizeOfferTimestamp(const Json::Value &value)
+{
+    if (!value.isString())
+    {
+        return "";
+    }
+    const auto timestamp = value.asString();
+    if (timestamp.empty())
+    {
+        return "";
+    }
+    if (timestamp.size() < 20 || timestamp.size() > 40 || timestamp[4] != '-' ||
+        timestamp[7] != '-' || timestamp[10] != 'T' || timestamp.back() != 'Z')
+    {
+        return "";
+    }
+    return timestamp;
+}
+
+bool hasSettledOrder(const Json::Value &orders,
+                     const std::string &scopeType,
+                     const std::string &scopeId)
+{
+    for (const auto &order : orders)
+    {
+        const auto pricingScope = order.get(
+            "pricing_scope",
+            order.get("scope_type", "user").asString() == "organization" ? "organization" : "personal").asString();
+        const auto orderScopeId = order.get("scope_id", order.get("user_id", "")).asString();
+        const auto status = order.get("status", "").asString();
+        if (pricingScope == scopeType && orderScopeId == scopeId &&
+            (status == "paid" || status == "partially_refunded" || status == "refunded"))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool isPaidSubscriptionActive(const Json::Value &subscription)
+{
+    const auto plan = subscription.get("plan", "free").asString();
+    const auto status = subscription.get("status", "active").asString();
+    return subscription.get("is_active", false).asBool() &&
+           (plan == "pro" || plan == "ultra") &&
+           (status == "active" || status == "trial");
+}
+
+Json::Value buildPriceQuote(const Json::Value &pricing,
+                            const Json::Value &orders,
+                            const Json::Value &subscription,
+                            const std::string &scopeType,
+                            const std::string &scopeId,
+                            const std::string &plan,
+                            int days,
+                            const std::string &currency,
+                            int seats)
+{
+    const auto baseUnitPrice = readPriceCents(pricing, scopeType, currency, plan, days, seats);
+    const auto now = common::nowIso8601();
+    const bool firstPurchase = !hasSettledOrder(orders, scopeType, scopeId);
+    const bool renewal = isPaidSubscriptionActive(subscription);
+    Json::Value selectedOffer;
+    int selectedDiscount = 0;
+    for (const auto &offer : pricing["catalogs"][scopeType]["offers"])
+    {
+        if (!offer.get("enabled", false).asBool())
+        {
+            continue;
+        }
+        const auto discount = offer.get("discount_percent", 0).asInt();
+        if (discount <= selectedDiscount || discount <= 0 || discount > 90)
+        {
+            continue;
+        }
+        const auto startsAt = offer.get("starts_at", "").asString();
+        const auto endsAt = offer.get("ends_at", "").asString();
+        if ((!startsAt.empty() && now < startsAt) || (!endsAt.empty() && now >= endsAt))
+        {
+            continue;
+        }
+        const auto kind = offer.get("kind", offer.get("id", "")).asString();
+        if ((kind == "first_purchase" && !firstPurchase) ||
+            (kind == "renewal" && !renewal))
+        {
+            continue;
+        }
+        if (kind != "first_purchase" && kind != "renewal" && kind != "campaign")
+        {
+            continue;
+        }
+        selectedOffer = offer;
+        selectedDiscount = discount;
+    }
+
+    const auto unitPrice = baseUnitPrice <= 0
+                               ? 0
+                               : static_cast<int>(std::max<long long>(
+                                     1,
+                                     (static_cast<long long>(baseUnitPrice) * (100 - selectedDiscount) + 50) / 100));
+    const auto baseAmount = static_cast<Json::Int64>(baseUnitPrice) * seats;
+    const auto amount = static_cast<Json::Int64>(unitPrice) * seats;
+    Json::Value quote(Json::objectValue);
+    quote["scope_type"] = scopeType;
+    quote["scope_id"] = scopeId;
+    quote["plan"] = plan;
+    quote["days"] = days;
+    quote["seats"] = seats;
+    quote["currency"] = currency;
+    quote["base_unit_price_cents"] = baseUnitPrice;
+    quote["unit_price_cents"] = unitPrice;
+    quote["base_amount_cents"] = baseAmount;
+    quote["amount_cents"] = amount;
+    quote["discount_cents"] = baseAmount - amount;
+    quote["first_purchase_eligible"] = firstPurchase;
+    quote["renewal_eligible"] = renewal;
+    quote["quoted_at"] = now;
+    quote["offer"] = selectedOffer.isNull() ? Json::Value(Json::nullValue) : selectedOffer;
+    return quote;
+}
+
 Json::Value normalizePricingConfig(const Json::Value &payload)
 {
     auto config = defaultPricingConfig();
-    const auto source = payload.isObject() && payload.isMember("prices_cents") ? payload : Json::Value(Json::objectValue);
+    const auto catalogs = payload.get("catalogs", Json::Value(Json::objectValue));
+    const auto personalSource = catalogs["personal"].isObject()
+                                    ? catalogs["personal"]
+                                    : payload;
+    const auto organizationSource = catalogs["organization"].isObject()
+                                        ? catalogs["organization"]
+                                        : Json::Value(Json::objectValue);
     for (const auto &currency : {"cny", "usd"})
     {
         for (const auto &plan : {"pro", "ultra"})
@@ -163,16 +422,108 @@ Json::Value normalizePricingConfig(const Json::Value &payload)
             for (const auto days : {30, 90, 365})
             {
                 const auto key = std::to_string(days);
-                config["prices_cents"][currency][plan][key] = normalizePriceCents(
-                    source["prices_cents"][currency][plan][key],
-                    config["prices_cents"][currency][plan][key].asInt());
+                config["catalogs"]["personal"]["prices_cents"][currency][plan][key] = normalizePriceCents(
+                    personalSource["prices_cents"][currency][plan][key],
+                    config["catalogs"]["personal"]["prices_cents"][currency][plan][key].asInt());
+            }
+            for (const auto days : {30, 365})
+            {
+                const auto key = std::to_string(days);
+                config["catalogs"]["organization"]["prices_cents"][currency][plan][key] = normalizePriceCents(
+                    organizationSource["prices_cents"][currency][plan][key],
+                    config["catalogs"]["organization"]["prices_cents"][currency][plan][key].asInt());
+            }
+        }
+    }
+
+    for (const auto &plan : {"pro", "ultra"})
+    {
+        const auto fallback = config["catalogs"]["organization"]["plans"][plan]["minimum_seats"].asInt();
+        const auto requested = organizationSource["plans"][plan].get("minimum_seats", fallback).asInt();
+        config["catalogs"]["organization"]["plans"][plan]["minimum_seats"] = std::clamp(requested, 1, 100000);
+    }
+    const auto customQuoteFallback = config["catalogs"]["organization"]["custom_quote_min_seats"].asInt();
+    config["catalogs"]["organization"]["custom_quote_min_seats"] = std::clamp(
+        organizationSource.get("custom_quote_min_seats", customQuoteFallback).asInt(), 2, 100000);
+
+    if (organizationSource["seat_tiers"].isArray())
+    {
+        auto &tiers = config["catalogs"]["organization"]["seat_tiers"];
+        const auto limit = std::min(tiers.size(), organizationSource["seat_tiers"].size());
+        for (Json::ArrayIndex index = 0; index < limit; ++index)
+        {
+            const auto &sourceTier = organizationSource["seat_tiers"][index];
+            for (const auto &plan : {"pro", "ultra"})
+            {
+                tiers[index]["prices_cents"]["cny"][plan]["365"] = normalizePriceCents(
+                    sourceTier["prices_cents"]["cny"][plan]["365"],
+                    tiers[index]["prices_cents"]["cny"][plan]["365"].asInt());
+            }
+        }
+    }
+
+    for (const auto &scope : {"personal", "organization"})
+    {
+        const auto &source = scope == std::string("personal") ? personalSource : organizationSource;
+        const auto sourceOffers = source.get("offers", Json::Value(Json::arrayValue));
+        auto &offers = config["catalogs"][scope]["offers"];
+        for (Json::ArrayIndex index = 0; index < offers.size(); ++index)
+        {
+            const auto id = offers[index].get("id", "").asString();
+            Json::Value sourceOffer;
+            for (const auto &candidate : sourceOffers)
+            {
+                if (candidate.get("id", candidate.get("kind", "")).asString() == id)
+                {
+                    sourceOffer = candidate;
+                    break;
+                }
+            }
+            if (sourceOffer.isNull())
+            {
+                continue;
+            }
+            const auto startsAt = normalizeOfferTimestamp(sourceOffer["starts_at"]);
+            const auto endsAt = normalizeOfferTimestamp(sourceOffer["ends_at"]);
+            offers[index]["enabled"] = sourceOffer.get("enabled", false).asBool();
+            offers[index]["discount_percent"] = std::clamp(
+                sourceOffer.get("discount_percent", offers[index]["discount_percent"]).asInt(), 0, 90);
+            offers[index]["starts_at"] = startsAt;
+            offers[index]["ends_at"] = endsAt;
+            if (!startsAt.empty() && !endsAt.empty() && startsAt >= endsAt)
+            {
+                offers[index]["enabled"] = false;
             }
         }
     }
 
     const auto defaultProvider = payload.get("default_provider", config["default_provider"].asString()).asString();
     config["default_provider"] = (defaultProvider == "alipay" || defaultProvider == "stripe") ? defaultProvider : "wechat";
+    const auto renewalSource = payload.get("renewal", Json::Value(Json::objectValue));
+    if (renewalSource["reminder_days"].isArray())
+    {
+        std::set<int> reminderDays;
+        for (const auto &value : renewalSource["reminder_days"])
+        {
+            reminderDays.insert(std::clamp(value.asInt(), 1, 30));
+        }
+        if (!reminderDays.empty())
+        {
+            config["renewal"]["reminder_days"] = Json::arrayValue;
+            for (auto it = reminderDays.rbegin(); it != reminderDays.rend(); ++it)
+            {
+                config["renewal"]["reminder_days"].append(*it);
+            }
+        }
+    }
+    config["renewal"]["price_change_notice_days"] = std::clamp(
+        renewalSource.get("price_change_notice_days", config["renewal"]["price_change_notice_days"]).asInt(), 1, 30);
+    config["renewal"]["grace_period_days"] = std::clamp(
+        renewalSource.get("grace_period_days", config["renewal"]["grace_period_days"]).asInt(), 0, 30);
+    config["durations"] = config["catalogs"]["personal"]["durations"];
+    config["prices_cents"] = config["catalogs"]["personal"]["prices_cents"];
     config["updated_at"] = common::nowIso8601();
+    applyPaymentProviderPolicy(config);
     return config;
 }
 
@@ -243,7 +594,9 @@ bool isSuccessfulRefundStatus(const std::string &status)
 }  // namespace
 
 PaymentService::PaymentService(std::filesystem::path userRootDir,
-                               SubscriptionService &subscriptionService)
+                               SubscriptionService &subscriptionService,
+                               infrastructure::storage::UserRepository *userRepository,
+                               EmailService *emailService)
     : paymentsDir_(std::move(userRootDir) / "payments"),
       ordersFile_(paymentsDir_ / "orders.json"),
       ledgerFile_(paymentsDir_ / "ledger.json"),
@@ -251,7 +604,9 @@ PaymentService::PaymentService(std::filesystem::path userRootDir,
       webhookEventsFile_(paymentsDir_ / "webhook_events.json"),
       pricingFile_(paymentsDir_ / "pricing.json"),
       sqliteStore_(paymentsDir_ / "payments.sqlite3"),
-      subscriptionService_(subscriptionService)
+      subscriptionService_(subscriptionService),
+      userRepository_(userRepository),
+      emailService_(emailService)
 {
     std::filesystem::create_directories(paymentsDir_);
     if (sqliteStore_.count("payment_orders") == 0 && std::filesystem::exists(ordersFile_)) sqliteStore_.replace("payment_orders", infrastructure::storage::readJsonFile(ordersFile_));
@@ -268,16 +623,21 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     }
     const auto days = normalizeDays(payload.get("days", 30).asInt());
     const auto currency = normalizeCurrency(payload.get("currency", "cny").asString());
-    const auto provider = normalizeProvider(payload.get("provider", "wechat").asString());
-    const auto amountCents = priceCents(plan, days, currency);
+    const auto provider = normalizeProvider(payload.get(
+        "provider",
+        isProductionPaymentPolicyEnabled() ? primaryPaymentProvider() : std::string("wechat")).asString());
+    requirePaymentProviderEnabled(provider);
+    const auto subscription = subscriptionService_.subscriptionForUser(userId);
+    std::unique_lock lock(mutex_);
+    auto orders = loadOrders();
+    auto ledger = loadLedger();
+    const auto quote = buildPriceQuote(
+        loadPricingConfig(), orders, subscription, "personal", userId, plan, days, currency, 1);
+    const auto amountCents = quote.get("amount_cents", 0).asInt();
     if (amountCents <= 0)
     {
         throw common::AppException("PAYMENT_PRICE_INVALID", "No price configured for this plan", drogon::k422UnprocessableEntity);
     }
-
-    std::unique_lock lock(mutex_);
-    auto orders = loadOrders();
-    auto ledger = loadLedger();
 
     Json::Value order(Json::objectValue);
     order["id"] = makeId("pay");
@@ -290,6 +650,11 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     order["days"] = days;
     order["currency"] = currency;
     order["amount_cents"] = amountCents;
+    order["base_amount_cents"] = quote.get("base_amount_cents", amountCents);
+    order["discount_cents"] = quote.get("discount_cents", 0);
+    order["offer"] = quote["offer"];
+    order["pricing_quoted_at"] = quote.get("quoted_at", nowIso());
+    order["pricing_scope"] = "personal";
     order["amount"] = amountCents / 100.0;
     order["description"] = plan + " 套餐 " + std::to_string(days) + " 天";
     order["created_at"] = nowIso();
@@ -317,21 +682,55 @@ Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
     {
         throw common::AppException("PAYMENT_PLAN_INVALID", "Paid order requires pro or ultra plan", drogon::k422UnprocessableEntity);
     }
-    const auto days = normalizeDays(payload.get("days", 30).asInt());
+    const auto requestedDays = payload.get("days", 30).asInt();
+    if (requestedDays != 30 && requestedDays != 365)
+    {
+        throw common::AppException(
+            "PAYMENT_DURATION_INVALID",
+            "机构套餐仅支持 30 天月付或 365 天年付",
+            drogon::k422UnprocessableEntity);
+    }
+    const auto days = requestedDays;
     const auto seats = std::clamp(payload.get("seats", 1).asInt(), 1, 100000);
     const auto currency = normalizeCurrency(payload.get("currency", "cny").asString());
-    const auto provider = normalizeProvider(payload.get("provider", "wechat").asString());
-    const auto unitPrice = priceCents(plan, days, currency);
+    const auto provider = normalizeProvider(payload.get(
+        "provider",
+        isProductionPaymentPolicyEnabled() ? primaryPaymentProvider() : std::string("wechat")).asString());
+    requirePaymentProviderEnabled(provider);
+    const auto minimumSeats = minimumOrganizationSeats(plan);
+    if (seats < minimumSeats)
+    {
+        throw common::AppException(
+            "PAYMENT_MINIMUM_SEATS",
+            plan == "ultra" ? "机构 ULTRA 最低购买 30 席" : "机构 PRO 最低购买 20 席",
+            drogon::k422UnprocessableEntity);
+    }
+    if (seats >= customQuoteMinimumSeats())
+    {
+        throw common::AppException(
+            "PAYMENT_CUSTOM_QUOTE_REQUIRED",
+            "200 席及以上需要联系企业销售获取定制报价",
+            drogon::k422UnprocessableEntity);
+    }
+    const auto unitPrice = priceCents("organization", plan, days, currency, seats);
     if (unitPrice <= 0 || static_cast<long long>(unitPrice) * seats > 999999999LL)
     {
         throw common::AppException("PAYMENT_PRICE_INVALID", "Organization order price is invalid", drogon::k422UnprocessableEntity);
     }
 
     // Validate the organization before persisting or contacting a payment provider.
-    subscriptionService_.subscriptionForOrganization(organizationId);
+    const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
     std::unique_lock lock(mutex_);
     auto orders = loadOrders();
     auto ledger = loadLedger();
+    const auto quote = buildPriceQuote(
+        loadPricingConfig(), orders, subscription, "organization", organizationId, plan, days, currency, seats);
+    const auto discountedUnitPrice = quote.get("unit_price_cents", 0).asInt();
+    if (discountedUnitPrice <= 0 ||
+        static_cast<long long>(discountedUnitPrice) * seats > 999999999LL)
+    {
+        throw common::AppException("PAYMENT_PRICE_INVALID", "Organization order price is invalid", drogon::k422UnprocessableEntity);
+    }
     Json::Value order(Json::objectValue);
     order["id"] = makeId("pay");
     order["user_id"] = actorId;
@@ -345,8 +744,15 @@ Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
     order["days"] = days;
     order["seats"] = seats;
     order["currency"] = currency;
-    order["unit_price_cents"] = unitPrice;
-    order["amount_cents"] = unitPrice * seats;
+    order["base_unit_price_cents"] = quote.get("base_unit_price_cents", unitPrice);
+    order["unit_price_cents"] = discountedUnitPrice;
+    order["base_amount_cents"] = quote.get("base_amount_cents", unitPrice * seats);
+    order["discount_cents"] = quote.get("discount_cents", 0);
+    order["offer"] = quote["offer"];
+    order["pricing_quoted_at"] = quote.get("quoted_at", nowIso());
+    order["pricing_scope"] = "organization";
+    order["minimum_seats"] = minimumSeats;
+    order["amount_cents"] = discountedUnitPrice * seats;
     order["amount"] = order["amount_cents"].asInt() / 100.0;
     order["description"] = "机构扩席：" + plan + " 套餐 " + std::to_string(seats) + " 席 / " + std::to_string(days) + " 天";
     order["created_at"] = nowIso();
@@ -791,6 +1197,1070 @@ Json::Value PaymentService::updatePricingConfig(const Json::Value &payload)
     const auto pricing = normalizePricingConfig(payload);
     savePricingConfig(pricing);
     return pricing;
+}
+
+Json::Value PaymentService::quote(const std::string &actorId,
+                                  const Json::Value &roles,
+                                  const Json::Value &payload) const
+{
+    const auto scopeType = payload.get("scope_type", "personal").asString() == "organization"
+                               ? std::string("organization")
+                               : std::string("personal");
+    if (scopeType == "organization" && !hasAnyRole(roles, {"superAdmin"}))
+    {
+        throw common::AppException("FORBIDDEN", "需要超级管理员权限", drogon::k403Forbidden);
+    }
+    const auto scopeId = scopeType == "organization"
+                             ? payload.get("organization_id", "").asString()
+                             : actorId;
+    if (scopeId.empty())
+    {
+        throw common::AppException(
+            "PAYMENT_ORGANIZATION_REQUIRED",
+            "organization_id is required",
+            drogon::k422UnprocessableEntity);
+    }
+    const auto plan = normalizePlan(payload.get("plan", "pro").asString());
+    if (plan == "free")
+    {
+        throw common::AppException(
+            "PAYMENT_PLAN_INVALID",
+            "Paid quote requires pro or ultra plan",
+            drogon::k422UnprocessableEntity);
+    }
+    const auto requestedDays = payload.get("days", 30).asInt();
+    const auto days = scopeType == "organization" ? requestedDays : normalizeDays(requestedDays);
+    if (scopeType == "organization" && days != 30 && days != 365)
+    {
+        throw common::AppException(
+            "PAYMENT_DURATION_INVALID",
+            "机构套餐仅支持 30 天月付或 365 天年付",
+            drogon::k422UnprocessableEntity);
+    }
+    const auto currency = normalizeCurrency(payload.get("currency", "cny").asString());
+    const auto seats = scopeType == "organization"
+                           ? std::clamp(payload.get("seats", 1).asInt(), 1, 100000)
+                           : 1;
+    if (scopeType == "organization")
+    {
+        const auto minimumSeats = minimumOrganizationSeats(plan);
+        if (seats < minimumSeats)
+        {
+            throw common::AppException(
+                "PAYMENT_MINIMUM_SEATS",
+                plan == "ultra" ? "机构 ULTRA 最低购买 30 席" : "机构 PRO 最低购买 20 席",
+                drogon::k422UnprocessableEntity);
+        }
+        if (seats >= customQuoteMinimumSeats())
+        {
+            throw common::AppException(
+                "PAYMENT_CUSTOM_QUOTE_REQUIRED",
+                "200 席及以上需要联系企业销售获取定制报价",
+                drogon::k422UnprocessableEntity);
+        }
+    }
+    const auto subscription = scopeType == "organization"
+                                  ? subscriptionService_.subscriptionForOrganization(scopeId)
+                                  : subscriptionService_.subscriptionForUser(actorId);
+    std::scoped_lock lock(mutex_);
+    const auto result = buildPriceQuote(
+        loadPricingConfig(), loadOrders(), subscription, scopeType, scopeId, plan, days, currency, seats);
+    if (result.get("amount_cents", 0).asInt64() <= 0 ||
+        result.get("amount_cents", 0).asInt64() > 999999999LL)
+    {
+        throw common::AppException(
+            "PAYMENT_PRICE_INVALID",
+            "No price configured for this plan",
+            drogon::k422UnprocessableEntity);
+    }
+    return result;
+}
+
+Json::Value PaymentService::getAutoRenewal(const std::string &actorId,
+                                           const std::string &scopeType,
+                                           const std::string &scopeId) const
+{
+    const auto normalizedScope = scopeType == "organization" ? std::string("organization") : std::string("personal");
+    const auto normalizedScopeId = normalizedScope == "organization" ? scopeId : actorId;
+    if (normalizedScopeId.empty() || (normalizedScope == "personal" && scopeId != actorId))
+    {
+        throw common::AppException("FORBIDDEN", "无权查看该自动续费设置", drogon::k403Forbidden);
+    }
+    const auto subscription = normalizedScope == "organization"
+                                  ? subscriptionService_.subscriptionForOrganization(normalizedScopeId)
+                                  : subscriptionService_.subscriptionForUser(actorId);
+    std::scoped_lock lock(mutex_);
+    const auto key = normalizedScope + ":" + normalizedScopeId;
+    auto renewal = sqliteStore_.get("payment_auto_renewals", key);
+    if (renewal.isNull())
+    {
+        renewal = Json::Value(Json::objectValue);
+        renewal["id"] = key;
+        renewal["scope_type"] = normalizedScope;
+        renewal["scope_id"] = normalizedScopeId;
+        renewal["enabled"] = false;
+        renewal["status"] = "disabled";
+        renewal["currency"] = "cny";
+        renewal["provider"] = loadPricingConfig().get("default_provider", "wechat");
+        renewal["plan"] = subscription.get("plan", "free");
+        renewal["days"] = normalizedScope == "organization" ? 365 : 365;
+        renewal["seats"] = subscription.get("seats", 1);
+        renewal["price_snapshot_cents"] = 0;
+        renewal["consent_at"] = "";
+        renewal["updated_at"] = "";
+        renewal["provider_mandate_id"] = "";
+    }
+
+    const auto pricing = loadPricingConfig();
+    const auto enabled = renewal.get("enabled", false).asBool();
+    const auto mandateId = renewal.get("provider_mandate_id", "").asString();
+    renewal["charge_ready"] = enabled && !mandateId.empty();
+    renewal["subscription"] = subscription;
+    renewal["reminder_schedule"] = Json::arrayValue;
+    renewal["notices"] = Json::arrayValue;
+    renewal["price_change_notice"] = Json::Value(Json::nullValue);
+
+    const auto renewalStatus = renewal.get("status", "disabled").asString();
+    if (renewalStatus == "payment_failed_grace")
+    {
+        Json::Value notice(Json::objectValue);
+        notice["type"] = "renewal_payment_failed";
+        notice["level"] = "warning";
+        notice["title"] = "自动续费扣款失败";
+        notice["message"] = "当前处于宽限期，请更新支付方式；下一次重试日期为 " +
+                            renewal.get("next_retry_at", "待确认").asString() + "。";
+        renewal["notices"].append(notice);
+    }
+    else if (renewalStatus == "awaiting_provider_callback")
+    {
+        Json::Value notice(Json::objectValue);
+        notice["type"] = "renewal_payment_processing";
+        notice["level"] = "info";
+        notice["title"] = "自动续费扣款处理中";
+        notice["message"] = "已向支付渠道提交扣款请求，正在等待渠道回调，请勿重复操作。";
+        renewal["notices"].append(notice);
+    }
+    else if (renewalStatus == "grace_expired")
+    {
+        Json::Value notice(Json::objectValue);
+        notice["type"] = "renewal_grace_expired";
+        notice["level"] = "warning";
+        notice["title"] = "自动续费宽限期已结束";
+        notice["message"] = "自动续费已停止，历史数据仍会保留，可重新购买套餐。";
+        renewal["notices"].append(notice);
+    }
+
+    if (enabled)
+    {
+        const auto plan = normalizePlan(renewal.get("plan", subscription.get("plan", "free")).asString());
+        const auto days = normalizedScope == "organization"
+                              ? renewal.get("days", 365).asInt()
+                              : normalizeDays(renewal.get("days", 365).asInt());
+        const auto seats = normalizedScope == "organization"
+                               ? std::max(1, renewal.get("seats", subscription.get("seats", 1)).asInt())
+                               : 1;
+        const auto currency = normalizeCurrency(renewal.get("currency", "cny").asString());
+        bool canQuote = true;
+        if (normalizedScope == "organization")
+        {
+            const auto minimumSeats = pricing["catalogs"]["organization"]["plans"][plan]
+                                          .get("minimum_seats", plan == "ultra" ? 30 : 20)
+                                          .asInt();
+            const auto customQuoteMinSeats = pricing["catalogs"]["organization"]
+                                                 .get("custom_quote_min_seats", 200)
+                                                 .asInt();
+            canQuote = seats >= minimumSeats && seats < customQuoteMinSeats;
+            if (!canQuote)
+            {
+                Json::Value notice(Json::objectValue);
+                notice["type"] = "renewal_review_required";
+                notice["level"] = "warning";
+                notice["title"] = seats >= customQuoteMinSeats ? "下期续费需要企业定制报价" : "当前席位不满足套餐续费门槛";
+                notice["message"] = seats >= customQuoteMinSeats
+                                        ? "当前席位已达到定制报价门槛，请在到期前联系平台确认下期合同。"
+                                        : "请先调整机构席位或套餐，再重新确认自动续费授权。";
+                renewal["notices"].append(notice);
+            }
+        }
+        if (canQuote)
+        {
+            const auto currentQuote = buildPriceQuote(
+                pricing, loadOrders(), subscription, normalizedScope, normalizedScopeId, plan, days, currency, seats);
+            renewal["current_quote"] = currentQuote;
+            const auto snapshot = renewal.get("price_snapshot_cents", currentQuote.get("amount_cents", 0)).asInt64();
+            const auto currentAmount = currentQuote.get("amount_cents", 0).asInt64();
+            if (snapshot > 0 && currentAmount > 0 && snapshot != currentAmount)
+            {
+                Json::Value notice(Json::objectValue);
+                notice["type"] = "renewal_price_changed";
+                notice["level"] = currentAmount > snapshot ? "warning" : "info";
+                notice["title"] = currentAmount > snapshot ? "下期续费价格将上涨" : "下期续费价格已降低";
+                notice["previous_amount_cents"] = snapshot;
+                notice["current_amount_cents"] = currentAmount;
+                notice["notice_before_days"] = pricing["renewal"].get("price_change_notice_days", 7);
+                notice["message"] = "价格变化不影响当前已支付周期，续费前可随时关闭自动续费。";
+                renewal["price_change_notice"] = notice;
+                renewal["notices"].append(notice);
+            }
+        }
+    }
+
+    const auto expiry = parseDate(subscription.get("expires_at", "").asString());
+    if (expiry.has_value())
+    {
+        const auto today = parseDate(common::nowIso8601().substr(0, 10)).value();
+        const auto daysRemaining = static_cast<int>((*expiry - today).count());
+        renewal["next_charge_at"] = formatDate(*expiry);
+        renewal["days_until_renewal"] = daysRemaining;
+        int maxReminderDays = 0;
+        for (const auto &value : pricing["renewal"]["reminder_days"])
+        {
+            const auto daysBefore = value.asInt();
+            maxReminderDays = std::max(maxReminderDays, daysBefore);
+            Json::Value scheduled(Json::objectValue);
+            scheduled["days_before"] = daysBefore;
+            scheduled["scheduled_for"] = formatDate(*expiry - std::chrono::days{daysBefore});
+            renewal["reminder_schedule"].append(scheduled);
+        }
+        if (enabled && daysRemaining >= 0 && daysRemaining <= maxReminderDays)
+        {
+            Json::Value notice(Json::objectValue);
+            notice["type"] = "renewal_due";
+            notice["level"] = daysRemaining <= 1 ? "warning" : "info";
+            notice["title"] = "自动续费即将到期扣款";
+            notice["days_remaining"] = daysRemaining;
+            notice["message"] = "请确认支付方式和下期价格；关闭自动续费不会影响当前周期权益。";
+            renewal["notices"].append(notice);
+        }
+    }
+    renewal["grace_period_days"] = pricing["renewal"].get("grace_period_days", 7);
+    renewal["price_change_notice_days"] = pricing["renewal"].get("price_change_notice_days", 7);
+    return renewal;
+}
+
+Json::Value PaymentService::updateAutoRenewal(const std::string &actorId,
+                                              const std::string &scopeType,
+                                              const std::string &scopeId,
+                                              const Json::Value &payload)
+{
+    std::scoped_lock workflowLock(renewalWorkflowMutex_);
+    const auto normalizedScope = scopeType == "organization" ? std::string("organization") : std::string("personal");
+    const auto normalizedScopeId = normalizedScope == "organization" ? scopeId : actorId;
+    if (normalizedScopeId.empty() || (normalizedScope == "personal" && scopeId != actorId))
+    {
+        throw common::AppException("FORBIDDEN", "无权修改该自动续费设置", drogon::k403Forbidden);
+    }
+    const auto subscription = normalizedScope == "organization"
+                                  ? subscriptionService_.subscriptionForOrganization(normalizedScopeId)
+                                  : subscriptionService_.subscriptionForUser(actorId);
+    const auto enabled = payload.get("enabled", false).asBool();
+    if (enabled && (!subscription.get("is_active", false).asBool() ||
+                    normalizePlan(subscription.get("plan", "free").asString()) == "free"))
+    {
+        throw common::AppException(
+            "AUTO_RENEWAL_SUBSCRIPTION_REQUIRED",
+            "只有当前有效的 PRO 或 ULTRA 套餐可以开启自动续费",
+            drogon::k422UnprocessableEntity);
+    }
+
+    const auto key = normalizedScope + ":" + normalizedScopeId;
+    const auto now = nowIso();
+    {
+        std::unique_lock lock(mutex_);
+        auto renewal = sqliteStore_.get("payment_auto_renewals", key);
+        if (renewal.isNull())
+        {
+            renewal = Json::Value(Json::objectValue);
+            renewal["id"] = key;
+            renewal["created_at"] = now;
+            renewal["provider_mandate_id"] = "";
+        }
+        renewal["scope_type"] = normalizedScope;
+        renewal["scope_id"] = normalizedScopeId;
+        renewal["enabled"] = enabled;
+        renewal["status"] = enabled ? "pending_provider_authorization" : "disabled";
+        renewal["actor_id"] = actorId;
+        renewal["updated_at"] = now;
+        renewal["notify_in_app"] = true;
+        renewal["notify_email"] = payload.get("notify_email", true).asBool();
+        if (enabled)
+        {
+            const auto pricing = loadPricingConfig();
+            const auto plan = normalizePlan(subscription.get("plan", "free").asString());
+            const auto days = normalizedScope == "organization"
+                                  ? payload.get("days", 365).asInt()
+                                  : normalizeDays(payload.get("days", 365).asInt());
+            if (normalizedScope == "organization" && days != 30 && days != 365)
+            {
+                throw common::AppException(
+                    "PAYMENT_DURATION_INVALID",
+                    "机构套餐仅支持 30 天月付或 365 天年付",
+                    drogon::k422UnprocessableEntity);
+            }
+            const auto seats = normalizedScope == "organization"
+                                   ? std::max(1, subscription.get("seats", 1).asInt())
+                                   : 1;
+            if (normalizedScope == "organization")
+            {
+                const auto minimumSeats = pricing["catalogs"]["organization"]["plans"][plan]
+                                              .get("minimum_seats", plan == "ultra" ? 30 : 20)
+                                              .asInt();
+                const auto customQuoteMinSeats = pricing["catalogs"]["organization"]
+                                                     .get("custom_quote_min_seats", 200)
+                                                     .asInt();
+                if (seats < minimumSeats)
+                {
+                    throw common::AppException(
+                        "PAYMENT_MINIMUM_SEATS",
+                        "当前机构席位数低于该套餐的最低购买席位",
+                        drogon::k422UnprocessableEntity);
+                }
+                if (seats >= customQuoteMinSeats)
+                {
+                    throw common::AppException(
+                        "PAYMENT_CUSTOM_QUOTE_REQUIRED",
+                        "该席位规模需要联系平台获取企业定制报价",
+                        drogon::k422UnprocessableEntity);
+                }
+            }
+            const auto currency = normalizeCurrency(payload.get("currency", "cny").asString());
+            const auto provider = normalizeProvider(payload.get("provider", pricing.get("default_provider", "wechat")).asString());
+            requirePaymentProviderEnabled(provider);
+            const auto quote = buildPriceQuote(
+                pricing, loadOrders(), subscription, normalizedScope, normalizedScopeId, plan, days, currency, seats);
+            if (quote.get("amount_cents", 0).asInt64() <= 0 ||
+                quote.get("amount_cents", 0).asInt64() > 999999999LL)
+            {
+                throw common::AppException("PAYMENT_PRICE_INVALID", "自动续费价格无效", drogon::k422UnprocessableEntity);
+            }
+            renewal["plan"] = plan;
+            renewal["days"] = days;
+            renewal["seats"] = seats;
+            renewal["currency"] = currency;
+            renewal["provider"] = provider;
+            renewal["price_snapshot_cents"] = quote.get("amount_cents", 0);
+            renewal["unit_price_snapshot_cents"] = quote.get("unit_price_cents", 0);
+            renewal["price_config_version"] = pricing.get("version", 0);
+            renewal["price_config_updated_at"] = pricing.get("updated_at", "");
+            renewal["next_charge_at"] = subscription.get("expires_at", "");
+            renewal["consent_at"] = now;
+        }
+        else
+        {
+            renewal["disabled_at"] = now;
+        }
+        sqliteStore_.upsert("payment_auto_renewals", key, renewal);
+    }
+    return getAutoRenewal(actorId, normalizedScope, normalizedScopeId);
+}
+
+Json::Value PaymentService::enqueueNotification(const Json::Value &renewal,
+                                                const std::string &dedupeKey,
+                                                const std::string &type,
+                                                const std::string &title,
+                                                const std::string &message,
+                                                const std::string &level)
+{
+    const auto notificationId = "ntf_" + sha256Hex(dedupeKey).substr(0, 24);
+    auto notification = sqliteStore_.get("payment_notifications", notificationId);
+    if (notification.isNull())
+    {
+        notification = Json::Value(Json::objectValue);
+        notification["id"] = notificationId;
+        notification["dedupe_key"] = dedupeKey;
+        notification["user_id"] = renewal.get("actor_id", renewal.get("scope_id", "")).asString();
+        notification["scope_type"] = renewal.get("scope_type", "personal");
+        notification["scope_id"] = renewal.get("scope_id", "");
+        notification["type"] = type;
+        notification["level"] = level;
+        notification["title"] = title;
+        notification["message"] = message;
+        notification["created_at"] = nowIso();
+        notification["read_at"] = "";
+        notification["delivery"]["in_app"]["status"] = "delivered";
+        notification["delivery"]["in_app"]["delivered_at"] = notification["created_at"];
+        notification["delivery"]["email"]["status"] = renewal.get("notify_email", true).asBool() ? "pending" : "skipped";
+        notification["delivery"]["email"]["attempts"] = 0;
+        notification["delivery"]["email"]["next_attempt_at"] = "";
+        notification["updated_at"] = notification["created_at"];
+        // Persist the outbox row before contacting the provider. If the process
+        // stops during delivery, the scheduled worker can recover this entry.
+        sqliteStore_.upsert("payment_notifications", notificationId, notification);
+    }
+
+    const auto emailStatus = notification["delivery"]["email"].get("status", "skipped").asString();
+    if (renewal.get("notify_email", true).asBool() && emailStatus == "pending")
+    {
+        deliverNotificationEmail(notification);
+    }
+    notification["updated_at"] = nowIso();
+    sqliteStore_.upsert("payment_notifications", notificationId, notification);
+    return notification;
+}
+
+Json::Value PaymentService::deliverNotificationEmail(Json::Value &notification)
+{
+    constexpr int maxAttempts = 3;
+    const auto previousAttempts = notification["delivery"]["email"].get("attempts", 0).asInt();
+    Json::Value result(Json::objectValue);
+    result["attempted"] = false;
+    result["delivered"] = false;
+    result["retry_scheduled"] = false;
+    result["dead_letter"] = false;
+    if (previousAttempts >= maxAttempts)
+    {
+        notification["delivery"]["email"]["status"] = "dead_letter";
+        notification["delivery"]["email"]["next_attempt_at"] = "";
+        result["dead_letter"] = true;
+        return result;
+    }
+
+    const auto attemptedAt = nowIso();
+    const auto attempts = previousAttempts + 1;
+    notification["delivery"]["email"]["attempts"] = attempts;
+    notification["delivery"]["email"]["last_attempt_at"] = attemptedAt;
+    notification["delivery"]["email"]["next_attempt_at"] = "";
+    result["attempted"] = true;
+
+    const auto userId = notification.get("user_id", "").asString();
+    const auto user = userRepository_ ? userRepository_->findUserById(userId) : Json::Value(Json::nullValue);
+    const auto address = user.get("email", "").asString();
+    if (!emailService_ || address.empty() || !user.get("email_verified", false).asBool())
+    {
+        notification["delivery"]["email"]["status"] = "skipped";
+        notification["delivery"]["email"]["error"] = "用户没有已验证邮箱或邮件服务不可用";
+        notification["updated_at"] = attemptedAt;
+        result["skipped"] = true;
+        return result;
+    }
+
+    EmailMessage email;
+    email.toAddress = address;
+    email.subject = "Exam Online：" + notification.get("title", "续费通知").asString();
+    email.textBody = notification.get("message", "").asString() +
+                     "\n\n可登录 Exam Online 查看订阅与自动续费设置。";
+    const auto delivery = emailService_->send(email);
+    notification["delivery"]["email"]["provider"] = delivery.provider;
+    notification["delivery"]["email"]["provider_message_id"] = delivery.providerMessageId;
+    notification["delivery"]["email"]["error"] =
+        delivery.delivered || !delivery.errorMessage.empty()
+            ? delivery.errorMessage
+            : "邮件服务返回投递失败";
+    if (delivery.delivered)
+    {
+        notification["delivery"]["email"]["status"] = "delivered";
+        notification["delivery"]["email"]["delivered_at"] = attemptedAt;
+        notification["delivery"]["email"]["next_attempt_at"] = "";
+        result["delivered"] = true;
+    }
+    else if (attempts >= maxAttempts)
+    {
+        notification["delivery"]["email"]["status"] = "dead_letter";
+        notification["delivery"]["email"]["next_attempt_at"] = "";
+        result["dead_letter"] = true;
+    }
+    else
+    {
+        const int retryDelayMinutes = attempts == 1 ? 15 : 60;
+        notification["delivery"]["email"]["status"] = "retry_scheduled";
+        notification["delivery"]["email"]["next_attempt_at"] = isoAfterMinutes(retryDelayMinutes);
+        result["retry_scheduled"] = true;
+    }
+    notification["updated_at"] = attemptedAt;
+    return result;
+}
+
+Json::Value PaymentService::processNotificationDeliveries(bool force)
+{
+    Json::Value summary(Json::objectValue);
+    summary["scanned"] = 0;
+    summary["attempted"] = 0;
+    summary["delivered"] = 0;
+    summary["retry_scheduled"] = 0;
+    summary["dead_letter"] = 0;
+    const auto now = nowIso();
+    for (auto notification : sqliteStore_.list("payment_notifications"))
+    {
+        const auto status = notification["delivery"]["email"].get("status", "skipped").asString();
+        if (status != "pending" && status != "failed" && status != "retry_scheduled")
+        {
+            continue;
+        }
+        summary["scanned"] = summary["scanned"].asInt() + 1;
+        const auto nextAttemptAt = notification["delivery"]["email"].get("next_attempt_at", "").asString();
+        if (!force && !nextAttemptAt.empty() && nextAttemptAt > now)
+        {
+            continue;
+        }
+        const auto delivery = deliverNotificationEmail(notification);
+        sqliteStore_.upsert(
+            "payment_notifications",
+            notification.get("id", "").asString(),
+            notification);
+        if (delivery.get("attempted", false).asBool())
+        {
+            summary["attempted"] = summary["attempted"].asInt() + 1;
+        }
+        if (delivery.get("delivered", false).asBool())
+        {
+            summary["delivered"] = summary["delivered"].asInt() + 1;
+        }
+        if (delivery.get("retry_scheduled", false).asBool())
+        {
+            summary["retry_scheduled"] = summary["retry_scheduled"].asInt() + 1;
+        }
+        if (delivery.get("dead_letter", false).asBool())
+        {
+            summary["dead_letter"] = summary["dead_letter"].asInt() + 1;
+        }
+    }
+    return summary;
+}
+
+Json::Value PaymentService::listNotifications(const std::string &userId,
+                                              bool unreadOnly,
+                                              int page,
+                                              int pageSize) const
+{
+    const auto all = sqliteStore_.list("payment_notifications");
+    Json::Value filtered(Json::arrayValue);
+    for (Json::ArrayIndex index = all.size(); index > 0; --index)
+    {
+        const auto &item = all[index - 1];
+        if (item.get("user_id", "").asString() != userId)
+        {
+            continue;
+        }
+        if (unreadOnly && !item.get("read_at", "").asString().empty())
+        {
+            continue;
+        }
+        filtered.append(item);
+    }
+    const auto safePage = std::max(1, page);
+    const auto safePageSize = std::clamp(pageSize, 1, 100);
+    const auto total = static_cast<int>(filtered.size());
+    const auto start = std::min(total, (safePage - 1) * safePageSize);
+    const auto end = std::min(total, start + safePageSize);
+    Json::Value items(Json::arrayValue);
+    for (int index = start; index < end; ++index)
+    {
+        items.append(filtered[static_cast<Json::ArrayIndex>(index)]);
+    }
+    Json::Value result(Json::objectValue);
+    result["items"] = items;
+    result["page"] = safePage;
+    result["page_size"] = safePageSize;
+    result["total"] = total;
+    result["pages"] = std::max(1, (total + safePageSize - 1) / safePageSize);
+    int unread = 0;
+    for (const auto &item : all)
+    {
+        if (item.get("user_id", "").asString() == userId &&
+            item.get("read_at", "").asString().empty())
+        {
+            ++unread;
+        }
+    }
+    result["unread_count"] = unread;
+    return result;
+}
+
+Json::Value PaymentService::markNotificationRead(const std::string &userId,
+                                                 const std::string &notificationId)
+{
+    auto notification = sqliteStore_.get("payment_notifications", notificationId);
+    if (notification.isNull())
+    {
+        throw common::AppException("NOTIFICATION_NOT_FOUND", "通知不存在", drogon::k404NotFound);
+    }
+    if (notification.get("user_id", "").asString() != userId)
+    {
+        throw common::AppException("FORBIDDEN", "无权修改该通知", drogon::k403Forbidden);
+    }
+    if (notification.get("read_at", "").asString().empty())
+    {
+        notification["read_at"] = nowIso();
+        notification["updated_at"] = notification["read_at"];
+        sqliteStore_.upsert("payment_notifications", notificationId, notification);
+    }
+    return notification;
+}
+
+Json::Value PaymentService::markAllNotificationsRead(const std::string &userId)
+{
+    int updated = 0;
+    for (auto notification : sqliteStore_.list("payment_notifications"))
+    {
+        if (notification.get("user_id", "").asString() != userId ||
+            !notification.get("read_at", "").asString().empty())
+        {
+            continue;
+        }
+        notification["read_at"] = nowIso();
+        notification["updated_at"] = notification["read_at"];
+        sqliteStore_.upsert("payment_notifications", notification.get("id", "").asString(), notification);
+        ++updated;
+    }
+    Json::Value result(Json::objectValue);
+    result["updated"] = updated;
+    result["unread_count"] = 0;
+    return result;
+}
+
+Json::Value PaymentService::createRenewalAttempt(Json::Value &renewal,
+                                                 const std::string &asOfDate)
+{
+    if (renewal.get("status", "").asString() == "awaiting_provider_callback" &&
+        renewal.get("last_charge_requested_on", "").asString() == asOfDate)
+    {
+        Json::Value replay(Json::objectValue);
+        replay["created"] = false;
+        replay["idempotent_replay"] = true;
+        return replay;
+    }
+    const auto cycle = renewal.get("next_charge_at", asOfDate).asString();
+    const auto requestCount = renewal.get("charge_request_count", 0).asInt() + 1;
+    const auto attemptId = "rna_" + sha256Hex(
+        renewal.get("id", "").asString() + ":" + cycle + ":" + std::to_string(requestCount)).substr(0, 24);
+    auto attempt = sqliteStore_.get("payment_renewal_attempts", attemptId);
+    if (!attempt.isNull())
+    {
+        attempt["created"] = false;
+        attempt["idempotent_replay"] = true;
+        return attempt;
+    }
+    attempt = Json::Value(Json::objectValue);
+    attempt["id"] = attemptId;
+    attempt["renewal_id"] = renewal.get("id", "");
+    attempt["scope_type"] = renewal.get("scope_type", "personal");
+    attempt["scope_id"] = renewal.get("scope_id", "");
+    attempt["actor_id"] = renewal.get("actor_id", "");
+    attempt["provider"] = renewal.get("provider", "");
+    attempt["cycle_date"] = cycle;
+    attempt["request_number"] = requestCount;
+    attempt["status"] = "awaiting_provider_callback";
+    attempt["created_at"] = nowIso();
+    attempt["updated_at"] = attempt["created_at"];
+    attempt["created"] = true;
+    sqliteStore_.upsert("payment_renewal_attempts", attemptId, attempt);
+    renewal["charge_request_count"] = requestCount;
+    renewal["last_charge_requested_at"] = nowIso();
+    renewal["last_charge_requested_on"] = asOfDate;
+    renewal["status"] = "awaiting_provider_callback";
+    renewal["current_attempt_id"] = attemptId;
+    renewal["updated_at"] = nowIso();
+    sqliteStore_.upsert("payment_auto_renewals", renewal.get("id", "").asString(), renewal);
+    return attempt;
+}
+
+Json::Value PaymentService::runRenewalJobs(const std::string &asOfDate,
+                                           bool forceNotificationRetries)
+{
+    std::scoped_lock workflowLock(renewalWorkflowMutex_);
+    const auto runDate = asOfDate.empty() ? common::nowIso8601().substr(0, 10) : asOfDate;
+    const auto parsedRunDate = parseDate(runDate);
+    if (!parsedRunDate.has_value())
+    {
+        throw common::AppException("RENEWAL_JOB_DATE_INVALID", "as_of_date 必须为 YYYY-MM-DD", drogon::k422UnprocessableEntity);
+    }
+    Json::Value summary(Json::objectValue);
+    summary["run_at"] = nowIso();
+    summary["as_of_date"] = runDate;
+    summary["scanned"] = 0;
+    summary["reminders_enqueued"] = 0;
+    summary["price_changes_enqueued"] = 0;
+    summary["charge_requests_created"] = 0;
+    summary["authorization_required"] = 0;
+    summary["grace_expired"] = 0;
+
+    for (auto renewal : sqliteStore_.list("payment_auto_renewals"))
+    {
+        if (!renewal.get("enabled", false).asBool())
+        {
+            continue;
+        }
+        summary["scanned"] = summary["scanned"].asInt() + 1;
+        const auto actorId = renewal.get("actor_id", renewal.get("scope_id", "")).asString();
+        const auto scopeType = renewal.get("scope_type", "personal").asString();
+        const auto scopeId = renewal.get("scope_id", "").asString();
+        Json::Value view;
+        try
+        {
+            view = getAutoRenewal(actorId, scopeType, scopeId);
+        }
+        catch (...)
+        {
+            continue;
+        }
+        const auto subscription = view["subscription"];
+        const auto expiryText = subscription.get("expires_at", renewal.get("next_charge_at", "")).asString();
+        const auto expiry = parseDate(expiryText);
+        if (!expiry.has_value())
+        {
+            continue;
+        }
+
+        for (const auto &notice : view["notices"])
+        {
+            if (notice.get("type", "").asString() != "renewal_price_changed")
+            {
+                continue;
+            }
+            enqueueNotification(
+                renewal,
+                renewal.get("id", "").asString() + ":price:" +
+                    std::to_string(notice.get("previous_amount_cents", 0).asInt64()) + ":" +
+                    std::to_string(notice.get("current_amount_cents", 0).asInt64()),
+                "renewal_price_changed",
+                notice.get("title", "下期续费价格发生变化").asString(),
+                notice.get("message", "价格变化不影响当前周期。").asString(),
+                notice.get("level", "warning").asString());
+            summary["price_changes_enqueued"] = summary["price_changes_enqueued"].asInt() + 1;
+        }
+
+        for (const auto &schedule : view["reminder_schedule"])
+        {
+            if (schedule.get("scheduled_for", "").asString() != runDate)
+            {
+                continue;
+            }
+            const auto daysBefore = schedule.get("days_before", 0).asInt();
+            enqueueNotification(
+                renewal,
+                renewal.get("id", "").asString() + ":reminder:" + expiryText + ":" + std::to_string(daysBefore),
+                "renewal_due",
+                "自动续费还有 " + std::to_string(daysBefore) + " 天",
+                "请确认支付方式和下期价格；关闭自动续费不会影响当前周期权益。",
+                daysBefore <= 1 ? "warning" : "info");
+            summary["reminders_enqueued"] = summary["reminders_enqueued"].asInt() + 1;
+        }
+
+        const auto graceExpires = parseDate(renewal.get("grace_expires_at", "").asString());
+        if (renewal.get("status", "").asString() == "payment_failed_grace" && graceExpires.has_value())
+        {
+            if (*parsedRunDate > *graceExpires)
+            {
+                renewal["enabled"] = false;
+                renewal["status"] = "grace_expired";
+                renewal["disabled_at"] = nowIso();
+                renewal["updated_at"] = renewal["disabled_at"];
+                sqliteStore_.upsert("payment_auto_renewals", renewal.get("id", "").asString(), renewal);
+                enqueueNotification(
+                    renewal,
+                    renewal.get("id", "").asString() + ":grace_expired:" + renewal.get("grace_expires_at", "").asString(),
+                    "renewal_grace_expired",
+                    "自动续费宽限期已结束",
+                    "自动续费已停止。历史数据仍会保留，可随时重新购买套餐。",
+                    "warning");
+                summary["grace_expired"] = summary["grace_expired"].asInt() + 1;
+                continue;
+            }
+            const auto nextRetry = parseDate(renewal.get("next_retry_at", "").asString());
+            if (view.get("charge_ready", false).asBool() && nextRetry.has_value() && *parsedRunDate >= *nextRetry)
+            {
+                const auto attempt = createRenewalAttempt(renewal, runDate);
+                if (attempt.get("created", false).asBool())
+                {
+                    summary["charge_requests_created"] = summary["charge_requests_created"].asInt() + 1;
+                }
+            }
+            continue;
+        }
+
+        if (*parsedRunDate < *expiry)
+        {
+            continue;
+        }
+        if (!view.get("charge_ready", false).asBool())
+        {
+            enqueueNotification(
+                renewal,
+                renewal.get("id", "").asString() + ":authorization_required:" + expiryText,
+                "renewal_authorization_required",
+                "自动续费仍需完成支付渠道签约",
+                "当前授权尚未取得支付渠道扣款凭证，本周期不会自动扣款，请完成签约或手动续费。",
+                "warning");
+            summary["authorization_required"] = summary["authorization_required"].asInt() + 1;
+            continue;
+        }
+        const auto attempt = createRenewalAttempt(renewal, runDate);
+        if (attempt.get("created", false).asBool())
+        {
+            summary["charge_requests_created"] = summary["charge_requests_created"].asInt() + 1;
+        }
+    }
+    const auto deliverySummary = processNotificationDeliveries(forceNotificationRetries);
+    summary["notification_delivery"] = deliverySummary;
+    sqliteStore_.upsert("payment_job_state", "renewal", summary);
+    return summary;
+}
+
+Json::Value PaymentService::renewalOperations() const
+{
+    Json::Value result(Json::objectValue);
+    result["last_run"] = sqliteStore_.get("payment_job_state", "renewal");
+    result["agreements_total"] = static_cast<Json::UInt64>(sqliteStore_.count("payment_auto_renewals"));
+    result["attempts_total"] = static_cast<Json::UInt64>(sqliteStore_.count("payment_renewal_attempts"));
+    result["notifications_total"] = static_cast<Json::UInt64>(sqliteStore_.count("payment_notifications"));
+    result["email_delivery_counts"] = Json::Value(Json::objectValue);
+    for (const auto &notification : sqliteStore_.list("payment_notifications"))
+    {
+        const auto status = notification["delivery"]["email"].get("status", "skipped").asString();
+        result["email_delivery_counts"][status] =
+            result["email_delivery_counts"].get(status, 0).asInt() + 1;
+    }
+    result["status_counts"] = Json::Value(Json::objectValue);
+    for (const auto &renewal : sqliteStore_.list("payment_auto_renewals"))
+    {
+        const auto status = renewal.get("status", "disabled").asString();
+        result["status_counts"][status] = result["status_counts"].get(status, 0).asInt() + 1;
+    }
+    result["recent_attempts"] = Json::Value(Json::arrayValue);
+    const auto attempts = sqliteStore_.list("payment_renewal_attempts", 20, 0);
+    for (Json::ArrayIndex index = attempts.size(); index > 0; --index)
+    {
+        result["recent_attempts"].append(attempts[index - 1]);
+    }
+    return result;
+}
+
+Json::Value PaymentService::settleRenewalSuccessUnlocked(Json::Value &renewal,
+                                                        const std::string &provider,
+                                                        const std::string &providerPaymentId,
+                                                        const std::string &eventId,
+                                                        const Json::Value &providerEvent)
+{
+    auto orders = loadOrders();
+    auto ledger = loadLedger();
+    const auto scopeType = renewal.get("scope_type", "personal").asString();
+    const auto scopeId = renewal.get("scope_id", "").asString();
+    const auto actorId = renewal.get("actor_id", scopeId).asString();
+    const auto subscription = scopeType == "organization"
+                                  ? subscriptionService_.subscriptionForOrganization(scopeId)
+                                  : subscriptionService_.subscriptionForUser(scopeId);
+    const auto pricing = loadPricingConfig();
+    const auto plan = normalizePlan(renewal.get("plan", subscription.get("plan", "free")).asString());
+    const auto days = renewal.get("days", 365).asInt();
+    const auto seats = scopeType == "organization" ? renewal.get("seats", subscription.get("seats", 1)).asInt() : 1;
+    const auto currency = normalizeCurrency(renewal.get("currency", "cny").asString());
+    const auto quote = buildPriceQuote(pricing, orders, subscription, scopeType, scopeId, plan, days, currency, seats);
+
+    Json::Value order(Json::objectValue);
+    order["id"] = makeId("pay");
+    order["user_id"] = actorId;
+    order["actor_id"] = actorId;
+    order["scope_type"] = scopeType == "organization" ? "organization" : "user";
+    order["scope_id"] = scopeId;
+    if (scopeType == "organization") order["organization_id"] = scopeId;
+    order["pricing_scope"] = scopeType;
+    order["provider"] = provider;
+    order["status"] = "pending";
+    order["plan"] = plan;
+    order["days"] = days;
+    order["seats"] = seats;
+    order["currency"] = currency;
+    order["base_unit_price_cents"] = quote.get("base_unit_price_cents", quote.get("amount_cents", 0));
+    order["unit_price_cents"] = quote.get("unit_price_cents", quote.get("amount_cents", 0));
+    order["base_amount_cents"] = quote.get("base_amount_cents", quote.get("amount_cents", 0));
+    order["amount_cents"] = quote.get("amount_cents", 0);
+    order["discount_cents"] = quote.get("discount_cents", 0);
+    order["offer"] = quote["offer"];
+    order["pricing_quoted_at"] = quote.get("quoted_at", nowIso());
+    order["amount"] = order["amount_cents"].asInt() / 100.0;
+    order["description"] = "自动续费：" + plan + " 套餐 " + std::to_string(days) + " 天";
+    order["created_at"] = nowIso();
+    order["updated_at"] = order["created_at"];
+    order["metadata"]["auto_renewal"] = true;
+    order["metadata"]["auto_renewal_id"] = renewal.get("id", "");
+    order["metadata"]["provider_event_id"] = eventId;
+    orders.append(order);
+    appendLedgerEntry(ledger, actorId, order["id"].asString(), "order.created", order["amount_cents"].asInt(), currency, "创建自动续费订单");
+    auto paid = markOrderPaidUnlocked(orders, ledger, order["id"].asString(), providerPaymentId, providerEvent);
+    saveOrders(orders);
+    saveLedger(ledger);
+    renewal["status"] = "active";
+    renewal["last_paid_at"] = nowIso();
+    renewal["last_payment_order_id"] = paid.get("id", "");
+    renewal["last_provider_event_id"] = eventId;
+    renewal["next_charge_at"] = paid["subscription"].get("expires_at", "");
+    renewal["price_snapshot_cents"] = quote.get("amount_cents", 0);
+    renewal["unit_price_snapshot_cents"] = quote.get("unit_price_cents", 0);
+    renewal["failure_count"] = 0;
+    renewal["grace_started_at"] = "";
+    renewal["grace_expires_at"] = "";
+    renewal["next_retry_at"] = "";
+    renewal["current_attempt_id"] = "";
+    renewal["updated_at"] = nowIso();
+    sqliteStore_.upsert("payment_auto_renewals", renewal.get("id", "").asString(), renewal);
+    return paid;
+}
+
+Json::Value PaymentService::handleAutoRenewalWebhook(const std::string &provider,
+                                                     const std::string &rawBody,
+                                                     const Json::Value &payload,
+                                                     const std::string &signatureHeader)
+{
+    std::scoped_lock workflowLock(renewalWorkflowMutex_);
+    const auto normalizedProvider = normalizeProvider(provider);
+    if (normalizedProvider == "stripe" && !verifyStripeSignature(rawBody, signatureHeader))
+    {
+        throw common::AppException("PAYMENT_WEBHOOK_SIGNATURE_INVALID", "Stripe webhook signature is invalid", drogon::k401Unauthorized);
+    }
+    if (normalizedProvider != "stripe")
+    {
+        const auto secret = normalizedProvider == "wechat"
+                                ? env("WECHAT_PAY_WEBHOOK_SECRET", env("PAYMENT_GENERIC_WEBHOOK_SECRET"))
+                                : env("ALIPAY_WEBHOOK_SECRET", env("PAYMENT_GENERIC_WEBHOOK_SECRET"));
+        if (secret.empty() ||
+            (!signatureHeader.empty() && !verifyGenericHmacSignature(rawBody, signatureHeader, secret)) ||
+            (signatureHeader.empty() && payload.get("secret", "").asString() != secret))
+        {
+            throw common::AppException("PAYMENT_WEBHOOK_SIGNATURE_INVALID", "Payment webhook signature is invalid", drogon::k401Unauthorized);
+        }
+    }
+
+    const auto object = normalizedProvider == "stripe" ? payload["data"]["object"] : payload;
+    const auto metadata = object.isMember("metadata") ? object["metadata"] : payload["metadata"];
+    const auto scopeType = metadata.get("scope_type", payload.get("scope_type", "personal")).asString() == "organization"
+                               ? std::string("organization")
+                               : std::string("personal");
+    const auto scopeId = metadata.get("scope_id", payload.get("scope_id", "")).asString();
+    if (scopeId.empty())
+    {
+        throw common::AppException("AUTO_RENEWAL_SCOPE_REQUIRED", "续费回调缺少 scope_id", drogon::k422UnprocessableEntity);
+    }
+    const auto key = scopeType + ":" + scopeId;
+    auto renewal = sqliteStore_.get("payment_auto_renewals", key);
+    if (renewal.isNull())
+    {
+        throw common::AppException("AUTO_RENEWAL_NOT_FOUND", "自动续费授权不存在", drogon::k404NotFound);
+    }
+    const auto eventType = payload.get("type", payload.get("event_type", "")).asString();
+    const auto eventId = payload.get("id", payload.get("event_id", "")).asString();
+    if (eventId.empty())
+    {
+        throw common::AppException("PAYMENT_WEBHOOK_EVENT_ID_REQUIRED", "续费回调缺少事件 ID", drogon::k422UnprocessableEntity);
+    }
+    const auto existingEvent = sqliteStore_.get("payment_renewal_webhooks", eventId);
+    if (!existingEvent.isNull())
+    {
+        Json::Value duplicate = existingEvent;
+        duplicate["duplicate"] = true;
+        duplicate["ignored"] = true;
+        return duplicate;
+    }
+
+    std::string outcome;
+    if (eventType == "setup_intent.succeeded" || eventType == "mandate.active" ||
+        payload.get("status", "").asString() == "authorized")
+    {
+        outcome = "authorized";
+    }
+    else if (eventType.find("failed") != std::string::npos ||
+             payload.get("status", "").asString() == "failed")
+    {
+        outcome = "failed";
+    }
+    else if (eventType == "invoice.paid" || eventType == "payment_intent.succeeded" ||
+             payload.get("status", "").asString() == "paid" ||
+             payload.get("status", "").asString() == "success")
+    {
+        outcome = "succeeded";
+    }
+    else
+    {
+        outcome = "ignored";
+    }
+
+    Json::Value result(Json::objectValue);
+    result["event_id"] = eventId;
+    result["provider"] = normalizedProvider;
+    result["outcome"] = outcome;
+    if (outcome == "authorized")
+    {
+        renewal["provider_mandate_id"] = object.get("mandate", object.get("id", "")).asString();
+        renewal["status"] = "active";
+        renewal["provider_authorized_at"] = nowIso();
+        renewal["updated_at"] = renewal["provider_authorized_at"];
+        sqliteStore_.upsert("payment_auto_renewals", key, renewal);
+        result["renewal"] = getAutoRenewal(renewal.get("actor_id", scopeId).asString(), scopeType, scopeId);
+        enqueueNotification(
+            renewal,
+            key + ":provider_authorized:" + renewal.get("provider_mandate_id", "").asString(),
+            "renewal_provider_authorized",
+            "自动续费渠道签约已完成",
+            "支付渠道已确认周期扣款协议，后续将在到期前按设置提醒。",
+            "info");
+    }
+    else if (outcome == "failed")
+    {
+        const auto today = parseDate(common::nowIso8601().substr(0, 10)).value();
+        const auto pricing = loadPricingConfig();
+        const auto graceDays = pricing["renewal"].get("grace_period_days", 7).asInt();
+        const auto failureCount = renewal.get("failure_count", 0).asInt() + 1;
+        const int retryOffset = failureCount <= 1 ? 1 : failureCount == 2 ? 3 : 7;
+        renewal["status"] = "payment_failed_grace";
+        renewal["failure_count"] = failureCount;
+        renewal["last_failed_at"] = nowIso();
+        renewal["last_failure_reason"] = object["last_payment_error"].get(
+            "message",
+            payload.get("failure_reason", "支付渠道扣款失败")).asString();
+        if (renewal.get("grace_started_at", "").asString().empty())
+        {
+            renewal["grace_started_at"] = nowIso();
+            renewal["grace_expires_at"] = formatDate(today + std::chrono::days{graceDays});
+        }
+        const auto graceExpiry = parseDate(renewal.get("grace_expires_at", "").asString()).value();
+        renewal["next_retry_at"] = formatDate(std::min(today + std::chrono::days{retryOffset}, graceExpiry));
+        renewal["updated_at"] = nowIso();
+        sqliteStore_.upsert("payment_auto_renewals", key, renewal);
+        Json::Value attempt(Json::objectValue);
+        attempt["id"] = renewal.get("current_attempt_id", "rna_" + sha256Hex(eventId).substr(0, 24));
+        attempt["renewal_id"] = key;
+        attempt["scope_type"] = scopeType;
+        attempt["scope_id"] = scopeId;
+        attempt["provider"] = normalizedProvider;
+        attempt["status"] = "failed";
+        attempt["failure_reason"] = renewal["last_failure_reason"];
+        attempt["provider_event_id"] = eventId;
+        attempt["updated_at"] = nowIso();
+        sqliteStore_.upsert("payment_renewal_attempts", attempt["id"].asString(), attempt);
+        result["renewal"] = getAutoRenewal(renewal.get("actor_id", scopeId).asString(), scopeType, scopeId);
+        enqueueNotification(
+            renewal,
+            key + ":payment_failed:" + std::to_string(failureCount) + ":" + renewal.get("next_charge_at", "").asString(),
+            "renewal_payment_failed",
+            "自动续费扣款失败",
+            "套餐已进入 " + std::to_string(graceDays) + " 天宽限期，请更新支付方式。系统将在 " +
+                renewal.get("next_retry_at", "").asString() + " 再次尝试。",
+            "warning");
+    }
+    else if (outcome == "succeeded")
+    {
+        const auto paymentId = object.get("payment_intent", object.get("id", payload.get("provider_payment_id", ""))).asString();
+        std::unique_lock lock(mutex_);
+        const auto paid = settleRenewalSuccessUnlocked(
+            renewal, normalizedProvider, paymentId, eventId, payload);
+        lock.unlock();
+        result["order"] = paid;
+        result["renewal"] = getAutoRenewal(renewal.get("actor_id", scopeId).asString(), scopeType, scopeId);
+        enqueueNotification(
+            renewal,
+            key + ":payment_succeeded:" + eventId,
+            "renewal_payment_succeeded",
+            "自动续费成功",
+            "下期套餐权益已生效，可在支付流水中查看续费订单。",
+            "info");
+    }
+    else
+    {
+        result["ignored"] = true;
+    }
+    Json::Value storedEvent = result;
+    storedEvent["processed_at"] = nowIso();
+    sqliteStore_.upsert("payment_renewal_webhooks", eventId, storedEvent);
+    return result;
 }
 
 Json::Value PaymentService::handleWebhook(const std::string &provider,
@@ -1281,8 +2751,44 @@ bool PaymentService::verifyStripeSignature(const std::string &rawBody, const std
     {
         return false;
     }
+    std::int64_t signedAt = 0;
+    try
+    {
+        std::size_t consumed = 0;
+        signedAt = std::stoll(timestamp, &consumed);
+        if (consumed != timestamp.size())
+        {
+            return false;
+        }
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    int toleranceSeconds = 300;
+    try
+    {
+        toleranceSeconds = std::clamp(
+            std::stoi(env("STRIPE_WEBHOOK_TOLERANCE_SECONDS", "300")),
+            30,
+            900);
+    }
+    catch (...)
+    {
+        return false;
+    }
+    const auto now = std::chrono::duration_cast<std::chrono::seconds>(
+                         std::chrono::system_clock::now().time_since_epoch())
+                         .count();
+    if (std::llabs(now - signedAt) > toleranceSeconds)
+    {
+        return false;
+    }
+
     const auto expected = hmacSha256Hex(secret, timestamp + "." + rawBody);
-    return expected == signature;
+    return expected.size() == signature.size() &&
+           CRYPTO_memcmp(expected.data(), signature.data(), expected.size()) == 0;
 }
 
 bool PaymentService::verifyGenericHmacSignature(const std::string &rawBody,
@@ -1290,7 +2796,11 @@ bool PaymentService::verifyGenericHmacSignature(const std::string &rawBody,
                                                 const std::string &secret) const
 {
     const auto expected = hmacSha256Hex(secret, rawBody);
-    return signatureHeader == expected || signatureHeader == ("sha256=" + expected);
+    const auto candidate = signatureHeader.rfind("sha256=", 0) == 0
+                               ? signatureHeader.substr(7)
+                               : signatureHeader;
+    return expected.size() == candidate.size() &&
+           CRYPTO_memcmp(expected.data(), candidate.data(), expected.size()) == 0;
 }
 
 bool PaymentService::hasProcessedWebhookEvent(Json::Value &events, const std::string &eventId) const
@@ -1368,16 +2878,33 @@ int PaymentService::normalizeDays(int days)
     return 30;
 }
 
-int PaymentService::priceCents(const std::string &plan, int days, const std::string &currency) const
+int PaymentService::priceCents(const std::string &scopeType,
+                               const std::string &plan,
+                               int days,
+                               const std::string &currency,
+                               int seats) const
 {
     const auto pricing = loadPricingConfig();
-    const auto configured = readPriceCents(pricing, currency, plan, days);
+    const auto configured = readPriceCents(pricing, scopeType, currency, plan, days, seats);
     if (configured > 0)
     {
         return configured;
     }
     const auto fallback = defaultPricingConfig();
-    return readPriceCents(fallback, currency, plan, days);
+    return readPriceCents(fallback, scopeType, currency, plan, days, seats);
+}
+
+int PaymentService::minimumOrganizationSeats(const std::string &plan) const
+{
+    const auto pricing = loadPricingConfig();
+    return pricing["catalogs"]["organization"]["plans"][plan].get(
+        "minimum_seats", plan == "ultra" ? 30 : 20).asInt();
+}
+
+int PaymentService::customQuoteMinimumSeats() const
+{
+    const auto pricing = loadPricingConfig();
+    return pricing["catalogs"]["organization"].get("custom_quote_min_seats", 200).asInt();
 }
 
 std::string PaymentService::makeId(const std::string &prefix)

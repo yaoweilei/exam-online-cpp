@@ -34,9 +34,23 @@ test('学员个人中心使用简约学习工作台', async ({ page }) => {
   const contentCard = page.locator('.pc-my-content-card').filter({ hasText: '我的内容' });
   await expect(contentCard).toContainText('最近学习');
   await expect(contentCard).toContainText('收藏');
+  await expect(contentCard).toContainText('每日一练');
+  await expect(contentCard).toContainText('今日复习');
+  await expect(contentCard).toContainText('错题本');
+  await expect(contentCard).toContainText('学习报告');
+  await expect(contentCard).toContainText('生词本');
+  await expect(contentCard).toContainText('学习路径');
+  await expect(contentCard).toContainText('社区讨论');
+  await expect(contentCard).toContainText('推荐复习');
   await expect(contentCard).not.toContainText('我的账户');
-  await expect(contentCard.locator('.pc-my-content-item')).toHaveCount(2);
-  await expect(contentCard.locator('.pc-my-content-placeholder')).toHaveCount(2);
+  await expect(contentCard.locator('.pc-student-content-group')).toHaveCount(3);
+  await expect(contentCard.locator('.pc-my-content-item')).toHaveCount(12);
+  await expect(contentCard.locator('.pc-my-content-placeholder')).toHaveCount(0);
+  await expect(contentCard.locator('[data-student-content-group="today"] .pc-my-content-item')).toHaveCount(4);
+  await expect(contentCard.locator('[data-student-content-group="review"] .pc-my-content-item')).toHaveCount(4);
+  await expect(contentCard.locator('[data-student-content-group="progress"] .pc-my-content-item')).toHaveCount(4);
+  const personalizedRecommendation = contentCard.locator('[data-entitlement-locked="true"]').filter({ hasText: '推荐复习' });
+  await expect(personalizedRecommendation).toContainText('PRO');
 
   const accountCard = page.locator('.pc-my-account-card');
   await expect(accountCard).toContainText('我的账户');
@@ -45,6 +59,31 @@ test('学员个人中心使用简约学习工作台', async ({ page }) => {
   await expect(accountCard.locator('[data-dashboard-page="account-coupons"]')).toContainText('卡券');
   await expect(accountCard.locator('[data-dashboard-page="account-feedback"]')).toContainText('反馈');
   await expect(page.locator('.pc-dashboard-simple')).not.toContainText('组织邀请入口');
+});
+
+test('我的作业进入真实列表而不是只滚动首页横幅', async ({ page }) => {
+  await loginWithDevUser(page, 'student_demo', {
+    assignments: [{
+      assignment_id: 'asg_student_ui',
+      exam_id: '2023_02',
+      title: 'EJU 听读解周练',
+      due_at: '2030-08-15T10:00:00Z',
+      own_submission: {
+        submitted_at: '2030-08-10T08:30:00Z',
+        teacher_comment: '订正第 3 题后再复习'
+      },
+      own_reminders: []
+    }]
+  });
+
+  await page.locator('[data-intent="openAssignments"]').first().click();
+  const subpage = page.locator('.pc-subpage');
+  await expect(subpage).toContainText('我的作业');
+  await expect(subpage).toContainText('EJU 听读解周练');
+  await expect(subpage).toContainText('已提交');
+  await expect(subpage).toContainText('订正第 3 题后再复习');
+  await expect(subpage.locator('[data-intent^="openAssignmentExam:"]')).toHaveCount(1);
+  await expect(page.locator('#pc-assignments-banner')).toHaveCount(0);
 });
 
 test('多端同步使用统一确认、按钮忙碌态和可访问表格', async ({ page }) => {
@@ -122,12 +161,14 @@ test('多端同步使用统一确认、按钮忙碌态和可访问表格', async
   await expect(syncEntry).toBeFocused();
 });
 
-test('学习报告支持移动端对话框、周期忙碌态和焦点归还', async ({ page }) => {
+test('学习报告支持移动端对话框、周期忙碌态和 FREE 月报升级提示', async ({ page }) => {
   await loginWithDevUser(page, 'student_demo');
 
+  const requestedPeriods = [];
   await page.route('**/api/v1/me/learning-report?period=*', async (route) => {
     const period = new URL(route.request().url()).searchParams.get('period') || 'week';
-    if (period === 'month') await new Promise((resolve) => setTimeout(resolve, 250));
+    requestedPeriods.push(period);
+    if (requestedPeriods.length > 1) await new Promise((resolve) => setTimeout(resolve, 250));
     await route.fulfill({
       status: 200,
       contentType: 'application/json; charset=utf-8',
@@ -143,16 +184,8 @@ test('学习报告支持移动端对话框、周期忙碌态和焦点归还', as
   });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.evaluate(() => {
-    const entry = document.createElement('button');
-    entry.type = 'button';
-    entry.id = 'learning-report-e2e-entry';
-    entry.className = 'service-item';
-    entry.dataset.intent = 'openLearningReport';
-    entry.textContent = '学习报告';
-    document.querySelector('#pc-content')?.appendChild(entry);
-  });
-  const entry = page.locator('#learning-report-e2e-entry');
+  const entry = page.locator('.pc-my-content-card').filter({ hasText: '我的内容' }).locator('[data-intent="openLearningReport"]');
+  await expect(entry).toBeVisible();
   await entry.click();
 
   const modal = page.locator('#learning-report-modal');
@@ -166,14 +199,22 @@ test('学习报告支持移动端对话框、周期忙碌态和焦点归还', as
   })).toBeTruthy();
   await expect(modal).toContainText('80.0%');
 
-  const month = modal.locator('#lr-month');
-  await month.click();
-  await expect(month).toBeDisabled();
-  await expect(month).toHaveAttribute('aria-busy', 'true');
-  await expect(month).toBeEnabled();
-  await expect(modal).toContainText('month');
+  const week = modal.locator('#lr-week');
+  await week.click();
+  await expect(week).toBeDisabled();
+  await expect(week).toHaveAttribute('aria-busy', 'true');
+  await expect(week).toBeEnabled();
 
-  await page.keyboard.press('Escape');
+  const month = modal.locator('#lr-month');
+  await expect(month).toHaveAttribute('data-entitlement-locked', 'true');
+  await expect(month).toContainText('PRO');
+  await month.click();
+  await expect(page.locator('#pc-recharge-modal')).toBeVisible();
+  expect(requestedPeriods).not.toContain('month');
+  await page.locator('#recharge-close').click();
+  await expect(page.locator('#pc-recharge-modal')).toBeHidden();
+
+  await modal.locator('#lr-close').click();
   await expect(modal).toBeHidden();
   await expect(entry).toBeFocused();
 });
@@ -185,7 +226,19 @@ test('学习工具旧弹窗统一支持移动端、Esc 和焦点归还', async (
 
   const ok = (data) => ({ code: 'OK', message: 'ok', data, request_id: 'learning_tools_e2e', ts: new Date().toISOString() });
   await page.route('**/api/v1/wrong-questions/**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json; charset=utf-8', body: JSON.stringify(ok({ items: [], summary: { total: 0, active: 0, mastered: 0 } })) });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json; charset=utf-8',
+      body: JSON.stringify(ok({
+        items: [{
+          question_id: 'q_entitlement',
+          exam_id: 'exam_entitlement',
+          wrong_count: 1,
+          question_snapshot: { question: '权益测试题', correct_answer: 'A', explanation: '基础解析' }
+        }],
+        summary: { total: 1, active: 1, mastered: 0 }
+      }))
+    });
   });
   await page.route('**/api/v1/srs/**', async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json; charset=utf-8', body: JSON.stringify(ok({ items: [] })) });
@@ -197,18 +250,22 @@ test('学习工具旧弹窗统一支持移动端、Esc 和焦点归还', async (
   });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const openTool = async ({ intent, modalId, closeId, titleId }) => {
-    const entryId = `learning-tool-entry-${intent}`;
-    await page.evaluate(({ intent, entryId }) => {
-      const entry = document.createElement('button');
-      entry.type = 'button';
-      entry.id = entryId;
-      entry.className = 'service-item';
-      entry.dataset.intent = intent;
-      entry.textContent = intent;
-      document.querySelector('#pc-content')?.appendChild(entry);
-    }, { intent, entryId });
-    const entry = page.locator(`#${entryId}`);
+  const openTool = async ({ intent, modalId, closeId, titleId, synthetic = false }) => {
+    let entry = page.locator('.pc-my-content-card').filter({ hasText: '我的内容' }).locator(`[data-intent="${intent}"]`);
+    if (synthetic) {
+      const entryId = `learning-tool-entry-${intent}`;
+      await page.evaluate(({ intent, entryId }) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.id = entryId;
+        button.className = 'service-item';
+        button.dataset.intent = intent;
+        button.textContent = intent;
+        document.querySelector('#pc-content')?.appendChild(button);
+      }, { intent, entryId });
+      entry = page.locator(`#${entryId}`);
+    }
+    await expect(entry).toBeVisible();
     await entry.click();
     const modal = page.locator(`#${modalId}`);
     const dialog = modal.locator('[role="dialog"]');
@@ -224,12 +281,20 @@ test('学习工具旧弹窗统一支持移动端、Esc 和焦点归还', async (
 
   const cases = [
     { intent: 'openWrongQuestions', modalId: 'wq-modal', closeId: 'wq-close', titleId: 'wq-title' },
-    { intent: 'openSrsReview', modalId: 'srs-modal', closeId: 'srs-close', titleId: 'srs-title' },
+    { intent: 'openSrsReview', modalId: 'srs-modal', closeId: 'srs-close', titleId: 'srs-title', synthetic: true },
     { intent: 'openReviewWorkbench', modalId: 'review-workbench-modal', closeId: 'rw-close', titleId: 'rw-title' }
   ];
   for (const item of cases) {
     const { entry, modal } = await openTool(item);
     if (item.intent === 'openWrongQuestions') {
+      const related = modal.locator('[data-wq-action="related"]');
+      await expect(related).toHaveAttribute('data-entitlement-locked', 'true');
+      await expect(related).toContainText('PRO');
+      await related.click();
+      await expect(page.locator('#pc-recharge-modal')).toBeVisible();
+      await page.locator('#recharge-close').click();
+      await expect(page.locator('#pc-recharge-modal')).toBeHidden();
+
       const reset = modal.locator('#wq-reset');
       await reset.click();
       const riskModal = page.locator('#risk-modal');
@@ -280,18 +345,22 @@ test('每日一练、排行榜、生词本、学习路径和社区统一弹窗�
   });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const openTool = async ({ intent, modalId, closeId, titleId }) => {
-    const entryId = `remaining-modal-entry-${intent}`;
-    await page.evaluate(({ intent, entryId }) => {
-      const entry = document.createElement('button');
-      entry.type = 'button';
-      entry.id = entryId;
-      entry.className = 'service-item';
-      entry.dataset.intent = intent;
-      entry.textContent = intent;
-      document.querySelector('#pc-content')?.appendChild(entry);
-    }, { intent, entryId });
-    const entry = page.locator(`#${entryId}`);
+  const openTool = async ({ intent, modalId, closeId, titleId, synthetic = false }) => {
+    let entry = page.locator('.pc-my-content-card').filter({ hasText: '我的内容' }).locator(`[data-intent="${intent}"]`);
+    if (synthetic) {
+      const entryId = `remaining-modal-entry-${intent}`;
+      await page.evaluate(({ intent, entryId }) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.id = entryId;
+        button.className = 'service-item';
+        button.dataset.intent = intent;
+        button.textContent = intent;
+        document.querySelector('#pc-content')?.appendChild(button);
+      }, { intent, entryId });
+      entry = page.locator(`#${entryId}`);
+    }
+    await expect(entry).toBeVisible();
     await entry.click();
     const modal = page.locator(`#${modalId}`);
     const dialog = modal.locator('[role="dialog"]');
@@ -307,7 +376,7 @@ test('每日一练、排行榜、生词本、学习路径和社区统一弹窗�
 
   const cases = [
     { intent: 'openDailyPractice', modalId: 'daily-practice-modal', closeId: 'dp-close', titleId: 'dp-title' },
-    { intent: 'openLeaderboard', modalId: 'leaderboard-modal', closeId: 'lb-close', titleId: 'lb-title' },
+    { intent: 'openLeaderboard', modalId: 'leaderboard-modal', closeId: 'lb-close', titleId: 'lb-title', synthetic: true },
     { intent: 'openVocabNotebook', modalId: 'vocab-modal', closeId: 'vocab-close', titleId: 'vocab-title' },
     { intent: 'openChapterPath', modalId: 'chapter-modal', closeId: 'cp-close', titleId: 'cp-title' }
   ];
@@ -325,22 +394,20 @@ test('每日一练、排行榜、生词本、学习路径和社区统一弹窗�
     await expect(entry).toBeFocused();
   }
 
-  await page.evaluate(() => {
-    const entry = document.createElement('button');
-    entry.type = 'button';
-    entry.id = 'community-modal-e2e-entry';
-    entry.textContent = '社区讨论';
-    document.querySelector('#pc-content')?.appendChild(entry);
-    entry.focus();
-    window.openCommunityPanel?.('2023_02');
-  });
+  const communityEntry = page.locator('.pc-my-content-card').filter({ hasText: '我的内容' }).locator('[data-intent="openCommunity"]');
+  await expect(communityEntry).toBeVisible();
+  await communityEntry.click();
+  const paperInputDialog = page.locator('.pc-confirm-dialog');
+  await expect(paperInputDialog).toBeVisible();
+  await paperInputDialog.locator('[data-pc-input]').fill('2023_02');
+  await paperInputDialog.locator('[data-pc-input-ok]').click();
   const community = page.locator('#community-modal');
   await expect(community).toBeVisible();
   await expect(community.locator('[role="dialog"]')).toHaveAttribute('aria-labelledby', 'cm-title');
   await expect(community.locator('#cm-close')).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(community).toBeHidden();
-  await expect(page.locator('#community-modal-e2e-entry')).toBeFocused();
+  await expect(communityEntry).toBeFocused();
 });
 
 test('超级管理员运营仪表盘支持键盘关闭和焦点归还', async ({ page }) => {
@@ -587,6 +654,8 @@ test('内容发布与回滚使用确认、顺序门禁和行内错误', async ({
   let publishCalls = 0;
   let rollbackCalls = 0;
   let inspectCalls = 0;
+  let batchInspectCalls = 0;
+  let batchInspectBody = null;
   let publishBody = null;
   let rollbackBody = null;
   const ok = (data) => ({ code: 'OK', message: 'ok', data, request_id: 'content_workflow_e2e', ts: new Date().toISOString() });
@@ -615,6 +684,15 @@ test('内容发布与回滚使用确认、顺序门禁和行内错误', async ({
     await new Promise((resolve) => setTimeout(resolve, 250));
     await route.fulfill({ status: 500, contentType: 'application/json; charset=utf-8', body: JSON.stringify({ code: 'INSPECTION_FAILED', message: '图片资源检查失败' }) });
   });
+  await page.route('**/api/v1/admin/content/workflow/inspect-batch', async (route) => {
+    batchInspectCalls += 1;
+    batchInspectBody = route.request().postDataJSON();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json; charset=utf-8',
+      body: JSON.stringify(ok({ requested_count: 2, processed_count: 2, passed_count: 1, failed_count: 1, unavailable_count: 0, items: [] }))
+    });
+  });
   await page.route('**/api/v1/admin/content/workflow/workflow_e2e/publish', async (route) => {
     publishCalls += 1;
     publishBody = route.request().postDataJSON();
@@ -628,7 +706,7 @@ test('内容发布与回滚使用确认、顺序门禁和行内错误', async ({
     await route.fulfill({ status: 200, contentType: 'application/json; charset=utf-8', body: JSON.stringify(ok({ id: 'ver_rollback_e2e', kind: 'rollback' })) });
   });
 
-  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="发布队列"]').click();
+  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="发布工作流"]').click();
   const row = page.locator('[data-content-workflow-row][data-exam-id="workflow_e2e"]');
   await expect(row).toBeVisible({ timeout: 20000 });
   const publish = row.locator('[data-content-workflow-action="publish"]');
@@ -637,6 +715,15 @@ test('内容发布与回滚使用确认、顺序门禁和行内错误', async ({
 	await expect(pendingRow.locator('[data-content-workflow-action="analysis"]')).toBeDisabled();
 	await expect(pendingRow.locator('[data-content-workflow-action="secondary"]')).toBeDisabled();
 	await expect(pendingRow.locator('[data-content-workflow-action="publish"]')).toBeDisabled();
+
+  await row.locator('[data-content-workflow-select]').check();
+  await pendingRow.locator('[data-content-workflow-select]').check();
+  const batchInspect = page.locator('[data-content-workflow-batch-inspect]');
+  await expect(batchInspect).toContainText('批量质检（2）');
+  await batchInspect.click();
+  await expect.poll(() => batchInspectCalls).toBe(1);
+  expect(batchInspectBody.exam_ids.sort()).toEqual(['workflow_e2e', 'workflow_pending_e2e'].sort());
+  await expect(page.locator('[data-content-workflow-batch-message]')).toContainText('已检查 2 份：通过 1，发现阻断问题 1');
 
   await publish.click();
   await expect(publish).toBeDisabled();
@@ -769,20 +856,25 @@ test('账户相关子页列表保持左对齐', async ({ page }) => {
 
   for (const pageName of ['account-plan', 'account-coupons', 'account-feedback']) {
     await page.locator(`[data-dashboard-page="${pageName}"]`).click();
-    const styles = await page.locator('.pc-lite-row').evaluateAll((rows) => {
-      return rows.map((row) => {
-        const rowStyle = window.getComputedStyle(row);
-        const strong = row.querySelector('strong');
-        const strongStyle = strong ? window.getComputedStyle(strong) : null;
-        return {
-          display: rowStyle.display,
-          flexDirection: rowStyle.flexDirection,
-          justifyContent: rowStyle.justifyContent,
-          textAlign: rowStyle.textAlign,
-          strongTextAlign: strongStyle?.textAlign || ''
-        };
+    await expect(page.locator('.pc-lite-row').first()).toBeVisible();
+    let styles = [];
+    await expect.poll(async () => {
+      styles = await page.locator('.pc-lite-row').evaluateAll((rows) => {
+        return rows.map((row) => {
+          const rowStyle = window.getComputedStyle(row);
+          const strong = row.querySelector('strong');
+          const strongStyle = strong ? window.getComputedStyle(strong) : null;
+          return {
+            display: rowStyle.display,
+            flexDirection: rowStyle.flexDirection,
+            justifyContent: rowStyle.justifyContent,
+            textAlign: rowStyle.textAlign,
+            strongTextAlign: strongStyle?.textAlign || ''
+          };
+        });
       });
-    });
+      return styles.length > 0 && styles.every((style) => style.display === 'flex');
+    }).toBe(true);
     expect(styles.length).toBeGreaterThan(0);
     for (const style of styles) {
       expect(style.display).toBe('flex');
@@ -799,12 +891,54 @@ test('账户相关子页列表保持左对齐', async ({ page }) => {
   expect(phoneAlign).toBe('left');
 });
 
+test('窄面板中的系统功能开关不会把标题挤成竖排', async ({ page }) => {
+  await page.setViewportSize({ width: 842, height: 900 });
+  await loginWithDevUser(page, 'superadmin_demo');
+
+  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="功能开关"]').click();
+  const flagRow = page.locator('[data-platform-system-flag-row="admin_dashboard"]');
+  await expect(flagRow).toContainText('管理员仪表盘', { timeout: 20000 });
+
+  const layout = await flagRow.evaluate((row) => {
+    const content = row.querySelector(':scope > span');
+    const title = content?.querySelector('strong');
+    const actions = row.querySelector(':scope > .pc-feedback-actions');
+    const panel = document.querySelector('#personal-center .pc-panel');
+    const contentBox = content?.getBoundingClientRect();
+    const titleBox = title?.getBoundingClientRect();
+    const actionsBox = actions?.getBoundingClientRect();
+    const rowBox = row.getBoundingClientRect();
+    const titleLineHeight = title ? Number.parseFloat(window.getComputedStyle(title).lineHeight) : 0;
+    const personalCenter = document.querySelector('#personal-center');
+    return {
+      rowWidth: rowBox.width,
+      panelWidth: panel?.getBoundingClientRect().width ?? 0,
+      contentWidth: contentBox?.width ?? 0,
+      titleHeight: titleBox?.height ?? 0,
+      titleLineHeight,
+      actionsLeft: actionsBox?.left ?? 0,
+      actionsRight: actionsBox?.right ?? 0,
+      rowLeft: rowBox.left,
+      rowRight: rowBox.right,
+      centerScrollWidth: personalCenter?.scrollWidth ?? 0,
+      centerClientWidth: personalCenter?.clientWidth ?? 0
+    };
+  });
+
+  expect(layout.panelWidth).toBeGreaterThanOrEqual(700);
+  expect(layout.contentWidth).toBeGreaterThanOrEqual(Math.min(260, layout.rowWidth - 2));
+  expect(layout.titleHeight).toBeLessThanOrEqual(layout.titleLineHeight * 1.5);
+  expect(layout.actionsLeft).toBeGreaterThanOrEqual(layout.rowLeft - 1);
+  expect(layout.actionsRight).toBeLessThanOrEqual(layout.rowRight + 1);
+  expect(layout.centerScrollWidth).toBeLessThanOrEqual(layout.centerClientWidth + 1);
+});
+
 test('教学与管理角色显示对应简约工作台入口', async ({ page }) => {
   const cases = [
     { loginId: 'teacher_demo', removedFocus: '今日教学', removedTitle: '教学工作台', entries: ['我的学生', '学习组', '课程表', '安排课程', '待批改', '布置作业', '成绩册', '备课'], open: '我的学生', subpageText: /student_demo|暂无真实数据/ },
-    { loginId: 'assistant_demo', removedFocus: '今日运营', removedTitle: '运营工作台', entries: ['催交作业', '学员跟进', '待联系学生', '续费风险', '课程包', '安排课程', '联系记录', '异常提醒'], open: '催交作业', pageTitle: '作业', subpageText: /5 人未提交|暂无真实数据/ },
+    { loginId: 'assistant_demo', removedFocus: '今日运营', removedTitle: '运营工作台', entries: ['催交作业', '学员跟进', '续费风险', '异常提醒', '学习组', '课程表', '课程包', '安排课程'], open: '催交作业', pageTitle: '作业', subpageText: /5 人未提交|暂无真实数据/ },
     { loginId: 'orgadmin_demo', removedFocus: '今日管理', removedTitle: '机构工作台', entries: ['成员管理', '权限管理', '机构设置', '学习组', '课程包', '机构看板'], open: '成员管理', subpageText: /成员管理|还没有可管理机构|正在读取机构数据/ },
-    { loginId: 'contentadmin_demo', removedFocus: '今日内容', removedTitle: '内容工作台', entries: ['试卷维护', '解析审核', '音频检查', '质量检查', '图片检查', '答案检查', '发布队列', '内容日志'], open: '试卷维护', subpageText: '列表来自反馈接口' },
+    { loginId: 'contentadmin_demo', removedFocus: '今日内容', removedTitle: '内容工作台', entries: ['内容反馈', '发布工作流', '内容日志'], open: '内容反馈', subpageText: '列表来自反馈接口' },
     { loginId: 'superadmin_demo', removedFocus: '今日平台', removedTitle: '平台工作台', entries: ['用户搜索', '机构管理', '角色权限', '功能开关', '全站统计', '支付退款', '反馈处理', '审计日志'], open: '用户搜索', subpageText: '最近用户' }
   ];
 
@@ -863,18 +997,40 @@ test('教学与管理角色显示对应简约工作台入口', async ({ page }) 
   }
 });
 
+test('退出并切换角色后回到新角色首页且滚动位置归零', async ({ page }) => {
+  await loginWithDevUser(page, 'superadmin_demo');
+  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="支付退款"]').click();
+  await expect(page.locator('.pc-subpage')).toContainText('支付退款');
+  await page.locator('#pc-content').evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+  expect(await page.locator('#pc-content').evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+
+  await page.locator('.pc-logout-action').click();
+  const loginEntry = await expectGuestEntry(page);
+  await loginEntry.click();
+  await page.locator('[data-dev-login="student_demo"]').click();
+  await expect(page.locator('#login-modal')).toBeHidden({ timeout: 20000 });
+  await openPersonalCenter(page);
+
+  await expect(page.locator('.pc-my-content-card').filter({ hasText: '我的内容' })).toContainText('最近学习');
+  await expect(page.locator('.pc-subpage')).toHaveCount(0);
+  await expect(page.locator('#personal-center')).not.toContainText('支付退款 · 平台支付管理');
+  expect(await page.locator('#pc-content').evaluate((element) => element.scrollTop)).toBe(0);
+});
+
 test('教学运营入口只展示机构接口返回的数据', async ({ page }) => {
   await loginWithDevUser(page, 'assistant_demo');
 
   const expectations = [
     { entry: '催交作业', source: '真实作业' },
     { entry: '学员跟进', source: '真实套餐到期时间和学习活跃度' },
-    { entry: '待联系学生', source: '真实套餐到期时间和学习活跃度' },
     { entry: '续费风险', source: '真实套餐到期时间和学习活跃度' },
+    { entry: '异常提醒', source: '真实未交作业和续费风险' },
+    { entry: '学习组', source: '当前老师参与的班级' },
+    { entry: '课程表', source: '已排时间的班课' },
     { entry: '课程包', source: '机构课程包接口' },
-    { entry: '安排课程', source: '当前已有排课' },
-    { entry: '联系记录', source: '当前接口未提供独立联系日志' },
-    { entry: '异常提醒', source: '真实未交作业和续费风险' }
+    { entry: '安排课程', source: '选择学习组进入排课详情' }
   ];
 
   for (const item of expectations) {
@@ -896,7 +1052,7 @@ test('老师和内容管理员入口连接真实工作台、反馈、试卷及�
     { entry: '我的学生', source: '分配给当前老师的学习组' },
     { entry: '学习组', source: '当前老师参与的班级' },
     { entry: '课程表', source: '已排时间的班课' },
-    { entry: '安排课程', source: '当前已有排课' },
+    { entry: '安排课程', source: '选择学习组进入排课详情' },
     { entry: '待批改', source: '机构成绩接口' },
     { entry: '布置作业', source: '真实学习组' },
     { entry: '成绩册', source: '真实作答记录' },
@@ -913,13 +1069,12 @@ test('老师和内容管理员入口连接真实工作台、反馈、试卷及�
   await page.reload({ waitUntil: 'domcontentloaded' });
   await loginWithDevUser(page, 'contentadmin_demo');
 
-  for (const entry of ['试卷维护', '解析审核', '音频检查', '质量检查', '图片检查', '答案检查']) {
-    await page.locator(`.pc-role-workbench-card .pc-workbench-action[title="${entry}"]`).click();
-    await expect(page.locator('.pc-subpage')).toContainText('列表来自反馈接口');
-    await page.locator('[data-dashboard-back]').click();
-  }
+  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="内容反馈"]').click();
+  await expect(page.locator('.pc-subpage')).toContainText('列表来自反馈接口');
+  await expect(page.locator('.pc-subpage')).toContainText('题目、答案、解析、图片和音频问题');
+  await page.locator('[data-dashboard-back]').click();
 
-  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="发布队列"]').click();
+  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="发布工作流"]').click();
   await expect(page.locator('.pc-subpage')).toContainText('题目导入 → 质量检查 → 解析审核 → 复核 → 发布版本');
   await expect(page.locator('.pc-subpage')).toContainText('暂无版本记录');
   await expect(page.locator('.pc-subpage')).not.toContainText('音频切割完成后可发布');
@@ -1052,11 +1207,60 @@ test('平台管理入口支持功能开关、退款和反馈处理闭环', async
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="支付退款"]').click();
   await page.locator('.pc-subpage .pc-lite-row').filter({ hasText: '套餐价格' }).click();
-  await expect(page.locator('.pc-subpage')).toContainText('超级管理员维护个人套餐价格');
-  await expect(page.locator('[data-price-plan="pro"][data-price-days="30"]')).toHaveValue('12.9');
-  await page.locator('[data-pricing-form] button[type="submit"]').click();
+  await expect(page.locator('.pc-subpage')).toContainText('统一维护个人与机构套餐价格');
+  await expect(page.locator('[data-price-scope="personal"][data-price-plan="pro"][data-price-days="30"]')).toHaveValue('19');
+  await expect(page.locator('[data-price-scope="organization"][data-price-plan="pro"][data-price-days="30"]')).toHaveValue('15');
+  await expect(page.locator('[data-price-min-seats="pro"]')).toHaveValue('20');
+  await expect(page.locator('[data-price-tier="2"][data-price-plan="ultra"]')).toHaveValue('219');
+  await expect(page.locator('[data-price-offer-card]')).toHaveCount(6);
+  await expect(page.locator('[data-price-offer-card][data-offer-scope="personal"][data-offer-id="first_purchase"] [data-offer-discount]')).toHaveValue('20');
+  await expect(page.locator('[data-price-offer-card][data-offer-scope="organization"][data-offer-id="renewal"] [data-offer-discount]')).toHaveValue('5');
+  await expect(page.locator('[data-renewal-reminder-days]')).toHaveValue('7, 3, 1');
+  await expect(page.locator('[data-renewal-price-notice-days]')).toHaveValue('7');
+  await expect(page.locator('[data-renewal-grace-days]')).toHaveValue('7');
+	  await expect(page.locator('.pc-renewal-operations')).toContainText('续费任务运行状态');
+	  await expect(page.locator('.pc-renewal-operations')).toContainText('邮件待重试');
+	  await expect(page.locator('.pc-renewal-operations')).toContainText('投递异常');
+	  await expect(page.locator('.pc-renewal-operations [data-renewal-job-run]')).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const pricingLayout = await page.locator('[data-pricing-form]').evaluate((form) => ({
+    viewportWidth: window.innerWidth,
+    cards: Array.from(form.querySelectorAll('[data-price-offer-card]')).map((card) => {
+      const box = card.getBoundingClientRect();
+      const fields = Array.from(card.querySelectorAll('.pc-profile-input')).map((input) => input.getBoundingClientRect().width);
+      return { left: box.left, right: box.right, width: box.width, fields };
+    }),
+    renewalFields: Array.from(form.querySelectorAll('.pc-pricing-renewal-controls .pc-profile-input')).map((input) => {
+      const box = input.getBoundingClientRect();
+      return { left: box.left, right: box.right, width: box.width };
+    })
+  }));
+  for (const card of pricingLayout.cards) {
+    expect(card.left).toBeGreaterThanOrEqual(0);
+    expect(card.right).toBeLessThanOrEqual(pricingLayout.viewportWidth + 1);
+    expect(card.width).toBeGreaterThan(240);
+    expect(Math.max(...card.fields) - Math.min(...card.fields)).toBeLessThanOrEqual(1);
+  }
+  for (const field of pricingLayout.renewalFields) {
+    expect(field.left).toBeGreaterThanOrEqual(0);
+    expect(field.right).toBeLessThanOrEqual(pricingLayout.viewportWidth + 1);
+    expect(field.width).toBeGreaterThan(240);
+	  }
+	  await page.setViewportSize({ width: 1440, height: 1100 });
+	  const desktopPricingOverflow = await page.locator('.pc-content').evaluate((content) => {
+	    const form = content.querySelector('[data-pricing-form]');
+	    return {
+	      contentClientWidth: content.clientWidth,
+	      contentScrollWidth: content.scrollWidth,
+	      formClientWidth: form?.clientWidth ?? 0,
+	      formScrollWidth: form?.scrollWidth ?? 0
+	    };
+	  });
+	  expect(desktopPricingOverflow.contentScrollWidth).toBeLessThanOrEqual(desktopPricingOverflow.contentClientWidth + 1);
+	  expect(desktopPricingOverflow.formScrollWidth).toBeLessThanOrEqual(desktopPricingOverflow.formClientWidth + 1);
+	  await page.locator('[data-pricing-form] button[type="submit"]').click();
   await page.locator('.pc-confirm-dialog [data-pc-confirm-ok]').click();
-  await expect(page.locator('#pc-toast')).toContainText('套餐价格已保存');
+  await expect(page.locator('#pc-toast')).toContainText('套餐价格、续费提醒与优惠规则已保存');
   await page.locator('[data-dashboard-back]').click();
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="支付退款"]').click();

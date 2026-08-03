@@ -77,6 +77,70 @@ Json::Value ContentWorkflowService::inspect(const std::string &examId, const std
     state["items"][examId]["updated_by"] = actorId; state["items"][examId]["updated_at"] = nowIso(); saveState(state); return state["items"][examId];
 }
 
+Json::Value ContentWorkflowService::inspectBatch(const std::vector<std::string> &examIds,
+                                                  const std::string &actorId)
+{
+    Json::Value inspections(Json::arrayValue);
+    int passedCount = 0;
+    int failedCount = 0;
+    int unavailableCount = 0;
+
+    // Read the exam snapshots before taking the workflow lock.  Exam storage
+    // has its own synchronization and may throw for an individual missing
+    // paper; one bad paper must not abort the remaining batch.
+    std::vector<std::pair<std::string, Json::Value>> exams;
+    exams.reserve(examIds.size());
+    for (const auto &examId : examIds)
+    {
+        try
+        {
+            exams.emplace_back(examId, examRepository_.getExamById(examId));
+        }
+        catch (const std::exception &error)
+        {
+            Json::Value item(Json::objectValue);
+            item["exam_id"] = examId;
+            item["processed"] = false;
+            item["passed"] = false;
+            item["message"] = error.what();
+            inspections.append(item);
+            ++unavailableCount;
+        }
+    }
+
+    std::scoped_lock lock(mutex_);
+    auto state = loadState();
+    for (const auto &[examId, exam] : exams)
+    {
+        const auto inspection = buildInspection(examId, exam);
+        auto &workflow = state["items"][examId];
+        workflow["inspection"] = inspection;
+        workflow["status"] = inspection["passed"].asBool() ? "quality_checked" : "quality_failed";
+        workflow["updated_by"] = actorId;
+        workflow["updated_at"] = nowIso();
+
+        Json::Value item(Json::objectValue);
+        item["exam_id"] = examId;
+        item["processed"] = true;
+        item["passed"] = inspection["passed"];
+        item["error_count"] = inspection["errors"].size();
+        item["warning_count"] = inspection["warnings"].size();
+        inspections.append(item);
+        if (inspection["passed"].asBool()) ++passedCount;
+        else ++failedCount;
+    }
+    saveState(state);
+
+    Json::Value result(Json::objectValue);
+    result["requested_count"] = static_cast<Json::UInt64>(examIds.size());
+    result["processed_count"] = static_cast<Json::UInt64>(exams.size());
+    result["passed_count"] = passedCount;
+    result["failed_count"] = failedCount;
+    result["unavailable_count"] = unavailableCount;
+    result["items"] = inspections;
+    return result;
+}
+
 Json::Value ContentWorkflowService::review(const std::string &examId, const std::string &stage, const Json::Value &payload, const std::string &actorId)
 {
     if (stage != "analysis" && stage != "secondary") throw common::AppException("CONTENT_REVIEW_STAGE_INVALID", "Invalid review stage", drogon::k422UnprocessableEntity);

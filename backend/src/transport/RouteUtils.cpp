@@ -133,7 +133,42 @@ std::string readToken(const drogon::HttpRequestPtr &req, const Json::Value *json
     {
         token = json->get("token", "").asString();
     }
+    if (token == "__cookie_session__")
+    {
+        token.clear();
+    }
+    if (token.empty())
+    {
+        token = req->getCookie("exam_session");
+    }
     return token;
+}
+
+void addSessionCookie(const drogon::HttpResponsePtr &response,
+                      const std::string &token,
+                      bool secure)
+{
+    drogon::Cookie cookie("exam_session", token);
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    cookie.setSecure(secure);
+    cookie.setSameSite(drogon::Cookie::SameSite::kLax);
+    cookie.setMaxAge(7 * 24 * 60 * 60);
+    response->addCookie(std::move(cookie));
+}
+
+void clearSessionCookie(const drogon::HttpResponsePtr &response,
+                        bool secure)
+{
+    // Drogon omits cookies whose value is empty, so use a non-empty tombstone
+    // together with Max-Age=0 to ensure the browser removes the cookie.
+    drogon::Cookie cookie("exam_session", "deleted");
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    cookie.setSecure(secure);
+    cookie.setSameSite(drogon::Cookie::SameSite::kLax);
+    cookie.setMaxAge(0);
+    response->addCookie(std::move(cookie));
 }
 
 Json::Value requireSession(application::services::AuthService &authService,
@@ -210,6 +245,14 @@ void requireFeature(application::services::FeatureFlagService &svc,
     {
         throw common::AppException("FEATURE_DISABLED", errorMessageZh, drogon::k403Forbidden);
     }
+}
+
+void requireEntitlement(application::services::SubscriptionService &svc,
+                        const std::string &userId,
+                        const std::string &entitlementKey,
+                        const std::string &errorMessageZh)
+{
+    svc.requireEntitlement(userId, entitlementKey, errorMessageZh);
 }
 
 void applyNoCacheHeaders(const drogon::HttpResponsePtr &response)

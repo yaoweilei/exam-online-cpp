@@ -4,6 +4,8 @@
 /* 容器统一宽度：用 wrapper 控制，内部元素不再单独设 max-width */
 #exam-content {
 	width: var(--exam-content-width-internal, auto);
+	max-width: 100%;
+	box-sizing: border-box;
 	/* 仅通过变量控制宽度 */
 	min-width: 0;
 	/* 允许缩到任意更小 */

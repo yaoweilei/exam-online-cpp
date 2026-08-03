@@ -12,7 +12,7 @@
 // 职责：
 //   1. 在 ExamViewer.loadExamData 之后启动后端计时（POST /api/v1/timers/{userId}/start）
 //   2. 每 15 秒做一次心跳 tick，累计当前 section 的用时
-//   3. 在 #exam-header 顶部渲染一个轻量的"计时条"：
+//   3. 在试卷选择栏渲染一个紧凑的计时状态：
 //        - 已用时（mm:ss）
 //        - 全卷剩余（若设置了 total_limit_seconds）
 //        - 当前小节剩余（若该 section 设置了 section_limits_seconds[i]）
@@ -72,7 +72,7 @@ class ExamTimerManager {
 	}
 
 	/**
-	 * 启动当前考试计时（前端直接调用，幂等）
+	 * 启动当前模拟考试计时（前端直接调用，幂等）
 	 *   - guest 不计时
 	 *   - 同 examId 重复调用：仅启动 tick，不重置后端
 	 *   - 切换 examId：先停掉旧 tick，再启动新计时
@@ -81,6 +81,10 @@ class ExamTimerManager {
 		totalLimitSeconds?: number;
 		sectionLimitsSeconds?: number[];
 	}): void {
+		if (this.examViewer.examMode !== 'mock') {
+			this.stop();
+			return;
+		}
 		const userId = this.examViewer.userId;
 		if (!userId || userId === 'guest' || !examId) {
 			return;
@@ -194,13 +198,14 @@ class ExamTimerManager {
 	}
 
 	/**
-	 * 渲染顶部"计时条" -> 注入到 #exam-header
+	 * 在试卷选择栏中渲染紧凑计时状态，不单独占用内容行。
 	 */
 	private renderBar(): void {
 		this.removeBar();
+		if (this.examViewer.examMode !== 'mock') return;
 		const snapshot = this.lastSnapshot;
-		const header = document.getElementById('exam-header');
-		if (!snapshot || !header) return;
+		const slot = document.getElementById('exam-timer-slot');
+		if (!snapshot || !slot) return;
 		const elapsed = formatDuration(Number(snapshot.elapsed_seconds || 0));
 		const totalLimit = Number(snapshot.total_limit_seconds || 0);
 		const remaining = Number(snapshot.total_remaining_seconds || 0);
@@ -211,8 +216,22 @@ class ExamTimerManager {
 		bar.setAttribute('aria-live', snapshot.expired ? 'assertive' : 'off');
 		const sectionLimit = Number(snapshot.section_limit_seconds || 0);
 		const sectionRemaining = Number(snapshot.section_remaining_seconds || 0);
-		bar.innerHTML = `<span>已用 ${elapsed}</span>${totalLimit > 0 ? `<strong>全卷剩余 ${formatDuration(remaining)}</strong>` : ''}${sectionLimit > 0 ? `<strong class="section-remaining">本部分剩余 ${formatDuration(sectionRemaining)}</strong>` : ''}`;
-		header.appendChild(bar);
+		const primaryText = snapshot.expired
+			? '时间已到'
+			: sectionLimit > 0
+				? `本部分 ${formatDuration(sectionRemaining)}`
+				: totalLimit > 0
+					? `剩余 ${formatDuration(remaining)}`
+					: `已用 ${elapsed}`;
+		const details = [`已用 ${elapsed}`];
+		if (totalLimit > 0) details.push(`全卷剩余 ${formatDuration(remaining)}`);
+		if (sectionLimit > 0) details.push(`本部分剩余 ${formatDuration(sectionRemaining)}`);
+		bar.textContent = primaryText;
+		bar.title = details.join(' · ');
+		bar.setAttribute('aria-label', details.join('，'));
+		slot.hidden = false;
+		slot.appendChild(bar);
+		document.getElementById('exam-library-panel')?.classList.add('has-exam-timer');
 	}
 
 	private removeBar(): void {
@@ -220,6 +239,9 @@ class ExamTimerManager {
 		if (bar && bar.parentNode) {
 			bar.parentNode.removeChild(bar);
 		}
+		const slot = document.getElementById('exam-timer-slot');
+		if (slot) slot.hidden = true;
+		document.getElementById('exam-library-panel')?.classList.remove('has-exam-timer');
 	}
 
 	/**

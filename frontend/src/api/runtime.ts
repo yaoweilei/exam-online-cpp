@@ -21,6 +21,7 @@ export function readStoredUserId(): string {
 
 export function readStoredToken(): string {
 	try {
+		// Legacy migration only. New sessions are carried by an HttpOnly cookie.
 		return localStorage.getItem('exam_v2_token') || '';
 	} catch {
 		return '';
@@ -48,6 +49,7 @@ export async function requestApi<T>(path: string, options: RequestInit = {}, bas
 		response = await fetch(buildApiUrl(path, baseUrl), {
 			...options,
 			signal: controller.signal,
+			credentials: 'same-origin',
 			headers: {
 				'Content-Type': 'application/json',
 				...(token ? { Authorization: `Bearer ${token}` } : {}),
