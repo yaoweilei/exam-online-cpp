@@ -17,6 +17,7 @@
 #include "application/services/ContactChangeChallengeService.h"
 #include "application/services/DraftService.h"
 #include "application/services/EmailVerificationService.h"
+#include "application/services/FeatureFlagService.h"
 #include "application/services/AnswerService.h"
 #include "application/services/AssignmentService.h"
 #include "application/services/AuthService.h"
@@ -26,12 +27,14 @@
 #include "application/services/PhoneService.h"
 #include "application/services/SubscriptionService.h"
 #include "application/services/UserService.h"
+#include "application/services/WechatService.h"
 #include "common/RequestId.h"
 #include "common/AppException.h"
 #include "infrastructure/storage/AnswerRepository.h"
 #include "infrastructure/storage/AssignmentRepository.h"
 #include "infrastructure/storage/AttemptTimerRepository.h"
 #include "infrastructure/storage/DraftRepository.h"
+#include "infrastructure/storage/FeatureFlagRepository.h"
 #include "infrastructure/storage/OrganizationRepository.h"
 #include "infrastructure/storage/ProfileRepository.h"
 #include "infrastructure/storage/SessionRepository.h"
@@ -660,6 +663,26 @@ void testAuthSessionPersistsAcrossServiceInstances()
     });
 }
 
+void testWechatDevelopmentMobileEntryRequiresExplicitIdentity()
+{
+	ScopedTempDir tempDir;
+	infrastructure::storage::UserRepository userRepository(tempDir.path());
+	infrastructure::storage::ProfileRepository profileRepository(tempDir.path());
+	infrastructure::storage::SessionRepository sessionRepository(tempDir.path());
+	application::services::AuthService authService(userRepository, profileRepository, true, &sessionRepository);
+	application::services::WechatService wechatService(
+		userRepository,
+		authService,
+		application::services::WechatService::Config{});
+
+	const auto entry = wechatService.generateMobileAuthorization();
+	assert(entry.get("stub", false).asBool());
+	assert(entry.get("auth_url", "unexpected").asString().empty());
+	assert(entry["test_ids"].isArray());
+	assert(entry["test_ids"].size() == 6);
+	assert(entry.get("qrcode_url", "").asString().find("student_demo") == std::string::npos);
+}
+
 void testAuthSessionsAreCappedPerUser()
 {
     ScopedTempDir tempDir;
@@ -720,7 +743,7 @@ void testPasswordLifecycle()
     expectAppException("REAUTH_FAILED", [&]() {
         authService.requirePasswordReauthentication(userId, "wrong-password");
     });
-    authService.changePassword(userId, "Start12345", "Changed12345");
+    authService.changePassword(userId, "Changed12345");
     expectAppException("INVALID_CREDENTIALS", [&]() {
         (void)authService.login("password_lifecycle_smoke", "Start12345");
     });
@@ -882,12 +905,43 @@ void testOrganizationMemberPermissionOverrides()
         "http://127.0.0.1:8000");
     application::services::UserService userService(userRepository, profileRepository, organizationRepository, subscriptionService);
 
+    const auto platformRoleTemplates = userService.platformRoleTemplates();
+    bool sawOrganizationAssistant = false;
+    bool sawPlatformContentAdmin = false;
+    bool sawOrganizationContentAdminAsPlatformRole = false;
+    for (const auto &role : platformRoleTemplates)
+    {
+        const auto roleId = role.get("id", "").asString();
+        if (roleId == "assistant")
+        {
+            sawOrganizationAssistant = true;
+            assert(role.get("organization_override_eligible", false).asBool());
+            assert(role.get("allow_organization_override", false).asBool());
+        }
+        else if (roleId == "contentAdmin")
+        {
+            sawPlatformContentAdmin = true;
+            assert(!role.get("organization_override_eligible", true).asBool());
+            assert(!role.get("allow_organization_override", true).asBool());
+        }
+        else if (roleId == "orgContentAdmin")
+        {
+            sawOrganizationContentAdminAsPlatformRole = true;
+        }
+    }
+    assert(sawOrganizationAssistant);
+    assert(sawPlatformContentAdmin);
+    assert(!sawOrganizationContentAdminAsPlatformRole);
+
     const auto owner = userRepository.createUser("org_override_owner", "secret", "owner@example.com");
     const auto teacher = userRepository.createUser("org_override_teacher", "secret", "teacher@example.com");
+    const auto organizationContentAdmin = userRepository.createUser("org_content_admin", "secret", "org-content@example.com");
     const auto ownerId = owner.get("id", "").asString();
     const auto teacherId = teacher.get("id", "").asString();
+    const auto organizationContentAdminId = organizationContentAdmin.get("id", "").asString();
     assert(!ownerId.empty());
     assert(!teacherId.empty());
+    assert(!organizationContentAdminId.empty());
 
     Json::Value createOrg(Json::objectValue);
     createOrg["name"] = "Permission Override Smoke";
@@ -896,6 +950,28 @@ void testOrganizationMemberPermissionOverrides()
     const auto organization = organizationService.createOrganization(ownerId, createOrg);
     const auto organizationId = organization.get("organization_id", "").asString();
     assert(!organizationId.empty());
+    const auto containsPermission = [](const Json::Value &permissions, const std::string &expected) {
+        for (const auto &permission : permissions)
+        {
+            if (permission.asString() == expected)
+            {
+                return true;
+            }
+        }
+        return false;
+    };
+    const auto roleDefaults = organization.get("role_default_permissions", Json::Value(Json::objectValue));
+    assert(roleDefaults.isObject());
+    assert(containsPermission(roleDefaults["assistant"], "assignment.review"));
+    assert(containsPermission(roleDefaults["assistant"], "gradebook.view"));
+    assert(!containsPermission(roleDefaults["assistant"], "student.profile.edit"));
+    assert(containsPermission(roleDefaults["teacher"], "learning_record.feedback.edit"));
+    assert(!containsPermission(roleDefaults["teacher"], "student.profile.edit"));
+    assert(containsPermission(roleDefaults["orgAdmin"], "organization.billing.manage"));
+    assert(containsPermission(roleDefaults["orgContentAdmin"], "course_package.manage"));
+    assert(containsPermission(roleDefaults["orgContentAdmin"], "course_package.view"));
+    assert(!containsPermission(roleDefaults["orgContentAdmin"], "content.publish"));
+    assert(!roleDefaults.isMember("contentAdmin"));
 
     Json::Value roles(Json::arrayValue);
     roles.append("teacher");
@@ -935,6 +1011,37 @@ void testOrganizationMemberPermissionOverrides()
     assert(member["permission_overrides"].size() == 2);
     assert(member["permission_overrides"][0].get("permission", "").asString() == "student.import");
     assert(member["permission_overrides"][1].get("effect", "").asString() == "deny");
+
+    const Json::Value noPlatformRoles(Json::arrayValue);
+    Json::Value organizationContentAdminRoles(Json::arrayValue);
+    organizationContentAdminRoles.append("orgContentAdmin");
+    Json::Value organizationContentAdminPayload(Json::objectValue);
+    organizationContentAdminPayload["user_id"] = organizationContentAdminId;
+    organizationContentAdminPayload["roles"] = organizationContentAdminRoles;
+    const auto organizationContentMember = organizationService.upsertMember(
+        ownerId, organizationId, organizationContentAdminPayload);
+    assert(organizationContentMember["roles"].size() == 1);
+    assert(organizationContentMember["roles"][0].asString() == "orgContentAdmin");
+    assert(organizationService.hasOrganizationPermission(
+        organizationContentAdminId, noPlatformRoles, organizationId, "course_package.manage"));
+    assert(!organizationService.hasOrganizationPermission(
+        organizationContentAdminId, noPlatformRoles, organizationId, "organization.member.manage"));
+    assert(!organizationService.hasOrganizationPermission(
+        organizationContentAdminId, noPlatformRoles, organizationId, "content.publish"));
+    assert(organizationService.hasOrganizationPermission(
+        teacherId, noPlatformRoles, organizationId, "assignment.create"));
+    assert(organizationService.hasOrganizationPermission(
+        teacherId, noPlatformRoles, organizationId, "learning_record.feedback.edit"));
+    assert(!organizationService.hasOrganizationPermission(
+        teacherId, noPlatformRoles, organizationId, "student.profile.edit"));
+    assert(organizationService.hasOrganizationPermission(
+        teacherId, noPlatformRoles, organizationId, "student.import"));
+    assert(!organizationService.hasOrganizationPermission(
+        teacherId, noPlatformRoles, organizationId, "organization.member.manage"));
+    assert(!organizationService.hasOrganizationPermission(
+        teacherId, noPlatformRoles, organizationId, "assignment.create", "learningGroup", "lg_smoke_001"));
+    assert(organizationService.hasOrganizationPermission(
+        teacherId, noPlatformRoles, organizationId, "assignment.create", "learningGroup", "lg_smoke_002"));
 
     auto teacherProfile = profileRepository.loadProfile(teacherId);
     teacherProfile["scope_type"] = "organization";
@@ -1041,8 +1148,21 @@ void testOrganizationLearningModel()
     const auto coursePackage = organizationService.upsertCoursePackage(ownerId, organizationId, packagePayload);
     const auto coursePackageId = coursePackage.get("course_package_id", "").asString();
     assert(!coursePackageId.empty());
+    assert(coursePackageId.rfind("acct_", 0) == 0);
     assert(coursePackage.get("remaining_lessons", 0).asInt() == 17);
     assert(coursePackage.get("status", "").asString() == "active");
+    assert(organizationService.listCoursePackages(organizationId).size() == 1);
+
+    Json::Value templatePayload(Json::objectValue);
+    templatePayload["record_type"] = "template";
+    templatePayload["title"] = "文综 20 课时模板";
+    templatePayload["subject"] = "sogo";
+    templatePayload["total_lessons"] = 20;
+    const auto coursePackageTemplate = organizationService.upsertCoursePackage(ownerId, organizationId, templatePayload);
+    const auto coursePackageTemplateId = coursePackageTemplate.get("course_package_id", "").asString();
+    assert(coursePackageTemplateId.rfind("tpl_", 0) == 0);
+    const auto deletedTemplate = organizationService.deleteCoursePackage(ownerId, organizationId, coursePackageTemplateId);
+    assert(deletedTemplate.get("course_package_id", "").asString() == coursePackageTemplateId);
     assert(organizationService.listCoursePackages(organizationId).size() == 1);
 
     Json::Value bookingPayload(Json::objectValue);
@@ -1068,6 +1188,31 @@ void testOrganizationLearningModel()
     assert(!completedAgain.get("deducted", true).asBool());
     assert(completedAgain["course_package"].get("remaining_lessons", 0).asInt() == 16);
     assert(completedAgain["course_package"].get("used_lessons", 0).asInt() == 4);
+
+    Json::Value pausedPackagePayload(Json::objectValue);
+    pausedPackagePayload["course_package_id"] = coursePackageId;
+    pausedPackagePayload["status"] = "paused";
+    const auto pausedPackage = organizationService.upsertCoursePackage(ownerId, organizationId, pausedPackagePayload);
+    assert(pausedPackage.get("status", "").asString() == "paused");
+
+    Json::Value pausedBookingPayload(Json::objectValue);
+    pausedBookingPayload["name"] = "暂停账户约课";
+    pausedBookingPayload["type"] = "booking";
+    pausedBookingPayload["course_package_id"] = coursePackageId;
+    const auto pausedBooking = organizationService.upsertLearningGroup(ownerId, organizationId, pausedBookingPayload);
+    expectAppException("COURSE_PACKAGE_UNAVAILABLE", [&]() {
+        (void)organizationService.completeLearningGroup(ownerId, organizationId, pausedBooking.get("learning_group_id", "").asString(), Json::Value(Json::objectValue));
+    });
+
+    Json::Value expiredPackagePayload(Json::objectValue);
+    expiredPackagePayload["course_package_id"] = coursePackageId;
+    expiredPackagePayload["status"] = "active";
+    expiredPackagePayload["expires_at"] = "2020-01-01T00:00:00.000Z";
+    const auto expiredPackage = organizationService.upsertCoursePackage(ownerId, organizationId, expiredPackagePayload);
+    assert(expiredPackage.get("status", "").asString() == "expired");
+    expectAppException("COURSE_PACKAGE_EXPIRED", [&]() {
+        (void)organizationService.completeLearningGroup(ownerId, organizationId, pausedBooking.get("learning_group_id", "").asString(), Json::Value(Json::objectValue));
+    });
 
     const auto organizationAfterUpdate = organizationService.getOrganization(organizationId);
     bool sawCampusAudit = false;
@@ -1302,6 +1447,45 @@ void testAuditLogsRotateAndRemainQueryable()
     assert(contentActions["actions"].size() == 1);
     assert(contentActions["actions"][0].asString() == "content.exam.updated");
 }
+
+void testOrganizationFeatureFlagsRejectUnsupportedOverrides()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::ProfileRepository profileRepository(tempDir.path());
+    infrastructure::storage::OrganizationRepository organizationRepository(tempDir.path());
+
+    Json::Value organization(Json::objectValue);
+    organization["organization_id"] = "org-feature-flags";
+    organization["name"] = "Feature flag test";
+    organization["feature_flags"]["oauth_extra"]["enabled"] = false;
+    organization["feature_flags"]["admin_dashboard"]["enabled"] = false;
+    organization["feature_flags"]["related_questions"]["enabled"] = false;
+    organizationRepository.upsertOrganization(organization);
+
+    infrastructure::storage::FeatureFlagRepository featureFlagRepository(
+        tempDir.path() / "system",
+        organizationRepository,
+        profileRepository);
+    application::services::FeatureFlagService service(featureFlagRepository, organizationRepository);
+
+    Json::Value patch(Json::objectValue);
+    patch["oauth_extra"]["enabled"] = false;
+    patch["audit_log_viewer"]["enabled"] = false;
+    patch["related_questions"]["enabled"] = true;
+    const auto updated = service.updateOrgFlags("org-feature-flags", patch);
+
+    assert(updated.isMember("related_questions"));
+    assert(updated["related_questions"].get("enabled", false).asBool());
+    assert(!updated.isMember("oauth_extra"));
+    assert(!updated.isMember("admin_dashboard"));
+    assert(!updated.isMember("audit_log_viewer"));
+
+    const auto persisted = featureFlagRepository.loadOrgFlags("org-feature-flags");
+    assert(persisted.isMember("related_questions"));
+    assert(!persisted.isMember("oauth_extra"));
+    assert(!persisted.isMember("admin_dashboard"));
+    assert(!persisted.isMember("audit_log_viewer"));
+}
 }  // namespace
 
 int main()
@@ -1315,7 +1499,8 @@ int main()
     testEmailRebindNotifiesPreviouslyVerifiedAddress();
     testPhoneRebindNotifiesPreviouslyVerifiedNumber();
     testPhoneVerificationDailyLimit();
-    testAuthSessionPersistsAcrossServiceInstances();
+	testAuthSessionPersistsAcrossServiceInstances();
+	testWechatDevelopmentMobileEntryRequiresExplicitIdentity();
     testAuthSessionsAreCappedPerUser();
     testPasswordLifecycle();
     testPasswordsUseSaltedScryptAndMigrateLegacyHashes();
@@ -1329,5 +1514,6 @@ int main()
     testAnswerSubmissionIdempotencyAndHistory();
     testExpiredSectionsPersistInTimerSnapshot();
     testAuditLogsRotateAndRemainQueryable();
+    testOrganizationFeatureFlagsRejectUnsupportedOverrides();
     return 0;
 }

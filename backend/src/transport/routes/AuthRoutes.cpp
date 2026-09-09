@@ -89,11 +89,16 @@ void registerAuthRoutes(const AppContext &ctx)
                 const auto body = parseJsonBody(req);
                 const auto token = readToken(req, &body);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                const auto currentPassword = body.get("current_password", "").asString();
+                if (session.get("authentication_method", "").asString() != "phone_code")
+                {
+                    throw common::AppException(
+                        "PHONE_VERIFICATION_REQUIRED",
+                        "Sign in with a phone verification code before changing the password",
+                        k403Forbidden);
+                }
                 const auto newPassword = requireString(body, "new_password");
                 auto result = ctx.authService->changePassword(
                         session.get("user_id", "").asString(),
-                        currentPassword,
                         newPassword);
                 result["revoked_sessions"] = ctx.authService->revokeSessionsForUser(
                     session.get("user_id", "").asString(),
@@ -200,37 +205,6 @@ void registerAuthRoutes(const AppContext &ctx)
                 return common::ok(req,
                     result,
                     "account_deactivated");
-            });
-        },
-        {Post});
-
-    app().registerHandler(
-        "/api/v1/auth/password/reset/send-code",
-        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
-            handleRequest(req, std::move(callback), [&]() {
-                const auto body = parseJsonBody(req);
-                const auto loginId = requireString(body, "login_id");
-                return common::ok(
-                    req,
-                    ctx.authService->sendPasswordResetCode(loginId, clientKey(req)),
-                    "code_sent");
-            });
-        },
-        {Post});
-
-    app().registerHandler(
-        "/api/v1/auth/password/reset",
-        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
-            handleRequest(req, std::move(callback), [&]() {
-                const auto body = parseJsonBody(req);
-                const auto loginId = requireString(body, "login_id");
-                const auto code = requireString(body, "code");
-                const auto newPassword = requireString(body, "new_password");
-                return sessionResponse(
-                    req,
-                    ctx.authService->resetPassword(loginId, code, newPassword),
-                    "ok",
-                    ctx.secureCookies);
             });
         },
         {Post});

@@ -62,7 +62,8 @@ void registerContactRoutes(const AppContext &ctx)
                         const auto token = ctx.authService->createSessionForUser(
                             user,
                             req->peerAddr().toIp(),
-                            req->getHeader("User-Agent"));
+                            req->getHeader("User-Agent"),
+                            "phone_code");
                         auto out = ctx.authService->verify(token);
                         out["token"] = token;
                         out["switched_user"] = true;
@@ -81,7 +82,8 @@ void registerContactRoutes(const AppContext &ctx)
                 const auto token = ctx.authService->createSessionForUser(
                     user,
                     req->peerAddr().toIp(),
-                    req->getHeader("User-Agent"));
+                    req->getHeader("User-Agent"),
+                    "phone_code");
                 auto out = ctx.authService->verify(token);
                 out["token"] = token;
                 if (ctx.secureCookies)

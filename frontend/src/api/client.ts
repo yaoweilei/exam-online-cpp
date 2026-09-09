@@ -80,12 +80,11 @@ export class ApiClient {
 		});
 	}
 
-	changePassword(token: string, currentPassword: string, newPassword: string): Promise<unknown> {
+	changePassword(token: string, newPassword: string): Promise<unknown> {
 		return this.request('/auth/password/change', {
 			method: 'POST',
 			body: JSON.stringify({
 				token,
-				current_password: currentPassword,
 				new_password: newPassword
 			})
 		});

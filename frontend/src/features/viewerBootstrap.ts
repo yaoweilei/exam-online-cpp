@@ -60,10 +60,11 @@ const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'AnswerManager', path: '../viewer/managers/AnswerManager.js' },
 	{ name: 'QuestionMapManager', path: '../viewer/managers/QuestionMapManager.js' },
 	{ name: 'CategoryNavigationManager', path: '../viewer/managers/CategoryNavigationManager.js' },
-	{ name: 'QuestionRenderer', path: '../viewer/renderers/QuestionRenderer.js' },
-	{ name: 'ExamViewer', path: '../viewer/core/ExamViewer.js' },
-	{ name: 'PersonalCenter', path: '../viewer/personalCenter.js?v=20260730-renewal-delivery' }
+	{ name: 'QuestionRenderer', path: '../viewer/renderers/QuestionRenderer.js?v=20260828-question-tools-v1' },
+	{ name: 'ExamViewer', path: '../viewer/core/ExamViewer.js?v=20260828-question-tools-v1' }
 ];
+
+const PERSONAL_CENTER_MODULE = '../viewer/personalCenter.js?v=20260909-pricing-workspace-v25';
 
 const REQUIRED_GLOBALS = [
 	'DOMUtils',
@@ -103,10 +104,14 @@ function getGlobalWindow(): Window & Record<string, unknown> {
 }
 
 async function loadViewerModules(): Promise<void> {
+	// Browser module fetching can happen concurrently. Evaluation still follows
+	// the dependency graph declared by each module, while independent downloads
+	// no longer add one network round-trip per file on a cold LAN visit.
+	await Promise.all(VIEWER_MODULES.map((moduleDef) => import(moduleDef.path)));
 	for (const moduleDef of VIEWER_MODULES) {
-		// Keep evaluation ordered because these modules communicate through window globals.
-		// eslint-disable-next-line no-await-in-loop
-		await import(moduleDef.path);
+		if (moduleDef.name !== 'APIClient' && !getGlobalWindow()[moduleDef.name]) {
+			throw new Error(`${moduleDef.name} module did not initialize`);
+		}
 	}
 }
 
@@ -347,6 +352,7 @@ async function syncFamilyAndLevelSelects(
 	const currentFamily = preserveCurrentValue ? familySelect.value : '';
 	familySelect.innerHTML = buildFamilyOptions(examsByFamily);
 	familySelect.value = currentFamily && examsByFamily[currentFamily] ? currentFamily : getDefaultFamily(examsByFamily);
+	familySelect.disabled = false;
 
 	syncLegacyLevelCache(familySelect.value);
 	setLevelSelectMode(levelSelect, familySelect.value);
@@ -380,11 +386,13 @@ async function syncPaperSelect(
 	const exams = isLeveledExamFamily(family) ? (level ? (levelMap[level] ?? []) : []) : collectFamilyExams(levelMap);
 	if (exams.length === 0) {
 		paperSelect.innerHTML = buildPaperOptions([], userProgressCache);
+		paperSelect.disabled = true;
 		return;
 	}
 
 	const currentValue = preserveCurrentValue ? paperSelect.value : '';
 	paperSelect.innerHTML = buildPaperOptions(exams, userProgressCache);
+	paperSelect.disabled = false;
 
 	if (currentValue && exams.some((exam) => exam.id === currentValue)) {
 		paperSelect.value = currentValue;
@@ -516,6 +524,7 @@ async function initExamSelectors(): Promise<void> {
 		try {
 			const container = document.getElementById('current-question-container');
 			if (container) {
+				container.setAttribute('aria-busy', 'true');
 				container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">加载中...</div>';
 			}
 
@@ -534,6 +543,7 @@ async function initExamSelectors(): Promise<void> {
 				viewerForTimer._currentExamId = examId;
 			}
 			globalWindow.examViewer?.loadExamData(examData);
+			container?.removeAttribute('aria-busy');
 			// B2：并行拉取该试卷的句级译文（失败不阻塞主流程）
 			const translationMgr = (globalWindow as unknown as { TranslationManager?: { loadForExam: (id: string) => Promise<void>; installDelegation: () => void } }).TranslationManager;
 			if (translationMgr) {
@@ -558,6 +568,7 @@ async function initExamSelectors(): Promise<void> {
 			}
 			const container = document.getElementById('current-question-container');
 			if (container) {
+				container.removeAttribute('aria-busy');
 				const message = error instanceof Error ? error.message : String(error);
 				container.innerHTML = `<div style="padding: 40px; text-align: center; color: red;">加载失败：${message}</div>`;
 			}
@@ -626,7 +637,7 @@ function createExamViewer(): void {
 	);
 }
 
-export async function bootViewerApp(): Promise<void> {
+export async function bootViewerApp(examsReady?: Promise<unknown>): Promise<void> {
 	const globalWindow = getGlobalWindow();
 	if (globalWindow.__VIEWER_BOOTED__) {
 		return;
@@ -635,10 +646,15 @@ export async function bootViewerApp(): Promise<void> {
 	globalWindow.__VIEWER_BOOTED__ = true;
 
 	try {
+		// Personal center is the largest module. Start downloading it immediately,
+		// but do not let it block creation of the exam viewer.
+		const personalCenterReady = import(PERSONAL_CENTER_MODULE);
 		await loadViewerModules();
+		if (examsReady) await examsReady;
 		createExamViewer();
 		window.refreshPaperSelectIcons = refreshPaperSelectIcons;
 		await initExamSelectors();
+		await personalCenterReady;
 	} catch (error) {
 		globalWindow.__VIEWER_BOOTED__ = false;
 		console.error('[viewerBootstrap] boot failed:', error);

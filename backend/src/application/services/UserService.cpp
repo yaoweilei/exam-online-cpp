@@ -131,9 +131,16 @@ Json::Value UserService::platformRoleTemplates() const
     for (const auto &id : roles.getMemberNames())
     {
         Json::Value role = roles[id];
+        if (role.get("organization_only", false).asBool())
+        {
+            continue;
+        }
         role["id"] = id;
         role["default_permissions"] = role.get("permissions", Json::Value(Json::arrayValue));
-        role["allow_organization_override"] = role.get("allow_organization_override", id != "superAdmin").asBool();
+        const bool organizationOverrideEligible = id == "student" || id == "assistant" || id == "teacher" || id == "orgAdmin";
+        role["organization_override_eligible"] = organizationOverrideEligible;
+        role["allow_organization_override"] = organizationOverrideEligible &&
+            role.get("allow_organization_override", true).asBool();
         role["protected"] = id == "superAdmin" || id == "guest";
         out.append(role);
     }
@@ -552,7 +559,6 @@ Json::Value UserService::visibleSections(const Json::Value &userRoles, const Jso
     add("subscription", "套餐");
     add("roles", "角色权限");
     add("learning", "学习能力", {"student", "teacher", "assistant", "orgAdmin", "superAdmin"});
-    add("admin-hub", "管理面板", {"teacher", "assistant", "orgAdmin", "contentAdmin", "superAdmin"});
     add("logout", "退出登录");
     return sections;
 }

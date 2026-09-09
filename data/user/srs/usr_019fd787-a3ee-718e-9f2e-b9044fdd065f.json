@@ -1,0 +1,22 @@
+{
+  "cards" : 
+  [
+    {
+      "card_id" : "2023_02:1:1",
+      "created_at" : "2026-08-06T14:43:47.208Z",
+      "due_at" : "2026-08-06T14:43:47.208Z",
+      "ease" : 2.5,
+      "exam_id" : "2023_02",
+      "interval_days" : 0,
+      "lapses" : 0,
+      "last_grade" : -1,
+      "last_reviewed_at" : "",
+      "question_id" : "1:1",
+      "question_type" : "",
+      "reps" : 0,
+      "snapshot" : {},
+      "updated_at" : "2026-08-06T14:43:47.208Z"
+    }
+  ],
+  "user_id" : "usr_019fd787-a3ee-718e-9f2e-b9044fdd065f"
+}

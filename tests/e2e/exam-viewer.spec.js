@@ -11,12 +11,19 @@ async function loadEjuPaper(page, paperId = '2023_02') {
 
 	const familySelect = page.locator('#exam-family-select');
 	const paperSelect = page.locator('#exam-paper-select');
+	const settingsToggle = page.locator('#exam-settings-toggle');
+	let openedSettings = false;
 
 	await expect(familySelect).toContainText('EJU', { timeout: 20000 });
 	if (!await familySelect.isVisible()) {
-		const paperToggle = page.locator('#mobile-paper-toggle');
-		await expect(paperToggle).toBeVisible();
-		await paperToggle.click();
+		if (await settingsToggle.isVisible()) {
+			await settingsToggle.click();
+			openedSettings = true;
+		} else {
+			const paperToggle = page.locator('#mobile-paper-toggle');
+			await expect(paperToggle).toBeVisible();
+			await paperToggle.click();
+		}
 	}
 	await familySelect.selectOption('eju');
 	await expect(paperSelect).toContainText(paperId, { timeout: 20000 });
@@ -27,6 +34,7 @@ async function loadEjuPaper(page, paperId = '2023_02') {
 		return viewer?.currentExam?.exam_info?.title === expectedTitle
 			&& Boolean(viewer?.currentExam?.exam_info?.sections?.length);
 	}, `EJU-Japanese-${paperId}`);
+	if (openedSettings && await settingsToggle.getAttribute('aria-expanded') === 'true') await settingsToggle.click();
 }
 
 async function selectViewerCategory(page, categoryId) {
@@ -35,6 +43,23 @@ async function selectViewerCategory(page, categoryId) {
 	}, categoryId);
 	const expectedCategoryId = ['writing', 'reading'].includes(categoryId) ? 'writing_reading' : categoryId;
 	await page.waitForFunction((id) => window.examViewer?.currentCategory === id, expectedCategoryId);
+}
+
+async function clickLearningAssist(page, controlId) {
+	const settingsToggle = page.locator('#exam-settings-toggle');
+	const menuId = controlId.replace('#toggle-', '#learning-menu-').replace('reading-', '');
+	if (await settingsToggle.isVisible()) {
+		if (await settingsToggle.getAttribute('aria-expanded') !== 'true') await settingsToggle.click();
+		await page.locator(menuId).click();
+		return;
+	}
+	const desktopToggle = page.locator('#learning-tools-toggle');
+	if (await desktopToggle.isVisible()) {
+		if (await desktopToggle.getAttribute('aria-expanded') !== 'true') await desktopToggle.click();
+		await page.locator(menuId).click();
+		return;
+	}
+	await page.locator(controlId).click();
 }
 
 async function requestExamMode(page, mode) {
@@ -81,14 +106,14 @@ test('试卷查看器可以通过 Web 选择 EJU 试卷并打开学习辅助面�
 	await expect(questionContainer).not.toContainText('加载失败');
 	await expect(questionContainer).not.toBeEmpty();
 
-  await page.locator('#toggle-answers').click();
+  await clickLearningAssist(page, '#toggle-answers');
   await expect(questionContainer).not.toContainText('加载失败');
 
-  await page.locator('#toggle-explanations').click();
+  await clickLearningAssist(page, '#toggle-explanations');
   await expect(questionContainer).not.toContainText('加载失败');
 
-  await page.locator('#toggle-reading-kana').click();
-  await page.locator('#toggle-reading-zh').click();
+  await clickLearningAssist(page, '#toggle-reading-kana');
+  await clickLearningAssist(page, '#toggle-reading-zh');
   await expect(questionContainer).not.toContainText('加载失败');
 
 	await page.locator('#open-question-map').click();
@@ -528,7 +553,7 @@ test('交卷结果支持错题复盘和再做一次', async ({ page }) => {
 	}));
 	await page.locator('[data-result-action="retry"]').click();
 	await expect(page.locator('#exam-result-modal')).toBeHidden();
-	await expect(page.locator('#submit-exam')).toBeEnabled();
+	await expect(page.locator('#submit-exam')).toBeHidden();
 	expect(await page.evaluate(() => ({
 		submitted: window.examViewer.isSubmitted,
 		answered: Object.values(window.examViewer.userAnswers).filter((value) => value !== null && value !== undefined && value !== '').length
@@ -537,7 +562,7 @@ test('交卷结果支持错题复盘和再做一次', async ({ page }) => {
 
 test('结果弹窗支持 Esc、焦点锁定和关闭后焦点恢复', async ({ page }) => {
 	await loadEjuPaper(page);
-	await page.locator('#submit-exam').focus();
+	await page.locator('#open-question-map').focus();
 	await page.evaluate(() => window.examViewer.answerManager.showResults({
 		total_questions: 2, correct_count: 1, wrong_count: 1, unanswered_count: 0,
 		score: 50, accuracy: 50, completion: 100, results: {}
@@ -546,7 +571,7 @@ test('结果弹窗支持 Esc、焦点锁定和关闭后焦点恢复', async ({ p
 	await expect(page.locator('[data-result-action="explanations"]')).toBeFocused();
 	await page.keyboard.press('Escape');
 	await expect(page.locator('#exam-result-modal')).toBeHidden();
-	await expect(page.locator('#submit-exam')).toBeFocused();
+	await expect(page.locator('#open-question-map')).toBeFocused();
 });
 
 test('断网和网络恢复状态对用户可见', async ({ page }) => {
@@ -571,12 +596,14 @@ test('模拟考试提交前隐藏学习辅助，保存答案并在提交后显�
 	await loadEjuPaper(page);
 	await selectViewerCategory(page, 'reading');
 
-	await expect(page.locator('#exam-mode-select')).toBeVisible();
+	await expect(page.locator('#exam-settings-toggle')).toBeVisible();
+	await expect(page.locator('#exam-mode-select')).toBeHidden();
 	await expect(page.locator('#exam-mode-select')).toHaveValue('mock');
 	await expect(page.locator('#toggle-answers')).toBeHidden();
 	await expect(page.locator('#toggle-explanations')).toBeHidden();
 	await expect(page.locator('#toggle-reading-kana')).toBeHidden();
 	await expect(page.locator('#toggle-reading-zh')).toBeHidden();
+	await expect(page.locator('#learning-tools-control')).toHaveAttribute('hidden', '');
 	await expect(page.locator('#submit-exam')).toBeEnabled();
 
 	await page.locator('#current-question-container .option').first().click();
@@ -587,15 +614,25 @@ test('模拟考试提交前隐藏学习辅助，保存答案并在提交后显�
 	await page.locator('.app-dialog [data-app-dialog-confirm]').click();
 	await expect.poll(async () => page.evaluate(() => window.examViewer.isSubmitted)).toBe(true);
 
-	await expect(page.locator('#toggle-answers')).toBeVisible();
-	await expect(page.locator('#toggle-answers')).toBeEnabled();
-	await expect(page.locator('#toggle-reading-kana')).toBeVisible();
-	await expect(page.locator('#toggle-reading-kana')).toBeEnabled();
+	await expect(page.locator('#learning-tools-control')).not.toHaveAttribute('hidden', '');
+	await expect(page.locator('#learning-tools-toggle')).toBeEnabled();
+	await expect(page.locator('#learning-menu-answers')).toBeEnabled();
+	await expect(page.locator('#learning-menu-kana')).toBeEnabled();
 	await expect(page.locator('#submit-exam')).toBeDisabled();
 	await expect(page.locator('#answer-save-status')).toHaveText('已提交');
 });
 
-test('答题模式选择使用站内确认安全切换', async ({ page }) => {
+test('练习模式自动保存且不显示统一交卷按钮', async ({ page }) => {
+	await loadEjuPaper(page);
+	await expect(page.locator('#exam-mode-select')).toHaveValue('practice');
+	await expect(page.locator('#exam-mode-select option[value="practice"]')).toHaveText('练习模式');
+	await expect(page.locator('#submit-exam')).toBeHidden();
+	await page.locator('#current-question-container .option').first().click();
+	await expect(page.locator('#answer-save-status')).toHaveText('已保存', { timeout: 10000 });
+	await expect(page.locator('#submit-exam')).toBeHidden();
+});
+
+test('作答方式选择使用站内确认安全切换', async ({ page }) => {
 	await loadEjuPaper(page);
 	await selectViewerCategory(page, 'reading');
 	await page.locator('#current-question-container .option').first().click();
@@ -749,7 +786,7 @@ test('重复点击交卷只发送一次请求并可查看历史', async ({ page 
 	await expect(page.locator('#exam-result-panel')).toContainText('交卷历史');
 	await expect(page.locator('.exam-history-row')).toHaveCount(1);
 	await page.locator('.exam-history-row').click();
-	await expect(page.locator('#exam-result-panel')).toContainText(/学习练习|模拟考试/);
+	await expect(page.locator('#exam-result-panel')).toContainText(/练习模式|模拟考试/);
 	await expect(page.locator('.exam-attempt-question').first()).toBeVisible();
 	await page.locator('[data-attempt-retry]').click();
 	await expect(page.locator('#exam-result-modal')).toBeHidden();
@@ -805,7 +842,7 @@ test('分段计时展示剩余时间并发出五分钟和一分钟提醒', async
 	expect(await page.evaluate(() => window.__timerToasts)).toContain('第 1 部分还剩 1 分钟');
 });
 
-test('学习练习不启动或展示考试计时', async ({ page }) => {
+test('练习模式不启动或展示考试计时', async ({ page }) => {
 	const loginId = uniqueLoginId('student_practice_without_timer');
 	await stubNoisyPersonalCenterApis(page);
 	await loginWithPassword(page, loginId);
@@ -870,13 +907,14 @@ test('学习闭环支持单题收藏并在个人中心查看', async ({ page }) 
 	expect(bookmarkPayload.data.questions.length).toBeGreaterThan(0);
 	await expect(page.locator('#app-toast')).toContainText('已收藏当前题');
 
-	await page.locator('#user-menu-trigger, [aria-label*="打开个人中心"]').first().click();
-	await expect(page.locator('#personal-center.pc-open')).toBeVisible();
-
-	await page.locator('#personal-center [data-dashboard-page="favorites"]').click();
-	await expect(page.locator('#personal-center .pc-subpage')).toContainText('收藏');
-	await expect(page.locator('#personal-center .pc-subpage')).toContainText('E2E 收藏原因');
-	await expect(page.locator('#personal-center .pc-subpage').getByRole('button', { name: '去做题' }).first()).toBeVisible();
+	await page.locator('#user-menu-trigger, [aria-label*="打开账号菜单"]').first().click();
+	await page.getByRole('menuitem', { name: /^进入学习中心/ }).click();
+	const learningShell = page.locator('#platform-admin-shell');
+	await expect(learningShell).toBeVisible();
+	await learningShell.getByRole('button', { name: '收藏题', exact: true }).click();
+	await expect(learningShell.locator('.pc-platform-admin-content')).toContainText('收藏');
+	await expect(learningShell.locator('.pc-platform-admin-content')).toContainText('E2E 收藏原因');
+	await expect(learningShell.locator('.pc-platform-admin-content').getByRole('button', { name: '去做题' }).first()).toBeVisible();
 });
 
 test('题目反馈提供字段提示、提交锁和非阻塞成功提示', async ({ page }) => {

@@ -80,6 +80,7 @@ export function buildCurrentUser(context: MeContext, token: string): CurrentUser
 		membership: context.membership,
 		permissions: context.permissions,
 		session_expires_at: context.session.expires_at ?? '',
+		session_authentication_method: context.session.authentication_method ?? '',
 		subscription: context.subscription
 	};
 }

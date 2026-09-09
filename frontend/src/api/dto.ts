@@ -92,6 +92,7 @@ export interface AuthSession {
 	roles: RoleId[];
 	token?: string;
 	expires_at?: string;
+	authentication_method?: string;
 }
 
 export interface ProfileView {
@@ -358,4 +359,5 @@ export interface CurrentUser extends UserView {
 	membership: MembershipView;
 	permissions: PermissionView;
 	session_expires_at: string;
+	session_authentication_method?: string;
 }

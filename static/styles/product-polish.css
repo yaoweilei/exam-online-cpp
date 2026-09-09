@@ -1,0 +1,1549 @@
+/* V1.0 product polish: shared visual language and responsive exam workspace. */
+:root {
+	--product-bg: #171411;
+	--product-surface: #221e1a;
+	--product-surface-muted: #2d2823;
+	--product-border: #403a34;
+	/* 沿用应用既有的蓝色主题，产品优化层只负责布局与尺寸。 */
+	--product-primary: #0e639c;
+	--product-primary-hover: #1177bb;
+	--product-radius-sm: 10px;
+	--product-radius-md: var(--ui-surface-radius, 8px);
+	--product-control-height: 40px;
+}
+
+body.light-theme {
+	--product-bg: var(--ui-soft-bg, #f8f6f3);
+	--product-surface: #ffffff;
+	--product-surface-muted: #f8f5f1;
+	--product-border: #e5ded7;
+	--product-primary: #007acc;
+	--product-primary-hover: #0098ff;
+	--vscode-foreground: #251f1b;
+	--vscode-editor-background: var(--product-bg);
+	--vscode-editor-foreground: #251f1b;
+	--vscode-panel-background: var(--product-surface);
+	--vscode-panel-border: var(--product-border);
+	--vscode-dropdown-background: var(--product-surface);
+	--vscode-dropdown-foreground: #332b26;
+	--vscode-dropdown-border: var(--product-border);
+	--vscode-input-background: var(--product-surface);
+	--vscode-input-foreground: #332b26;
+	--vscode-input-border: var(--product-border);
+	--vscode-descriptionForeground: #756b64;
+	--vscode-list-hoverBackground: #f1ece6;
+}
+
+body {
+	min-width: 0;
+	padding-left: 0;
+	padding-right: 0;
+	background: var(--product-bg);
+}
+
+#exam-library-panel {
+	min-height: 64px;
+	padding: 12px 16px;
+	background: var(--product-surface);
+	border: 1px solid var(--product-border);
+	border-radius: 0 0 var(--product-radius-md) var(--product-radius-md);
+	box-shadow: 0 8px 24px rgba(40, 29, 20, 0.05);
+}
+
+#exam-command-bar {
+	display: flex;
+	flex-direction: column;
+	gap: var(--exam-vertical-gap);
+	min-width: 0;
+}
+
+#learning-tools-control {
+	display: none !important;
+}
+
+#exam-settings-control {
+	display: none !important;
+}
+
+#exam-library-panel select,
+#theme-toggle {
+	height: var(--product-control-height);
+	border: 1px solid var(--product-border);
+	border-radius: var(--product-radius-sm);
+}
+
+/* 主题状态由太阳/月亮图标表达，按钮在所有尺寸下保持紧凑。 */
+#theme-toggle {
+	width: 40px;
+	min-width: 40px;
+	padding: 0;
+	display: grid;
+	place-items: center;
+	line-height: 1;
+}
+
+#theme-toggle .theme-icon {
+	display: grid;
+	width: 100%;
+	height: 100%;
+	place-items: center;
+}
+
+#exam-library-panel select:focus-visible,
+#theme-toggle:focus-visible,
+#exam-controls button:focus-visible,
+.category-dropdown-label:focus-visible,
+.nav-btn:focus-visible {
+	outline: 3px solid color-mix(in srgb, var(--vscode-focusBorder) 28%, transparent);
+	outline-offset: 2px;
+}
+
+#exam-header {
+	padding: 18px 16px;
+	border: 1px solid var(--product-border);
+	border-radius: var(--product-radius-md);
+	background: var(--product-surface);
+}
+
+#exam-header::before {
+	width: 5px;
+	border-radius: var(--product-radius-md) 0 0 var(--product-radius-md);
+	background: var(--product-primary);
+}
+
+/* 试卷名已在顶部选择区展示，内容区不再保留独立标题/计时卡片。 */
+#exam-header {
+	display: none;
+}
+
+#exam-timer-slot {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	min-height: 28px;
+}
+
+#exam-timer-slot[hidden] {
+	display: none !important;
+}
+
+/* 用时和头像收在右侧；保存结果只作为短暂反馈，不永久挤占工具栏。 */
+#exam-library-panel.has-exam-timer #exam-timer-slot {
+	margin-left: auto;
+}
+
+#exam-library-panel.has-exam-timer #user-menu-trigger {
+	margin-left: 0;
+}
+
+#exam-library-panel .answer-save-status[hidden] {
+	display: none !important;
+}
+
+#exam-timer-slot #exam-timer-bar {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 28px;
+	margin-top: 0;
+	padding: 3px 9px;
+	border: 1px solid var(--product-border);
+	border-radius: 999px;
+	background: var(--product-surface-muted);
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+#exam-controls.toolbar-grid {
+	grid-template-columns: 100px 100px 100px 112px 40px minmax(0, 1fr) 40px;
+	grid-auto-rows: var(--product-control-height);
+	box-sizing: border-box;
+	width: 100%;
+	padding-left: 16px;
+	padding-right: 16px;
+}
+
+#mobile-paper-toggle,
+#exam-controls.toolbar-grid #mobile-tools-toggle {
+	display: none;
+}
+
+/* 未选择试卷时不展示无上下文的答题工具，避免命名网格生成隐式窄列。 */
+#exam-controls.toolbar-grid:not(.family-jlpt):not(.family-eju),
+#exam-header.is-empty ~ #width-control,
+#exam-header.is-empty ~ #current-question-container,
+#exam-header.is-empty ~ #question-navigation {
+	display: none;
+}
+
+#exam-controls.toolbar-grid > *,
+#exam-controls.toolbar-grid .category-dropdown-label {
+	height: var(--product-control-height);
+}
+
+#exam-controls.toolbar-grid > [hidden] {
+	display: none !important;
+}
+
+/* 前三列与考试选择对齐，模式列留白，答题卡图标与主题图标垂直对齐。 */
+#exam-controls.toolbar-grid.family-jlpt {
+	grid-template-areas:
+		"slot1 slot2 slot3 . questionmap . submit"
+		"answers explanations kana zh . . .";
+}
+
+#exam-controls.toolbar-grid.family-eju {
+	grid-template-areas:
+		"slot1 slot2 slot3 . questionmap . submit"
+		"answers explanations kana zh . . .";
+}
+
+/* 模拟考试提交前不提供学习辅助，剩余操作自动前移，不留下空网格。 */
+#exam-controls.toolbar-grid.mock-active.family-jlpt {
+	grid-template-columns: 100px 100px 100px 112px 40px minmax(0, 1fr) 40px;
+	grid-template-areas: "slot1 slot2 slot3 . questionmap . submit";
+}
+
+#exam-controls.toolbar-grid.mock-active.family-eju {
+	grid-template-columns: 100px 100px 100px 112px 40px minmax(0, 1fr) 40px;
+	grid-template-areas: "slot1 slot2 slot3 . questionmap . submit";
+}
+
+#exam-controls .answer-card-trigger {
+	padding: 0;
+}
+
+#exam-controls .answer-card-icon {
+	display: grid;
+	width: 24px;
+	height: 24px;
+	place-items: center;
+}
+
+#exam-controls .answer-card-icon svg {
+	display: block;
+	width: 22px;
+	height: 22px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+#exam-controls .answer-card-text {
+	display: none;
+}
+
+#exam-controls .submit-exam-trigger {
+	padding: 0;
+}
+
+#exam-controls .submit-exam-icon {
+	display: grid;
+	width: 24px;
+	height: 24px;
+	place-items: center;
+}
+
+#exam-controls .submit-exam-icon svg {
+	display: block;
+	width: 22px;
+	height: 22px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+#exam-controls .submit-exam-text {
+	display: none;
+}
+
+/* 练习模式自动保存，不提供统一交卷入口；避免后续响应式规则重新显示。 */
+#exam-controls #submit-exam[hidden] {
+	display: none !important;
+}
+
+/* 宽度由滑块直接控制，不再保留会越过右边界的独立拖拽手柄。 */
+#width-drag-handle {
+	display: none !important;
+}
+
+/* 非手机工作区收窄到 520px 仍保持精简命令栏，避免窗口缩放或宽度滑块触发旧布局。 */
+#exam-workarea {
+	container-name: exam-workarea;
+	container-type: inline-size;
+}
+
+@media (min-width: 521px) {
+	/* 桌面答题区采用紧凑的垂直节奏；滑块右侧避开浮动头像/设置栏。 */
+	#exam-workarea {
+		gap: 0;
+	}
+
+	#exam-workarea > #section-navigation:not(:empty) {
+		margin-top: 6px;
+	}
+
+	#exam-workarea > #width-control {
+		box-sizing: border-box;
+		margin-top: 6px;
+		padding: 0 58px 0 0;
+	}
+
+	#exam-workarea > #current-question-container {
+		margin-top: 6px;
+	}
+
+@container exam-workarea (min-width: 520px) {
+	#exam-command-bar {
+		position: relative;
+		flex-direction: row;
+		align-items: center;
+		gap: 6px;
+		min-height: 64px;
+		padding: 10px 64px 10px 0;
+		overflow: visible;
+		background: var(--product-surface);
+		border: 1px solid var(--product-border);
+		border-radius: 0 0 var(--ui-surface-radius, 8px) var(--ui-surface-radius, 8px);
+		box-shadow: 0 8px 24px rgba(40, 29, 20, 0.05);
+	}
+
+	#exam-command-bar > #exam-library-panel,
+	#exam-command-bar > #exam-controls.toolbar-grid.family-jlpt,
+	#exam-command-bar > #exam-controls.toolbar-grid.family-eju {
+		display: contents;
+	}
+
+	#exam-command-bar #exam-family-select { order: 1; width: 72px; min-width: 72px; max-width: 72px; }
+	#exam-command-bar #exam-level-select { order: 2; width: 58px; min-width: 58px; max-width: 58px; }
+	#exam-command-bar #exam-paper-select { order: 3; width: 102px; min-width: 102px; max-width: 102px; }
+	#exam-command-bar #exam-mode-select { order: 4; width: 92px; min-width: 92px; max-width: 92px; }
+
+	#exam-controls .category-slot[data-slot="1"] { order: 5; }
+	#exam-controls .category-slot[data-slot="2"] { order: 6; }
+	#exam-controls .category-slot[data-slot="3"] { order: 7; }
+	#exam-controls .category-slot[data-slot="4"] { order: 8; }
+	#exam-controls .category-slot {
+		flex: 0 0 90px;
+		width: 90px;
+		height: var(--product-control-height);
+	}
+
+	#exam-controls .category-slot .category-dropdown-label {
+		white-space: nowrap;
+	}
+
+	#exam-controls.toolbar-grid > #toggle-answers,
+	#exam-controls.toolbar-grid > #toggle-explanations,
+	#exam-controls.toolbar-grid > #toggle-reading-kana,
+	#exam-controls.toolbar-grid > #toggle-reading-zh,
+	#exam-controls.toolbar-grid > #mobile-tools-toggle {
+		display: none !important;
+	}
+
+	#exam-controls.toolbar-grid > #learning-tools-control:not([hidden]) {
+		display: flex !important;
+		position: relative;
+		order: 9;
+		flex: 0 0 88px;
+		width: 88px;
+		height: var(--product-control-height);
+		margin-left: auto;
+	}
+
+	#learning-tools-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 4px;
+		width: 100%;
+		height: 100%;
+		padding: 0 7px;
+	}
+
+	#learning-tools-toggle .learning-tools-caret {
+		font-size: 9px;
+		transition: transform .16s ease;
+	}
+
+	#learning-tools-toggle[aria-expanded="true"] .learning-tools-caret {
+		transform: rotate(180deg);
+	}
+
+	#learning-tools-menu {
+		position: absolute;
+		top: calc(100% + 7px);
+		right: 0;
+		z-index: 120;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 6px;
+		width: 204px;
+		padding: 8px;
+		background: var(--product-surface);
+		border: 1px solid var(--product-border);
+		border-radius: var(--product-radius-sm);
+		box-shadow: 0 12px 30px rgba(20, 15, 10, .24);
+	}
+
+	#learning-tools-menu[hidden] { display: none !important; }
+
+	#learning-tools-menu button {
+		width: 100%;
+		height: 36px;
+		min-height: 36px;
+		padding: 0 6px;
+	}
+
+	#exam-command-bar #open-question-map { order: 10; flex: 0 0 40px; width: 40px; margin-left: 0; }
+	#exam-command-bar #theme-toggle { display: none !important; }
+	#exam-command-bar #submit-exam { order: 11; flex: 0 0 40px; width: 40px; }
+	#exam-command-bar #exam-timer-slot { order: 12; flex: 0 0 auto; }
+	#exam-command-bar #user-menu-trigger {
+		position: absolute;
+		top: 8px;
+		right: 0;
+		order: 14;
+		flex: 0 0 auto;
+		margin: 0;
+		z-index: 151;
+		box-shadow: 0 8px 20px rgba(20, 15, 10, .18);
+	}
+	#exam-command-bar #mobile-paper-toggle { display: none !important; }
+
+	#exam-command-bar #exam-settings-control.is-compact {
+		display: flex !important;
+		position: absolute;
+		right: 0;
+		top: 52px;
+		z-index: 150;
+		width: 40px;
+		height: 40px;
+	}
+
+	#exam-settings-toggle {
+		display: grid;
+		width: 40px;
+		height: 40px;
+		min-height: 40px;
+		padding: 0;
+		place-items: center;
+		border: 1px solid var(--product-border);
+		border-radius: 50%;
+		background: var(--vscode-button-secondaryBackground);
+		color: var(--vscode-button-secondaryForeground);
+		cursor: pointer;
+		box-shadow: 0 8px 20px rgba(20, 15, 10, .18);
+	}
+
+	#exam-settings-toggle:hover,
+	#exam-settings-toggle[aria-expanded="true"] {
+		background: var(--product-primary);
+		color: #fff;
+		border-color: var(--product-primary);
+	}
+
+	#exam-settings-toggle svg {
+		width: 24px;
+		height: 24px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.7;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	#exam-settings-menu {
+		position: absolute;
+		top: 0;
+		right: calc(100% + 10px);
+		z-index: 160;
+		display: grid;
+		gap: 14px;
+		width: 360px;
+		padding: 16px;
+		background: var(--product-surface);
+		border: 1px solid var(--product-border);
+		border-radius: var(--product-radius-md);
+		box-shadow: 0 18px 44px rgba(20, 15, 10, .3);
+	}
+
+	#exam-settings-menu[hidden] { display: none !important; }
+
+	.exam-settings-heading {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 10px;
+		padding-bottom: 10px;
+		border-bottom: 1px solid var(--product-border);
+	}
+
+	.exam-settings-heading strong { font-size: 15px; }
+	.exam-settings-heading span {
+		font-size: 11px !important;
+		color: var(--vscode-descriptionForeground) !important;
+	}
+
+	.exam-settings-fields {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+
+	.exam-settings-fields label {
+		display: grid;
+		gap: 6px;
+		font-size: 12px;
+		color: var(--vscode-descriptionForeground);
+	}
+
+	.exam-settings-fields label > span {
+		display: block;
+		width: 100%;
+	}
+
+	.exam-settings-fields label:has(#exam-level-select[style*="display: none"]) {
+		display: none;
+	}
+
+	#exam-settings-menu select,
+	#exam-settings-menu #exam-family-select,
+	#exam-settings-menu #exam-mode-select,
+	#exam-settings-menu #exam-level-select,
+	#exam-settings-menu #exam-paper-select {
+		display: block !important;
+		width: 100%;
+		min-width: 0;
+		max-width: none;
+		height: 40px;
+	}
+
+	.exam-settings-assists {
+		display: grid;
+		gap: 8px;
+		padding-top: 12px;
+		border-top: 1px solid var(--product-border);
+	}
+
+	.exam-settings-assists > strong { font-size: 12px; }
+
+	#exam-settings-menu #learning-tools-control:not([hidden]) {
+		display: block !important;
+		position: static;
+		width: 100%;
+		height: auto;
+		margin: 0;
+	}
+
+	#exam-settings-menu #learning-tools-toggle { display: none; }
+
+	#exam-settings-menu #learning-tools-menu,
+	#exam-settings-menu #learning-tools-menu[hidden] {
+		position: static;
+		display: grid !important;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 8px;
+		width: 100%;
+		padding: 0;
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	#exam-settings-menu #learning-tools-menu button {
+		width: 100%;
+		height: 40px;
+		min-height: 40px;
+		padding: 0 8px;
+		border: 1px solid var(--product-border);
+		border-radius: var(--product-radius-sm);
+		background: var(--vscode-button-secondaryBackground);
+		color: var(--vscode-button-secondaryForeground);
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	#exam-settings-menu #learning-tools-menu button.active {
+		background: var(--product-primary);
+		color: #fff;
+		border-color: var(--product-primary);
+	}
+
+	.exam-settings-assists:has(#learning-tools-control[hidden])::after {
+		content: '模拟考试提交后可使用学习辅助';
+		padding: 10px 12px;
+		border-radius: var(--product-radius-sm);
+		background: var(--product-surface-muted);
+		color: var(--vscode-descriptionForeground);
+		font-size: 12px;
+		text-align: center;
+	}
+
+	#exam-command-bar .answer-save-status:not([hidden]) {
+		position: absolute;
+		right: 108px;
+		top: calc(100% + 6px);
+		z-index: 100;
+		margin: 0;
+		box-shadow: 0 8px 20px rgba(20, 15, 10, .14);
+	}
+}
+}
+
+#exam-controls.toolbar-grid .category-dropdown-label {
+	background: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border-color: var(--product-border);
+}
+
+#exam-controls.toolbar-grid .category-dropdown-label:hover,
+#exam-controls.toolbar-grid .category-dropdown-label.active {
+	background: var(--product-primary);
+	color: #fff;
+	border-color: var(--product-primary);
+}
+
+#exam-controls.toolbar-grid.mock-active .category-dropdown-label {
+	padding-left: 2px;
+	padding-right: 2px;
+	font-size: 11px;
+	white-space: nowrap;
+}
+
+#exam-controls .btn-secondary,
+#exam-controls button,
+#exam-controls .category-dropdown-label,
+.nav-btn {
+	min-height: var(--product-control-height);
+	border: 1px solid var(--product-border);
+	border-radius: var(--product-radius-sm);
+	font-weight: 600;
+}
+
+.current-question {
+	padding: 22px 18px 26px;
+	border-radius: var(--product-radius-md);
+	box-shadow: 0 10px 32px rgba(40, 29, 20, 0.05);
+}
+
+.option {
+	padding: 12px 14px;
+	border-radius: var(--product-radius-sm);
+}
+
+#question-navigation .nav-btn {
+	min-width: 88px;
+	box-shadow: 0 8px 20px rgba(35, 25, 18, 0.16);
+}
+
+@media (max-width: 520px) {
+	:root {
+		--exam-page-padding-right: 0px;
+		--exam-page-padding-bottom: 88px;
+		--exam-gutter-x: 12px;
+		--exam-vertical-gap: 6px;
+		--exam-font-size: 16px;
+	}
+
+	body {
+		width: 100%;
+		max-width: 100%;
+		padding: 0 0 var(--exam-page-padding-bottom) 0;
+		overflow-x: hidden;
+	}
+
+	#exam-content,
+	#exam-workarea,
+	#exam-workarea.limited {
+		width: 100% !important;
+		max-width: 100% !important;
+		border-right: 0;
+	}
+
+	#exam-library-panel {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+		padding: 12px;
+		border-radius: 0 0 18px 18px;
+	}
+
+	#exam-library-panel.mobile-paper-ready:not(.mobile-paper-collapsed) {
+		grid-template-columns: minmax(110px, 1fr) minmax(0, 1fr) minmax(0, 1fr) 44px;
+		grid-template-areas:
+			"mode family level account"
+			"paper paper paper theme"
+			"status status status summary";
+	}
+
+	#exam-library-panel.has-exam-timer.mobile-paper-ready:not(.mobile-paper-collapsed) {
+		grid-template-areas:
+			"mode family level account"
+			"paper paper paper theme"
+			"status status timer summary";
+	}
+
+	#exam-library-panel.mobile-paper-ready.mobile-paper-collapsed {
+		grid-template-columns: minmax(100px, .8fr) minmax(0, 1.2fr) auto 40px 40px;
+		grid-template-areas: "mode summary timer account theme";
+	}
+
+	#exam-library-panel.mobile-paper-ready.mobile-paper-collapsed select:not(#exam-mode-select),
+	#exam-library-panel.mobile-paper-ready.mobile-paper-collapsed .answer-save-status {
+		display: none;
+	}
+
+	#exam-mode-select { grid-area: mode; }
+	#exam-family-select { grid-area: family; }
+	#exam-level-select { grid-area: level; }
+	#exam-paper-select { grid-area: paper; }
+	#theme-toggle { grid-area: theme; }
+	#mobile-paper-toggle { grid-area: summary; }
+	#exam-library-panel .answer-save-status { grid-area: status; }
+	#exam-timer-slot { grid-area: timer; }
+
+	#exam-library-panel select,
+	#exam-library-panel #exam-mode-select,
+	#exam-library-panel #exam-level-select,
+	#exam-library-panel #exam-paper-select,
+	#exam-library-panel #exam-year-select,
+	#exam-library-panel #exam-month-select,
+	#theme-toggle {
+		width: 100%;
+		min-width: 0;
+		max-width: none;
+	}
+
+	#exam-library-panel .answer-save-status {
+		margin-left: 0;
+		text-align: center;
+	}
+
+	#user-menu-trigger {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+	}
+
+	#exam-header,
+	#current-question-container {
+		margin-left: 12px;
+		margin-right: 12px;
+	}
+
+	#exam-controls.toolbar-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-auto-rows: 44px;
+		gap: 10px;
+		width: auto;
+		padding: 0 12px;
+	}
+
+	#exam-controls .answer-card-icon {
+		display: none;
+	}
+
+	#exam-controls .answer-card-text {
+		display: inline;
+	}
+
+	#exam-controls .submit-exam-icon {
+		display: none;
+	}
+
+	#exam-controls .submit-exam-text {
+		display: inline;
+	}
+
+	#exam-controls.toolbar-grid.family-jlpt {
+		grid-template-areas:
+			"questionmap submit"
+			"answers explanations"
+			"kana zh"
+			"slot1 slot2"
+			"slot3 slot3";
+	}
+
+	#exam-controls.toolbar-grid.family-eju {
+		grid-template-areas:
+			"questionmap submit"
+			"answers explanations"
+			"kana zh"
+			"slot1 slot2"
+			"slot3 slot3";
+	}
+
+	#exam-controls.toolbar-grid.practice-active.family-jlpt,
+	#exam-controls.toolbar-grid.practice-active.family-eju {
+		grid-template-areas:
+			"questionmap answers"
+			"explanations kana"
+			"zh zh"
+			"slot1 slot2"
+			"slot3 slot3";
+	}
+
+	#exam-controls.toolbar-grid.mock-active.family-jlpt {
+		grid-template-areas:
+			"questionmap submit"
+			"slot1 slot2"
+			"slot3 slot3";
+	}
+
+	#exam-controls.toolbar-grid.mock-active.family-eju {
+		grid-template-areas:
+			"questionmap submit"
+			"slot1 slot2"
+			"slot3 slot3";
+	}
+
+	#exam-controls.toolbar-grid > *,
+	#exam-controls.toolbar-grid .category-dropdown-label {
+		width: 100%;
+		height: 44px;
+	}
+
+	#exam-controls .category-dropdown-menu {
+		max-width: calc(100vw - 24px);
+	}
+
+	#width-control,
+	#width-drag-handle {
+		display: none !important;
+	}
+
+	.current-question {
+		padding: 18px 14px 22px;
+	}
+
+	.question-text {
+		line-height: 1.75;
+	}
+
+	.option {
+		min-height: 48px;
+		padding: 12px;
+	}
+
+	#question-navigation {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		justify-content: stretch;
+		gap: 10px;
+		padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+		background: color-mix(in srgb, var(--product-surface) 92%, transparent);
+		border-top: 1px solid var(--product-border);
+		backdrop-filter: blur(14px);
+		z-index: 90;
+	}
+
+	#question-navigation .question-nav,
+	#question-navigation .nav-btn {
+		flex: 1 1 0;
+	}
+
+	#question-navigation .nav-btn {
+		min-width: 0;
+		box-shadow: none;
+	}
+}
+
+@media (max-width: 520px) {
+	/* 手机端尽量利用横向空间，同时给圆角屏和手势区域保留安全边距。 */
+	:root {
+		--exam-vertical-gap: 6px;
+	}
+
+	#exam-library-panel {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px;
+		grid-template-areas:
+			"mode family account"
+			"level paper theme"
+			"status status status";
+		gap: 6px;
+		padding: 6px;
+		border-radius: 0 0 14px 14px;
+	}
+
+	#exam-library-panel.mobile-paper-ready:not(.mobile-paper-collapsed) {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px;
+		grid-template-areas:
+			"mode family account"
+			"level paper theme"
+			"status status summary";
+	}
+
+	#exam-library-panel.has-exam-timer.mobile-paper-ready:not(.mobile-paper-collapsed) {
+		grid-template-areas:
+			"mode family account"
+			"level paper theme"
+			"status timer summary";
+	}
+
+	#exam-library-panel.mobile-paper-ready.mobile-paper-collapsed {
+		grid-template-columns: minmax(96px, .8fr) minmax(0, 1.2fr) auto 40px 40px;
+		grid-template-areas: "mode summary timer account theme";
+	}
+
+	#exam-mode-select { grid-area: mode; }
+	#exam-family-select { grid-area: family; }
+	#exam-level-select { grid-area: level; }
+	#exam-paper-select { grid-area: paper; }
+	#theme-toggle { grid-area: theme; }
+	#mobile-paper-toggle {
+		grid-area: summary;
+		min-width: 0;
+		width: 100%;
+		height: 40px;
+		padding: 0 10px;
+		align-items: center;
+		justify-content: flex-start;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	#exam-library-panel.mobile-paper-ready #mobile-paper-toggle {
+		display: flex;
+	}
+
+	#exam-library-panel.mobile-paper-ready:not(.mobile-paper-collapsed) #mobile-paper-toggle {
+		justify-content: center;
+		padding-left: 4px;
+		padding-right: 4px;
+	}
+
+	#exam-library-panel.mobile-paper-ready:not(.mobile-paper-collapsed) #mobile-paper-summary {
+		font-size: 11px;
+	}
+	#theme-toggle {
+		width: 40px;
+		min-width: 40px;
+		padding: 0;
+		display: grid;
+		place-items: center;
+		justify-self: center;
+		line-height: 1;
+	}
+
+	#theme-toggle .theme-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		line-height: 1;
+	}
+
+	#exam-library-panel .answer-save-status {
+		grid-area: status;
+		min-height: 28px;
+		padding: 2px 8px;
+	}
+
+	#exam-timer-slot #exam-timer-bar {
+		min-height: 28px;
+		padding: 2px 6px;
+		font-size: 11px;
+	}
+
+	#user-menu-trigger {
+		position: static;
+		grid-area: account;
+		align-self: center;
+		justify-self: center;
+		margin: 0;
+	}
+
+	#exam-header,
+	#current-question-container {
+		margin-left: max(4px, env(safe-area-inset-left));
+		margin-right: max(4px, env(safe-area-inset-right));
+	}
+
+	#exam-header {
+		padding: 8px 10px;
+		border-radius: var(--ui-surface-radius, 8px);
+	}
+
+	#exam-controls.toolbar-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-auto-rows: 40px;
+		gap: 6px;
+		padding-left: max(4px, env(safe-area-inset-left));
+		padding-right: max(4px, env(safe-area-inset-right));
+	}
+
+	#exam-controls.toolbar-grid.family-jlpt {
+		grid-template-areas:
+			"questionmap answers more"
+			"slot1 slot2 slot3";
+	}
+
+	#exam-controls.toolbar-grid.family-eju {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-areas:
+			"questionmap answers more"
+			"slot1 slot2 slot3";
+	}
+
+	#exam-controls.toolbar-grid.practice-active.family-jlpt,
+	#exam-controls.toolbar-grid.practice-active.family-eju {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-areas:
+			"questionmap answers more"
+			"slot1 slot2 slot3";
+	}
+
+	#exam-controls.toolbar-grid.mobile-tools-expanded.family-jlpt {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-areas:
+			"questionmap answers more more"
+			"submit explanations kana zh"
+			"slot1 slot2 slot3 slot3";
+	}
+
+	#exam-controls.toolbar-grid.mobile-tools-expanded.family-eju {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-areas:
+			"questionmap answers more more"
+			"submit explanations kana zh"
+			"slot1 slot2 slot3 slot3";
+	}
+
+	#exam-controls.toolbar-grid.mock-active.family-jlpt {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-areas:
+			"questionmap submit submit"
+			"slot1 slot2 slot3";
+	}
+
+	#exam-controls.toolbar-grid.mock-active.family-eju {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-areas:
+			"questionmap submit submit"
+			"slot1 slot2 slot3";
+	}
+
+	#exam-controls.toolbar-grid #mobile-tools-toggle {
+		display: flex;
+		grid-area: more;
+		align-items: center;
+		justify-content: center;
+	}
+
+	#exam-controls.toolbar-grid #submit-exam,
+	#exam-controls.toolbar-grid #toggle-explanations,
+	#exam-controls.toolbar-grid #toggle-reading-kana,
+	#exam-controls.toolbar-grid #toggle-reading-zh {
+		display: none;
+	}
+
+	#exam-controls.toolbar-grid.mock-active #mobile-tools-toggle {
+		display: none;
+	}
+
+	#exam-controls.toolbar-grid.mock-active #submit-exam {
+		display: flex;
+	}
+
+	#exam-controls.toolbar-grid.mobile-tools-expanded #submit-exam,
+	#exam-controls.toolbar-grid.mobile-tools-expanded #toggle-explanations,
+	#exam-controls.toolbar-grid.mobile-tools-expanded #toggle-reading-kana,
+	#exam-controls.toolbar-grid.mobile-tools-expanded #toggle-reading-zh {
+		display: flex;
+	}
+
+	#exam-controls.toolbar-grid > *,
+	#exam-controls.toolbar-grid .category-dropdown-label {
+		height: 40px;
+		min-height: 40px;
+		padding-left: 4px;
+		padding-right: 4px;
+		font-size: 12px;
+	}
+
+	#exam-controls.toolbar-grid .category-dropdown-label {
+		font-size: 11px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* 分类按钮与上一排主操作共用完全相同的列边界。 */
+	#exam-controls.toolbar-grid .category-slot {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.current-question {
+		padding: 14px 8px 20px;
+		border-radius: var(--ui-surface-radius, 8px);
+	}
+
+	.section-info {
+		margin-bottom: 8px;
+	}
+
+	.section-info h3 {
+		margin: 0;
+		font-size: 14px;
+		line-height: 1.45;
+	}
+
+	.section-instruction-toggle {
+		align-items: center;
+		min-height: 40px;
+		cursor: pointer;
+	}
+
+	.section-instruction-toggle[aria-expanded="false"] .section-instruction-text {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	.section-instruction-toggle[aria-expanded="true"] .section-instruction-text {
+		white-space: normal;
+	}
+
+	.section-instruction-action {
+		display: inline-flex;
+		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
+		min-width: 38px;
+		padding: 3px 6px;
+		border: 1px solid var(--product-border);
+		border-radius: 8px;
+		background: var(--product-surface-muted);
+		color: var(--vscode-descriptionForeground);
+		font-size: 11px;
+		font-weight: 500;
+	}
+
+	/* image.css 的旧移动端规则会再次给整道题增加 10px，手机端应取消。 */
+	.current-question .question {
+		padding: 0;
+	}
+
+	.option {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	#question-navigation {
+		padding-left: max(6px, env(safe-area-inset-left));
+		padding-right: max(6px, env(safe-area-inset-right));
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		scroll-behavior: auto !important;
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+	}
+}
+
+/*
+ * 所有屏幕统一使用同一套紧凑命令栏，不再根据浏览器宽度切回旧工具矩阵。
+ * 题目区域被滑块缩窄时，按钮尺寸直接跟随题目区域而不是浏览器窗口。
+ */
+	#exam-workarea {
+		gap: 0;
+	}
+
+	#exam-workarea > #section-navigation:not(:empty) {
+		margin-top: 6px;
+	}
+
+	#exam-workarea > #width-control {
+		display: flex !important;
+		box-sizing: border-box;
+		margin-top: 6px;
+		padding: 0 58px 0 0;
+	}
+
+	#exam-workarea > #current-question-container {
+		margin-top: 6px;
+	}
+
+	#exam-command-bar {
+		position: relative;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: center;
+		gap: 6px;
+		min-height: 64px;
+		padding: 10px 64px 10px 8px;
+		overflow: visible;
+		background: var(--product-surface);
+		border: 1px solid var(--product-border);
+		border-radius: 0 0 var(--ui-surface-radius, 8px) var(--ui-surface-radius, 8px);
+		box-shadow: 0 8px 24px rgba(40, 29, 20, 0.05);
+	}
+
+	#exam-command-bar > #exam-library-panel,
+	#exam-command-bar > #exam-controls.toolbar-grid.family-jlpt,
+	#exam-command-bar > #exam-controls.toolbar-grid.family-eju {
+		display: contents;
+	}
+
+	#exam-command-bar #theme-toggle,
+	#exam-command-bar #mobile-paper-toggle,
+	#exam-controls.toolbar-grid > #toggle-answers,
+	#exam-controls.toolbar-grid > #toggle-explanations,
+	#exam-controls.toolbar-grid > #toggle-reading-kana,
+	#exam-controls.toolbar-grid > #toggle-reading-zh,
+	#exam-controls.toolbar-grid > #mobile-tools-toggle {
+		display: none !important;
+	}
+
+	#exam-controls .category-slot[data-slot="1"] { order: 5; }
+	#exam-controls .category-slot[data-slot="2"] { order: 6; }
+	#exam-controls .category-slot[data-slot="3"] { order: 7; }
+	#exam-controls .category-slot[data-slot="4"] { order: 8; }
+
+	#exam-command-bar #exam-controls.toolbar-grid > .category-slot {
+		height: var(--product-control-height);
+		padding: 0;
+	}
+
+	#exam-command-bar #exam-controls.toolbar-grid > .category-slot[data-slot="1"] {
+		flex: 0 0 clamp(58px, 23cqw, 90px);
+		width: clamp(58px, 23cqw, 90px);
+	}
+
+	#exam-command-bar #exam-controls.toolbar-grid > .category-slot[data-slot="2"],
+	#exam-command-bar #exam-controls.toolbar-grid > .category-slot[data-slot="3"],
+	#exam-command-bar #exam-controls.toolbar-grid > .category-slot[data-slot="4"] {
+		flex: 0 0 clamp(44px, 14cqw, 70px);
+		width: clamp(44px, 14cqw, 70px);
+	}
+
+	#exam-command-bar #exam-controls .category-dropdown-label {
+		width: 100%;
+		height: var(--product-control-height);
+		min-height: var(--product-control-height);
+		padding: 0 4px;
+		font-size: 11px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#exam-command-bar #open-question-map,
+	#exam-command-bar #submit-exam:not([hidden]) {
+		display: grid !important;
+		flex: 0 0 40px;
+		width: 40px;
+		height: var(--product-control-height);
+		min-height: var(--product-control-height);
+		padding: 0;
+		place-items: center;
+	}
+
+	#exam-command-bar #open-question-map { order: 10; }
+	#exam-command-bar #submit-exam:not([hidden]) { order: 11; }
+
+	#exam-controls .answer-card-icon,
+	#exam-controls .submit-exam-icon {
+		display: grid;
+	}
+
+	#exam-controls .answer-card-text,
+	#exam-controls .submit-exam-text {
+		display: none;
+	}
+
+	#exam-command-bar #user-menu-trigger {
+		position: absolute;
+		top: 8px;
+		right: 0;
+		margin: 0;
+		z-index: 151;
+		box-shadow: 0 8px 20px rgba(20, 15, 10, .18);
+	}
+
+	#exam-command-bar #exam-settings-control.is-compact {
+		display: flex !important;
+		position: absolute;
+		top: 52px;
+		right: 0;
+		z-index: 150;
+		width: 40px;
+		height: 40px;
+	}
+
+	#exam-settings-toggle {
+		display: grid;
+		width: 40px;
+		height: 40px;
+		min-height: 40px;
+		padding: 0;
+		place-items: center;
+		border: 1px solid var(--product-border);
+		border-radius: 50%;
+		background: var(--vscode-button-secondaryBackground);
+		color: var(--vscode-button-secondaryForeground);
+		cursor: pointer;
+		box-shadow: 0 8px 20px rgba(20, 15, 10, .18);
+	}
+
+	#exam-settings-toggle:hover,
+	#exam-settings-toggle[aria-expanded="true"] {
+		background: var(--product-primary);
+		color: #fff;
+		border-color: var(--product-primary);
+	}
+
+	#exam-settings-toggle svg {
+		width: 24px;
+		height: 24px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.7;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	#exam-settings-menu {
+		position: absolute;
+		top: 0;
+		right: calc(100% + 8px);
+		z-index: 160;
+		display: grid;
+		gap: 12px;
+		width: min(360px, calc(100vw - 72px));
+		max-height: calc(100vh - 82px);
+		padding: 14px;
+		overflow-y: auto;
+		background: var(--product-surface);
+		border: 1px solid var(--product-border);
+		border-radius: var(--product-radius-md);
+		box-shadow: 0 18px 44px rgba(20, 15, 10, .3);
+	}
+
+	#exam-settings-menu[hidden] { display: none !important; }
+
+	.exam-settings-heading {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 8px;
+		padding-bottom: 8px;
+		border-bottom: 1px solid var(--product-border);
+	}
+
+	.exam-settings-heading strong { font-size: 15px; }
+	.exam-settings-heading span {
+		font-size: 11px !important;
+		color: var(--vscode-descriptionForeground) !important;
+	}
+
+	.exam-settings-fields {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+	}
+
+	.exam-settings-fields label {
+		display: grid;
+		gap: 5px;
+		font-size: 12px;
+		color: var(--vscode-descriptionForeground);
+	}
+
+	.exam-settings-fields label > span {
+		display: block;
+		width: 100%;
+	}
+
+	.exam-settings-fields label:has(#exam-level-select[style*="display: none"]) {
+		display: none;
+	}
+
+	#exam-settings-menu select,
+	#exam-settings-menu #exam-family-select,
+	#exam-settings-menu #exam-mode-select,
+	#exam-settings-menu #exam-level-select,
+	#exam-settings-menu #exam-paper-select {
+		width: 100%;
+		min-width: 0;
+		max-width: none;
+		height: 40px;
+	}
+
+	.exam-settings-assists {
+		display: grid;
+		gap: 8px;
+		padding-top: 10px;
+		border-top: 1px solid var(--product-border);
+	}
+
+	.exam-settings-assists > strong { font-size: 12px; }
+
+	#exam-settings-menu #learning-tools-control:not([hidden]) {
+		display: block !important;
+		position: static;
+		width: 100%;
+		height: auto;
+		margin: 0;
+	}
+
+	#exam-settings-menu #learning-tools-toggle { display: none; }
+
+	#exam-settings-menu #learning-tools-menu,
+	#exam-settings-menu #learning-tools-menu[hidden] {
+		position: static;
+		display: grid !important;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 8px;
+		width: 100%;
+		padding: 0;
+		background: transparent;
+		border: 0;
+		box-shadow: none;
+	}
+
+	#exam-settings-menu #learning-tools-menu button {
+		width: 100%;
+		height: 40px;
+		min-height: 40px;
+		padding: 0 6px;
+		border: 1px solid var(--product-border);
+		border-radius: var(--product-radius-sm);
+		background: var(--vscode-button-secondaryBackground);
+		color: var(--vscode-button-secondaryForeground);
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	#exam-settings-menu #learning-tools-menu button.active {
+		background: var(--product-primary);
+		color: #fff;
+		border-color: var(--product-primary);
+	}
+
+	.exam-settings-assists:has(#learning-tools-control[hidden])::after {
+		content: '模拟考试提交后可使用学习辅助';
+		padding: 9px 10px;
+		border-radius: var(--product-radius-sm);
+		background: var(--product-surface-muted);
+		color: var(--vscode-descriptionForeground);
+		font-size: 12px;
+		text-align: center;
+	}
+
+	#exam-command-bar .answer-save-status:not([hidden]) {
+		position: absolute;
+		top: calc(100% + 6px);
+		right: 62px;
+		z-index: 100;
+		margin: 0;
+	}
+
+	/* 旧的“收起试卷选择”状态不能再隐藏已经搬入设置面板的选择框。 */
+	#exam-library-panel.mobile-paper-ready.mobile-paper-collapsed #exam-settings-menu select {
+		display: block !important;
+	}
+
+/* 题型说明在所有宽度下默认只占一行，点击后才展示完整内容。 */
+.section-info {
+	margin-bottom: 8px;
+}
+
+.section-info h3 {
+	margin: 0;
+}
+
+.section-instruction-toggle {
+	align-items: center;
+	min-height: 40px;
+	cursor: pointer;
+}
+
+.section-instruction-toggle[aria-expanded="false"] .section-instruction-text {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.section-instruction-toggle[aria-expanded="true"] .section-instruction-text {
+	overflow: visible;
+	white-space: normal;
+	text-overflow: clip;
+}
+
+.section-instruction-action {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	min-width: 38px;
+	padding: 3px 6px;
+	border: 1px solid var(--product-border);
+	border-radius: 8px;
+	background: var(--product-surface-muted);
+	color: var(--vscode-descriptionForeground);
+	font-size: 11px;
+	font-weight: 500;
+}
+
+@container exam-workarea (max-width: 350px) {
+	.exam-settings-fields {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* 上一题/下一题在所有宽度下使用同一套右下角浮动按钮。 */
+#question-navigation {
+	position: fixed;
+	left: auto;
+	right: var(--exam-floating-right-offset, 0px);
+	bottom: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0;
+	width: auto;
+	padding: 0;
+	background: transparent;
+	border: 0;
+	backdrop-filter: none;
+	z-index: 100;
+}
+
+#question-navigation .question-nav {
+	display: flex;
+	flex: 0 0 auto;
+	width: auto;
+	gap: 15px;
+}
+
+#question-navigation .nav-btn {
+	flex: 0 0 88px;
+	width: 88px;
+	min-width: 88px;
+	height: 40px;
+	min-height: 40px;
+	padding: 8px 12px;
+	box-shadow: 0 8px 20px rgba(35, 25, 18, 0.16);
+}
+
+body:has(#question-navigation .nav-btn) {
+	padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}

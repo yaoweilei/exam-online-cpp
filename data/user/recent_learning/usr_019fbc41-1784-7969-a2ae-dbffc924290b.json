@@ -1,0 +1,19 @@
+{
+  "items" : 
+  [
+    {
+      "answered_count" : 1,
+      "created_at" : "2026-08-01T07:37:05.599Z",
+      "exam_id" : "2023_02",
+      "last_question_index" : 0,
+      "last_section_index" : 1,
+      "paper_id" : "",
+      "status" : "draft",
+      "total_questions" : 1,
+      "updated_at" : "2026-08-01T07:37:05.599Z",
+      "user_id" : "usr_019fbc41-1784-7969-a2ae-dbffc924290b"
+    }
+  ],
+  "updated_at" : "2026-08-01T07:37:05.599Z",
+  "user_id" : "usr_019fbc41-1784-7969-a2ae-dbffc924290b"
+}

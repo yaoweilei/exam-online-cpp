@@ -17,7 +17,7 @@ async function loginWithApiSession(page, request) {
   }, { token: session.token, user: session.user || session });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await stubNoisyPersonalCenterApis(page);
-  await expect(page.locator('#user-menu-trigger, [aria-label*="打开个人中心"]').first()).toHaveAttribute('aria-label', /打开个人中心/);
+  await expect(page.locator('#user-menu-trigger, [aria-label*="打开账号菜单"]').first()).toHaveAttribute('aria-label', /打开账号菜单/);
 }
 
 test('个人账户可以通过 Web 兑换积分并查看卡券包和支付流水', async ({ page, request }) => {

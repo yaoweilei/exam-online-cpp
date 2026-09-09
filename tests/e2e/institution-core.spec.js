@@ -141,8 +141,9 @@ async function prepareTeachingDemo(request) {
 
 async function openInstitutionWorkbench(page) {
   await page.locator('#user-menu-trigger').click();
-  await expect(page.locator('#personal-center.pc-open')).toBeVisible();
-  await page.locator('button.pc-nav-item', { hasText: '管理' }).click();
+  await page.getByRole('menuitem', { name: /^进入机构管理/ }).click();
+  await expect(page.locator('#platform-admin-shell')).toBeVisible();
+  await page.locator('#platform-admin-shell').getByRole('button', { name: '机构看板', exact: true }).click();
   const workbench = page.locator('#pc-institution-workbench');
   await expect(workbench).toBeVisible();
   await expect(workbench.locator('.pc-service-header', { hasText: '机构教学工作台' })).toBeVisible();
@@ -307,9 +308,9 @@ test('机构后台可以维护校区、学习组、课程包和学习组成员',
   await stubNoisyPersonalCenterApis(page);
   await loginWithPassword(page, adminLoginId);
   await page.locator('#user-menu-trigger').click();
-  await expect(page.locator('#personal-center.pc-open')).toBeVisible();
-
-  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="成员管理"]').click();
+  await page.getByRole('menuitem', { name: /^进入机构管理/ }).click();
+  await expect(page.locator('#platform-admin-shell')).toBeVisible();
+  await page.locator('#platform-admin-shell').getByRole('button', { name: '成员管理', exact: true }).click();
   const memberOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
   await expect(memberOrganizationCard).toBeVisible({ timeout: 20000 });
   await memberOrganizationCard.locator('summary').click();

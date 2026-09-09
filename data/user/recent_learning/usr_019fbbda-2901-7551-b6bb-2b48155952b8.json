@@ -1,0 +1,20 @@
+{
+  "items" : 
+  [
+    {
+      "answered_count" : 1,
+      "completion" : 1.96,
+      "correct_count" : 0,
+      "created_at" : "2026-08-01T05:44:33.946Z",
+      "exam_id" : "2023_02",
+      "score" : 0.0,
+      "status" : "submitted",
+      "total_questions" : 51,
+      "updated_at" : "2026-08-01T05:44:33.946Z",
+      "user_id" : "usr_019fbbda-2901-7551-b6bb-2b48155952b8",
+      "wrong_count" : 1
+    }
+  ],
+  "updated_at" : "2026-08-01T05:44:33.946Z",
+  "user_id" : "usr_019fbbda-2901-7551-b6bb-2b48155952b8"
+}

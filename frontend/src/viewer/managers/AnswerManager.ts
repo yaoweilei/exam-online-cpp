@@ -599,7 +599,7 @@ class AnswerManager {
 		const issueRows = Object.entries(results).filter(([, row]) => row.status !== 'correct').map(([key, row]) => `
 			<div class="exam-attempt-question"><strong>题目 ${this.escapeHtml(key)}</strong><span>${row.status === 'unanswered' ? '未作答' : '回答错误'} · 作答 ${this.escapeHtml(this.answerLabel(row.user_answer))} · 正确 ${this.escapeHtml(this.answerLabel(row.correct_answer))}</span></div>`).join('');
 		const savedAt = attempt.saved_at ? new Date(attempt.saved_at).toLocaleString('zh-CN', { hour12: false }) : '时间未知';
-		const mode = stats.exam_mode === 'mock' ? '模拟考试' : '学习练习';
+		const mode = stats.exam_mode === 'mock' ? '模拟考试' : '练习模式';
 		const elapsed = this.formatDuration(this.safeInteger(stats.elapsed_seconds));
 		panel.innerHTML = `<div class="exam-history-heading"><p class="exam-result-kicker">${mode} · ${savedAt}</p><h2 id="exam-result-title">${this.formatNumber(this.safeNumber(stats.score))} 分</h2><p>正确 ${this.safeInteger(stats.correct_count)} · 错误 ${this.safeInteger(stats.wrong_count)} · 未答 ${this.safeInteger(stats.unanswered_count)}${elapsed ? ` · 用时 ${elapsed}` : ''}</p></div><div class="exam-attempt-questions">${issueRows || '<p class="exam-history-empty">本次没有错题或未答题。</p>'}</div><div class="exam-result-actions"><button type="button" class="result-primary" data-attempt-retry ${issueRows ? '' : 'disabled'}>重练本次错题</button><button type="button" data-attempt-back>返回历史</button></div>`;
 		panel.querySelector('[data-attempt-back]')?.addEventListener('click', () => void this.showAttemptHistory(currentResult));

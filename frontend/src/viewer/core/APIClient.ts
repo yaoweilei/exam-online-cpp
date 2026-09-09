@@ -48,12 +48,11 @@ class APIClient {
 		});
 	}
 
-	static async changePassword(token: string, currentPassword: string, newPassword: string): Promise<unknown> {
+	static async changePassword(token: string, newPassword: string): Promise<unknown> {
 		return this.request('/auth/password/change', {
 			method: 'POST',
 			body: JSON.stringify({
 				token,
-				current_password: currentPassword,
 				new_password: newPassword
 			})
 		});

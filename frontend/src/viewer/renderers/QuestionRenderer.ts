@@ -747,7 +747,6 @@ export class QuestionRenderer {
 	createFeedbackButton(question: RendererAnyRecord) {
 		const btn = document.createElement("button");
 		btn.className = "feedback-btn";
-		btn.style.cssText = 'margin-left:6px;font-size:12px;padding:2px 8px;cursor:pointer;border:1px solid #d0d0d0;border-radius:4px;background:#fafafa;';
 		btn.innerHTML = "🐛 报错";
 		btn.title = '反馈题目错误或建议';
 		btn.onclick = (e) => {
@@ -760,7 +759,6 @@ export class QuestionRenderer {
 	createQuestionBookmarkButton(question: RendererAnyRecord, sectionIndex: number, questionIndex: number) {
 		const btn = document.createElement("button");
 		btn.className = "question-bookmark-btn";
-		btn.style.cssText = 'margin-left:6px;font-size:12px;padding:2px 8px;cursor:pointer;border:1px solid #d0d0d0;border-radius:4px;background:#fff8e1;color:#7a4b00;';
 		btn.textContent = "收藏本题";
 		btn.title = '收藏当前题并添加复习原因';
 		btn.onclick = (e) => {

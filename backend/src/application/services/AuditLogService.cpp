@@ -130,10 +130,41 @@ AuditLogService::AuditLogService(std::filesystem::path userRootDir,
 
 Json::Value AuditLogService::loadAllLogs(const std::optional<std::string> &orgIdFilter) const
 {
+    syncOrganizationLogs();
     Json::Value out(Json::arrayValue);
     std::shared_lock lock(mutex_);
     for(const auto &log:sqliteStore_.list("audit_logs")) if(!orgIdFilter||log.get("org_id","").asString()==*orgIdFilter) out.append(log);
     return out;
+}
+
+void AuditLogService::syncOrganizationLogs() const
+{
+    std::error_code ec;
+    const auto modifiedAt = std::filesystem::last_write_time(orgFile_, ec);
+    if (ec) return;
+
+    {
+        std::shared_lock lock(mutex_);
+        if (orgFileSyncedAt_ && *orgFileSyncedAt_ == modifiedAt) return;
+    }
+
+    std::unique_lock lock(mutex_);
+    if (orgFileSyncedAt_ && *orgFileSyncedAt_ == modifiedAt) return;
+
+    const auto root = safeRead(orgFile_);
+    if (!root.isObject()) return;
+    for (const auto &orgId : root.getMemberNames())
+    {
+        const auto logs = root[orgId]["audit_logs"];
+        if (!logs.isArray()) continue;
+        for (auto log : logs)
+        {
+            if (log.get("org_id", "").asString().empty()) log["org_id"] = orgId;
+            const auto auditId = log.get("audit_id", "").asString();
+            if (!auditId.empty()) sqliteStore_.upsert("audit_logs", auditId, log);
+        }
+    }
+    orgFileSyncedAt_ = modifiedAt;
 }
 
 void AuditLogService::record(const std::string &action,
@@ -158,6 +189,7 @@ void AuditLogService::record(const std::string &action,
 
 Json::Value AuditLogService::query(const AuditLogQuery &q) const
 {
+    syncOrganizationLogs();
     const int offset = (std::max)(0, q.offset);
     const int limit = (std::max)(1, (std::min)(500, q.limit));
     std::size_t total = 0;

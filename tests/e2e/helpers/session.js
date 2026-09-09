@@ -78,11 +78,11 @@ async function loginWithPassword(page, loginId) {
     localStorage.removeItem('exam_v2_token');
   }, loginId);
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('#user-menu-trigger, [aria-label*="打开个人中心"]').first()).toHaveAttribute('aria-label', /打开个人中心/);
+  await expect(page.locator('#user-menu-trigger, [aria-label*="打开个人中心"], [aria-label*="打开账号菜单"]').first()).toHaveAttribute('aria-label', /打开(个人中心|账号菜单)/);
 }
 
 async function openPersonalCenter(page) {
-  await page.locator('#user-menu-trigger, [aria-label*="打开个人中心"]').first().click();
+  await page.evaluate(() => window.openPersonalCenter?.());
   await expect(page.locator('#personal-center.pc-open')).toBeVisible();
   await expect(page.getByRole('dialog', { name: '个人中心' })).toBeVisible();
 }

@@ -11,7 +11,7 @@
 	height: 210px;
 	margin: 0 auto 8px;
 	border: 1px solid rgba(31, 25, 20, 0.08);
-	border-radius: 22px;
+	border-radius: var(--ui-surface-radius, 8px);
 	overflow: hidden;
 	background: rgba(255,255,255,0.72);
 	display: flex;
@@ -181,9 +181,13 @@ body:not(.light-theme) .login-country-code { color: #2b2724; border-right-color:
 .login-phone-code-sent .login-phone-code-row { display: flex; }
 
 .login-password-view {
-	display: flex;
+	display: none;
 	flex-direction: column;
 	gap: calc(var(--login-scale, 0.367px) * 28);
+}
+
+.login-password-view.is-active {
+	display: flex;
 }
 
 .login-password-view .login-input {
@@ -204,8 +208,8 @@ body:not(.light-theme) .login-country-code { color: #2b2724; border-right-color:
 	right: 14px;
 	top: 50%;
 	transform: translateY(-50%);
-	width: 34px;
-	height: 34px;
+	width: 40px;
+	height: 40px;
 	border: 0;
 	border-radius: 50%;
 	background: transparent;
@@ -230,6 +234,27 @@ body:not(.light-theme) .login-country-code { color: #2b2724; border-right-color:
 	stroke-width: 1.8;
 	stroke-linecap: round;
 	stroke-linejoin: round;
+}
+
+.login-eye-open {
+	display: none;
+}
+
+.login-eye-closed {
+	display: block;
+}
+
+.login-password-toggle[aria-pressed="true"] .login-eye-open {
+	display: block;
+}
+
+.login-password-toggle[aria-pressed="true"] .login-eye-closed {
+	display: none;
+}
+
+.login-box .login-password-toggle:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(255, 105, 75, 0.16);
 }
 
 .btn-send-code {
@@ -547,5 +572,343 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 
 	.login-dev-users {
 		margin-top: calc(var(--login-scale, 0.367px) * 42);
+	}
+}
+
+/*
+ * 登录框按常见手机屏幕 390:844 的比例缩放。网页端居中显示同一套手机
+ * 界面，手机窄屏则铺满可视区域；验证码页和密码页切换时外框尺寸不变。
+ */
+#login-modal {
+	box-sizing: border-box;
+	padding: 12px;
+	overflow-y: auto;
+}
+
+.login-box {
+	--login-mobile-input-height: 46px;
+	--login-mobile-button-height: 46px;
+	--login-mobile-social-size: 42px;
+	--login-mobile-social-icon: 26px;
+	display: flex;
+	flex-direction: column;
+	width: min(420px, calc(100vw - 24px), calc((100dvh - 24px) * 0.4621));
+	height: auto;
+	max-height: calc(100dvh - 24px);
+	aspect-ratio: 390 / 844;
+	padding: 28px 32px 34px;
+	border-radius: var(--ui-surface-radius, 8px);
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.login-close {
+	top: 20px;
+	right: auto;
+	left: 20px;
+	width: auto;
+	min-width: 40px;
+	height: 40px;
+	padding: 0 4px;
+	border: 0;
+	background: transparent;
+	font-size: 30px;
+	z-index: 2;
+}
+
+.login-close-back {
+	display: none;
+	align-items: center;
+	gap: 2px;
+	font-size: 17px;
+}
+
+.login-close-back > span {
+	font-size: 32px;
+	line-height: 1;
+}
+
+#login-modal.login-mode-password .login-close-x,
+#login-modal.login-mode-wechat .login-close-x {
+	display: none;
+}
+
+#login-modal.login-mode-password .login-close-back,
+#login-modal.login-mode-wechat .login-close-back {
+	display: inline-flex;
+}
+
+.login-brand {
+	padding-top: 103px;
+	margin-bottom: 145px;
+}
+
+.login-brand-mark {
+	width: 68px;
+	height: 68px;
+	border-width: 2px;
+	border-radius: 18px;
+	font-size: 30px;
+}
+
+.login-title {
+	display: none;
+	margin-top: 0;
+}
+
+#login-modal.login-mode-password .login-brand {
+	padding-top: 124px;
+	margin-bottom: 44px;
+}
+
+#login-modal.login-mode-password .login-brand-mark {
+	display: none;
+}
+
+#login-modal.login-mode-password .login-title {
+	display: block;
+	font-size: 36px;
+	font-weight: 800;
+	line-height: 1.2;
+}
+
+.login-panel,
+.login-panel.is-active {
+	height: auto;
+	padding: 0 2px;
+	overflow: visible;
+}
+
+.login-phone-entry {
+	grid-template-columns: 80px minmax(0, 1fr);
+	min-height: 46px;
+	margin-bottom: 18px;
+}
+
+.login-country-code {
+	font-size: 15px;
+}
+
+.login-input {
+	min-height: 46px;
+	margin: 0;
+	padding: 0 14px;
+	font-size: 15px;
+}
+
+.login-input:focus,
+.login-phone-entry:focus-within {
+	outline: none;
+	border-color: rgba(255, 105, 75, 0.5);
+	box-shadow: 0 0 0 2px rgba(255, 105, 75, 0.16);
+}
+
+.login-box input:focus-visible {
+	outline: 2px solid rgba(255, 105, 75, 0.5);
+	outline-offset: 1px;
+}
+
+.login-box .login-phone-input:focus-visible {
+	outline: none;
+}
+
+.login-password-view {
+	gap: 14px;
+}
+
+.login-password-forgot {
+	align-self: flex-end;
+	min-height: 30px;
+	margin: -2px 4px 10px 0;
+	padding: 0 2px;
+	border: 0;
+	background: transparent;
+	color: #737783;
+	font-size: 15px;
+	cursor: pointer;
+}
+
+.login-password-links {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 18px;
+}
+
+.login-password-links button,
+.login-password-view > button[data-password-view="login"] {
+	min-height: 40px;
+	padding: 6px 8px;
+	border: 0;
+	background: transparent;
+	color: #52627b;
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.login-password-links button:hover,
+.login-password-view > button[data-password-view="login"]:hover {
+	color: #f16452;
+}
+
+.btn-primary-login {
+	min-height: 46px;
+	margin-top: 0;
+	font-size: 15px;
+}
+
+.login-error {
+	margin-top: 8px;
+}
+
+.login-agree,
+#login-modal.login-mode-phone .login-agree,
+#login-modal.login-mode-phone.login-phone-code-sent .login-agree {
+	margin-top: 4px;
+	padding-top: 0;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.login-agree label {
+	flex-wrap: wrap;
+	gap: 3px 5px;
+}
+
+.login-agree input {
+	width: 16px;
+	height: 16px;
+	border: 1px solid #c9c5c2;
+	background: #fff;
+	cursor: pointer;
+}
+
+.login-agree input::after {
+	display: none;
+}
+
+.login-agree input:checked {
+	border-color: #ff704f;
+	background: #ff704f;
+}
+
+.login-agree input:checked::after {
+	display: block;
+}
+
+.login-agree label {
+	cursor: pointer;
+}
+
+.login-mode-bar {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 48px 48px;
+	gap: 10px;
+	width: min(280px, 100%);
+	align-self: center;
+	margin-top: 28px;
+}
+
+#login-modal.login-mode-phone .login-mode-icon[data-mode="phone"],
+#login-modal.login-mode-password .login-mode-icon[data-mode="password"] {
+	display: none;
+}
+
+#login-modal.login-mode-password .login-agree,
+#login-modal.login-mode-password .login-mode-bar,
+#login-modal.login-mode-password .login-dev-users {
+	display: none;
+}
+
+#login-modal.login-mode-wechat .login-mode-bar {
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) 42px 42px;
+	width: 100%;
+}
+
+.login-mode-icon,
+.login-password-shortcut,
+.login-social-icon {
+	width: 100%;
+	min-width: 0;
+	height: 40px;
+	min-height: 40px;
+	padding: 0 8px;
+	font-size: 13px;
+	white-space: nowrap;
+}
+
+.login-mode-symbol {
+	width: 16px;
+	height: 16px;
+}
+
+.login-social-icon {
+	width: 40px;
+	padding: 0;
+	font-size: 20px;
+}
+
+.login-wechat-icon svg {
+	width: 26px;
+	height: 26px;
+}
+
+.login-social-icon[data-oauth="google"] {
+	font-size: 20px;
+}
+
+.login-dev-users {
+	margin-top: 14px;
+	padding: 0;
+}
+
+.login-dev-title {
+	margin-bottom: 8px;
+	font-size: 11px;
+}
+
+.login-dev-grid {
+	gap: 6px;
+}
+
+.login-dev-grid button {
+	min-height: 40px;
+	padding: 4px 6px;
+	font-size: 11px;
+}
+
+@media (max-width: 360px) {
+	.login-box {
+		padding: 20px 18px;
+	}
+
+	.login-mode-bar {
+		grid-template-columns: minmax(0, 1fr) 40px 40px;
+		gap: 6px;
+	}
+
+	#login-modal.login-mode-wechat .login-mode-bar {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) 40px 40px;
+	}
+
+	.login-social-icon {
+		width: 40px;
+	}
+}
+
+@media (max-width: 420px) {
+	#login-modal {
+		padding: 0;
+		background: #fff8f5;
+	}
+
+	.login-box {
+		width: 100vw;
+		height: 100dvh;
+		max-height: 100dvh;
+		aspect-ratio: auto;
+		border-radius: 0;
+		padding-top: max(28px, env(safe-area-inset-top));
+		padding-bottom: max(34px, env(safe-area-inset-bottom));
 	}
 }

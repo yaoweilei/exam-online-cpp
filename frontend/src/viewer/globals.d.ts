@@ -13,7 +13,7 @@ interface LegacyApiClientShape {
 	login(username: string, password: string): Promise<unknown>;
 	register(username: string, password: string, email?: string | null, referralCode?: string): Promise<unknown>;
 	logout(token: string): Promise<unknown>;
-	changePassword(token: string, currentPassword: string, newPassword: string): Promise<unknown>;
+	changePassword(token: string, newPassword: string): Promise<unknown>;
 	getAuthSessions(token: string): Promise<unknown>;
 	revokeOtherAuthSessions(token: string): Promise<unknown>;
 	revokeAuthSession(token: string, sessionId: string): Promise<unknown>;

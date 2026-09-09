@@ -16,7 +16,7 @@ function logAppReady(levels: number): void {
 
 async function bootstrap(): Promise<void> {
 	const viewerBootstrapUrl = new URL(
-		'./features/viewerBootstrap.js?v=20260730-renewal-delivery',
+		'./features/viewerBootstrap.js?v=20260909-pricing-workspace-v25',
 		import.meta.url
 	).href;
 	const { bootViewerApp } = await import(viewerBootstrapUrl) as typeof import('./features/viewerBootstrap.js');
@@ -64,12 +64,12 @@ async function bootstrap(): Promise<void> {
 		syncViewerUserState();
 	};
 
-	try {
-		await loadExams(api, store);
-	} catch (error) {
+	// Fetch the exam directory while the viewer modules are downloading. On a
+	// cold LAN visit this removes an entire serial network phase from startup.
+	const examsReady = loadExams(api, store).catch((error) => {
 		console.error('[main] loadExams failed, fallback to viewer bootstrap fetch:', error);
-	}
-	await bootViewerApp();
+	});
+	await bootViewerApp(examsReady);
 	syncViewerUserState();
 
 	const viewerLogout = appWindow.logoutUser;

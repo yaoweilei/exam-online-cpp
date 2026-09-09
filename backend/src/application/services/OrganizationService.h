@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cctype>
 #include <iomanip>
+#include <initializer_list>
 #include <sstream>
 #include <string>
 #include <unordered_set>
@@ -87,9 +88,26 @@ class OrganizationService
 
     Json::Value upsertCoursePackage(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload);
 
+    Json::Value deleteCoursePackage(const std::string &actorUserId,
+                                    const std::string &organizationId,
+                                    const std::string &coursePackageId);
+
     bool canAccessOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const;
 
     bool canManageOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const;
+
+    Json::Value effectiveOrganizationPermissions(const std::string &actorUserId,
+                                                 const Json::Value &actorRoles,
+                                                 const std::string &organizationId,
+                                                 const std::string &scope = "organization",
+                                                 const std::string &scopeId = "") const;
+
+    bool hasOrganizationPermission(const std::string &actorUserId,
+                                   const Json::Value &actorRoles,
+                                   const std::string &organizationId,
+                                   const std::string &permission,
+                                   const std::string &scope = "organization",
+                                   const std::string &scopeId = "") const;
 
   private:
     Json::Value requireOrganization(const std::string &organizationId) const;

@@ -775,9 +775,18 @@ Json::Value OrganizationService::completeLearningGroup(const std::string &actorU
             throw common::AppException("COURSE_PACKAGE_NOT_FOUND", "Course package not found: " + packageId, drogon::k404NotFound);
         }
         const auto remainingLessons = (std::max)(0, consumedPackage.get("remaining_lessons", 0).asInt());
-        if (remainingLessons <= 0)
+        const auto packageStatus = normalizeCoursePackageStatus(consumedPackage.get("status", "active").asString());
+        if (remainingLessons <= 0 || packageStatus == "depleted")
         {
             throw common::AppException("COURSE_PACKAGE_DEPLETED", "Course package has no remaining lessons", drogon::k422UnprocessableEntity);
+        }
+        if (packageStatus == "expired" || isExpiredIso8601(consumedPackage.get("expires_at", "").asString()))
+        {
+            throw common::AppException("COURSE_PACKAGE_EXPIRED", "Course package has expired", drogon::k422UnprocessableEntity);
+        }
+        if (packageStatus != "active")
+        {
+            throw common::AppException("COURSE_PACKAGE_UNAVAILABLE", "Course package is not active", drogon::k422UnprocessableEntity);
         }
         const auto totalLessons = (std::max)(0, consumedPackage.get("total_lessons", 0).asInt());
         const auto usedLessons = (std::max)(0, consumedPackage.get("used_lessons", 0).asInt()) + 1;
@@ -913,16 +922,21 @@ Json::Value OrganizationService::listCoursePackages(const std::string &organizat
 Json::Value OrganizationService::upsertCoursePackage(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload)
 {
     auto organization = requireOrganization(organizationId);
-    const auto packageId = payload.get("course_package_id", payload.get("id", "")).asString().empty()
-                               ? common::generateOpaqueId("pkg_")
-                               : payload.get("course_package_id", payload.get("id", "")).asString();
-    const auto existing = findEntityById(ensureArray(organization.get("course_packages", Json::Value(Json::arrayValue))), "course_package_id", packageId);
+    const auto requestedPackageId = payload.get("course_package_id", payload.get("id", "")).asString();
+    const auto existing = requestedPackageId.empty()
+                              ? Json::Value(Json::nullValue)
+                              : findEntityById(ensureArray(organization.get("course_packages", Json::Value(Json::arrayValue))), "course_package_id", requestedPackageId);
+    const auto recordType = payload.get("record_type", existing.get("record_type", "assignment")).asString();
+    const bool isTemplate = recordType == "template";
+    const auto packageId = requestedPackageId.empty()
+                               ? common::generateOpaqueId(isTemplate ? "tpl_" : "acct_")
+                               : requestedPackageId;
     const auto studentId = payload.get("student_id", existing.get("student_id", "")).asString();
-    if (studentId.empty())
+    if (!isTemplate && studentId.empty())
     {
         throw common::AppException("VALIDATION_ERROR", "student_id is required", drogon::k422UnprocessableEntity);
     }
-    if (userRepository_.findUserById(studentId).isNull())
+    if (!isTemplate && userRepository_.findUserById(studentId).isNull())
     {
         throw common::AppException("USER_NOT_FOUND", "Student not found: " + studentId, drogon::k404NotFound);
     }
@@ -937,13 +951,24 @@ Json::Value OrganizationService::upsertCoursePackage(const std::string &actorUse
     coursePackage["id"] = packageId;
     coursePackage["organization_id"] = organizationId;
     coursePackage["student_id"] = studentId;
+    coursePackage["record_type"] = isTemplate ? "template" : "assignment";
+    coursePackage["template_id"] = payload.get("template_id", existing.get("template_id", "")).asString();
     coursePackage["subject"] = payload.get("subject", existing.get("subject", "")).asString();
     coursePackage["title"] = payload.get("title", existing.get("title", "")).asString();
     coursePackage["total_lessons"] = totalLessons;
     coursePackage["remaining_lessons"] = remainingLessons;
     coursePackage["used_lessons"] = usedLessons;
     coursePackage["expires_at"] = payload.get("expires_at", existing.get("expires_at", "")).asString();
-    coursePackage["status"] = normalizeCoursePackageStatus(payload.get("status", existing.get("status", "active")).asString());
+    auto status = normalizeCoursePackageStatus(payload.get("status", existing.get("status", "active")).asString());
+    if (!isTemplate && status == "active" && remainingLessons == 0 && totalLessons > 0)
+    {
+        status = "depleted";
+    }
+    else if (!isTemplate && status == "active" && isExpiredIso8601(coursePackage.get("expires_at", "").asString()))
+    {
+        status = "expired";
+    }
+    coursePackage["status"] = status;
     if (!existing.isNull())
     {
         coursePackage["created_at"] = existing.get("created_at", "").asString();
@@ -962,11 +987,64 @@ Json::Value OrganizationService::upsertCoursePackage(const std::string &actorUse
                 Json::Value details(Json::objectValue);
                 details["course_package_id"] = packageId;
                 details["student_id"] = studentId;
+                details["record_type"] = coursePackage.get("record_type", "assignment").asString();
                 details["subject"] = coursePackage.get("subject", "").asString();
                 return details;
             }()));
     organizationRepository_.upsertOrganization(organization);
     return coursePackage;
+}
+
+Json::Value OrganizationService::deleteCoursePackage(const std::string &actorUserId,
+                                                      const std::string &organizationId,
+                                                      const std::string &coursePackageId)
+{
+    auto organization = requireOrganization(organizationId);
+    const auto packages = ensureArray(organization.get("course_packages", Json::Value(Json::arrayValue)));
+    const auto existing = findEntityById(packages, "course_package_id", coursePackageId);
+    if (existing.isNull())
+    {
+        throw common::AppException("COURSE_PACKAGE_NOT_FOUND", "Course package not found: " + coursePackageId, drogon::k404NotFound);
+    }
+
+    for (const auto &package : packages)
+    {
+        if (package.get("course_package_id", "").asString() != coursePackageId
+            && package.get("template_id", "").asString() == coursePackageId)
+        {
+            throw common::AppException("COURSE_PACKAGE_IN_USE", "Course package is referenced by an account", drogon::k409Conflict);
+        }
+    }
+    for (const auto &group : ensureArray(organization.get("learning_groups", Json::Value(Json::arrayValue))))
+    {
+        if (group.get("course_package_id", "").asString() == coursePackageId)
+        {
+            throw common::AppException("COURSE_PACKAGE_IN_USE", "Course package is referenced by a learning group", drogon::k409Conflict);
+        }
+    }
+
+    Json::Value remaining(Json::arrayValue);
+    for (const auto &package : packages)
+    {
+        if (package.get("course_package_id", "").asString() != coursePackageId) remaining.append(package);
+    }
+    organization["course_packages"] = remaining;
+    organization = appendAuditEntry(
+        organization,
+        createAuditEntry(
+            actorUserId,
+            "course_package.deleted",
+            existing.get("record_type", "assignment").asString() == "template" ? "删除课程包模板" : "删除学员课时账户",
+            [&] {
+                Json::Value details(Json::objectValue);
+                details["course_package_id"] = coursePackageId;
+                details["template_id"] = existing.get("template_id", "").asString();
+                details["student_id"] = existing.get("student_id", "").asString();
+                details["record_type"] = existing.get("record_type", "assignment").asString();
+                return details;
+            }()));
+    organizationRepository_.upsertOrganization(organization);
+    return existing;
 }
 
 bool OrganizationService::canAccessOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const
@@ -978,27 +1056,117 @@ bool OrganizationService::canAccessOrganization(const std::string &actorUserId, 
     return !organizationRepository_.findMembership(actorUserId, organizationId).isNull();
 }
 
-bool OrganizationService::canManageOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const
+Json::Value OrganizationService::effectiveOrganizationPermissions(const std::string &actorUserId,
+                                                                   const Json::Value &actorRoles,
+                                                                   const std::string &organizationId,
+                                                                   const std::string &scope,
+                                                                   const std::string &scopeId) const
 {
+    Json::Value permissions(Json::arrayValue);
     if (hasPlatformRole(actorRoles))
     {
-        return true;
+        permissions.append("*");
+        return permissions;
     }
 
     const auto membership = organizationRepository_.findMembership(actorUserId, organizationId);
     if (membership.isNull())
     {
-        return false;
+        return permissions;
     }
 
-    for (const auto &role : membership["roles"])
+    const auto organization = organizationRepository_.findOrganization(organizationId);
+    const auto roleConfigs = normalizeRolePermissions(
+        organization.get("role_permissions", Json::Value(Json::objectValue)));
+    const auto roleDefinitions = userRepository_.roles();
+    std::unordered_set<std::string> effective;
+    for (const auto &role : membership.get("roles", Json::Value(Json::arrayValue)))
     {
-        if (role.asString() == "orgAdmin")
+        const auto roleId = role.asString();
+        std::unordered_set<std::string> rolePermissions;
+        const auto defaultPermissions = roleDefinitions.isMember(roleId)
+            ? normalizePermissionIdArray(roleDefinitions[roleId].get("permissions", Json::Value(Json::arrayValue)))
+            : Json::Value(Json::arrayValue);
+        for (const auto &permission : defaultPermissions)
+        {
+            rolePermissions.insert(permission.asString());
+        }
+        const auto config = roleConfigs.get(roleId, Json::Value(Json::objectValue));
+        for (const auto &permission : config.get("allow", Json::Value(Json::arrayValue)))
+        {
+            rolePermissions.insert(permission.asString());
+        }
+        for (const auto &permission : config.get("deny", Json::Value(Json::arrayValue)))
+        {
+            rolePermissions.erase(permission.asString());
+        }
+        effective.insert(rolePermissions.begin(), rolePermissions.end());
+    }
+
+    std::unordered_set<std::string> denied;
+    const auto now = common::nowIso8601();
+    for (const auto &item : normalizePermissionOverrides(
+             membership.get("permission_overrides", Json::Value(Json::arrayValue))))
+    {
+        const auto expiresAt = item.get("expires_at", "").asString();
+        if (!expiresAt.empty() && expiresAt <= now)
+        {
+            continue;
+        }
+        const auto overrideScope = item.get("scope", "organization").asString();
+        const auto overrideScopeId = item.get("scope_id", "").asString();
+        const bool applies = overrideScope == "organization" ||
+            (overrideScope == scope && (overrideScopeId.empty() || overrideScopeId == scopeId));
+        if (!applies)
+        {
+            continue;
+        }
+        const auto permission = item.get("permission", "").asString();
+        if (item.get("effect", "allow").asString() == "deny")
+        {
+            denied.insert(permission);
+        }
+        else
+        {
+            effective.insert(permission);
+        }
+    }
+    for (const auto &permission : denied)
+    {
+        effective.erase(permission);
+    }
+
+    std::vector<std::string> ordered(effective.begin(), effective.end());
+    std::sort(ordered.begin(), ordered.end());
+    for (const auto &permission : ordered)
+    {
+        permissions.append(permission);
+    }
+    return permissions;
+}
+
+bool OrganizationService::hasOrganizationPermission(const std::string &actorUserId,
+                                                     const Json::Value &actorRoles,
+                                                     const std::string &organizationId,
+                                                     const std::string &permission,
+                                                     const std::string &scope,
+                                                     const std::string &scopeId) const
+{
+    for (const auto &effectivePermission : effectiveOrganizationPermissions(
+             actorUserId, actorRoles, organizationId, scope, scopeId))
+    {
+        if (effectivePermission.asString() == "*" || effectivePermission.asString() == permission)
         {
             return true;
         }
     }
     return false;
+}
+
+bool OrganizationService::canManageOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const
+{
+	return hasOrganizationPermission(
+		actorUserId, actorRoles, organizationId, "organization.member.manage");
 }
 
 Json::Value OrganizationService::requireOrganization(const std::string &organizationId) const
@@ -1026,6 +1194,15 @@ Json::Value OrganizationService::enrichOrganization(Json::Value organization) co
         organization["audit_logs"] = Json::arrayValue;
     }
     organization["role_permissions"] = normalizeRolePermissions(organization.get("role_permissions", Json::Value(Json::objectValue)));
+    organization["role_default_permissions"] = Json::objectValue;
+    const auto roleDefinitions = userRepository_.roles();
+    for (const auto &roleIdValue : allowedRolePermissionRoles())
+    {
+        const auto roleId = roleIdValue.asString();
+        organization["role_default_permissions"][roleId] = roleDefinitions.isMember(roleId)
+            ? normalizePermissionIdArray(roleDefinitions[roleId].get("permissions", Json::Value(Json::arrayValue)))
+            : Json::Value(Json::arrayValue);
+    }
     return organization;
 }
 
@@ -1214,6 +1391,7 @@ Json::Value OrganizationService::allowedMembershipRoles()
     roles.append("student");
     roles.append("assistant");
     roles.append("teacher");
+    roles.append("orgContentAdmin");
     roles.append("orgAdmin");
     return roles;
 }
@@ -1235,8 +1413,8 @@ Json::Value OrganizationService::allowedRolePermissionRoles()
     roles.append("student");
     roles.append("assistant");
     roles.append("teacher");
+    roles.append("orgContentAdmin");
     roles.append("orgAdmin");
-    roles.append("contentAdmin");
     return roles;
 }
 
@@ -1427,15 +1605,13 @@ bool OrganizationService::isAllowedPermissionOverride(const std::string &permiss
         "course_package.view",
         "lesson_prep.create",
         "lesson_prep.export",
+        "learning_record.feedback.edit",
         "renewal_risk.view",
         "organization.dashboard.view",
         "organization.member.manage",
         "organization.billing.manage",
         "payment.refund",
-        "audit.view",
-        "content.paper.maintain",
-        "content.analysis.review",
-        "content.quality.check"};
+        "audit.view"};
     return allowed.contains(permission);
 }
 

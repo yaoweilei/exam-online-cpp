@@ -8,6 +8,14 @@
 
 /* Web 环境默认主题（VSCode 深色主题风格） */
 :root {
+	/* 全站布局节奏：页面分块与块内内容统一为 4，紧密元素 3。 */
+	--ui-space-block: 4px;
+	--ui-space-content: 4px;
+	--ui-space-tight: 3px;
+	--ui-surface-padding: 6px;
+	--ui-surface-radius: 8px;
+	--ui-soft-bg: #f8f6f3;
+
 	/* 基础颜色 */
 	--vscode-foreground: #cccccc;
 	--vscode-editor-background: #1e1e1e;

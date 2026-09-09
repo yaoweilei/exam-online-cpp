@@ -36,15 +36,30 @@ Json::Value ContentWorkflowService::buildInspection(const std::string &examId, c
 {
     Json::Value errors(Json::arrayValue), warnings(Json::arrayValue), assets(Json::arrayValue);
     int questions = 0, explanations = 0, images = 0, audio = 0;
-    std::function<void(const Json::Value &, const std::string &)> walk = [&](const Json::Value &node, const std::string &path) {
-        if (node.isArray()) { for (Json::ArrayIndex i = 0; i < node.size(); ++i) walk(node[i], path + "/" + std::to_string(i)); return; }
+    std::function<void(const Json::Value &, const std::string &, const std::string &)> walk = [&](const Json::Value &node, const std::string &path, const std::string &inheritedPassage) {
+        if (node.isArray()) { for (Json::ArrayIndex i = 0; i < node.size(); ++i) walk(node[i], path + "/" + std::to_string(i), inheritedPassage); return; }
         if (!node.isObject()) return;
+        auto passage = inheritedPassage;
+        if (node.isMember("passage"))
+        {
+            const auto &passageNode = node["passage"];
+            if (passageNode.isString()) passage = passageNode.asString();
+            else if (passageNode.isObject()) passage = passageNode.get("value", "").asString();
+        }
         const bool looksQuestion = node.isMember("question") || node.isMember("stem") || node.isMember("questionText") || node.isMember("options");
         if (looksQuestion)
         {
             ++questions;
             const auto text = node.get("question", node.get("stem", node.get("questionText", ""))).asString();
-            if (text.empty()) { Json::Value issue(Json::objectValue); issue["code"]="QUESTION_TEXT_MISSING"; issue["path"]=path; issue["message"]="题干为空"; errors.append(issue); }
+            const auto questionId = node.get("id", "").asString();
+            const bool passageHasQuestionSlot = !questionId.empty() && !passage.empty() && (
+                passage.find("（　" + questionId + "　）") != std::string::npos ||
+                passage.find("（" + questionId + "）") != std::string::npos ||
+                passage.find("( " + questionId + " )") != std::string::npos ||
+                passage.find("(" + questionId + ")") != std::string::npos);
+            const bool hasRecordedPrompt = node.isMember("audio") && node["audio"].isString() && !node["audio"].asString().empty()
+                && node.isMember("script") && node["script"].isArray() && !node["script"].empty();
+            if (text.empty() && !passageHasQuestionSlot && !hasRecordedPrompt) { Json::Value issue(Json::objectValue); issue["code"]="QUESTION_TEXT_MISSING"; issue["path"]=path; issue["message"]="题干为空"; errors.append(issue); }
             const auto explanation = node.get("explanation", node.get("analysis", "")).asString();
             if (!explanation.empty()) ++explanations;
             else { Json::Value issue(Json::objectValue); issue["code"]="EXPLANATION_MISSING"; issue["path"]=path; issue["message"]="缺少解析"; warnings.append(issue); }
@@ -58,10 +73,10 @@ Json::Value ContentWorkflowService::buildInspection(const std::string &examId, c
                 asset["path"] = node[key].asString(); asset["field"] = path + "/" + key; assets.append(asset);
                 if (asset["type"].asString() == "audio") ++audio; else ++images;
             }
-            walk(node[key], path + "/" + key);
+            walk(node[key], path + "/" + key, passage);
         }
     };
-    walk(exam, "");
+    walk(exam, "", "");
     if (questions == 0) { Json::Value issue(Json::objectValue); issue["code"]="QUESTION_LIST_EMPTY"; issue["path"]="/"; issue["message"]="未检测到题目"; errors.append(issue); }
     Json::Value out(Json::objectValue); out["exam_id"] = examId; out["checked_at"] = nowIso();
     out["errors"] = errors; out["warnings"] = warnings; out["assets"] = assets;

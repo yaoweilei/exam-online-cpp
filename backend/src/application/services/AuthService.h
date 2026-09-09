@@ -45,7 +45,8 @@ class AuthService
     // Called after WeChat OAuth2 callback completes; creates a session for the user.
     std::string createSessionForUser(const Json::Value &user,
                                      const std::string &clientKey = "",
-                                     const std::string &userAgent = "");
+                                     const std::string &userAgent = "",
+                                     const std::string &authenticationMethod = "unknown");
 
     bool logout(const std::string &token);
 
@@ -62,7 +63,6 @@ class AuthService
     int revokeSessionsForUser(const std::string &userId, const std::string &keepToken = "");
 
     Json::Value changePassword(const std::string &userId,
-                               const std::string &currentPassword,
                                const std::string &newPassword);
 
     Json::Value deactivateAccount(const std::string &userId, const std::string &reason);
@@ -94,6 +94,7 @@ class AuthService
         std::string lastSeenAtIso;
         std::string clientIp;
         std::string userAgent;
+        std::string authenticationMethod;
     };
 
     struct PasswordResetCode

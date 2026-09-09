@@ -1,0 +1,27 @@
+{
+  "items" : 
+  [
+    {
+      "correct_answer" : "2",
+      "correct_streak" : 0,
+      "exam_id" : "2023_02",
+      "first_wrong_at" : "2026-08-01T05:44:33.988Z",
+      "last_correct_at" : "",
+      "last_user_answer" : "1",
+      "last_wrong_at" : "2026-08-01T05:44:33.988Z",
+      "mastered" : false,
+      "mastered_at" : "",
+      "question_id" : "1:1",
+      "question_snapshot" : 
+      {
+        "id" : 1,
+        "question" : ""
+      },
+      "question_type" : "",
+      "section_id" : "",
+      "wrong_count" : 1
+    }
+  ],
+  "updated_at" : "2026-08-01T05:44:33.988Z",
+  "user_id" : "usr_019fbbda-2901-7551-b6bb-2b48155952b8"
+}

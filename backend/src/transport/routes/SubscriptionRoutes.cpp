@@ -55,8 +55,8 @@ void registerSubscriptionRoutes(const AppContext &ctx)
 				const bool isSuper = hasAnyRole(session["roles"], {"superAdmin"});
                 if (scopeType == "organization" || scopeId.rfind("org_", 0) == 0)
                 {
-                    if (!ctx.organizationService->canManageOrganization(
-							actorId, session["roles"], scopeId))
+                    if (!ctx.organizationService->hasOrganizationPermission(
+							actorId, session["roles"], scopeId, "organization.billing.manage"))
                     {
                         throw common::AppException("FORBIDDEN",
                                                    "You do not have permission to manage this organization subscription",

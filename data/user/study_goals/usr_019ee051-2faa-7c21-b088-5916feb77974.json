@@ -1,0 +1,16 @@
+{
+  "goals" : 
+  [
+    {
+      "created_at" : "2026-08-23T03:10:49.862Z",
+      "daily_question_target" : 8,
+      "exam_target" : "N2",
+      "goal_id" : "goal_01a02c99-7606-7e55-beb4-705d213176e5",
+      "target_date" : "2026-12-31",
+      "title" : "冲刺",
+      "updated_at" : "2026-08-23T03:10:49.862Z"
+    }
+  ],
+  "updated_at" : "2026-08-23T03:10:49.863Z",
+  "user_id" : "usr_019ee051-2faa-7c21-b088-5916feb77974"
+}

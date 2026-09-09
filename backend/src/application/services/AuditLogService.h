@@ -64,6 +64,7 @@ class AuditLogService
     std::string firstOrgIdOfUser(const std::string &userId) const;
 
   private:
+    void syncOrganizationLogs() const;
     Json::Value loadAllLogs(const std::optional<std::string> &orgIdFilter) const;
 
     std::filesystem::path orgFile_;
@@ -73,5 +74,6 @@ class AuditLogService
     infrastructure::storage::OrganizationRepository &orgRepo_;
     mutable infrastructure::storage::SqliteJsonStore sqliteStore_;
     mutable std::shared_mutex mutex_;
+    mutable std::optional<std::filesystem::file_time_type> orgFileSyncedAt_;
 };
 }  // namespace application::services

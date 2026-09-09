@@ -1,22 +1,23 @@
 {
   "assistant" : 
   {
-    "description" : "助教、班主任、教务或课程顾问的基础角色，通过权限模板区分职责。",
+    "allow_organization_override" : true,
+    "description" : "负责教学协作、作业批改与催交、成绩查看和学员跟进，可按需追加权限。",
     "id" : "assistant",
     "name" : "教学运营",
     "permissions" : 
     [
       "assignment.review",
       "assignment.remind",
+      "gradebook.view",
       "student.profile.view",
-      "student.profile.edit",
       "student.followup.edit",
-      "learning_record.comment",
       "course_package.view"
     ]
   },
   "contentAdmin" : 
   {
+    "allow_organization_override" : false,
     "description" : "维护平台试卷、音频、图片、答案、解析和发布质量。",
     "id" : "contentAdmin",
     "name" : "内容管理员",
@@ -33,6 +34,7 @@
   },
   "guest" : 
   {
+    "allow_organization_override" : false,
     "description" : "未登录状态，可浏览公开内容和进入登录注册。",
     "id" : "guest",
     "name" : "访客",
@@ -43,6 +45,7 @@
   },
   "orgAdmin" : 
   {
+    "allow_organization_override" : true,
     "description" : "管理机构成员、学习组、课程包、套餐席位、机构看板和审计。",
     "id" : "orgAdmin",
     "name" : "机构管理员",
@@ -51,14 +54,29 @@
       "organization.member.manage",
       "learning_group.manage",
       "course_package.manage",
+      "course_package.view",
       "lesson.booking.manage",
       "organization.dashboard.view",
       "organization.billing.manage",
       "audit.view"
     ]
   },
+  "orgContentAdmin" : 
+  {
+    "allow_organization_override" : true,
+    "description" : "维护当前机构的课程包内容，不包含平台试卷发布权限。",
+    "id" : "orgContentAdmin",
+    "name" : "机构内容管理员",
+    "organization_only" : true,
+    "permissions" : 
+    [
+      "course_package.manage",
+      "course_package.view"
+    ]
+  },
   "student" : 
   {
+    "allow_organization_override" : true,
     "description" : "个人用户或机构学员，可做题、提交作业、查看自己的学习报告。",
     "id" : "student",
     "name" : "学员",
@@ -74,6 +92,7 @@
   },
   "superAdmin" : 
   {
+    "allow_organization_override" : false,
     "description" : "平台最高权限，仅用于平台运营和技术管理。",
     "id" : "superAdmin",
     "name" : "平台超级管理员",
@@ -84,6 +103,7 @@
   },
   "teacher" : 
   {
+    "allow_organization_override" : true,
     "description" : "负责学习组教学、作业、批改、课后反馈和备课。",
     "id" : "teacher",
     "name" : "老师",
@@ -94,7 +114,6 @@
       "assignment.remind",
       "gradebook.view",
       "student.profile.view",
-      "student.profile.edit",
       "lesson_prep.create",
       "lesson_prep.export",
       "learning_record.feedback.edit"

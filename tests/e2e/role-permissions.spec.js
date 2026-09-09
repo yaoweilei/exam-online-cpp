@@ -15,35 +15,39 @@ const roleCases = [
     role: 'assistant',
     expectedFeatures: ['profile'],
     absentFeatures: ['questions', 'contentAdmin', 'memberAdmin', 'sysFlags'],
-    expectedSections: ['learning', 'admin-hub']
+    expectedSections: ['learning'],
+    absentSections: ['admin-hub']
   },
   {
     prefix: 'teacher_role_perm',
     role: 'teacher',
     expectedFeatures: ['questions'],
     absentFeatures: ['contentAdmin', 'memberAdmin', 'sysFlags'],
-    expectedSections: ['learning', 'admin-hub']
+    expectedSections: ['learning'],
+    absentSections: ['admin-hub']
   },
   {
     prefix: 'orgadmin_role_perm',
     role: 'orgAdmin',
     expectedFeatures: ['memberAdmin'],
     absentFeatures: ['questions', 'contentAdmin', 'sysFlags'],
-    expectedSections: ['learning', 'admin-hub']
+    expectedSections: ['learning'],
+    absentSections: ['admin-hub']
   },
   {
     prefix: 'contentadmin_role_perm',
     role: 'contentAdmin',
     expectedFeatures: ['questions', 'contentAdmin'],
     absentFeatures: ['memberAdmin', 'sysFlags'],
-    expectedSections: ['admin-hub'],
-    absentSections: ['learning']
+    expectedSections: [],
+    absentSections: ['learning', 'admin-hub']
   },
   {
     prefix: 'superadmin_role_perm',
     role: 'superAdmin',
     expectedFeatures: ['questions', 'contentAdmin', 'memberAdmin', 'sysFlags'],
-    expectedSections: ['learning', 'admin-hub']
+    expectedSections: ['learning'],
+    absentSections: ['admin-hub']
   }
 ];
 
@@ -409,17 +413,24 @@ test('机构功能开关校验机构归属，并允许超级管理员显式跨�
   );
   await expectApiCode(forgedOrganizationId, 'ORGANIZATION_ACCESS_DENIED');
 
-  await getOkJson(await request.put(
+  const firstOrgFlags = await getOkJson(await request.put(
     `/api/v1/admin/feature-flags/orgs/${encodeURIComponent(firstOrganizationId)}`,
     {
       data: {
         token: firstAdmin.token,
         confirmation: '确认修改机构开关',
         reauth_password: '',
-        related_questions: { enabled: false }
+        related_questions: { enabled: false },
+        oauth_extra: { enabled: false },
+        admin_dashboard: { enabled: false },
+        audit_log_viewer: { enabled: false }
       }
     }
   ));
+  expect(firstOrgFlags.data.flags.related_questions.enabled).toBe(false);
+  expect(firstOrgFlags.data.flags).not.toHaveProperty('oauth_extra');
+  expect(firstOrgFlags.data.flags).not.toHaveProperty('admin_dashboard');
+  expect(firstOrgFlags.data.flags).not.toHaveProperty('audit_log_viewer');
 
   await getOkJson(await request.put(
     `/api/v1/admin/feature-flags/orgs/${encodeURIComponent(secondOrganizationId)}`,

@@ -128,6 +128,10 @@ void UserRepository::ensureBaseline()
         writeUsersUnlocked(users);
     }
 
+    // Persist the current strict eight-character referral-code format for all
+    // existing accounts instead of retaining legacy aliases.
+    writeUsersUnlocked(readUsersUnlocked());
+
     if (!std::filesystem::exists(rolesFile_))
     {
         writeJsonFileAtomic(rolesFile_, defaultRolesMap());
@@ -611,7 +615,10 @@ Json::Value UserRepository::updateRoleTemplate(const std::string &roleId, const 
         }
         role["permissions"] = permissions;
     }
-    role["allow_organization_override"] = payload.get("allow_organization_override", role.get("allow_organization_override", normalizedId != "superAdmin")).asBool();
+    const bool organizationRole = normalizedId == "student" || normalizedId == "assistant" ||
+        normalizedId == "teacher" || normalizedId == "orgAdmin";
+    role["allow_organization_override"] = organizationRole &&
+        payload.get("allow_organization_override", role.get("allow_organization_override", true)).asBool();
     role["updated_at"] = common::nowIso8601();
     rolesJson[normalizedId] = role;
     wal_.append("role_template_updated", role);
@@ -1263,12 +1270,14 @@ Json::Value UserRepository::defaultRolesMap()
     roles["guest"]["id"] = "guest";
     roles["guest"]["name"] = "访客";
     roles["guest"]["description"] = "未登录状态，可浏览公开内容和进入登录注册。";
+    roles["guest"]["allow_organization_override"] = false;
     roles["guest"]["permissions"] = Json::arrayValue;
     roles["guest"]["permissions"].append("exam.public.view");
 
     roles["student"]["id"] = "student";
     roles["student"]["name"] = "学员";
     roles["student"]["description"] = "个人用户或机构学员，可做题、提交作业、查看自己的学习报告。";
+    roles["student"]["allow_organization_override"] = true;
     roles["student"]["permissions"] = Json::arrayValue;
     roles["student"]["permissions"].append("exam.practice");
     roles["student"]["permissions"].append("answer.submit");
@@ -1279,26 +1288,26 @@ Json::Value UserRepository::defaultRolesMap()
 
     roles["assistant"]["id"] = "assistant";
     roles["assistant"]["name"] = "教学运营";
-    roles["assistant"]["description"] = "助教、班主任、教务或课程顾问的基础角色，通过权限模板区分职责。";
+    roles["assistant"]["description"] = "负责教学协作、作业批改与催交、成绩查看和学员跟进，可按需追加权限。";
+    roles["assistant"]["allow_organization_override"] = true;
     roles["assistant"]["permissions"] = Json::arrayValue;
     roles["assistant"]["permissions"].append("assignment.review");
     roles["assistant"]["permissions"].append("assignment.remind");
+    roles["assistant"]["permissions"].append("gradebook.view");
     roles["assistant"]["permissions"].append("student.profile.view");
-    roles["assistant"]["permissions"].append("student.profile.edit");
     roles["assistant"]["permissions"].append("student.followup.edit");
-    roles["assistant"]["permissions"].append("learning_record.comment");
     roles["assistant"]["permissions"].append("course_package.view");
 
     roles["teacher"]["id"] = "teacher";
     roles["teacher"]["name"] = "老师";
     roles["teacher"]["description"] = "负责学习组教学、作业、批改、课后反馈和备课。";
+    roles["teacher"]["allow_organization_override"] = true;
     roles["teacher"]["permissions"] = Json::arrayValue;
     roles["teacher"]["permissions"].append("assignment.create");
     roles["teacher"]["permissions"].append("assignment.review");
     roles["teacher"]["permissions"].append("assignment.remind");
     roles["teacher"]["permissions"].append("gradebook.view");
     roles["teacher"]["permissions"].append("student.profile.view");
-    roles["teacher"]["permissions"].append("student.profile.edit");
     roles["teacher"]["permissions"].append("lesson_prep.create");
     roles["teacher"]["permissions"].append("lesson_prep.export");
     roles["teacher"]["permissions"].append("learning_record.feedback.edit");
@@ -1306,18 +1315,30 @@ Json::Value UserRepository::defaultRolesMap()
     roles["orgAdmin"]["id"] = "orgAdmin";
     roles["orgAdmin"]["name"] = "机构管理员";
     roles["orgAdmin"]["description"] = "管理机构成员、学习组、课程包、套餐席位、机构看板和审计。";
+    roles["orgAdmin"]["allow_organization_override"] = true;
     roles["orgAdmin"]["permissions"] = Json::arrayValue;
     roles["orgAdmin"]["permissions"].append("organization.member.manage");
     roles["orgAdmin"]["permissions"].append("learning_group.manage");
     roles["orgAdmin"]["permissions"].append("course_package.manage");
+    roles["orgAdmin"]["permissions"].append("course_package.view");
     roles["orgAdmin"]["permissions"].append("lesson.booking.manage");
     roles["orgAdmin"]["permissions"].append("organization.dashboard.view");
     roles["orgAdmin"]["permissions"].append("organization.billing.manage");
     roles["orgAdmin"]["permissions"].append("audit.view");
 
+    roles["orgContentAdmin"]["id"] = "orgContentAdmin";
+    roles["orgContentAdmin"]["name"] = "机构内容管理员";
+    roles["orgContentAdmin"]["description"] = "维护当前机构的课程包内容，不包含平台试卷发布权限。";
+    roles["orgContentAdmin"]["organization_only"] = true;
+    roles["orgContentAdmin"]["allow_organization_override"] = true;
+    roles["orgContentAdmin"]["permissions"] = Json::arrayValue;
+    roles["orgContentAdmin"]["permissions"].append("course_package.manage");
+    roles["orgContentAdmin"]["permissions"].append("course_package.view");
+
     roles["contentAdmin"]["id"] = "contentAdmin";
     roles["contentAdmin"]["name"] = "内容管理员";
     roles["contentAdmin"]["description"] = "维护平台试卷、音频、图片、答案、解析和发布质量。";
+    roles["contentAdmin"]["allow_organization_override"] = false;
     roles["contentAdmin"]["permissions"] = Json::arrayValue;
     roles["contentAdmin"]["permissions"].append("content.exam.edit");
     roles["contentAdmin"]["permissions"].append("content.audio.manage");
@@ -1330,6 +1351,7 @@ Json::Value UserRepository::defaultRolesMap()
     roles["superAdmin"]["id"] = "superAdmin";
     roles["superAdmin"]["name"] = "平台超级管理员";
     roles["superAdmin"]["description"] = "平台最高权限，仅用于平台运营和技术管理。";
+    roles["superAdmin"]["allow_organization_override"] = false;
     roles["superAdmin"]["permissions"] = Json::arrayValue;
     roles["superAdmin"]["permissions"].append("*");
     return roles;
@@ -1377,10 +1399,18 @@ Json::Value UserRepository::normalizeUser(const Json::Value &input)
         user["scope_type"].asString());
     user["created_at"] = user.get("created_at", user.get("createdAt", common::nowIso8601())).asString();
     user["referral_code"] = normalizeReferralCode(user.get("referral_code", user.get("referralCode", "")).asString());
+    if (user["referral_code"].asString().size() > 8)
+    {
+        user["referral_code"] = user["referral_code"].asString().substr(0, 8);
+    }
     user["referralCode"] = user["referral_code"].asString();
     user["referred_by_user_id"] = user.get("referred_by_user_id", user.get("referredByUserId", "")).asString();
     user["referredByUserId"] = user["referred_by_user_id"].asString();
     user["referred_by_code"] = normalizeReferralCode(user.get("referred_by_code", user.get("referredByCode", "")).asString());
+    if (user["referred_by_code"].asString().size() > 8)
+    {
+        user["referred_by_code"] = user["referred_by_code"].asString().substr(0, 8);
+    }
     user["referredByCode"] = user["referred_by_code"].asString();
     user["referral_bound_at"] = user.get("referral_bound_at", user.get("referralBoundAt", "")).asString();
     user["referralBoundAt"] = user["referral_bound_at"].asString();
@@ -1428,6 +1458,10 @@ std::string UserRepository::normalizeReferralRewardStatus(const std::string &sta
 
 Json::Value UserRepository::findUserByReferralCodeUnlocked(const Json::Value &usersJson, const std::string &referralCode)
 {
+    if (referralCode.size() != 8)
+    {
+        return Json::Value(Json::nullValue);
+    }
     Json::Value result(Json::nullValue);
     forEachUserValue(usersJson, [&result, &referralCode](const Json::Value &entry) {
         if (!result.isNull())
@@ -1453,7 +1487,7 @@ std::string UserRepository::generateReferralCode(const Json::Value &usersJson, c
     for (int attempt = 0; attempt < 32; ++attempt)
     {
         std::string code = prefix;
-        while (code.size() < 10)
+        while (code.size() < 8)
         {
             code.push_back(alphabet[distribution(generator)]);
         }
@@ -1462,7 +1496,7 @@ std::string UserRepository::generateReferralCode(const Json::Value &usersJson, c
             return code;
         }
     }
-    return "REF" + common::generateOpaqueId("").substr(0, 8);
+    return "REF" + common::generateOpaqueId("").substr(0, 5);
 }
 
 std::string UserRepository::buildReferralPrefix(const std::string &seed)
@@ -1483,11 +1517,11 @@ std::string UserRepository::legacyReferralCode(const std::string &userId, const 
 {
     auto prefix = buildReferralPrefix(username);
     auto suffix = normalizeReferralCode(userId);
-    if (suffix.size() > 10 - prefix.size())
+    if (suffix.size() > 8 - prefix.size())
     {
-        suffix = suffix.substr(suffix.size() - (10 - prefix.size()));
+        suffix = suffix.substr(suffix.size() - (8 - prefix.size()));
     }
-    while (suffix.size() < 10 - prefix.size())
+    while (suffix.size() < 8 - prefix.size())
     {
         suffix.insert(suffix.begin(), '0');
     }
@@ -1500,6 +1534,8 @@ Json::Value UserRepository::mergeRoleDefinition(const Json::Value &baseline, con
     merged["id"] = roleId;
     merged["name"] = incoming.get("name", merged.get("name", roleId).asString()).asString();
     merged["description"] = incoming.get("description", merged.get("description", "").asString()).asString();
+    merged["allow_organization_override"] = incoming.get(
+        "allow_organization_override", merged.get("allow_organization_override", false)).asBool();
 
     Json::Value permissions(Json::arrayValue);
     appendUniqueStrings(permissions, merged["permissions"]);

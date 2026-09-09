@@ -45,6 +45,7 @@ export interface PCUser {
 	phone?: string;
 	phoneVerified?: boolean;
 	hasPassword?: boolean;
+	authenticationMethod?: string;
 	wechatBound?: boolean;
 	wechatNickname?: string;
 	wechatBoundAt?: string;
@@ -77,6 +78,7 @@ export interface PCContext {
 	phone?: string;
 	phoneVerified?: boolean;
 	hasPassword?: boolean;
+	authenticationMethod?: string;
 	wechatBound?: boolean;
 	wechatNickname?: string;
 	wechatBoundAt?: string;
@@ -211,6 +213,8 @@ export interface ManagedLearningGroup {
 export interface ManagedCoursePackage {
 	id: string;
 	studentId: string;
+	recordType?: 'template' | 'assignment';
+	templateId?: string;
 	subject?: string;
 	title?: string;
 	totalLessons: number;
@@ -235,6 +239,7 @@ export interface ManagedOrganization {
 	coursePackages: ManagedCoursePackage[];
 	invitations: ManagedOrganizationInvitation[];
 	auditLogs: ManagedOrganizationAuditLog[];
+	roleDefaultPermissions: Record<string, string[]>;
 	rolePermissions: Record<string, OrganizationRolePermissionConfig>;
 }
 
@@ -260,7 +265,7 @@ export interface ContactVerificationDraft {
 export type ContactVerificationKind = 'email' | 'phone';
 
 export interface SectionDef {
-	id: 'dashboard' | 'profile' | 'admin-hub';
+	id: 'dashboard' | 'profile';
 	title: string;
 	gate: (ctx: PCContext) => boolean;
 	nav?: boolean;

@@ -1,0 +1,32 @@
+{
+  "avatar_url" : "",
+  "credits" : 0,
+  "credits_updated_at" : "",
+  "daily_target" : 20,
+  "display_name" : "",
+  "goal_date" : "",
+  "goal_level" : "",
+  "last_active_at" : "2026-08-12T14:15:05.751Z",
+  "last_credit_reason" : "",
+  "locale" : "zh-CN",
+  "longest_streak" : 1,
+  "notification_enabled" : true,
+  "organization_type" : "",
+  "plan" : "free",
+  "plan_expires" : "",
+  "plan_expires_at" : "",
+  "plan_status" : "active",
+  "scope_id" : "usr_019ff653-a692-782c-aa88-ca0bdb6a418c",
+  "scope_type" : "personal",
+  "streak_days" : 1,
+  "teacher_notes" : 
+  [
+    {
+      "created_at" : "2026-08-12T14:15:23.195Z",
+      "created_by" : "usr_019ff653-a1fe-760e-881d-7c32afb83ee6",
+      "text" : "E2E 老师备注"
+    }
+  ],
+  "user_id" : "usr_019ff653-a692-782c-aa88-ca0bdb6a418c",
+  "xp" : 0
+}

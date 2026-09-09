@@ -1,5 +1,8 @@
 #include <algorithm>
+#include <cctype>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <drogon/HttpAppFramework.h>
@@ -11,6 +14,14 @@ using namespace drogon;
 
 namespace
 {
+std::string lowerSearchText(std::string value)
+{
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
+        return static_cast<char>(std::tolower(ch));
+    });
+    return value;
+}
+
 void stripPrivateOrganizationFields(Json::Value &organization)
 {
     organization.removeMember("invitations");
@@ -69,8 +80,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
                 {
                     const auto organizationId = organization.get(
                         "organization_id", organization.get("scope_id", "")).asString();
-                    if (!ctx.organizationService->canManageOrganization(
-                            session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                     {
                         stripPrivateOrganizationFields(organization);
                     }
@@ -124,8 +136,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
                                                k403Forbidden);
                 }
                 auto organization = ctx.organizationService->getOrganization(organizationId);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                 {
                     stripPrivateOrganizationFields(organization);
                 }
@@ -196,8 +209,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                 {
                     throw common::AppException("FORBIDDEN",
                                                "You do not have permission to manage this organization",
@@ -237,8 +251,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                 {
                     throw common::AppException("FORBIDDEN",
                                                "You do not have permission to manage this organization",
@@ -268,8 +283,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                 {
                     throw common::AppException("FORBIDDEN",
                                                "You do not have permission to manage this organization",
@@ -354,8 +370,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                 {
                     throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization",
                                                k403Forbidden);
@@ -428,8 +445,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "learning_group.manage"))
                 {
                     throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization",
                                                k403Forbidden);
@@ -470,8 +488,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "learning_group.manage", "learningGroup", learningGroupId))
                 {
                     throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization",
                                                k403Forbidden);
@@ -493,8 +512,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "learning_group.manage", "learningGroup", learningGroupId))
                 {
                     throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization",
                                                k403Forbidden);
@@ -523,23 +543,42 @@ void registerOrganizationRoutes(const AppContext &ctx)
                 const auto query = req->getParameter("q");
                 const auto status = req->getParameter("status");
                 const auto studentId = req->getParameter("student_id");
+                const auto recordType = req->getParameter("record_type");
+                const auto templateId = req->getParameter("template_id");
+                const auto groupBy = req->getParameter("group_by");
                 const auto sort = req->getParameter("sort");
                 const bool ascending = req->getParameter("order") == "asc";
                 const bool paged = !req->getParameter("page").empty() || !req->getParameter("page_size").empty()
-                    || !query.empty() || !status.empty() || !studentId.empty() || !sort.empty();
+                    || !query.empty() || !status.empty() || !studentId.empty() || !recordType.empty()
+                    || !templateId.empty() || !groupBy.empty() || !sort.empty();
                 auto packages = ctx.organizationService->listCoursePackages(organizationId);
                 if (!paged) return common::ok(req, packages);
+                const auto normalizedQuery = lowerSearchText(query);
+                std::unordered_set<std::string> matchingStudentIds;
+                if (!query.empty() && ctx.userService)
+                {
+                    for (const auto &user : ctx.userService->searchUsers(query, 1000))
+                    {
+                        const auto userId = user.get("id", user.get("user_id", "")).asString();
+                        if (!userId.empty()) matchingStudentIds.insert(userId);
+                    }
+                }
                 std::vector<Json::Value> matches;
                 for (const auto &package : packages)
                 {
                     if (!status.empty() && package.get("status", "active").asString() != status) continue;
                     if (!studentId.empty() && package.get("student_id", "").asString() != studentId) continue;
+                    const auto packageRecordType = package.get("record_type", "assignment").asString();
+                    if (!recordType.empty() && packageRecordType != recordType) continue;
+                    if (!templateId.empty() && package.get("template_id", "").asString() != templateId) continue;
                     if (!query.empty())
                     {
-                        const auto searchable = package.get("title", "").asString() + " "
+                        const auto packageStudentId = package.get("student_id", "").asString();
+                        const auto searchable = lowerSearchText(package.get("title", "").asString() + " "
                             + package.get("subject", "").asString() + " " + package.get("student_id", "").asString()
-                            + " " + package.get("course_package_id", "").asString();
-                        if (searchable.find(query) == std::string::npos) continue;
+                            + " " + package.get("course_package_id", "").asString());
+                        if (searchable.find(normalizedQuery) == std::string::npos
+                            && matchingStudentIds.find(packageStudentId) == matchingStudentIds.end()) continue;
                     }
                     matches.push_back(package);
                 }
@@ -554,6 +593,31 @@ void registerOrganizationRoutes(const AppContext &ctx)
                     return ascending ? a < b : a > b;
                 });
                 const auto [page, pageSize] = readPage(req);
+                if (groupBy == "student")
+                {
+                    std::vector<Json::Value> groups;
+                    std::unordered_map<std::string, std::size_t> groupIndexes;
+                    for (const auto &package : matches)
+                    {
+                        const auto packageStudentId = package.get("student_id", "").asString();
+                        if (packageStudentId.empty()) continue;
+                        auto [it, inserted] = groupIndexes.emplace(packageStudentId, groups.size());
+                        if (inserted)
+                        {
+                            Json::Value group(Json::objectValue);
+                            group["student_id"] = packageStudentId;
+                            group["account_count"] = 0;
+                            group["accounts"] = Json::arrayValue;
+                            groups.push_back(std::move(group));
+                        }
+                        auto &group = groups[it->second];
+                        group["accounts"].append(package);
+                        group["account_count"] = group["account_count"].asInt() + 1;
+                    }
+                    auto result = paginateItems(groups, page, pageSize);
+                    result["account_total"] = static_cast<int>(matches.size());
+                    return common::ok(req, result);
+                }
                 return common::ok(req, paginateItems(matches, page, pageSize));
             });
         },
@@ -567,8 +631,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "course_package.manage"))
                 {
                     throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization",
                                                k403Forbidden);
@@ -582,6 +647,29 @@ void registerOrganizationRoutes(const AppContext &ctx)
         {Post, Put});
 
     app().registerHandler(
+        "/api/v1/organizations/{1}/course-packages/{2}",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string organizationId,
+              std::string coursePackageId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "course_package.manage"))
+                {
+                    throw common::AppException("FORBIDDEN", "You do not have permission to manage this organization",
+                                               k403Forbidden);
+                }
+                return common::ok(req,
+                                  ctx.organizationService->deleteCoursePackage(
+                                      session.get("user_id", "").asString(), organizationId, coursePackageId),
+                                  "course_package_deleted");
+            });
+        },
+        {Delete});
+
+    app().registerHandler(
         "/api/v1/organizations/{1}/invitations",
         [ctx](const HttpRequestPtr &req,
               std::function<void(const HttpResponsePtr &)> &&callback,
@@ -589,8 +677,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                 {
                     throw common::AppException("FORBIDDEN",
                                                "You do not have permission to manage this organization",
@@ -612,8 +701,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
               std::string invitationId) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                 {
                     throw common::AppException("FORBIDDEN",
                                                "You do not have permission to manage this organization",
@@ -642,8 +732,9 @@ void registerOrganizationRoutes(const AppContext &ctx)
                     session.get("user_id", "").asString(), inviteToken);
                 const auto organizationId = result["organization"].get(
                     "organization_id", result["organization"].get("scope_id", "")).asString();
-                if (!ctx.organizationService->canManageOrganization(
-                        session.get("user_id", "").asString(), session["roles"], organizationId))
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        session.get("user_id", "").asString(), session["roles"], organizationId,
+                        "organization.member.manage"))
                 {
                     stripPrivateOrganizationFields(result["organization"]);
                 }

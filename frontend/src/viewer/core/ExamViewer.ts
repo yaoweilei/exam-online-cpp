@@ -92,6 +92,7 @@ class ExamViewer {
 	private _draftRestoreRequest = 0;
 	private submitConfirmationPending = false;
 	private answerStatusHideHandle: number | null = null;
+	private floatingNavigationResizeObserver: ResizeObserver | null = null;
 	private expiredSectionIndexes = new Set<number>();
 	_currentExamId: string | null = null;
 	constructor() {
@@ -295,7 +296,7 @@ class ExamViewer {
 				this.loadTranslationsForReadingAssist();
 				void this.restoreDraftForCurrentExam();
 
-				// 模拟考试才启动正式计时；学习练习不展示或累计考试用时。
+				// 模拟考试才启动正式计时；练习模式不展示或累计考试用时。
 				try {
 					if (this._currentExamId && this.examTimerManager) {
 						if (this.examMode === 'mock') {
@@ -509,6 +510,7 @@ class ExamViewer {
 		this.syncMobilePaperSelector();
 		this.updateReadingAssistButtonStates();
 		this.updateLearningAssistAvailability();
+		this.syncExamSettingsLayout();
 		const modeSelect = document.getElementById('exam-mode-select') as HTMLSelectElement | null;
 		if (modeSelect) modeSelect.value = this.examMode;
 		const submitButton = document.getElementById('submit-exam') as HTMLButtonElement | null;
@@ -575,6 +577,72 @@ class ExamViewer {
 		toggle.setAttribute('aria-expanded', String(expanded));
 		toggle.textContent = expanded ? '收起' : '更多';
 		toggle.title = expanded ? '收起更多工具' : '展开更多工具';
+	}
+
+	private toggleLearningToolsMenu(force?: boolean) {
+		const toggle = document.getElementById('learning-tools-toggle') as HTMLButtonElement | null;
+		const menu = document.getElementById('learning-tools-menu');
+		if (!toggle || !menu || (toggle.disabled && force !== false)) return;
+		const shouldOpen = force ?? menu.hidden;
+		menu.hidden = !shouldOpen;
+		toggle.setAttribute('aria-expanded', String(shouldOpen));
+		toggle.title = shouldOpen ? '关闭学习辅助工具' : '打开学习辅助工具';
+	}
+
+	private toggleExamSettingsMenu(force?: boolean) {
+		const toggle = document.getElementById('exam-settings-toggle') as HTMLButtonElement | null;
+		const menu = document.getElementById('exam-settings-menu');
+		if (!toggle || !menu) return;
+		const shouldOpen = force ?? menu.hidden;
+		menu.hidden = !shouldOpen;
+		toggle.setAttribute('aria-expanded', String(shouldOpen));
+		toggle.setAttribute('aria-label', shouldOpen ? '关闭考试设置' : '打开考试设置');
+		toggle.title = shouldOpen ? '关闭考试设置' : '考试设置';
+		if (!shouldOpen) this.toggleLearningToolsMenu(false);
+	}
+
+	private syncExamSettingsLayout() {
+		const settings = document.getElementById('exam-settings-control');
+		if (!settings) return;
+		this.syncFloatingNavigationAlignment();
+		if (!this.floatingNavigationResizeObserver && typeof ResizeObserver !== 'undefined') {
+			const workarea = document.getElementById('exam-workarea');
+			if (workarea) {
+				this.floatingNavigationResizeObserver = new ResizeObserver(() => {
+					this.syncFloatingNavigationAlignment();
+				});
+				this.floatingNavigationResizeObserver.observe(workarea);
+			}
+		}
+
+		const selectSlots: Array<[string, string]> = [
+			['exam-family-select', 'family'],
+			['exam-level-select', 'level'],
+			['exam-paper-select', 'paper'],
+			['exam-mode-select', 'mode']
+		];
+		for (const [id, slotName] of selectSlots) {
+			const element = document.getElementById(id);
+			const slot = settings.querySelector(`[data-exam-setting-slot="${slotName}"]`);
+			if (element && slot && element.parentElement !== slot) slot.appendChild(element);
+		}
+		const assists = document.getElementById('learning-tools-control');
+		const assistsSlot = settings.querySelector('[data-exam-setting-slot="assists"]');
+		if (assists && assistsSlot && assists.parentElement !== assistsSlot) assistsSlot.appendChild(assists);
+		settings.classList.add('is-compact');
+	}
+
+	private syncFloatingNavigationAlignment() {
+		const commandBar = document.getElementById('exam-command-bar');
+		if (commandBar) {
+			const accountButton = document.getElementById('user-menu-trigger');
+			const accountBox = accountButton?.getBoundingClientRect();
+			const alignmentRight = accountBox && accountBox.width > 0
+				? accountBox.right
+				: commandBar.getBoundingClientRect().right;
+			const rightOffset = Math.max(0, window.innerWidth - alignmentRight);
+			document.documentElement.style.setProperty('--exam-floating-right-offset', `${rightOffset}px`);
+		}
 	}
 
 	renderQuestionNavigation() {
@@ -1020,6 +1088,8 @@ class ExamViewer {
 	initializeEventListeners() {
 		this.setupGlobalEventDelegation();
 		this.setupKeyboardShortcuts();
+		this.syncExamSettingsLayout();
+		window.addEventListener('resize', () => this.syncExamSettingsLayout());
 	}
 
 	setupGlobalEventDelegation() {
@@ -1031,13 +1101,25 @@ class ExamViewer {
 			'#open-question-map': () => this.questionMapManager.showQuestionMap(),
 			'#submit-exam': () => this.submitAnswers(),
 			'#mobile-paper-toggle': () => this.toggleMobilePaperSelector(),
-			'#mobile-tools-toggle': () => this.toggleMobileTools()
+			'#mobile-tools-toggle': () => this.toggleMobileTools(),
+			'#exam-settings-toggle': () => this.toggleExamSettingsMenu(),
+			'#learning-tools-toggle': () => this.toggleLearningToolsMenu(),
+			'#learning-menu-answers': () => this.toggleAnswers(),
+			'#learning-menu-explanations': () => this.toggleExplanations(),
+			'#learning-menu-kana': () => this.toggleReadingKana(),
+			'#learning-menu-zh': () => this.toggleReadingZh()
 		};
 
 		document.addEventListener('click', (event: MouseEvent) => {
 			const target = event.target as HTMLElement | null;
 			if (!target) {
 				return;
+			}
+			if (!target.closest('#learning-tools-control')) {
+				this.toggleLearningToolsMenu(false);
+			}
+			if (!target.closest('#exam-settings-control')) {
+				this.toggleExamSettingsMenu(false);
 			}
 
 			for (const [selector, handler] of Object.entries(eventMap)) {
@@ -1094,6 +1176,13 @@ class ExamViewer {
 			const target = event.target as HTMLElement | null;
 			if (target?.id === 'exam-paper-select') {
 				this.collapseMobilePaperSelector();
+			}
+		});
+
+		document.addEventListener('keydown', (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				this.toggleLearningToolsMenu(false);
+				this.toggleExamSettingsMenu(false);
 			}
 		});
 	}
@@ -1206,7 +1295,7 @@ class ExamViewer {
 		if (mode === this.examMode) return true;
 		const hasAnswers = Object.values(this.userAnswers).some((answer) => answer !== null && answer !== undefined && answer !== '');
 		if (userInitiated && hasAnswers) {
-			const confirmed = await requestAppConfirmation('切换答题模式会清空当前答案，是否继续？', '清空并切换');
+			const confirmed = await requestAppConfirmation('切换作答方式会清空当前答案，是否继续？', '清空并切换');
 			if (!confirmed) return false;
 			this.answerManager.initializeUserAnswers();
 			this.setAnswerSaveStatus('saved', '答案已清空');
@@ -1236,7 +1325,14 @@ class ExamViewer {
 
 	private updateLearningAssistAvailability() {
 		const locked = !this.canUseLearningAssists();
-		document.getElementById('exam-controls')?.classList.toggle('mock-active', locked);
+		const controls = document.getElementById('exam-controls');
+		controls?.classList.toggle('mock-active', locked);
+		controls?.classList.toggle('practice-active', this.examMode === 'practice');
+		const submitButton = document.getElementById('submit-exam') as HTMLButtonElement | null;
+		if (submitButton) {
+			submitButton.hidden = this.examMode !== 'mock';
+			submitButton.setAttribute('aria-hidden', String(this.examMode !== 'mock'));
+		}
 		['toggle-answers', 'toggle-explanations', 'toggle-reading-kana', 'toggle-reading-zh'].forEach((id) => {
 			const button = document.getElementById(id) as HTMLButtonElement | null;
 			if (!button) return;
@@ -1246,6 +1342,12 @@ class ExamViewer {
 			button.classList.toggle('learning-assist-locked', locked);
 			button.title = locked ? '模拟考试提交后可以查看' : button.dataset.defaultTitle;
 		});
+		const desktopTools = document.getElementById('learning-tools-control');
+		const desktopToggle = document.getElementById('learning-tools-toggle') as HTMLButtonElement | null;
+		if (desktopTools) desktopTools.hidden = locked;
+		if (desktopToggle) desktopToggle.disabled = locked;
+		if (locked) this.toggleLearningToolsMenu(false);
+		this.syncLearningToolsMenuState();
 	}
 
 	setAnswerSaveStatus(state: 'idle' | 'saving' | 'saved' | 'failed' | 'submitted', text: string) {
@@ -1322,6 +1424,28 @@ class ExamViewer {
 	private updateReadingAssistButtonStates() {
 		this.setToggleButtonActive('toggle-reading-kana', this.showReadingKana);
 		this.setToggleButtonActive('toggle-reading-zh', this.showReadingZh);
+		this.syncLearningToolsMenuState();
+	}
+
+	private syncLearningToolsMenuState() {
+		const states: Record<string, boolean> = {
+			'learning-menu-answers': this.showAnswers,
+			'learning-menu-explanations': this.showExplanations,
+			'learning-menu-kana': this.showReadingKana,
+			'learning-menu-zh': this.showReadingZh
+		};
+		let activeCount = 0;
+		for (const [id, active] of Object.entries(states)) {
+			const button = document.getElementById(id);
+			if (!button) continue;
+			button.classList.toggle('active', active);
+			button.setAttribute('aria-checked', String(active));
+			if (active) activeCount += 1;
+		}
+		const toggle = document.getElementById('learning-tools-toggle');
+		if (!toggle) return;
+		toggle.classList.toggle('active', activeCount > 0);
+		toggle.setAttribute('aria-label', activeCount > 0 ? `学习辅助，已开启 ${activeCount} 项` : '学习辅助');
 	}
 
 	private setToggleButtonActive(id: string, active: boolean) {
@@ -1615,7 +1739,7 @@ class ExamViewer {
 			const after = document.getElementById('exam-controls') || document.body.firstElementChild;
 			const wrap = document.createElement('div');
 			wrap.id = 'width-control';
-			wrap.innerHTML = `<input id="width-slider" type="range" min="0" max="1800" step="10" />`;
+			wrap.innerHTML = `<input id="width-slider" type="range" min="0" max="1800" step="10" aria-label="调整题目区域宽度" />`;
 			(after && after.parentNode) ? after.parentNode.insertBefore(wrap, after.nextSibling) : document.body.appendChild(wrap);
 			slider = wrap.querySelector('#width-slider') as HTMLInputElement | null;
 		}
@@ -1646,8 +1770,7 @@ class ExamViewer {
 				wrapper.dataset.width = String(this.contentWidthPx);
 				if (wc) { wc.style.maxWidth = this.contentWidthPx + 'px'; }
 			}
-			const label = document.getElementById('width-value-label');
-			if (label) { label.textContent = this.contentWidthPx > 0 ? (this.contentWidthPx + 'px') : '自动'; }
+			this.syncExamSettingsLayout();
 		};
 
 		let stored: number;
@@ -1663,13 +1786,7 @@ class ExamViewer {
 		}
 		slider.value = String(stored);
 
-		let label = document.getElementById('width-value-label') as HTMLSpanElement | null;
-		if (!label) {
-			label = document.createElement('span');
-			label.id = 'width-value-label';
-			label.style.cssText = 'margin-left:6px;font:12px monospace;color:var(--vscode-descriptionForeground);user-select:none;';
-			if (slider.parentElement) { slider.parentElement.appendChild(label); }
-		}
+		document.getElementById('width-value-label')?.remove();
 		apply(stored);
 
 		let handle = document.getElementById('width-drag-handle') as HTMLElement | null;

@@ -470,17 +470,40 @@
 }
 
 
-/* 编辑按钮样式 */
-.edit-btn {
-	margin-left: 10px;
-	padding: 2px 8px;
-	font-size: 11px;
-	background: var(--vscode-button-secondaryBackground);
-	color: var(--vscode-button-secondaryForeground);
-	border: 1px solid var(--vscode-button-border, transparent);
-	border-radius: 3px;
+/* 题目快捷操作按钮使用相同的高度、圆角和文字基线。 */
+.edit-btn,
+.feedback-btn,
+.question-bookmark-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	height: 28px;
+	min-height: 28px;
+	margin-left: 6px;
+	padding: 0 8px;
+	border: 1px solid #d0d0d0;
+	border-radius: 8px;
+	font-size: 12px;
+	line-height: 1;
+	white-space: nowrap;
 	cursor: pointer;
 	vertical-align: middle;
+}
+
+.edit-btn {
+	background: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border-color: var(--vscode-button-border, transparent);
+}
+
+.feedback-btn {
+	background: #fafafa;
+}
+
+.question-bookmark-btn {
+	background: #fff8e1;
+	color: #7a4b00;
 }
 
 .edit-btn:hover {

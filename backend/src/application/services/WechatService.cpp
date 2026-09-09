@@ -60,13 +60,13 @@ Json::Value WechatService::generateAuthorizationEntry(bool mobile)
     out["state"] = state;
     out["expires_in"] = 300;
 
-    if (config_.appId.empty())
-    {
-        // Development stub: return a fake QR code URL
-        const auto stubCallback = "/api/v1/auth/wechat/callback?code=student_demo&state=" + urlEncode(state);
-        out["qrcode_url"] = "https://stub.wechat.example/qrcode?state=" + state;
-        out["auth_url"] = stubCallback;
-        out["stub"] = true;
+	if (config_.appId.empty())
+	{
+		// Development stub: require an explicit test-account choice. Never
+		// silently map the mobile WeChat entry to student_demo.
+		out["qrcode_url"] = "https://stub.wechat.example/qrcode?state=" + state;
+		out["auth_url"] = "";
+		out["stub"] = true;
         Json::Value testIds(Json::arrayValue);
         for (const auto &testId : defaultDevelopmentTestIds())
         {
@@ -117,7 +117,7 @@ std::string WechatService::handleCallback(const std::string &code, const std::st
     }
 
     const auto user = userRepository_.upsertWechatUser(openid, nickname, avatarUrl, config_.appId.empty() ? code : std::string());
-    const auto sessionToken = authService_.createSessionForUser(user);
+	const auto sessionToken = authService_.createSessionForUser(user, "", "", "wechat");
 
     std::unique_lock lock(mutex_);
     auto it = pendingStates_.find(state);

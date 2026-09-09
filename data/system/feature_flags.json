@@ -6,6 +6,11 @@
       "enabled" : true,
       "lock" : false
     },
+    "audio_enhancement" : 
+    {
+      "enabled" : false,
+      "lock" : false
+    },
     "community" : 
     {
       "enabled" : true,

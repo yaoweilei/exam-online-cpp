@@ -1,0 +1,28 @@
+{
+  "completed_question_ids" : [],
+  "date" : "2026-08-01",
+  "generated_at" : "2026-08-01T07:36:04.711Z",
+  "items" : 
+  [
+    {
+      "exam_id" : "2011_01",
+      "question_id" : "1",
+      "question_snapshot" : 
+      {
+        "_groupPassageKey" : "1:p1",
+        "has_ans" : false,
+        "id" : 1,
+        "question" : "",
+        "skill_tags" : 
+        [
+          "eju.writing"
+        ]
+      },
+      "question_type" : "",
+      "section_id" : "1",
+      "source" : "recommended"
+    }
+  ],
+  "target_count" : 1,
+  "user_id" : "usr_019fbc40-52ab-7475-88ef-d2620d9a7a47"
+}

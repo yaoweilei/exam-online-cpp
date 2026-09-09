@@ -51,7 +51,29 @@
 	<meta name="theme-color" content="#1f1914">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<link href="/static/style.css?v=20260802-mobile-summary1" rel="stylesheet">
+	<link href="/static/styles/tokens.css?v=20260830-block-gap-4-v1" rel="stylesheet">
+	<link href="/static/styles/layout.css" rel="stylesheet">
+	<link href="/static/styles/exam-toolbar.css" rel="stylesheet">
+	<link href="/static/styles/exam-controls.css" rel="stylesheet">
+	<link href="/static/styles/question-navigation.css" rel="stylesheet">
+	<link href="/static/styles/question.css" rel="stylesheet">
+	<link href="/static/styles/audio-listening.css" rel="stylesheet">
+	<link href="/static/styles/vocab-lookup.css" rel="stylesheet">
+	<link href="/static/styles/answer-explanation.css" rel="stylesheet">
+	<link href="/static/styles/image.css?v=20260828-question-tools-v1" rel="stylesheet">
+	<link href="/static/styles/misc.css" rel="stylesheet">
+	<link href="/static/styles/login.css?v=20260827-surface-radius-8" rel="stylesheet">
+	<link href="/static/styles/paper-library.css" rel="stylesheet">
+	<link href="/static/styles/modals.css?v=20260813-platform-risk-layer" rel="stylesheet">
+	<link href="/static/styles/app-dialogs.css" rel="stylesheet">
+	<link href="/static/styles/wechat-login.css" rel="stylesheet">
+	<link href="/static/styles/exam-result.css" rel="stylesheet">
+	<link href="/static/styles/personal-center.css?v=20260909-pricing-workspace-v25" rel="stylesheet">
+	<link href="/static/styles/product-polish.css?v=20260828-button-radius-8" rel="stylesheet">
+	<link rel="modulepreload" href="/static/app/features/viewerBootstrap.js?v=20260909-pricing-workspace-v25">
+	<link rel="modulepreload" href="/static/app/viewer/core/ExamViewer.js?v=20260828-question-tools-v1">
+	<link rel="modulepreload" href="/static/app/viewer/renderers/QuestionRenderer.js?v=20260828-question-tools-v1">
+	<link rel="modulepreload" href="/static/app/viewer/personalCenter.js?v=20260909-pricing-workspace-v25">
 </head>
 
 <body>
@@ -69,7 +91,10 @@
 		<!-- 登录弹窗 -->
 		<div id="login-modal" class="login-mode-phone" role="presentation" aria-hidden="true">
 			<div class="login-box" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
-				<button class="login-close" type="button" data-login-close aria-label="关闭登录">×</button>
+				<button class="login-close" type="button" data-login-close aria-label="关闭登录">
+					<span class="login-close-x" aria-hidden="true">×</span>
+					<span class="login-close-back" aria-hidden="true"><span>‹</span>返回</span>
+				</button>
 				<div class="login-brand">
 					<div class="login-brand-mark">試</div>
 					<div id="login-modal-title" class="login-title">在线试卷</div>
@@ -107,31 +132,20 @@
 							<input id="login-password" class="login-input" type="password" placeholder="请输入密码" autocomplete="current-password" />
 							<button id="login-password-toggle" class="login-password-toggle" type="button" aria-label="显示密码" aria-pressed="false">
 								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-									<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
-									<circle cx="12" cy="12" r="3"></circle>
+									<g class="login-eye-open">
+										<path d="M3 12s3.4-5.2 9-5.2 9 5.2 9 5.2-3.4 5.2-9 5.2S3 12 3 12Z"></path>
+										<circle cx="12" cy="12" r="2.7"></circle>
+									</g>
+									<g class="login-eye-closed">
+										<path d="M4.5 10.5c2 2.5 4.5 3.7 7.5 3.7s5.5-1.2 7.5-3.7"></path>
+										<path d="m7.2 13.4-1.1 2.1M12 14.2v2.3m4.8-3.1 1.1 2.1"></path>
+									</g>
 								</svg>
 							</button>
 						</div>
+						<button class="login-password-forgot" type="button" data-login-phone-back title="使用验证码登录后设置新密码">忘记密码？</button>
 						<button id="login-btn-password" class="btn-primary-login">登录</button>
-						<div class="login-password-links"><button type="button" data-password-view="register">注册账号</button><button type="button" data-password-view="reset">忘记密码</button></div>
 					</div>
-					<div class="login-password-view" data-password-panel="register">
-						<input id="register-username" class="login-input" type="text" placeholder="用户名" autocomplete="username" />
-						<input id="register-email" class="login-input" type="email" placeholder="邮箱" autocomplete="email" />
-						<input id="register-password" class="login-input" type="password" placeholder="密码（至少 8 位，含字母和数字）" autocomplete="new-password" />
-						<input id="register-password-confirm" class="login-input" type="password" placeholder="确认密码" autocomplete="new-password" />
-						<button id="login-btn-register" class="btn-primary-login">注册并登录</button>
-						<button type="button" data-password-view="login">返回登录</button>
-					</div>
-					<div class="login-password-view" data-password-panel="reset">
-						<input id="reset-login-id" class="login-input" type="text" placeholder="手机号 / 用户名 / 邮箱" autocomplete="username" />
-						<button id="login-btn-reset-send-code" class="btn-send-code" type="button">发送验证码</button>
-						<input id="reset-code" class="login-input" type="text" placeholder="验证码" autocomplete="one-time-code" />
-						<input id="reset-new-password" class="login-input" type="password" placeholder="新密码（至少 8 位，含字母和数字）" autocomplete="new-password" />
-						<button id="login-btn-reset-password" class="btn-primary-login">重置并登录</button>
-						<button type="button" data-password-view="login">返回登录</button>
-					</div>
-					<button class="login-back-phone" type="button" data-login-phone-back>手机号验证码登录</button>
 				</div>
 
 				<div id="login-error" class="login-error" style="display:none"></div>
@@ -143,7 +157,7 @@
 
 				<!-- 模式切换图标 -->
 				<div class="login-mode-bar">
-					<button class="login-mode-icon" data-mode="phone" title="手机号验证码登录"><span>验证码</span></button>
+					<button class="login-mode-icon" data-mode="phone" title="手机号验证码登录"><span>验证码登录</span></button>
 					<button class="login-mode-icon login-password-shortcut" data-mode="password" title="手机号密码登录">
 						<span class="login-mode-symbol" aria-hidden="true">
 							<svg viewBox="0 0 24 24" focusable="false">
@@ -176,22 +190,23 @@
 			</div>
 		</div>
 		<div id="exam-workarea">
-			<div id="exam-library-panel">
-				<select id="exam-family-select" class="btn-secondary" autocomplete="off">
+			<div id="exam-command-bar">
+				<div id="exam-library-panel">
+				<select id="exam-family-select" class="btn-secondary" autocomplete="off" disabled>
 					<option value="jlpt">JLPT</option>
 				</select>
-				<select id="exam-level-select" class="btn-secondary" autocomplete="off">
+				<select id="exam-level-select" class="btn-secondary" autocomplete="off" disabled>
 					<option value="N1">N1</option>
 					<option value="N2">N2</option>
 					<option value="N3">N3</option>
 					<option value="N4">N4</option>
 					<option value="N5">N5</option>
 				</select>
-				<select id="exam-paper-select" class="btn-secondary" data-level="N1" autocomplete="off">
-					<option value="">-</option>
+				<select id="exam-paper-select" class="btn-secondary" data-level="N1" autocomplete="off" disabled>
+					<option value="">正在加载试卷…</option>
 				</select>
-				<select id="exam-mode-select" class="btn-secondary" autocomplete="off" aria-label="答题模式" title="选择答题模式">
-					<option value="practice">学习练习</option>
+				<select id="exam-mode-select" class="btn-secondary" autocomplete="off" aria-label="作答方式" title="选择作答方式">
+					<option value="practice">练习模式</option>
 					<option value="mock">模拟考试</option>
 				</select>
 				<button id="theme-toggle" class="btn-secondary" type="button" title="切换到深色模式" aria-label="切换到深色模式">
@@ -202,11 +217,38 @@
 				<button id="mobile-paper-toggle" class="btn-secondary" type="button" aria-expanded="false" title="展开试卷选择">
 					<span id="mobile-paper-summary">选择试卷</span>
 				</button>
-			</div>
+				<div id="exam-settings-control" class="exam-settings-control">
+					<button id="exam-settings-toggle" class="btn-secondary exam-settings-toggle" type="button" aria-expanded="false" aria-haspopup="dialog" title="考试设置" aria-label="打开考试设置">
+						<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+							<circle cx="12" cy="12" r="3"></circle>
+							<path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.08A1.7 1.7 0 0 0 8.97 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3v-4h.08A1.7 1.7 0 0 0 4.6 8.94a1.7 1.7 0 0 0-.34-1.88L4.2 7l2.83-2.83.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 10 3.01V3h4v.08a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06L19.8 7l-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.96 10H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z"></path>
+						</svg>
+					</button>
+					<div id="exam-settings-menu" class="exam-settings-menu" role="dialog" aria-label="考试设置" hidden>
+						<div class="exam-settings-heading">
+							<strong>考试设置</strong>
+							<span>切换试卷、作答方式、主题与学习辅助</span>
+						</div>
+						<div class="exam-settings-fields">
+							<label>考试类型<span data-exam-setting-slot="family"></span></label>
+							<label>等级<span data-exam-setting-slot="level"></span></label>
+							<label>试卷<span data-exam-setting-slot="paper"></span></label>
+							<label>作答方式<span data-exam-setting-slot="mode"></span></label>
+							<label>显示主题<span><select id="theme-mode-select" class="btn-secondary" autocomplete="off" aria-label="显示主题">
+								<option value="system">跟随系统</option>
+								<option value="light">浅色模式</option>
+								<option value="dark">深色模式</option>
+							</select></span></label>
+						</div>
+						<div class="exam-settings-assists">
+							<strong>学习辅助</strong>
+							<div data-exam-setting-slot="assists"></div>
+						</div>
+					</div>
+				</div>
+				</div>
 
-			<div id="exam-header" class="is-empty"></div>
-
-			<div id="exam-controls" class="toolbar-grid">
+				<div id="exam-controls" class="toolbar-grid">
 				<button id="toggle-answers" class="btn-secondary">答案解析</button>
 				<button id="open-question-map" class="btn-secondary answer-card-trigger" type="button" title="打开答题卡" aria-label="打开答题卡">
 					<span class="answer-card-icon" aria-hidden="true">
@@ -229,21 +271,35 @@
 				<button id="toggle-explanations" class="btn-secondary">补充解析</button>
 				<button id="toggle-reading-kana" class="btn-secondary" title="阅读原文上方显示假名">假名</button>
 				<button id="toggle-reading-zh" class="btn-secondary" title="阅读原文下方显示中文">中文</button>
+				<div id="learning-tools-control" class="learning-tools-control">
+					<button id="learning-tools-toggle" class="btn-secondary" type="button" aria-expanded="false" aria-haspopup="true" title="打开学习辅助工具">
+						<span>学习辅助</span><span class="learning-tools-caret" aria-hidden="true">▼</span>
+					</button>
+					<div id="learning-tools-menu" class="learning-tools-menu" role="menu" hidden>
+						<button id="learning-menu-answers" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false">答案解析</button>
+						<button id="learning-menu-explanations" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false">补充解析</button>
+						<button id="learning-menu-kana" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false">假名</button>
+						<button id="learning-menu-zh" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false">中文</button>
+					</div>
+				</div>
 				<button id="mobile-tools-toggle" class="btn-secondary" type="button" aria-expanded="false" title="展开更多工具">更多</button>
 				<div class="category-slot" data-slot="1"></div>
 				<div class="category-slot" data-slot="2"></div>
 				<div class="category-slot" data-slot="3"></div>
 				<div class="category-slot" data-slot="4"></div>
+				</div>
 			</div>
+
+			<div id="exam-header" class="is-empty"></div>
 
 			<div id="category-navigation" style="display:none"></div>
 			<div id="section-navigation"></div>
 
 			<div id="width-control" title="拖动调整内容最大宽度">
-				<input id="width-slider" type="range" min="0" max="1800" step="10" />
+				<input id="width-slider" type="range" min="0" max="1800" step="10" aria-label="调整题目区域宽度" />
 			</div>
 
-			<div id="current-question-container"></div>
+			<div id="current-question-container" aria-busy="true"><div style="padding:40px;text-align:center;color:#888;">正在准备试卷，请稍候…</div></div>
 			<div id="question-navigation"></div>
 		</div>
 	</div>
@@ -251,32 +307,53 @@
 		<div id="exam-result-panel" class="exam-result-panel"></div>
 	</div>
 
-	<script type="module" src="/static/app/main.js?v=20260803-eju-merge2"></script>
+	<script type="module" src="/static/app/main.js?v=20260909-pricing-workspace-v25"></script>
 
 	<script>
 		(function() {
 			const themeToggle = document.getElementById('theme-toggle');
 			const themeIcon = themeToggle.querySelector('.theme-icon');
+			const themeModeSelect = document.getElementById('theme-mode-select');
+			const themeColor = document.querySelector('meta[name="theme-color"]');
+			const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
 			const body = document.body;
-			const updateThemeButton = (isLight) => {
+			let themeMode = 'system';
+			const updateThemeButton = (isLight, mode) => {
 				themeIcon.textContent = isLight ? '☀️' : '🌙';
-				const actionLabel = isLight ? '切换到深色模式' : '切换到浅色模式';
+				const actionLabel = mode === 'system'
+					? `当前跟随系统（${isLight ? '浅色' : '深色'}），点击切换到${isLight ? '深色' : '浅色'}模式`
+					: (isLight ? '切换到深色模式' : '切换到浅色模式');
 				themeToggle.title = actionLabel;
 				themeToggle.setAttribute('aria-label', actionLabel);
 			};
+			const applyTheme = (mode, persist) => {
+				themeMode = ['light', 'dark', 'system'].includes(mode) ? mode : 'system';
+				const isLight = themeMode === 'light' || (themeMode === 'system' && !systemDarkMode.matches);
+				body.classList.toggle('light-theme', isLight);
+				themeModeSelect.value = themeMode;
+				if (themeColor) themeColor.setAttribute('content', isLight ? '#f8f6f3' : '#1f1914');
+				updateThemeButton(isLight, themeMode);
+				if (persist) localStorage.setItem('exam-theme', themeMode);
+			};
 
-			const savedTheme = localStorage.getItem('exam-theme') || 'light';
-			if (savedTheme === 'light') {
-				body.classList.add('light-theme');
-			}
-			updateThemeButton(savedTheme === 'light');
+			applyTheme(localStorage.getItem('exam-theme') || 'system', false);
 
 			themeToggle.addEventListener('click', function() {
-				body.classList.toggle('light-theme');
-				const isLight = body.classList.contains('light-theme');
-				updateThemeButton(isLight);
-				localStorage.setItem('exam-theme', isLight ? 'light' : 'dark');
+				applyTheme(body.classList.contains('light-theme') ? 'dark' : 'light', true);
 			});
+
+			themeModeSelect.addEventListener('change', function() {
+				applyTheme(themeModeSelect.value, true);
+			});
+
+			const applySystemTheme = function() {
+				if (themeMode === 'system') applyTheme('system', false);
+			};
+			if (typeof systemDarkMode.addEventListener === 'function') {
+				systemDarkMode.addEventListener('change', applySystemTheme);
+			} else if (typeof systemDarkMode.addListener === 'function') {
+				systemDarkMode.addListener(applySystemTheme);
+			}
 		})();
 	</script>
 </body>

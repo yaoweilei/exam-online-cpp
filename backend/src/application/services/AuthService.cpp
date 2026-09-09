@@ -65,7 +65,7 @@ Json::Value AuthService::login(const std::string &username,
     }
 
     recordLoginSuccess(accountKey);
-    const auto token = createSessionForUser(user, clientKey, userAgent);
+    const auto token = createSessionForUser(user, clientKey, userAgent, "password");
     auto out = verify(token);
     out["token"] = token;
     return out;
@@ -80,7 +80,7 @@ const std::string &userAgent)
 {
     validatePasswordPolicy(password);
     auto user = repository_.createUser(username, password, email, referralCode);
-    const auto token = createSessionForUser(user, clientKey, userAgent);
+    const auto token = createSessionForUser(user, clientKey, userAgent, "password");
     auto out = verify(token);
     out["token"] = token;
     return out;
@@ -88,7 +88,8 @@ const std::string &userAgent)
 
 std::string AuthService::createSessionForUser(const Json::Value &user,
                                               const std::string &clientKey,
-                                              const std::string &userAgent)
+                                              const std::string &userAgent,
+                                              const std::string &authenticationMethod)
 {
     const auto token = common::generateRequestId();
     const auto createdAt = common::nowIso8601();
@@ -104,7 +105,8 @@ std::string AuthService::createSessionForUser(const Json::Value &user,
             .createdAtIso = createdAt,
             .lastSeenAtIso = createdAt,
             .clientIp = clientKey,
-            .userAgent = userAgent};
+            .userAgent = userAgent,
+            .authenticationMethod = authenticationMethod};
         if (sessionRepository_)
         {
             sessionRepository_->save(token, sessionToJson(sessions_[token]));
@@ -190,6 +192,7 @@ Json::Value AuthService::verify(const std::string &token)
     out["username"] = it->second.username;
     out["expires_at"] = it->second.expiresAtIso;
     out["roles"] = it->second.roles;
+    out["authentication_method"] = it->second.authenticationMethod;
     return out;
 }
 
@@ -308,7 +311,6 @@ int AuthService::revokeSessionsForUser(const std::string &userId, const std::str
 }
 
 Json::Value AuthService::changePassword(const std::string &userId,
-const std::string &currentPassword,
 const std::string &newPassword)
 {
     validatePasswordPolicy(newPassword);
@@ -316,12 +318,6 @@ const std::string &newPassword)
     if (user.isNull())
     {
         throw common::AppException("USER_NOT_FOUND", "User not found", drogon::k404NotFound);
-    }
-    const auto algo = user.get("password_algo", "").asString();
-    const auto hasPassword = algo == "scrypt" || algo == "sha256" || algo == "plain";
-    if (hasPassword && !repository_.verifyPassword(user, currentPassword))
-    {
-        throw common::AppException("INVALID_CREDENTIALS", "Current password is invalid", drogon::k401Unauthorized);
     }
     const auto updated = repository_.updatePassword(userId, newPassword);
     Json::Value out(Json::objectValue);
@@ -674,6 +670,7 @@ Json::Value AuthService::sessionToJson(const Session &session)
     out["last_seen_at"] = session.lastSeenAtIso;
     out["client_ip"] = session.clientIp;
     out["user_agent"] = session.userAgent;
+    out["authentication_method"] = session.authenticationMethod;
     return out;
 }
 
@@ -695,7 +692,8 @@ AuthService::Session AuthService::sessionFromJson(const Json::Value &value)
         .createdAtIso = value.get("created_at", value.get("last_seen_at", "")).asString(),
         .lastSeenAtIso = value.get("last_seen_at", "").asString(),
         .clientIp = value.get("client_ip", "").asString(),
-        .userAgent = value.get("user_agent", "").asString()};
+        .userAgent = value.get("user_agent", "").asString(),
+        .authenticationMethod = value.get("authentication_method", "unknown").asString()};
 }
 
 }  // namespace application::services

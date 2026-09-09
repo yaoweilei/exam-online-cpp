@@ -65,8 +65,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	const sections: SectionDef[] = [
 		{ id: 'dashboard', title: '我的', gate: (u) => !u.guest, nav: true },
-		{ id: 'profile', title: '资料', gate: (u) => !u.guest, nav: false },
-		{ id: 'admin-hub', title: '管理', gate: (u) => hasAnyRole(u, ['teacher', 'assistant', 'orgAdmin', 'contentAdmin', 'superAdmin']), nav: true }
+		{ id: 'profile', title: '资料', gate: (u) => !u.guest, nav: false }
 	];
 
 	const featureItems: FeatureItem[] = [
@@ -246,13 +245,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		{ id: 'student', name: '学员', desc: '做题 / 作业 / 学习报告', risk: 'low' },
 		{ id: 'assistant', name: '教学运营', desc: '助教、班主任、教务、顾问的基础角色', risk: 'medium' },
 		{ id: 'teacher', name: '老师', desc: '教学 / 作业 / 批改 / 反馈', risk: 'medium' },
+		{ id: 'orgContentAdmin', name: '机构内容管理员', desc: '当前机构的课程包内容管理', risk: 'medium' },
 		{ id: 'orgAdmin', name: '机构管理员', desc: '机构成员、学习组、课程包和看板管理', risk: 'medium' },
 		{ id: 'contentAdmin', name: '内容管理员', desc: '试卷、音频、答案和解析维护', risk: 'high' },
 		{ id: 'superAdmin', name: '平台超级管理员', desc: '平台全部权限和高危系统操作', risk: 'critical' }
 	];
 
-	const organizationMemberRoleDefs = roleDefs.filter((role) => ['student', 'assistant', 'teacher', 'orgAdmin'].includes(role.id));
-	const organizationRolePermissionRoleDefs = roleDefs.filter((role) => ['student', 'assistant', 'teacher', 'orgAdmin', 'contentAdmin'].includes(role.id));
+	const organizationMemberRoleDefs = roleDefs.filter((role) => ['student', 'assistant', 'teacher', 'orgContentAdmin', 'orgAdmin'].includes(role.id));
+	const organizationManagerRoleIds = ['assistant', 'teacher', 'orgContentAdmin', 'orgAdmin'];
+	const organizationRolePermissionRoleDefs = roleDefs.filter((role) => ['student', 'assistant', 'teacher', 'orgContentAdmin', 'orgAdmin'].includes(role.id));
 	const organizationPermissionTemplateDefs: Array<{ id: PermissionTemplateId; name: string; role: 'assistant' | 'orgAdmin'; desc: string }> = [
 		{ id: 'assistant', name: '助教模板', role: 'assistant', desc: '催交、查看提交、协助老师反馈' },
 		{ id: 'homeroom', name: '班主任模板', role: 'assistant', desc: '学员档案、跟进记录、续费风险' },
@@ -274,24 +275,100 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		{ id: 'course_package.view', name: '查看课程包' },
 		{ id: 'lesson_prep.create', name: '备课组卷' },
 		{ id: 'lesson_prep.export', name: '导出讲义' },
+		{ id: 'learning_record.feedback.edit', name: '编辑课后反馈' },
 		{ id: 'renewal_risk.view', name: '续费风险' },
 		{ id: 'organization.dashboard.view', name: '机构看板' },
 		{ id: 'organization.member.manage', name: '成员管理' },
 		{ id: 'organization.billing.manage', name: '套餐/席位管理' },
 		{ id: 'payment.refund', name: '发起退款' },
-		{ id: 'audit.view', name: '查看审计日志' },
-		{ id: 'content.paper.maintain', name: '试卷维护' },
-		{ id: 'content.analysis.review', name: '解析审核' },
-		{ id: 'content.quality.check', name: '质量检查' }
+		{ id: 'audit.view', name: '查看审计日志' }
 	];
+	const organizationRoleDefaultPermissionFallbacks: Record<string, string[]> = {
+		student: [],
+		assistant: ['assignment.review', 'assignment.remind', 'gradebook.view', 'student.profile.view', 'student.followup.edit', 'course_package.view'],
+		teacher: ['assignment.create', 'assignment.review', 'assignment.remind', 'gradebook.view', 'student.profile.view', 'lesson_prep.create', 'lesson_prep.export', 'learning_record.feedback.edit'],
+		orgContentAdmin: ['course_package.manage', 'course_package.view'],
+		orgAdmin: [
+			'organization.dashboard.view',
+			'organization.member.manage',
+			'learning_group.manage',
+			'lesson.booking.manage',
+			'course_package.manage',
+			'course_package.view',
+			'organization.billing.manage',
+			'audit.view'
+		]
+	};
+	const platformPermissionLabels: Record<string, string> = {
+		'*': '全部平台权限',
+		'exam.public.view': '浏览公开试卷',
+		'exam.practice': '参加练习',
+		'answer.submit': '提交答案',
+		'analysis.view': '查看解析',
+		'assignment.submit': '提交作业',
+		'report.view.self': '查看个人学习报告',
+		'learning_record.view.self': '查看个人学习记录',
+		'assignment.create': '布置作业',
+		'assignment.review': '批改作业',
+		'assignment.remind': '催交作业',
+		'gradebook.view': '查看成绩册',
+		'student.profile.view': '查看学员档案',
+		'student.profile.edit': '编辑学员档案',
+		'student.followup.edit': '编辑跟进记录',
+		'learning_record.comment': '添加学习记录评语',
+		'learning_record.feedback.edit': '编辑课后反馈',
+		'lesson_prep.create': '创建备课方案',
+		'lesson_prep.export': '导出备课资料',
+		'organization.member.manage': '管理机构成员',
+		'learning_group.manage': '管理学习组',
+		'course_package.manage': '管理课程包',
+		'course_package.view': '查看课程包',
+		'lesson.booking.manage': '管理排课与约课',
+		'organization.dashboard.view': '查看机构看板',
+		'organization.billing.manage': '管理套餐与席位',
+		'audit.view': '查看机构审计日志',
+		'content.exam.edit': '编辑试卷',
+		'content.audio.manage': '管理音频',
+		'content.image.manage': '管理图片',
+		'content.answer.edit': '编辑答案',
+		'content.analysis.edit': '编辑解析',
+		'content.publish': '发布内容',
+		'content.audit.view': '查看内容审计日志'
+	};
+
+	function platformPermissionLabel(permission: string): string {
+		return platformPermissionLabels[permission] || permission;
+	}
+
+	function platformPermissionGroup(permission: string): string {
+		if (permission === '*') return '系统权限';
+		if (permission.startsWith('content.')) return '内容管理';
+		if (/^(organization\.|learning_group\.|course_package\.|lesson\.booking\.|audit\.)/.test(permission)) return '机构管理';
+		if (/^(assignment\.(create|review|remind)|gradebook\.|student\.|learning_record\.|lesson_prep\.)/.test(permission)) return '教学运营';
+		if (/^(exam\.|answer\.|analysis\.|assignment\.submit|report\.)/.test(permission)) return '学员学习';
+		return '其他权限';
+	}
+
+	function renderPlatformPermissionChip(permission: string, state: 'added' | 'removed' | '' = ''): string {
+		return `<span class="pc-platform-permission-chip${state ? ` is-${state}` : ''}"><strong>${escapeHtml(platformPermissionLabel(permission))}</strong><small>${escapeHtml(permission)}</small>${state ? `<em>${state === 'added' ? '新增' : '待移除'}</em>` : ''}</span>`;
+	}
 
 	let activeSection: SectionDef['id'] = 'dashboard';
 	type DashboardSubpage = '' | 'recent' | 'favorites' | 'account' | 'account-core' | 'account-plan' | 'account-coupons' | 'account-feedback' | 'role-content';
 	let activeDashboardSubpage: DashboardSubpage = '';
 	let activeRoleContent = '';
-	type WorkbenchId = 'student' | 'teacher' | 'assistant' | 'orgAdmin' | 'contentAdmin' | 'superAdmin';
+	let pendingCoursePackageAllocation: { organizationId: string; templateId: string } | null = null;
+	type WorkbenchId = 'student' | 'teacher' | 'assistant' | 'orgContentAdmin' | 'orgAdmin' | 'contentAdmin' | 'superAdmin';
 	type ManagedOrganizationMode = 'platform' | 'permissions' | 'groups' | 'settings' | 'coursePackages' | 'subscription' | 'members';
 	let activeWorkbench: WorkbenchId | '' = '';
+	type PlatformAdminPage = 'overview' | 'users' | 'roles' | 'organizations' | 'content' | 'feedback' | 'payments' | 'pricing' | 'flags' | 'audit';
+	let activePlatformAdminPage: PlatformAdminPage = 'overview';
+	let platformAdminRoleContentHistory: string[] = [];
+	let platformAdminExpanded = false;
+	let platformAdminMobilePreview = false;
+	let platformAdminAccountMenuOpen = false;
+	let platformAdminMode: 'platform' | 'role' = 'platform';
+	let superAdminAccountMenuOpen = false;
 	let personalCenterIdentityKey = '';
 	let allUsers: PCUser[] = [];
 	let localContext: PCContext = { guest: true };
@@ -301,6 +378,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	let managedOrganizationsCacheKey = '';
 	let managedOrganizationsLoading: Promise<void> | null = null;
 	let managedOrganizationListPage = { page: 1, pageSize: 20, pages: 0, total: 0, query: '' };
+	let managedOrganizationListScrollTop = 0;
+	let managedOrganizationDetailReturnId = '';
+	let managedOrganizationWorkspaceId = '';
 	let managedOrganizationDetailState: Record<string, 'loading' | 'loaded' | 'error'> = {};
 	let managedOrganizationToggleHandler: ((event: Event) => void) | null = null;
 	let organizationMemberDrafts: Record<string, OrganizationMemberDraft> = {};
@@ -322,10 +402,22 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		loading: boolean;
 		error: string;
 	};
+	type ManagedCoursePackageStudentGroup = {
+		studentId: string;
+		accounts: ManagedCoursePackage[];
+		accountCount: number;
+	};
+	type OrganizationCoursePackagePage = OrganizationListPage<ManagedCoursePackage> & {
+		statusFilter: string;
+		templateFilter: string;
+		viewMode: 'accounts' | 'students';
+		studentGroups: ManagedCoursePackageStudentGroup[];
+		accountTotal: number;
+	};
 	let organizationMemberListPages: Record<string, OrganizationListPage<ManagedOrganizationMember>> = {};
 	let organizationLearningGroupListPages: Record<string, OrganizationListPage<ManagedLearningGroup>> = {};
 	let organizationCampusListPages: Record<string, OrganizationListPage<ManagedCampus>> = {};
-	let organizationCoursePackageListPages: Record<string, OrganizationListPage<ManagedCoursePackage>> = {};
+	let organizationCoursePackageListPages: Record<string, OrganizationCoursePackagePage> = {};
 	let organizationInviteTokenDraft = '';
 	let referralCodeDraft = '';
 	let contactVerificationDraft: ContactVerificationDraft = {
@@ -385,8 +477,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	let contentWorkflowBatchMessage = '';
 	let platformRoleTemplates: Record<string, unknown>[] = [];
 	let platformRoleTemplatesLoaded = false;
+	let activePlatformRoleTemplateId = '';
 	let platformRoleTemplatePreviews: Record<string, Record<string, unknown>> = {};
-	let platformRoleTemplatePreviewFingerprints: Record<string, string> = {};
 	let platformUserAccessPreview: {
 		userId: string;
 		roleId: string;
@@ -413,6 +505,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const user = asRecord(raw.user);
 		const profile = asRecord(raw.profile);
 		const membership = asRecord(raw.membership);
+		const session = asRecord(raw.session);
 		const normalizedSubscription =
 			normalizeSubscription(raw.subscription) ?? normalizeSubscription(user?.subscription) ?? (ctx as PCContext).subscription;
 		const balanceRecord = asRecord(raw.balance);
@@ -472,6 +565,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			phone: readString(raw.phone) || readString(user?.phone) || (ctx as PCContext).phone,
 			phoneVerified: readBoolean(raw.phone_verified) ?? readBoolean(user?.phone_verified) ?? (ctx as PCContext).phoneVerified,
 			hasPassword: readBoolean(raw.hasPassword) ?? readBoolean(raw.has_password) ?? readBoolean(user?.hasPassword) ?? readBoolean(user?.has_password) ?? (ctx as PCContext).hasPassword,
+			authenticationMethod:
+				readString(raw.authenticationMethod) ||
+				readString(raw.authentication_method) ||
+				readString(raw.session_authentication_method) ||
+				readString(session?.authentication_method) ||
+				(ctx as PCContext).authenticationMethod,
 			wechatBound: readBoolean(raw.wechatBound) ?? readBoolean(raw.wechat_bound) ?? readBoolean(user?.wechatBound) ?? readBoolean(user?.wechat_bound) ?? (ctx as PCContext).wechatBound,
 			wechatNickname:
 				readString(raw.wechatNickname) ||
@@ -657,10 +756,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return roles.map((role) => roleDefs.find((item) => item.id === role)?.name || role);
 	}
 
-	function permissionTemplateLabel(templateId: string): string {
-		return organizationPermissionTemplateDefs.find((item) => item.id === templateId)?.name || templateId;
-	}
-
 	function showToast(msg: string): void {
 		let el = document.getElementById('pc-toast') as HTMLDivElement | null;
 		if (!el) {
@@ -682,7 +777,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	function legacyFocusOrigin(element: HTMLElement | null): LegacyModalFocusOrigin {
 		if (!element) return { element: null, selector: '' };
 		if (element.id) return { element, selector: `#${CSS.escape(element.id)}` };
-		for (const attribute of ['data-intent', 'data-dashboard-page', 'data-dashboard-back']) {
+		for (const attribute of ['data-intent', 'data-role-admin-intent', 'data-dashboard-page', 'data-dashboard-back']) {
 			const value = element.getAttribute(attribute);
 			if (value !== null) {
 				const suffix = value ? `="${CSS.escape(value)}"` : '';
@@ -695,6 +790,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	function prepareLegacyModal(modal: HTMLDivElement, titleId: string, panelSelector = ':scope > :first-child'): void {
 		if (modal.dataset.pcModalPrepared === '1') return;
 		modal.dataset.pcModalPrepared = '1';
+		modal.classList.add('pc-legacy-modal');
 		modal.setAttribute('role', 'presentation');
 		const panel = modal.querySelector<HTMLElement>(panelSelector);
 		if (panel) {
@@ -776,6 +872,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			phone: normalized.phone,
 			phoneVerified: normalized.phoneVerified,
 			hasPassword: normalized.hasPassword,
+			authenticationMethod: normalized.authenticationMethod,
 			wechatBound: normalized.wechatBound,
 			wechatNickname: normalized.wechatNickname,
 			wechatBoundAt: normalized.wechatBoundAt,
@@ -884,6 +981,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function canManageMembers(ctx: PCContext): boolean {
 		return hasAnyRole(ctx, ['orgAdmin', 'superAdmin']);
+	}
+
+	function canAccessOrganizationWorkspace(ctx: PCContext): boolean {
+		return canManageMembers(ctx) || hasAnyRole(ctx, ['orgContentAdmin']);
 	}
 
 	async function requestHighRiskPassword(actionLabel: string): Promise<string | null> {
@@ -1064,12 +1165,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				log('load pending invitations failed', error);
 			} finally {
 				pendingInvitationsLoading = null;
-				// Pending invitations are rendered only on the dashboard landing page.
-				// Avoid replacing an account or role subpage that the user opened while
-				// this background request was still in flight.
-				if (activeSection === 'dashboard' && !activeDashboardSubpage && isOpen()) {
-					renderSectionContent();
-				}
+				const studentWorkspaceOverviewOpen = platformAdminMode === 'role'
+					&& !activeRoleContent
+					&& activeWorkbenchDef(getContext()).id === 'student'
+					&& Boolean(document.querySelector('#platform-admin-shell.pc-platform-admin-open'));
+				if (studentWorkspaceOverviewOpen) renderSectionContent({ preserveScroll: true });
 			}
 		})();
 
@@ -1120,9 +1220,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				log('load favorite bookmarks failed', error);
 			} finally {
 				favoriteBookmarksLoading = null;
-				if (activeSection === 'dashboard' && activeDashboardSubpage === 'favorites' && isOpen()) {
-					renderSectionContent();
-				}
+				const legacyFavoritesOpen = activeSection === 'dashboard' && activeDashboardSubpage === 'favorites' && isOpen();
+				if (legacyFavoritesOpen || shouldRefreshRoleContent('student-favorites')) renderSectionContent({ preserveScroll: true });
 			}
 		})();
 
@@ -1164,9 +1263,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				log('load recent learning failed', error);
 			} finally {
 				recentLearningLoading = null;
-				if (activeSection === 'dashboard' && activeDashboardSubpage === 'recent' && isOpen()) {
-					renderSectionContent();
-				}
+				const legacyRecentOpen = activeSection === 'dashboard' && activeDashboardSubpage === 'recent' && isOpen();
+				if (legacyRecentOpen || shouldRefreshRoleContent('student-recent')) renderSectionContent({ preserveScroll: true });
 			}
 		})();
 
@@ -1250,7 +1348,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			} finally {
 				contentPublishQueueLoaded = true;
 				contentPublishQueueLoading = null;
-				if (shouldRefreshRoleContent('content-publish')) renderSectionContent({ preserveScroll: true });
+				if (shouldRefreshRoleContent('content-publish')) {
+					if (activePlatformAdminPage === 'overview' && document.querySelector('#platform-admin-shell.pc-platform-admin-open')) renderPlatformAdminShell({ preserveScroll: true });
+					else renderSectionContent({ preserveScroll: true });
+				}
 			}
 		})();
 		await contentPublishQueueLoading;
@@ -1316,9 +1417,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				log('load institution role workbench failed', error);
 			} finally {
 				institutionRoleWorkbenchLoading = null;
-				if (activeSection === 'dashboard' && activeDashboardSubpage === 'role-content' && isInstitutionRoleContent(activeRoleContent) && isOpen()) {
-					renderSectionContent();
-				}
+				const roleShellOpen = platformAdminMode === 'role' && Boolean(document.querySelector('#platform-admin-shell.pc-platform-admin-open'));
+				const legacyPanelOpen = activeSection === 'dashboard' && activeDashboardSubpage === 'role-content' && isOpen();
+				if (isInstitutionRoleContent(activeRoleContent) && (roleShellOpen || legacyPanelOpen)) renderSectionContent({ preserveScroll: true });
 			}
 		})();
 		await institutionRoleWorkbenchLoading;
@@ -1637,6 +1738,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	let paymentPricingConfig: PaymentPricingConfig = defaultPaymentPricing;
 	let paymentPricingLoaded = false;
 	let paymentPricingPromise: Promise<PaymentPricingConfig> | null = null;
+	type PricingAdminSection = 'plans' | 'offers' | 'renewal' | 'runtime';
+	let activePricingAdminSection: PricingAdminSection = 'plans';
+	let activePricingPlanScope: PricingScope = 'personal';
+	let activePricingOfferScope: PricingScope = 'personal';
 	const autoRenewalViews = new Map<string, AutoRenewalView>();
 	const autoRenewalLoading = new Set<string>();
 	const autoRenewalErrors = new Map<string, string>();
@@ -1651,6 +1756,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	let platformUserSearchResults: PCUser[] = [];
 	let platformUserSearchLoading = false;
 	let platformUserSearchLoaded = false;
+	let platformUserSearchPage = 1;
+	let platformUserSearchPageSize = 10;
+	const platformUserDetails = new Map<string, PCUser>();
+	const platformUserDetailLoading = new Set<string>();
+	const platformUserDetailErrors = new Map<string, string>();
 	let platformStatsOverview: Record<string, unknown> | null = null;
 	let platformStatsLoading = false;
 	let platformStatsLoaded = false;
@@ -1669,6 +1779,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	let platformSystemFlagsLoaded = false;
 	let platformSystemFlagsError = '';
 	const pendingPlatformSystemFlags = new Set<string>();
+	let platformSystemFlagEditor: HTMLDivElement | null = null;
+	let platformSystemFlagQuery = '';
+	let platformSystemFlagFilter = 'all';
+	const platformSystemFlagOpenGroups = new Set<string>();
 	let platformFeedbackItems: Record<string, unknown>[] = [];
 	let platformFeedbackLoading = false;
 	let platformFeedbackLoaded = false;
@@ -2007,6 +2121,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const isActive = renewal.subscription.isActive
 			|| (fallback.status === 'active' && currentPlan !== 'free');
 		const canEnable = isActive && currentPlan !== 'free';
+		if (scopeType === 'organization' && !canEnable && currentPlan === 'free') {
+			return `<section class="pc-auto-renew-card pc-auto-renew-card-compact" data-auto-renew-card data-renew-scope="${scopeType}" data-renew-id="${escapeHtml(scopeId)}">
+				<div><h4>自动续费</h4><p>FREE 套餐无需续费；升级为付费套餐后可设置续费周期、支付渠道和提醒。</p></div>
+				<span class="pc-auto-renew-status">不可用</span>
+			</section>`;
+		}
 		const statusLabel = !renewal.enabled
 			? '已关闭'
 			: renewal.chargeReady
@@ -2026,9 +2146,27 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				<strong>${escapeHtml(notice.title)}</strong>${priceChange}<p>${escapeHtml(notice.message)}</p>
 			</div>`;
 		}).join('');
-		const durationOptions = paymentPricingConfig.catalogs[scopeType].durations
-			.map((days) => `<option value="${days}"${renewal.days === days ? ' selected' : ''}>${days === 365 ? '年付（365 天）' : days === 30 ? '月付（30 天）' : `${days} 天`}</option>`)
-			.join('');
+		const durationSelect = renderAdminSelect(
+			String(renewal.days),
+			paymentPricingConfig.catalogs[scopeType].durations.map((days) => ({
+				value: String(days),
+				label: days === 365 ? '年付（365 天）' : days === 30 ? '月付（30 天）' : `${days} 天`
+			})),
+			'data-auto-renew-days',
+			'续费周期',
+			renewal.enabled
+		);
+		const providerSelect = renderAdminSelect(
+			renewal.provider,
+			[
+				{ value: 'wechat', label: '微信支付' },
+				{ value: 'alipay', label: '支付宝' },
+				{ value: 'stripe', label: 'Stripe' }
+			],
+			'data-auto-renew-provider',
+			'支付渠道',
+			renewal.enabled
+		);
 		return `<section class="pc-auto-renew-card" data-auto-renew-card data-renew-scope="${scopeType}" data-renew-id="${escapeHtml(scopeId)}">
 			<div class="pc-auto-renew-head"><div><h4>自动续费</h4><p>单独授权，默认关闭；关闭后当前已付周期仍可继续使用。</p></div><span class="pc-auto-renew-status ${statusClass}">${statusLabel}</span></div>
 			${notices ? `<div class="pc-auto-renew-notices">${notices}</div>` : ''}
@@ -2040,12 +2178,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			</div>
 			${renewal.enabled && !renewal.chargeReady ? '<div class="pc-admin-note">授权已保存，但尚未取得支付渠道签约凭证；在渠道签约完成前不会自动扣款。</div>' : ''}
 			<div class="pc-auto-renew-controls">
-				<label class="pc-org-field"><span>续费周期</span><select class="pc-profile-input" data-auto-renew-days${renewal.enabled ? ' disabled' : ''}>${durationOptions}</select></label>
-				<label class="pc-org-field"><span>支付渠道</span><select class="pc-profile-input" data-auto-renew-provider${renewal.enabled ? ' disabled' : ''}>
-					<option value="wechat"${renewal.provider === 'wechat' ? ' selected' : ''}>微信支付</option>
-					<option value="alipay"${renewal.provider === 'alipay' ? ' selected' : ''}>支付宝</option>
-					<option value="stripe"${renewal.provider === 'stripe' ? ' selected' : ''}>Stripe</option>
-				</select></label>
+				<div class="pc-org-field"><span>续费周期</span>${durationSelect}</div>
+				<div class="pc-org-field"><span>支付渠道</span>${providerSelect}</div>
 				<label class="pc-auto-renew-check"><input type="checkbox" data-auto-renew-email${renewal.notifyEmail ? ' checked' : ''}${renewal.enabled ? ' disabled' : ''} /><span>同时接收邮件提醒</span></label>
 				<button class="${renewal.enabled ? 'pc-inline-ghost' : 'pc-inline-btn'}" type="button" data-auto-renew-toggle data-renew-enabled="${renewal.enabled ? 'true' : 'false'}"${!renewal.enabled && !canEnable ? ' disabled' : ''}>${renewal.enabled ? '关闭自动续费' : canEnable ? '开启自动续费' : '购买付费套餐后可开启'}</button>
 			</div>
@@ -2583,13 +2717,17 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		totalOrders: number;
 		totalRefunds: number;
 		totalLedger: number;
-		pages: number;
+		pages: Record<PlatformPaymentTab, number>;
 	};
+	type PlatformPaymentTab = 'orders' | 'refunds' | 'ledger' | 'anomalies';
 
-	let platformPaymentState: PlatformPaymentState = { orders: [], refunds: [], ledger: [], anomalies: [], totalOrders: 0, totalRefunds: 0, totalLedger: 0, pages: 0 };
+	let platformPaymentState: PlatformPaymentState = { orders: [], refunds: [], ledger: [], anomalies: [], totalOrders: 0, totalRefunds: 0, totalLedger: 0, pages: { orders: 0, refunds: 0, ledger: 0, anomalies: 1 } };
 	let platformPaymentsLoaded = false;
 	let platformPaymentsLoading = false;
+	let platformPaymentTab: PlatformPaymentTab = 'orders';
 	let platformPaymentQuery = '';
+	let platformPaymentStatus = '';
+	let platformPaymentAdvancedOpen = false;
 	let platformPaymentPage = 1;
 	let platformPaymentPageSize = 20;
 	let platformPaymentSort = 'created_at';
@@ -2614,10 +2752,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		try {
 			const filters: Record<string, string | number> = { page: platformPaymentPage, page_size: platformPaymentPageSize, sort: platformPaymentSort, order: platformPaymentOrder };
 			if (platformPaymentQuery) filters.q = platformPaymentQuery;
+			const filtersFor = (tab: PlatformPaymentTab): Record<string, string | number> => {
+				if (!platformPaymentStatus || platformPaymentTab !== tab || tab === 'ledger' || tab === 'anomalies') return { ...filters };
+				return { ...filters, status: platformPaymentStatus };
+			};
 			const [orders, refunds, ledger, reconciliation] = await Promise.all([
-				api.listAdminPaymentOrders(token, filters),
-				api.listAdminPaymentRefunds(token, filters),
-				api.listAdminPaymentLedger(token, filters),
+				api.listAdminPaymentOrders(token, filtersFor('orders')),
+				api.listAdminPaymentRefunds(token, filtersFor('refunds')),
+				api.listAdminPaymentLedger(token, filtersFor('ledger')),
 				api.getAdminPaymentReconciliation(token)
 			]);
 			platformPaymentState = {
@@ -2628,7 +2770,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				totalOrders: pagedNumber(orders, 'total'),
 				totalRefunds: pagedNumber(refunds, 'total'),
 				totalLedger: pagedNumber(ledger, 'total'),
-				pages: Math.max(pagedNumber(orders, 'pages'), pagedNumber(refunds, 'pages'), pagedNumber(ledger, 'pages'))
+				pages: {
+					orders: pagedNumber(orders, 'pages'),
+					refunds: pagedNumber(refunds, 'pages'),
+					ledger: pagedNumber(ledger, 'pages'),
+					anomalies: 1
+				}
 			};
 			platformPaymentsLoaded = true;
 		} catch (error) {
@@ -2637,7 +2784,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} finally {
 			platformPaymentsLoading = false;
 			if (shouldRefreshRoleContent('platform-payments') || activeRoleContent.startsWith('platform-payment-order:') || activeRoleContent.startsWith('platform-payment-refund:')) {
-				renderSectionContent({ preserveScroll: true });
+				if (activePlatformAdminPage === 'overview' && document.querySelector('#platform-admin-shell.pc-platform-admin-open')) renderPlatformAdminShell({ preserveScroll: true });
+				else renderSectionContent({ preserveScroll: true });
 			}
 		}
 	}
@@ -2688,7 +2836,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function shouldRefreshRoleContent(...keys: string[]): boolean {
-		return activeSection === 'dashboard' && activeDashboardSubpage === 'role-content' && keys.includes(activeRoleContent) && isOpen();
+		const platformAdminOpen = Boolean(document.querySelector('#platform-admin-shell.pc-platform-admin-open'));
+		const overviewKeys = ['platform-stats', 'platform-payments', 'platform-feedback', 'content-publish', 'platform-orgs'];
+		return activeSection === 'dashboard' && activeDashboardSubpage === 'role-content' && keys.includes(activeRoleContent) && isOpen()
+			|| platformAdminOpen && (keys.includes(activeRoleContent) || activePlatformAdminPage === 'overview' && keys.some((key) => overviewKeys.includes(key)));
 	}
 
 	function normalizeWallet(value: unknown): WalletView {
@@ -3320,12 +3471,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		const id = readString(raw.course_package_id) || readString(raw.id);
 		const studentId = readString(raw.student_id);
-		if (!id || !studentId) {
+		const recordType = readString(raw.record_type) === 'template' ? 'template' : 'assignment';
+		if (!id || (recordType === 'assignment' && !studentId)) {
 			return null;
 		}
 		return {
 			id,
-			studentId,
+			studentId: studentId || '',
+			recordType,
+			templateId: readString(raw.template_id),
 			subject: readString(raw.subject),
 			title: readString(raw.title),
 			totalLessons: readCount(raw.total_lessons) ?? 0,
@@ -3334,6 +3488,23 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			expiresAt: readString(raw.expires_at),
 			status: readString(raw.status) || 'active'
 		};
+	}
+
+	function effectiveCoursePackageStatus(item: ManagedCoursePackage): string {
+		if (item.recordType !== 'template' && item.remainingLessons <= 0 && item.totalLessons > 0) return 'depleted';
+		const expiresAt = item.expiresAt ? Date.parse(item.expiresAt) : Number.NaN;
+		if (item.status === 'active' && Number.isFinite(expiresAt) && expiresAt <= Date.now()) return 'expired';
+		return item.status || 'active';
+	}
+
+	function coursePackageStatusLabel(status: string): string {
+		return ({
+			active: '正常',
+			paused: '暂停',
+			depleted: '已用完',
+			expired: '已过期',
+			cancelled: '已作废'
+		} as Record<string, string>)[status] || '状态异常';
 	}
 
 	function normalizeOrganizationRoleToken(value: string): string | undefined {
@@ -3361,7 +3532,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function normalizeOrganizationAddRoles(roles: string[], mode: 'member' | 'manager'): string[] {
-		const allowed = mode === 'manager' ? new Set(['assistant', 'orgAdmin']) : new Set(organizationMemberRoleDefs.map((role) => role.id));
+		const allowed = mode === 'manager' ? new Set(organizationManagerRoleIds) : new Set(organizationMemberRoleDefs.map((role) => role.id));
 		const fallback = mode === 'manager' ? ['orgAdmin'] : ['student'];
 		const normalized = roles.filter((role) => allowed.has(role));
 		return normalized.length ? normalized : fallback;
@@ -3411,6 +3582,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return organizationType === 'school' ? '学号 / 成员号' : '工号 / 成员号';
 	}
 
+	function organizationMemberIdentifierLabel(organizationType: string | undefined, roles: string[]): string {
+		const isStudent = roles.includes('student');
+		const isStaff = roles.some((role) => role === 'teacher' || role === 'assistant' || role === 'orgAdmin');
+		if (organizationType === 'school' && isStudent && !isStaff) return '学号';
+		if (isStaff && !isStudent) return '工号';
+		return '成员编号';
+	}
+
 	function organizationMemberDisplayName(member: ManagedOrganizationMember): string {
 		return allUsers.find((user) => user.id === member.userId)?.displayName || member.username;
 	}
@@ -3455,7 +3634,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				).values()
 			);
 			draft.searchResults = candidates;
-			draft.selectedUserId = pickSearchCandidate(candidates, trimmedQuery)?.id || '';
+			draft.selectedUserId = mode === 'manager' ? '' : pickSearchCandidate(candidates, trimmedQuery)?.id || '';
 			renderSectionContent({ preserveScroll: true, focusSelector: '[data-org-search-query]' });
 			showToast(candidates.length > 0 ? `找到 ${candidates.length} 个可添加账号` : '没有找到可添加账号；如果对方还没有账号，可输入邮箱或手机号创建邀请');
 		} catch (error) {
@@ -3492,21 +3671,37 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const loadedOrganizationIds = Object.entries(managedOrganizationDetailState)
 			.filter(([, state]) => state === 'loaded')
 			.map(([organizationId]) => organizationId);
+		// A data refresh must not behave like navigation. Keep the expanded card,
+		// filters and nested list positions so mutations such as removing a member
+		// leave the administrator in the same organization and context.
+		const openState = { ...managedOrganizationOpenState };
+		const listPage = { ...managedOrganizationListPage };
+		const memberListPages = { ...organizationMemberListPages };
+		const learningGroupListPages = { ...organizationLearningGroupListPages };
+		const campusListPages = { ...organizationCampusListPages };
+		const coursePackageListPages = { ...organizationCoursePackageListPages };
 		invalidateManagedOrganizations();
+		managedOrganizationOpenState = openState;
+		managedOrganizationListPage = listPage;
+		organizationMemberListPages = memberListPages;
+		organizationLearningGroupListPages = learningGroupListPages;
+		organizationCampusListPages = campusListPages;
+		organizationCoursePackageListPages = coursePackageListPages;
 		await ensureManagedOrganizations(ctx);
 		for (const organizationId of loadedOrganizationIds) {
 			if (managedOrganizations.some((organization) => organization.id === organizationId)) {
 				await loadManagedOrganizationDetails(organizationId);
 			}
 		}
-		renderSectionContent();
+		renderSectionContent({ preserveScroll: true });
 	}
 
 	function renderOrganizationRoleControls(selectedRoles: string[], name: string, allowedRoleIds?: string[]): string {
-		const roleSet = new Set(selectedRoles.length > 0 ? selectedRoles : ['student']);
 		const allowed = allowedRoleIds?.length ? new Set(allowedRoleIds) : null;
-		return organizationMemberRoleDefs
-			.filter((role) => !allowed || allowed.has(role.id))
+		const visibleRoles = organizationMemberRoleDefs.filter((role) => !allowed || allowed.has(role.id));
+		const fallbackRole = visibleRoles[0]?.id || 'student';
+		const roleSet = new Set(selectedRoles.length > 0 ? selectedRoles : [fallbackRole]);
+		return visibleRoles
 			.map(
 				(role) => `<label class="pc-role-toggle"><input type="checkbox" data-org-role name="${escapeHtml(name)}" value="${escapeHtml(role.id)}"${roleSet.has(role.id) ? ' checked' : ''} /><span>${escapeHtml(role.name)}</span></label>`
 			)
@@ -3541,14 +3736,44 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		);
 	}
 
-	function renderOrganizationTemplateControls(selectedTemplates: PermissionTemplateId[], selectedRoles: string[], name: string): string {
-		const roleSet = new Set(selectedRoles);
-		const templateSet = new Set(selectedTemplates);
-		return `<div class="pc-org-template-block"><div class="pc-admin-note">权限模板是预设权限组合；助教/班主任/教务/顾问模板需搭配“教学运营”，校区管理员模板需搭配“机构管理员”。</div><div class="pc-role-toggle-group">${organizationPermissionTemplateDefs
-			.map(
-				(template) => `<label class="pc-role-toggle" title="${escapeHtml(template.desc)}"><input type="checkbox" data-org-template name="${escapeHtml(name)}" value="${escapeHtml(template.id)}"${templateSet.has(template.id) && roleSet.has(template.role) ? ' checked' : ''} /><span>${escapeHtml(template.name)}</span></label>`
-			)
-			.join('')}</div></div>`;
+	function organizationMemberDefaultPermissions(organization: ManagedOrganization, roles: string[]): string[] {
+		return Array.from(new Set(roles.flatMap((role) => effectiveOrganizationRolePermissions(organization, role))));
+	}
+
+	function renderOrganizationBasePermissionControls(permissionIds: string[]): string {
+		const permissionSet = new Set(permissionIds);
+		return organizationPermissionDefs
+			.filter((permission) => permissionSet.has(permission.id))
+			.map((permission) => `<label class="pc-role-toggle pc-permission-toggle is-inherited" title="由基础角色自动提供"><input type="checkbox" checked disabled /><span>${escapeHtml(permission.name)}</span><em>角色自带</em></label>`)
+			.join('');
+	}
+
+	function syncOrganizationMemberPermissionUi(control: HTMLElement): void {
+		const form = control.closest<HTMLFormElement>('form[data-org-member-form]');
+		if (!form) return;
+		const organization = managedOrganizations.find((item) => item.id === (form.dataset.orgId || ''));
+		if (!organization) return;
+		const roles = readOrganizationRoles(form);
+		const defaultPermissions = organizationMemberDefaultPermissions(organization, roles);
+		const defaultPermissionSet = new Set(defaultPermissions);
+		const permissionCount = defaultPermissions.length;
+		const count = form.querySelector<HTMLElement>('[data-org-role-permission-count]');
+		if (count) count.textContent = `已包含 ${permissionCount} 项基础权限`;
+		const basePermissionList = form.querySelector<HTMLElement>('[data-org-role-permission-list]');
+		if (basePermissionList) basePermissionList.innerHTML = renderOrganizationBasePermissionControls(defaultPermissions);
+
+		form.querySelectorAll<HTMLElement>('[data-org-extra-permission-option]').forEach((option) => {
+			const input = option.querySelector<HTMLInputElement>('[data-org-permission]');
+			const inherited = defaultPermissionSet.has(option.dataset.permissionId || '');
+			option.hidden = inherited;
+			if (inherited && input) input.checked = false;
+		});
+		const extraPermissionCount = form.querySelectorAll<HTMLInputElement>('[data-org-permission]:checked').length;
+		const extraCount = form.querySelector<HTMLElement>('[data-org-extra-permission-count]');
+		if (extraCount) extraCount.textContent = `已选择 ${extraPermissionCount} 项`;
+		const summary = form.querySelector<HTMLElement>('[data-org-member-permission-summary]');
+		if (summary) summary.textContent = `${permissionCount} 项基础权限 · ${extraPermissionCount} 项额外权限`;
+		updateOrganizationMemberSaveState(form);
 	}
 
 	function readOrganizationPermissionTemplates(scope: ParentNode, roles: string[]): PermissionTemplateId[] {
@@ -3584,7 +3809,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const record = asRecord(value);
 		const allowedPermissions = new Set(organizationPermissionDefs.map((item) => item.id));
 		const result: Record<string, OrganizationRolePermissionConfig> = {};
-		const validRoles = new Set(['student', 'assistant', 'teacher', 'orgAdmin', 'contentAdmin']);
+		const validRoles = new Set(['student', 'assistant', 'teacher', 'orgContentAdmin', 'orgAdmin']);
 		if (!record) {
 			return result;
 		}
@@ -3603,6 +3828,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return result;
 	}
 
+	function normalizeOrganizationRoleDefaultPermissions(value: unknown): Record<string, string[]> {
+		const record = asRecord(value);
+		const allowedPermissions = new Set(organizationPermissionDefs.map((item) => item.id));
+		const result: Record<string, string[]> = {};
+		for (const role of organizationRolePermissionRoleDefs) {
+			const permissions = record ? readStringArray(record[role.id]) : undefined;
+			result[role.id] = Array.from(new Set(
+				(permissions || organizationRoleDefaultPermissionFallbacks[role.id] || []).filter((permission) => allowedPermissions.has(permission))
+			));
+		}
+		return result;
+	}
+
 	function normalizePermissionScope(value: string): PermissionOverride['scope'] {
 		if (value === 'personal' || value === 'learningGroup' || value === 'campus' || value === 'organization') {
 			return value;
@@ -3610,24 +3848,22 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return 'organization';
 	}
 
-	function renderOrganizationPermissionControls(overrides: PermissionOverride[], expiresAt = ''): string {
-		const allowSet = new Set(overrides.filter((item) => item.effect !== 'deny').map((item) => item.permission));
-		const denySet = new Set(overrides.filter((item) => item.effect === 'deny').map((item) => item.permission));
+	function renderOrganizationPermissionControls(overrides: PermissionOverride[], defaultPermissions: string[], expiresAt = ''): string {
+		const defaultPermissionSet = new Set(defaultPermissions);
+		const allowSet = new Set(overrides.filter((item) => item.effect !== 'deny' && !defaultPermissionSet.has(item.permission)).map((item) => item.permission));
 		const scope = overrides.find((item) => item.scope !== 'organization')?.scope || 'organization';
 		const scopeId = overrides.find((item) => item.scopeId)?.scopeId || '';
 		const expiry = expiresAt || overrides.find((item) => item.expiresAt)?.expiresAt || '';
 		const permissionsMarkup = organizationPermissionDefs
-			.map((permission) => `<label class="pc-role-toggle pc-permission-toggle"><input type="checkbox" data-org-permission value="${escapeHtml(permission.id)}"${allowSet.has(permission.id) ? ' checked' : ''} /><span>${escapeHtml(permission.name)}</span></label>`)
-			.join('');
-		const denyMarkup = organizationPermissionDefs
-			.filter((permission) => allowSet.has(permission.id) || denySet.has(permission.id))
-			.map((permission) => `<label class="pc-role-toggle pc-permission-toggle"><input type="checkbox" data-org-permission-deny value="${escapeHtml(permission.id)}"${denySet.has(permission.id) ? ' checked' : ''} /><span>禁用 ${escapeHtml(permission.name)}</span></label>`)
+			.map((permission) => `<label class="pc-role-toggle pc-permission-toggle" data-org-extra-permission-option data-permission-id="${escapeHtml(permission.id)}"${defaultPermissionSet.has(permission.id) ? ' hidden' : ''}><input type="checkbox" data-org-permission value="${escapeHtml(permission.id)}"${allowSet.has(permission.id) ? ' checked' : ''} /><span>${escapeHtml(permission.name)}</span></label>`)
 			.join('');
 		const expiringText = expiry ? `有效期到 ${formatDateTime(expiry)}` : '永久有效';
-		return `<details class="pc-org-permission-editor"${overrides.length ? ' open' : ''} data-org-permission-editor>
-			<summary>额外权限${overrides.length ? `（${escapeHtml(String(overrides.length))}）` : ''} · ${escapeHtml(expiringText)}</summary>
-			<div class="pc-admin-note">角色提供默认权限；这里仅处理个别成员的额外授权或禁用。保存后会写入组织操作审计，deny 优先于 allow。</div>
-			<div class="pc-org-form-grid pc-org-form-grid-compact">
+		return `<div class="pc-org-member-setting-block pc-org-extra-permission-block" data-org-permission-editor>
+			<div class="pc-org-member-setting-head"><div><strong>额外权限</strong><span>只显示基础角色尚未包含的权限，可按需追加</span></div><em data-org-extra-permission-count>已选择 ${escapeHtml(String(allowSet.size))} 项</em></div>
+			<div class="pc-role-toggle-group pc-permission-group">${permissionsMarkup}</div>
+			<details class="pc-org-permission-options">
+				<summary>权限范围与有效期 · ${escapeHtml(expiringText)}</summary>
+				<div class="pc-org-form-grid pc-org-form-grid-compact">
 				<label class="pc-org-field">
 					<span>权限范围</span>
 					<select class="pc-profile-input pc-org-select" data-org-permission-scope>
@@ -3645,54 +3881,13 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					<span>有效期</span>
 					<input class="pc-profile-input" type="date" data-org-permission-expires value="${escapeHtml(expiry.slice(0, 10))}" />
 				</label>
-			</div>
-			<div class="pc-role-toggle-group pc-permission-group">${permissionsMarkup}</div>
-			${denyMarkup ? `<div class="pc-role-toggle-group pc-permission-group pc-deny-group">${denyMarkup}</div>` : ''}
-		</details>`;
+				</div>
+			</details>
+		</div>`;
 	}
 
-	function organizationRoleDefaultPermissions(roleId: string): string[] {
-		if (roleId === 'student') {
-			return ['student.profile.view'];
-		}
-		if (roleId === 'contentAdmin') {
-			return ['content.paper.maintain', 'content.analysis.review', 'content.quality.check'];
-		}
-		if (roleId === 'teacher') {
-			return ['assignment.create', 'assignment.review', 'gradebook.view', 'student.profile.view', 'lesson_prep.create', 'lesson_prep.export'];
-		}
-		if (roleId === 'assistant') {
-			return ['assignment.review', 'assignment.remind', 'gradebook.view', 'student.profile.view', 'student.followup.edit'];
-		}
-		if (roleId === 'orgAdmin') {
-			return [
-				'organization.dashboard.view',
-				'organization.member.manage',
-				'learning_group.manage',
-				'lesson.booking.manage',
-				'course_package.manage',
-				'course_package.view',
-				'audit.view'
-			];
-		}
-		return [];
-	}
-
-	function organizationTemplateDefaultPermissions(templateId: PermissionTemplateId): string[] {
-		switch (templateId) {
-			case 'assistant':
-				return ['assignment.review', 'assignment.remind'];
-			case 'homeroom':
-				return ['student.profile.view', 'student.followup.edit', 'renewal_risk.view'];
-			case 'teachingOffice':
-				return ['learning_group.manage', 'lesson.booking.manage', 'course_package.manage', 'course_package.view'];
-			case 'consultant':
-				return ['student.profile.view', 'student.followup.edit', 'renewal_risk.view'];
-			case 'campusAdmin':
-				return ['organization.dashboard.view', 'organization.member.manage', 'learning_group.manage', 'course_package.view', 'audit.view'];
-			default:
-				return [];
-		}
+	function organizationRoleDefaultPermissions(organization: ManagedOrganization, roleId: string): string[] {
+		return organization.roleDefaultPermissions[roleId] || [];
 	}
 
 	function permissionNames(permissionIds: string[]): string {
@@ -3706,7 +3901,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function effectiveOrganizationRolePermissions(organization: ManagedOrganization, roleId: string): string[] {
-		const defaults = organizationRoleDefaultPermissions(roleId);
+		const defaults = organizationRoleDefaultPermissions(organization, roleId);
 		const config = rolePermissionConfigFor(organization, roleId);
 		const denySet = new Set(config.deny);
 		return Array.from(new Set([...defaults, ...config.allow])).filter((permission) => !denySet.has(permission));
@@ -3774,7 +3969,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			: organizationRolePermissionRoleDefs[0]?.id || 'student';
 		const activeRole = organizationRolePermissionRoleDefs.find((role) => role.id === activeRoleId) || organizationRolePermissionRoleDefs[0];
 		const config = rolePermissionConfigFor(organization, activeRoleId);
-		const defaults = organizationRoleDefaultPermissions(activeRoleId);
+		const defaults = organizationRoleDefaultPermissions(organization, activeRoleId);
 		const effective = effectiveOrganizationRolePermissions(organization, activeRoleId);
 		const hasOrganizationChanges = config.allow.length > 0 || config.deny.length > 0;
 		const roleTabs = organizationRolePermissionRoleDefs
@@ -3872,7 +4067,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			state.error = readErrorMessage(error, '成员列表加载失败');
 		} finally {
 			state.loading = false;
-			if (activeSection === 'admin-hub' && activeDashboardSubpage === 'role-content' && isOpen() && !hasActiveRoleContentFormEdit()) renderSectionContent({ preserveScroll: true });
+			if (!hasActiveRoleContentFormEdit() && shouldRefreshRoleContent('org-members', 'org-permissions', 'platform-orgs', 'platform-roles')) renderSectionContent({ preserveScroll: true });
 		}
 	}
 
@@ -3899,7 +4094,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			state.error = readErrorMessage(error, '学习组列表加载失败');
 		} finally {
 			state.loading = false;
-			if (activeSection === 'admin-hub' && activeDashboardSubpage === 'role-content' && isOpen() && !hasActiveRoleContentFormEdit()) renderSectionContent({ preserveScroll: true });
+			if (!hasActiveRoleContentFormEdit() && shouldRefreshRoleContent('org-groups', 'platform-orgs')) renderSectionContent({ preserveScroll: true });
 		}
 	}
 
@@ -3909,9 +4104,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		});
 	}
 
-	function organizationCoursePackagePageState(organizationId: string): OrganizationListPage<ManagedCoursePackage> {
+	function organizationCoursePackagePageState(organizationId: string): OrganizationCoursePackagePage {
 		return organizationCoursePackageListPages[organizationId] || (organizationCoursePackageListPages[organizationId] = {
-			items: [], total: 0, page: 1, pages: 0, pageSize: 20, query: '', sort: 'expires_at', order: 'asc', filter: '', loaded: false, loading: false, error: ''
+			items: [], total: 0, page: 1, pages: 0, pageSize: 20, query: '', sort: 'expires_at', order: 'asc', filter: '', loaded: false, loading: false, error: '',
+			statusFilter: '', templateFilter: '', viewMode: 'accounts', studentGroups: [], accountTotal: 0
 		});
 	}
 
@@ -3926,7 +4122,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			state.items = (Array.isArray(payload.items) ? payload.items : []).map(normalizeManagedCampus).filter((item): item is ManagedCampus => Boolean(item));
 			state.total = readCount(payload.total) ?? state.items.length; state.pages = readCount(payload.pages) ?? 0; state.loaded = true;
 		} catch (error) { state.error = readErrorMessage(error, '校区列表加载失败'); }
-		finally { state.loading = false; if (activeSection === 'admin-hub' && activeDashboardSubpage === 'role-content' && isOpen() && !hasActiveRoleContentFormEdit()) renderSectionContent({ preserveScroll: true }); }
+		finally { state.loading = false; if (!hasActiveRoleContentFormEdit() && shouldRefreshRoleContent('org-settings', 'platform-orgs')) renderSectionContent({ preserveScroll: true }); }
 	}
 
 	async function loadOrganizationCoursePackagePage(organizationId: string): Promise<void> {
@@ -3936,11 +4132,40 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (!token || !api || typeof api.getOrganizationCoursePackages !== 'function') return;
 		state.loading = true; state.error = '';
 		try {
-			const payload = asRecord(await api.getOrganizationCoursePackages(organizationId, token, { page: state.page, page_size: state.pageSize, q: state.query, sort: state.sort, order: state.order })) || {};
-			state.items = (Array.isArray(payload.items) ? payload.items : []).map(normalizeManagedCoursePackage).filter((item): item is ManagedCoursePackage => Boolean(item));
-			state.total = readCount(payload.total) ?? state.items.length; state.pages = readCount(payload.pages) ?? 0; state.loaded = true;
+			const payload = asRecord(await api.getOrganizationCoursePackages(organizationId, token, {
+				page: state.page,
+				page_size: state.pageSize,
+				q: state.query,
+				sort: state.sort,
+				order: state.order,
+				record_type: 'assignment',
+				status: state.statusFilter,
+				template_id: state.templateFilter,
+				group_by: state.viewMode === 'students' ? 'student' : ''
+			})) || {};
+			if (state.viewMode === 'students') {
+				state.items = [];
+				state.studentGroups = (Array.isArray(payload.items) ? payload.items : []).map((rawGroup) => {
+					const group = asRecord(rawGroup) || {};
+					const studentId = readString(group.student_id) || '';
+					const accounts = (Array.isArray(group.accounts) ? group.accounts : [])
+						.map(normalizeManagedCoursePackage)
+						.filter((item): item is ManagedCoursePackage => Boolean(item));
+					return {
+						studentId,
+						accounts,
+						accountCount: readCount(group.account_count) ?? accounts.length
+					};
+				}).filter((group) => Boolean(group.studentId));
+			} else {
+				state.studentGroups = [];
+				state.items = (Array.isArray(payload.items) ? payload.items : []).map(normalizeManagedCoursePackage).filter((item): item is ManagedCoursePackage => Boolean(item));
+			}
+			state.total = readCount(payload.total) ?? state.items.length;
+			state.accountTotal = readCount(payload.account_total) ?? (state.viewMode === 'students' ? state.studentGroups.reduce((total, group) => total + group.accountCount, 0) : state.total);
+			state.pages = readCount(payload.pages) ?? 0; state.loaded = true;
 		} catch (error) { state.error = readErrorMessage(error, '课程包列表加载失败'); }
-		finally { state.loading = false; if (activeSection === 'admin-hub' && activeDashboardSubpage === 'role-content' && isOpen() && !hasActiveRoleContentFormEdit()) renderSectionContent({ preserveScroll: true }); }
+		finally { state.loading = false; if (!hasActiveRoleContentFormEdit() && shouldRefreshRoleContent('org-course-packages', 'org-course-accounts', 'org-settings', 'platform-orgs')) renderSectionContent({ preserveScroll: true }); }
 	}
 
 	function activeOrganizationMemberRoleId(organization: ManagedOrganization): string {
@@ -3963,11 +4188,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const deliveryText = invitation.channel === 'email' ? '邮箱邀请' : '手机号邀请';
 		const canCancel = invitation.status === 'pending';
 		return `<div class="pc-org-invite-item pc-org-member-pending">
-			<div class="pc-org-invite-head">
-				<div><strong>${escapeHtml(invitation.contact)}</strong><span>${escapeHtml(rolesText)} · ${escapeHtml(deliveryText)}</span></div>
-				<div class="pc-org-member-status"><span>${escapeHtml(invitationStatusLabel(invitation.status))}</span>${canCancel ? `<button class="pc-inline-danger" type="button" data-org-invitation-cancel data-org-id="${escapeHtml(organization.id)}" data-invitation-id="${escapeHtml(invitation.invitationId)}" data-invitation-contact="${escapeHtml(invitation.contact)}">取消</button>` : ''}</div>
-			</div>
-			<div class="pc-org-invite-meta"><span>到期：${escapeHtml(formatDateTime(invitation.expiresAt))}</span>${invitation.memberNo ? `<span>${escapeHtml(organizationMemberNoLabel(organization.organizationType))}：${escapeHtml(invitation.memberNo)}</span>` : ''}</div>
+			<div class="pc-org-member-pending-main"><strong>${escapeHtml(invitation.contact)}</strong><span>${escapeHtml(rolesText)} · ${escapeHtml(deliveryText)}</span><span>到期 ${escapeHtml(formatDateTime(invitation.expiresAt))}</span>${invitation.memberNo ? `<span>${escapeHtml(organizationMemberNoLabel(organization.organizationType))} ${escapeHtml(invitation.memberNo)}</span>` : ''}</div>
+			<div class="pc-org-member-status"><span>${escapeHtml(invitationStatusLabel(invitation.status))}</span>${canCancel ? `<button class="pc-inline-danger" type="button" data-org-invitation-cancel data-org-id="${escapeHtml(organization.id)}" data-invitation-id="${escapeHtml(invitation.invitationId)}" data-invitation-contact="${escapeHtml(invitation.contact)}">取消</button>` : ''}</div>
 			${invitation.message ? `<div class="pc-admin-note">备注：${escapeHtml(invitation.message)}</div>` : ''}
 		</div>`;
 	}
@@ -3983,31 +4205,41 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const filteredInvitations = organization.invitations.filter((invitation) => invitation.status === 'pending' && invitation.roles.includes(activeRoleId));
 		const roleTabs = organizationMemberRoleDefs
 			.map((role) => {
-				const count = organizationRoleMemberCount(organization, role.id) + organizationRolePendingInvitationCount(organization, role.id);
-				return `<button class="pc-role-permission-tab${role.id === activeRoleId ? ' is-active' : ''}" type="button" title="${escapeHtml(role.desc)}" data-org-member-role data-org-id="${escapeHtml(organization.id)}" data-role-id="${escapeHtml(role.id)}"><strong>${escapeHtml(role.name)}</strong><em>${escapeHtml(String(count))}</em></button>`;
+				const memberCount = organizationRoleMemberCount(organization, role.id);
+				const pendingCount = organizationRolePendingInvitationCount(organization, role.id);
+				const countLabel = pendingCount > 0
+					? `${memberCount} 人 · ${pendingCount} 邀请`
+					: `${memberCount} 人`;
+				return `<button class="pc-role-permission-tab${role.id === activeRoleId ? ' is-active' : ''}" type="button" title="${escapeHtml(`${role.desc}；${countLabel}`)}" data-org-member-role data-org-id="${escapeHtml(organization.id)}" data-role-id="${escapeHtml(role.id)}"><strong>${escapeHtml(role.name)}</strong><em>${escapeHtml(countLabel)}</em></button>`;
 			})
 			.join('');
 		const visibleInvitations = !usePagedList || pageState.page === 1 ? filteredInvitations : [];
-		const memberRows = [
-			...filteredMembers.map((member) => renderOrganizationMemberEditor(organization, member)),
-			...visibleInvitations.map((invitation) => renderOrganizationInvitationRow(organization, invitation))
-		];
-		const memberList = memberRows.length
-			? memberRows.join('')
-			: `<div class="pc-org-empty">${usePagedList && pageState.error ? escapeHtml(pageState.error) : `当前没有${escapeHtml(activeRole?.name || '该角色')}成员或待处理邀请。可以在当前标签页内搜索账号并添加，找不到账号时直接创建邀请。`}${usePagedList && pageState.error ? '<div class="pc-org-form-actions"><button class="pc-inline-btn" type="button" data-org-member-list-retry>重新加载</button></div>' : ''}</div>`;
+		const memberList = filteredMembers.length
+			? filteredMembers.map((member) => renderOrganizationMemberEditor(organization, member)).join('')
+			: `<div class="pc-org-empty">${usePagedList && pageState.error ? escapeHtml(pageState.error) : `当前没有${escapeHtml(activeRole?.name || '该角色')}正式成员。`}${usePagedList && pageState.error ? '<div class="pc-org-form-actions"><button class="pc-inline-btn" type="button" data-org-member-list-retry>重新加载</button></div>' : ''}</div>`;
+		const invitationList = visibleInvitations.length
+			? visibleInvitations.map((invitation) => renderOrganizationInvitationRow(organization, invitation)).join('')
+			: '<div class="pc-org-empty">当前角色没有待接受邀请。</div>';
 		const totalMembers = usePagedList && pageState.loaded ? pageState.total : fallbackMembers.length;
-		const listControls = `<form class="pc-org-add-form" data-org-member-list-form data-org-id="${escapeHtml(organization.id)}" data-role-id="${escapeHtml(activeRoleId)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>搜索当前角色</span><input class="pc-profile-input" data-org-member-list-query value="${escapeHtml(pageState.query)}" placeholder="姓名、账号或成员编号" /></label><label class="pc-org-field"><span>排序</span><select class="pc-profile-input pc-org-select" data-org-member-list-sort><option value="username"${pageState.sort === 'username' ? ' selected' : ''}>姓名/账号</option><option value="member_no"${pageState.sort === 'member_no' ? ' selected' : ''}>成员编号</option><option value="status"${pageState.sort === 'status' ? ' selected' : ''}>状态</option></select></label><label class="pc-org-field"><span>顺序 / 每页</span><span><select class="pc-profile-input pc-org-select" data-org-member-list-order><option value="asc"${pageState.order === 'asc' ? ' selected' : ''}>升序</option><option value="desc"${pageState.order === 'desc' ? ' selected' : ''}>降序</option></select><select class="pc-profile-input pc-org-select" data-org-member-list-page-size><option value="10"${pageState.pageSize === 10 ? ' selected' : ''}>10 条</option><option value="20"${pageState.pageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${pageState.pageSize === 50 ? ' selected' : ''}>50 条</option></select></span></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">查询</button><button class="pc-inline-ghost" type="button" data-org-member-list-page="prev"${pageState.page <= 1 || pageState.loading ? ' disabled' : ''}>上一页</button><span class="pc-tag muted">${pageState.loading ? '加载中' : `第 ${pageState.page} / ${Math.max(1, pageState.pages)} 页`}</span><button class="pc-inline-ghost" type="button" data-org-member-list-page="next"${pageState.page >= pageState.pages || pageState.loading ? ' disabled' : ''}>下一页</button></div></form>`;
+		const seatLabel = organization.seats > 0
+			? `${organization.memberCount}/${organization.seats} 席 · 剩余 ${Math.max(0, organization.seats - organization.memberCount)} 席`
+			: `${organization.memberCount} 人 · 席位不限`;
+		const listControls = `<form class="pc-member-list-toolbar" data-org-member-list-form data-org-id="${escapeHtml(organization.id)}" data-role-id="${escapeHtml(activeRoleId)}">
+			<input class="pc-profile-input pc-member-list-query" aria-label="搜索当前角色" data-org-member-list-query value="${escapeHtml(pageState.query)}" placeholder="搜索姓名、账号或成员编号" />
+			<select class="pc-profile-input pc-org-select" aria-label="排序字段" data-org-member-list-sort><option value="username"${pageState.sort === 'username' ? ' selected' : ''}>姓名/账号</option><option value="member_no"${pageState.sort === 'member_no' ? ' selected' : ''}>成员编号</option><option value="status"${pageState.sort === 'status' ? ' selected' : ''}>状态</option></select>
+			<select class="pc-profile-input pc-org-select" aria-label="排序顺序" data-org-member-list-order><option value="asc"${pageState.order === 'asc' ? ' selected' : ''}>升序</option><option value="desc"${pageState.order === 'desc' ? ' selected' : ''}>降序</option></select>
+			<select class="pc-profile-input pc-org-select" aria-label="每页数量" data-org-member-list-page-size><option value="10"${pageState.pageSize === 10 ? ' selected' : ''}>10 条</option><option value="20"${pageState.pageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${pageState.pageSize === 50 ? ' selected' : ''}>50 条</option></select>
+			<button class="pc-inline-btn" type="submit">查询</button>
+			<div class="pc-member-list-pagination"><button class="pc-inline-ghost" type="button" data-org-member-list-page="prev"${pageState.page <= 1 || pageState.loading ? ' disabled' : ''}>上一页</button><span class="pc-tag muted">${pageState.loading ? '加载中' : `${pageState.page}/${Math.max(1, pageState.pages)} 页`}</span><button class="pc-inline-ghost" type="button" data-org-member-list-page="next"${pageState.page >= pageState.pages || pageState.loading ? ' disabled' : ''}>下一页</button></div>
+		</form>`;
 		return `<div class="pc-org-subsection pc-member-role-section">
-			<div class="pc-org-subsection-head"><h4>成员管理</h4><span>${escapeHtml(activeRole?.name || activeRoleId)} · ${escapeHtml(String(totalMembers))} 人 · ${escapeHtml(String(filteredInvitations.length))} 个待邀请</span></div>
-			<div class="pc-admin-note">上方选择角色标签页；下方搜索已有账号或创建邀请，并在同一列表展示该角色下已加入成员和待邀请对象。成员可同时拥有多个角色，因此同一个人可能出现在多个角色列表里。</div>
+			<div class="pc-org-subsection-head"><h4>成员管理</h4><span>${escapeHtml(seatLabel)}</span></div>
 			<div class="pc-member-role-tabs">${roleTabs}</div>
-			<div class="pc-member-role-current">
-				<div><strong>${escapeHtml(activeRole?.name || activeRoleId)}</strong><span>${escapeHtml(activeRole?.desc || '按角色添加、邀请和维护成员')}</span></div>
-				<em>${escapeHtml(String(filteredMembers.length + filteredInvitations.length))} 条</em>
-			</div>
+			<div class="pc-member-seat-note">正式成员占席 · 同一账号多角色只算 1 席 · 待接受邀请暂不占席</div>
 			${renderOrganizationAddForm(organization, 'member', { embedded: true })}
 			${usePagedList ? listControls : ''}
-			<div class="pc-org-member-list pc-org-unified-member-list">${memberList}</div>
+			<div class="pc-member-list-section"><div class="pc-member-list-heading"><strong>正式成员</strong><span>${escapeHtml(String(totalMembers))} 人 · 占用席位</span></div><div class="pc-org-member-list pc-org-unified-member-list">${memberList}</div></div>
+			<div class="pc-member-list-section pc-member-invitation-section"><div class="pc-member-list-heading"><strong>待接受邀请</strong><span>${escapeHtml(String(filteredInvitations.length))} 个 · 暂不占席</span></div><div class="pc-org-member-list pc-org-unified-member-list">${invitationList}</div></div>
 		</div>`;
 	}
 
@@ -4175,16 +4407,79 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		const roles = readOrganizationRoles(form);
 		const memberNoInput = form.querySelector('[data-org-member-no]') as HTMLInputElement | null;
+		const memberNo = (memberNoInput?.value || '').trim();
+		if (!memberNo) {
+			openOrganizationMemberNumberEditor(memberNoInput);
+			setFieldError(memberNoInput, '请输入成员编号');
+			return;
+		}
+		if (!/^[\p{L}\p{N}][\p{L}\p{N}._-]{0,31}$/u.test(memberNo)) {
+			openOrganizationMemberNumberEditor(memberNoInput);
+			setFieldError(memberNoInput, '仅支持字母、数字、点、短横线和下划线，最多 32 个字符');
+			return;
+		}
 		void saveOrganizationMembership(
 			organization,
 			form.dataset.userId || '',
 			roles,
-			memberNoInput?.value || '',
-			readOrganizationPermissionTemplates(form, roles),
+			memberNo,
+			[],
 			readOrganizationPermissionOverrides(form),
 			'成员已更新',
 			form
 		);
+	}
+
+	function organizationMemberFormState(form: HTMLFormElement): string {
+		const roles = readOrganizationRoles(form).slice().sort();
+		const memberNo = ((form.querySelector('[data-org-member-no]') as HTMLInputElement | null)?.value || '').trim();
+		const permissions = readOrganizationPermissionOverrides(form)
+			.map((item) => `${item.permission}|${item.effect}|${item.scope}|${item.scopeId || ''}|${item.expiresAt || ''}`)
+			.sort();
+		return JSON.stringify({ roles, memberNo, permissions });
+	}
+
+	function updateOrganizationMemberSaveState(form: HTMLFormElement): void {
+		if (!form.dataset.orgMemberInitialState) return;
+		const dirty = organizationMemberFormState(form) !== form.dataset.orgMemberInitialState;
+		if (dirty) form.dataset.pcDirty = 'true';
+		else delete form.dataset.pcDirty;
+		const saveButton = form.querySelector<HTMLButtonElement>('[data-org-member-save]');
+		if (saveButton && form.getAttribute('aria-busy') !== 'true') saveButton.disabled = !dirty;
+		const status = form.querySelector<HTMLElement>('[data-org-member-save-status]');
+		if (status) status.textContent = dirty ? '有尚未保存的修改' : '暂无待保存修改';
+	}
+
+	function setOrganizationMemberNumberEditing(editor: HTMLElement, editing: boolean): void {
+		const view = editor.querySelector<HTMLElement>('[data-org-member-number-view]');
+		const edit = editor.querySelector<HTMLElement>('[data-org-member-number-edit-panel]');
+		if (view) view.hidden = editing;
+		if (edit) edit.hidden = !editing;
+		editor.classList.toggle('is-editing', editing);
+	}
+
+	function openOrganizationMemberNumberEditor(input: HTMLInputElement | null): void {
+		if (!input) return;
+		const editor = input.closest<HTMLElement>('[data-org-member-number-editor]');
+		if (!editor) return;
+		setOrganizationMemberNumberEditing(editor, true);
+		window.requestAnimationFrame(() => {
+			input.focus();
+			input.select();
+		});
+	}
+
+	function cancelOrganizationMemberNumberEdit(button: HTMLButtonElement): void {
+		const editor = button.closest<HTMLElement>('[data-org-member-number-editor]');
+		const form = button.closest<HTMLFormElement>('form[data-org-member-form]');
+		const input = editor?.querySelector<HTMLInputElement>('[data-org-member-no]') || null;
+		if (!editor || !form || !input) return;
+		input.value = input.dataset.originalValue || '';
+		input.removeAttribute('aria-invalid');
+		editor.querySelectorAll('.pc-field-error').forEach((node) => node.remove());
+		setOrganizationMemberNumberEditing(editor, false);
+		updateOrganizationMemberSaveState(form);
+		(editor.querySelector('[data-org-member-number-edit]') as HTMLButtonElement | null)?.focus();
 	}
 
 	function organizationMemberFormForButton(button: HTMLElement): HTMLFormElement | null {
@@ -4201,9 +4496,25 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				return;
 			}
 			form.dataset.orgMemberBound = '1';
+			form.dataset.orgMemberInitialState = organizationMemberFormState(form);
+			updateOrganizationMemberSaveState(form);
 			form.addEventListener('submit', (event) => {
 				event.preventDefault();
 				saveOrganizationMemberForm(form);
+			});
+			form.addEventListener('input', () => updateOrganizationMemberSaveState(form));
+			form.addEventListener('change', () => updateOrganizationMemberSaveState(form));
+			form.querySelector<HTMLButtonElement>('[data-org-member-number-edit]')?.addEventListener('click', () => {
+				openOrganizationMemberNumberEditor(form.querySelector('[data-org-member-no]'));
+			});
+			form.querySelector<HTMLButtonElement>('[data-org-member-number-cancel]')?.addEventListener('click', (event) => {
+				cancelOrganizationMemberNumberEdit(event.currentTarget as HTMLButtonElement);
+			});
+			form.querySelector<HTMLInputElement>('[data-org-member-no]')?.addEventListener('keydown', (event) => {
+				if (event.key !== 'Escape') return;
+				event.preventDefault();
+				const cancelButton = form.querySelector<HTMLButtonElement>('[data-org-member-number-cancel]');
+				if (cancelButton) cancelOrganizationMemberNumberEdit(cancelButton);
 			});
 		});
 		scope.querySelectorAll<HTMLButtonElement>('[data-org-member-save]').forEach((button) => {
@@ -4495,7 +4806,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				ends_at: ((form.querySelector('[data-org-learning-group-ends]') as HTMLInputElement | null)?.value || '').trim(),
 				status: (form.querySelector('[data-org-learning-group-status]') as HTMLSelectElement | null)?.value || 'active'
 			});
+			const listState = organizationLearningGroupPageState(organization.id);
+			listState.page = 1;
+			listState.loaded = false;
 			await refreshManagedOrganizations();
+			void loadOrganizationLearningGroupPage(organization.id);
 			showToast('学习组已保存');
 		} catch (error) {
 			setFieldError(nameInput, readErrorMessage(error, '学习组保存失败'));
@@ -4513,15 +4828,24 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			showToast('课程包管理接口暂不可用');
 			return;
 		}
-		const studentInput = form.querySelector('[data-org-course-package-student]') as HTMLSelectElement | null;
+		const isAssignment = form.matches('[data-org-course-package-assignment-form]');
+		const studentInputs = Array.from(form.querySelectorAll<HTMLInputElement>('[data-org-course-package-student]:checked'));
+		const studentInput = form.querySelector('[data-org-course-package-student]') as HTMLInputElement | null;
+		const templateInput = form.querySelector('[data-org-course-package-template]') as HTMLSelectElement | null;
+		const titleInput = form.querySelector('[data-org-course-package-title]') as HTMLInputElement | null;
+		const template = isAssignment ? organization.coursePackages.find((item) => item.id === templateInput?.value) : undefined;
 		const totalInput = form.querySelector('[data-org-course-package-total]') as HTMLInputElement | null;
 		const usedInput = form.querySelector('[data-org-course-package-used]') as HTMLInputElement | null;
-		const studentId = studentInput?.value || '';
-		if (!studentId) {
-			setFieldError(studentInput, '请选择学员');
+		const studentIds = studentInputs.map((input) => input.value).filter(Boolean);
+		if (isAssignment && !studentIds.length) {
+			setFieldError(studentInput, '请至少选择一名学员');
 			return;
 		}
-		const totalLessons = Math.max(0, Math.floor(Number(totalInput?.value || '0')));
+		if (isAssignment && !template) {
+			setFieldError(templateInput, '请选择课程包模板');
+			return;
+		}
+		const totalLessons = template?.totalLessons ?? Math.max(0, Math.floor(Number(totalInput?.value || '0')));
 		const usedLessons = Math.max(0, Math.floor(Number(usedInput?.value || '0')));
 		if (totalLessons <= 0) {
 			setFieldError(totalInput, '课程包总课时必须大于 0');
@@ -4531,23 +4855,65 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const finishSubmitting = beginOrganizationFormSubmission(form);
 		if (!finishSubmitting) return;
 		try {
-			await api.saveOrganizationCoursePackage(organization.id, token, {
+			const basePayload = {
+				record_type: isAssignment ? 'assignment' : 'template',
+				template_id: template?.id || '',
 				course_package_id: ((form.querySelector('[data-org-course-package-id]') as HTMLInputElement | null)?.value || '').trim(),
-				student_id: studentId,
-				subject: ((form.querySelector('[data-org-course-package-subject]') as HTMLInputElement | null)?.value || '').trim(),
-				title: ((form.querySelector('[data-org-course-package-title]') as HTMLInputElement | null)?.value || '').trim(),
+				subject: template?.subject || ((form.querySelector('[data-org-course-package-subject]') as HTMLInputElement | null)?.value || '').trim(),
+				title: template?.title || ((form.querySelector('[data-org-course-package-title]') as HTMLInputElement | null)?.value || '').trim(),
 				total_lessons: totalLessons,
-				used_lessons: usedLessons,
-				expires_at: ((form.querySelector('[data-org-course-package-expires]') as HTMLInputElement | null)?.value || '').trim(),
+				used_lessons: isAssignment ? 0 : usedLessons,
+				expires_at: isAssignment ? '' : ((form.querySelector('[data-org-course-package-expires]') as HTMLInputElement | null)?.value || '').trim(),
 				status: (form.querySelector('[data-org-course-package-status]') as HTMLSelectElement | null)?.value || 'active'
-			});
+			};
+			if (isAssignment) {
+				await Promise.all(studentIds.map((studentId) => api.saveOrganizationCoursePackage?.(organization.id, token, { ...basePayload, course_package_id: '', student_id: studentId })));
+				pendingCoursePackageAllocation = null;
+			} else {
+				await api.saveOrganizationCoursePackage(organization.id, token, { ...basePayload, student_id: '' });
+			}
+			const listState = organizationCoursePackagePageState(organization.id);
+			listState.page = 1;
+			listState.loaded = false;
 			await refreshManagedOrganizations();
-			showToast('课程包已保存');
+			void loadOrganizationCoursePackagePage(organization.id);
+			showToast(isAssignment ? `已为 ${studentIds.length} 名学员分配课程包` : '课程包模板已保存');
 		} catch (error) {
-			setFieldError(studentInput, readErrorMessage(error, '课程包保存失败'));
+			setFieldError(isAssignment ? (studentInput || templateInput) : (titleInput || totalInput), readErrorMessage(error, '课程包保存失败'));
 			log('save organization course package failed', organization.id, error);
 			showToast(readErrorMessage(error, '课程包保存失败'));
 		} finally { finishSubmitting(); }
+	}
+
+	function updateOrganizationPackageStudentPicker(form: HTMLFormElement): void {
+		const query = ((form.querySelector('[data-org-package-student-search]') as HTMLInputElement | null)?.value || '').trim().toLowerCase();
+		const options = Array.from(form.querySelectorAll<HTMLElement>('[data-org-package-student-option]'));
+		let visibleCount = 0;
+		options.forEach((option, index) => {
+			const checked = Boolean(option.querySelector<HTMLInputElement>('[data-org-course-package-student]')?.checked);
+			const matches = query ? (option.dataset.studentSearch || '').includes(query) : index < 20;
+			option.hidden = !(matches || checked);
+			if (!option.hidden) visibleCount += 1;
+		});
+		const selectedCount = form.querySelectorAll('[data-org-course-package-student]:checked').length;
+		const selectedLabel = form.querySelector<HTMLElement>('[data-org-package-selected-count]');
+		if (selectedLabel) selectedLabel.textContent = `已选 ${selectedCount} 人`;
+		const note = form.querySelector<HTMLElement>('[data-org-package-student-result-note]');
+		if (note) note.textContent = query ? `找到 ${visibleCount} 人；已选学员会始终保留在列表中。` : `默认显示前 20 人；已选 ${selectedCount} 人。`;
+	}
+
+	function updateOrganizationPackageAssignmentList(input: HTMLInputElement): void {
+		const section = input.closest('.pc-package-section');
+		const query = input.value.trim().toLowerCase();
+		const rows = Array.from(section?.querySelectorAll<HTMLElement>('[data-org-package-assignment-row]') || []);
+		let visibleCount = 0;
+		rows.forEach((row, index) => {
+			const visible = query ? (row.dataset.assignmentSearch || '').includes(query) : index < 10;
+			row.hidden = !visible;
+			if (visible) visibleCount += 1;
+		});
+		const note = section?.querySelector<HTMLElement>('[data-org-package-assignment-note]');
+		if (note) note.textContent = query ? `找到 ${visibleCount} 条记录。` : `默认显示最近 ${Math.min(10, rows.length)} 条，共 ${rows.length} 条。`;
 	}
 
 	async function saveOrganizationLearningGroupEnrollment(organization: ManagedOrganization, form: HTMLFormElement): Promise<void> {
@@ -4575,7 +4941,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				role: (form.querySelector('[data-org-enrollment-role]') as HTMLSelectElement | null)?.value || 'student',
 				status: (form.querySelector('[data-org-enrollment-status]') as HTMLSelectElement | null)?.value || 'active'
 			});
+			const listState = organizationLearningGroupPageState(organization.id);
+			listState.loaded = false;
 			await refreshManagedOrganizations();
+			void loadOrganizationLearningGroupPage(organization.id);
 			showToast('学习组成员已保存');
 		} catch (error) {
 			setFieldError(userInput, readErrorMessage(error, '学习组成员保存失败'));
@@ -4674,7 +5043,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	async function ensureManagedOrganizations(ctx: PCContext): Promise<void> {
 		const cacheKey = managedOrganizationsKey(ctx);
-		if (!canManageMembers(ctx)) {
+		if (!canAccessOrganizationWorkspace(ctx)) {
 			managedOrganizations = [];
 			managedOrganizationsCacheKey = cacheKey;
 			return;
@@ -4698,15 +5067,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		managedOrganizationsCacheKey = cacheKey;
 		managedOrganizationsLoading = (async () => {
 			try {
+				const isPlatformAdmin = hasAnyRole(ctx, ['superAdmin']);
 				const response = asRecord(await api.getOrganizations(token, {
 					summary: 1,
 					page: managedOrganizationListPage.page,
 					page_size: managedOrganizationListPage.pageSize,
-					q: managedOrganizationListPage.query
+					q: isPlatformAdmin ? managedOrganizationListPage.query : (ctx.organizationId || managedOrganizationListPage.query)
 				})) || {};
-				const organizationValues = Array.isArray(response.items) ? response.items : [];
-				managedOrganizationListPage.total = readCount(response.total) ?? organizationValues.length;
-				managedOrganizationListPage.pages = readCount(response.pages) ?? (organizationValues.length ? 1 : 0);
+				const rawOrganizationValues = Array.isArray(response.items) ? response.items : [];
+				const organizationValues = isPlatformAdmin || !ctx.organizationId
+					? rawOrganizationValues
+					: rawOrganizationValues.filter((value) => { const raw = asRecord(value); return (readString(raw?.organization_id) || readString(raw?.scope_id)) === ctx.organizationId; });
+				managedOrganizationListPage.total = isPlatformAdmin ? (readCount(response.total) ?? organizationValues.length) : organizationValues.length;
+				managedOrganizationListPage.pages = isPlatformAdmin ? (readCount(response.pages) ?? (organizationValues.length ? 1 : 0)) : (organizationValues.length ? 1 : 0);
 				managedOrganizationListPage.page = readCount(response.page) ?? managedOrganizationListPage.page;
 				const nextOrganizations: ManagedOrganization[] = [];
 				for (const value of organizationValues) {
@@ -4782,6 +5155,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 						coursePackages,
 						invitations,
 						auditLogs,
+						roleDefaultPermissions: normalizeOrganizationRoleDefaultPermissions(organization.role_default_permissions || organization.roleDefaultPermissions),
 						rolePermissions: normalizeOrganizationRolePermissions(organization.role_permissions || organization.rolePermissions)
 					});
 				}
@@ -4791,14 +5165,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				log('load managed organizations failed', error);
 			} finally {
 				managedOrganizationsLoading = null;
-				const institutionWorkbenchBusy = document.querySelector(
-					'#pc-institution-workbench[data-inst-user-interacted="true"]'
-				);
 				const roleContentFormBusy = hasActiveRoleContentFormEdit();
-				if (activeSection === 'admin-hub' && isOpen() && !institutionWorkbenchBusy && !roleContentFormBusy) {
-					renderSectionContent();
-				}
-				if (!roleContentFormBusy && shouldRefreshRoleContent('platform-orgs', 'platform-roles', 'org-members', 'org-permissions', 'org-groups', 'org-settings', 'org-course-packages', 'org-seats', 'org-plan', 'org-invites', 'org-audit')) {
+				if (!roleContentFormBusy && shouldRefreshRoleContent('platform-orgs', 'platform-roles', 'org-members', 'org-permissions', 'org-groups', 'org-settings', 'org-course-packages', 'org-course-accounts', 'org-seats', 'org-plan', 'org-invites', 'org-audit')) {
 					renderSectionContent({ preserveScroll: true });
 				}
 			}
@@ -4881,22 +5249,114 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
-	async function reloadManagedOrganizationList(): Promise<void> {
+	async function reloadManagedOrganizationList(focusSelector = ''): Promise<void> {
 		managedOrganizations = [];
 		managedOrganizationsCacheKey = '';
 		managedOrganizationsLoading = null;
 		managedOrganizationOpenState = {};
 		managedOrganizationDetailState = {};
-		renderSectionContent({ preserveScroll: true });
+		renderSectionContent({ preserveScroll: true, ...(focusSelector ? { focusSelector } : {}) });
 		await ensureManagedOrganizations(getContext());
+		if (focusSelector) renderSectionContent({ preserveScroll: true, focusSelector });
+	}
+
+	function applyManagedOrganizationListPage(rawPage: string, restoreFocus = false): void {
+		const totalPages = Math.max(1, managedOrganizationListPage.pages);
+		const requestedPage = Number.parseInt(rawPage, 10);
+		managedOrganizationListPage.page = Number.isFinite(requestedPage)
+			? Math.min(Math.max(1, requestedPage), totalPages)
+			: managedOrganizationListPage.page;
+		void reloadManagedOrganizationList(restoreFocus ? '[data-managed-org-page-input]' : '');
+	}
+
+	function stepAdminListPageInput(input: HTMLInputElement, direction: 1 | -1): void {
+		const minPage = Math.max(1, Number.parseInt(input.min || '1', 10) || 1);
+		const maxPage = Math.max(minPage, Number.parseInt(input.max || String(minPage), 10) || minPage);
+		const fallbackPage = input.hasAttribute('data-managed-org-page-input') ? managedOrganizationListPage.page : platformUserSearchPage;
+		const currentPage = Number.parseInt(input.value, 10) || fallbackPage;
+		input.value = String(Math.min(maxPage, Math.max(minPage, currentPage + direction)));
+	}
+
+	function applyAdminListPageInput(input: HTMLInputElement, restoreFocus = false): void {
+		if (input.hasAttribute('data-managed-org-page-input')) {
+			applyManagedOrganizationListPage(input.value, restoreFocus);
+			return;
+		}
+		applyPlatformUserSearchPage(input.value, restoreFocus);
+	}
+
+	function handleManagedOrganizationPaginationChange(target: HTMLElement | null): boolean {
+		const pageSize = target?.closest('[data-managed-org-page-size]') as HTMLSelectElement | null;
+		if (pageSize) {
+			managedOrganizationListPage.pageSize = [10, 20, 50].includes(Number(pageSize.value)) ? Number(pageSize.value) : 20;
+			managedOrganizationListPage.page = 1;
+			void reloadManagedOrganizationList();
+			return true;
+		}
+		const pageInput = target?.closest('[data-managed-org-page-input]') as HTMLInputElement | null;
+		if (pageInput) {
+			applyManagedOrganizationListPage(pageInput.value, true);
+			return true;
+		}
+		return false;
+	}
+
+	type AdminSelectOption = { value: string; label: string };
+
+	function renderAdminSelect(
+		value: string,
+		options: AdminSelectOption[],
+		dataAttribute: string,
+		ariaLabel: string,
+		disabled = false
+	): string {
+		const selected = options.find((option) => option.value === value) || options[0];
+		const selectedValue = selected?.value || '';
+		const selectedLabel = selected?.label || '';
+		return `<details class="pc-admin-select${disabled ? ' is-disabled' : ''}" data-admin-select-menu data-admin-select-label="${escapeHtml(ariaLabel)}">
+			<summary role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="${escapeHtml(ariaLabel)}：${escapeHtml(selectedLabel)}"${disabled ? ' aria-disabled="true"' : ''}><span>${escapeHtml(selectedLabel)}</span><svg class="pc-admin-select-chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 6.25 8 9.75l3.5-3.5"></path></svg></summary>
+			<select hidden ${dataAttribute} data-admin-select-input${disabled ? ' disabled' : ''}>${options.map((option) => `<option value="${escapeHtml(option.value)}"${option.value === selectedValue ? ' selected' : ''}>${escapeHtml(option.label)}</option>`).join('')}</select>
+			<div class="pc-admin-select-menu" role="listbox" aria-label="${escapeHtml(ariaLabel)}">${options.map((option) => `<button type="button" role="option" aria-selected="${option.value === selectedValue ? 'true' : 'false'}" class="pc-admin-select-option${option.value === selectedValue ? ' active' : ''}" data-admin-select-option="${escapeHtml(option.value)}"${disabled ? ' disabled' : ''}><span>${escapeHtml(option.label)}</span>${option.value === selectedValue ? '<b aria-hidden="true">✓</b>' : ''}</button>`).join('')}</div>
+		</details>`;
+	}
+
+	function handleAdminSelectMenuClick(target: HTMLElement | null): boolean {
+		const option = target?.closest('[data-admin-select-option]') as HTMLButtonElement | null;
+		if (!option) return false;
+		const details = option.closest<HTMLDetailsElement>('[data-admin-select-menu]');
+		const select = details?.querySelector<HTMLSelectElement>('[data-admin-select-input]');
+		const value = option.dataset.adminSelectOption || '';
+		if (!details || !select || !value) return true;
+		if (details.classList.contains('is-disabled') || option.disabled) {
+			details.open = false;
+			return true;
+		}
+		select.value = value;
+		const label = option.querySelector('span')?.textContent || value;
+		const summary = details.querySelector('summary');
+		const summaryLabel = summary?.querySelector('span');
+		if (summaryLabel) summaryLabel.textContent = label;
+		if (summary) summary.setAttribute('aria-label', `${details.dataset.adminSelectLabel || ''}：${label}`);
+		details.querySelectorAll<HTMLButtonElement>('[data-admin-select-option]').forEach((button) => {
+			const active = button === option;
+			button.classList.toggle('active', active);
+			button.setAttribute('aria-selected', String(active));
+			button.querySelector('b')?.remove();
+			if (active) button.insertAdjacentHTML('beforeend', '<b aria-hidden="true">✓</b>');
+		});
+		details.open = false;
+		select.dispatchEvent(new Event('change', { bubbles: true }));
+		return true;
 	}
 
 	function renderOrganizationSubscriptionPanel(organization: ManagedOrganization): string {
 		const expiryInput = organization.expiresAt ? organization.expiresAt.slice(0, 10) : '';
 		const upgradeNote = hasAnyRole(getContext(), ['superAdmin'])
-			? '升级或扩席应优先从平台支付管理创建机构订单；直接修改会写入审计日志。'
-			: '升级、续期或扩席必须通过支付订单完成；此处仅允许降级、停用或减少未使用席位。';
-		const subscriptionEditor = `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>套餐与席位</h4><span>${escapeHtml(subscriptionExpirySummary(organization.expiresAt, organization.status))}</span></div><form class="pc-org-add-form" data-org-subscription-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input pc-org-select" data-org-plan><option value="free"${organization.plan === 'free' ? ' selected' : ''}>FREE</option><option value="pro"${organization.plan === 'pro' ? ' selected' : ''}>PRO</option><option value="ultra"${organization.plan === 'ultra' ? ' selected' : ''}>ULTRA</option></select></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-status><option value="active"${organization.status === 'active' ? ' selected' : ''}>active</option><option value="trial"${organization.status === 'trial' ? ' selected' : ''}>trial</option><option value="expired"${organization.status === 'expired' ? ' selected' : ''}>expired</option><option value="canceled"${organization.status === 'canceled' ? ' selected' : ''}>canceled</option></select></label><label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-seats value="${escapeHtml(String(organization.seats || defaultSeatsForPlan(organization.plan)))}" /></label></div><div class="pc-org-form-grid"><label class="pc-org-field"><span>到期日期</span><input class="pc-profile-input" type="date" data-org-expires-at value="${escapeHtml(expiryInput)}" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存套餐</button></div></div><div class="pc-admin-note">当前成员 ${escapeHtml(String(organization.memberCount))} 人，建议席位不低于成员数。${escapeHtml(upgradeNote)}</div></form></div>`;
+			? '升级或扩席请优先通过平台支付管理；直接修改将记入审计。'
+			: '升级、续期或扩席请通过支付订单完成。';
+		const planSelect = renderAdminSelect(organization.plan, [{ value: 'free', label: 'FREE' }, { value: 'pro', label: 'PRO' }, { value: 'ultra', label: 'ULTRA' }], 'data-org-plan', '套餐');
+		const statusSelect = renderAdminSelect(organization.status, [{ value: 'active', label: 'active' }, { value: 'trial', label: 'trial' }, { value: 'expired', label: 'expired' }, { value: 'canceled', label: 'canceled' }], 'data-org-status', '状态');
+		const subscriptionEditor = `<div class="pc-org-subsection pc-org-subscription-section"><div class="pc-org-subsection-head"><h4>套餐与席位</h4><span>${escapeHtml(subscriptionExpirySummary(organization.expiresAt, organization.status))}</span></div><form class="pc-org-add-form pc-org-subscription-form" data-org-subscription-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-subscription-fields"><div class="pc-org-field"><span>套餐</span>${planSelect}</div><div class="pc-org-field"><span>状态</span>${statusSelect}</div><label class="pc-org-field"><span>到期日期</span><input class="pc-profile-input" type="date" data-org-expires-at value="${escapeHtml(expiryInput)}" /></label><label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-seats value="${escapeHtml(String(organization.seats || defaultSeatsForPlan(organization.plan)))}" /></label><button class="pc-inline-btn pc-org-subscription-save" type="submit">保存套餐</button></div><div class="pc-admin-note">当前成员 ${escapeHtml(String(organization.memberCount))} 人；席位不可低于成员数。${escapeHtml(upgradeNote)}</div></form></div>`;
 		return `${subscriptionEditor}${renderAutoRenewalCard('organization', organization.id, {
 			plan: organization.plan,
 			status: organization.status,
@@ -4911,6 +5371,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return organizationMemberDisplayName(member);
 		}
 		return allUsers.find((user) => user.id === userId)?.displayName || userId;
+	}
+
+	function compactResourceId(value: string): string {
+		if (value.length <= 20) return value;
+		return `${value.slice(0, 12)}…${value.slice(-4)}`;
 	}
 
 	function renderOrganizationCampusPanel(organization: ManagedOrganization): string {
@@ -4928,21 +5393,78 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function renderOrganizationCoursePackagePanel(organization: ManagedOrganization): string {
-		const usePagedList = activeDashboardSubpage === 'role-content';
-		const pageState = organizationCoursePackagePageState(organization.id);
-		if (usePagedList && !pageState.loaded && !pageState.loading) void loadOrganizationCoursePackagePage(organization.id);
+		const usePagedAssignments = activeDashboardSubpage === 'role-content';
+		const assignmentPage = organizationCoursePackagePageState(organization.id);
+		if (usePagedAssignments && !assignmentPage.loaded && !assignmentPage.loading) void loadOrganizationCoursePackagePage(organization.id);
 		const studentMembers = organization.members.filter((member) => member.roles.includes('student'));
-		const studentOptions = studentMembers.length
-			? studentMembers.map((member) => `<option value="${escapeHtml(member.userId)}">${escapeHtml(organizationMemberDisplayName(member))}</option>`).join('')
-			: '<option value="">请先添加学员成员</option>';
-		const visiblePackages = usePagedList && pageState.loaded ? pageState.items : organization.coursePackages;
-		const packageList = visiblePackages.length
-			? visiblePackages
-					.map((item) => `<div class="pc-org-invite-item"><div class="pc-org-invite-head"><div><strong>${escapeHtml(item.title || item.subject || item.id)}</strong><span>${escapeHtml(organizationMemberLabelById(organization, item.studentId))} · ${escapeHtml(item.status)}</span></div><span>${escapeHtml(String(item.remainingLessons))}/${escapeHtml(String(item.totalLessons))} 次</span></div><div class="pc-org-invite-meta"><span>ID：${escapeHtml(item.id)}</span><span>科目：${escapeHtml(item.subject || '-')}</span><span>已用：${escapeHtml(String(item.usedLessons))}</span>${item.expiresAt ? `<span>到期：${escapeHtml(item.expiresAt)}</span>` : ''}</div></div>`)
-					.join('')
-			: `<div class="pc-org-empty">还没有课程包。课程包只绑定学员和科目，不绑定固定老师。<div class="pc-org-form-actions"><button class="pc-inline-btn" type="button" data-org-empty-focus="course-package"${studentMembers.length ? '' : ' disabled'}>${studentMembers.length ? '创建第一个课程包' : '请先添加学员'}</button></div></div>`;
-		const controls = `<form class="pc-org-add-form" data-org-package-list-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>搜索课程包</span><input class="pc-profile-input" data-org-package-list-query value="${escapeHtml(pageState.query)}" placeholder="标题、科目、学员或 ID" /></label><label class="pc-org-field"><span>排序</span><select class="pc-profile-input pc-org-select" data-org-package-list-sort><option value="expires_at"${pageState.sort === 'expires_at' ? ' selected' : ''}>到期时间</option><option value="remaining_lessons"${pageState.sort === 'remaining_lessons' ? ' selected' : ''}>剩余课时</option><option value="title"${pageState.sort === 'title' ? ' selected' : ''}>标题</option><option value="status"${pageState.sort === 'status' ? ' selected' : ''}>状态</option></select></label><label class="pc-org-field"><span>顺序 / 每页</span><span><select class="pc-profile-input pc-org-select" data-org-package-list-order><option value="asc"${pageState.order === 'asc' ? ' selected' : ''}>升序</option><option value="desc"${pageState.order === 'desc' ? ' selected' : ''}>降序</option></select><select class="pc-profile-input pc-org-select" data-org-package-list-page-size><option value="10"${pageState.pageSize === 10 ? ' selected' : ''}>10 条</option><option value="20"${pageState.pageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${pageState.pageSize === 50 ? ' selected' : ''}>50 条</option></select></span></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">查询</button><button class="pc-inline-ghost" type="button" data-org-package-list-page="prev"${pageState.page <= 1 || pageState.loading ? ' disabled' : ''}>上一页</button><span class="pc-tag muted">${pageState.loading ? '加载中' : `第 ${pageState.page} / ${Math.max(1, pageState.pages)} 页`}</span><button class="pc-inline-ghost" type="button" data-org-package-list-page="next"${pageState.page >= pageState.pages || pageState.loading ? ' disabled' : ''}>下一页</button></div></form>`;
-		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>课程包</h4><span>${escapeHtml(String(usePagedList && pageState.loaded ? pageState.total : organization.coursePackages.length))} 个</span></div><form class="pc-org-add-form" data-org-course-package-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>课程包ID（更新时填写）</span><input class="pc-profile-input" data-org-course-package-id placeholder="留空新建" /></label><label class="pc-org-field"><span>学员</span><select class="pc-profile-input pc-org-select" data-org-course-package-student>${studentOptions}</select></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-course-package-status><option value="active">active</option><option value="paused">paused</option><option value="expired">expired</option><option value="finished">finished</option></select></label></div><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>标题</span><input class="pc-profile-input" data-org-course-package-title placeholder="文综约课 20 次" /></label><label class="pc-org-field"><span>科目</span><input class="pc-profile-input" data-org-course-package-subject placeholder="japanese / sogo / writing" /></label><label class="pc-org-field"><span>到期时间</span><input class="pc-profile-input" type="date" data-org-course-package-expires /></label></div><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>总课时</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-course-package-total value="20" /></label><label class="pc-org-field"><span>已用课时</span><input class="pc-profile-input" type="number" min="0" step="1" data-org-course-package-used value="0" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存课程包</button></div></div></form>${usePagedList ? controls : ''}<div class="pc-org-invite-list">${packageList}</div></div>`;
+		const studentChoices = studentMembers.length
+			? studentMembers.map((member, index) => { const name = organizationMemberDisplayName(member); return `<label class="pc-org-choice" data-org-package-student-option data-student-search="${escapeHtml(`${name} ${member.userId}`.toLowerCase())}"${index >= 20 ? ' hidden' : ''}><input type="checkbox" value="${escapeHtml(member.userId)}" data-org-course-package-student /><span>${escapeHtml(name)}</span></label>`; }).join('')
+			: '<span class="pc-admin-note">请先添加学员成员</span>';
+		const storedTemplates = organization.coursePackages.filter((item) => item.recordType === 'template');
+		const allAssignments = organization.coursePackages.filter((item) => item.recordType !== 'template');
+		const assignments = usePagedAssignments && assignmentPage.loaded ? assignmentPage.items.filter((item) => item.recordType !== 'template') : allAssignments;
+		const templateKeys = new Set(storedTemplates.map((item) => `${item.title || ''}\u0000${item.subject || ''}\u0000${item.totalLessons}`));
+		const legacyTemplates = allAssignments.filter((item) => {
+			if (item.templateId) return false;
+			const key = `${item.title || ''}\u0000${item.subject || ''}\u0000${item.totalLessons}`;
+			if (templateKeys.has(key)) return false;
+			templateKeys.add(key);
+			return true;
+		});
+		const templates = [...storedTemplates, ...legacyTemplates];
+		const allocationTemplateId = pendingCoursePackageAllocation?.organizationId === organization.id
+			? pendingCoursePackageAllocation.templateId
+			: '';
+		const templateOptions = templates.length
+			? templates.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === allocationTemplateId ? ' selected' : ''}>${escapeHtml(item.title || item.subject || item.id)} · ${escapeHtml(String(item.totalLessons))} 课时</option>`).join('')
+			: '<option value="">请先创建课程包</option>';
+		const templateList = templates.length
+			? templates.map((item) => {
+				const isLegacy = item.recordType !== 'template';
+				const assigned = allAssignments.filter((entry) => item.id === entry.templateId || (isLegacy && !entry.templateId && entry.title === item.title && entry.subject === item.subject && entry.totalLessons === item.totalLessons)).length;
+				return `<div class="pc-package-row pc-package-template-grid"><strong class="pc-package-template-name" title="课程包 ID：${escapeHtml(item.id)}">${escapeHtml(item.title || item.subject || item.id)}</strong><b>${escapeHtml(String(item.totalLessons))}</b><span>${escapeHtml(String(assigned))} 人</span><span class="pc-tag${item.status === 'active' ? '' : ' muted'}">${item.status === 'active' ? '可用' : '已停用'}</span><div class="pc-package-row-actions"><button class="pc-inline-ghost" type="button" data-org-package-view-template="${escapeHtml(item.id)}">查看</button><button class="pc-inline-ghost" type="button" data-org-package-assign-template="${escapeHtml(item.id)}">分配</button></div></div>`;
+			}).join('')
+			: '<div class="pc-org-empty">还没有课程包。先创建“文综 20 课时”这类可重复分配的课程规格。</div>';
+		const assignmentList = assignments.length
+			? assignments.map((item, index) => {
+				const studentName = organizationMemberLabelById(organization, item.studentId);
+				const title = item.title || item.subject || item.id;
+				const status = effectiveCoursePackageStatus(item);
+				const linkedGroups = organization.learningGroups.filter((group) => group.coursePackageId === item.id).map((group) => group.name);
+				const linkedGroupLabel = linkedGroups.length ? `${linkedGroups.slice(0, 2).join(' / ')}${linkedGroups.length > 2 ? ` 等 ${linkedGroups.length} 个` : ''}` : '未加入学习组';
+				const totalLessons = Math.max(0, item.totalLessons);
+				const remainingLessons = Math.max(0, item.remainingLessons);
+				const remainingPercent = totalLessons > 0 ? Math.min(100, Math.round((remainingLessons / totalLessons) * 100)) : 0;
+				const balanceTone = status === 'depleted' || remainingLessons === 0 ? ' is-depleted' : remainingPercent <= 20 ? ' is-low' : '';
+				const statusLabel = status === 'active' && remainingPercent <= 20 ? '课时不足' : coursePackageStatusLabel(status);
+				return `<details class="pc-package-account-row" data-org-package-assignment-row data-assignment-search="${escapeHtml(`${studentName} ${item.studentId} ${title} ${item.subject || ''} ${item.id}`.toLowerCase())}"${!usePagedAssignments && index >= 10 ? ' hidden' : ''}><summary class="pc-package-account-grid"><strong class="pc-package-account-person" title="${escapeHtml(studentName)}">${escapeHtml(studentName)}</strong><strong class="pc-package-account-course" title="${escapeHtml(title)}">${escapeHtml(title)}</strong><strong class="pc-package-account-balance${balanceTone}">${escapeHtml(String(remainingLessons))} / ${escapeHtml(String(totalLessons))}</strong><span class="pc-package-account-status${balanceTone}">${escapeHtml(statusLabel)}</span><span class="pc-package-account-toggle"><span>查看</span><b>收起</b></span></summary><div class="pc-package-account-detail"><span>学习组：${escapeHtml(linkedGroupLabel)}</span><span>已使用：${escapeHtml(String(item.usedLessons))} 课时</span><span>学员 ID：${escapeHtml(item.studentId)}</span><span>课时记录 ID：${escapeHtml(item.id)}</span>${item.expiresAt ? `<span>有效期至：${escapeHtml(formatDateTime(item.expiresAt))}</span>` : ''}</div></details>`;
+			}).join('')
+			: '<div class="pc-org-empty">还没有给学员分配课时。</div>';
+		const studentGroupList = assignmentPage.studentGroups.length
+			? assignmentPage.studentGroups.map((group) => {
+				const studentName = organizationMemberLabelById(organization, group.studentId);
+				const remaining = group.accounts.reduce((total, item) => total + item.remainingLessons, 0);
+				const total = group.accounts.reduce((sum, item) => sum + item.totalLessons, 0);
+				const accountRows = group.accounts.map((item) => {
+					const status = effectiveCoursePackageStatus(item);
+					return `<div class="pc-package-student-account"><div class="pc-package-main"><strong title="课时记录 ID：${escapeHtml(item.id)}">${escapeHtml(item.title || item.subject || item.id)}</strong></div><b>${escapeHtml(String(item.remainingLessons))} / ${escapeHtml(String(item.totalLessons))}</b><span class="pc-tag${status === 'active' ? '' : ' muted'}">${escapeHtml(coursePackageStatusLabel(status))}</span></div>`;
+				}).join('');
+				return `<details class="pc-package-student-group"><summary><div class="pc-package-main"><strong title="学员 ID：${escapeHtml(group.studentId)}">${escapeHtml(studentName)}</strong></div><span>${escapeHtml(String(group.accountCount))} 份课程</span><span>剩余 ${escapeHtml(String(remaining))} / ${escapeHtml(String(total))} 课时</span><b>展开</b></summary><div class="pc-package-student-accounts">${accountRows}</div></details>`;
+			}).join('')
+			: `<div class="pc-org-empty">${assignmentPage.loading ? '正在加载课时记录...' : '没有符合条件的课时记录。'}</div>`;
+		const editor = `<details class="pc-package-action"><summary>＋ 新建模板</summary><form class="pc-org-add-form" data-org-course-package-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>模板名称</span><input class="pc-profile-input" data-org-course-package-title placeholder="文综 20 课时" /></label><label class="pc-org-field"><span>科目</span><input class="pc-profile-input" data-org-course-package-subject placeholder="文综" /></label><label class="pc-org-field"><span>课时数</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-course-package-total value="20" /></label></div><details class="pc-org-advanced-fields"><summary>高级设置</summary><div class="pc-org-form-grid"><label class="pc-org-field"><span>模板 ID（编辑时填写）</span><input class="pc-profile-input" data-org-course-package-id placeholder="留空表示新建" /></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-course-package-status><option value="active">可用</option><option value="paused">停用</option></select></label><input type="hidden" data-org-course-package-used value="0" /><input type="hidden" data-org-course-package-expires value="" /></div></details><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存模板</button></div></form></details>`;
+		const allocator = `<details class="pc-package-action" data-org-package-allocator${allocationTemplateId ? ' open' : ''}><summary>课时分配</summary><form class="pc-org-add-form" data-org-course-package-assignment-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid"><label class="pc-org-field"><span>课程包模板</span><select class="pc-profile-input pc-org-select" data-org-course-package-template>${templateOptions}</select></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-course-package-status><option value="active">正常</option></select></label></div><div class="pc-org-choice-section"><div class="pc-org-choice-head"><div><strong>选择学员</strong><span data-org-package-selected-count>已选 0 人</span></div><div class="pc-org-form-actions"><button class="pc-inline-ghost" type="button" data-org-package-students="all">全选当前结果</button><button class="pc-inline-ghost" type="button" data-org-package-students="none">清空</button></div></div><input class="pc-profile-input" data-org-package-student-search placeholder="搜索姓名、账号或成员编号" /><div class="pc-org-choice-grid">${studentChoices}</div><div class="pc-admin-note" data-org-package-student-result-note>默认显示前 20 人；输入关键词可查找全部 ${escapeHtml(String(studentMembers.length))} 名学员。</div></div><input type="hidden" data-org-course-package-total value="1" /><input type="hidden" data-org-course-package-used value="0" /><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit"${templates.length && studentMembers.length ? '' : ' disabled'}>确认分配</button></div></form></details>`;
+		const assignmentTotal = usePagedAssignments && assignmentPage.loaded ? assignmentPage.total : allAssignments.length;
+		const templateFilterOptions = `<option value="">全部课程包</option>${templates.map((item) => `<option value="${escapeHtml(item.id)}"${assignmentPage.templateFilter === item.id ? ' selected' : ''}>${escapeHtml(item.title || item.subject || item.id)}</option>`).join('')}`;
+		const assignmentControls = usePagedAssignments ? `<form class="pc-package-searchbar pc-package-filterbar" data-org-package-list-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-package-filter-fields"><label class="pc-package-filter-query"><span>搜索</span><input class="pc-profile-input" data-org-package-list-query value="${escapeHtml(assignmentPage.query)}" placeholder="搜索学员或课程包" /></label><label><span>课程包</span><select class="pc-profile-input pc-org-select" data-org-package-list-template>${templateFilterOptions}</select></label><label><span>状态</span><select class="pc-profile-input pc-org-select" data-org-package-list-status><option value=""${assignmentPage.statusFilter ? '' : ' selected'}>全部状态</option><option value="active"${assignmentPage.statusFilter === 'active' ? ' selected' : ''}>正常</option><option value="paused"${assignmentPage.statusFilter === 'paused' ? ' selected' : ''}>暂停</option><option value="depleted"${assignmentPage.statusFilter === 'depleted' ? ' selected' : ''}>已用完</option><option value="expired"${assignmentPage.statusFilter === 'expired' ? ' selected' : ''}>已过期</option><option value="cancelled"${assignmentPage.statusFilter === 'cancelled' ? ' selected' : ''}>已作废</option></select></label><button class="pc-inline-btn" type="submit">查询</button></div><details class="pc-compact-filters"><summary>显示设置</summary><div><label><span>查看方式</span><select class="pc-profile-input pc-org-select" data-org-package-list-view><option value="accounts"${assignmentPage.viewMode === 'accounts' ? ' selected' : ''}>按记录</option><option value="students"${assignmentPage.viewMode === 'students' ? ' selected' : ''}>按学员</option></select></label><label><span>每页</span><select class="pc-profile-input pc-org-select" data-org-package-list-page-size><option value="20"${assignmentPage.pageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${assignmentPage.pageSize === 50 ? ' selected' : ''}>50 条</option><option value="100"${assignmentPage.pageSize === 100 ? ' selected' : ''}>100 条</option></select></label></div></details><div class="pc-package-pagination"><span>${assignmentPage.loading ? '加载中' : `第 ${assignmentPage.page}/${Math.max(1, assignmentPage.pages)} 页`}</span><button class="pc-inline-ghost" type="button" data-org-package-list-page="prev"${assignmentPage.page <= 1 || assignmentPage.loading ? ' disabled' : ''}>上一页</button><button class="pc-inline-ghost" type="button" data-org-package-list-page="next"${assignmentPage.page >= assignmentPage.pages || assignmentPage.loading ? ' disabled' : ''}>下一页</button></div></form>` : '';
+		const accountView = activeRoleContent === 'org-course-accounts';
+		const accountTabCount = assignmentPage.viewMode === 'students' && usePagedAssignments ? assignmentPage.total : assignmentTotal;
+		const templateSection = `<section class="pc-package-section"><div class="pc-package-table pc-package-template-table"><div class="pc-package-table-head pc-package-template-grid"><span>模板</span><span>总课时</span><span>已分配</span><span>状态</span><span>操作</span></div>${templateList}</div></section>`;
+		const accountTableHeader = assignmentPage.viewMode === 'accounts' ? '<div class="pc-package-account-head pc-package-account-grid"><span>学员</span><span>课程包</span><span>剩余 / 总课时</span><span>状态</span><span>操作</span></div>' : '';
+		const accountSection = `<section class="pc-package-section">${assignmentControls}<div class="pc-package-table${assignmentPage.viewMode === 'accounts' ? ' pc-package-account-table' : ''}">${accountTableHeader}${assignmentPage.viewMode === 'students' && usePagedAssignments ? studentGroupList : assignmentList}</div></section>`;
+		const contentOnly = activeWorkbenchDef(getContext()).id === 'orgContentAdmin';
+		const teachingNavigation = `<nav class="pc-teaching-links" aria-label="教学运营模块"><button type="button" data-org-teaching-nav="org-course-packages"${activeRoleContent === 'org-course-packages' ? ' disabled' : ''}>课程包${accountView ? '' : ` · ${escapeHtml(String(templates.length))}`}</button><button type="button" data-org-teaching-nav="org-course-accounts"${activeRoleContent === 'org-course-accounts' ? ' disabled' : ''}>课时管理${accountView ? ` · ${escapeHtml(String(accountTabCount))}` : ''}</button>${contentOnly ? '' : '<button type="button" data-org-teaching-nav="org-groups">学习组</button>'}</nav>`;
+		return `<div class="pc-org-subsection pc-package-manager"><div class="pc-package-manager-head">${teachingNavigation}<div class="pc-package-manager-meta"><div class="pc-package-actions">${accountView ? allocator : editor}</div></div></div>${accountView ? accountSection : templateSection}</div>`;
 	}
 
 	function renderLearningGroupCompleteButton(organization: ManagedOrganization, group: ManagedLearningGroup): string {
@@ -4984,11 +5506,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			: '<div class="pc-org-empty">还没有日程。创建学习组时填写开始/结束时间后，会在这里按时间显示。</div>';
 		const scheduledCount = organization.learningGroups.filter((group) => Boolean(group.startsAt)).length;
 		const bookingCount = organization.learningGroups.filter((group) => group.type === 'booking').length;
-		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>排课日历</h4><span>${escapeHtml(String(scheduledCount))} 个已排时间 / ${escapeHtml(String(bookingCount))} 个约课</span></div><div class="pc-org-invite-list">${scheduleItems}</div></div>`;
+		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>课程安排</h4><span>${escapeHtml(String(scheduledCount))} 个已排时间 / ${escapeHtml(String(bookingCount))} 个约课</span></div><div class="pc-org-invite-list">${scheduleItems}</div></div>`;
 	}
 
 	function renderOrganizationLearningGroupPanel(organization: ManagedOrganization): string {
-		const packageOptions = `<option value="">不绑定课程包</option>${organization.coursePackages.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.title || item.subject || item.id)} · ${escapeHtml(organizationMemberLabelById(organization, item.studentId))}</option>`).join('')}`;
+		const packageOptions = `<option value="">不绑定课程包</option>${organization.coursePackages.filter((item) => item.recordType !== 'template').map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.title || item.subject || item.id)} · ${escapeHtml(organizationMemberLabelById(organization, item.studentId))}</option>`).join('')}`;
 		const campusIds = new Set(organization.campuses.map((campus) => campus.id));
 		const selectedCampusFilter = (() => {
 			const value = organizationLearningGroupCampusFilters[organization.id] || '';
@@ -5037,11 +5559,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const groupList = filteredGroups.length
 			? filteredGroups
 					.map((group) => {
-						const campus = organization.campuses.find((item) => item.id === group.campusId);
-						const enrollments = group.enrollments.length
-							? group.enrollments.map((enrollment) => `${organizationMemberLabelById(organization, enrollment.userId)}(${enrollment.role})`).join(' / ')
-							: '暂无成员';
-						return `<div class="pc-org-invite-item"><div class="pc-org-invite-head"><div><strong>${escapeHtml(group.name)}</strong><span>${escapeHtml(group.type === 'booking' ? '约课' : '班级')} · ${escapeHtml(group.status)} · ${escapeHtml(group.id)}</span></div><div class="pc-org-form-actions">${renderLearningGroupCompleteButton(organization, group)}</div></div><div class="pc-org-invite-meta"><span>科目：${escapeHtml(group.subject || '-')}</span><span>校区：${escapeHtml(campus?.name || '未指定')}</span><span>成员：${escapeHtml(enrollments)}</span>${group.coursePackageId ? `<span>课程包：${escapeHtml(group.coursePackageId)}</span>` : ''}${group.startsAt ? `<span>开始：${escapeHtml(group.startsAt)}</span>` : ''}</div></div>`;
+						const statusText: Record<string, string> = { active: '进行中', scheduled: '未开始', finished: '已结束', completed: '已完成', canceled: '已取消', archived: '已归档' };
+						return `<div class="pc-learning-row pc-learning-grid"><strong class="pc-learning-name" title="学习组 ID：${escapeHtml(group.id)}">${escapeHtml(group.name)}</strong><span>${escapeHtml(group.subject || '未设置科目')}</span><span>${escapeHtml(String(group.enrollments.length))} 人</span><span>${escapeHtml(statusText[group.status] || group.status)}</span><div class="pc-org-form-actions"><button class="pc-inline-ghost" type="button" data-org-learning-group-manage="${escapeHtml(group.id)}">管理</button></div></div>`;
 					})
 					.join('')
 			: usePagedList && pageState.error
@@ -5049,20 +5568,67 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				: organization.learningGroups.length
 				? `<div class="pc-org-empty">当前筛选下没有学习组。可以切换校区，或新建学习组时选择 ${escapeHtml(filterLabel)}。<div class="pc-org-form-actions"><button class="pc-inline-btn" type="button" data-org-empty-focus="learning-group">在当前校区新建</button></div></div>`
 				: '<div class="pc-org-empty">还没有学习组。先用上方表单创建学习组并选择校区；有学习组后，这里的校区过滤会只显示对应校区的班级、小班或一对一约课。<div class="pc-org-form-actions"><button class="pc-inline-btn" type="button" data-org-empty-focus="learning-group">创建第一个学习组</button></div></div>';
-		const listControls = `<form class="pc-org-add-form" data-org-learning-list-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>搜索学习组</span><input class="pc-profile-input" data-org-learning-list-query value="${escapeHtml(pageState.query)}" placeholder="名称、科目或学习组 ID" /></label><label class="pc-org-field"><span>排序</span><select class="pc-profile-input pc-org-select" data-org-learning-list-sort><option value="starts_at"${pageState.sort === 'starts_at' ? ' selected' : ''}>开始时间</option><option value="name"${pageState.sort === 'name' ? ' selected' : ''}>名称</option><option value="status"${pageState.sort === 'status' ? ' selected' : ''}>状态</option></select></label><label class="pc-org-field"><span>顺序 / 每页</span><span><select class="pc-profile-input pc-org-select" data-org-learning-list-order><option value="asc"${pageState.order === 'asc' ? ' selected' : ''}>升序</option><option value="desc"${pageState.order === 'desc' ? ' selected' : ''}>降序</option></select><select class="pc-profile-input pc-org-select" data-org-learning-list-page-size><option value="10"${pageState.pageSize === 10 ? ' selected' : ''}>10 条</option><option value="20"${pageState.pageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${pageState.pageSize === 50 ? ' selected' : ''}>50 条</option></select></span></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">查询</button><button class="pc-inline-ghost" type="button" data-org-learning-list-page="prev"${pageState.page <= 1 || pageState.loading ? ' disabled' : ''}>上一页</button><span class="pc-tag muted">${pageState.loading ? '加载中' : `第 ${pageState.page} / ${Math.max(1, pageState.pages)} 页`}</span><button class="pc-inline-ghost" type="button" data-org-learning-list-page="next"${pageState.page >= pageState.pages || pageState.loading ? ' disabled' : ''}>下一页</button></div></form>`;
-		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>学习组</h4><span>${escapeHtml(filterLabel)} · ${escapeHtml(String(usePagedList && pageState.loaded ? pageState.total : allFilteredGroups.length))}/${escapeHtml(String(organization.learningGroups.length))} 个</span></div><div class="pc-org-filter-bar"><label class="pc-org-field"><span>按校区查看</span><select class="pc-profile-input pc-org-select" data-org-learning-campus-filter data-org-id="${escapeHtml(organization.id)}">${campusFilterOptions}</select></label><div class="pc-admin-note">列表和“学习组成员”下拉会跟随校区过滤，校区多、学习组多时先选校区再管理。</div></div><form class="pc-org-add-form" data-org-learning-group-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>学习组ID（更新时填写）</span><input class="pc-profile-input" data-org-learning-group-id placeholder="留空新建" /></label><label class="pc-org-field"><span>名称</span><input class="pc-profile-input" data-org-learning-group-name placeholder="EJU 日语基础班 / 文综一对一" /></label><label class="pc-org-field"><span>类型</span><select class="pc-profile-input pc-org-select" data-org-learning-group-type><option value="class">班级 / 小班</option><option value="booking">约课课次</option></select></label></div><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>科目</span><input class="pc-profile-input" data-org-learning-group-subject placeholder="japanese / sogo / writing" /></label><label class="pc-org-field"><span>校区</span><select class="pc-profile-input pc-org-select" data-org-learning-group-campus>${campusOptions}</select></label><label class="pc-org-field"><span>课程包</span><select class="pc-profile-input pc-org-select" data-org-learning-group-package>${packageOptions}</select></label></div><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>开始时间</span><input class="pc-profile-input" type="datetime-local" data-org-learning-group-starts /></label><label class="pc-org-field"><span>结束时间</span><input class="pc-profile-input" type="datetime-local" data-org-learning-group-ends /></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-learning-group-status><option value="active">active</option><option value="scheduled">scheduled</option><option value="finished">finished</option><option value="canceled">canceled</option><option value="archived">archived</option></select></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存学习组</button></div></form><form class="pc-org-add-form" data-org-learning-enrollment-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>学习组</span><select class="pc-profile-input pc-org-select" data-org-enrollment-group>${groupOptions}</select></label><label class="pc-org-field"><span>成员</span><select class="pc-profile-input pc-org-select" data-org-enrollment-user>${memberOptions}</select></label><label class="pc-org-field"><span>身份</span><select class="pc-profile-input pc-org-select" data-org-enrollment-role><option value="student">学生</option><option value="teacher">老师</option><option value="assistant">助教/教务</option></select></label></div><div class="pc-org-form-grid"><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-enrollment-status><option value="active">active</option><option value="inactive">inactive</option></select></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit"${allFilteredGroups.length ? '' : ' disabled'}>保存学习组成员</button></div></div></form>${usePagedList ? listControls : ''}<div class="pc-org-invite-list">${groupList}</div></div>`;
+		const listControls = `<form class="pc-learning-filterbar" data-org-learning-list-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-learning-filter-fields"><label class="pc-learning-filter-query"><span>搜索学习组</span><input class="pc-profile-input" data-org-learning-list-query value="${escapeHtml(pageState.query)}" placeholder="搜索名称或科目" /></label><label><span>校区</span><select class="pc-profile-input pc-org-select" data-org-learning-campus-filter data-org-id="${escapeHtml(organization.id)}">${campusFilterOptions}</select></label><button class="pc-inline-btn" type="submit">查询</button></div><details class="pc-compact-filters"><summary>排序设置</summary><div><label><span>排序</span><select class="pc-profile-input pc-org-select" data-org-learning-list-sort><option value="starts_at"${pageState.sort === 'starts_at' ? ' selected' : ''}>开始时间</option><option value="name"${pageState.sort === 'name' ? ' selected' : ''}>名称</option><option value="status"${pageState.sort === 'status' ? ' selected' : ''}>状态</option></select></label><label><span>顺序</span><select class="pc-profile-input pc-org-select" data-org-learning-list-order><option value="asc"${pageState.order === 'asc' ? ' selected' : ''}>升序</option><option value="desc"${pageState.order === 'desc' ? ' selected' : ''}>降序</option></select></label><label><span>每页</span><select class="pc-profile-input pc-org-select" data-org-learning-list-page-size><option value="10"${pageState.pageSize === 10 ? ' selected' : ''}>10 条</option><option value="20"${pageState.pageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${pageState.pageSize === 50 ? ' selected' : ''}>50 条</option></select></label></div></details><div class="pc-package-pagination"><span>${pageState.loading ? '加载中' : `第 ${pageState.page}/${Math.max(1, pageState.pages)} 页`}</span><button class="pc-inline-ghost" type="button" data-org-learning-list-page="prev"${pageState.page <= 1 || pageState.loading ? ' disabled' : ''}>上一页</button><button class="pc-inline-ghost" type="button" data-org-learning-list-page="next"${pageState.page >= pageState.pages || pageState.loading ? ' disabled' : ''}>下一页</button></div></form>`;
+		const groupEditor = `<details class="pc-package-action"><summary>＋ 新建学习组</summary><form class="pc-org-add-form" data-org-learning-group-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>名称</span><input class="pc-profile-input" data-org-learning-group-name placeholder="EJU 日语基础班 / 文综一对一" /></label><label class="pc-org-field"><span>类型</span><select class="pc-profile-input pc-org-select" data-org-learning-group-type><option value="class">班级 / 小班</option><option value="booking">约课课次</option></select></label><label class="pc-org-field"><span>科目</span><input class="pc-profile-input" data-org-learning-group-subject placeholder="日语 / 文综 / 写作" /></label><label class="pc-org-field"><span>校区</span><select class="pc-profile-input pc-org-select" data-org-learning-group-campus>${campusOptions}</select></label><label class="pc-org-field"><span>开始时间</span><input class="pc-profile-input" type="datetime-local" data-org-learning-group-starts /></label><label class="pc-org-field"><span>结束时间</span><input class="pc-profile-input" type="datetime-local" data-org-learning-group-ends /></label></div><details class="pc-org-advanced-fields"><summary>高级设置</summary><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>学习组 ID（编辑时填写）</span><input class="pc-profile-input" data-org-learning-group-id placeholder="留空表示新建" /></label><label class="pc-org-field"><span>状态</span><select class="pc-profile-input pc-org-select" data-org-learning-group-status><option value="active">进行中</option><option value="scheduled">未开始</option><option value="finished">已结束</option><option value="canceled">已取消</option><option value="archived">已归档</option></select></label><label class="pc-org-field"><span>默认扣课课程（可选）</span><select class="pc-profile-input pc-org-select" data-org-learning-group-package>${packageOptions}</select></label></div></details><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存学习组</button></div></form></details>`;
+		const memberEditor = `<details class="pc-package-action pc-learning-member-editor" data-org-learning-member-editor><summary>管理成员</summary><form class="pc-org-add-form" data-org-learning-enrollment-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>学习组</span><select class="pc-profile-input pc-org-select" data-org-enrollment-group>${groupOptions}</select></label><label class="pc-org-field"><span>成员</span><select class="pc-profile-input pc-org-select" data-org-enrollment-user>${memberOptions}</select></label><label class="pc-org-field"><span>身份</span><select class="pc-profile-input pc-org-select" data-org-enrollment-role><option value="student">学员</option><option value="teacher">老师</option><option value="assistant">助教 / 教务</option></select></label><label class="pc-org-field"><span>成员状态</span><select class="pc-profile-input pc-org-select" data-org-enrollment-status><option value="active">正常</option><option value="inactive">停用</option></select></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit"${allFilteredGroups.length ? '' : ' disabled'}>保存成员</button></div></form></details>`;
+		const resultCount = usePagedList && pageState.loaded ? pageState.total : allFilteredGroups.length;
+		const teachingNavigation = `<nav class="pc-teaching-links" aria-label="教学运营模块"><button type="button" data-org-teaching-nav="org-course-packages">课程包</button><button type="button" data-org-teaching-nav="org-course-accounts">课时管理</button><button type="button" data-org-teaching-nav="org-groups" disabled>学习组 · ${escapeHtml(String(resultCount))}</button></nav>`;
+		return `<div class="pc-org-subsection pc-package-manager pc-learning-manager"><div class="pc-package-manager-head">${teachingNavigation}<div class="pc-package-manager-meta"><div class="pc-package-actions">${groupEditor}</div></div></div><section class="pc-package-section">${usePagedList ? listControls : ''}<div class="pc-learning-table"><div class="pc-package-table-head pc-learning-grid"><span>学习组</span><span>科目</span><span>人数</span><span>状态</span><span>操作</span></div>${groupList}</div></section>${memberEditor}</div>`;
 	}
 
 	function renderOrganizationAuditPanel(organization: ManagedOrganization): string {
 		const auditMarkup = organization.auditLogs.length
-			? organization.auditLogs
-					.slice(0, 8)
+			? `<div class="pc-org-audit-feed">${organization.auditLogs
+					.slice(0, 3)
 					.map(
-						(logItem) => `<div class="pc-org-audit-item"><div class="pc-org-audit-head"><strong>${escapeHtml(logItem.summary)}</strong><span>${escapeHtml(formatDateTime(logItem.createdAt))}</span></div><div class="pc-org-audit-meta">${escapeHtml(logItem.actorUsername)} · ${escapeHtml(logItem.action || 'organization.event')}</div>${logItem.detailText ? `<div class="pc-org-audit-detail">${escapeHtml(logItem.detailText)}</div>` : ''}</div>`
+						(logItem) => `<div class="pc-org-audit-feed-row"><div class="pc-org-audit-message"><strong>${escapeHtml(logItem.summary)}</strong><span>${escapeHtml(logItem.actorUsername)} · ${escapeHtml(logItem.action || 'organization.event')}${logItem.detailText ? ` · ${escapeHtml(logItem.detailText)}` : ''}</span></div><time>${escapeHtml(formatDateTime(logItem.createdAt))}</time></div>`
 					)
-					.join('')
+					.join('')}</div>`
 			: '<div class="pc-org-empty">这里会记录谁添加了谁、谁修改了角色、谁取消了邀请以及套餐变更。</div>';
-		return `<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>操作审计</h4><span>最近 ${escapeHtml(String(Math.min(organization.auditLogs.length, 8)))} 条</span></div><div class="pc-org-audit-list">${auditMarkup}</div></div>`;
+		return `<div class="pc-org-subsection pc-org-audit-section"><div class="pc-org-subsection-head"><h4>操作审计</h4><span>最近 ${escapeHtml(String(Math.min(organization.auditLogs.length, 3)))} 条</span></div><div class="pc-org-audit-list">${auditMarkup}</div></div>`;
+	}
+
+	function renderOrganizationCandidateResults(organization: ManagedOrganization, draft: OrganizationMemberDraft): string {
+		const resultCount = draft.searchResults.length;
+		const resultSummary = `找到 ${resultCount} 个账号，点击一行选择`;
+		return `<div class="pc-org-candidate-results">
+			<div class="pc-org-candidate-summary" role="status">${escapeHtml(resultSummary)}</div>
+			<div class="pc-org-candidate-list">${draft.searchResults
+				.map((user) => {
+					const selected = draft.selectedUserId === user.id;
+					const meta = [user.username && user.username !== user.displayName ? user.username : '', user.email || '', user.memberNo || '']
+						.filter(Boolean)
+						.join(' · ');
+					return `<button class="pc-org-candidate${selected ? ' selected' : ''}" type="button" aria-pressed="${selected ? 'true' : 'false'}" data-org-pick-user data-org-id="${escapeHtml(organization.id)}" data-user-id="${escapeHtml(user.id)}"><span class="pc-org-candidate-main"><strong>${escapeHtml(user.displayName)}</strong><span>${escapeHtml(meta || user.id)}</span></span>${selected ? '<span class="pc-org-candidate-selected" aria-hidden="true">✓ 已选择</span>' : '<span class="pc-org-candidate-choice" aria-hidden="true">选择</span>'}</button>`;
+				})
+				.join('')}</div>
+		</div>`;
+	}
+
+	function selectOrganizationCandidate(pickButton: HTMLButtonElement): void {
+		const organizationId = pickButton.dataset.orgId || '';
+		const selectedUserId = pickButton.dataset.userId || '';
+		if (!organizationId || !selectedUserId) return;
+		const currentList = pickButton.closest<HTMLElement>('.pc-org-candidate-list');
+		const listScrollTop = currentList?.scrollTop || 0;
+		const listScrollLeft = currentList?.scrollLeft || 0;
+		const draft = getOrganizationMemberDraft(organizationId);
+		draft.selectedUserId = selectedUserId;
+		renderSectionContent({ preserveScroll: true });
+
+		const restoreSelectionPosition = (focus = false) => {
+			const selector = `[data-org-pick-user][data-org-id="${CSS.escape(organizationId)}"][data-user-id="${CSS.escape(selectedUserId)}"]`;
+			const nextButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(selector));
+			const nextButton = nextButtons.find((button) => button.offsetParent !== null) || nextButtons[0];
+			const nextList = nextButton?.closest<HTMLElement>('.pc-org-candidate-list');
+			if (nextList) {
+				nextList.scrollTop = listScrollTop;
+				nextList.scrollLeft = listScrollLeft;
+			}
+			if (focus) nextButton?.focus({ preventScroll: true });
+		};
+		restoreSelectionPosition();
+		window.requestAnimationFrame(() => restoreSelectionPosition(true));
 	}
 
 	function renderOrganizationManagerPanel(organization: ManagedOrganization): string {
@@ -5070,19 +5636,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const seatFull = isOrganizationSeatFull(organization);
 		const selectedUser = draft.searchResults.find((user) => user.id === draft.selectedUserId);
 		const defaultRoles = ['orgAdmin'];
-		const allowedRoleIds = ['assistant', 'orgAdmin'];
-		const managerInvitations = organization.invitations.filter((item) => (item.roles.includes('orgAdmin') || item.roles.includes('assistant')) && item.status === 'pending');
+		const allowedRoleIds = organizationManagerRoleIds;
+		const managerInvitations = organization.invitations.filter((item) => item.roles.some((role) => organizationManagerRoleIds.includes(role)) && item.status === 'pending');
 		const pendingCount = managerInvitations.length;
+		const managerCount = organization.members.filter((member) => member.roles.some((role) => organizationManagerRoleIds.includes(role))).length;
 		const resultsMarkup = draft.searchResults.length
-			? `<div class="pc-org-candidate-list">${draft.searchResults
-					.map((user) => {
-						const meta = [user.username && user.username !== user.displayName ? user.username : '', user.email || '', user.memberNo || '']
-							.filter(Boolean)
-							.join(' · ');
-						return `<button class="pc-org-candidate${draft.selectedUserId === user.id ? ' selected' : ''}" type="button" data-org-pick-user data-org-id="${escapeHtml(organization.id)}" data-user-id="${escapeHtml(user.id)}"><strong>${escapeHtml(user.displayName)}</strong><span>${escapeHtml(meta || user.id)}</span></button>`;
-					})
-					.join('')}</div>`
-			: `<div class="pc-admin-note">${draft.searchQuery.trim() ? '没有找到可添加的账号，请换一个关键字。' : '可按登录账号、昵称、邮箱、成员编号进行搜索。'}</div>`;
+			? renderOrganizationCandidateResults(organization, draft)
+			: draft.searchQuery.trim()
+				? '<div class="pc-admin-note">没有找到可添加的账号，请换一个关键字。</div>'
+				: '';
 		const invitationMarkup = managerInvitations.length
 			? managerInvitations
 					.slice(0, 6)
@@ -5100,30 +5662,30 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					})
 					.join('')
 			: '<div class="pc-org-empty">暂无待处理的管理人员邀请。</div>';
-		const selectedText = selectedUser
-			? `已选择 ${escapeHtml(selectedUser.displayName)}，提交后会加入当前组织。`
-			: '先搜索并选择一个账号，再点击添加。';
+		const selectedUserMeta = selectedUser
+			? [selectedUser.username && selectedUser.username !== selectedUser.displayName ? selectedUser.username : '', selectedUser.memberNo || '']
+					.filter(Boolean)
+					.join(' · ')
+			: '';
+		const selectionActionMarkup = selectedUser
+			? `<div class="pc-org-manager-selection-bar" data-org-manager-selection>
+				<div class="pc-org-manager-selected-user" data-org-selected-user><span>已选择</span><strong>${escapeHtml(selectedUser.displayName)}</strong>${selectedUserMeta ? `<em>${escapeHtml(selectedUserMeta)}</em>` : ''}</div>
+				<div class="pc-org-manager-role-field"><span>角色</span><div class="pc-role-toggle-group">${renderOrganizationRoleControls(defaultRoles, `org-manager-add-${organization.id}`, allowedRoleIds)}</div></div>
+				<button class="pc-inline-btn pc-org-manager-add-button" type="submit"${seatFull ? ' disabled' : ''}>添加</button>
+			</div>`
+			: '';
 		return `<div class="pc-org-subsection pc-org-manager-config-section">
-			<div class="pc-org-subsection-head"><h4>管理人员配置</h4><span>${escapeHtml(organizationSeatSummary(organization))} · ${escapeHtml(String(pendingCount))} 个邀请待接受</span></div>
-			<div class="pc-admin-note">先查找平台账号，找到后直接添加为机构管理员或教学运营。只有查不到账号时，再发送邀请。</div>
+			<div class="pc-org-subsection-head"><h4>管理人员配置</h4><span>${escapeHtml(String(managerCount))} 人 · ${escapeHtml(String(pendingCount))} 待接受</span></div>
 			${seatFull ? `<div class="pc-org-capacity is-full">${escapeHtml(organizationSeatSummary(organization))} 请先移除成员或升级席位。</div>` : ''}
 			<form class="pc-org-add-form pc-org-manager-flow" data-org-add-form data-org-id="${escapeHtml(organization.id)}" data-org-add-mode="manager">
-				<div class="pc-org-manager-step">
-					<div class="pc-org-manager-step-head"><span>1</span><strong>查找账号</strong></div>
-					<label class="pc-org-field pc-org-field-wide">
+				<div class="pc-org-manager-search-only-row">
+					<label class="pc-org-field pc-org-manager-search-field">
 						<span>账号 / 昵称 / 邮箱</span>
 						<div class="pc-org-search-row"><input class="pc-profile-input" type="text" data-org-search-query value="${escapeHtml(draft.searchQuery)}" placeholder="输入账号 / 昵称 / 邮箱" /><button class="pc-inline-ghost" type="button" data-org-search>搜索</button></div>
 					</label>
-					${resultsMarkup}
 				</div>
-				<div class="pc-org-manager-step">
-					<div class="pc-org-manager-step-head"><span>2</span><strong>设置角色</strong></div>
-					<div class="pc-org-manager-action-row">
-						<div class="pc-role-toggle-group">${renderOrganizationRoleControls(defaultRoles, `org-manager-add-${organization.id}`, allowedRoleIds)}</div>
-						<div class="pc-org-form-actions"><button class="pc-inline-btn" type="submit"${seatFull || !selectedUser ? ' disabled' : ''}>添加</button></div>
-					</div>
-					<div class="pc-admin-note">${selectedText}</div>
-				</div>
+				${resultsMarkup}
+				${selectionActionMarkup}
 			</form>
 			<details class="pc-org-manager-invite-drawer">
 				<summary><span>找不到账号？发送邀请</span><em>对方接受并验证后自动加入机构</em></summary>
@@ -5137,7 +5699,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					</div>
 				</form>
 			</details>
-			<details class="pc-org-manager-invite-drawer"${managerInvitations.length ? ' open' : ''}>
+			<details class="pc-org-manager-invite-drawer">
 				<summary><span>待处理邀请</span><em>${escapeHtml(String(managerInvitations.length))} 条记录</em></summary>
 				<div class="pc-org-invite-list">${invitationMarkup}</div>
 			</details>
@@ -5154,7 +5716,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const activeMemberRole = activeOrganizationMemberRoleId(organization);
 		const activeMemberRoleName = roleLabels([activeMemberRole])[0] || '成员';
 		const defaultRoles = isManagerMode ? ['orgAdmin'] : [activeMemberRole];
-		const allowedRoleIds = isManagerMode ? ['assistant', 'orgAdmin'] : undefined;
+		const allowedRoleIds = isManagerMode ? organizationManagerRoleIds : undefined;
 		const heading = isManagerMode ? '添加管理人员' : `添加 / 邀请${activeMemberRoleName}`;
 		const selectedText = selectedUser
 			? `已选择 ${escapeHtml(selectedUser.displayName)}`
@@ -5164,20 +5726,21 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					? '未找到账号，请输入完整手机号或邮箱创建邀请'
 					: '搜索已有账号，或输入完整手机号/邮箱邀请新用户';
 		const submitText = '添加/邀请';
-		const memberInvitations = organization.invitations.filter((item) => item.status === 'pending' && (item.roles.includes('orgAdmin') || item.roles.includes('assistant')));
+		const memberInvitations = organization.invitations.filter((item) => item.status === 'pending' && item.roles.some((role) => organizationManagerRoleIds.includes(role)));
 		const invitationMarkup = isManagerMode && memberInvitations.length
 			? `<details class="pc-org-manager-invite-drawer" open><summary><span>待处理邀请</span><em>${escapeHtml(String(memberInvitations.length))} 条记录</em></summary><div class="pc-org-invite-list">${memberInvitations.slice(0, 8).map((invitation) => renderOrganizationInvitationRow(organization, invitation)).join('')}</div></details>`
 			: '';
 		const resultsMarkup = draft.searchResults.length
-			? `<div class="pc-org-candidate-list">${draft.searchResults
-					.map((user) => {
-						const meta = [user.username && user.username !== user.displayName ? user.username : '', user.email || '', user.memberNo || '']
-							.filter(Boolean)
-							.join(' · ');
-						return `<button class="pc-org-candidate${draft.selectedUserId === user.id ? ' selected' : ''}" type="button" data-org-pick-user data-org-id="${escapeHtml(organization.id)}" data-user-id="${escapeHtml(user.id)}"><strong>${escapeHtml(user.displayName)}</strong><span>${escapeHtml(meta || user.id)}</span></button>`;
-					})
-					.join('')}</div>`
-			: `<div class="pc-admin-note">${draft.searchQuery.trim() ? (canInviteFromInput ? '没有搜索到已有账号，将按当前手机号/邮箱创建邀请。' : '没有搜索到已有账号。若要邀请新用户，请输入完整手机号或邮箱。') : '可按登录账号、昵称、邮箱、手机号进行搜索。'}</div>`;
+			? renderOrganizationCandidateResults(organization, draft)
+			: draft.searchQuery.trim()
+				? `<div class="pc-admin-note">${canInviteFromInput ? '未找到已有账号，将创建邀请。' : '未找到账号，请输入完整手机号或邮箱进行邀请。'}</div>`
+				: '';
+		const selectionMarkup = selectedUser || draft.searchQuery.trim()
+			? `<div class="pc-admin-note">${selectedText}</div>`
+			: '';
+		const invitationNoteMarkup = !isManagerMode && canInviteFromInput && !selectedUser
+			? `<details class="pc-org-invite-note"><summary>添加邀请备注（可选）</summary><label class="pc-org-field"><textarea class="pc-org-note-input" data-org-invite-message rows="2" placeholder="例如：欢迎加入第三期日语冲刺班">${escapeHtml(draft.inviteMessage)}</textarea></label></details>`
+			: '';
 		const formMarkup = `<form class="pc-org-add-form${isManagerMode ? ' pc-org-manager-add-form' : ''}" data-org-add-form data-org-id="${escapeHtml(organization.id)}" data-org-add-mode="${escapeHtml(mode)}">
 			<div class="pc-org-form-grid pc-org-form-grid-search-only${isManagerMode ? ' pc-org-form-grid-manager' : ''}">
 				<label class="pc-org-field pc-org-field-wide">
@@ -5186,13 +5749,13 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			</div>
 			${isManagerMode ? `<div class="pc-role-toggle-group">${renderOrganizationRoleControls(defaultRoles, `org-add-${organization.id}`, allowedRoleIds)}</div>` : defaultRoles.map((role) => `<input type="checkbox" data-org-role name="org-add-${escapeHtml(organization.id)}" value="${escapeHtml(role)}" checked hidden />`).join('')}
 			${resultsMarkup}
-			<div class="pc-admin-note">${selectedText}</div>
-			${isManagerMode ? '' : `<label class="pc-org-field"><span>邀请备注（可选）</span><textarea class="pc-org-note-input" data-org-invite-message rows="2" placeholder="例如：欢迎加入第三期日语冲刺班">${escapeHtml(draft.inviteMessage)}</textarea></label>`}
+			${selectionMarkup}
+			${invitationNoteMarkup}
 			<div class="pc-org-form-actions"><button class="pc-inline-btn" type="submit"${seatFull ? ' disabled' : ''}>${escapeHtml(submitText)}</button></div>
 		</form>`;
 		if (options.embedded) {
 			return `<div class="pc-org-inline-add">
-				<div class="pc-org-subsection-head"><h4>${escapeHtml(heading)}</h4><span>${escapeHtml(organizationSeatSummary(organization))}</span></div>
+				<div class="pc-org-subsection-head"><h4>${escapeHtml(heading)}</h4></div>
 				${seatFull ? `<div class="pc-org-capacity is-full">${escapeHtml(organizationSeatSummary(organization))} 请先移除成员或升级席位。</div>` : ''}
 				${formMarkup}
 			</div>`;
@@ -5208,32 +5771,44 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	function renderOrganizationMemberEditor(organization: ManagedOrganization, member: ManagedOrganizationMember): string {
 		const displayName = organizationMemberDisplayName(member);
 		const metaParts = [member.username !== displayName ? member.username : '', member.memberNo || ''].filter(Boolean);
-		const overrideCount = member.permissionOverrides.length;
-		const templateText = member.permissionTemplates.length
-			? member.permissionTemplates.map(permissionTemplateLabel).join(' / ')
-			: '未套用模板';
+		const memberIdentifierLabel = organizationMemberIdentifierLabel(organization.organizationType, member.roles);
+		const memberIdentifierValue = member.memberNo || '未设置';
+		const defaultPermissions = organizationMemberDefaultPermissions(organization, member.roles);
+		const defaultPermissionSet = new Set(defaultPermissions);
+		const extraPermissions = member.permissionOverrides.filter((item) => item.effect !== 'deny' && !defaultPermissionSet.has(item.permission));
+		const overrideCount = extraPermissions.length;
+		const defaultPermissionCount = defaultPermissions.length;
 		return `<details class="pc-org-member-editor">
 			<summary class="pc-org-member-summary">
 				<div class="pc-org-member-meta"><strong>${escapeHtml(displayName)}</strong><span>${escapeHtml(metaParts.join(' · ') || '组织成员')}</span></div>
-				<div class="pc-org-member-role-summary"><span>${escapeHtml(roleLabels(member.roles).join(' / ') || '未设置角色')}</span><em>${escapeHtml(templateText)}</em></div>
+				<div class="pc-org-member-role-summary"><span>${escapeHtml(roleLabels(member.roles).join(' / ') || '未设置角色')}</span><em>${escapeHtml(String(defaultPermissionCount + overrideCount))} 项有效权限</em></div>
 			</summary>
 			<form data-org-member-form data-org-id="${escapeHtml(organization.id)}" data-user-id="${escapeHtml(member.userId)}">
 			<div class="pc-org-member-head">
 				<div class="pc-org-member-meta"><strong>${escapeHtml(displayName)}</strong><span>${escapeHtml(metaParts.join(' · ') || '组织成员')}</span></div>
 				<button class="pc-inline-danger" type="button" data-org-member-remove>移除成员</button>
 			</div>
-			<div class="pc-org-subsection-head"><h4>成员权限</h4><span>${escapeHtml(roleLabels(member.roles).join(' / ') || '未设置角色')} · ${escapeHtml(templateText)} · 额外权限 ${escapeHtml(String(overrideCount))} 项</span></div>
-			<div class="pc-admin-note">基础角色决定默认权限；权限模板用于常见教务职责；额外权限可限定到整个机构、校区、学习组或个人，并可设置到期日期。</div>
-			<div class="pc-role-toggle-group">${renderOrganizationRoleControls(member.roles, `org-member-${organization.id}-${member.userId}`)}</div>
-			${renderOrganizationTemplateControls(member.permissionTemplates, member.roles, `org-member-template-${organization.id}-${member.userId}`)}
-			${renderOrganizationPermissionControls(member.permissionOverrides)}
-			<div class="pc-org-form-grid pc-org-form-grid-compact">
-				<label class="pc-org-field">
-					<span>${escapeHtml(organizationMemberNoLabel(organization.organizationType))}</span>
-					<input class="pc-profile-input" type="text" maxlength="32" data-org-member-no value="${escapeHtml(member.memberNo || '')}" placeholder="保持当前编号" />
-				</label>
-				<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit" data-org-member-save onpointerdown="window.__pcSaveOrganizationMember?.(this); return false;" onclick="return false;">保存变更</button></div>
+			<div class="pc-org-subsection-head"><h4>角色与权限</h4><span data-org-member-permission-summary>${escapeHtml(String(defaultPermissionCount))} 项基础权限 · ${escapeHtml(String(overrideCount))} 项额外权限</span></div>
+			<div class="pc-org-member-setting-block pc-org-member-role-settings">
+				<div class="pc-org-member-setting-head"><div><strong>基础角色</strong><span>选择管理职责，系统会自动授予对应的基础权限</span></div><em data-org-role-permission-count>已包含 ${escapeHtml(String(defaultPermissionCount))} 项基础权限</em></div>
+				<div class="pc-role-toggle-group">${renderOrganizationRoleControls(member.roles, `org-member-${organization.id}-${member.userId}`, organizationManagerRoleIds)}</div>
 			</div>
+			<div class="pc-org-member-setting-block pc-org-base-permission-block">
+				<div class="pc-org-member-setting-head"><div><strong>角色自带权限</strong><span>随基础角色自动调整，无需逐项设置</span></div></div>
+				<div class="pc-role-toggle-group pc-permission-group" data-org-role-permission-list>${renderOrganizationBasePermissionControls(defaultPermissions)}</div>
+			</div>
+			${renderOrganizationPermissionControls(extraPermissions, defaultPermissions)}
+			<div class="pc-org-member-number-editor" data-org-member-number-editor>
+				<div class="pc-org-member-number-row" data-org-member-number-view>
+					<span class="pc-org-member-number-value"><em>${escapeHtml(memberIdentifierLabel)}</em><strong>${escapeHtml(memberIdentifierValue)}</strong></span>
+					<button class="pc-org-member-number-action" type="button" data-org-member-number-edit>${member.memberNo ? '修改' : '设置'}</button>
+				</div>
+				<div class="pc-org-member-number-row pc-org-member-number-edit" data-org-member-number-edit-panel hidden>
+					<label class="pc-org-field pc-org-member-number-input"><span>${escapeHtml(memberIdentifierLabel)}</span><input class="pc-profile-input" type="text" maxlength="32" aria-label="${escapeHtml(memberIdentifierLabel)}" data-org-member-no data-original-value="${escapeHtml(member.memberNo || '')}" value="${escapeHtml(member.memberNo || '')}" placeholder="请输入${escapeHtml(memberIdentifierLabel)}" /></label>
+					<button class="pc-org-member-number-action" type="button" data-org-member-number-cancel>取消</button>
+				</div>
+			</div>
+			<div class="pc-org-member-save-row"><span data-org-member-save-status>暂无待保存修改</span><button class="pc-inline-btn" type="submit" data-org-member-save disabled onpointerdown="window.__pcSaveOrganizationMember?.(this); return false;" onclick="return false;">保存成员设置</button></div>
 			</form>
 		</details>`;
 	}
@@ -5286,6 +5861,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				return;
 			}
 			if (t?.dataset.action === 'pc-back-home') {
+				if (!getContext().guest && (activeSection === 'profile' || activeDashboardSubpage === 'account-core')) {
+					closePanel();
+					const trigger = document.getElementById('user-menu-trigger') as HTMLButtonElement | null;
+					if (trigger) {
+						window.setTimeout(() => {
+							if (!superAdminAccountMenuOpen) toggleSuperAdminAccountMenu(trigger);
+						}, 0);
+					}
+					return;
+				}
 				if (activeSection === 'dashboard' && activeDashboardSubpage) {
 					activeDashboardSubpage = dashboardParentSubpage(activeDashboardSubpage);
 				} else {
@@ -5323,6 +5908,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		activeSection = 'dashboard';
 		activeDashboardSubpage = '';
 		activeRoleContent = '';
+		pendingCoursePackageAllocation = null;
 		activeWorkbench = '';
 		activeFavoriteFolderId = '';
 		activeAccountEditor = '';
@@ -5383,9 +5969,28 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		auditLogState.actionLabels = {};
 	}
 
-	function openPanel(): void {
+	type PersonalCenterDestination = 'home' | 'profile' | 'security';
+
+	function openPanel(destination: PersonalCenterDestination = 'home'): void {
+		if (destination === 'home') {
+			const ctx = getContext();
+			if (!ctx.guest) {
+				if (hasAnyRole(ctx, ['superAdmin'])) openPlatformAdmin();
+				else openRoleWorkspace();
+				return;
+			}
+		}
+		closeSuperAdminAccountMenu();
+		closePlatformAdmin();
 		const root = ensureRoot();
 		resetPersonalCenterNavigationState();
+		if (destination === 'profile') {
+			activeSection = 'profile';
+		} else if (destination === 'security') {
+			activeSection = 'dashboard';
+			activeDashboardSubpage = 'account-core';
+		}
+		root.classList.toggle('pc-superadmin-account', destination === 'profile' || destination === 'security');
 		organizationInviteTokenDraft = organizationInviteTokenDraft || inviteTokenFromUrl();
 		seedContactVerificationDraft(getContext());
 		root.classList.remove('pc-hidden');
@@ -5404,6 +6009,327 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		root.classList.add('pc-hidden');
 	}
 
+	function closeSuperAdminAccountMenu(): void {
+		superAdminAccountMenuOpen = false;
+		const menu = document.getElementById('superadmin-account-menu');
+		menu?.classList.remove('pc-superadmin-account-menu-open');
+		menu?.classList.add('pc-superadmin-account-menu-hidden');
+		const trigger = document.getElementById('user-menu-trigger');
+		trigger?.setAttribute('aria-expanded', 'false');
+	}
+
+	function positionSuperAdminAccountMenu(menu: HTMLElement, trigger: HTMLElement): void {
+		void trigger;
+		const viewportInset = window.innerWidth <= 600 ? 4 : 8;
+		const menuWidth = Math.min(440, Math.max(280, window.innerWidth - viewportInset * 2));
+		menu.style.width = `${menuWidth}px`;
+		menu.style.left = `${window.innerWidth - menuWidth - viewportInset}px`;
+		menu.style.top = `${viewportInset}px`;
+	}
+
+	function renderSuperAdminAccountMenu(): void {
+		const menu = ensureSuperAdminAccountMenu();
+		const ctx = getContext();
+		const name = preferredDisplayName(ctx);
+		const workbench = activeWorkbenchDef(ctx);
+		const identitySubtitle = [scopeLabel(ctx), roleLabels(ctx.roles).slice(0, 2).join(' / ')].filter(Boolean).join(' · ');
+		const roleWorkspaceTitles: Partial<Record<WorkbenchId, string>> = {
+			teacher: '进入教学管理',
+			assistant: '进入教学运营',
+			orgContentAdmin: '进入机构内容管理',
+			orgAdmin: '进入机构管理',
+			contentAdmin: '进入内容管理'
+		};
+		const primary = workbench.id === 'superAdmin'
+			? { title: '进入平台管理', desc: '总览与业务管理' }
+			: workbench.id === 'student'
+				? { title: '进入学习中心', desc: '学习内容与进度' }
+				: { title: roleWorkspaceTitles[workbench.id] || `进入${workbench.label}`, desc: workbench.subtitle };
+		menu.innerHTML = `<div class="pc-superadmin-account-summary">
+			<span class="pc-avatar pc-superadmin-menu-avatar">${ctx.avatar
+				? `<img class="pc-avatar-image" src="${escapeHtml(ctx.avatar)}" alt="" />`
+				: renderOutlineIcon('brandMark', 'pc-avatar-icon')}</span>
+			<div><strong>${escapeHtml(name)}</strong><em>${escapeHtml(identitySubtitle)}</em></div>
+			<button class="pc-superadmin-account-close" type="button" aria-label="关闭账号菜单" data-superadmin-account-action="close">×</button>
+		</div>
+		<div class="pc-superadmin-account-actions">
+			<button type="button" role="menuitem" data-superadmin-account-action="workspace"><span>${escapeHtml(primary.title)}</span><em>${escapeHtml(primary.desc)}</em></button>
+			<button type="button" role="menuitem" data-superadmin-account-action="profile"><span>个人资料</span><em>头像与联系方式</em></button>
+			<button type="button" role="menuitem" data-superadmin-account-action="security"><span>账号安全</span><em>密码与登录设备</em></button>
+			<button type="button" role="menuitem" data-superadmin-account-action="switch"><span>切换账号</span><em>登录其他角色</em></button>
+		</div>
+		<button class="pc-superadmin-account-logout" type="button" role="menuitem" data-superadmin-account-action="logout">退出登录</button>`;
+	}
+
+	function ensureSuperAdminAccountMenu(): HTMLElement {
+		let menu = document.getElementById('superadmin-account-menu');
+		if (menu) return menu;
+		menu = document.createElement('div');
+		menu.id = 'superadmin-account-menu';
+		menu.className = 'pc-superadmin-account-menu-hidden';
+		menu.setAttribute('role', 'menu');
+		menu.setAttribute('aria-label', '账号菜单');
+		menu.addEventListener('click', (event) => {
+			const button = eventTargetElement(event.target)?.closest('[data-superadmin-account-action]') as HTMLButtonElement | null;
+			const action = button?.dataset.superadminAccountAction;
+			if (!action) return;
+			closeSuperAdminAccountMenu();
+			if (action === 'close') {
+				(document.getElementById('user-menu-trigger') as HTMLButtonElement | null)?.focus();
+				return;
+			}
+			if (action === 'workspace') {
+				const ctx = getContext();
+				const workbench = activeWorkbenchDef(ctx);
+				if (workbench.id === 'superAdmin') openPlatformAdmin();
+				else openRoleWorkspace();
+			}
+			if (action === 'profile') openPanel('profile');
+			if (action === 'security') openPanel('security');
+			if (action === 'switch') void switchPlatformAdminAccount();
+			if (action === 'logout') window.logoutUser?.();
+		});
+		document.body.appendChild(menu);
+		document.addEventListener('click', (event) => {
+			if (!superAdminAccountMenuOpen) return;
+			const target = eventTargetElement(event.target);
+			if (target?.closest('#superadmin-account-menu, #user-menu-trigger')) return;
+			closeSuperAdminAccountMenu();
+		});
+		document.addEventListener('keydown', (event) => {
+			if (event.key !== 'Escape' || !superAdminAccountMenuOpen) return;
+			closeSuperAdminAccountMenu();
+			(document.getElementById('user-menu-trigger') as HTMLButtonElement | null)?.focus();
+		});
+		window.addEventListener('resize', () => {
+			const trigger = document.getElementById('user-menu-trigger');
+			if (superAdminAccountMenuOpen && trigger) positionSuperAdminAccountMenu(menu as HTMLElement, trigger);
+		});
+		return menu;
+	}
+
+	function toggleSuperAdminAccountMenu(trigger: HTMLButtonElement): void {
+		const menu = ensureSuperAdminAccountMenu();
+		superAdminAccountMenuOpen = !superAdminAccountMenuOpen;
+		trigger.setAttribute('aria-expanded', superAdminAccountMenuOpen ? 'true' : 'false');
+		menu.classList.toggle('pc-superadmin-account-menu-open', superAdminAccountMenuOpen);
+		menu.classList.toggle('pc-superadmin-account-menu-hidden', !superAdminAccountMenuOpen);
+		if (!superAdminAccountMenuOpen) return;
+		renderSuperAdminAccountMenu();
+		positionSuperAdminAccountMenu(menu, trigger);
+		(menu.querySelector('[role="menuitem"]') as HTMLElement | null)?.focus();
+	}
+
+	function platformAdminPageRoleContent(page: PlatformAdminPage): string {
+		return {
+			overview: '', users: 'platform-users', roles: 'platform-roles', organizations: 'platform-orgs',
+			content: 'content-publish', feedback: 'platform-feedback', payments: 'platform-payments', pricing: 'platform-pricing',
+			flags: 'platform-flags', audit: 'platform-audit'
+		}[page];
+	}
+
+	function platformAdminBackLabel(previousRoleContent: string): string {
+		if (previousRoleContent === 'platform-users') return '返回用户列表';
+		if (previousRoleContent === 'platform-orgs') return '返回机构列表';
+		if (previousRoleContent === 'platform-payments') return '返回订单与支付';
+		if (previousRoleContent.startsWith('platform-payment-order:')) return '返回订单详情';
+		if (previousRoleContent.startsWith('platform-payment-refund:')) return '返回退款详情';
+		return '返回上一页';
+	}
+
+	function renderPlatformAdminDetailNavigation(): string {
+		const defaultRoleContent = platformAdminPageRoleContent(activePlatformAdminPage);
+		if (!activeRoleContent || activeRoleContent === defaultRoleContent && platformAdminRoleContentHistory.length === 0) return '';
+		const previousRoleContent = platformAdminRoleContentHistory[platformAdminRoleContentHistory.length - 1] || defaultRoleContent;
+		if (!previousRoleContent || previousRoleContent === activeRoleContent) return '';
+		const label = platformAdminBackLabel(previousRoleContent);
+		return `<div class="pc-platform-detail-nav"><button class="pc-inline-ghost" type="button" data-platform-admin-detail-back aria-label="${escapeHtml(label)}">← ${escapeHtml(label)}</button></div>`;
+	}
+
+	function platformAdminNavigation(): Array<{ group: string; items: Array<{ id: PlatformAdminPage; label: string; icon: string }> }> {
+		return [
+			{ group: '', items: [{ id: 'overview', label: '总览', icon: 'chart' }] },
+			{ group: '用户权限', items: [{ id: 'users', label: '用户管理', icon: 'profileMark' }, { id: 'roles', label: '角色权限', icon: 'settings' }] },
+			{ group: '机构', items: [{ id: 'organizations', label: '机构管理', icon: 'folder' }] },
+			{ group: '内容', items: [{ id: 'content', label: '内容工作流', icon: 'badge' }, { id: 'feedback', label: '反馈处理', icon: 'community' }] },
+			{ group: '交易', items: [{ id: 'payments', label: '订单与支付', icon: 'wallet' }, { id: 'pricing', label: '价格与套餐', icon: 'ticket' }] },
+			{ group: '系统', items: [{ id: 'flags', label: '功能开关', icon: 'settings' }, { id: 'audit', label: '审计日志', icon: 'badge' }] }
+		];
+	}
+
+	function ensurePlatformAdminShell(): HTMLElement {
+		let shell = document.getElementById('platform-admin-shell');
+		if (shell) return shell;
+		shell = document.createElement('div');
+		shell.id = 'platform-admin-shell';
+		shell.className = 'pc-platform-admin-hidden';
+		document.body.appendChild(shell);
+			shell.addEventListener('click', (event) => {
+			const target = eventTargetElement(event.target);
+			const roleAdminNav = target?.closest('[data-role-admin-intent]') as HTMLButtonElement | null;
+			if (roleAdminNav && platformAdminMode === 'role') {
+				const intent = roleAdminNav.dataset.roleAdminIntent || '';
+				platformAdminAccountMenuOpen = false;
+				const contentKey = roleWorkspaceContentKey(intent);
+				if (intent === '__overview__' || contentKey) {
+					if (contentKey === 'org-course-accounts') pendingCoursePackageAllocation = null;
+					activeRoleContent = contentKey;
+					activeDashboardSubpage = activeRoleContent ? 'role-content' : '';
+					if (contentKey === 'student-favorites') {
+						activeFavoriteFolderId = '';
+						invalidateFavoriteBookmarks();
+						void ensureFavoriteBookmarks(getContext());
+					}
+					renderPlatformAdminShell();
+				} else {
+					handleFeatureIntent(intent);
+				}
+				return;
+			}
+			if (target?.closest('[data-platform-admin-detail-back]')) {
+				const returningFromOrganization = activeRoleContent.startsWith('platform-org-detail:');
+				const fallback = platformAdminPageRoleContent(activePlatformAdminPage);
+				activeRoleContent = platformAdminRoleContentHistory.pop() || fallback;
+				activeDashboardSubpage = activeRoleContent ? 'role-content' : '';
+				renderPlatformAdminShell();
+				if (returningFromOrganization && activeRoleContent === 'platform-orgs') {
+					const content = shell.querySelector<HTMLElement>('.pc-platform-admin-content');
+					if (content) {
+						content.scrollTop = managedOrganizationListScrollTop;
+						const returnCard = Array.from(content.querySelectorAll<HTMLDetailsElement>('details[data-managed-org-id][data-managed-org-mode="platform"]'))
+							.find((item) => item.dataset.managedOrgId === managedOrganizationDetailReturnId);
+						const returnTarget = returnCard?.querySelector<HTMLElement>('summary');
+						if (returnTarget) window.requestAnimationFrame(() => returnTarget.focus({ preventScroll: true }));
+					}
+				}
+				return;
+			}
+			const roleAccountPage = target?.closest('[data-role-account-page]') as HTMLButtonElement | null;
+			if (roleAccountPage && platformAdminMode === 'role') {
+				activeRoleContent = roleAccountPage.dataset.roleAccountPage || '';
+				activeDashboardSubpage = activeRoleContent ? 'role-content' : '';
+				platformAdminAccountMenuOpen = false;
+				renderPlatformAdminShell();
+				return;
+			}
+			if (target?.closest('[data-platform-admin-account-menu]')) {
+				platformAdminAccountMenuOpen = !platformAdminAccountMenuOpen;
+				renderPlatformAdminShell({ preserveScroll: true });
+				return;
+			}
+			if (target?.closest('[data-platform-admin-switch-account]')) {
+				void switchPlatformAdminAccount();
+				return;
+			}
+			if (target?.closest('[data-platform-admin-display-toggle]')) {
+				platformAdminMobilePreview = !platformAdminMobilePreview;
+				platformAdminExpanded = !platformAdminMobilePreview;
+				renderPlatformAdminShell({ preserveScroll: true });
+				return;
+			}
+			if (target?.closest('[data-platform-admin-close]')) {
+				closePlatformAdmin();
+				return;
+			}
+			if (target?.closest('[data-platform-admin-account]')) {
+				closePlatformAdmin();
+				openPanel('profile');
+				return;
+			}
+			if (target?.closest('[data-platform-admin-security]')) {
+				closePlatformAdmin();
+				openPanel('security');
+				return;
+			}
+			if (target?.closest('[data-platform-admin-logout]')) {
+				platformAdminAccountMenuOpen = false;
+				window.logoutUser?.();
+				closePlatformAdmin();
+				return;
+			}
+			const nav = target?.closest('[data-platform-admin-page]') as HTMLButtonElement | null;
+			if (nav) {
+				platformAdminAccountMenuOpen = false;
+				activePlatformAdminPage = (nav.dataset.platformAdminPage || 'overview') as PlatformAdminPage;
+				activeRoleContent = platformAdminPageRoleContent(activePlatformAdminPage);
+				platformAdminRoleContentHistory = [];
+				activeDashboardSubpage = activeRoleContent ? 'role-content' : '';
+				renderPlatformAdminShell();
+			}
+		});
+		shell.addEventListener('input', (event) => {
+			const target = eventTargetElement(event.target);
+			if (target?.matches('[data-org-package-student-search], [data-org-course-package-student]')) {
+				const form = target.closest<HTMLFormElement>('form[data-org-course-package-assignment-form]');
+				if (form) updateOrganizationPackageStudentPicker(form);
+				return;
+			}
+			if (target?.matches('[data-org-package-assignment-search]')) updateOrganizationPackageAssignmentList(target as HTMLInputElement);
+		});
+		return shell;
+	}
+
+	function openPlatformAdmin(): void {
+		const ctx = getContext();
+		if (!hasAnyRole(ctx, ['superAdmin'])) {
+			showToast('需要超级管理员权限');
+			return;
+		}
+		closePanel();
+		platformAdminMode = 'platform';
+		activePlatformAdminPage = 'overview';
+		activeRoleContent = '';
+		platformAdminRoleContentHistory = [];
+		activeDashboardSubpage = '';
+		platformAdminExpanded = true;
+		platformAdminMobilePreview = false;
+		platformAdminAccountMenuOpen = false;
+		const shell = ensurePlatformAdminShell();
+		shell.classList.remove('pc-platform-admin-hidden');
+		shell.classList.add('pc-platform-admin-open');
+		shell.classList.add('pc-platform-admin-expanded');
+		renderPlatformAdminShell();
+	}
+
+	function openRoleWorkspace(): void {
+		const ctx = getContext();
+		const workbench = activeWorkbenchDef(ctx);
+		if (ctx.guest || workbench.id === 'superAdmin') {
+			openPanel();
+			return;
+		}
+		closePanel();
+		platformAdminMode = 'role';
+		activeRoleContent = '';
+		activeDashboardSubpage = '';
+		platformAdminExpanded = true;
+		platformAdminMobilePreview = false;
+		platformAdminAccountMenuOpen = false;
+		const shell = ensurePlatformAdminShell();
+		shell.classList.remove('pc-platform-admin-hidden');
+		shell.classList.add('pc-platform-admin-open');
+		shell.classList.add('pc-platform-admin-expanded');
+		renderPlatformAdminShell();
+	}
+
+	function closePlatformAdmin(): void {
+		const shell = document.getElementById('platform-admin-shell');
+		shell?.classList.remove('pc-platform-admin-open');
+		shell?.classList.remove('pc-platform-admin-expanded');
+		shell?.classList.remove('pc-platform-admin-mobile-preview');
+		shell?.classList.add('pc-platform-admin-hidden');
+		platformAdminExpanded = false;
+		platformAdminMobilePreview = false;
+		platformAdminAccountMenuOpen = false;
+	}
+
+	async function switchPlatformAdminAccount(): Promise<void> {
+		platformAdminAccountMenuOpen = false;
+		await Promise.resolve(window.logoutUser?.());
+		closePlatformAdmin();
+		window.setTimeout(() => openLoginModal(), 0);
+	}
+
 	async function buildTrigger(): Promise<void> {
 		let trigger = document.getElementById('user-menu-trigger') as HTMLButtonElement | null;
 		const triggerHost = document.getElementById('exam-library-panel') || document.getElementById('exam-workarea') || document.body;
@@ -5417,14 +6343,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				if (getContext().guest) {
 					openLoginModal();
 				} else {
-					openPanel();
+					toggleSuperAdminAccountMenu(trigger as HTMLButtonElement);
 				}
 			};
 		} else if (trigger.parentElement !== triggerHost) {
 			triggerHost.appendChild(trigger);
 		}
 		const ctx = getContext();
+		if (ctx.guest) closeSuperAdminAccountMenu();
 		trigger.classList.toggle('authenticated', !ctx.guest);
+		trigger.classList.toggle('pc-superadmin-trigger', !ctx.guest);
 		if (ctx.guest) {
 			trigger.innerHTML = renderOutlineIcon('profileMark', 'pc-trigger-icon');
 		} else if (ctx.avatar) {
@@ -5432,8 +6360,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} else {
 			trigger.innerHTML = `<span class="pc-trigger-monogram">${escapeHtml(triggerMonogram(ctx))}</span>`;
 		}
-		trigger.title = ctx.guest ? '登录账号' : `${preferredDisplayName(ctx)} - 打开个人中心`;
-		trigger.setAttribute('aria-label', ctx.guest ? '登录账号' : '打开个人中心');
+		trigger.title = ctx.guest ? '登录账号' : `${preferredDisplayName(ctx)} - 打开账号菜单`;
+		trigger.setAttribute('aria-label', ctx.guest ? '登录账号' : '打开账号菜单');
+		trigger.setAttribute('aria-haspopup', ctx.guest ? 'dialog' : 'menu');
+		trigger.setAttribute('aria-expanded', !ctx.guest && superAdminAccountMenuOpen ? 'true' : 'false');
 		if (DEBUG) {
 			await loadUsers();
 		}
@@ -5442,16 +6372,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	function syncHeaderActions(): void {
 		const backBtn = document.getElementById('pc-header-back') as HTMLButtonElement | null;
 		const panel = document.querySelector('#personal-center .pc-panel');
+		document.getElementById('personal-center')?.classList.toggle('pc-superadmin-account', activeSection === 'profile' || activeDashboardSubpage === 'account-core');
 		const isSupportPage = activeRoleContent.startsWith('support-');
 		// 简单列表不需要占用完整管理工作区；复杂表格和配置页才使用宽面板。
 		const needsMediumWorkspace = activeSection === 'dashboard'
-			&& activeDashboardSubpage === 'role-content'
-			&& activeRoleContent === 'platform-users';
-		const needsWideWorkspace = activeSection === 'admin-hub'
-			|| (activeSection === 'dashboard'
+				&& activeDashboardSubpage === 'role-content'
+				&& activeRoleContent === 'platform-users';
+		const needsWideWorkspace = activeSection === 'dashboard'
 				&& activeDashboardSubpage === 'role-content'
 				&& !isSupportPage
-				&& !needsMediumWorkspace);
+				&& !needsMediumWorkspace;
 		panel?.classList.toggle('pc-panel-medium', needsMediumWorkspace);
 		panel?.classList.toggle('pc-panel-wide', needsWideWorkspace);
 		if (!backBtn) {
@@ -5490,6 +6420,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	async function renderIdentity(): Promise<void> {
 		const ctx = getContext();
+		document.getElementById('personal-center')?.classList.toggle('pc-superadmin-account', activeSection === 'profile' || activeDashboardSubpage === 'account-core');
 		const nameEl = document.getElementById('pc-name');
 		const rolesEl = document.getElementById('pc-roles');
 		const avatarEl = document.getElementById('pc-avatar');
@@ -5705,250 +6636,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
-	// 业务功能 4：异步刷新"上次未完成"横幅；无草稿则保持隐藏
-	async function refreshResumeBanner(ctx: PCContext): Promise<void> {
-		const banner = document.getElementById('pc-resume-banner') as HTMLDivElement | null;
-		if (!banner) return;
-		if (ctx.guest || !ctx.id) {
-			banner.hidden = true;
-			banner.innerHTML = '';
-			return;
-		}
-		// 业务功能 4 的开关：关闭则隐藏横幅，不发请求
-		if (window.isFeatureEnabled && !window.isFeatureEnabled('resume_draft')) {
-			banner.hidden = true;
-			banner.innerHTML = '';
-			return;
-		}
-		const userId = ctx.id;  // 局部窄化，便于后续闭包使用
-		const api = window.APIClient;
-		if (!api || typeof api.getDraft !== 'function') {
-			banner.hidden = true;
-			return;
-		}
-		try {
-			const data = (await api.getDraft(userId)) as
-				| {
-						exam_id?: string;
-						total_questions?: number;
-						answered_count?: number;
-						last_question_index?: number;
-						last_section_index?: number;
-						updated_at?: string;
-				  }
-				| null;
-			if (!data || typeof data !== 'object' || !data.exam_id) {
-				banner.hidden = true;
-				banner.innerHTML = '';
-				return;
-			}
-			const examId = String(data.exam_id);
-			const total = Number(data.total_questions ?? 0);
-			const answered = Number(data.answered_count ?? 0);
-			const updatedAt = formatShortDateTime(String(data.updated_at ?? ''));
-			banner.hidden = false;
-			banner.innerHTML = `
-				<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;">
-					<div>
-						<div style="font-weight:600;">上次未完成的考试</div>
-						<div style="font-size:13px;color:#666;margin-top:2px;">
-							<code>${escapeHtmlSafe(examId)}</code> · ${answered}${total > 0 ? `/${total}` : ''} 题${updatedAt ? ` · ${escapeHtmlSafe(updatedAt)}` : ''}
-						</div>
-					</div>
-					<div style="display:flex;gap:8px;">
-						<button class="risk-btn primary" data-resume-action="continue" data-exam-id="${escapeHtmlSafe(
-							examId
-						)}">继续</button>
-						<button class="risk-btn" data-resume-action="discard">放弃</button>
-					</div>
-				</div>`;
-			// 绑定继续/放弃按钮
-			banner.onclick = (event: MouseEvent) => {
-				const btn = (event.target as HTMLElement | null)?.closest('button[data-resume-action]') as
-					| HTMLButtonElement
-					| null;
-				if (!btn) return;
-				const action = btn.dataset.resumeAction;
-				if (action === 'discard') {
-					btn.disabled = true;
-					api
-						.clearDraft(userId)
-						.then(() => {
-							showToast('已放弃上次未完成');
-							void refreshResumeBanner(ctx);
-						})
-						.catch((err: unknown) => {
-							btn.disabled = false;
-							showToast(readErrorMessage(err, '放弃失败'));
-						});
-				} else if (action === 'continue') {
-					void resumeExam(examId, data);
-				}
-			};
-		} catch {
-			banner.hidden = true;
-		}
-	}
-
-	// 业务功能 6：异步刷新"我的作业"横幅；无作业则保持隐藏
-	//   - 仅显示截止时间最近的 3 条
-	//   - 点击「去做题」按 exam_id 加载试卷并关闭面板
-	async function refreshAssignmentsBanner(ctx: PCContext): Promise<void> {
-		const banner = document.getElementById('pc-assignments-banner') as HTMLDivElement | null;
-		if (!banner) return;
-		if (ctx.guest || !ctx.id) {
-			banner.hidden = true;
-			banner.innerHTML = '';
-			return;
-		}
-		// 业务功能 6 的开关
-		if (window.isFeatureEnabled && !window.isFeatureEnabled('learning_groups')) {
-			banner.hidden = true;
-			banner.innerHTML = '';
-			return;
-		}
-		try {
-			await ensureMyAssignments(ctx);
-			const items = myAssignmentItems.slice();
-			if (items.length === 0) {
-				banner.hidden = true;
-				banner.innerHTML = '';
-				return;
-			}
-			// 按 due_at 升序，未填 due_at 的排到最后
-			items.sort((a, b) => {
-				const da = String(a.due_at || '');
-				const db = String(b.due_at || '');
-				if (!da && !db) return 0;
-				if (!da) return 1;
-				if (!db) return -1;
-				return da.localeCompare(db);
-			});
-			const top = items.slice(0, 3);
-			const rows = top
-				.map((it) => {
-					const title = escapeHtmlSafe(String(it.title || '未命名作业'));
-					const examId = String(it.exam_id || '');
-					const assignmentId = String(it.assignment_id || '');
-					const dueAt = escapeHtmlSafe(String(it.due_at || '不限期'));
-					const ownSubmission = asRecord(it.own_submission) || {};
-					const submitted = !!readString(ownSubmission.submitted_at);
-					const returned = readString(ownSubmission.review_status) === 'returned' || readString(ownSubmission.status) === 'returned';
-					const teacherComment = readString(ownSubmission.teacher_comment);
-					const ownReminders = Array.isArray(it.own_reminders)
-						? it.own_reminders.map((item) => asRecord(item) || {})
-						: [];
-					const latestReminder = ownReminders
-						.slice()
-						.sort((a, b) => (readString(b.created_at) || '').localeCompare(readString(a.created_at) || ''))[0];
-					const reminderMessage = !submitted ? readString(latestReminder?.message) : '';
-					return `
-						<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px dashed #eee;">
-							<div>
-								<div style="font-size:13px;">${title}${returned ? ' · 已退回重做' : submitted ? ' · 已交' : ''}</div>
-								<div style="font-size:12px;color:#888;">截止：${dueAt} · 试卷 <code>${escapeHtmlSafe(examId)}</code>${returned && teacherComment ? ` · 评语：${escapeHtmlSafe(teacherComment)}` : ''}</div>
-								${reminderMessage ? `<div class="pc-assignment-reminder-message">催交提醒：${escapeHtmlSafe(reminderMessage)}</div>` : ''}
-							</div>
-							<button class="risk-btn" data-asg-action="open" data-exam-id="${escapeHtmlSafe(examId)}" data-assignment-id="${escapeHtmlSafe(assignmentId)}">${returned ? '重新提交' : submitted ? '再做一次' : '去做题'}</button>
-						</div>`;
-				})
-				.join('');
-			banner.hidden = false;
-			banner.innerHTML = `
-				<div style="padding:12px 16px;">
-					<div style="font-weight:600;">📋 我的作业（${items.length}）</div>
-					${rows}
-				</div>`;
-			// 绑定「去做题」按钮：复用 resumeExam(examId, null) 加载试卷
-			banner.onclick = (event: MouseEvent) => {
-				const btn = (event.target as HTMLElement | null)?.closest('button[data-asg-action="open"]') as
-					| HTMLButtonElement
-					| null;
-				if (!btn) return;
-				const examId = btn.dataset.examId || '';
-				const assignmentId = btn.dataset.assignmentId || '';
-				if (!examId) return;
-				if (assignmentId) {
-					localStorage.setItem('exam_v2_active_assignment', JSON.stringify({ assignment_id: assignmentId, exam_id: examId }));
-				}
-				void resumeExam(examId, null);
-			};
-		} catch {
-			banner.hidden = true;
-		}
-	}
-
-	// 业务功能 16：异步刷新"每日一练"横幅
-	//   - 拉取 GET /me/daily-practice，展示「今日 X 道，已完成 Y」与「立即开始」按钮
-	//   - 受 isFeatureEnabled('daily_practice') 控制
-	async function refreshDailyPracticeBanner(ctx: PCContext): Promise<void> {
-		const banner = document.getElementById('pc-daily-banner') as HTMLDivElement | null;
-		if (!banner) return;
-		if (ctx.guest || !ctx.id) {
-			banner.hidden = true;
-			banner.innerHTML = '';
-			return;
-		}
-		if (window.isFeatureEnabled && !window.isFeatureEnabled('daily_practice')) {
-			banner.hidden = true;
-			banner.innerHTML = '';
-			return;
-		}
-		const api = window.APIClient;
-		if (!api || typeof api.getDailyPractice !== 'function') {
-			banner.hidden = true;
-			return;
-		}
-		try {
-			const data = (await api.getDailyPractice()) as Record<string, unknown> | null;
-			const items = Array.isArray(data?.items) ? (data!.items as Array<Record<string, unknown>>) : [];
-			if (items.length === 0) {
-				banner.hidden = true;
-				banner.innerHTML = '';
-				return;
-			}
-			const completed = Array.isArray(data?.completed_question_ids)
-				? (data!.completed_question_ids as unknown[]).map(String)
-				: [];
-			const date = escapeHtmlSafe(String(data?.date || ''));
-			banner.hidden = false;
-			banner.innerHTML = `
-				<div style="padding:12px 16px;">
-					<div style="display:flex;justify-content:space-between;align-items:center;">
-						<div>
-							<div style="font-weight:600;">🎯 每日一练 · ${date}</div>
-							<div style="font-size:12px;color:#888;margin-top:2px;">今日 ${items.length} 题，已完成 ${completed.length}</div>
-						</div>
-						<div>
-							<button class="risk-btn" data-daily-action="open">立即开始</button>
-							<button class="risk-btn" data-daily-action="regenerate" style="margin-left:6px;">换一批</button>
-						</div>
-					</div>
-				</div>`;
-			banner.onclick = (event: MouseEvent) => {
-				const btn = (event.target as HTMLElement | null)?.closest('button[data-daily-action]') as
-					| HTMLButtonElement
-					| null;
-				if (!btn) return;
-				const action = btn.dataset.dailyAction;
-				if (action === 'open') {
-					void openDailyPracticePanel();
-				} else if (action === 'regenerate') {
-					void regenerateDailyPractice();
-				}
-			};
-		} catch {
-			banner.hidden = true;
-		}
-	}
-
 	// 业务功能 4：执行续考动作
 	//   1. 拉取试卷数据 -> 加载到 viewer
 	//   2. 若有 last_section_index/last_question_index，则跳转到该题
 	//   3. 关闭 PC 抽屉
 	async function resumeExam(
 		examId: string,
-		draft: { last_section_index?: number; last_question_index?: number } | null
+		draft: { last_section_index?: number; last_question_index?: number } | null,
+		successMessage = '已恢复到上次进度'
 	): Promise<void> {
 		const api = window.APIClient;
 		const viewer = (window as unknown as {
@@ -5976,7 +6671,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				}
 			}
 			closePanel();
-			showToast('已恢复到上次进度');
+			showToast(successMessage);
 		} catch (err) {
 			showToast(readErrorMessage(err, '续考失败'));
 		}
@@ -6000,7 +6695,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return null;
 	}
 
-	async function openExamQuestion(examId: string, questionId: string, sectionIndex?: number): Promise<void> {
+	async function openExamQuestion(examId: string, questionId: string, sectionIndex?: number, successMessage = '已定位到题目'): Promise<void> {
 		const api = window.APIClient;
 		const viewer = (window as unknown as {
 			examViewer?: {
@@ -6010,7 +6705,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			};
 		}).examViewer;
 		if (!questionId) {
-			await resumeExam(examId, null);
+			await resumeExam(examId, null, successMessage);
 			return;
 		}
 		if (!api || typeof api.getExam !== 'function' || !viewer) {
@@ -6024,10 +6719,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const pos = findQuestionPosition(examData, questionId, sectionIndex);
 			if (pos && typeof viewer.jumpToQuestion === 'function') {
 				viewer.jumpToQuestion(pos.sectionIndex, pos.questionIndex);
-				showToast('已跳转到收藏题');
+				showToast(successMessage);
 			} else {
 				showToast('已打开试卷，但没有定位到该题');
 			}
+			closePlatformAdmin();
 			closePanel();
 			document.querySelectorAll<HTMLElement>('.risk-modal').forEach((modal) => {
 				modal.classList.add('risk-hidden');
@@ -6162,7 +6858,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const claimForm = referral.hasReferrer
 			? ''
 			: `<form class="pc-org-add-form" data-referral-claim-form><div class="pc-org-search-row"><input class="pc-profile-input" type="text" data-referral-code value="${escapeHtml(referralCodeDraft)}" placeholder="输入推荐码，例如 REFABC123" /><button class="pc-inline-btn" type="submit">绑定推荐码</button></div></form>`;
-		return `<div class="pc-card pc-info-card"><div class="pc-service-header">我的推荐</div><div class="pc-info-list"><div class="pc-info-row"><span>推荐码</span><strong>${escapeHtml(referral.code)}</strong></div><div class="pc-info-row"><span>推荐链接</span><strong class="pc-inline-url">${escapeHtml(referralLink)}</strong></div></div><div class="pc-admin-note">${escapeHtml(rewardText)}</div>${claimForm}</div>`;
+		return `<div class="pc-card pc-info-card pc-referral-card"><div class="pc-referral-head"><div class="pc-service-header">我的推荐</div><button class="pc-inline-ghost pc-referral-copy" type="button" data-referral-copy="${escapeHtml(referralLink)}">复制链接</button></div><div class="pc-info-list pc-profile-facts"><div class="pc-info-row"><span>推荐码</span><strong class="pc-referral-code">${escapeHtml(referral.code)}</strong></div><div class="pc-info-row pc-referral-link-row"><span>推荐链接</span><strong class="pc-inline-url">${escapeHtml(referralLink)}</strong></div></div><div class="pc-admin-note">${escapeHtml(rewardText)}</div>${claimForm}</div>`;
 	}
 
 	function renderInviteEntryCard(inviteToken: string): string {
@@ -6172,23 +6868,41 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return '';
 	}
 
+	async function copyTextToClipboard(value: string): Promise<boolean> {
+		if (!value) return false;
+		try {
+			if (navigator.clipboard?.writeText && window.isSecureContext) {
+				await navigator.clipboard.writeText(value);
+				return true;
+			}
+		} catch {
+			// Fall through to the legacy copy path for browsers that expose the
+			// Clipboard API but reject it on a LAN HTTP origin.
+		}
+		const textarea = document.createElement('textarea');
+		textarea.value = value;
+		textarea.setAttribute('readonly', '');
+		textarea.setAttribute('aria-hidden', 'true');
+		textarea.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none;';
+		document.body.appendChild(textarea);
+		textarea.select();
+		textarea.setSelectionRange(0, value.length);
+		let copied = false;
+		try {
+			copied = document.execCommand('copy');
+		} catch {
+			copied = false;
+		}
+		textarea.remove();
+		return copied;
+	}
+
 	interface WorkbenchAction {
 		title: string;
 		desc?: string;
 		icon: string;
 		intent: string;
 		gate?: (ctx: PCContext) => boolean;
-	}
-
-	interface StudentContentEntry extends WorkbenchAction {
-		dashboardPage?: DashboardSubpage;
-		entitlement?: string;
-	}
-
-	interface StudentContentGroup {
-		id: string;
-		title: string;
-		items: StudentContentEntry[];
 	}
 
 	interface WorkbenchDef {
@@ -6219,95 +6933,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return action.gate ? action.gate(ctx) : true;
 	}
 
-	function studentFeatureEntry(id: string, desc: string, entitlement?: string): StudentContentEntry {
-		const feature = featureById(id);
-		return {
-			title: feature?.title || id,
-			desc,
-			icon: feature?.icon || 'book',
-			intent: feature?.intent || '',
-			gate: feature?.gate,
-			entitlement
-		};
-	}
-
-	function studentContentGroups(): StudentContentGroup[] {
-		return [
-			{
-				id: 'today',
-				title: '今日学习',
-				items: [
-					{ title: '最近学习', desc: '继续上次进度', icon: 'clock', intent: '', dashboardPage: 'recent' },
-					studentFeatureEntry('dailyPractice', '今日推荐练习'),
-					studentFeatureEntry('srsReview', '按计划巩固'),
-					{ title: '我的作业', desc: '老师布置任务', icon: 'folder', intent: 'openAssignments' }
-				]
-			},
-			{
-				id: 'review',
-				title: '巩固整理',
-				items: [
-					studentFeatureEntry('wrongQuestions', '订正与掌握'),
-					{
-						...studentFeatureEntry('bookmarkFolders', '收藏题与清单'),
-						title: '收藏',
-						icon: 'heart',
-						dashboardPage: 'favorites'
-					},
-					studentFeatureEntry('vocabNotebook', '生词与复习'),
-					studentFeatureEntry('recommendedReview', '智能推荐题目', 'recommendation.personalized')
-				]
-			},
-			{
-				id: 'progress',
-				title: '学习规划',
-				items: [
-					studentFeatureEntry('chapterPath', '按章节学习'),
-					studentFeatureEntry('learningReport', '趋势与薄弱项'),
-					studentFeatureEntry('studyGoal', '目标与倒计时'),
-					studentFeatureEntry('community', '参与试卷讨论')
-				]
-			}
-		];
-	}
-
 	function entitlementUpgradeIntent(entitlementKey: string, requiredPlan?: string): string {
 		return `openEntitlementUpgrade:${encodeURIComponent(entitlementKey)}:${encodeURIComponent(requiredPlan || '')}`;
-	}
-
-	function renderStudentContentEntry(ctx: PCContext, entry: StudentContentEntry): string {
-		const decision = entry.entitlement
-			? resolveEntitlement(ctx.subscription, entry.entitlement)
-			: { granted: true, known: false };
-		const locked = decision.known && !decision.granted;
-		const action = entry.dashboardPage
-			? ` data-dashboard-page="${escapeHtml(entry.dashboardPage)}"`
-			: ` data-intent="${escapeHtml(locked && entry.entitlement
-				? entitlementUpgradeIntent(entry.entitlement, decision.requiredPlan)
-				: entry.intent)}"`;
-		const lockAttributes = locked
-			? ` data-entitlement-locked="true" aria-label="${escapeHtml(`${entry.title}，${(decision.requiredPlan || '更高').toUpperCase()} 套餐解锁`)}"`
-			: '';
-		return `<button type="button" class="service-item pc-my-content-item${locked ? ' is-entitlement-locked' : ''}"${action}${lockAttributes}>
-			<div class="pc-my-content-icon">${renderOutlineIcon(entry.icon, 'pc-service-icon')}</div>
-			<div>
-				<strong>${escapeHtml(entry.title)}</strong>
-				<span>${escapeHtml(entry.desc || '')}</span>
-				${locked ? `<b class="pc-entitlement-badge">${escapeHtml((decision.requiredPlan || '升级').toUpperCase())}</b>` : ''}
-			</div>
-		</button>`;
-	}
-
-	function renderStudentContentGroups(ctx: PCContext): string {
-		const groups = studentContentGroups()
-			.map((group) => ({ ...group, items: group.items.filter((item) => visibleAction(ctx, item)) }))
-			.filter((group) => group.items.length > 0);
-		return `<div class="pc-student-content-groups">
-			${groups.map((group) => `<section class="pc-student-content-group" data-student-content-group="${escapeHtml(group.id)}">
-				<h3 class="pc-student-content-title">${escapeHtml(group.title)}</h3>
-				<div class="pc-my-content-grid">${group.items.map((item) => renderStudentContentEntry(ctx, item)).join('')}</div>
-			</section>`).join('')}
-		</div>`;
 	}
 
 	function availableWorkbenches(ctx: PCContext): WorkbenchDef[] {
@@ -6317,6 +6944,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (roles.has('student') || roles.size === 0) ids.push('student');
 		if (roles.has('teacher')) ids.push('teacher');
 		if (roles.has('assistant')) ids.push('assistant');
+		if (roles.has('orgContentAdmin')) ids.push('orgContentAdmin');
 		if (roles.has('orgAdmin')) ids.push('orgAdmin');
 		if (roles.has('contentAdmin')) ids.push('contentAdmin');
 		if (roles.has('superAdmin')) ids.push('superAdmin');
@@ -6346,11 +6974,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					actionFromFeature('learningReport', { title: '学习报告', icon: 'chart', intent: 'openLearningReport' })
 				],
 				more: [
+					{ title: '最近学习', desc: '继续上次进度', icon: 'clock', intent: 'openRecentLearningPage' },
 					actionFromFeature('bookmarkFolders', { title: '收藏题', icon: 'book', intent: 'openBookmarkFolders' }),
 					actionFromFeature('vocabNotebook', { title: '生词本', icon: 'book', intent: 'openVocabNotebook' }),
 					actionFromFeature('dailyPractice', { title: '每日一练', icon: 'chart', intent: 'openDailyPractice' }),
 					actionFromFeature('studyGoal', { title: '备考目标', icon: 'badge', intent: 'openStudyGoal' }),
-					actionFromFeature('recommendedReview', { title: '推荐复习', icon: 'chart', intent: 'openRecommendedReview' })
+					actionFromFeature('recommendedReview', { title: '推荐复习', icon: 'chart', intent: 'openRecommendedReview' }),
+					actionFromFeature('chapterPath', { title: '章节学习', icon: 'book', intent: 'openChapterPath' }),
+					actionFromFeature('community', { title: '社区讨论', icon: 'community', intent: 'openCommunity' })
 				]
 			},
 			teacher: {
@@ -6389,6 +7020,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					{ title: '安排课程', icon: 'clock', intent: 'openRoleContent:assistant-arrange' }
 				]
 			},
+			orgContentAdmin: {
+				id: 'orgContentAdmin',
+				label: '机构内容管理',
+				title: '机构内容工作台',
+				subtitle: '维护当前机构的课程包内容。',
+				actions: [
+					{ title: '课程包', desc: '课程规格、课时数与状态', icon: 'ticket', intent: 'openRoleContent:org-course-packages' }
+				],
+				more: []
+			},
 			orgAdmin: {
 				id: 'orgAdmin',
 				label: '机构管理',
@@ -6398,9 +7039,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					{ title: '成员管理', desc: '成员、邀请和导入', icon: 'profileMark', intent: 'openRoleContent:org-members' },
 					{ title: '权限管理', desc: '角色和额外授权', icon: 'settings', intent: 'openRoleContent:org-permissions' },
 					{ title: '机构设置', desc: '套餐、校区和审计', icon: 'wallet', intent: 'openRoleContent:org-settings' },
+					{ title: '课程包', desc: '课程规格与课时数', icon: 'ticket', intent: 'openRoleContent:org-course-packages' },
+					{ title: '课时管理', desc: '分配、余额与扣课', icon: 'clock', intent: 'openRoleContent:org-course-accounts' },
 					{ title: '学习组', desc: '班级与约课组', icon: 'folder', intent: 'openRoleContent:org-groups' },
-					{ title: '课程包', desc: '扣课与到期', icon: 'ticket', intent: 'openRoleContent:org-course-packages' },
-					{ title: '机构看板', desc: '趋势和风险', icon: 'chart', intent: 'openRoleContent:org-dashboard' }
+					{ title: '机构看板', desc: '趋势和风险', icon: 'chart', intent: 'openRoleContent:org-dashboard' },
+					{ title: '审计日志', desc: '机构操作记录', icon: 'badge', intent: 'openRoleContent:org-audit' }
 				],
 				more: []
 			},
@@ -6429,7 +7072,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				],
 				more: [
 					{ title: '全站统计', icon: 'chart', intent: 'openRoleContent:platform-stats' },
-					{ title: '支付退款', icon: 'wallet', intent: 'openRoleContent:platform-payments' },
+					{ title: '订单与支付', icon: 'wallet', intent: 'openRoleContent:platform-payments' },
+					{ title: '价格与套餐', icon: 'ticket', intent: 'openRoleContent:platform-pricing' },
 					{ title: '反馈处理', icon: 'community', intent: 'openRoleContent:platform-feedback' },
 					{ title: '审计日志', icon: 'settings', intent: 'openAuditLog' }
 				]
@@ -6458,12 +7102,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function renderRoleWorkbenchCard(ctx: PCContext, workbench: WorkbenchDef): string {
-		const contentActions = [...workbench.actions, ...workbench.more];
+		const contentActions = workbench.actions.slice(0, 4);
 		return `<div class="pc-card pc-role-workbench-card">
 			${renderWorkbenchSwitcher(ctx, workbench)}
 			<div class="pc-role-workbench-section">
-				<div class="pc-role-section-title">我的内容</div>
-				${renderActionGrid(ctx, contentActions, 'pc-role-action-grid', 8)}
+				<div class="pc-admin-section-head"><div><div class="pc-role-section-title">常用功能</div><div class="pc-admin-note">其余功能请到“管理”中按任务打开。</div></div><button class="pc-inline-ghost service-item pc-home-manage-link" type="button" data-intent="gotoAdminHub">全部管理</button></div>
+				${renderActionGrid(ctx, contentActions, 'pc-role-action-grid', 4)}
 			</div>
 		</div>`;
 	}
@@ -6476,6 +7120,13 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function renderDashboardSubpage(title: string, body: string, subtitle = ''): string {
+		const isAccountSecurity = activeDashboardSubpage === 'account-core';
+		if (isAccountSecurity) {
+			return `<div class="pc-dashboard pc-dashboard-simple pc-subpage pc-superadmin-detail" data-dashboard-subpage="${escapeHtml(activeDashboardSubpage)}">
+				<div class="pc-superadmin-detail-head"><div><div class="pc-subpage-title">${escapeHtml(title === '账户' ? '账号安全' : title)}</div>${subtitle ? `<div class="pc-subpage-subtitle">${escapeHtml(subtitle)}</div>` : ''}</div></div>
+				${body}
+			</div>`;
+		}
 		return `<div class="pc-dashboard pc-dashboard-simple pc-subpage" data-dashboard-subpage="${escapeHtml(activeDashboardSubpage)}">
 			<div class="pc-card pc-subpage-head">
 				<button class="pc-inline-ghost pc-subpage-back" type="button" data-dashboard-back>返回</button>
@@ -6511,7 +7162,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return `openExamQuestion:${examId}:${questionId}:${sectionIndex}`;
 	}
 
-	function renderRoleListCard(title: string, rows: RoleContentRow[]): string {
+	function renderRoleListCard(title: string, rows: RoleContentRow[], footer = ''): string {
 		return `<div class="pc-card pc-lite-list-card">
 			<div class="pc-my-content-head">${escapeHtml(title)}</div>
 			<div class="pc-lite-list">
@@ -6523,6 +7174,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					${row.meta ? `<b>${escapeHtml(row.meta)}</b>` : ''}
 				</div>`).join('')}
 			</div>
+			${footer}
 		</div>`;
 	}
 
@@ -6752,25 +7404,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
-	function renderMyAccountPage(ctx: PCContext): string {
-		const items = [
-			{ page: 'account-core', title: '账户', desc: '手机密码', icon: 'profileMark' },
-			{ page: 'account-plan', title: '套餐', desc: `${planLabel(ctx.subscription?.plan)} · ${remainingDaysLabel(ctx)}`, icon: 'wallet' },
-			{ page: 'account-coupons', title: '卡券', desc: `${ctx.couponCount ?? 0} 张卡券`, icon: 'ticket' },
-			{ page: 'account-feedback', title: '反馈', desc: '客服协议', icon: 'community' }
-		] as const;
-		return `<div class="pc-card pc-my-content-card pc-my-account-card">
-			<div class="pc-my-content-head">我的账户</div>
-			<div class="pc-account-entry-grid">
-				${items.map((item) => `<button type="button" class="service-item pc-account-entry" data-dashboard-page="${item.page}">
-					<div class="pc-my-content-icon">${renderOutlineIcon(item.icon, 'pc-service-icon')}</div>
-					<div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.desc)}</span></div>
-				</button>`).join('')}
-			</div>
-		</div>`;
-	}
-
 	function renderAccountCorePage(ctx: PCContext): string {
+		const isPlatformAdmin = hasAnyRole(ctx, ['superAdmin']);
 		const exportDecision = resolveEntitlement(ctx.subscription, 'export.standard');
 		const exportLocked = exportDecision.known && !exportDecision.granted;
 		const accountDataRows: RoleContentRow[] = [
@@ -6789,8 +7424,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (!syncFeature?.gate || syncFeature.gate(ctx)) {
 			accountDataRows.splice(2, 0, { title: '多端同步', desc: '查看设备并同步学习进度、收藏和设置', meta: '管理', intent: 'openSyncDevices' });
 		}
-		const exportCard = renderRoleListCard('账户数据', accountDataRows);
-		return renderDashboardSubpage('账户', `${renderAccountManagementCard(ctx)}${exportCard}`, '管理手机号、密码、第三方绑定和注销账号。');
+		const exportCard = isPlatformAdmin ? '' : renderRoleListCard('账户数据', accountDataRows);
+		return renderDashboardSubpage('账号安全', `${renderAccountManagementCard(ctx)}${exportCard}`, '管理手机号、密码、第三方绑定和注销账号。');
 	}
 
 	function renderAccountPlanPage(ctx: PCContext): string {
@@ -7242,6 +7877,34 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return renderDashboardSubpage(page.title, renderRoleListCard(page.title, page.rows), page.subtitle);
 	}
 
+	function findPlatformUserDetail(userId: string): PCUser | undefined {
+		return platformUserDetails.get(userId)
+			|| [...platformUserSearchResults, ...allUsers].find((item) => item.id === userId);
+	}
+
+	async function loadPlatformUserDetail(userId: string): Promise<void> {
+		if (!userId || findPlatformUserDetail(userId) || platformUserDetailLoading.has(userId)) return;
+		const api = window.APIClient;
+		if (!api || typeof api.getUser !== 'function') {
+			platformUserDetailErrors.set(userId, '用户详情接口暂不可用');
+			return;
+		}
+		platformUserDetailLoading.add(userId);
+		platformUserDetailErrors.delete(userId);
+		try {
+			const value = asRecord(await api.getUser(userId));
+			if (!value) throw new Error('用户资料格式不正确');
+			const user = toPCUser(normalizeContext({ ...value, guest: false }));
+			if (!user.id) throw new Error('用户资料缺少用户 ID');
+			platformUserDetails.set(user.id, user);
+		} catch (error) {
+			platformUserDetailErrors.set(userId, readErrorMessage(error, '用户资料加载失败'));
+		} finally {
+			platformUserDetailLoading.delete(userId);
+			if (activeRoleContent === `user:${userId}`) renderSectionContent({ preserveScroll: true });
+		}
+	}
+
 	function roleContentRows(key: string): RoleContentPage {
 		const emptyRows = (title: string, subtitle: string, desc = '当前没有真实创建的数据。创建记录后，这里会展示接口返回的数据。', intent?: string): RoleContentPage => ({
 			title,
@@ -7250,7 +7913,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		});
 		if (key.startsWith('user:')) {
 			const userId = key.slice('user:'.length);
-			const user = [...platformUserSearchResults, ...allUsers].find((item) => item.id === userId);
+			const user = findPlatformUserDetail(userId);
 			if (user) return {
 				title: user.displayName || user.username || user.id,
 				subtitle: '用户详情：账号状态、角色、机构和联系方式。',
@@ -7263,7 +7926,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					{ title: '最近登录', desc: user.lastLoginAt || '暂无记录', meta: '登录' }
 				]
 			};
-			return emptyRows('用户详情', '用户信息来自真实账号接口。', '没有找到该用户，可能已停用或当前账号无权查看。');
+			if (!platformUserDetailLoading.has(userId) && !platformUserDetailErrors.has(userId)) void loadPlatformUserDetail(userId);
+			const detailError = platformUserDetailErrors.get(userId);
+			return detailError
+				? emptyRows('用户详情', '用户信息来自真实账号接口。', `${detailError}。该账号可能已停用或当前管理员无权查看。`)
+				: {
+					title: '用户详情',
+					subtitle: '正在读取购买人账号状态、角色和机构信息。',
+					rows: [{ title: '正在加载用户资料', desc: userId, meta: '读取中' }]
+				};
 		}
 		if (key.startsWith('student:') || key.startsWith('assignment:') || key.startsWith('course:') || key.startsWith('package:') || key.startsWith('group:')) {
 			return emptyRows('详情', '该明细入口只接受真实业务记录。', '没有找到对应记录；旧的静态学员、作业、课程和课程包数据已彻底移除。');
@@ -7315,6 +7986,56 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}));
 	}
 
+	type AdminListPaginationOptions = {
+		scope: 'platform-user' | 'managed-org';
+		total: number;
+		totalUnit: string;
+		page: number;
+		totalPages: number;
+		pageSize: number;
+		pageSizes: number[];
+		loading: boolean;
+	};
+
+	function renderAdminListPagination(options: AdminListPaginationOptions): string {
+		const isPlatformUser = options.scope === 'platform-user';
+		const pageJumpFormAttribute = isPlatformUser ? 'data-platform-user-page-jump-form' : 'data-managed-org-page-jump-form';
+		const pageSizeAttribute = isPlatformUser ? 'data-platform-user-page-size' : 'data-managed-org-page-size';
+		const pageAttribute = isPlatformUser ? 'data-platform-user-page' : 'data-managed-org-page';
+		const pageInputAttribute = isPlatformUser ? 'data-platform-user-page-input' : 'data-managed-org-page-input';
+		const pageSizeOptions = options.pageSizes.map((size) => `<button type="button" role="option" aria-selected="${options.pageSize === size ? 'true' : 'false'}" class="pc-admin-list-page-size-option${options.pageSize === size ? ' active' : ''}" data-admin-page-size-option="${size}"><span>${size} 条/页</span>${options.pageSize === size ? '<b aria-hidden="true">✓</b>' : ''}</button>`).join('');
+		return `<div class="pc-admin-list-pagination">
+			<span class="pc-admin-list-page-status">${options.loading ? '正在加载' : `<span class="pc-admin-list-total-prefix">共 </span>${options.total} ${escapeHtml(options.totalUnit)}`}</span>
+			<form class="pc-admin-list-page-nav" ${pageJumpFormAttribute}>
+				<details class="pc-admin-list-page-size" data-admin-page-size-menu>
+					<summary role="button" aria-haspopup="listbox" aria-expanded="false" aria-label="每页显示 ${options.pageSize} 条"><span>${options.pageSize} 条/页</span><svg class="pc-admin-list-page-size-chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 6.25 8 9.75l3.5-3.5"></path></svg></summary>
+					<select hidden ${pageSizeAttribute}>${options.pageSizes.map((size) => `<option value="${size}"${options.pageSize === size ? ' selected' : ''}>${size} 条/页</option>`).join('')}</select>
+					<div class="pc-admin-list-page-size-menu" role="listbox" aria-label="每页显示数量">${pageSizeOptions}</div>
+				</details>
+				<span class="pc-admin-list-page-stepper">
+					<button class="pc-admin-list-page-arrow" type="button" ${pageAttribute}="prev" aria-label="上一页" title="上一页"${options.page <= 1 || options.loading ? ' disabled' : ''}><svg class="pc-admin-list-page-arrow-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 4.5 6.5 8l3.5 3.5"></path></svg></button>
+					<label class="pc-admin-list-page-jump"><span class="pc-admin-list-page-jump-label">跳至</span><input type="number" min="1" max="${options.totalPages}" value="${options.page}" ${pageInputAttribute} aria-label="跳至页码"${options.loading ? ' disabled' : ''} /><em>/ ${options.totalPages} 页</em></label>
+					<button class="pc-admin-list-page-arrow" type="button" ${pageAttribute}="next" aria-label="下一页" title="下一页"${options.page >= options.totalPages || options.loading ? ' disabled' : ''}><svg class="pc-admin-list-page-arrow-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4.5 9.5 8 6 11.5"></path></svg></button>
+				</span>
+			</form>
+		</div>`;
+	}
+
+	function handleAdminPageSizeMenuClick(target: HTMLElement | null): boolean {
+		const option = target?.closest('[data-admin-page-size-option]') as HTMLButtonElement | null;
+		if (!option) return false;
+		const details = option.closest<HTMLDetailsElement>('[data-admin-page-size-menu]');
+		const select = details?.querySelector<HTMLSelectElement>('[data-platform-user-page-size],[data-managed-org-page-size]');
+		const value = option.dataset.adminPageSizeOption || '';
+		if (!details || !select || !value) return true;
+		details.open = false;
+		if (select.value !== value) {
+			select.value = value;
+			select.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+		return true;
+	}
+
 	function renderPlatformUserSearchPage(ctx: PCContext): string {
 		if (!platformUserSearchLoaded && !platformUserSearchLoading && !platformUserSearchQuery) {
 			platformUserSearchLoading = true;
@@ -7329,20 +8050,29 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				platformUserSearchLoading = false;
 			});
 		}
-		const users = platformUserSearchQuery ? platformUserSearchResults : allUsers.slice(0, 30);
+		const sourceUsers = platformUserSearchQuery ? platformUserSearchResults : allUsers;
+		const totalUsers = sourceUsers.length;
+		const totalPages = Math.max(1, Math.ceil(totalUsers / platformUserSearchPageSize));
+		platformUserSearchPage = Math.min(Math.max(1, platformUserSearchPage), totalPages);
+		const pageStart = (platformUserSearchPage - 1) * platformUserSearchPageSize;
+		const users = sourceUsers.slice(pageStart, pageStart + platformUserSearchPageSize);
 		const resultRows = users.length
 			? renderUserSearchResultRows(users)
 			: [{ title: platformUserSearchLoading ? '搜索中' : '没有结果', desc: platformUserSearchQuery ? '请换一个账号、手机号、邮箱或姓名关键字。' : '输入关键字后搜索全站账号。', meta: '' }];
+		const pagination = platformUserSearchLoading || totalUsers > 0 ? renderAdminListPagination({
+			scope: 'platform-user', total: totalUsers, totalUnit: '条', page: platformUserSearchPage,
+			totalPages, pageSize: platformUserSearchPageSize, pageSizes: [10, 20, 50], loading: platformUserSearchLoading
+		}) : '';
 		const body = `<div class="pc-card pc-lite-list-card">
-			<div class="pc-my-content-head">用户搜索</div>
-			<form class="pc-platform-user-search-form" data-platform-user-search-form>
-				<div class="pc-platform-user-search-row">
-					<label class="pc-platform-user-search-field">
+			<form class="pc-admin-list-search-form" data-platform-user-search-form>
+				<div class="pc-admin-primary-action-row pc-admin-list-search-row">
+					<label class="pc-admin-list-search-field">
 						<input class="pc-profile-input" type="search" data-platform-user-search-input value="${escapeHtml(platformUserSearchQuery)}" placeholder="账号 / 姓名 / 手机号 / 邮箱" />
 					</label>
 					<button class="pc-inline-btn" type="submit">搜索</button>
 				</div>
 			</form>
+			${pagination}
 		</div>${renderRoleListCard(platformUserSearchQuery ? '搜索结果' : '最近用户', resultRows)}`;
 		return renderDashboardSubpage('用户搜索', body, '全站用户、账号状态和登录问题。');
 	}
@@ -7354,6 +8084,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const input = form.querySelector('[data-platform-user-search-input]') as HTMLInputElement | null;
 		const query = (input?.value || '').trim();
 		platformUserSearchQuery = query;
+		platformUserSearchPage = 1;
 		if (!token || !api || typeof api.searchUsers !== 'function') {
 			showToast('用户搜索接口不可用');
 			return;
@@ -7361,7 +8092,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		platformUserSearchLoading = true;
 		renderSectionContent({ preserveScroll: true });
 		try {
-			const rawUsers = await api.searchUsers(token, query, 30);
+			const rawUsers = await api.searchUsers(token, query, 50);
 			platformUserSearchResults = Array.isArray(rawUsers)
 				? rawUsers.map((item) => normalizeUserRecord(item)).filter((item): item is PCUser => Boolean(item))
 				: [];
@@ -7375,25 +8106,42 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
+	function applyPlatformUserSearchPage(rawPage: string, restoreFocus = false): void {
+		const totalUsers = (platformUserSearchQuery ? platformUserSearchResults : allUsers).length;
+		const totalPages = Math.max(1, Math.ceil(totalUsers / platformUserSearchPageSize));
+		const requestedPage = Number.parseInt(rawPage, 10);
+		platformUserSearchPage = Number.isFinite(requestedPage)
+			? Math.min(Math.max(1, requestedPage), totalPages)
+			: platformUserSearchPage;
+		renderSectionContent({
+			preserveScroll: true,
+			...(restoreFocus ? { focusSelector: '[data-platform-user-page-input]' } : {})
+		});
+	}
+
 	function renderOrganizationCreatePanel(ctx: PCContext): string {
 		if (!hasAnyRole(ctx, ['superAdmin'])) {
 			return '';
 		}
-		return `<div class="pc-card pc-lite-list-card">
-			<div class="pc-my-content-head">新建机构</div>
+		const organizationTypeSelect = renderAdminSelect('school', [{ value: 'school', label: '培训机构' }, { value: 'business', label: '企业' }], 'data-platform-org-type', '机构类型');
+		const organizationPlanSelect = renderAdminSelect('free', [{ value: 'free', label: 'FREE' }, { value: 'pro', label: 'PRO' }, { value: 'ultra', label: 'ULTRA' }], 'data-platform-org-plan', '套餐');
+		return `<details class="pc-card pc-platform-org-create-panel" data-platform-org-create-panel>
+			<summary><strong>＋ 新建机构</strong><b>展开</b></summary>
 			<form class="pc-org-add-form pc-platform-org-create-form" data-platform-org-create-form>
-				<div class="pc-org-form-grid pc-org-form-grid-3">
-					<label class="pc-org-field"><span>机构名称</span><input class="pc-profile-input" data-platform-org-name placeholder="例如：东京日语学院" /></label>
-					<label class="pc-org-field"><span>机构类型</span><select class="pc-profile-input pc-org-select" data-platform-org-type><option value="school">培训机构</option><option value="business">企业</option></select></label>
-					<label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-platform-org-seats value="20" /></label>
+				<div class="pc-admin-primary-action-row pc-platform-org-create-primary">
+					<label class="pc-org-field"><input class="pc-profile-input" aria-label="机构名称" data-platform-org-name placeholder="例如：东京日语学院" /></label>
+					<button class="pc-inline-btn" type="submit">创建</button>
 				</div>
-				<div class="pc-org-form-grid">
-					<label class="pc-org-field"><span>套餐</span><select class="pc-profile-input pc-org-select" data-platform-org-plan><option value="free">FREE</option><option value="pro">PRO</option><option value="ultra">ULTRA</option></select></label>
-					<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">创建机构</button></div>
+				<div class="pc-platform-org-create-settings">
+					<div class="pc-org-form-grid pc-org-form-grid-3">
+						<div class="pc-org-field"><span>机构类型</span>${organizationTypeSelect}</div>
+						<label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-platform-org-seats value="20" /></label>
+						<div class="pc-org-field"><span>套餐</span>${organizationPlanSelect}</div>
+					</div>
 				</div>
-				<div class="pc-admin-note">创建后会出现在下方机构列表；建议立即添加 2-3 名管理人员，例如机构管理员、校区管理员和教务运营。学生、老师和学习组由机构管理员进入机构后维护。</div>
+				<div class="pc-admin-note">创建后可继续添加管理员并配置席位。</div>
 			</form>
-		</div>`;
+		</details>`;
 	}
 
 	function managedOrganizationModeLabel(mode: ManagedOrganizationMode): string {
@@ -7407,7 +8155,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function renderManagedOrganizationOverview(organization: ManagedOrganization, mode: ManagedOrganizationMode): string {
+		const displayName = organization.name.replace(/\s+[a-z0-9]{8}_[a-z0-9]{5}$/i, '');
 		const memberCount = organization.members.length || organization.memberCount;
+		if (mode === 'groups' || mode === 'coursePackages') {
+			return `<div class="pc-org-context-bar pc-org-context-bar-compact"><strong title="${escapeHtml(organization.name)}">${escapeHtml(displayName)}</strong></div>`;
+		}
 		const metrics = (() => {
 			if (mode === 'platform') {
 				return [
@@ -7415,14 +8167,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					{ label: '状态', value: organization.status || 'active' },
 					{ label: '到期', value: organizationExpiryLabel(organization.expiresAt) },
 					{ label: '成员', value: `${memberCount}/${organization.seats || defaultSeatsForPlan(organization.plan)}` }
-				];
-			}
-			if (mode === 'groups') {
-				return [
-					{ label: '学习组', value: String(organization.learningGroups.length) },
-					{ label: '校区', value: String(organization.campuses.length) },
-					{ label: '课程包', value: String(organization.coursePackages.length) },
-					{ label: '成员', value: String(memberCount) }
 				];
 			}
 			if (mode === 'subscription') {
@@ -7441,14 +8185,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					{ label: '审计', value: `${Math.min(organization.auditLogs.length, 8)}条` }
 				];
 			}
-			if (mode === 'coursePackages') {
-				return [
-					{ label: '课程包', value: String(organization.coursePackages.length) },
-					{ label: '学习组', value: String(organization.learningGroups.length) },
-					{ label: '成员', value: String(memberCount) },
-					{ label: '状态', value: organization.status || 'active' }
-				];
-			}
 			return [
 				{ label: '套餐', value: planLabel(organization.plan) },
 				{ label: '状态', value: organization.status || 'active' },
@@ -7460,11 +8196,48 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			<div>
 				<div class="pc-org-name">${escapeHtml(organization.name)}</div>
 			</div>
-			<div class="pc-org-seat">${escapeHtml(organizationSeatSummary(organization))}</div>
+			${mode === 'platform' ? '' : `<div class="pc-org-seat">${escapeHtml(organizationSeatSummary(organization))}</div>`}
 		</div>
 		<div class="pc-org-meta">
 			${metrics.map((item) => `<div class="pc-org-metric"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong></div>`).join('')}
 		</div>`;
+	}
+
+	function renderPlatformOrganizationWorkspace(organization: ManagedOrganization): string {
+		const managerMembers = organization.members.filter((member) => member.roles.includes('orgAdmin') || member.roles.includes('assistant'));
+		const managerEditors = managerMembers.length
+			? managerMembers.map((member) => renderOrganizationMemberEditor(organization, member)).join('')
+			: '<div class="pc-org-empty">当前还没有额外管理人员。建议至少添加一名机构管理员和一名教务运营。</div>';
+		const auditCount = Math.min(organization.auditLogs.length, 3);
+		return `<div class="pc-org-simple-workspace">
+			${renderOrganizationSubscriptionPanel(organization)}
+			${renderOrganizationManagerPanel(organization)}
+			<div class="pc-org-subsection pc-org-existing-managers"><div class="pc-org-subsection-head"><h4>现有管理人员</h4><span>${escapeHtml(String(managerMembers.length))} 人</span></div>${managerEditors}</div>
+			<details class="pc-org-audit-drawer"><summary><span>审计记录</span><em>最近 ${escapeHtml(String(auditCount))} 条</em></summary><div class="pc-org-audit-drawer-body">${renderOrganizationAuditPanel(organization)}</div></details>
+		</div>`;
+	}
+
+	function renderPlatformOrganizationDetailPage(ctx: PCContext, organizationId: string): string {
+		if (managedOrganizationsCacheKey !== managedOrganizationsKey(ctx) && !managedOrganizationsLoading) {
+			void ensureManagedOrganizations(ctx);
+		}
+		const organization = managedOrganizations.find((item) => item.id === organizationId);
+		if (!organization) {
+			const message = managedOrganizationsLoading
+				? '正在读取机构信息...'
+				: '没有找到该机构，可能已删除或当前账号无权查看。';
+			return renderDashboardSubpage('机构详情', `<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">${message}</div></div>`, '套餐、席位、续费和管理人员配置。');
+		}
+		const detailState = managedOrganizationDetailState[organizationId];
+		if (!detailState) void loadManagedOrganizationDetails(organizationId);
+		const detailBody = detailState === 'loaded'
+			? renderPlatformOrganizationWorkspace(organization)
+			: `<div class="pc-admin-note">${detailState === 'error' ? '机构详情加载失败，请返回列表后重试。' : '正在按需读取机构详情...'}</div>`;
+		const body = `<section class="pc-card pc-lite-list-card pc-managed-org-card pc-managed-org-detail-card" data-managed-org-id="${escapeHtml(organization.id)}" data-managed-org-mode="platform">
+			<div class="pc-managed-org-summary">${renderManagedOrganizationOverview(organization, 'platform')}</div>
+			<div class="pc-managed-org-body">${detailBody}</div>
+		</section>`;
+		return renderDashboardSubpage('机构详情', body, '套餐、席位、续费和管理人员配置。');
 	}
 
 	function renderManagedOrganizationSection(organization: ManagedOrganization, mode: ManagedOrganizationMode, open = true): string {
@@ -7473,21 +8246,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const status = detailState === 'error'
 				? '<div class="pc-admin-note">详情加载失败，请收起后重新展开。</div>'
 				: '<div class="pc-admin-note">正在按需读取机构详情...</div>';
-			return `<details class="pc-card pc-lite-list-card pc-managed-org-card" data-managed-org-id="${escapeHtml(organization.id)}" data-managed-org-mode="${escapeHtml(mode)}"${open ? ' open' : ''}>
+			return `<details class="pc-card pc-lite-list-card pc-managed-org-card${open ? ' is-expanded' : ''}" data-managed-org-id="${escapeHtml(organization.id)}" data-managed-org-mode="${escapeHtml(mode)}"${open ? ' open' : ''}>
 				<summary class="pc-managed-org-summary">${renderManagedOrganizationOverview(organization, mode)}</summary>
 				${open ? `<div class="pc-managed-org-body">${status}</div>` : ''}
 			</details>`;
 		}
-		const managerMembers = organization.members.filter((member) => member.roles.includes('orgAdmin') || member.roles.includes('assistant'));
-		const managerEditors = managerMembers.length
-			? managerMembers.map((member) => renderOrganizationMemberEditor(organization, member)).join('')
-			: '<div class="pc-org-empty">当前还没有额外管理人员。建议至少添加一名机构管理员和一名教务运营。</div>';
 		const panels: string[] = [];
 		if (mode === 'platform') {
-			panels.push(renderOrganizationSubscriptionPanel(organization));
-			panels.push(renderOrganizationManagerPanel(organization));
-			panels.push(`<div class="pc-org-subsection"><div class="pc-org-subsection-head"><h4>现有管理人员</h4><span>${escapeHtml(String(managerMembers.length))} 人</span></div>${managerEditors}</div>`);
-			panels.push(renderOrganizationAuditPanel(organization));
+			panels.push(renderPlatformOrganizationWorkspace(organization));
 		} else if (mode === 'permissions') {
 			if (activeRoleContent === 'platform-roles') {
 				panels.push(renderOrganizationRoleDefaultsPanel(organization));
@@ -7499,22 +8265,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} else if (mode === 'groups') {
 			panels.push(renderOrganizationLearningGroupPanel(organization));
 			panels.push(renderOrganizationSchedulePanel(organization));
-			panels.push(renderOrganizationCoursePackagePanel(organization));
 		} else if (mode === 'settings') {
 			panels.push(renderOrganizationSubscriptionPanel(organization));
 			panels.push(renderOrganizationCampusPanel(organization));
 			panels.push(renderOrganizationAuditPanel(organization));
 		} else if (mode === 'coursePackages') {
 			panels.push(renderOrganizationCoursePackagePanel(organization));
-			panels.push(renderOrganizationSchedulePanel(organization));
 		} else if (mode === 'subscription') {
 			panels.push(renderOrganizationSubscriptionPanel(organization));
-			panels.push(renderOrganizationCoursePackagePanel(organization));
 		} else {
 			panels.push(renderOrganizationMembersByRolePanel(organization));
 			panels.push(renderOrganizationAuditPanel(organization));
 		}
-		return `<details class="pc-card pc-lite-list-card pc-managed-org-card" data-managed-org-id="${escapeHtml(organization.id)}" data-managed-org-mode="${escapeHtml(mode)}"${open ? ' open' : ''}>
+		return `<details class="pc-card pc-lite-list-card pc-managed-org-card${open ? ' is-expanded' : ''}" data-managed-org-id="${escapeHtml(organization.id)}" data-managed-org-mode="${escapeHtml(mode)}"${open ? ' open' : ''}>
 			<summary class="pc-managed-org-summary">
 				${renderManagedOrganizationOverview(organization, mode)}
 			</summary>
@@ -7523,8 +8286,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function renderManagedOrganizationPage(ctx: PCContext, mode: ManagedOrganizationMode): string {
-		if (!canManageMembers(ctx)) {
-			return renderDashboardSubpage('机构管理', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">需要机构管理员或超级管理员权限。</div></div>', '机构、成员和课程管理。');
+		const canOpenPage = canManageMembers(ctx) || (mode === 'coursePackages' && hasAnyRole(ctx, ['orgContentAdmin']));
+		if (!canOpenPage) {
+			return renderDashboardSubpage('机构管理', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">当前角色没有该机构管理权限。</div></div>', '机构、成员和课程管理。');
 		}
 		if (managedOrganizationsCacheKey !== managedOrganizationsKey(ctx) && !managedOrganizationsLoading) {
 			void ensureManagedOrganizations(ctx);
@@ -7534,7 +8298,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			permissions: activeRoleContent === 'platform-roles' ? '角色权限' : '权限管理',
 			groups: '学习组',
 			settings: '机构设置',
-			coursePackages: '课程包',
+			coursePackages: activeRoleContent === 'org-course-accounts' ? '课时管理' : '课程包',
 			subscription: activeRoleContent === 'org-plan' ? '机构套餐' : '席位',
 			members: activeRoleContent === 'org-audit' ? '审计日志' : activeRoleContent === 'org-invites' ? '邀请码' : '成员管理'
 		};
@@ -7543,22 +8307,49 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			permissions: activeRoleContent === 'platform-roles' ? '查看角色默认能力、权限模板和授权规则。' : '维护当前机构的角色权限差异，再按成员设置学生/老师/教学运营/机构管理员角色。',
 			groups: '班级、小班、一对一约课和课程包扣课。',
 			settings: '机构资料、套餐席位、校区信息和操作审计。',
-			coursePackages: '课程包购买、剩余课时、扣课、到期和续费风险。',
+			coursePackages: activeRoleContent === 'org-course-accounts' ? '分配课时，并查询学员余额、课程归属和使用状态。' : '维护可重复分配的课程规格和课时数。',
 			subscription: '机构套餐、席位、课程包和续费风险。',
 			members: '账号已存在时直接添加；账号未创建时先发邀请。'
 		};
 		const createPanel = mode === 'platform' ? renderOrganizationCreatePanel(ctx) : '';
-		const listControls = `<div class="pc-card pc-managed-org-toolbar"><form data-managed-org-list-form>
-			<div class="pc-managed-org-search"><label class="pc-org-field"><span>搜索机构</span><span class="pc-managed-org-search-controls"><input class="pc-profile-input" data-managed-org-query value="${escapeHtml(managedOrganizationListPage.query)}" placeholder="机构名称或 ID" /><button class="pc-inline-btn" type="submit">搜索</button></span></label></div>
-			<div class="pc-managed-org-pagination"><button class="pc-inline-ghost" type="button" data-managed-org-page="prev"${managedOrganizationListPage.page <= 1 || managedOrganizationsLoading ? ' disabled' : ''}>上一页</button><span class="pc-managed-org-page-status">共 ${managedOrganizationListPage.total} 个 · 第 ${managedOrganizationListPage.page}/${Math.max(1, managedOrganizationListPage.pages)} 页</span><button class="pc-inline-ghost" type="button" data-managed-org-page="next"${managedOrganizationListPage.page >= managedOrganizationListPage.pages || managedOrganizationsLoading ? ' disabled' : ''}>下一页</button></div>
-		</form></div>`;
+		const organizationPageCount = Math.max(1, managedOrganizationListPage.pages);
+		const organizationPagination = renderAdminListPagination({
+			scope: 'managed-org', total: managedOrganizationListPage.total, totalUnit: '个', page: managedOrganizationListPage.page,
+			totalPages: organizationPageCount, pageSize: managedOrganizationListPage.pageSize, pageSizes: [10, 20, 50], loading: Boolean(managedOrganizationsLoading)
+		});
+		const listControls = `<div class="pc-card pc-managed-org-toolbar">
+			<form class="pc-admin-list-search-form" data-managed-org-list-form>
+				<div class="pc-admin-primary-action-row pc-admin-list-search-row"><label class="pc-admin-list-search-field"><input class="pc-profile-input" data-managed-org-query aria-label="搜索机构" value="${escapeHtml(managedOrganizationListPage.query)}" placeholder="机构名称或 ID" /></label><button class="pc-inline-btn" type="submit">搜索</button></div>
+			</form>
+			${organizationPagination}
+		</div>`;
+		const isOperationalPage = mode === 'groups' || mode === 'coursePackages';
+		if (isOperationalPage) {
+			const isPlatformAdmin = hasAnyRole(ctx, ['superAdmin']);
+			const preferredId = !isPlatformAdmin && ctx.organizationId ? ctx.organizationId : managedOrganizationWorkspaceId;
+			const selectedOrganization = managedOrganizations.find((item) => item.id === preferredId) || managedOrganizations[0];
+			if (selectedOrganization) {
+				managedOrganizationWorkspaceId = selectedOrganization.id;
+				managedOrganizationOpenState[`${mode}:${selectedOrganization.id}`] = true;
+				if (!managedOrganizationDetailState[selectedOrganization.id]) void loadManagedOrganizationDetails(selectedOrganization.id);
+			}
+			const organizationSelector = isPlatformAdmin
+				? `<div class="pc-card pc-organization-workspace-toolbar"><form data-managed-org-list-form><input class="pc-profile-input" data-managed-org-query value="${escapeHtml(managedOrganizationListPage.query)}" placeholder="搜索机构" /><button class="pc-inline-ghost" type="submit">搜索</button></form><label><span>当前机构</span><select class="pc-profile-input pc-org-select" data-managed-org-workspace-select>${managedOrganizations.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === selectedOrganization?.id ? ' selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}</select></label></div>`
+				: '';
+			const workspaceBody = managedOrganizationsLoading
+				? '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">正在读取机构数据...</div></div>'
+				: selectedOrganization
+					? renderManagedOrganizationSection(selectedOrganization, mode, true)
+					: '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">当前账号没有可管理机构。</div></div>';
+			return renderDashboardSubpage(titleMap[mode], `${organizationSelector}${workspaceBody}`, subtitleMap[mode]);
+		}
 		const body = `${createPanel}${listControls}${
 			managedOrganizationsLoading
 				? '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">正在读取机构数据...</div></div>'
 				: managedOrganizations.length
 					? managedOrganizations.map((organization) => {
 							const stateKey = `${mode}:${organization.id}`;
-							const openState = managedOrganizationOpenState[stateKey];
+							const openState = mode === 'platform' ? false : managedOrganizationOpenState[stateKey];
 							return renderManagedOrganizationSection(organization, mode, openState === true);
 					  }).join('')
 					: '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">还没有可管理机构。超级管理员可以先创建机构。</div></div>'
@@ -7579,7 +8370,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return;
 		}
 		const seats = Number(seatsInput?.value || '0');
-		if (!Number.isInteger(seats) || seats < 1) { setFieldError(seatsInput, '席位数必须是大于 0 的整数'); return; }
+		if (!Number.isInteger(seats) || seats < 1) {
+			setFieldError(seatsInput, '席位数必须是大于 0 的整数');
+			return;
+		}
 		if (!token || !api || typeof api.createOrganization !== 'function') {
 			showToast('机构创建接口不可用');
 			return;
@@ -7630,7 +8424,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} finally {
 			platformStatsLoading = false;
 			if (shouldRefreshRoleContent('platform-stats')) {
-				renderSectionContent({ preserveScroll: true });
+				if (activePlatformAdminPage === 'overview' && document.querySelector('#platform-admin-shell.pc-platform-admin-open')) renderPlatformAdminShell({ preserveScroll: true });
+				else renderSectionContent({ preserveScroll: true });
 			}
 		}
 	}
@@ -7682,29 +8477,113 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return renderDashboardSubpage('功能开关', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">需要超级管理员权限。</div></div>', '系统级开关只允许超级管理员维护。');
 		}
 		if (!platformSystemFlagsLoaded && !platformSystemFlagsLoading) void loadPlatformSystemFlags();
-		const rows = platformSystemFlags.map((flag) => {
+		const categoryDefinitions = [
+			{ id: 'learning', title: '学习功能', keys: ['wrong_questions', 'streak', 'exam_timer', 'resume_draft', 'learning_groups', 'srs', 'daily_practice', 'learning_report', 'study_goal', 'leaderboard', 'vocab_notebook', 'wrong_question_tags', 'related_questions', 'chapter_path'] },
+			{ id: 'content', title: '内容与互动', keys: ['question_feedback', 'bookmark_folders', 'audio_enhancement', 'community'] },
+			{ id: 'management', title: '数据与管理', keys: ['data_export', 'admin_dashboard', 'audit_log_viewer'] },
+			{ id: 'system', title: '系统能力', keys: ['pwa', 'sync_devices', 'oauth_extra'] }
+		];
+		const renderedKeys = new Set(categoryDefinitions.flatMap((category) => category.keys));
+		const categories = [...categoryDefinitions, { id: 'other', title: '其他功能', keys: platformSystemFlags.map((flag) => flag.key).filter((key) => !renderedKeys.has(key)) }];
+		const renderFlag = (flag: PlatformSystemFlag): string => {
 			const pending = pendingPlatformSystemFlags.has(flag.key);
-			const overrideText = flag.locked
-				? '已锁定：机构和个人不能覆盖'
-				: `允许覆盖：${[flag.allowOrgOverride ? '机构' : '', flag.allowUserOverride ? '个人' : ''].filter(Boolean).join('、') || '无'}`;
-			return `<div class="pc-lite-row pc-lite-row-static" data-platform-system-flag-row="${escapeHtml(flag.key)}">
-				<span><strong>${escapeHtml(flag.name)}</strong><em>${escapeHtml(flag.key)} · ${escapeHtml(flag.description || '暂无说明')} · ${escapeHtml(overrideText)}</em></span>
-				<div class="pc-feedback-actions">
-					<span class="pc-tag ${flag.enabled ? '' : 'muted'}">${flag.enabled ? 'ON' : 'OFF'}</span>
-					<span class="pc-tag muted">${flag.source === 'system' ? '系统设置' : '默认值'}</span>
-					<button class="pc-inline-btn" type="button" data-platform-system-flag="${escapeHtml(flag.key)}" data-platform-system-flag-action="enabled" ${pending ? 'disabled' : ''}>${pending ? '提交中...' : flag.enabled ? '关闭' : '开启'}</button>
-					<button class="pc-inline-ghost" type="button" data-platform-system-flag="${escapeHtml(flag.key)}" data-platform-system-flag-action="locked" ${pending ? 'disabled' : ''}>${flag.locked ? '解除锁定' : '锁定下层'}</button>
-					${flag.source === 'system' ? `<button class="pc-inline-ghost" type="button" data-platform-system-flag="${escapeHtml(flag.key)}" data-platform-system-flag-action="default" ${pending ? 'disabled' : ''}>恢复默认</button>` : ''}
-				</div>
+			const controlText = flag.locked || (!flag.allowOrgOverride && !flag.allowUserOverride) ? '平台控制' : '允许调整';
+			return `<div class="pc-platform-flag-row" data-platform-system-flag-row="${escapeHtml(flag.key)}" data-platform-flag-search="${escapeHtml(`${flag.name} ${flag.description} ${flag.key}`.toLowerCase())}" data-platform-flag-enabled="${flag.enabled ? 'true' : 'false'}" data-platform-flag-control="${flag.locked || (!flag.allowOrgOverride && !flag.allowUserOverride) ? 'platform' : 'adjustable'}">
+				<div class="pc-platform-flag-copy"><strong>${escapeHtml(flag.name)}</strong><span>${escapeHtml(flag.description || '暂无说明')}</span><details><summary>详细信息</summary><code>${escapeHtml(flag.key)}</code></details></div>
+				<div class="pc-platform-flag-status"><span class="pc-platform-flag-chip ${flag.enabled ? 'is-on' : 'is-off'}">${flag.enabled ? '已启用' : '已停用'}</span><span class="pc-platform-flag-chip">${controlText}</span>${flag.source === 'system' ? '<span class="pc-platform-flag-chip is-source">平台设置</span>' : '<span class="pc-platform-flag-chip is-muted">系统默认</span>'}</div>
+				<button class="pc-inline-ghost pc-platform-flag-edit" type="button" data-platform-system-flag-edit="${escapeHtml(flag.key)}"${pending ? ' disabled' : ''}>${pending ? '保存中...' : '修改'}</button>
 			</div>`;
+		};
+		const rows = categories.map((category) => {
+			const flags = category.keys.map((key) => platformSystemFlags.find((flag) => flag.key === key)).filter((flag): flag is PlatformSystemFlag => Boolean(flag));
+			if (!flags.length) return '';
+			const enabledCount = flags.filter((flag) => flag.enabled).length;
+			return `<details class="pc-platform-flag-group" data-platform-flag-group="${escapeHtml(category.id)}"${platformSystemFlagOpenGroups.has(category.id) ? ' open' : ''}><summary><span><strong>${escapeHtml(category.title)}</strong><em>${flags.length} 项 · 已启用 ${enabledCount} 项</em></span><b aria-hidden="true">⌄</b></summary><div class="pc-platform-flag-list">${flags.map(renderFlag).join('')}</div></details>`;
 		}).join('');
 		const content = platformSystemFlagsError
 			? `<div class="pc-admin-note">${escapeHtml(platformSystemFlagsError)} <button class="pc-inline-btn" type="button" data-platform-system-flags-retry>重试</button></div>`
 			: platformSystemFlagsLoading
 				? '<div class="pc-admin-note">正在读取真实系统开关...</div>'
 				: rows || '<div class="pc-admin-note">后端没有返回可管理的系统开关。</div>';
-		const body = `<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">系统功能开关</div><div class="pc-admin-note">状态直接来自系统层。锁定后，机构和个人层不能覆盖该开关；每次修改都需要输入开关键确认。</div><div class="pc-lite-list">${content}</div></div>`;
+		const body = `<div class="pc-card pc-lite-list-card pc-platform-flags-card"><div class="pc-admin-note">按业务分类查看功能状态；点击“修改”集中设置启停状态和管理方式。</div><div class="pc-platform-flag-toolbar"><label><input class="pc-profile-input" type="search" aria-label="搜索功能" placeholder="搜索名称或功能代码" value="${escapeHtml(platformSystemFlagQuery)}" data-platform-flag-query></label><label><select class="pc-profile-input" aria-label="筛选功能" data-platform-flag-filter><option value="all"${platformSystemFlagFilter === 'all' ? ' selected' : ''}>全部状态</option><option value="enabled"${platformSystemFlagFilter === 'enabled' ? ' selected' : ''}>已启用</option><option value="disabled"${platformSystemFlagFilter === 'disabled' ? ' selected' : ''}>已停用</option><option value="platform"${platformSystemFlagFilter === 'platform' ? ' selected' : ''}>平台控制</option><option value="adjustable"${platformSystemFlagFilter === 'adjustable' ? ' selected' : ''}>允许调整</option></select></label></div><div class="pc-platform-flag-empty" data-platform-flag-empty hidden>没有符合条件的功能。</div><div class="pc-platform-flag-groups">${content}</div></div>`;
 		return renderDashboardSubpage('功能开关', body, '真实系统层状态、默认来源和下层覆盖规则。');
+	}
+
+	function closePlatformSystemFlagEditor(): void {
+		platformSystemFlagEditor?.remove();
+		platformSystemFlagEditor = null;
+	}
+
+	function applyPlatformSystemFlagFilters(container: HTMLElement): void {
+		const query = platformSystemFlagQuery.trim().toLowerCase();
+		let visibleCount = 0;
+		container.querySelectorAll<HTMLElement>('[data-platform-system-flag-row]').forEach((row) => {
+			const matchesQuery = !query || (row.dataset.platformFlagSearch || '').includes(query);
+			const matchesFilter = platformSystemFlagFilter === 'all'
+				|| (platformSystemFlagFilter === 'enabled' && row.dataset.platformFlagEnabled === 'true')
+				|| (platformSystemFlagFilter === 'disabled' && row.dataset.platformFlagEnabled === 'false')
+				|| row.dataset.platformFlagControl === platformSystemFlagFilter;
+			row.hidden = !(matchesQuery && matchesFilter);
+			if (!row.hidden) visibleCount += 1;
+		});
+		container.querySelectorAll<HTMLDetailsElement>('[data-platform-flag-group]').forEach((group) => {
+			const hasVisibleRow = Array.from(group.querySelectorAll<HTMLElement>('[data-platform-system-flag-row]')).some((row) => !row.hidden);
+			group.hidden = !hasVisibleRow;
+			if (hasVisibleRow && (query || platformSystemFlagFilter !== 'all')) group.open = true;
+		});
+		const empty = container.querySelector<HTMLElement>('[data-platform-flag-empty]');
+		if (empty) empty.hidden = visibleCount > 0;
+	}
+
+	function openPlatformSystemFlagEditor(key: string): void {
+		const flag = platformSystemFlags.find((item) => item.key === key);
+		if (!flag) { showToast('系统开关信息已失效，请刷新后重试'); return; }
+		closePlatformSystemFlagEditor();
+		const canAdjust = flag.allowOrgOverride || flag.allowUserOverride;
+		const overlay = document.createElement('div');
+		overlay.className = 'pc-confirm-overlay pc-platform-flag-editor-overlay';
+		const controlEditor = canAdjust
+			? `<fieldset class="pc-platform-flag-choice"><legend>管理方式</legend><label><input type="radio" name="flag-control" value="platform"${flag.locked ? ' checked' : ''}> 平台控制</label><label><input type="radio" name="flag-control" value="adjustable"${!flag.locked ? ' checked' : ''}> 允许调整</label></fieldset>`
+			: `<div class="pc-platform-flag-fixed-control"><div><strong>管理范围</strong><span>平台统一管理</span></div><p>此功能没有机构或个人设置项，不涉及下层调整权限。</p></div>`;
+		overlay.innerHTML = `<form class="pc-confirm-dialog pc-platform-flag-editor" data-platform-flag-editor data-flag-key="${escapeHtml(flag.key)}" role="dialog" aria-modal="true" aria-labelledby="pc-platform-flag-editor-title">
+			<div class="pc-platform-flag-editor-head"><div><div class="pc-service-header" id="pc-platform-flag-editor-title">${escapeHtml(flag.name)}</div><div class="pc-admin-note">${escapeHtml(flag.description || '')}</div></div><button class="pc-inline-ghost" type="button" data-platform-flag-editor-close aria-label="关闭设置">×</button></div>
+			<fieldset class="pc-platform-flag-choice"><legend>功能状态</legend><label><input type="radio" name="flag-enabled" value="true"${flag.enabled ? ' checked' : ''}> 启用</label><label><input type="radio" name="flag-enabled" value="false"${flag.enabled ? '' : ' checked'}> 停用</label></fieldset>
+			${controlEditor}
+			<div class="pc-platform-flag-editor-footer">${flag.source === 'system' ? '<button class="pc-inline-ghost" type="button" data-platform-flag-use-default>使用默认</button>' : '<span class="pc-platform-flag-default-note">当前为系统默认，保存后改为平台设置</span>'}<span></span><button class="pc-inline-ghost" type="button" data-platform-flag-editor-close>取消</button><button class="pc-inline-btn" type="submit">保存设置</button></div>
+		</form>`;
+		document.body.appendChild(overlay);
+		platformSystemFlagEditor = overlay;
+		overlay.addEventListener('click', (event) => {
+			const target = eventTargetElement(event.target);
+			if (event.target === overlay || target?.closest('[data-platform-flag-editor-close]')) { closePlatformSystemFlagEditor(); return; }
+			if (target?.closest('[data-platform-flag-use-default]')) { closePlatformSystemFlagEditor(); confirmRisk(`使用默认：${flag.name}`, flag.key.toUpperCase(), () => { void updatePlatformSystemFlag(flag.key, 'default'); }); }
+		});
+		overlay.addEventListener('submit', (event) => {
+			event.preventDefault();
+			const form = event.target as HTMLFormElement;
+			const enabled = (form.querySelector<HTMLInputElement>('input[name="flag-enabled"]:checked')?.value || 'false') === 'true';
+			const locked = (form.querySelector<HTMLInputElement>('input[name="flag-control"]:checked')?.value || 'platform') === 'platform';
+			closePlatformSystemFlagEditor();
+			confirmRisk(`保存设置：${flag.name}`, flag.key.toUpperCase(), () => { void savePlatformSystemFlagSettings(flag.key, enabled, locked); });
+		});
+		overlay.querySelector<HTMLInputElement>('input[name="flag-enabled"]:checked')?.focus();
+	}
+
+	async function savePlatformSystemFlagSettings(key: string, enabled: boolean, locked: boolean): Promise<void> {
+		const api = window.APIClient;
+		const flag = platformSystemFlags.find((item) => item.key === key);
+		if (!flag || pendingPlatformSystemFlags.has(key) || !api || typeof api.updateSystemFeatureFlags !== 'function') return;
+		pendingPlatformSystemFlags.add(key);
+		renderSectionContent({ preserveScroll: true });
+		try {
+			const reauthPassword = await requestHighRiskPassword('修改系统功能开关');
+			if (reauthPassword === null) return;
+			await api.updateSystemFeatureFlags({ [key]: { enabled, lock: locked } }, reauthPassword);
+			platformSystemFlagsLoaded = false;
+			await loadPlatformSystemFlags(true);
+			showToast(`${flag.name}设置已保存`);
+		} catch (error) { showToast(readErrorMessage(error, '系统开关更新失败')); }
+		finally { pendingPlatformSystemFlags.delete(key); if (shouldRefreshRoleContent('platform-flags')) renderSectionContent({ preserveScroll: true }); }
 	}
 
 	async function updatePlatformSystemFlag(key: string, action: 'enabled' | 'locked' | 'default'): Promise<void> {
@@ -7756,6 +8635,343 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return renderDashboardSubpage('全站统计', renderRoleListCard('全站统计', rows), '这些数据来自后端统计接口，不再使用页面写死的数字。');
 	}
 
+	function platformAdminPageTitle(page: PlatformAdminPage): { title: string; subtitle: string } {
+		return {
+			overview: { title: '平台总览', subtitle: '全站状态、风险与待办' },
+			users: { title: '用户管理', subtitle: '搜索账号并查看用户状态' },
+			roles: { title: '角色权限', subtitle: '全局角色模板与临时授权' },
+			organizations: { title: '机构管理', subtitle: '机构、套餐、席位与管理员' },
+			content: { title: '内容工作流', subtitle: '质检、复核、发布与回滚' },
+			feedback: { title: '反馈处理', subtitle: '用户、内容与支付问题' },
+			payments: { title: '订单与支付', subtitle: '订单、退款、支付流水与对账异常' },
+			pricing: { title: '价格与套餐', subtitle: '个人订阅、机构席位与优惠规则' },
+			flags: { title: '功能开关', subtitle: '系统层开关与下层覆盖规则' },
+			audit: { title: '审计日志', subtitle: '高危操作与权限变更记录' }
+		}[page];
+	}
+
+	function renderPlatformAdminOverview(): string {
+		if (!platformStatsLoaded && !platformStatsLoading) void loadPlatformStats();
+		if (!platformPaymentsLoaded && !platformPaymentsLoading) void loadPlatformPayments();
+		if (!platformFeedbackLoaded && !platformFeedbackLoading) void loadFeedbackQueue();
+		void ensureContentPublishQueue();
+		const ctx = getContext();
+		if (managedOrganizationsCacheKey !== managedOrganizationsKey(ctx) && !managedOrganizationsLoading) void ensureManagedOrganizations(ctx);
+
+		const users = asRecord(platformStatsOverview?.users);
+		const organizations = asRecord(platformStatsOverview?.organizations);
+		const pendingRefunds = platformPaymentState.refunds.filter((item) => !['succeeded', 'rejected', 'cancelled', 'failed'].includes(readString(item.status) || '')).length;
+		const openFeedback = platformFeedbackItems.filter((item) => !['resolved', 'closed'].includes(readString(item.status) || '')).length;
+		const contentPending = contentWorkflowItems.filter((item) => readString(item.status) !== 'published').length;
+		const anomalyCount = platformPaymentState.anomalies.length;
+		const stat = (label: string, value: string | number, page: PlatformAdminPage, note: string) => `<button class="pc-platform-stat" type="button" data-platform-admin-page="${page}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong><em>${escapeHtml(note)}</em></button>`;
+		const task = (title: string, count: number, page: PlatformAdminPage, desc: string, tone = '') => `<button class="pc-platform-task${tone ? ` is-${tone}` : ''}" type="button" data-platform-admin-page="${page}"><span><strong>${escapeHtml(title)}</strong><em>${escapeHtml(desc)}</em></span><b>${count}</b></button>`;
+		return `<div class="pc-platform-overview-grid">
+			<section class="pc-platform-stats">
+				${stat('用户总数', platformStatsLoading ? '…' : readCount(users?.total) ?? 0, 'users', '查看全部账号')}
+				${stat('机构总数', platformStatsLoading ? '…' : readCount(organizations?.total) ?? managedOrganizationListPage.total, 'organizations', '管理机构与席位')}
+				${stat('订单总数', platformPaymentsLoading ? '…' : platformPaymentState.totalOrders, 'payments', '订单与支付流水')}
+				${stat('内容总数', contentPublishQueueLoading ? '…' : contentPublishExamItems.length, 'content', '试卷与发布版本')}
+			</section>
+			<section class="pc-platform-overview-panel pc-platform-tasks">
+				<div class="pc-platform-panel-head"><div><strong>待处理</strong><span>需要管理员关注的真实业务状态</span></div></div>
+				${task('待处理退款', pendingRefunds, 'payments', '审核退款申请和状态', pendingRefunds ? 'warning' : '')}
+				${task('待处理反馈', openFeedback, 'feedback', '用户、内容和支付问题', openFeedback ? 'warning' : '')}
+				${task('待发布内容', contentPending, 'content', '质检、审核与发布', contentPending ? 'warning' : '')}
+				${task('对账异常', anomalyCount, 'payments', '订单、退款与权益不一致', anomalyCount ? 'danger' : '')}
+			</section>
+			<section class="pc-platform-overview-panel pc-platform-quick-actions">
+				<div class="pc-platform-panel-head"><div><strong>快捷操作</strong><span>常用管理入口</span></div></div>
+				<button type="button" data-platform-admin-page="users">搜索用户<span>›</span></button>
+				<button type="button" data-platform-admin-page="organizations">新建或管理机构<span>›</span></button>
+				<button type="button" data-platform-admin-page="roles">调整角色权限<span>›</span></button>
+				<button type="button" data-platform-admin-page="audit">查看高危操作<span>›</span></button>
+			</section>
+		</div>`;
+	}
+
+	function roleWorkspaceContentKey(intent: string): string {
+		if (intent === '__overview__') return '';
+		if (intent === 'openAuditLog') return 'content-log';
+		if (intent === 'openAssignments') return 'student-assignments';
+		if (intent === 'openBookmarkFolders') return 'student-favorites';
+		if (intent === 'openRecentLearningPage') return 'student-recent';
+		return intent.startsWith('openRoleContent:') ? intent.slice('openRoleContent:'.length) : '';
+	}
+
+	function roleWorkspaceActions(ctx: PCContext, workbench: WorkbenchDef): WorkbenchAction[] {
+		return [...workbench.actions, ...workbench.more].filter((action) => visibleAction(ctx, action));
+	}
+
+	function roleWorkspaceNavigationGroups(workbench: WorkbenchDef, actions: WorkbenchAction[]): Array<{ label: string; actions: WorkbenchAction[] }> {
+		const groups: Array<{ label: string; intents: string[] }> = workbench.id === 'orgAdmin'
+			? [
+				{ label: '成员与权限', intents: ['openRoleContent:org-members', 'openRoleContent:org-permissions'] },
+				{ label: '教学运营', intents: ['openRoleContent:org-course-packages', 'openRoleContent:org-course-accounts', 'openRoleContent:org-groups'] },
+				{ label: '机构', intents: ['openRoleContent:org-settings', 'openRoleContent:org-dashboard'] }
+			]
+			: workbench.id === 'orgContentAdmin'
+				? [{ label: '机构内容', intents: ['openRoleContent:org-course-packages'] }]
+			: workbench.id === 'teacher'
+				? [
+					{ label: '学员', intents: ['openRoleContent:teacher-students', 'openRoleContent:teacher-groups'] },
+					{ label: '教学', intents: ['openRoleContent:teacher-schedule', 'openRoleContent:teacher-arrange', 'openRoleContent:teacher-review', 'openRoleContent:teacher-assign', 'openRoleContent:teacher-gradebook', 'openRoleContent:teacher-prep'] }
+				]
+				: workbench.id === 'assistant'
+					? [
+						{ label: '学员运营', intents: ['openRoleContent:assistant-remind', 'openRoleContent:assistant-followup', 'openRoleContent:assistant-renewal', 'openRoleContent:assistant-alerts'] },
+						{ label: '教学支持', intents: ['openRoleContent:teacher-groups', 'openRoleContent:teacher-schedule', 'openRoleContent:assistant-package', 'openRoleContent:assistant-arrange'] }
+					]
+					: workbench.id === 'contentAdmin'
+						? [{ label: '内容', intents: actions.map((action) => action.intent) }]
+						: workbench.id === 'student'
+							? [
+								{ label: '学习', intents: workbench.actions.map((action) => action.intent) },
+								{ label: '更多', intents: workbench.more.map((action) => action.intent) }
+							]
+							: [{ label: workbench.label, intents: actions.map((action) => action.intent) }];
+		const assigned = new Set<string>();
+		const result = groups.map((group) => {
+			const groupedActions = actions.filter((action) => group.intents.includes(action.intent));
+			groupedActions.forEach((action) => assigned.add(action.intent));
+			return { label: group.label, actions: groupedActions };
+		}).filter((group) => group.actions.length > 0);
+		const remaining = actions.filter((action) => !assigned.has(action.intent));
+		if (remaining.length > 0) result.push({ label: '其他', actions: remaining });
+		return result;
+	}
+
+	function renderRoleWorkspaceOverview(ctx: PCContext, workbench: WorkbenchDef, actions: WorkbenchAction[]): string {
+		let supplementary = '';
+		if (workbench.id === 'student') {
+			organizationInviteTokenDraft = organizationInviteTokenDraft || inviteTokenFromUrl();
+			void ensurePendingInvitations(ctx);
+			supplementary = `${renderPendingInvitationPanel(ctx)}${renderInviteEntryCard(organizationInviteTokenDraft)}`;
+		}
+		const isOrganizationOverview = workbench.id === 'orgAdmin';
+		const welcome = isOrganizationOverview ? '' : `<section class="pc-platform-overview-panel pc-role-admin-welcome">
+				<div><strong>${escapeHtml(workbench.title)}</strong><span>${escapeHtml(workbench.subtitle)}</span></div>
+				<em>${actions.length} 项可用功能</em>
+			</section>`;
+		return `<div class="pc-role-admin-overview${isOrganizationOverview ? ' pc-role-admin-overview-org' : ''}">
+			${welcome}
+			<section class="pc-role-admin-launcher" aria-label="${escapeHtml(workbench.label)}功能">
+				${actions.map((action) => `<button type="button" data-role-admin-intent="${escapeHtml(action.intent)}"><span class="pc-role-admin-launcher-icon">${renderOutlineIcon(action.icon, 'pc-platform-nav-icon')}</span><span><strong>${escapeHtml(action.title)}</strong><em>${escapeHtml(action.desc || '进入业务页面')}</em></span><b>›</b></button>`).join('')}
+			</section>
+			${supplementary}
+		</div>`;
+	}
+
+	function bindPlatformContentScrollHint(content: HTMLElement): void {
+		const workspace = content.closest('.pc-platform-workspace');
+		if (!(workspace instanceof HTMLElement)) return;
+		const scrollbar = document.createElement('div');
+		scrollbar.className = 'pc-platform-overlay-scrollbar';
+		scrollbar.setAttribute('aria-hidden', 'true');
+		const thumb = document.createElement('div');
+		thumb.className = 'pc-platform-overlay-scrollbar-thumb';
+		scrollbar.appendChild(thumb);
+		workspace.appendChild(scrollbar);
+
+		const updateHint = () => {
+			const scrollRange = Math.max(0, content.scrollHeight - content.clientHeight);
+			const hasMoreBelow = scrollRange > 1
+				&& content.scrollTop + content.clientHeight < content.scrollHeight - 2;
+			workspace.classList.toggle('pc-platform-has-more-below', hasMoreBelow);
+			const trackHeight = Math.max(0, content.clientHeight - 8);
+			scrollbar.hidden = scrollRange <= 1 || trackHeight <= 0;
+			scrollbar.style.top = `${content.offsetTop + 4}px`;
+			scrollbar.style.height = `${trackHeight}px`;
+			if (scrollbar.hidden) return;
+			const thumbHeight = Math.max(36, Math.min(trackHeight, trackHeight * content.clientHeight / content.scrollHeight));
+			const thumbRange = Math.max(0, trackHeight - thumbHeight);
+			const thumbTop = scrollRange > 0 ? content.scrollTop / scrollRange * thumbRange : 0;
+			thumb.style.height = `${thumbHeight}px`;
+			thumb.style.transform = `translateY(${thumbTop}px)`;
+		};
+
+		let dragStartY = 0;
+		let dragStartScrollTop = 0;
+		thumb.addEventListener('pointerdown', (event) => {
+			event.preventDefault();
+			dragStartY = event.clientY;
+			dragStartScrollTop = content.scrollTop;
+			thumb.setPointerCapture(event.pointerId);
+			thumb.classList.add('dragging');
+		});
+		thumb.addEventListener('pointermove', (event) => {
+			if (!thumb.hasPointerCapture(event.pointerId)) return;
+			const thumbRange = Math.max(1, scrollbar.clientHeight - thumb.offsetHeight);
+			const scrollRange = Math.max(0, content.scrollHeight - content.clientHeight);
+			content.scrollTop = dragStartScrollTop + (event.clientY - dragStartY) * scrollRange / thumbRange;
+		});
+		const finishDragging = (event: PointerEvent) => {
+			if (thumb.hasPointerCapture(event.pointerId)) thumb.releasePointerCapture(event.pointerId);
+			thumb.classList.remove('dragging');
+		};
+		thumb.addEventListener('pointerup', finishDragging);
+		thumb.addEventListener('pointercancel', finishDragging);
+		content.addEventListener('scroll', updateHint, { passive: true });
+		requestAnimationFrame(updateHint);
+	}
+
+	function renderRoleWorkspaceShell(shell: HTMLElement, ctx: PCContext, options: { preserveScroll?: boolean; focusSelector?: string } = {}): void {
+		const previousContent = shell.querySelector('.pc-platform-admin-content') as HTMLElement | null;
+		const previousScrollTop = previousContent?.scrollTop || 0;
+		const workbench = activeWorkbenchDef(ctx);
+		const actions = roleWorkspaceActions(ctx, workbench);
+		const navigationGroups = roleWorkspaceNavigationGroups(workbench, actions);
+		const activeAction = activeRoleContent
+			? actions.find((action) => roleWorkspaceContentKey(action.intent) === activeRoleContent)
+			: undefined;
+		const nav = `<div class="pc-platform-nav-group">
+			<button type="button" class="pc-platform-nav-item${activeRoleContent ? '' : ' active'}" data-role-admin-intent="__overview__" aria-label="总览">${renderOutlineIcon('chart', 'pc-platform-nav-icon')}<span aria-hidden="true">总览</span></button>
+		</div>${navigationGroups.map((group) => `<div class="pc-platform-nav-group"><div class="pc-platform-nav-label">${escapeHtml(group.label)}</div>
+			${group.actions.map((action) => `<button type="button" class="pc-platform-nav-item${activeRoleContent && roleWorkspaceContentKey(action.intent) === activeRoleContent ? ' active' : ''}" data-role-admin-intent="${escapeHtml(action.intent)}" aria-label="${escapeHtml(action.title)}">${renderOutlineIcon(action.icon, 'pc-platform-nav-icon')}<span aria-hidden="true">${escapeHtml(action.title)}</span></button>`).join('')}
+		</div>`).join('')}`;
+		const accountPageInfo: Record<string, { title: string; subtitle: string }> = {
+			'student-account-plan': { title: '套餐与订单', subtitle: '套餐、续费和支付记录' },
+			'student-account-coupons': { title: '卡券', subtitle: '兑换码与优惠权益' },
+			'student-account-feedback': { title: '帮助与反馈', subtitle: '客服、协议和问题反馈' }
+		};
+		const pageTitle = activeAction?.title || accountPageInfo[activeRoleContent]?.title || workbench.title;
+		const teachingPage = ['org-course-packages', 'org-course-accounts', 'org-groups'].includes(activeRoleContent);
+		const pageSubtitle = teachingPage ? '' : activeAction?.desc || accountPageInfo[activeRoleContent]?.subtitle || workbench.subtitle;
+		const body = activeRoleContent ? renderRoleContentPage(ctx) : renderRoleWorkspaceOverview(ctx, workbench, actions);
+		const roleText = roleLabels(ctx.roles).slice(0, 2).join(' / ') || workbench.label;
+		const studentAccountEntries = workbench.id === 'student'
+			? '<button type="button" role="menuitem" data-role-account-page="student-account-plan">套餐与订单</button><button type="button" role="menuitem" data-role-account-page="student-account-coupons">卡券</button><button type="button" role="menuitem" data-role-account-page="student-account-feedback">帮助与反馈</button>'
+			: '';
+		shell.classList.toggle('pc-platform-admin-expanded', platformAdminExpanded);
+		shell.classList.toggle('pc-platform-admin-mobile-preview', platformAdminMobilePreview);
+		shell.classList.toggle('pc-platform-content-active', activeRoleContent === 'content-publish');
+		shell.classList.toggle('pc-platform-overview-active', activePlatformAdminPage === 'overview');
+		shell.classList.toggle('pc-platform-users-active', activePlatformAdminPage === 'users');
+		shell.classList.toggle('pc-platform-roles-active', activePlatformAdminPage === 'roles');
+		shell.classList.toggle('pc-platform-organizations-active', activePlatformAdminPage === 'organizations');
+		shell.classList.toggle('pc-platform-feedback-active', false);
+		shell.classList.toggle('pc-platform-payments-active', false);
+		shell.classList.toggle('pc-platform-pricing-active', false);
+		shell.classList.toggle('pc-platform-flags-active', false);
+		shell.classList.toggle('pc-platform-audit-active', false);
+		const displayToggleLabel = platformAdminMobilePreview ? '切换到全屏' : '切换到手机预览';
+		const displayToggleIcon = platformAdminMobilePreview
+			? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></svg>'
+			: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 6h4M11 18h2"/></svg>';
+		shell.innerHTML = `<aside class="pc-platform-sidebar">
+			<div class="pc-platform-brand"><span>試</span><div><strong>${escapeHtml(workbench.label)}</strong><em>Exam Workspace</em></div></div>
+			<nav>${nav}</nav>
+			<div class="pc-platform-sidebar-footer"><button type="button" data-platform-admin-account>个人资料</button><button type="button" data-platform-admin-logout>退出登录</button></div>
+		</aside>
+		<div class="pc-platform-workspace">
+			<header class="pc-platform-topbar">
+				<div><h1>${escapeHtml(pageTitle)}</h1>${pageSubtitle ? `<p>${escapeHtml(pageSubtitle)}</p>` : ''}</div>
+				<div class="pc-platform-topbar-spacer" aria-hidden="true"></div>
+				<div class="pc-platform-account">
+					<button class="pc-platform-admin-user" type="button" data-platform-admin-account-menu aria-label="账号菜单" aria-haspopup="menu" aria-expanded="${platformAdminAccountMenuOpen ? 'true' : 'false'}"><span class="pc-avatar pc-platform-admin-avatar">${ctx.avatar ? `<img class="pc-avatar-image" src="${escapeHtml(ctx.avatar)}" alt="" />` : renderOutlineIcon('brandMark', 'pc-avatar-icon')}</span><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><em>${escapeHtml(roleText)}</em></div></button>
+					${platformAdminAccountMenuOpen ? `<div class="pc-platform-account-menu" role="menu"><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><span>${escapeHtml(roleText)}</span></div><button type="button" role="menuitem" data-platform-admin-account>个人资料</button><button type="button" role="menuitem" data-platform-admin-security>账号安全</button>${studentAccountEntries}<button type="button" role="menuitem" data-platform-admin-switch-account>切换账号</button><button type="button" role="menuitem" data-platform-admin-logout>退出登录</button></div>` : ''}
+				</div>
+				<div class="pc-platform-window-actions"><button class="pc-platform-window-button${platformAdminMobilePreview ? ' active' : ''}" type="button" data-platform-admin-display-toggle aria-pressed="${platformAdminMobilePreview ? 'true' : 'false'}" aria-label="${displayToggleLabel}" title="${displayToggleLabel}">${displayToggleIcon}</button><button class="pc-platform-window-button pc-platform-close" type="button" data-platform-admin-close aria-label="关闭工作台" title="关闭工作台">×</button></div>
+			</header>
+			<main class="pc-platform-admin-content">${body}</main>
+		</div>`;
+		const content = shell.querySelector('.pc-platform-admin-content') as HTMLElement | null;
+		if (content) {
+			attachDashboardHandlers(content);
+			hydrateInstitutionRoleDetail(content);
+			if (options.preserveScroll) content.scrollTop = previousScrollTop;
+			bindPlatformContentScrollHint(content);
+			if (options.focusSelector) {
+				const focusTarget = content.querySelector(options.focusSelector) as HTMLElement | null;
+				if (focusTarget) window.requestAnimationFrame(() => focusTarget.focus({ preventScroll: true }));
+			}
+		}
+		const embeddedAuditLog = shell.querySelector<HTMLElement>('[data-audit-log-surface="embedded"]');
+		if (embeddedAuditLog) {
+			bindAuditLogControls(embeddedAuditLog);
+			void reloadAuditOrganizations(embeddedAuditLog);
+			void reloadAuditActions(embeddedAuditLog);
+			void reloadAuditLogs(embeddedAuditLog);
+		}
+	}
+
+	function renderPlatformAdminShell(options: { preserveScroll?: boolean; focusSelector?: string } = {}): void {
+		const shell = ensurePlatformAdminShell();
+		if (!shell.classList.contains('pc-platform-admin-open')) return;
+		const ctx = getContext();
+		if (platformAdminMode === 'role') {
+			renderRoleWorkspaceShell(shell, ctx, options);
+			return;
+		}
+		const previousContent = shell.querySelector('.pc-platform-admin-content') as HTMLElement | null;
+		const previousScrollTop = previousContent?.scrollTop || 0;
+		const pageInfo = platformAdminPageTitle(activePlatformAdminPage);
+		const nav = platformAdminNavigation().map((group) => `<div class="pc-platform-nav-group">
+			${group.group ? `<div class="pc-platform-nav-label">${escapeHtml(group.group)}</div>` : ''}
+			${group.items.map((item) => `<button type="button" class="pc-platform-nav-item${activePlatformAdminPage === item.id ? ' active' : ''}" data-platform-admin-page="${item.id}" aria-label="${escapeHtml(item.label)}">${renderOutlineIcon(item.icon, 'pc-platform-nav-icon')}<span aria-hidden="true">${escapeHtml(item.label)}</span></button>`).join('')}
+		</div>`).join('');
+		let body = '';
+		if (activePlatformAdminPage === 'overview') {
+			body = renderPlatformAdminOverview();
+		} else {
+			// 侧栏切换时已经设置主页面；这里保留订单详情、退款表单等页内跳转状态。
+			body = `${renderPlatformAdminDetailNavigation()}${renderRoleContentPage(ctx)}`;
+		}
+		shell.classList.toggle('pc-platform-admin-expanded', platformAdminExpanded);
+		shell.classList.toggle('pc-platform-admin-mobile-preview', platformAdminMobilePreview);
+		shell.classList.toggle('pc-platform-content-active', activePlatformAdminPage === 'content');
+		shell.classList.toggle('pc-platform-overview-active', activePlatformAdminPage === 'overview');
+		shell.classList.toggle('pc-platform-users-active', activePlatformAdminPage === 'users');
+		shell.classList.toggle('pc-platform-roles-active', activePlatformAdminPage === 'roles');
+		shell.classList.toggle('pc-platform-organizations-active', activePlatformAdminPage === 'organizations');
+		shell.classList.toggle('pc-platform-feedback-active', activePlatformAdminPage === 'feedback');
+		shell.classList.toggle('pc-platform-payments-active', activePlatformAdminPage === 'payments');
+		shell.classList.toggle('pc-platform-pricing-active', activePlatformAdminPage === 'pricing');
+		shell.classList.toggle('pc-platform-flags-active', activePlatformAdminPage === 'flags');
+		shell.classList.toggle('pc-platform-audit-active', activePlatformAdminPage === 'audit');
+		const displayToggleLabel = platformAdminMobilePreview ? '切换到全屏' : '切换到手机预览';
+		const displayToggleIcon = platformAdminMobilePreview
+			? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></svg>'
+			: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 6h4M11 18h2"/></svg>';
+		shell.innerHTML = `<aside class="pc-platform-sidebar">
+			<div class="pc-platform-brand"><span>試</span><div><strong>平台管理</strong><em>Exam Admin</em></div></div>
+			<nav>${nav}</nav>
+			<div class="pc-platform-sidebar-footer"><button type="button" data-platform-admin-account>个人资料</button><button type="button" data-platform-admin-logout>退出登录</button></div>
+		</aside>
+		<div class="pc-platform-workspace">
+			<header class="pc-platform-topbar">
+				<div><h1>${escapeHtml(pageInfo.title)}</h1><p>${escapeHtml(pageInfo.subtitle)}</p></div>
+				<div class="pc-platform-topbar-spacer" aria-hidden="true"></div>
+				<div class="pc-platform-account">
+					<button class="pc-platform-admin-user" type="button" data-platform-admin-account-menu aria-label="账号菜单" aria-haspopup="menu" aria-expanded="${platformAdminAccountMenuOpen ? 'true' : 'false'}"><span class="pc-avatar pc-platform-admin-avatar">${ctx.avatar ? `<img class="pc-avatar-image" src="${escapeHtml(ctx.avatar)}" alt="" />` : renderOutlineIcon('brandMark', 'pc-avatar-icon')}</span><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><em>平台超级管理员</em></div></button>
+					${platformAdminAccountMenuOpen ? `<div class="pc-platform-account-menu" role="menu"><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><span>平台超级管理员</span></div><button type="button" role="menuitem" data-platform-admin-account>个人资料</button><button type="button" role="menuitem" data-platform-admin-security>账号安全</button><button type="button" role="menuitem" data-platform-admin-switch-account>切换账号</button><button type="button" role="menuitem" data-platform-admin-logout>退出登录</button></div>` : ''}
+				</div>
+				<div class="pc-platform-window-actions">
+					<button class="pc-platform-window-button${platformAdminMobilePreview ? ' active' : ''}" type="button" data-platform-admin-display-toggle aria-pressed="${platformAdminMobilePreview ? 'true' : 'false'}" aria-label="${displayToggleLabel}" title="${displayToggleLabel}">${displayToggleIcon}</button>
+					<button class="pc-platform-window-button pc-platform-close" type="button" data-platform-admin-close aria-label="关闭管理后台" title="关闭管理后台">×</button>
+				</div>
+			</header>
+			<main class="pc-platform-admin-content">${body}</main>
+		</div>`;
+		const content = shell.querySelector('.pc-platform-admin-content') as HTMLElement | null;
+		if (content) {
+			attachDashboardHandlers(content);
+			if (options.preserveScroll) content.scrollTop = previousScrollTop;
+			bindPlatformContentScrollHint(content);
+			if (options.focusSelector) {
+				const focusTarget = content.querySelector(options.focusSelector) as HTMLElement | null;
+				if (focusTarget) window.requestAnimationFrame(() => focusTarget.focus({ preventScroll: true }));
+			}
+		}
+		const embeddedAuditLog = shell.querySelector<HTMLElement>('[data-audit-log-surface="embedded"]');
+		if (embeddedAuditLog) {
+			bindAuditLogControls(embeddedAuditLog);
+			void reloadAuditOrganizations(embeddedAuditLog);
+			void reloadAuditActions(embeddedAuditLog);
+			void reloadAuditLogs(embeddedAuditLog);
+		}
+	}
+
 	async function loadFeedbackQueue(force = false): Promise<void> {
 		if (platformFeedbackLoading || (platformFeedbackLoaded && !force)) {
 			return;
@@ -7780,7 +8996,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} finally {
 			platformFeedbackLoading = false;
 			if (shouldRefreshRoleContent('platform-feedback', 'content-feedback')) {
-				renderSectionContent({ preserveScroll: true });
+				if (activePlatformAdminPage === 'overview' && document.querySelector('#platform-admin-shell.pc-platform-admin-open')) renderPlatformAdminShell({ preserveScroll: true });
+				else renderSectionContent({ preserveScroll: true });
 			}
 		}
 	}
@@ -7859,68 +9076,106 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					<span><strong>${escapeHtml(feedbackQueueKindLabel(kind))} · ${escapeHtml(titleText)}${questionId ? ` · ${escapeHtml(questionId)}` : ''}</strong><em>${escapeHtml(paperId || '未关联试卷')} · ${escapeHtml(description)}</em></span>
 					<div class="pc-feedback-actions">
 						<span class="pc-tag muted">${escapeHtml(feedbackStatusLabel(status))}</span>
-						${canOpen ? `<button class="pc-inline-ghost" type="button" data-feedback-open-question data-feedback-paper-id="${escapeHtml(paperId)}" data-feedback-question-id="${escapeHtml(questionId)}">${questionId ? '查看题目' : '查看试卷'}</button>` : ''}
+						${canOpen ? `<button class="pc-inline-ghost" type="button" data-feedback-open-question data-feedback-paper-id="${escapeHtml(paperId)}" data-feedback-question-id="${escapeHtml(questionId)}">${questionId ? '查看原题' : '查看试卷'}</button>` : ''}
 						${id ? `<button class="pc-inline-ghost" type="button" data-feedback-update data-feedback-id="${escapeHtml(id)}" data-feedback-paper-id="${escapeHtml(paperId)}" data-feedback-status="reviewing">受理</button><button class="pc-inline-btn" type="button" data-feedback-update data-feedback-id="${escapeHtml(id)}" data-feedback-paper-id="${escapeHtml(paperId)}" data-feedback-status="resolved">关闭</button>` : ''}
 					</div>
 				</div>`;
 			}).join('')
 			: `<div class="pc-admin-note">${platformFeedbackLoading ? '正在读取反馈列表...' : emptyText}${platformFeedbackLoading ? '' : ' <button class="pc-inline-btn" type="button" data-platform-feedback-refresh>重新加载</button>'}</div>`;
-		const controls = `<form class="pc-org-add-form" data-platform-feedback-search-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>搜索反馈</span><input class="pc-profile-input" data-platform-feedback-query value="${escapeHtml(platformFeedbackQuery)}" placeholder="试卷、题号、用户或描述" /></label><label class="pc-org-field"><span>排序</span><select class="pc-profile-input" data-platform-feedback-sort><option value="created_at"${platformFeedbackSort === 'created_at' ? ' selected' : ''}>时间</option><option value="status"${platformFeedbackSort === 'status' ? ' selected' : ''}>状态</option></select></label><label class="pc-org-field"><span>顺序 / 每页</span><span><select class="pc-profile-input" data-platform-feedback-order><option value="desc"${platformFeedbackOrder === 'desc' ? ' selected' : ''}>降序</option><option value="asc"${platformFeedbackOrder === 'asc' ? ' selected' : ''}>升序</option></select><select class="pc-profile-input" data-platform-feedback-page-size><option value="10"${platformFeedbackPageSize === 10 ? ' selected' : ''}>10 条</option><option value="20"${platformFeedbackPageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${platformFeedbackPageSize === 50 ? ' selected' : ''}>50 条</option></select></span></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">查询</button><button class="pc-inline-ghost" type="button" data-platform-feedback-page="prev"${platformFeedbackPage <= 1 ? ' disabled' : ''}>上一页</button><span class="pc-tag muted">第 ${platformFeedbackPage} / ${Math.max(1, platformFeedbackPages)} 页</span><button class="pc-inline-ghost" type="button" data-platform-feedback-page="next"${platformFeedbackPage >= platformFeedbackPages ? ' disabled' : ''}>下一页</button></div></form>`;
+		const controls = `<form class="pc-platform-feedback-toolbar" data-platform-feedback-search-form>
+			<div class="pc-platform-feedback-search-row">
+				<label class="pc-org-field"><span>搜索反馈</span><input class="pc-profile-input" data-platform-feedback-query value="${escapeHtml(platformFeedbackQuery)}" placeholder="试卷、题号、用户或描述" /></label>
+				<label class="pc-org-field"><span>排序</span><select class="pc-profile-input" data-platform-feedback-sort><option value="created_at"${platformFeedbackSort === 'created_at' ? ' selected' : ''}>时间</option><option value="status"${platformFeedbackSort === 'status' ? ' selected' : ''}>状态</option></select></label>
+				<button class="pc-inline-btn pc-platform-feedback-submit" type="submit">查询</button>
+			</div>
+			<div class="pc-platform-feedback-page-row">
+				<div class="pc-platform-feedback-page-options">
+					<label class="pc-org-field"><span>顺序</span><select class="pc-profile-input" data-platform-feedback-order><option value="desc"${platformFeedbackOrder === 'desc' ? ' selected' : ''}>降序</option><option value="asc"${platformFeedbackOrder === 'asc' ? ' selected' : ''}>升序</option></select></label>
+					<label class="pc-org-field"><span>每页</span><select class="pc-profile-input" data-platform-feedback-page-size><option value="10"${platformFeedbackPageSize === 10 ? ' selected' : ''}>10 条</option><option value="20"${platformFeedbackPageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${platformFeedbackPageSize === 50 ? ' selected' : ''}>50 条</option></select></label>
+				</div>
+				<div class="pc-platform-feedback-pagination"><button class="pc-inline-ghost" type="button" data-platform-feedback-page="prev"${platformFeedbackPage <= 1 ? ' disabled' : ''}>上一页</button><span class="pc-tag muted">第 ${platformFeedbackPage} / ${Math.max(1, platformFeedbackPages)} 页</span><button class="pc-inline-ghost" type="button" data-platform-feedback-page="next"${platformFeedbackPage >= platformFeedbackPages ? ' disabled' : ''}>下一页</button></div>
+			</div>
+		</form>`;
 		const body = `<div class="pc-card pc-lite-list-card">
-			<div class="pc-my-content-head">${escapeHtml(title)}</div>
-			<div class="pc-admin-note">列表来自反馈接口；试卷维护处理题干/选项/图片/音频，解析审核处理答案/解析/翻译，质量检查处理缺失、错位和复核类问题。“查看题目”会打开对应试卷并定位到题号。</div>
+			<div class="pc-admin-note">列表来自反馈接口；试卷维护处理题干/选项/图片/音频，解析审核处理答案/解析/翻译，质量检查处理缺失、错位和复核类问题。“查看原题”会先提示，再隐藏管理后台并定位到对应试题。</div>
 			${controls}<div class="pc-feedback-summary"><span>全部 ${escapeHtml(String(platformFeedbackTotal))}</span><span>本页试卷维护 ${escapeHtml(String(counts.paper))}</span><span>解析审核 ${escapeHtml(String(counts.analysis))}</span><span>质量检查 ${escapeHtml(String(counts.quality))}</span></div>
 			<div class="pc-lite-list">${listMarkup}</div>
 		</div>`;
 		return renderDashboardSubpage(title, body, subtitle);
 	}
 
+	function platformPaymentStatusLabel(status: string): string {
+		return ({
+			pending: '待支付', paid: '已支付', refunded: '已退款', cancelled: '已取消', failed: '失败',
+			requested: '待处理', processing: '处理中', succeeded: '已成功', rejected: '已驳回'
+		} as Record<string, string>)[status] || status || '未知';
+	}
+
+	function platformLedgerTypeLabel(type: string): string {
+		return ({
+			'order.created': '创建订单', 'payment.succeeded': '支付成功', 'refund.requested': '申请退款',
+			'refund.processing': '退款处理中', 'refund.succeeded': '退款成功', 'refund.failed': '退款失败',
+			'subscription.granted': '发放权益', 'subscription.reversed': '撤销权益'
+		} as Record<string, string>)[type] || type || '支付流水';
+	}
+
+	function renderPlatformOrganizationOrderCreatePage(ctx: PCContext): string {
+		if (!hasAnyRole(ctx, ['superAdmin'])) return renderDashboardSubpage('创建机构订单', '<div class="pc-admin-note">需要超级管理员权限。</div>', '');
+		const body = `<div class="pc-card pc-lite-list-card pc-platform-payment-form-card"><div class="pc-my-content-head">创建机构套餐订单</div><div class="pc-admin-note">为机构购买或增加付费席位，创建后可在订单列表中查看支付和权益状态。</div><form class="pc-org-add-form" data-organization-payment-order-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>机构 ID</span><input class="pc-profile-input" data-org-payment-organization-id required /></label><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input" data-org-payment-plan><option value="pro">机构 PRO</option><option value="ultra">机构 ULTRA</option></select></label><label class="pc-org-field"><span>成员席位</span><input class="pc-profile-input" type="number" min="${paymentPricingConfig.catalogs.organization.minimumSeats.pro}" max="${paymentPricingConfig.catalogs.organization.customQuoteMinSeats - 1}" value="${paymentPricingConfig.catalogs.organization.minimumSeats.pro}" data-org-payment-seats /></label><label class="pc-org-field"><span>计费周期</span><select class="pc-profile-input" data-org-payment-days><option value="30">月付 · 30 天</option><option value="365" selected>年付 · 365 天（推荐）</option></select></label><label class="pc-org-field"><span>渠道</span><select class="pc-profile-input" data-org-payment-provider><option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信</option><option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option><option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe</option></select></label><label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-org-payment-password /></label></div><div class="pc-pricing-order-preview" data-org-payment-preview>${organizationPaymentPreviewText('pro', 365, paymentPricingConfig.catalogs.organization.minimumSeats.pro)}</div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">创建机构订单</button></div><div class="pc-admin-note">所有正式机构成员统一占用成员席位；同一账号拥有多个角色只计算一次；${paymentPricingConfig.catalogs.organization.customQuoteMinSeats} 席及以上转企业销售定制报价。</div></form></div>`;
+		return renderDashboardSubpage('创建机构订单', body, '机构套餐、席位、计费周期和支付渠道。');
+	}
+
+	function renderPlatformRefundCreatePage(ctx: PCContext, initialOrderId = ''): string {
+		if (!hasAnyRole(ctx, ['superAdmin'])) return renderDashboardSubpage('发起退款', '<div class="pc-admin-note">需要超级管理员权限。</div>', '');
+		const body = `<div class="pc-card pc-lite-list-card pc-platform-payment-form-card"><div class="pc-my-content-head">发起退款</div><div class="pc-admin-note">退款只接受已支付订单；留空退款金额时按可退金额全额退款。</div><form class="pc-org-add-form" data-platform-refund-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>订单号</span><input class="pc-profile-input" data-platform-refund-order-id placeholder="pay_..." value="${escapeHtml(initialOrderId)}" required /></label><label class="pc-org-field"><span>退款金额（元）</span><input class="pc-profile-input" type="number" min="0" step="0.01" data-platform-refund-amount placeholder="留空为全额" /></label><label class="pc-org-field"><span>退款原因</span><input class="pc-profile-input" data-platform-refund-reason value="user_requested" /></label></div><label class="pc-org-field"><span>当前密码（二次验证）</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-platform-refund-password placeholder="无密码账号可留空" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">提交退款申请</button></div><div class="pc-admin-note">渠道参数齐全时会自动提交微信、支付宝或 Stripe；否则进入人工处理。</div></form></div>`;
+		return renderDashboardSubpage('发起退款', body, '按订单提交退款申请并进行二次验证。');
+	}
+
 	function renderPlatformPaymentsPage(ctx: PCContext): string {
-		if (!hasAnyRole(ctx, ['superAdmin'])) {
-			return renderDashboardSubpage('支付退款', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">需要超级管理员权限。</div></div>', '订单、流水、退款和对账状态。');
-		}
+		if (!hasAnyRole(ctx, ['superAdmin'])) return renderDashboardSubpage('支付退款', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">需要超级管理员权限。</div></div>', '订单、流水、退款和对账状态。');
 		if (!platformPaymentsLoaded && !platformPaymentsLoading) void loadPlatformPayments();
 		const { orders, refunds, ledger, anomalies, totalOrders, totalRefunds, totalLedger, pages } = platformPaymentState;
-		const paymentLink = (label: string, intent: string) => `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(intent)}">${escapeHtml(label)}</button>`;
+		const paymentLink = (label: string, intent: string, primary = false) => `<button class="${primary ? 'pc-inline-btn' : 'pc-inline-ghost'}" type="button" data-intent="${escapeHtml(intent)}">${escapeHtml(label)}</button>`;
 		const orderRows = orders.length ? orders.map((order) => {
 			const id = readString(order.id) || '';
 			const scope = readString(order.scope_type) || 'user';
-			const scopeId = readString(order.scope_id) || readString(order.organization_id) || readString(order.user_id);
-			return `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(id)} · ${scope === 'organization' ? '机构扩席' : '个人订阅'}</strong><em>${escapeHtml(readString(order.description) || `${(readString(order.plan) || '').toUpperCase()} 套餐`)} · ${escapeHtml(formatPaymentAmount(readNumber(order.amount_cents) ?? 0, readString(order.currency) || 'cny'))} · ${escapeHtml(readString(order.provider) || '')}</em></span><div class="pc-feedback-actions"><span class="pc-tag muted">${escapeHtml(readString(order.status) || 'pending')}</span>${paymentLink('详情', openRoleContentIntent(`platform-payment-order:${encodeURIComponent(id)}`))}${scope === 'user' && scopeId ? paymentLink('用户', openRoleContentIntent(`user:${encodeURIComponent(scopeId)}`)) : ''}</div></div>`;
-		}).join('') : `<div class="pc-admin-note">${platformPaymentsLoading ? '正在读取真实订单...' : '暂无支付订单。订单创建后会显示在这里。'}</div>`;
+			const status = readString(order.status) || 'pending';
+			const amount = formatPaymentAmount(readNumber(order.amount_cents) ?? 0, readString(order.currency) || 'cny');
+			const title = scope === 'organization' ? '机构套餐 / 扩席' : '个人订阅';
+			return `<div class="pc-platform-payment-row"><div class="pc-platform-payment-row-main"><button class="pc-platform-payment-title-link" type="button" data-platform-payment-order-link data-intent="${escapeHtml(openRoleContentIntent(`platform-payment-order:${encodeURIComponent(id)}`))}" aria-label="查看订单：${escapeHtml(title)} ${escapeHtml(amount)}">${escapeHtml(title)} <b>${escapeHtml(amount)}</b></button><span>${escapeHtml(readString(order.description) || `${(readString(order.plan) || '').toUpperCase()} 套餐`)} · ${escapeHtml(paymentProviderLabel(readString(order.provider) || ''))}</span><code>${escapeHtml(id)}</code></div><div class="pc-platform-payment-row-actions"><span class="pc-platform-payment-status is-${escapeHtml(status)}">${escapeHtml(platformPaymentStatusLabel(status))}</span></div></div>`;
+		}).join('') : `<div class="pc-platform-payment-empty">${platformPaymentsLoading ? '正在读取订单...' : '暂无符合条件的订单。'}</div>`;
 		const refundRows = refunds.length ? refunds.map((refund) => {
 			const id = readString(refund.id) || '';
 			const orderId = readString(refund.order_id) || '';
-			const final = ['succeeded', 'rejected', 'cancelled'].includes(readString(refund.status) || '');
-			return `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(id)} · ${escapeHtml(formatPaymentAmount(-(readNumber(refund.amount_cents) ?? 0), readString(refund.currency) || 'cny'))}</strong><em>订单 ${escapeHtml(orderId)} · ${escapeHtml(readString(refund.reason) || 'user_requested')} · ${escapeHtml(readString(refund.provider))}</em></span><div class="pc-feedback-actions"><span class="pc-tag muted">${escapeHtml(readString(refund.status) || 'requested')}</span>${paymentLink('详情', openRoleContentIntent(`platform-payment-refund:${encodeURIComponent(id)}`))}${paymentLink('订单', openRoleContentIntent(`platform-payment-order:${encodeURIComponent(orderId)}`))}</div></div>${final ? '' : `<form class="pc-org-add-form" data-platform-refund-status-form data-refund-id="${escapeHtml(id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>流转状态</span><select class="pc-profile-input" data-refund-next-status><option value="processing">处理中</option><option value="succeeded">成功</option><option value="failed">失败</option><option value="rejected">驳回</option><option value="cancelled">取消</option></select></label><label class="pc-org-field"><span>处理备注</span><input class="pc-profile-input" data-refund-status-note /></label><label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" data-refund-status-password autocomplete="current-password" /></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">更新退款状态</button></div></form>`}`;
-		}).join('') : `<div class="pc-admin-note">${platformPaymentsLoading ? '正在读取退款申请...' : '暂无退款申请。'}</div>`;
+			const status = readString(refund.status) || 'requested';
+			const amount = formatPaymentAmount(readNumber(refund.amount_cents) ?? 0, readString(refund.currency) || 'cny');
+			return `<div class="pc-platform-payment-row"><div class="pc-platform-payment-row-main"><strong>退款 <b>${escapeHtml(amount)}</b></strong><span>原订单 ${escapeHtml(orderId)} · ${escapeHtml(readString(refund.reason) || '用户申请')} · ${escapeHtml(paymentProviderLabel(readString(refund.provider) || ''))}</span><code>${escapeHtml(id)}</code></div><div class="pc-platform-payment-row-actions"><span class="pc-platform-payment-status is-${escapeHtml(status)}">${escapeHtml(platformPaymentStatusLabel(status))}</span>${paymentLink('详情', openRoleContentIntent(`platform-payment-refund:${encodeURIComponent(id)}`))}${paymentLink('订单', openRoleContentIntent(`platform-payment-order:${encodeURIComponent(orderId)}`))}</div></div>`;
+		}).join('') : `<div class="pc-platform-payment-empty">${platformPaymentsLoading ? '正在读取退款...' : '暂无符合条件的退款。'}</div>`;
 		const ledgerRows = ledger.length ? ledger.map((entry) => {
 			const orderId = readString(entry.order_id);
-			return `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(readString(entry.type))} · ${escapeHtml(formatPaymentAmount(readNumber(entry.amount_cents) ?? 0, readString(entry.currency) || 'cny'))}</strong><em>${escapeHtml(readString(entry.summary))} · ${escapeHtml(readString(entry.created_at))}</em></span>${orderId ? paymentLink(orderId, openRoleContentIntent(`platform-payment-order:${encodeURIComponent(orderId)}`)) : ''}</div>`;
-		}).join('') : `<div class="pc-admin-note">${platformPaymentsLoading ? '正在读取支付流水...' : '暂无支付流水。'}</div>`;
-		const anomalyRows = anomalies.length ? anomalies.map((item) => `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(readString(item.summary) || readString(item.type))}</strong><em>${escapeHtml(readString(item.type))} · 订单 ${escapeHtml(readString(item.order_id) || '—')} · 退款 ${escapeHtml(readString(item.refund_id) || '—')}</em></span><span class="pc-tag muted">${escapeHtml(readString(item.severity) || 'medium')}</span></div>`).join('') : `<div class="pc-admin-note">${platformPaymentsLoading ? '正在执行对账检查...' : '当前未发现对账异常。'}</div>`;
-		const refundForm = `<div class="pc-card pc-lite-list-card">
-			<div class="pc-my-content-head">发起退款</div>
-			<form class="pc-org-add-form" data-platform-refund-form>
-				<div class="pc-org-form-grid pc-org-form-grid-3">
-					<label class="pc-org-field"><span>订单号</span><input class="pc-profile-input" data-platform-refund-order-id placeholder="pay_..." /></label>
-					<label class="pc-org-field"><span>退款金额（元，可留空全额）</span><input class="pc-profile-input" type="number" min="0" step="0.01" data-platform-refund-amount /></label>
-					<label class="pc-org-field"><span>原因</span><input class="pc-profile-input" data-platform-refund-reason value="user_requested" /></label>
-				</div>
-				<label class="pc-org-field"><span>当前密码（二次验证）</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-platform-refund-password placeholder="无密码账号可留空" /></label>
-				<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">提交退款申请</button></div>
-				<div class="pc-admin-note">退款接口只接受已支付订单；微信/支付宝/Stripe 商户参数齐全时会尝试调用渠道退款，否则进入人工/渠道后台处理状态。</div>
-			</form>
-		</div>`;
-		const organizationOrderForm = `<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">创建机构套餐订单</div><form class="pc-org-add-form" data-organization-payment-order-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>机构 ID</span><input class="pc-profile-input" data-org-payment-organization-id required /></label><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input" data-org-payment-plan><option value="pro">机构 PRO</option><option value="ultra">机构 ULTRA</option></select></label><label class="pc-org-field"><span>有效成员席位</span><input class="pc-profile-input" type="number" min="${paymentPricingConfig.catalogs.organization.minimumSeats.pro}" max="${paymentPricingConfig.catalogs.organization.customQuoteMinSeats - 1}" value="${paymentPricingConfig.catalogs.organization.minimumSeats.pro}" data-org-payment-seats /></label><label class="pc-org-field"><span>计费周期</span><select class="pc-profile-input" data-org-payment-days><option value="30">月付 · 30 天</option><option value="365" selected>年付 · 365 天（推荐）</option></select></label><label class="pc-org-field"><span>渠道</span><select class="pc-profile-input" data-org-payment-provider><option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信</option><option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option><option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe</option></select></label><label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-org-payment-password /></label></div><div class="pc-pricing-order-preview" data-org-payment-preview>${organizationPaymentPreviewText('pro', 365, paymentPricingConfig.catalogs.organization.minimumSeats.pro)}</div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">创建机构订单</button></div><div class="pc-admin-note">教师与管理员不占付费席位；${paymentPricingConfig.catalogs.organization.customQuoteMinSeats} 席及以上转企业销售定制报价。</div></form></div>`;
-		const shortcuts = renderRoleListCard('支付配置', [
-			{ title: '套餐价格', desc: '维护 PRO / ULTRA 的 30、90、365 天真实价格', meta: '设置', intent: openRoleContentIntent('platform-pricing') },
-			{ title: '我的支付流水', desc: '从用户视角核对当前管理员账号的支付流水', meta: '查看', intent: 'openPaymentLedger' }
-		]);
-		const search = `<form class="pc-org-add-form" data-platform-payment-search-form><div class="pc-org-form-grid"><label class="pc-org-field"><span>查询订单 / 退款 / 用户 / 流水</span><input class="pc-profile-input" data-platform-payment-query value="${escapeHtml(platformPaymentQuery)}" placeholder="输入订单号、退款号、用户 ID 或渠道" /></label><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">查询</button>${platformPaymentQuery ? '<button class="pc-inline-ghost" type="button" data-platform-payment-clear>清除</button>' : ''}</div></div></form>`;
-		const paging = `<div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>排序字段</span><select class="pc-profile-input" data-platform-payment-sort><option value="created_at"${platformPaymentSort === 'created_at' ? ' selected' : ''}>时间</option><option value="amount"${platformPaymentSort === 'amount' ? ' selected' : ''}>金额</option><option value="status"${platformPaymentSort === 'status' ? ' selected' : ''}>状态</option></select></label><label class="pc-org-field"><span>顺序</span><select class="pc-profile-input" data-platform-payment-order><option value="desc"${platformPaymentOrder === 'desc' ? ' selected' : ''}>降序</option><option value="asc"${platformPaymentOrder === 'asc' ? ' selected' : ''}>升序</option></select></label><label class="pc-org-field"><span>每页</span><select class="pc-profile-input" data-platform-payment-page-size><option value="10"${platformPaymentPageSize === 10 ? ' selected' : ''}>10</option><option value="20"${platformPaymentPageSize === 20 ? ' selected' : ''}>20</option><option value="50"${platformPaymentPageSize === 50 ? ' selected' : ''}>50</option></select></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-ghost" type="button" data-platform-payment-page="prev"${platformPaymentPage <= 1 ? ' disabled' : ''}>上一页</button><span class="pc-tag muted">第 ${platformPaymentPage} / ${Math.max(1, pages)} 页</span><button class="pc-inline-ghost" type="button" data-platform-payment-page="next"${platformPaymentPage >= pages ? ' disabled' : ''}>下一页</button></div>`;
-		const body = `${shortcuts}<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">支付链路总览</div>${search}${paging}<div class="pc-feedback-summary"><span>订单 ${totalOrders}</span><span>退款 ${totalRefunds}</span><span>流水 ${totalLedger}</span><span>异常 ${anomalies.length}</span></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-ghost" type="button" data-platform-payments-refresh>刷新</button>${paymentLink('价格配置', openRoleContentIntent('platform-pricing'))}</div></div><div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">1. 订单 → 支付 → 权益</div><div class="pc-lite-list">${orderRows}</div></div><div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">2. 退款申请与状态流转</div><div class="pc-lite-list">${refundRows}</div></div><div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">3. 支付与权益流水</div><div class="pc-lite-list">${ledgerRows}</div></div><div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">4. 对账异常</div><div class="pc-lite-list">${anomalyRows}</div></div>${organizationOrderForm}${refundForm}`;
-		return renderDashboardSubpage('支付退款 · 平台支付管理', body, '订单 → 支付 → 权益 → 退款 → 流水的真实闭环。');
+			const type = readString(entry.type) || '';
+			return `<div class="pc-platform-payment-row"><div class="pc-platform-payment-row-main"><strong>${escapeHtml(platformLedgerTypeLabel(type))} <b>${escapeHtml(formatPaymentAmount(readNumber(entry.amount_cents) ?? 0, readString(entry.currency) || 'cny'))}</b></strong><span>${escapeHtml(readString(entry.summary) || '')} · ${escapeHtml(readString(entry.created_at) || '')}</span>${orderId ? `<code>${escapeHtml(orderId)}</code>` : ''}</div><div class="pc-platform-payment-row-actions">${orderId ? paymentLink('查看订单', openRoleContentIntent(`platform-payment-order:${encodeURIComponent(orderId)}`)) : ''}</div></div>`;
+		}).join('') : `<div class="pc-platform-payment-empty">${platformPaymentsLoading ? '正在读取流水...' : '暂无符合条件的支付流水。'}</div>`;
+		const anomalyRows = anomalies.length ? anomalies.map((item) => `<div class="pc-platform-payment-row"><div class="pc-platform-payment-row-main"><strong>${escapeHtml(readString(item.summary) || '对账异常')}</strong><span>${escapeHtml(readString(item.type) || '')} · 订单 ${escapeHtml(readString(item.order_id) || '—')} · 退款 ${escapeHtml(readString(item.refund_id) || '—')}</span></div><div class="pc-platform-payment-row-actions"><span class="pc-platform-payment-status is-failed">${escapeHtml(readString(item.severity) || '需处理')}</span></div></div>`).join('') : `<div class="pc-platform-payment-empty is-success">${platformPaymentsLoading ? '正在执行对账检查...' : '当前未发现对账异常。'}</div>`;
+		const tabDefinitions: Array<{ id: PlatformPaymentTab; label: string; count: number }> = [
+			{ id: 'orders', label: '订单', count: totalOrders }, { id: 'refunds', label: '退款', count: totalRefunds },
+			{ id: 'ledger', label: '支付流水', count: totalLedger }, { id: 'anomalies', label: '对账异常', count: anomalies.length }
+		];
+		const tabTitles: Record<PlatformPaymentTab, string> = { orders: '订单', refunds: '退款', ledger: '支付流水', anomalies: '对账异常' };
+		const activeRows: Record<PlatformPaymentTab, string> = { orders: orderRows, refunds: refundRows, ledger: ledgerRows, anomalies: anomalyRows };
+		const activePages = Math.max(1, pages[platformPaymentTab] || 1);
+		const statusOptions = platformPaymentTab === 'orders'
+			? [['', '全部状态'], ['pending', '待支付'], ['paid', '已支付'], ['refunded', '已退款']]
+			: platformPaymentTab === 'refunds'
+				? [['', '全部状态'], ['requested', '待处理'], ['processing', '处理中'], ['succeeded', '已成功'], ['failed', '失败'], ['rejected', '已驳回'], ['cancelled', '已取消']]
+				: [];
+		const statusFilter = statusOptions.length ? `<select class="pc-profile-input" aria-label="状态筛选" data-platform-payment-status>${statusOptions.map(([value, label]) => `<option value="${value}"${platformPaymentStatus === value ? ' selected' : ''}>${label}</option>`).join('')}</select>` : '';
+		const tabs = `<div class="pc-platform-payment-tabs" role="tablist" aria-label="交易类型">${tabDefinitions.map((tab) => `<button type="button" role="tab" aria-selected="${platformPaymentTab === tab.id ? 'true' : 'false'}" class="pc-platform-payment-tab${platformPaymentTab === tab.id ? ' active' : ''}" data-platform-payment-tab="${tab.id}"><span>${escapeHtml(tab.label)}</span><strong>${tab.count}</strong></button>`).join('')}</div>`;
+		const controls = `<form class="pc-platform-payment-search" data-platform-payment-search-form><input class="pc-profile-input" aria-label="搜索交易" data-platform-payment-query value="${escapeHtml(platformPaymentQuery)}" placeholder="搜索订单号、退款号、用户或渠道" /><div class="pc-platform-payment-search-actions">${statusFilter}<button class="pc-inline-btn" type="submit">查询</button>${platformPaymentQuery || platformPaymentStatus ? '<button class="pc-inline-ghost" type="button" data-platform-payment-clear>清除</button>' : ''}</div></form><details class="pc-platform-payment-advanced" data-platform-payment-advanced${platformPaymentAdvancedOpen ? ' open' : ''}><summary>更多筛选</summary><div><label class="pc-org-field"><span>排序字段</span><select class="pc-profile-input" data-platform-payment-sort><option value="created_at"${platformPaymentSort === 'created_at' ? ' selected' : ''}>时间</option><option value="amount"${platformPaymentSort === 'amount' ? ' selected' : ''}>金额</option><option value="status"${platformPaymentSort === 'status' ? ' selected' : ''}>状态</option></select></label><label class="pc-org-field"><span>顺序</span><select class="pc-profile-input" data-platform-payment-order><option value="desc"${platformPaymentOrder === 'desc' ? ' selected' : ''}>降序</option><option value="asc"${platformPaymentOrder === 'asc' ? ' selected' : ''}>升序</option></select></label><label class="pc-org-field"><span>每页</span><select class="pc-profile-input" data-platform-payment-page-size><option value="10"${platformPaymentPageSize === 10 ? ' selected' : ''}>10 条</option><option value="20"${platformPaymentPageSize === 20 ? ' selected' : ''}>20 条</option><option value="50"${platformPaymentPageSize === 50 ? ' selected' : ''}>50 条</option></select></label></div></details>`;
+		const refreshAction = '<button class="pc-inline-ghost" type="button" data-platform-payments-refresh aria-label="刷新交易数据">刷新</button>';
+		const pagination = platformPaymentTab === 'anomalies' ? '' : `<div class="pc-platform-payment-pagination"><button class="pc-inline-ghost" type="button" data-platform-payment-page="prev"${platformPaymentPage <= 1 ? ' disabled' : ''}>上一页</button><span>第 ${platformPaymentPage} / ${activePages} 页</span><button class="pc-inline-ghost" type="button" data-platform-payment-page="next"${platformPaymentPage >= activePages ? ' disabled' : ''}>下一页</button></div>`;
+		const body = `<div class="pc-card pc-platform-payment-overview">${tabs}${controls}</div><div class="pc-card pc-platform-payment-list-card"><div class="pc-platform-payment-list-head"><div class="pc-my-content-head">${tabTitles[platformPaymentTab]}</div><div class="pc-platform-payment-list-tools"><span>${platformPaymentsLoading ? '正在更新…' : `本页 ${platformPaymentTab === 'orders' ? orders.length : platformPaymentTab === 'refunds' ? refunds.length : platformPaymentTab === 'ledger' ? ledger.length : anomalies.length} 条`}</span>${refreshAction}</div></div><div class="pc-platform-payment-list">${activeRows[platformPaymentTab]}</div>${pagination}</div>`;
+		return renderDashboardSubpage('订单与支付', body, '订单、退款、支付流水与对账异常。');
 	}
 
 	function renderPlatformPaymentDetailPage(ctx: PCContext, kind: 'order' | 'refund', id: string): string {
@@ -7933,9 +9188,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const relatedLedger = platformPaymentState.ledger.filter((row) => readString(row.order_id) === orderId);
 		const fields = Object.entries(item).filter(([, value]) => ['string', 'number', 'boolean'].includes(typeof value)).map(([key, value]) => `<div class="pc-info-row"><span>${escapeHtml(key)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join('');
 		const userId = readString(item.user_id) || '';
-		const links = `<div class="pc-org-form-actions"><button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent('platform-payments'))}">返回支付管理</button>${userId ? `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent(`user:${encodeURIComponent(userId)}`))}">查看用户</button>` : ''}${kind === 'refund' ? `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent(`platform-payment-order:${encodeURIComponent(orderId)}`))}">查看订单</button>` : ''}</div>`;
-		const relations = `<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">关联退款（${relatedRefunds.length}）</div>${relatedRefunds.map((row) => `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(readString(row.id))}</strong><em>${escapeHtml(readString(row.status))} · ${escapeHtml(formatPaymentAmount(-(readNumber(row.amount_cents) ?? 0), readString(row.currency) || 'cny'))}</em></span></div>`).join('') || '<div class="pc-admin-note">无关联退款</div>'}</div><div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">关联流水（${relatedLedger.length}）</div>${relatedLedger.map((row) => `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(readString(row.type))}</strong><em>${escapeHtml(readString(row.summary))} · ${escapeHtml(readString(row.created_at))}</em></span></div>`).join('') || '<div class="pc-admin-note">无关联流水</div>'}</div>`;
-		return renderDashboardSubpage(kind === 'order' ? `订单 ${id}` : `退款 ${id}`, `${links}<div class="pc-card pc-info-card">${fields}</div>${relations}`, '订单、用户、退款和流水的关联详情。');
+		const organizationId = readString(item.organization_id) || (readString(item.scope_type) === 'organization' ? readString(item.scope_id) || '' : '');
+		const isOrganizationOrder = kind === 'order' && Boolean(organizationId);
+		const partyId = isOrganizationOrder ? organizationId : userId;
+		const partyCard = kind === 'order' ? `<div class="pc-card pc-lite-list-card pc-platform-payment-party-card"><div class="pc-my-content-head">购买主体</div><div class="pc-lite-row pc-lite-row-static"><span><strong>${isOrganizationOrder ? '机构' : '个人用户'}</strong><em>${escapeHtml(partyId || '未记录购买主体')}</em></span>${partyId ? `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent(isOrganizationOrder ? `platform-org-detail:${encodeURIComponent(partyId)}` : `user:${encodeURIComponent(partyId)}`))}">${isOrganizationOrder ? '查看机构' : '查看用户'}</button>` : ''}</div></div>` : '';
+		const orderStatus = kind === 'order' ? readString(item.status) || '' : '';
+		const canRequestRefund = kind === 'order' && ['paid', 'partially_refunded'].includes(orderStatus);
+		const refundStatus = readString(item.status) || '';
+		const refundStatusEditor = kind === 'refund' && !['succeeded', 'failed', 'rejected', 'cancelled'].includes(refundStatus)
+			? `<div class="pc-card pc-lite-list-card pc-platform-payment-form-card"><div class="pc-my-content-head">更新退款状态</div><form class="pc-org-add-form" data-platform-refund-status-form data-refund-id="${escapeHtml(id)}"><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>处理状态</span><select class="pc-profile-input" data-refund-next-status><option value="processing">处理中</option><option value="succeeded">退款成功</option><option value="failed">退款失败</option><option value="rejected">驳回申请</option><option value="cancelled">取消退款</option></select></label><label class="pc-org-field"><span>处理说明</span><input class="pc-profile-input" data-refund-status-note placeholder="失败或驳回时请填写原因" /></label><label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-refund-status-password placeholder="二次验证" /></label></div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">更新退款状态</button></div></form></div>`
+			: '';
+		const links = `<div class="pc-org-form-actions"><button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent('platform-payments'))}">返回订单与支付</button>${kind === 'refund' ? `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(openRoleContentIntent(`platform-payment-order:${encodeURIComponent(orderId)}`))}">查看订单</button>` : ''}${canRequestRefund ? `<button class="pc-inline-btn" type="button" data-intent="${escapeHtml(openRoleContentIntent(`platform-payment-create-refund:${encodeURIComponent(orderId)}`))}">发起退款</button>` : ''}</div>`;
+		const relations = `<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">本订单退款记录（${relatedRefunds.length}）</div>${relatedRefunds.map((row) => `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(readString(row.id))}</strong><em>${escapeHtml(platformPaymentStatusLabel(readString(row.status) || ''))} · ${escapeHtml(formatPaymentAmount(-(readNumber(row.amount_cents) ?? 0), readString(row.currency) || 'cny'))}</em></span></div>`).join('') || '<div class="pc-admin-note">本订单尚无退款记录</div>'}</div><div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">本订单资金与权益流水（${relatedLedger.length}）</div>${relatedLedger.map((row) => `<div class="pc-lite-row pc-lite-row-static"><span><strong>${escapeHtml(platformLedgerTypeLabel(readString(row.type) || ''))}</strong><em>${escapeHtml(readString(row.summary))} · ${escapeHtml(readString(row.created_at))}</em></span></div>`).join('') || '<div class="pc-admin-note">本订单尚无资金或权益流水</div>'}</div>`;
+		return renderDashboardSubpage(kind === 'order' ? `订单 ${id}` : `退款 ${id}`, `${links}${partyCard}<div class="pc-card pc-info-card">${fields}</div>${refundStatusEditor}${relations}`, '订单、购买主体、退款和流水的关联详情。');
 	}
 
 	async function submitPlatformRefund(form: HTMLFormElement): Promise<void> {
@@ -8219,12 +9484,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			});
 		}
 		if (!hasAnyRole(ctx, ['superAdmin'])) {
-			return renderDashboardSubpage('套餐价格', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">需要超级管理员权限。</div></div>', '维护平台套餐价格。');
+			return renderDashboardSubpage('价格与套餐', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">需要超级管理员权限。</div></div>', '维护平台套餐价格。');
 		}
 		const renderPriceInput = (scope: PricingScope, plan: PaidPersonalPlan, days: number) => {
 			const yuan = pricingAmountCents(plan, days, 'cny', scope) / 100;
-			return `<input class="pc-profile-input pc-pricing-input" aria-label="${scope === 'personal' ? '个人' : '机构'} ${plan.toUpperCase()} ${days} 天价格"
-				type="number" min="0.01" step="0.01" data-price-scope="${scope}" data-price-plan="${plan}" data-price-days="${days}" value="${escapeHtml(String(yuan))}" />`;
+			return `<div class="pc-pricing-money-field"><span>¥</span><input class="pc-profile-input pc-pricing-input" aria-label="${scope === 'personal' ? '个人' : '机构'} ${plan.toUpperCase()} ${days} 天价格"
+				type="number" min="0.01" step="0.01" data-price-scope="${scope}" data-price-plan="${plan}" data-price-days="${days}" value="${escapeHtml(String(yuan))}" />${scope === 'organization' ? '<b>/ 席</b>' : ''}</div>`;
 		};
 		const organization = paymentPricingConfig.catalogs.organization;
 		const personalRows = (['pro', 'ultra'] as PaidPersonalPlan[]).map((plan) => `<tr>
@@ -8234,14 +9499,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const organizationRows = (['pro', 'ultra'] as PaidPersonalPlan[]).map((plan) => `<tr>
 			<th scope="row">${plan.toUpperCase()}${plan === 'pro' ? '<small>单校区 / 小型机构</small>' : '<small>多校区 / 深度分析</small>'}</th>
 			<td>${renderPriceInput('organization', plan, 30)}</td>
-			<td>${renderPriceInput('organization', plan, 365)}</td>
-			<td><input class="pc-profile-input pc-pricing-input" aria-label="机构 ${plan.toUpperCase()} 最低席位" type="number" min="1" step="1" data-price-min-seats="${plan}" value="${organization.minimumSeats[plan]}" /></td>
+			<td><div class="pc-pricing-suffix-field"><input class="pc-profile-input pc-pricing-input" aria-label="机构 ${plan.toUpperCase()} 最低席位" type="number" min="1" step="1" data-price-min-seats="${plan}" value="${organization.minimumSeats[plan]}" /><b>席</b></div></td>
+			<td><span class="pc-pricing-method">按席位阶梯</span><input type="hidden" data-price-scope="organization" data-price-plan="${plan}" data-price-days="365" value="${pricingAmountCents(plan, 365, 'cny', 'organization') / 100}" /></td>
 		</tr>`).join('');
 		const tierRows = organization.seatTiers.map((tier, index) => `<tr>
 			<th scope="row">${tier.minSeats}～${tier.maxSeats} 席</th>
-			<td><input class="pc-profile-input pc-pricing-input" aria-label="${tier.minSeats} 到 ${tier.maxSeats} 席 PRO 年单价" type="number" min="0.01" step="0.01" data-price-tier="${index}" data-price-plan="pro" value="${tier.pricesCents.cny.pro['365'] / 100}" /></td>
+			<td><div class="pc-pricing-money-field"><span>¥</span><input class="pc-profile-input pc-pricing-input" aria-label="${tier.minSeats} 到 ${tier.maxSeats} 席 PRO 年单价" type="number" min="0.01" step="0.01" data-price-tier="${index}" data-price-plan="pro" value="${tier.pricesCents.cny.pro['365'] / 100}" /><b>/ 席</b></div></td>
 			<td>${tier.pricesCents.cny.ultra['365'] > 0
-				? `<input class="pc-profile-input pc-pricing-input" aria-label="${tier.minSeats} 到 ${tier.maxSeats} 席 ULTRA 年单价" type="number" min="0.01" step="0.01" data-price-tier="${index}" data-price-plan="ultra" value="${tier.pricesCents.cny.ultra['365'] / 100}" />`
+				? `<div class="pc-pricing-money-field"><span>¥</span><input class="pc-profile-input pc-pricing-input" aria-label="${tier.minSeats} 到 ${tier.maxSeats} 席 ULTRA 年单价" type="number" min="0.01" step="0.01" data-price-tier="${index}" data-price-plan="ultra" value="${tier.pricesCents.cny.ultra['365'] / 100}" /><b>/ 席</b></div>`
 				: '<span class="pc-pricing-na">不适用</span>'}</td>
 		</tr>`).join('');
 		const offerDateValue = (value: string): string => {
@@ -8255,43 +9520,94 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			renewal: '仅当前仍有有效付费套餐的客户',
 			campaign: '时间范围内的所有新订单'
 		};
+		const offerWindowText = (offer: PaymentPricingOffer): string => {
+			const start = offer.startsAt ? offer.startsAt.slice(0, 10) : '';
+			const end = offer.endsAt ? offer.endsAt.slice(0, 10) : '';
+			if (start && end) return `${start} 至 ${end}`;
+			if (start) return `${start} 起生效`;
+			if (end) return `${end} 前有效`;
+			return '长期有效';
+		};
 		const renderOfferCards = (scope: PricingScope): string => paymentPricingConfig.catalogs[scope].offers.map((offer) => `
 			<div class="pc-pricing-offer-card" data-price-offer-card data-offer-scope="${scope}" data-offer-id="${offer.id}">
-				<div class="pc-pricing-offer-head">
-					<div><strong>${escapeHtml(offer.label)}</strong><small>${escapeHtml(offerDescription[offer.id])}</small></div>
-					<label class="pc-pricing-switch"><input type="checkbox" data-offer-enabled${offer.enabled ? ' checked' : ''} /><span>启用</span></label>
+				<div class="pc-pricing-offer-summary">
+					<div class="pc-pricing-offer-title"><strong>${escapeHtml(offer.label)}</strong><small>${escapeHtml(offerDescription[offer.id])}</small></div>
+					<span class="pc-pricing-offer-discount">减免 ${offer.discountPercent}%</span>
+					<span class="pc-pricing-offer-window">${escapeHtml(offerWindowText(offer))}</span>
+					<label class="pc-pricing-switch"><input type="checkbox" data-offer-enabled${offer.enabled ? ' checked' : ''} /><span data-offer-status>${offer.enabled ? '已启用' : '未启用'}</span></label>
+					<button class="pc-inline-ghost pc-pricing-offer-edit" type="button" data-pricing-offer-edit aria-expanded="false">编辑</button>
 				</div>
-				<div class="pc-pricing-offer-fields">
-					<label class="pc-org-field"><span>优惠比例</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="0" max="90" step="1" data-offer-discount value="${offer.discountPercent}" /><b>%</b></div></label>
+				<div class="pc-pricing-offer-fields" data-pricing-offer-editor hidden>
+					<label class="pc-org-field"><span>减免比例</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="0" max="90" step="1" data-offer-discount value="${offer.discountPercent}" /><b>%</b></div></label>
 					<label class="pc-org-field"><span>开始时间（可留空）</span><input class="pc-profile-input" type="datetime-local" data-offer-start value="${escapeHtml(offerDateValue(offer.startsAt))}" /></label>
 					<label class="pc-org-field"><span>结束时间（可留空）</span><input class="pc-profile-input" type="datetime-local" data-offer-end value="${escapeHtml(offerDateValue(offer.endsAt))}" /></label>
 				</div>
 			</div>`).join('');
+		const pricingSections: Array<{ id: PricingAdminSection; label: string; meta: string; status?: boolean }> = [
+			{ id: 'plans', label: '套餐定价', meta: '2' },
+			{ id: 'offers', label: '优惠规则', meta: String(paymentPricingConfig.catalogs.personal.offers.length + organization.offers.length) },
+			{ id: 'renewal', label: '续费通知', meta: '3' },
+			{ id: 'runtime', label: '运行状态', meta: renewalOperationsView?.lastRun ? '正常' : '待运行', status: true }
+		];
+		const sectionTabs = pricingSections.map((section) => {
+			const active = activePricingAdminSection === section.id;
+			return `<button type="button" role="tab" class="pc-platform-payment-tab pc-pricing-section-tab${active ? ' active' : ''}" data-pricing-section-tab="${section.id}" aria-selected="${active}" aria-pressed="${active}"><span>${section.label}</span><strong${section.status ? ' class="is-status"' : ''}>${section.meta}</strong></button>`;
+		}).join('');
+		const renderPricingScopeTabs = (kind: 'plan' | 'offer', activeScope: PricingScope): string => `<div class="pc-pricing-scope-tabs" role="tablist" aria-label="${kind === 'plan' ? '套餐类型' : '优惠对象'}">
+			<button type="button" role="tab" class="pc-pricing-scope-tab${activeScope === 'personal' ? ' is-active' : ''}" data-pricing-${kind}-scope="personal" aria-selected="${activeScope === 'personal'}">个人${kind === 'plan' ? '套餐' : '订阅'}</button>
+			<button type="button" role="tab" class="pc-pricing-scope-tab${activeScope === 'organization' ? ' is-active' : ''}" data-pricing-${kind}-scope="organization" aria-selected="${activeScope === 'organization'}">机构 / 企业${kind === 'plan' ? '套餐' : '订阅'}</button>
+		</div>`;
+		const tierBoundaryWarnings: string[] = [];
+		(['pro', 'ultra'] as PaidPersonalPlan[]).forEach((plan) => {
+			const applicable = organization.seatTiers.filter((tier) => tier.pricesCents.cny[plan]['365'] > 0);
+			for (let index = 1; index < applicable.length; index += 1) {
+				const previous = applicable[index - 1];
+				const current = applicable[index];
+				const previousTotal = previous.maxSeats * previous.pricesCents.cny[plan]['365'];
+				const currentTotal = current.minSeats * current.pricesCents.cny[plan]['365'];
+				if (currentTotal < previousTotal) tierBoundaryWarnings.push(`${plan.toUpperCase()} ${previous.maxSeats}→${current.minSeats} 席`);
+			}
+		});
+		const hiddenWhenInactive = (section: PricingAdminSection): string => activePricingAdminSection === section ? '' : ' hidden';
 		const body = `<form data-pricing-form class="pc-pricing-form">
-			<div class="pc-card pc-lite-list-card pc-pricing-overview">
-				<div class="pc-my-content-head">价格商品目录</div>
-				<div class="pc-admin-note">统一维护个人订阅与机构席位商品。所有金额单位为人民币元；保存后，购买页展示价和后端订单金额同时生效。</div>
-				<div class="pc-pricing-summary">
-					<span><b>个人</b> 30 / 90 / 365 天</span>
-					<span><b>机构</b> 30 / 365 天 · 按有效席位</span>
-					<span><b>优惠</b> 首购 / 续费 / 限时活动</span>
-					<span><b>提醒</b> 提前 ${paymentPricingConfig.renewal.reminderDays.join(' / ')} 天</span>
-					<span><b>大客户</b> ${organization.customQuoteMinSeats} 席起转定制报价</span>
+			<div class="pc-platform-payment-tabs pc-pricing-section-tabs" role="tablist" aria-label="价格与套餐配置分类">${sectionTabs}</div>
+			<section class="pc-pricing-workspace" data-pricing-section-panel="plans"${hiddenWhenInactive('plans')}>
+				${renderPricingScopeTabs('plan', activePricingPlanScope)}
+				<div class="pc-card pc-lite-list-card" data-pricing-plan-panel="personal"${activePricingPlanScope === 'personal' ? '' : ' hidden'}>
+					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">个人套餐</div><p>PRO 是长期订阅主档；ULTRA 的差异集中在 AI、自动化和高级分析。</p></div><span class="pc-tag">按周期定价</span></div>
+					<div class="pc-responsive-table-region" role="region" aria-label="个人套餐价格" tabindex="0">
+						<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天</th><th>90 天</th><th>365 天</th></tr></thead><tbody>${personalRows}</tbody></table>
+					</div>
 				</div>
-			</div>
-			${renderRenewalOperationsCard()}
-			<div class="pc-card pc-lite-list-card">
-				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">个人套餐</div><p>PRO 是长期订阅主档；ULTRA 的差异集中在 AI、自动化和高级分析。</p></div><span class="pc-tag">按周期定价</span></div>
-				<div class="pc-responsive-table-region" role="region" aria-label="个人套餐价格" tabindex="0">
-					<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天</th><th>90 天</th><th>365 天</th></tr></thead><tbody>${personalRows}</tbody></table>
+				<div class="pc-card pc-lite-list-card" data-pricing-plan-panel="organization"${activePricingPlanScope === 'organization' ? '' : ' hidden'}>
+					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构 / 企业套餐</div><p>月付价格在这里维护；年付订单统一按下方席位阶梯计价。</p></div><span class="pc-tag">成员席位计费</span></div>
+					<div class="pc-responsive-table-region" role="region" aria-label="机构套餐价格" tabindex="0">
+						<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天单价</th><th>最低席位</th><th>年付方式</th></tr></thead><tbody>${organizationRows}</tbody></table>
+					</div>
 				</div>
+				<div class="pc-card pc-lite-list-card" data-pricing-plan-panel="organization"${activePricingPlanScope === 'organization' ? '' : ' hidden'}>
+					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构年付阶梯价</div><p>命中档位后，全部席位采用该档年单价；达到定制门槛后不再创建自助订单。</p></div><span class="pc-tag">整单阶梯</span></div>
+					<div class="pc-responsive-table-region" role="region" aria-label="机构年付阶梯价格" tabindex="0">
+						<table class="pc-pricing-table"><thead><tr><th>有效席位</th><th>PRO 年单价</th><th>ULTRA 年单价</th></tr></thead><tbody>${tierRows}</tbody></table>
+					</div>
+					${tierBoundaryWarnings.length ? `<div class="pc-pricing-boundary-warning"><strong>阶梯边界提醒</strong><span>${escapeHtml(tierBoundaryWarnings.join('、'))} 的订单总价会下降，请确认符合定价策略。</span></div>` : ''}
+					<div class="pc-pricing-controls">
+						<label class="pc-org-field"><span>转定制报价席位数</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="2" step="1" data-price-custom-quote value="${organization.customQuoteMinSeats}" /><b>席</b></div></label>
+						<label class="pc-org-field"><span>默认支付渠道</span><select class="pc-profile-input" data-pricing-default-provider>
+							<option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信支付</option>
+							<option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option>
+							<option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe（海外卡/国际支付）</option>
+						</select></label>
+					</div>
+				</div>
+			</section>
+			<div class="pc-card pc-lite-list-card" data-pricing-section-panel="offers"${hiddenWhenInactive('offers')}>
+				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">运营优惠规则</div><p>先应用套餐价或阶梯价，再从符合条件的优惠中选择减免最高的一项。</p></div><span class="pc-tag">自动择优</span></div>
+				${renderPricingScopeTabs('offer', activePricingOfferScope)}
+				<div class="pc-pricing-offer-grid" data-pricing-offer-panel="personal"${activePricingOfferScope === 'personal' ? '' : ' hidden'}>${renderOfferCards('personal')}</div>
+				<div class="pc-pricing-offer-grid" data-pricing-offer-panel="organization"${activePricingOfferScope === 'organization' ? '' : ' hidden'}>${renderOfferCards('organization')}</div>
 			</div>
-			<div class="pc-card pc-lite-list-card">
-				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">运营优惠规则</div><p>优惠不叠加；同一订单满足多项条件时自动使用折扣最高的一项。留空时间表示不限制该边界。</p></div><span class="pc-tag">自动择优</span></div>
-				<div class="pc-pricing-offer-scope"><h4>个人订阅</h4><div class="pc-pricing-offer-grid">${renderOfferCards('personal')}</div></div>
-				<div class="pc-pricing-offer-scope"><h4>机构 / 企业订阅</h4><div class="pc-pricing-offer-grid">${renderOfferCards('organization')}</div></div>
-			</div>
-			<div class="pc-card pc-lite-list-card">
+			<div class="pc-card pc-lite-list-card" data-pricing-section-panel="renewal"${hiddenWhenInactive('renewal')}>
 				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">续费与通知</div><p>统一控制个人和机构订阅的到期提醒、价格变更告知及扣款失败宽限期。</p></div><span class="pc-tag">默认不自动续费</span></div>
 				<div class="pc-pricing-controls pc-pricing-renewal-controls">
 					<label class="pc-org-field"><span>到期提醒（提前天数）</span><input class="pc-profile-input" type="text" inputmode="numeric" data-renewal-reminder-days value="${escapeHtml(paymentPricingConfig.renewal.reminderDays.join(', '))}" placeholder="7, 3, 1" /><small>使用英文逗号分隔，范围 1～30 天。</small></label>
@@ -8300,29 +9616,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				</div>
 				<div class="pc-admin-note">自动续费必须由客户单独授权；关闭只影响下一周期。价格调整不改变当前周期，系统会保留授权时价格快照并展示下期差额。</div>
 			</div>
-			<div class="pc-card pc-lite-list-card">
-				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构 / 企业套餐</div><p>教师和管理员不占席位；PRO、ULTRA 分别设置月付、年付及最低购买席位。</p></div><span class="pc-tag">有效席位计费</span></div>
-				<div class="pc-responsive-table-region" role="region" aria-label="机构套餐价格" tabindex="0">
-					<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天 / 席</th><th>365 天 / 席</th><th>最低席位</th></tr></thead><tbody>${organizationRows}</tbody></table>
-				</div>
-			</div>
-			<div class="pc-card pc-lite-list-card">
-				<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构年付阶梯价</div><p>订单按席位数量自动选择年单价；达到定制门槛后不再创建自助订单。</p></div><span class="pc-tag">自动套用</span></div>
-				<div class="pc-responsive-table-region" role="region" aria-label="机构年付阶梯价格" tabindex="0">
-					<table class="pc-pricing-table"><thead><tr><th>有效席位</th><th>PRO 年单价</th><th>ULTRA 年单价</th></tr></thead><tbody>${tierRows}</tbody></table>
-				</div>
-				<div class="pc-pricing-controls">
-					<label class="pc-org-field"><span>转定制报价席位数</span><input class="pc-profile-input" type="number" min="2" step="1" data-price-custom-quote value="${organization.customQuoteMinSeats}" /></label>
-					<label class="pc-org-field"><span>默认支付渠道</span><select class="pc-profile-input" data-pricing-default-provider>
-						<option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信支付</option>
-						<option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option>
-						<option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe（海外卡/国际支付）</option>
-					</select></label>
-				</div>
-				<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">保存全部价格</button></div>
-			</div>
+			<div data-pricing-section-panel="runtime"${hiddenWhenInactive('runtime')}>${renderRenewalOperationsCard()}</div>
+			<div class="pc-pricing-savebar" data-pricing-savebar${activePricingAdminSection === 'runtime' ? ' hidden' : ''}><span>保存当前表单内的全部更改；新报价和新订单立即生效。</span><button class="pc-inline-btn" type="submit">保存更改</button></div>
 		</form>`;
-		return renderDashboardSubpage('套餐价格', body, '超级管理员统一维护个人与机构套餐价格、运营优惠、最低席位和年付阶梯。');
+		return renderDashboardSubpage('价格与套餐', body, '设置套餐售价、优惠与续费策略。');
 	}
 
 	async function savePaymentPricingForm(form: HTMLFormElement): Promise<void> {
@@ -8483,6 +9780,38 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} finally { finishSubmitting(); }
 	}
 
+	function contentInspectionSummary(inspection: Record<string, unknown>): string {
+		const errors = Array.isArray(inspection.errors) ? inspection.errors.map(asRecord).filter((issue): issue is Record<string, unknown> => Boolean(issue)) : [];
+		const warnings = Array.isArray(inspection.warnings) ? inspection.warnings.map(asRecord).filter((issue): issue is Record<string, unknown> => Boolean(issue)) : [];
+		const stats = `题目 ${readCount(inspection.question_count)}，解析 ${readCount(inspection.explanation_count)}，图片 ${readCount(inspection.image_count)}，音频 ${readCount(inspection.audio_count)}`;
+		const groupedIssues = new Map<string, number>();
+		[...errors, ...warnings].forEach((issue) => {
+			const message = readString(issue.message) || '内容结构异常';
+			groupedIssues.set(message, (groupedIssues.get(message) || 0) + 1);
+		});
+		const issueSummary = [...groupedIssues.entries()].slice(0, 3).map(([message, count]) => `${message}${count > 1 ? ` × ${count}` : ''}`).join('；');
+		if (errors.length) return `质检未通过：${errors.length} 个阻断问题、${warnings.length} 个提醒。${stats}${issueSummary ? `；主要问题：${issueSummary}` : ''}`;
+		return `质检通过：没有阻断问题，${warnings.length} 个提醒。${stats}${issueSummary ? `；提醒：${issueSummary}` : ''}`;
+	}
+
+	function renderContentInspectionDetails(inspection: Record<string, unknown>): string {
+		const hasInspection = typeof inspection.passed === 'boolean' || Boolean(readString(inspection.checked_at));
+		if (!hasInspection) return '';
+		const errors = Array.isArray(inspection.errors) ? inspection.errors.map(asRecord).filter((issue): issue is Record<string, unknown> => Boolean(issue)) : [];
+		const warnings = Array.isArray(inspection.warnings) ? inspection.warnings.map(asRecord).filter((issue): issue is Record<string, unknown> => Boolean(issue)) : [];
+		const issues = [...errors.map((issue) => ({ issue, label: '阻断' })), ...warnings.map((issue) => ({ issue, label: '提醒' }))];
+		const summary = errors.length
+			? `质检详情：${errors.length} 个阻断问题、${warnings.length} 个提醒`
+			: `质检详情：已通过${warnings.length ? `，${warnings.length} 个提醒` : ''}`;
+		if (!issues.length) return `<span class="pc-content-workflow-inspection-pass">${escapeHtml(summary)}</span>`;
+		const rows = issues.slice(0, 8).map(({ issue, label }) => {
+			const path = readString(issue.path) || '';
+			return `<li><strong>${escapeHtml(label)}</strong><span>${escapeHtml(readString(issue.message) || '内容结构异常')}${path ? ` · ${escapeHtml(path)}` : ''}</span></li>`;
+		}).join('');
+		const remaining = Math.max(0, issues.length - 8);
+		return `<details class="pc-content-workflow-inspection"><summary>${escapeHtml(summary)}</summary><ul>${rows}</ul>${remaining ? `<div class="pc-admin-note">另有 ${remaining} 项未展开</div>` : ''}</details>`;
+	}
+
 	function renderContentPublishQueuePage(): string {
 		void ensureContentPublishQueue();
 		if (contentPublishQueueLoading && !contentPublishQueueLoaded) {
@@ -8504,18 +9833,60 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const qualityPassed = readBoolean(inspection?.passed) === true;
 			const analysisApproved = readString(analysis?.status) === 'approved';
 			const secondaryApproved = readString(secondary?.status) === 'approved';
-			const publishReady = qualityPassed && analysisApproved && secondaryApproved;
 			const workflowMessage = contentWorkflowMessages[examId] || '';
 			const versions = Array.isArray(workflow?.versions) ? workflow.versions.map(asRecord).filter((version): version is Record<string, unknown> => Boolean(version)) : [];
+			const versionKindLabels: Record<string, string> = { draft: '草稿快照', published: '发布版本', rollback: '回滚版本' };
+			const workflowStatus = readString(workflow?.status) || '';
+			const analysisStatus = readString(analysis?.status) || '';
+			const secondaryStatus = readString(secondary?.status) || '';
+			const inspectionCompleted = typeof inspection?.passed === 'boolean' || Boolean(readString(inspection?.checked_at));
+			let currentStage = '待检查';
+			let currentStageTone = 'muted';
+			if (workflowStatus === 'published') {
+				currentStage = '已发布';
+				currentStageTone = 'success';
+			} else if (workflowStatus === 'rolled_back') {
+				currentStage = '已回滚';
+				currentStageTone = 'warning';
+			} else if (inspectionCompleted && !qualityPassed) {
+				currentStage = '质检未通过';
+				currentStageTone = 'danger';
+			} else if (qualityPassed && !analysisApproved) {
+				currentStage = analysisStatus === 'rejected' ? '解析审核退回' : '待解析审核';
+				currentStageTone = analysisStatus === 'rejected' ? 'danger' : 'warning';
+			} else if (analysisApproved && !secondaryApproved) {
+				currentStage = secondaryStatus === 'rejected' ? '复核退回' : '待复核';
+				currentStageTone = secondaryStatus === 'rejected' ? 'danger' : 'warning';
+			} else if (secondaryApproved) {
+				currentStage = '待发布';
+				currentStageTone = 'warning';
+			}
+			const inspectionDetails = renderContentInspectionDetails(inspection || {});
+			const nextWorkflowAction = workflowStatus === 'published'
+				? ''
+				: !analysisApproved
+					? `<button class="pc-inline-btn pc-content-workflow-primary" type="button" data-content-workflow-action="analysis" data-exam-id="${escapeHtml(examId)}" aria-label="解析审核通过" title="解析审核通过">通过</button>`
+					: !secondaryApproved
+						? `<button class="pc-inline-btn pc-content-workflow-primary" type="button" data-content-workflow-action="secondary" data-exam-id="${escapeHtml(examId)}" aria-label="二次复核通过" title="二次复核通过">通过</button>`
+						: `<button class="pc-inline-btn pc-content-workflow-primary" type="button" data-content-workflow-action="publish" data-exam-id="${escapeHtml(examId)}">发布</button>`;
+			const primaryAction = qualityPassed
+				? nextWorkflowAction
+				: `<button class="pc-inline-btn pc-content-workflow-primary" type="button" data-content-workflow-action="inspect" data-exam-id="${escapeHtml(examId)}" aria-label="${inspectionCompleted ? '重新检查' : '开始检查'}" title="${inspectionCompleted ? '重新检查' : '开始检查'}">检查</button>`;
+			const reinspectionAction = qualityPassed
+				? `<button class="pc-inline-ghost" type="button" data-content-workflow-action="inspect" data-exam-id="${escapeHtml(examId)}" aria-label="重新检查" title="重新检查">检查</button>`
+				: '';
 			const versionRows = versions.slice().reverse().slice(0, 5).map((version) => {
 				const versionId = readString(version.id) || '';
-				return `<span class="pc-tag muted">${escapeHtml(readString(version.kind) || '版本')} · ${escapeHtml(readString(version.created_at) || '')}<button class="pc-inline-ghost" type="button" data-content-workflow-action="rollback" data-exam-id="${escapeHtml(examId)}" data-version-id="${escapeHtml(versionId)}" aria-label="回滚到版本 ${escapeHtml(versionId)}">回滚</button></span>`;
-			}).join('') || '<span class="pc-admin-note">暂无版本记录</span>';
-			return `<div class="pc-lite-row pc-lite-row-static" data-content-workflow-row data-exam-id="${escapeHtml(examId)}"><label class="pc-content-workflow-select"><input type="checkbox" data-content-workflow-select="${escapeHtml(examId)}" aria-label="选择试卷 ${escapeHtml(readString(item.title) || examId)}"${selected ? ' checked' : ''}${contentWorkflowBatchBusy ? ' disabled' : ''}></label><span><strong>${escapeHtml(readString(item.title) || readString(item.display) || examId)}</strong><em>${escapeHtml(examId)} · ${escapeHtml(readString(workflow?.status) || '未进入工作流')} · 错误 ${errorCount} · 解析审核 ${escapeHtml(readString(analysis?.status) || '待审核')} · 复核 ${escapeHtml(readString(secondary?.status) || '待复核')}</em><span class="pc-feedback-actions" aria-label="最近版本">${versionRows}</span><span class="pc-admin-note" data-content-workflow-message role="alert"${workflowMessage ? '' : ' hidden'}>${escapeHtml(workflowMessage)}</span></span><div class="pc-feedback-actions"><button class="pc-inline-ghost" type="button" data-content-workflow-action="open" data-exam-id="${escapeHtml(examId)}">查看试卷</button><button class="pc-inline-ghost" type="button" data-content-workflow-action="inspect" data-exam-id="${escapeHtml(examId)}">质量检查</button><button class="pc-inline-ghost" type="button" data-content-workflow-action="analysis" data-exam-id="${escapeHtml(examId)}"${qualityPassed ? '' : ' disabled title="请先通过质量检查"'}>解析通过</button><button class="pc-inline-ghost" type="button" data-content-workflow-action="secondary" data-exam-id="${escapeHtml(examId)}"${analysisApproved ? '' : ' disabled title="请先通过解析审核"'}>复核通过</button><button class="pc-inline-btn" type="button" data-content-workflow-action="publish" data-exam-id="${escapeHtml(examId)}"${publishReady ? '' : ' disabled title="质检和两次审核均通过后才能发布"'}>发布</button></div></div>`;
+				const kind = readString(version.kind) || '';
+				return `<span class="pc-tag muted pc-content-workflow-version">${escapeHtml(versionKindLabels[kind] || '内容版本')} · ${escapeHtml(readString(version.created_at) || '')}<button class="pc-inline-ghost" type="button" data-content-workflow-action="rollback" data-exam-id="${escapeHtml(examId)}" data-version-id="${escapeHtml(versionId)}" aria-label="回滚到版本 ${escapeHtml(versionId)}">回滚</button></span>`;
+			}).join('');
+			const versionStatus = versions.length ? '' : '<span class="pc-content-workflow-state is-muted">暂无版本</span>';
+			const errorStatus = errorCount ? `<span class="pc-content-workflow-state is-danger">错误 ${errorCount}</span>` : '';
+			return `<div class="pc-lite-row pc-lite-row-static pc-content-workflow-row" data-content-workflow-row data-exam-id="${escapeHtml(examId)}"><label class="pc-content-workflow-select"><input type="checkbox" data-content-workflow-select="${escapeHtml(examId)}" aria-label="选择试卷 ${escapeHtml(readString(item.title) || examId)}"${selected ? ' checked' : ''}${contentWorkflowBatchBusy ? ' disabled' : ''}></label><div class="pc-content-workflow-main"><strong>${escapeHtml(readString(item.title) || readString(item.display) || examId)}</strong><div class="pc-content-workflow-meta"><span class="pc-content-workflow-id">${escapeHtml(examId)}</span><span class="pc-content-workflow-state is-${currentStageTone}">${escapeHtml(currentStage)}</span>${errorStatus}${versionStatus}</div>${inspectionDetails}${versionRows ? `<div class="pc-content-workflow-versions" aria-label="最近版本">${versionRows}</div>` : ''}<span class="pc-admin-note pc-content-workflow-message" data-content-workflow-message role="alert"${workflowMessage ? '' : ' hidden'}>${escapeHtml(workflowMessage)}</span></div><div class="pc-feedback-actions pc-content-workflow-actions"><button class="pc-inline-ghost pc-content-workflow-view" type="button" data-content-workflow-action="open" data-exam-id="${escapeHtml(examId)}" aria-label="查看试卷" title="查看试卷">查看</button>${reinspectionAction}${primaryAction}</div></div>`;
 		}).join('') || '<div class="pc-admin-note">暂无真实试卷；请先通过受保护的试卷导入接口创建草稿。</div>';
 		return renderDashboardSubpage(
 			'发布队列',
-			`<div class="pc-card pc-lite-list-card"><div class="pc-content-workflow-toolbar"><div><div class="pc-my-content-head">内容生产工作流</div><div class="pc-admin-note">质量检查同时检查题干、解析、图片和音频关联；解析审核和二次复核都通过后才能发布并生成版本。</div></div><div class="pc-feedback-actions"><label class="pc-content-workflow-select-all"><input type="checkbox" data-content-workflow-select-all${allSelected ? ' checked' : ''}${!allSelectableIds.length || contentWorkflowBatchBusy ? ' disabled' : ''}> 选择前 ${Math.min(100, allSelectableIds.length)} 份</label><button class="pc-inline-btn" type="button" data-content-workflow-batch-inspect${!contentWorkflowSelection.size || contentWorkflowBatchBusy ? ' disabled' : ''}>${contentWorkflowBatchBusy ? '批量检查中…' : `批量质检（${contentWorkflowSelection.size}）`}</button></div></div>${contentWorkflowBatchMessage ? `<div class="pc-admin-note" data-content-workflow-batch-message role="status">${escapeHtml(contentWorkflowBatchMessage)}</div>` : ''}<div class="pc-lite-list">${rows}</div></div>`,
+			`<div class="pc-card pc-lite-list-card pc-content-workflow-card"><div class="pc-content-workflow-toolbar"><div class="pc-admin-note">自动检查题目完整性与资源引用；检查、解析审核和复核通过后方可发布。</div><div class="pc-feedback-actions pc-content-workflow-batch-actions"><label class="pc-content-workflow-select-all"><input type="checkbox" data-content-workflow-select-all${allSelected ? ' checked' : ''}${!allSelectableIds.length || contentWorkflowBatchBusy ? ' disabled' : ''}>全选本页（${Math.min(100, allSelectableIds.length)}）</label><button class="pc-inline-btn" type="button" data-content-workflow-batch-inspect${!contentWorkflowSelection.size || contentWorkflowBatchBusy ? ' disabled' : ''}>${contentWorkflowBatchBusy ? '检查中…' : `批量检查（${contentWorkflowSelection.size}）`}</button></div></div>${contentWorkflowBatchMessage ? `<div class="pc-admin-note" data-content-workflow-batch-message role="status">${escapeHtml(contentWorkflowBatchMessage)}</div>` : ''}<div class="pc-lite-list">${rows}</div></div>`,
 			'题目导入 → 质量检查 → 解析审核 → 复核 → 发布版本。'
 		);
 	}
@@ -8564,7 +9935,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const token = activeToken(getContext());
 		const api = window.APIClient;
 		const examIds = [...contentWorkflowSelection];
-		if (!token || !api || typeof api.inspectContentWorkflowBatch !== 'function') { showToast('批量质检接口不可用'); return; }
+		if (!token || !api || typeof api.inspectContentWorkflowBatch !== 'function') { showToast('批量检查接口不可用'); return; }
 		if (!examIds.length) { showToast('请至少选择一份试卷'); return; }
 		if (examIds.length > 100) { showToast('单次最多检查 100 份试卷'); return; }
 		const finishSubmitting = beginOrganizationAction(button, '批量检查中…');
@@ -8600,7 +9971,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const action = button.dataset.contentWorkflowAction || '';
 		const versionId = button.dataset.versionId || '';
 		if (action === 'open' && examId) {
-			void resumeExam(examId, null);
+			if (!await requestConfirmation(`将隐藏平台管理页面并打开试卷 ${examId}，是否继续？`, '查看试卷')) return;
+			closePlatformAdmin();
+			await openExamQuestion(examId, '', undefined, '已打开内容工作流试卷');
 			return;
 		}
 		if (!token || !api || !examId) { showToast('内容工作流接口不可用'); return; }
@@ -8636,12 +10009,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				reauthPassword = password;
 				button.textContent = actionLabels[action];
 			}
-			if (action === 'inspect') await api.inspectContentWorkflow(token, examId);
+			let successToast = '内容工作流状态已更新';
+			if (action === 'inspect') {
+				const result = asRecord(await api.inspectContentWorkflow(token, examId));
+				const nextInspection = asRecord(result?.inspection) || {};
+				contentWorkflowMessages[examId] = contentInspectionSummary(nextInspection);
+				const blockingCount = Array.isArray(nextInspection.errors) ? nextInspection.errors.length : 0;
+				successToast = blockingCount ? `检查完成：发现 ${blockingCount} 个阻断问题` : '检查完成：可以进入解析审核';
+			}
 			else if (action === 'analysis' || action === 'secondary') await api.reviewContentWorkflow(token, examId, action, { status: 'approved', note: '页面审核通过' });
 			else if (action === 'publish') await api.publishContentWorkflow(token, examId, { confirmation: '确认发布', reauth_password: reauthPassword });
 			else if (action === 'rollback' && versionId) await api.rollbackContentVersion(token, examId, versionId, { confirmation: '确认回滚', reauth_password: reauthPassword });
-			delete contentWorkflowMessages[examId];
-			showToast(action === 'publish' ? '内容已发布并生成版本' : action === 'rollback' ? '已回滚并生成新的版本记录' : '内容工作流状态已更新');
+			if (action !== 'inspect') delete contentWorkflowMessages[examId];
+			showToast(action === 'publish' ? '内容已发布并生成版本' : action === 'rollback' ? '已回滚并生成新的版本记录' : successToast);
 			contentPublishQueueLoaded = false;
 			await ensureContentPublishQueue();
 			renderSectionContent({ preserveScroll: true });
@@ -8662,14 +10042,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (institutionRoleWorkbenchLoading) {
 			return renderDashboardSubpage(
 				'机构看板',
-				'<div class="pc-card pc-info-card"><div class="pc-service-header">机构教学工作台</div><div class="pc-admin-note">正在读取真实学习组、作业、成绩、席位和风险数据...</div></div>',
+				'<div class="pc-card pc-info-card" id="pc-institution-workbench"><div class="pc-service-header">机构教学工作台</div><div class="pc-admin-note">正在读取真实学习组、作业、成绩、席位和风险数据...</div></div>',
 				'看板由机构 dashboard 和 workbench 接口实时汇总。'
 			);
 		}
 		const data = institutionRoleWorkbenchData || {};
 		return renderDashboardSubpage(
 			'机构看板',
-			`<div class="pc-card pc-info-card"><div class="pc-service-header">机构教学工作台</div>${renderInstitutionDashboard(data)}${renderInstitutionWorkbenchExtras(data)}</div>`,
+			`<div class="pc-card pc-info-card" id="pc-institution-workbench"><div class="pc-service-header">机构教学工作台</div>${renderInstitutionDashboard(data)}${renderInstitutionWorkbenchExtras(data)}</div>`,
 			'看板由机构 dashboard 和 workbench 接口实时汇总。'
 		);
 	}
@@ -8677,15 +10057,47 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	function renderPlatformRolesPage(ctx: PCContext): string {
 		if (!hasAnyRole(ctx, ['superAdmin'])) return renderDashboardSubpage('平台角色权限', '<div class="pc-admin-note">需要超级管理员权限。</div>', '');
 		if (!platformRoleTemplatesLoaded) void loadPlatformRoleTemplates();
-		const cards = platformRoleTemplates.map((role) => {
+		if (!platformRoleTemplates.length) {
+			return renderDashboardSubpage('平台角色权限', '<div class="pc-card"><div class="pc-admin-note">正在读取全局角色模板...</div></div>', '全局模板、机构覆盖、临时授权、差异、冲突和审计。');
+		}
+		const selectedRole = platformRoleTemplates.find((role) => readString(role.id) === activePlatformRoleTemplateId) || platformRoleTemplates[0];
+		activePlatformRoleTemplateId = readString(selectedRole.id) || '';
+		const selectedPreview = platformRoleTemplatePreviews[activePlatformRoleTemplateId];
+		const selectedPermissions = Array.isArray(selectedPreview?.draft_permissions)
+			? selectedPreview.draft_permissions.map(String)
+			: Array.isArray(selectedRole.default_permissions) ? selectedRole.default_permissions.map(String) : [];
+		const originalPermissions = Array.isArray(selectedRole.default_permissions) ? selectedRole.default_permissions.map(String) : [];
+		const originalPermissionSet = new Set(originalPermissions);
+		const selectedPermissionSet = new Set(selectedPermissions);
+		const permissionCatalog = Array.from(new Set(platformRoleTemplates.flatMap((role) => Array.isArray(role.default_permissions) ? role.default_permissions.map(String) : []).concat(selectedPermissions)));
+		const groupOrder = ['系统权限', '学员学习', '教学运营', '机构管理', '内容管理', '其他权限'];
+		const groupedPermissions = groupOrder.map((group) => ({
+			group,
+			permissions: permissionCatalog.filter((permission) => platformPermissionGroup(permission) === group)
+		})).filter((item) => item.permissions.length);
+		const roleSelectors = platformRoleTemplates.map((role) => {
 			const id = readString(role.id) || '';
-			const permissions = Array.isArray(role.default_permissions) ? role.default_permissions.map(String) : [];
-			const preview = platformRoleTemplatePreviews[id];
-			const added = Array.isArray(preview?.added) ? preview.added.map(String).join('、') || '无' : '';
-			const removed = Array.isArray(preview?.removed) ? preview.removed.map(String).join('、') || '无' : '';
-			const conflicts = Array.isArray(preview?.conflicts) ? preview.conflicts.map(String).join('；') : '';
-			return `<form class="pc-card pc-lite-list-card" data-platform-role-template-form data-role-id="${escapeHtml(id)}"><div class="pc-my-content-head">${escapeHtml(readString(role.name) || id)} · ${escapeHtml(id)}</div><div class="pc-admin-note">${escapeHtml(readString(role.description) || '')}</div><label class="pc-org-field"><span>默认权限清单（每行一项）</span><textarea class="pc-org-batch-input" rows="6" data-role-permissions${readBoolean(role.protected) ? ' readonly' : ''}>${escapeHtml(permissions.join('\n'))}</textarea></label><label class="pc-org-field"><span><input type="checkbox" data-role-org-override${readBoolean(role.allow_organization_override) ? ' checked' : ''}${readBoolean(role.protected) ? ' disabled' : ''}/> 允许机构覆盖</span></label>${preview ? `<div class="pc-admin-note" data-role-diff role="status">新增：${escapeHtml(added)}<br/>移除：${escapeHtml(removed)}${conflicts ? `<br/>冲突：${escapeHtml(conflicts)}` : ''}</div>` : ''}<div class="pc-org-form-actions pc-org-form-actions-end">${readBoolean(role.protected) ? '<span class="pc-tag muted">受保护模板</span>' : `<button class="pc-inline-btn" type="submit" data-role-id="${escapeHtml(id)}">${preview ? '确认应用差异' : '预览修改差异'}</button>`}</div></form>`;
-		}).join('') || '<div class="pc-card"><div class="pc-admin-note">正在读取全局角色模板...</div></div>';
+			const rolePermissions = Array.isArray(platformRoleTemplatePreviews[id]?.draft_permissions)
+				? platformRoleTemplatePreviews[id].draft_permissions as unknown[]
+				: Array.isArray(role.default_permissions) ? role.default_permissions : [];
+			const isProtected = Boolean(readBoolean(role.protected));
+			const organizationOverrideEligible = readBoolean(role.organization_override_eligible) ?? ['student', 'assistant', 'teacher', 'orgAdmin'].includes(id);
+			const allowOverride = readBoolean(platformRoleTemplatePreviews[id]?.draft_allow_organization_override) ?? readBoolean(role.allow_organization_override);
+			return `<button type="button" class="pc-platform-role-select${id === activePlatformRoleTemplateId ? ' is-active' : ''}" data-platform-role-select="${escapeHtml(id)}" aria-pressed="${id === activePlatformRoleTemplateId ? 'true' : 'false'}"><span><strong>${escapeHtml(readString(role.name) || id)}</strong><small>${escapeHtml(id)}</small></span><em>${rolePermissions.length} 项</em><b>${isProtected ? '受保护' : organizationOverrideEligible ? (allowOverride ? '机构可调' : '平台统一') : '平台角色'}</b></button>`;
+		}).join('');
+		const isProtected = Boolean(readBoolean(selectedRole.protected));
+		const organizationOverrideEligible = readBoolean(selectedRole.organization_override_eligible) ?? ['student', 'assistant', 'teacher', 'orgAdmin'].includes(activePlatformRoleTemplateId);
+		const allowOrganizationOverride = readBoolean(selectedPreview?.draft_allow_organization_override) ?? readBoolean(selectedRole.allow_organization_override);
+		const permissionOptions = groupedPermissions.map(({ group, permissions }) => `<fieldset class="pc-platform-permission-group"><legend>${escapeHtml(group)}</legend><div class="pc-platform-permission-options">${permissions.map((permission) => `<label class="pc-platform-permission-option"><input type="checkbox" data-role-permission-toggle value="${escapeHtml(permission)}"${selectedPermissionSet.has(permission) ? ' checked' : ''}${isProtected ? ' disabled' : ''}/><span><strong>${escapeHtml(platformPermissionLabel(permission))}</strong><small>${escapeHtml(permission)}</small></span></label>`).join('')}</div></fieldset>`).join('');
+		const addedPermissionCount = selectedPermissions.filter((permission) => !originalPermissionSet.has(permission)).length;
+		const removedPermissions = originalPermissions.filter((permission) => !selectedPermissionSet.has(permission));
+		const permissionSummary = selectedPermissions.map((permission) => renderPlatformPermissionChip(permission, originalPermissionSet.has(permission) ? '' : 'added')).join('');
+		const permissionRemovals = removedPermissions.map((permission) => renderPlatformPermissionChip(permission, 'removed')).join('');
+		const diffList = (items: unknown, emptyText: string) => Array.isArray(items) && items.length
+			? items.map((item) => `<span>${escapeHtml(platformPermissionLabel(String(item)))}</span>`).join('')
+			: `<em>${escapeHtml(emptyText)}</em>`;
+		const diff = selectedPreview ? `<section class="pc-platform-role-diff" data-role-diff role="status" aria-label="系统校验结果"><div class="is-added"><strong>新增</strong>${diffList(selectedPreview.added, '无')}</div><div class="is-removed"><strong>移除</strong>${diffList(selectedPreview.removed, '无')}</div><div class="is-conflict"><strong>冲突</strong>${diffList(selectedPreview.conflicts, '无')}</div><p>这是系统保存校验结果；处理冲突后才能保存。</p></section>` : '';
+		const editor = `<form class="pc-platform-role-editor" data-platform-role-template-form data-role-id="${escapeHtml(activePlatformRoleTemplateId)}" data-role-original-permissions="${escapeHtml(encodeURIComponent(JSON.stringify(originalPermissions)))}"><header class="pc-platform-role-editor-head"><div><div class="pc-my-content-head">${escapeHtml(readString(selectedRole.name) || activePlatformRoleTemplateId)}</div><code>${escapeHtml(activePlatformRoleTemplateId)}</code><p>${escapeHtml(readString(selectedRole.description) || '')}</p></div><span class="pc-tag${isProtected ? ' muted' : ''}">${isProtected ? '受保护模板' : `${selectedPermissions.length} 项权限`}</span></header><section class="pc-platform-role-current"><div class="pc-platform-role-section-head"><div><strong data-role-current-title>${selectedPreview ? '修改后的权限' : '当前权限'}</strong><span>业务名称在前，权限代码仅作为辅助识别；新增和待移除项会单独标记。</span></div><em data-role-selected-count>${selectedPermissions.length} 项${addedPermissionCount ? ` · 新增 ${addedPermissionCount}` : ''}${removedPermissions.length ? ` · 移除 ${removedPermissions.length}` : ''}</em></div><div class="pc-platform-permission-chips" data-role-permission-summary>${permissionSummary || '<span class="pc-admin-note">暂无权限</span>'}</div><div class="pc-platform-permission-removals" data-role-permission-removals${removedPermissions.length ? '' : ' hidden'}><strong>待移除</strong><div>${permissionRemovals}</div></div></section>${isProtected ? '<div class="pc-platform-protected-note">该模板关系到登录边界或平台最高权限，只能查看，不能在这里修改。</div>' : `<details class="pc-platform-role-adjust"><summary><span><strong>调整权限</strong><small>按业务分类勾选；新增和待移除会实时标记</small></span><b>展开</b></summary>${permissionOptions}</details><details class="pc-platform-role-advanced" data-role-advanced-editor><summary><span><strong>高级：批量编辑权限代码</strong><small>仅在需要添加系统尚未收录的权限代码时使用</small></span><b>展开</b></summary><label class="pc-org-field"><span>每行一个权限代码</span><textarea class="pc-org-batch-input" rows="7" data-role-permissions>${escapeHtml(selectedPermissions.join('\n'))}</textarea></label></details>`}<section class="pc-platform-role-policy"><label><input type="checkbox" data-role-org-override${organizationOverrideEligible && allowOrganizationOverride ? ' checked' : ''}${isProtected || !organizationOverrideEligible ? ' disabled' : ''}/><span><strong>${organizationOverrideEligible ? '机构可调整' : '平台级角色'}</strong><small>${organizationOverrideEligible ? (allowOrganizationOverride ? '机构管理员可在该模板范围内配置本机构权限' : '该角色权限由平台统一控制') : '只能由平台管理员分配，不进入机构管理人员角色'}</small></span></label></section>${diff}<div class="pc-platform-role-save"><span class="pc-platform-role-save-note" data-role-save-note>${selectedPreview ? '已完成系统校验；保存前会再次确认。' : '保存时会自动检查权限冲突，并在确认后生效。'}</span><div class="pc-org-form-actions pc-org-form-actions-end">${isProtected ? '' : `<button class="pc-inline-btn" type="submit" data-role-id="${escapeHtml(activePlatformRoleTemplateId)}"${selectedPreview ? '' : ' disabled'}>保存修改</button>`}</div></div></form>`;
 		const accessPreview = platformUserAccessPreview;
 		const previewBefore = asRecord(accessPreview?.preview.before);
 		const previewAfter = asRecord(accessPreview?.preview.after);
@@ -8693,8 +10105,46 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			? `<div class="pc-admin-note" data-platform-access-diff role="status">用户：${escapeHtml(accessPreview.userId)}<br/>变更前临时授权：${escapeHtml(String(Array.isArray(previewBefore?.temporary_grants) ? previewBefore.temporary_grants.length : 0))} 项<br/>变更后临时授权：${escapeHtml(String(Array.isArray(previewAfter?.temporary_grants) ? previewAfter.temporary_grants.length : 0))} 项<br/>确认后会撤销该用户现有登录会话。</div>`
 			: '';
 		const accessDraft = accessPreview || platformUserAccessDraft;
-		const access = `<div class="pc-card pc-lite-list-card"><div class="pc-my-content-head">成员临时授权</div><form class="pc-org-add-form" data-platform-user-access-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>用户 ID</span><input class="pc-profile-input" required data-platform-access-user-id value="${escapeHtml(accessDraft.userId)}" /></label><label class="pc-org-field"><span>临时角色</span><select class="pc-profile-input" data-platform-access-role><option value="contentAdmin"${accessDraft.roleId === 'contentAdmin' ? ' selected' : ''}>内容管理员</option><option value="orgAdmin"${accessDraft.roleId === 'orgAdmin' ? ' selected' : ''}>机构管理员</option><option value="teacher"${accessDraft.roleId === 'teacher' ? ' selected' : ''}>老师</option><option value="assistant"${accessDraft.roleId === 'assistant' ? ' selected' : ''}>教学运营</option></select></label><label class="pc-org-field"><span>有效期</span><input class="pc-profile-input" type="datetime-local" required data-platform-access-expiry value="${escapeHtml(accessDraft.expiresAt)}" /></label></div>${accessDiff}<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">${accessPreview ? '确认授予并失效会话' : '预览授权差异'}</button></div><div class="pc-admin-note">后端会输出冲突和修改前后差异；禁止修改自己的超级管理员身份，并保护最后一名超级管理员。</div></form></div>`;
-		return renderDashboardSubpage('平台角色权限', `<div class="pc-admin-note">角色默认能力来自全局模板；机构可在允许范围内覆盖，成员临时授权按有效期自动失效。</div>${cards}${access}`, '全局模板、机构覆盖、临时授权、差异、冲突和审计。');
+		const access = `<details class="pc-card pc-platform-access-panel"${accessPreview || accessDraft.userId ? ' open' : ''}><summary><span><strong>成员临时授权</strong><small>为指定成员授予有期限的额外角色，到期自动失效</small></span><b>展开</b></summary><form class="pc-org-add-form" data-platform-user-access-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>用户 ID</span><input class="pc-profile-input" required data-platform-access-user-id value="${escapeHtml(accessDraft.userId)}" /></label><label class="pc-org-field"><span>临时角色</span><select class="pc-profile-input" data-platform-access-role><option value="contentAdmin"${accessDraft.roleId === 'contentAdmin' ? ' selected' : ''}>内容管理员</option><option value="orgAdmin"${accessDraft.roleId === 'orgAdmin' ? ' selected' : ''}>机构管理员</option><option value="teacher"${accessDraft.roleId === 'teacher' ? ' selected' : ''}>老师</option><option value="assistant"${accessDraft.roleId === 'assistant' ? ' selected' : ''}>教学运营</option></select></label><label class="pc-org-field"><span>有效期</span><input class="pc-profile-input" type="datetime-local" required data-platform-access-expiry value="${escapeHtml(accessDraft.expiresAt)}" /></label></div>${accessDiff}<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">${accessPreview ? '确认授权并退出旧设备' : '预览授权'}</button></div><div class="pc-admin-note">禁止修改自己的超级管理员身份；授权生效后会撤销该成员现有登录会话。</div></form></details>`;
+		return renderDashboardSubpage('平台角色权限', `<div class="pc-platform-role-layout"><nav class="pc-platform-role-selector" aria-label="角色模板">${roleSelectors}</nav>${editor}</div>${access}`, '全局模板、机构覆盖、临时授权、差异、冲突和审计。');
+	}
+
+	function updatePlatformRolePermissionSummary(form: HTMLFormElement, selectedPermissions: string[]): void {
+		let originalPermissions: string[] = [];
+		try {
+			const parsed = JSON.parse(decodeURIComponent(form.dataset.roleOriginalPermissions || '%5B%5D'));
+			if (Array.isArray(parsed)) originalPermissions = parsed.map(String);
+		} catch { originalPermissions = []; }
+		const originalPermissionSet = new Set(originalPermissions);
+		const selectedPermissionSet = new Set(selectedPermissions);
+		const addedCount = selectedPermissions.filter((permission) => !originalPermissionSet.has(permission)).length;
+		const removedPermissions = originalPermissions.filter((permission) => !selectedPermissionSet.has(permission));
+		const title = form.querySelector('[data-role-current-title]');
+		if (title) title.textContent = '修改后的权限';
+		const count = form.querySelector('[data-role-selected-count]');
+		if (count) count.textContent = `${selectedPermissions.length} 项${addedCount ? ` · 新增 ${addedCount}` : ''}${removedPermissions.length ? ` · 移除 ${removedPermissions.length}` : ''}`;
+		const summary = form.querySelector('[data-role-permission-summary]');
+		if (summary) summary.innerHTML = selectedPermissions.length
+			? selectedPermissions.map((permission) => renderPlatformPermissionChip(permission, originalPermissionSet.has(permission) ? '' : 'added')).join('')
+			: '<span class="pc-admin-note">暂无权限</span>';
+		const removals = form.querySelector<HTMLElement>('[data-role-permission-removals]');
+		if (removals) {
+			removals.hidden = !removedPermissions.length;
+			removals.innerHTML = removedPermissions.length
+				? `<strong>待移除</strong><div>${removedPermissions.map((permission) => renderPlatformPermissionChip(permission, 'removed')).join('')}</div>`
+				: '';
+		}
+	}
+
+	function markPlatformRoleFormDirty(form: HTMLFormElement): void {
+		form.dataset.pcDirty = 'true';
+		const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+		if (button) {
+			button.disabled = false;
+			button.textContent = '保存修改';
+		}
+		const note = form.querySelector('[data-role-save-note]');
+		if (note) note.textContent = '有未保存修改；保存时会先检查权限冲突。';
 	}
 
 	async function submitPlatformRoleTemplate(form: HTMLFormElement): Promise<void> {
@@ -8705,29 +10155,51 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const permissionsInput = form.querySelector('[data-role-permissions]') as HTMLTextAreaElement | null;
 		if (!token || !api || !roleId) return;
 		const permissions = (permissionsInput?.value || '').split(/\r?\n/).map((value) => value.trim()).filter(Boolean);
-		if (!permissions.length) { setFieldError(permissionsInput, '默认权限清单不能为空'); return; }
+		if (!permissions.length) {
+			const advancedEditor = permissionsInput?.closest('details');
+			if (advancedEditor instanceof HTMLDetailsElement) advancedEditor.open = true;
+			setFieldError(permissionsInput, '默认权限清单不能为空');
+			showToast('请至少保留一项角色权限');
+			return;
+		}
 		const payload = {
 			permissions: Array.from(new Set(permissions)),
 			allow_organization_override: Boolean((form.querySelector('[data-role-org-override]') as HTMLInputElement | null)?.checked)
 		};
-		const fingerprint = JSON.stringify(payload);
-		const hasCurrentPreview = Boolean(platformRoleTemplatePreviews[roleId]) && platformRoleTemplatePreviewFingerprints[roleId] === fingerprint;
 		const button = form.querySelector<HTMLButtonElement>('button[type="submit"]') || undefined;
-		const finishSubmitting = beginOrganizationAction(button, hasCurrentPreview ? '应用中…' : '生成中…');
+		const finishSubmitting = beginOrganizationAction(button, '检查中…');
 		if (!finishSubmitting) return;
 		try {
-			if (!hasCurrentPreview) {
-				platformRoleTemplatePreviews[roleId] = asRecord(await api.previewPlatformRoleTemplate(token, roleId, payload)) || {};
-				platformRoleTemplatePreviewFingerprints[roleId] = fingerprint;
-				showToast('差异预览已生成，请确认后再次提交');
-			} else {
-				await api.updatePlatformRoleTemplate(token, roleId, { ...payload, confirmation: '确认修改角色模板', reauth_password: '' });
-				delete platformRoleTemplatePreviews[roleId];
-				delete platformRoleTemplatePreviewFingerprints[roleId];
-				platformRoleTemplatesLoaded = false;
-				await loadPlatformRoleTemplates(true);
-				showToast('全局角色模板已更新并写入审计');
+			platformRoleTemplatePreviews[roleId] = {
+				...(asRecord(await api.previewPlatformRoleTemplate(token, roleId, payload)) || {}),
+				draft_permissions: payload.permissions,
+				draft_allow_organization_override: payload.allow_organization_override
+			};
+			const preview = platformRoleTemplatePreviews[roleId] || {};
+			const added = Array.isArray(preview.added) ? preview.added.map(String) : [];
+			const removed = Array.isArray(preview.removed) ? preview.removed.map(String) : [];
+			const conflicts = Array.isArray(preview.conflicts) ? preview.conflicts.map(String) : [];
+			if (conflicts.length) {
+				showToast(`检测到 ${conflicts.length} 项权限冲突，请处理后再保存`);
+				renderSectionContent({ preserveScroll: true, focusSelector: `[data-role-id="${escapeHtml(roleId)}"]` });
+				return;
 			}
+			const selectedRole = platformRoleTemplates.find((role) => readString(role.id) === roleId);
+			const originalOverride = Boolean(readBoolean(selectedRole?.allow_organization_override));
+			const changeSummary = [`新增 ${added.length} 项`, `移除 ${removed.length} 项`];
+			if (originalOverride !== payload.allow_organization_override) {
+				changeSummary.push(`机构调整改为${payload.allow_organization_override ? '允许' : '平台统一'}`);
+			}
+			if (!await requestConfirmation(`将保存“${readString(selectedRole?.name) || roleId}”的权限修改：${changeSummary.join('，')}。保存后立即生效并写入审计日志。`, '确认保存')) {
+				showToast('已取消保存，修改仍保留在当前页面');
+				return;
+			}
+			if (button) button.textContent = '保存中…';
+			await api.updatePlatformRoleTemplate(token, roleId, { ...payload, confirmation: '确认修改角色模板', reauth_password: '' });
+			delete platformRoleTemplatePreviews[roleId];
+			platformRoleTemplatesLoaded = false;
+			await loadPlatformRoleTemplates(true);
+			showToast('全局角色模板已更新并写入审计');
 			renderSectionContent({ preserveScroll: true, focusSelector: `[data-role-id="${escapeHtml(roleId)}"]` });
 		} catch (error) {
 			const message = readErrorMessage(error, '角色模板更新失败');
@@ -8787,17 +10259,39 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (activeRoleContent === 'student-assignments') {
 			return renderMyAssignmentsPage(ctx);
 		}
+		if (activeRoleContent === 'student-favorites') {
+			return renderFavoritesPage();
+		}
+		if (activeRoleContent === 'student-recent') {
+			void ensureRecentLearning(ctx);
+			return renderRecentLearningPage();
+		}
+		if (activeRoleContent === 'student-account-plan') return renderAccountPlanPage(ctx);
+		if (activeRoleContent === 'student-account-coupons') return renderAccountCouponsPage(ctx);
+		if (activeRoleContent === 'student-account-feedback') return renderAccountFeedbackPage();
 		if (activeRoleContent.startsWith('platform-payment-order:')) {
 			return renderPlatformPaymentDetailPage(ctx, 'order', decodeRoleContentPart(activeRoleContent.slice('platform-payment-order:'.length)));
 		}
 		if (activeRoleContent.startsWith('platform-payment-refund:')) {
 			return renderPlatformPaymentDetailPage(ctx, 'refund', decodeRoleContentPart(activeRoleContent.slice('platform-payment-refund:'.length)));
 		}
+		if (activeRoleContent === 'platform-payment-create-order') {
+			return renderPlatformOrganizationOrderCreatePage(ctx);
+		}
+		if (activeRoleContent === 'platform-payment-create-refund' || activeRoleContent.startsWith('platform-payment-create-refund:')) {
+			const initialOrderId = activeRoleContent.startsWith('platform-payment-create-refund:')
+				? decodeRoleContentPart(activeRoleContent.slice('platform-payment-create-refund:'.length))
+				: '';
+			return renderPlatformRefundCreatePage(ctx, initialOrderId);
+		}
 		if (activeRoleContent === 'platform-pricing') {
 			return renderPricingAdminPage(ctx);
 		}
 		if (activeRoleContent === 'platform-users') {
 			return renderPlatformUserSearchPage(ctx);
+		}
+		if (activeRoleContent.startsWith('platform-org-detail:')) {
+			return renderPlatformOrganizationDetailPage(ctx, decodeRoleContentPart(activeRoleContent.slice('platform-org-detail:'.length)));
 		}
 		if (activeRoleContent === 'platform-orgs') {
 			return renderManagedOrganizationPage(ctx, 'platform');
@@ -8817,13 +10311,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (activeRoleContent === 'org-settings') {
 			return renderManagedOrganizationPage(ctx, 'settings');
 		}
-		if (activeRoleContent === 'org-course-packages') {
+		if (activeRoleContent === 'org-course-packages' || activeRoleContent === 'org-course-accounts') {
 			return renderManagedOrganizationPage(ctx, 'coursePackages');
 		}
 		if (activeRoleContent === 'org-seats' || activeRoleContent === 'org-plan') {
 			return renderManagedOrganizationPage(ctx, 'subscription');
 		}
-		if (activeRoleContent === 'org-invites' || activeRoleContent === 'org-audit') {
+		if (activeRoleContent === 'org-audit') {
+			return renderEmbeddedAuditLogPage();
+		}
+		if (activeRoleContent === 'org-invites') {
 			return renderManagedOrganizationPage(ctx, 'members');
 		}
 		if (activeRoleContent === 'platform-stats') {
@@ -8851,6 +10348,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return renderContentPublishQueuePage();
 		}
 		if (activeRoleContent === 'content-log' || activeRoleContent === 'platform-audit') {
+			if (activeRoleContent === 'platform-audit') {
+				return renderEmbeddedAuditLogPage();
+			}
 			return renderDashboardSubpage('审计日志', renderRoleListCard('审计日志', [{ title: '查看真实审计日志', desc: '内容修改、授权、退款和系统变更统一记录在审计日志。', meta: '打开', intent: 'openAuditLog' }]), '日志从后台审计接口读取。');
 		}
 		if (isInstitutionRoleContent(activeRoleContent)) {
@@ -8880,43 +10380,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			default:
 				return '';
 		}
-	}
-
-	function renderStudentDashboard(ctx: PCContext): string {
-		if (activeDashboardSubpage) {
-			return renderDashboardSubpageContent(ctx);
-		}
-		organizationInviteTokenDraft = organizationInviteTokenDraft || inviteTokenFromUrl();
-		return `<div class="pc-dashboard pc-dashboard-simple">
-			<div class="pc-dashboard-banners">
-				<div class="pc-card" id="pc-resume-banner" data-resume-banner hidden></div>
-				<div class="pc-card" id="pc-assignments-banner" data-assignments-banner hidden></div>
-				<div class="pc-card" id="pc-daily-banner" data-daily-banner hidden></div>
-				<div class="pc-card" id="pc-goal-banner" data-goal-banner hidden></div>
-			</div>
-			<div class="pc-card pc-my-content-card">
-				<div class="pc-my-content-head">我的内容</div>
-				${renderStudentContentGroups(ctx)}
-			</div>
-			${renderMyAccountPage(ctx)}
-			${renderPendingInvitationPanel(ctx)}
-			${renderInviteEntryCard(organizationInviteTokenDraft)}
-		</div>`;
-	}
-
-	function renderDashboard(ctx: PCContext): string {
-		if (activeDashboardSubpage) {
-			return renderDashboardSubpageContent(ctx);
-		}
-		const workbench = activeWorkbenchDef(ctx);
-		if (workbench.id === 'student') {
-			return renderStudentDashboard(ctx);
-		}
-		organizationInviteTokenDraft = organizationInviteTokenDraft || inviteTokenFromUrl();
-		return `<div class="pc-dashboard pc-dashboard-simple pc-role-dashboard">
-			${renderRoleWorkbenchCard(ctx, workbench)}
-			${renderMyAccountPage(ctx)}
-		</div>`;
 	}
 
 	function accountSessionDeviceLabel(userAgent: string): string {
@@ -8976,13 +10439,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	function renderAccountManagementCard(ctx: PCContext): string {
 		const phoneText = maskPhone(ctx.phone);
 		const phoneStatus = ctx.phoneVerified ? '已验证' : '未验证';
-		const passwordStatus = ctx.hasPassword ? '可使用密码登录' : '短信登录后可先设置密码';
+		const passwordChangeVerified = ctx.authenticationMethod === 'phone_code';
+		const passwordStatus = passwordChangeVerified
+			? (ctx.hasPassword ? '本次已通过验证码验证' : '验证码登录后可设置密码')
+			: '请先退出并使用验证码登录';
 		const wechatStatus = ctx.wechatBound ? `已绑定${ctx.wechatNickname ? ` · ${ctx.wechatNickname}` : ''}` : '尚未绑定';
 		const passwordEditor =
-			activeAccountEditor === 'password'
+			activeAccountEditor === 'password' && passwordChangeVerified
 				? `<form class="pc-account-editor" data-account-password-form>
-					<div class="pc-admin-note">${ctx.hasPassword ? '请输入当前密码后设置新密码。' : '当前账号还没有密码，直接设置新密码后，下次就可以使用手机号/账号 + 密码登录。'}</div>
-					${ctx.hasPassword ? `<input class="pc-profile-input" type="password" data-account-current-password autocomplete="current-password" value="${escapeHtml(accountSecurityDraft.currentPassword)}" placeholder="当前密码" />` : ''}
+					<div class="pc-admin-note">${ctx.hasPassword ? '本次登录已通过手机验证码验证，可以直接设置新密码。' : '当前账号还没有密码，设置后下次即可使用手机号/账号 + 密码登录。'}</div>
 					<input class="pc-profile-input" type="password" data-account-new-password autocomplete="new-password" value="${escapeHtml(accountSecurityDraft.newPassword)}" placeholder="请输入新密码：至少8位，含字母和数字" />
 					<input class="pc-profile-input" type="password" data-account-confirm-password autocomplete="new-password" value="${escapeHtml(accountSecurityDraft.confirmPassword)}" placeholder="请再次输入新密码" />
 					<div class="pc-account-actions"><button class="pc-inline-btn" type="submit">${ctx.hasPassword ? '完成修改' : '设置密码'}</button><button class="pc-inline-ghost" type="button" data-account-action="">取消</button></div>
@@ -9046,10 +10511,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const memberNoRow = ctx.memberNo
 			? `<div class="pc-info-row"><span>成员编号</span><strong>${escapeHtml(ctx.memberNo)}</strong></div>`
 			: '';
-		return `<div class="pc-profile-stack">
-			${renderAccountManagementCard(ctx)}
+		const isPlatformAdmin = hasAnyRole(ctx, ['superAdmin']);
+		return `<div class="pc-profile-stack pc-superadmin-detail pc-superadmin-profile-detail">
+			<div class="pc-superadmin-detail-head"><div><div class="pc-subpage-title">个人资料</div><div class="pc-subpage-subtitle">维护头像、昵称和联系方式。</div></div></div>
 			${renderContactVerificationCard(ctx)}
-			${renderReferralCard(ctx)}
+			${isPlatformAdmin ? '' : renderReferralCard(ctx)}
 			<div class="pc-card pc-info-card pc-avatar-picker-card">
 				<div class="pc-service-header">头像选择 <span class="pc-avatar-picker-credit-inline">头像由 DiceBear 生成 &mdash; <a href="https://www.dicebear.com" target="_blank" rel="noopener">dicebear.com</a></span></div>
 				<div class="pc-avatar-style-grid">
@@ -9077,7 +10543,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					</div>
 					<div class="pc-avatar-picker-note">未设置时会先按登录账号显示，你也可以改成自己的名字。</div>
 				</div>
-				<div class="pc-info-list">
+				<div class="pc-info-list pc-profile-facts">
 					<div class="pc-info-row"><span>当前昵称</span><strong>${escapeHtml(currentName)}</strong></div>
 					<div class="pc-info-row"><span>登录账号</span><strong>${loginAccount}</strong></div>
 					${memberNoRow}
@@ -9085,17 +10551,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					<div class="pc-info-row"><span>最近登录</span><strong>${escapeHtml(ctx.lastLoginAt || '-')}</strong></div>
 				</div>
 			</div>
-			<div class="pc-card pc-info-card">
-				<div class="pc-service-header">身份与套餐</div>
-				<div class="pc-tag-list">
+			${isPlatformAdmin ? '' : `<div class="pc-card pc-info-card pc-profile-identity-card">
+				<div class="pc-profile-identity-head"><div class="pc-service-header">身份与套餐</div><div class="pc-tag-list">
 					${roleNames.length > 0 ? roleNames.map((role) => `<span class="pc-tag">${escapeHtml(role)}</span>`).join('') : '<span class="pc-tag muted">普通用户</span>'}
-				</div>
-				<div class="pc-info-list">
+				</div></div>
+				<div class="pc-info-list pc-profile-facts">
 					<div class="pc-info-row"><span>当前空间</span><strong>${escapeHtml(scopeLabel(ctx))}</strong></div>
 					<div class="pc-info-row"><span>当前套餐</span><strong>${escapeHtml(planLabel(ctx.subscription?.plan))} / ${escapeHtml(ctx.subscription?.status || 'active')}</strong></div>
 					<div class="pc-info-row"><span>到期时间</span><strong>${escapeHtml(ctx.subscription?.expiresAt || '长期')}</strong></div>
 				</div>
-			</div>
+			</div>`}
 		</div>`;
 	}
 
@@ -9108,36 +10573,52 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const cacheKey = managedOrganizationsKey(ctx);
 		const isLoaded = managedOrganizationsCacheKey === cacheKey && !managedOrganizationsLoading;
 		let organizationPanel = '';
+		const active = activeWorkbenchDef(ctx);
+		const managementActions = [...active.actions, ...active.more].filter((action) => visibleAction(ctx, action));
+		const organizationIntent = hasAnyRole(ctx, ['superAdmin']) ? 'platform-orgs' : 'org-members';
 
 		if (canManage) {
 			if (!isLoaded) {
-				organizationPanel = `<div class="pc-card pc-info-card"><div class="pc-service-header">组织成员管理</div><div class="pc-admin-note">正在读取你可管理的组织与成员列表...</div></div>`;
+				organizationPanel = `<div class="pc-card pc-admin-organizations"><div class="pc-admin-section-head"><div><div class="pc-service-header">可管理机构</div><div class="pc-admin-note">正在读取机构摘要...</div></div></div></div>`;
 			} else if (managedOrganizations.length === 0) {
-				organizationPanel = `<div class="pc-card pc-info-card"><div class="pc-service-header">组织成员管理</div><div class="pc-admin-note">当前账号还没有可管理的组织。企业管理员进入组织后，这里会显示成员、席位和套餐信息。</div></div>`;
+				organizationPanel = `<div class="pc-card pc-admin-organizations"><div class="pc-admin-section-head"><div><div class="pc-service-header">可管理机构</div><div class="pc-admin-note">当前账号还没有可管理的机构。</div></div><button class="pc-inline-btn service-item" type="button" data-intent="${escapeHtml(openRoleContentIntent(organizationIntent))}">${hasAnyRole(ctx, ['superAdmin']) ? '新建机构' : '查看说明'}</button></div></div>`;
 			} else {
-				organizationPanel = managedOrganizations
-					.map((organization) => {
-						const seatsText = organization.seats > 0 ? `${organization.memberCount}/${organization.seats} 席` : `${organization.memberCount} 人`;
-						return `<div class="pc-card pc-info-card"><div class="pc-service-header">${escapeHtml(organization.name)}</div><div class="pc-org-card"><div class="pc-org-head"><div><div class="pc-org-name">${escapeHtml(organization.name)}</div><div class="pc-org-type">${escapeHtml(organizationTypeLabel(organization.organizationType))}组织</div></div><div class="pc-org-seat">${escapeHtml(seatsText)}</div></div><div class="pc-org-meta"><div class="pc-org-metric"><span>套餐</span><strong>${escapeHtml(planLabel(organization.plan))}</strong></div><div class="pc-org-metric"><span>状态</span><strong>${escapeHtml(organization.status)}</strong></div><div class="pc-org-metric"><span>成员数</span><strong>${escapeHtml(String(organization.memberCount))}</strong></div></div><div class="pc-admin-note">这里可以维护成员、席位、校区、学习组和课程包。班级制和约课制都会统一进入学习组模型。</div>${renderOrganizationSubscriptionPanel(organization)}${renderOrganizationCampusPanel(organization)}${renderOrganizationCoursePackagePanel(organization)}${renderOrganizationSchedulePanel(organization)}${renderOrganizationLearningGroupPanel(organization)}${renderOrganizationMembersByRolePanel(organization)}${renderOrganizationAuditPanel(organization)}</div></div>`;
-					})
-					.join('');
+				const total = managedOrganizationListPage.total || managedOrganizations.length;
+				const rows = managedOrganizations.slice(0, 3).map((organization) => {
+					const seatTotal = organization.seats || defaultSeatsForPlan(organization.plan);
+					return `<div class="pc-admin-org-row">
+						<span><strong>${escapeHtml(organization.name)}</strong><em>${escapeHtml(organizationTypeLabel(organization.organizationType))}组织 · ${escapeHtml(planLabel(organization.plan))}</em></span>
+						<b>${escapeHtml(String(organization.memberCount))}/${escapeHtml(String(seatTotal))} 席</b>
+					</div>`;
+				}).join('');
+				organizationPanel = `<div class="pc-card pc-admin-organizations">
+					<div class="pc-admin-section-head"><div><div class="pc-service-header">可管理机构 <span class="pc-admin-count">${total}</span></div><div class="pc-admin-note">仅显示最近 3 个</div></div><button class="pc-inline-ghost service-item" type="button" data-intent="${escapeHtml(openRoleContentIntent(organizationIntent))}">查看全部</button></div>
+					<div class="pc-admin-org-list">${rows}</div>
+				</div>`;
 			}
 		}
 
-		const roleNote = canManage
-			? '机构管理员现在会直接看到成员、权限模板、席位和套餐摘要。'
-			: '老师、教学运营、内容管理员会看到各自工作台；机构管理员进入组织后，会出现成员管理视图。';
-
-		return `<div class="pc-profile-stack"><div class="pc-card pc-info-card"><div class="pc-service-header">管理面板</div><div class="pc-info-list"><div class="pc-info-row"><span>当前空间</span><strong>${escapeHtml(scopeLabel(ctx))}</strong></div>${organizationRow}<div class="pc-info-row"><span>当前角色</span><strong>${roleText}</strong></div></div><div class="pc-admin-note">${escapeHtml(roleNote)}</div></div>${renderInstitutionWorkbenchShell(ctx)}${organizationPanel}</div>`;
+		return `<div class="pc-profile-stack pc-admin-home">
+			<div class="pc-admin-overview">
+				<div><strong>管理工作台</strong><span>${escapeHtml(scopeLabel(ctx))}${organizationRow ? ` · ${escapeHtml(ctx.organizationName || '')}` : ''}</span></div>
+				<div class="pc-admin-context"><span>${roleText}</span></div>
+			</div>
+			<div class="pc-card pc-role-workbench-card pc-admin-shortcuts">
+				<div class="pc-admin-section-head"><div><div class="pc-role-section-title">功能</div></div></div>
+				${renderActionGrid(ctx, managementActions, 'pc-role-action-grid', 8)}
+			</div>
+			${organizationPanel}
+		</div>`;
 	}
 
 	function renderInstitutionWorkbenchShell(ctx: PCContext): string {
 		if (!hasAnyRole(ctx, ['teacher', 'assistant', 'orgAdmin', 'contentAdmin', 'superAdmin'])) {
 			return '';
 		}
-		return `<div class="pc-card pc-info-card" id="pc-institution-workbench">
-			<div class="pc-service-header">机构教学工作台</div>
-			<div class="pc-admin-note">正在加载学习组、作业、席位、成绩册与学员档案...</div>
+		if (!hasAnyRole(ctx, ['teacher', 'assistant', 'orgAdmin'])) return '';
+		return `<div class="pc-card pc-admin-launcher">
+			<div><div class="pc-service-header">教学数据</div><div class="pc-admin-note">学习组、作业、成绩、席位和学员风险统一在机构看板查看。</div></div>
+			<button class="pc-inline-btn service-item" type="button" data-intent="${escapeHtml(openRoleContentIntent('org-dashboard'))}">打开机构看板</button>
 		</div>`;
 	}
 
@@ -9656,11 +11137,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
-	async function changeCurrentPassword(currentPassword: string, newPassword: string, confirmPassword: string, form: HTMLFormElement): Promise<void> {
+	async function changeCurrentPassword(newPassword: string, confirmPassword: string, form: HTMLFormElement): Promise<void> {
 		const token = activeToken(getContext());
 		const api = window.APIClient;
 		clearFormFieldErrors(form);
-		const currentInput = form.querySelector<HTMLInputElement>('[data-account-current-password], #pc-current-password');
 		const newInput = form.querySelector<HTMLInputElement>('[data-account-new-password], #pc-new-password');
 		const confirmInput = form.querySelector<HTMLInputElement>('[data-account-confirm-password]');
 		if (!token || !api || typeof api.changePassword !== 'function') {
@@ -9683,7 +11163,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const finishAction = submit ? beginOrganizationAction(submit, '保存中…') : null;
 		if (submit && !finishAction) return;
 		try {
-			const result = asRecord(await api.changePassword(token, currentPassword, newPassword)) || {};
+			const result = asRecord(await api.changePassword(token, newPassword)) || {};
 			form.reset();
 			accountSecurityDraft.currentPassword = '';
 			accountSecurityDraft.newPassword = '';
@@ -9697,7 +11177,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} catch (error) {
 			log('change password failed', error);
 			const message = readErrorMessage(error, '密码更新失败');
-			setFieldError(currentInput || newInput, message);
+			setFieldError(newInput, message);
 			showToast(message);
 		} finally {
 			finishAction?.();
@@ -9839,6 +11319,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	function attachProfileHandlers(container: HTMLElement): void {
 		container.onclick = (event: MouseEvent) => {
 			const target = event.target as HTMLElement | null;
+			const referralCopyButton = target?.closest('[data-referral-copy]') as HTMLButtonElement | null;
+			if (referralCopyButton) {
+				const value = referralCopyButton.dataset.referralCopy || '';
+				void copyTextToClipboard(value).then((copied) => {
+					showToast(copied ? '推荐链接已复制' : '复制失败，请手动复制');
+				});
+				return;
+			}
 			if (handleAccountSessionClick(target)) {
 				return;
 			}
@@ -9859,6 +11347,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const accountAction = target?.closest('[data-account-action]') as HTMLElement | null;
 			if (accountAction) {
 				const action = (accountAction.dataset.accountAction || '') as typeof activeAccountEditor;
+				if (action === 'password' && getContext().authenticationMethod !== 'phone_code') {
+					showToast('为了保护账号，请退出后使用手机验证码登录，再修改密码');
+					return;
+				}
 				activeAccountEditor = activeAccountEditor === action ? '' : action;
 				if (activeAccountEditor === 'phone') {
 					activeContactVerificationEditor = 'phone';
@@ -9918,16 +11410,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				return;
 			}
 			if (form.hasAttribute('data-password-change-form')) {
-				const currentPassword = (form.querySelector('#pc-current-password') as HTMLInputElement | null)?.value || '';
 				const newPassword = (form.querySelector('#pc-new-password') as HTMLInputElement | null)?.value || '';
-				void changeCurrentPassword(currentPassword, newPassword, newPassword, form);
+				void changeCurrentPassword(newPassword, newPassword, form);
 				return;
 			}
 			if (form.hasAttribute('data-account-password-form')) {
-				const currentPassword = (form.querySelector('[data-account-current-password]') as HTMLInputElement | null)?.value || '';
 				const newPassword = (form.querySelector('[data-account-new-password]') as HTMLInputElement | null)?.value || '';
 				const confirmPassword = (form.querySelector('[data-account-confirm-password]') as HTMLInputElement | null)?.value || '';
-				void changeCurrentPassword(currentPassword, newPassword, confirmPassword, form);
+				void changeCurrentPassword(newPassword, confirmPassword, form);
 				return;
 			}
 			if (form.hasAttribute('data-account-wechat-form')) {
@@ -10004,9 +11494,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return;
 		}
 		if (intent.startsWith('openRoleContent:')) {
+			const nextRoleContent = intent.slice('openRoleContent:'.length);
+			if (nextRoleContent === 'org-course-accounts') pendingCoursePackageAllocation = null;
+			const platformAdminOpen = Boolean(document.querySelector('#platform-admin-shell.pc-platform-admin-open'));
+			if (platformAdminOpen && activeRoleContent && activeRoleContent !== nextRoleContent) {
+				platformAdminRoleContentHistory.push(activeRoleContent);
+			}
 			activeSection = 'dashboard';
 			activeDashboardSubpage = 'role-content';
-			activeRoleContent = intent.slice('openRoleContent:'.length);
+			activeRoleContent = nextRoleContent;
 			renderSections();
 			renderSectionContent();
 			return;
@@ -10032,6 +11528,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return;
 		}
 		switch (intent) {
+			case 'openPlatformAdmin':
+				openPlatformAdmin();
+				break;
 			case 'gotoProfile':
 				activeSection = 'profile';
 				activeDashboardSubpage = '';
@@ -10042,12 +11541,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				activeSection = 'dashboard';
 				activeDashboardSubpage = 'role-content';
 				activeRoleContent = 'platform-flags';
-				renderSections();
-				renderSectionContent();
-				break;
-			case 'gotoAdminHub':
-				activeSection = 'admin-hub';
-				activeDashboardSubpage = '';
 				renderSections();
 				renderSectionContent();
 				break;
@@ -10067,12 +11560,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				break;
 			}
 			case 'openRecentLearning': {
-				const banner = document.getElementById('pc-resume-banner') as HTMLElement | null;
-				if (banner && !banner.hidden && banner.textContent?.trim()) {
-					banner.scrollIntoView({ block: 'center', behavior: 'smooth' });
-				} else {
-					showToast('暂无最近学习记录');
-				}
+				activeSection = 'dashboard';
+				activeDashboardSubpage = 'role-content';
+				activeRoleContent = 'student-recent';
+				renderSections();
+				renderSectionContent();
 				break;
 			}
 			case 'openIssueFeedback':
@@ -10193,14 +11685,56 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function handleDashboardOrganizationClick(target: HTMLElement | null): boolean {
+		const platformRoleSelect = target?.closest('[data-platform-role-select]') as HTMLButtonElement | null;
+		if (platformRoleSelect) {
+			const roleId = platformRoleSelect.dataset.platformRoleSelect || '';
+			if (roleId && roleId !== activePlatformRoleTemplateId) {
+				activePlatformRoleTemplateId = roleId;
+				renderSectionContent({ preserveScroll: true, focusSelector: `[data-platform-role-template-form][data-role-id="${escapeHtml(roleId)}"]` });
+			}
+			return true;
+		}
+		const platformPermissionToggle = target?.closest('[data-role-permission-toggle]') as HTMLInputElement | null;
+		if (platformPermissionToggle) {
+			const form = platformPermissionToggle.closest('form[data-platform-role-template-form]') as HTMLFormElement | null;
+			const textarea = form?.querySelector('[data-role-permissions]') as HTMLTextAreaElement | null;
+			if (!form || !textarea) return true;
+			const allOptions = Array.from(form.querySelectorAll<HTMLInputElement>('[data-role-permission-toggle]'));
+			const knownPermissions = new Set(allOptions.map((input) => input.value));
+			const customPermissions = textarea.value.split(/\r?\n/).map((value) => value.trim()).filter((value) => value && !knownPermissions.has(value));
+			const selected = Array.from(new Set(allOptions.filter((input) => input.checked).map((input) => input.value).concat(customPermissions)));
+			textarea.value = selected.join('\n');
+			updatePlatformRolePermissionSummary(form, selected);
+			markPlatformRoleFormDirty(form);
+			return true;
+		}
+		const platformRoleOverride = target?.closest('[data-role-org-override]') as HTMLInputElement | null;
+		if (platformRoleOverride) {
+			const form = platformRoleOverride.closest('form[data-platform-role-template-form]') as HTMLFormElement | null;
+			const note = platformRoleOverride.closest('label')?.querySelector('small');
+			if (note) note.textContent = platformRoleOverride.checked
+				? '机构管理员可在该模板范围内配置本机构权限'
+				: '该角色权限由平台统一控制';
+			if (form) markPlatformRoleFormDirty(form);
+			return true;
+		}
 		const organizationSummary = target?.closest('summary.pc-managed-org-summary') as HTMLElement | null;
 		if (organizationSummary) {
 			const details = organizationSummary.closest<HTMLDetailsElement>('details[data-managed-org-id][data-managed-org-mode]');
 			const organizationId = details?.dataset.managedOrgId || '';
 			const mode = details?.dataset.managedOrgMode || '';
 			if (organizationId && mode) {
+				if (mode === 'platform' && activePlatformAdminPage === 'organizations' && activeRoleContent === 'platform-orgs') {
+					managedOrganizationListScrollTop = document.querySelector<HTMLElement>('#platform-admin-shell .pc-platform-admin-content')?.scrollTop || 0;
+					managedOrganizationDetailReturnId = organizationId;
+					handleFeatureIntent(openRoleContentIntent(`platform-org-detail:${encodeURIComponent(organizationId)}`));
+					return true;
+				}
 				const open = !details?.open;
-				if (details) details.open = open;
+				if (details) {
+					details.open = open;
+					details.classList.toggle('is-expanded', open);
+				}
 				managedOrganizationOpenState[`${mode}:${organizationId}`] = open;
 				if (open) void loadManagedOrganizationDetails(organizationId);
 				else renderSectionContent({ preserveScroll: true });
@@ -10209,8 +11743,13 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		const organizationPageButton = target?.closest('[data-managed-org-page]') as HTMLButtonElement | null;
 		if (organizationPageButton) {
-			managedOrganizationListPage.page = Math.max(1, managedOrganizationListPage.page + (organizationPageButton.dataset.managedOrgPage === 'next' ? 1 : -1));
-			void reloadManagedOrganizationList();
+			applyManagedOrganizationListPage(String(managedOrganizationListPage.page + (organizationPageButton.dataset.managedOrgPage === 'next' ? 1 : -1)));
+			return true;
+		}
+		const platformUserPageButton = target?.closest('[data-platform-user-page]') as HTMLButtonElement | null;
+		if (platformUserPageButton) {
+			platformUserSearchPage = Math.max(1, platformUserSearchPage + (platformUserPageButton.dataset.platformUserPage === 'next' ? 1 : -1));
+			renderSectionContent({ preserveScroll: true });
 			return true;
 		}
 		const campusPageButton = target?.closest('[data-org-campus-list-page]') as HTMLButtonElement | null;
@@ -10219,7 +11758,63 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			if (organizationId) { const state = organizationCampusPageState(organizationId); state.page = Math.max(1, state.page + (campusPageButton.dataset.orgCampusListPage === 'next' ? 1 : -1)); state.loaded = false; void loadOrganizationCampusPage(organizationId); renderSectionContent({ preserveScroll: true }); }
 			return true;
 		}
+		const teachingNavigationButton = target?.closest('[data-org-teaching-nav]') as HTMLButtonElement | null;
+		if (teachingNavigationButton) {
+			const nextRoleContent = teachingNavigationButton.dataset.orgTeachingNav || 'org-course-packages';
+			if (nextRoleContent === 'org-course-accounts') pendingCoursePackageAllocation = null;
+			activeRoleContent = nextRoleContent;
+			activeDashboardSubpage = 'role-content';
+			renderSectionContent();
+			return true;
+		}
 		const packagePageButton = target?.closest('[data-org-package-list-page]') as HTMLButtonElement | null;
+		const packageViewButton = target?.closest('[data-org-package-view-template]') as HTMLButtonElement | null;
+		if (packageViewButton) {
+			const organizationId = (packageViewButton.closest('[data-managed-org-id]') as HTMLElement | null)?.dataset.managedOrgId || managedOrganizationWorkspaceId;
+			const templateId = packageViewButton.dataset.orgPackageViewTemplate || '';
+			if (!organizationId || !templateId) {
+				showToast('课程包信息已失效，请刷新后重试');
+				return true;
+			}
+			const state = organizationCoursePackagePageState(organizationId);
+			state.templateFilter = templateId;
+			state.viewMode = 'accounts';
+			state.page = 1;
+			state.loaded = false;
+			activeRoleContent = 'org-course-accounts';
+			activeDashboardSubpage = 'role-content';
+			void loadOrganizationCoursePackagePage(organizationId);
+			renderSectionContent();
+			return true;
+		}
+		const packageAssignButton = target?.closest('[data-org-package-assign-template]') as HTMLButtonElement | null;
+		if (packageAssignButton) {
+			const organizationId = (packageAssignButton.closest('[data-managed-org-id]') as HTMLElement | null)?.dataset.managedOrgId || managedOrganizationWorkspaceId;
+			const templateId = packageAssignButton.dataset.orgPackageAssignTemplate || '';
+			if (!organizationId || !templateId) {
+				showToast('课程包信息已失效，请刷新后重试');
+				return true;
+			}
+			pendingCoursePackageAllocation = { organizationId, templateId };
+			activeRoleContent = 'org-course-accounts';
+			activeDashboardSubpage = 'role-content';
+			renderSectionContent();
+			requestAnimationFrame(() => {
+				const allocator = document.querySelector<HTMLDetailsElement>('[data-org-package-allocator]');
+				allocator?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			});
+			return true;
+		}
+		const packageStudentToggle = target?.closest('[data-org-package-students]') as HTMLButtonElement | null;
+		if (packageStudentToggle) {
+			const form = packageStudentToggle.closest<HTMLFormElement>('form[data-org-course-package-assignment-form]');
+			const checked = packageStudentToggle.dataset.orgPackageStudents === 'all';
+			form?.querySelectorAll<HTMLInputElement>('[data-org-course-package-student]').forEach((input) => {
+				if (!checked || !input.closest<HTMLElement>('[data-org-package-student-option]')?.hidden) input.checked = checked;
+			});
+			if (form) updateOrganizationPackageStudentPicker(form);
+			return true;
+		}
 		if (packagePageButton) {
 			const organizationId = (packagePageButton.closest('[data-managed-org-id]') as HTMLElement | null)?.dataset.managedOrgId || '';
 			if (organizationId) { const state = organizationCoursePackagePageState(organizationId); state.page = Math.max(1, state.page + (packagePageButton.dataset.orgPackageListPage === 'next' ? 1 : -1)); state.loaded = false; void loadOrganizationCoursePackagePage(organizationId); renderSectionContent({ preserveScroll: true }); }
@@ -10259,15 +11854,18 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (emptyStateButton) {
 			const selectors: Record<string, string> = {
 				campus: '[data-org-campus-name]',
-				'course-package': '[data-org-course-package-student]',
+				'course-package': '[data-org-course-package-title]',
 				'learning-group': '[data-org-learning-group-name]'
 			};
 			const selector = selectors[emptyStateButton.dataset.orgEmptyFocus || ''];
 			const field = selector
 				? emptyStateButton.closest('.pc-org-subsection')?.querySelector<HTMLElement>(selector)
 				: null;
-			field?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-			field?.focus();
+			field?.closest('details')?.setAttribute('open', '');
+			requestAnimationFrame(() => {
+				field?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				field?.focus();
+			});
 			return true;
 		}
 		const workflowButton = target?.closest('[data-content-workflow-action]') as HTMLButtonElement | null;
@@ -10287,9 +11885,23 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			void loadPlatformPayments(true);
 			return true;
 		}
+		const paymentTabButton = target?.closest('[data-platform-payment-tab]') as HTMLButtonElement | null;
+		if (paymentTabButton) {
+			const nextTab = paymentTabButton.dataset.platformPaymentTab as PlatformPaymentTab | undefined;
+			if (nextTab && ['orders', 'refunds', 'ledger', 'anomalies'].includes(nextTab) && nextTab !== platformPaymentTab) {
+				platformPaymentTab = nextTab;
+				platformPaymentStatus = '';
+				platformPaymentPage = 1;
+				platformPaymentsLoaded = false;
+				renderSectionContent({ preserveScroll: true });
+				void loadPlatformPayments(true);
+			}
+			return true;
+		}
 		const paymentClear = target?.closest('[data-platform-payment-clear]') as HTMLButtonElement | null;
 		if (paymentClear) {
 			platformPaymentQuery = '';
+			platformPaymentStatus = '';
 			platformPaymentPage = 1;
 			platformPaymentsLoaded = false;
 			void loadPlatformPayments(true);
@@ -10316,6 +11928,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			void loadPlatformSystemFlags(true);
 			return true;
 		}
+		const featureFlagEditButton = target?.closest('[data-platform-system-flag-edit]') as HTMLButtonElement | null;
+		if (featureFlagEditButton) {
+			openPlatformSystemFlagEditor(featureFlagEditButton.dataset.platformSystemFlagEdit || '');
+			return true;
+		}
 		const featureFlagButton = target?.closest('[data-platform-system-flag]') as HTMLButtonElement | null;
 		if (featureFlagButton) {
 			const key = featureFlagButton.dataset.platformSystemFlag || '';
@@ -10335,7 +11952,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (feedbackOpenButton) {
 			const paperId = feedbackOpenButton.dataset.feedbackPaperId || '';
 			const questionId = feedbackOpenButton.dataset.feedbackQuestionId || '';
-			void openExamQuestion(paperId, questionId);
+			void (async () => {
+				const targetLabel = questionId ? `试卷 ${paperId} 的题目 ${questionId}` : `试卷 ${paperId}`;
+				if (!await requestConfirmation(`将隐藏平台管理页面并打开${targetLabel}，是否继续？`, questionId ? '查看原题' : '查看试卷')) return;
+				closePlatformAdmin();
+				await openExamQuestion(paperId, questionId, undefined, questionId ? '已打开反馈关联题目' : '已打开反馈关联试卷');
+			})();
 			return true;
 		}
 		const feedbackButton = target?.closest('[data-feedback-update]') as HTMLButtonElement | null;
@@ -10373,10 +11995,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		const pickButton = target?.closest('[data-org-pick-user]') as HTMLButtonElement | null;
 		if (pickButton) {
-			const organizationId = pickButton.dataset.orgId || '';
-			const draft = getOrganizationMemberDraft(organizationId);
-			draft.selectedUserId = pickButton.dataset.userId || '';
-			renderSectionContent({ preserveScroll: true });
+			selectOrganizationCandidate(pickButton);
 			return true;
 		}
 		const memberRoleButton = target?.closest('[data-org-member-role]') as HTMLButtonElement | null;
@@ -10414,6 +12033,21 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const deny = effect === 'deny' ? config.deny.filter((item) => item !== permission) : config.deny;
 			rolePermissionRemoveButton.disabled = true;
 			void saveOrganizationRolePermissions(organization, roleId, allow, deny).finally(() => { rolePermissionRemoveButton.disabled = false; });
+			return true;
+		}
+		const manageLearningGroupButton = target?.closest('[data-org-learning-group-manage]') as HTMLButtonElement | null;
+		if (manageLearningGroupButton) {
+			const manager = manageLearningGroupButton.closest('.pc-learning-manager');
+			const editor = manager?.querySelector<HTMLDetailsElement>('[data-org-learning-member-editor]');
+			const groupSelect = editor?.querySelector<HTMLSelectElement>('[data-org-enrollment-group]');
+			if (editor && groupSelect) {
+				editor.open = true;
+				groupSelect.value = manageLearningGroupButton.dataset.orgLearningGroupManage || '';
+				requestAnimationFrame(() => {
+					editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+					groupSelect.focus();
+				});
+			}
 			return true;
 		}
 		const completeLearningGroupButton = target?.closest('[data-org-learning-group-complete]') as HTMLButtonElement | null;
@@ -10468,7 +12102,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		if (form.matches('form[data-org-package-list-form]')) {
 			const organizationId = form.dataset.orgId || '';
-			if (organizationId) { const state = organizationCoursePackagePageState(organizationId); state.query = (form.querySelector('[data-org-package-list-query]') as HTMLInputElement | null)?.value.trim() || ''; state.page = 1; state.loaded = false; void loadOrganizationCoursePackagePage(organizationId); renderSectionContent({ preserveScroll: true }); }
+			if (organizationId) {
+				const state = organizationCoursePackagePageState(organizationId);
+				const requestedPageSize = Number((form.querySelector('[data-org-package-list-page-size]') as HTMLSelectElement | null)?.value || '20');
+				state.query = (form.querySelector('[data-org-package-list-query]') as HTMLInputElement | null)?.value.trim() || '';
+				state.templateFilter = (form.querySelector('[data-org-package-list-template]') as HTMLSelectElement | null)?.value || '';
+				state.statusFilter = (form.querySelector('[data-org-package-list-status]') as HTMLSelectElement | null)?.value || '';
+				state.viewMode = (form.querySelector('[data-org-package-list-view]') as HTMLSelectElement | null)?.value === 'students' ? 'students' : 'accounts';
+				state.pageSize = [20, 50, 100].includes(requestedPageSize) ? requestedPageSize : 20;
+				state.page = 1;
+				state.loaded = false;
+				void loadOrganizationCoursePackagePage(organizationId);
+				renderSectionContent({ preserveScroll: true });
+			}
 			return true;
 		}
 		if (form.matches('form[data-org-member-list-form]')) {
@@ -10488,6 +12134,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			if (organizationId) {
 				const state = organizationLearningGroupPageState(organizationId);
 				state.query = (form.querySelector('[data-org-learning-list-query]') as HTMLInputElement | null)?.value.trim() || '';
+				state.sort = (form.querySelector('[data-org-learning-list-sort]') as HTMLSelectElement | null)?.value || 'starts_at';
+				state.order = (form.querySelector('[data-org-learning-list-order]') as HTMLSelectElement | null)?.value === 'desc' ? 'desc' : 'asc';
+				state.pageSize = Math.max(10, Number((form.querySelector('[data-org-learning-list-page-size]') as HTMLSelectElement | null)?.value) || 20);
+				organizationLearningGroupCampusFilters[organizationId] = (form.querySelector('[data-org-learning-campus-filter]') as HTMLSelectElement | null)?.value || '';
+				state.filter = organizationLearningGroupCampusFilters[organizationId];
 				state.page = 1; state.loaded = false;
 				void loadOrganizationLearningGroupPage(organizationId);
 				renderSectionContent({ preserveScroll: true });
@@ -10498,6 +12149,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (form.matches('form[data-platform-user-access-form]')) { void submitPlatformUserAccess(form); return true; }
 		if (form.matches('form[data-platform-user-search-form]')) {
 			void performPlatformUserSearch(form);
+			return true;
+		}
+		if (form.matches('form[data-platform-user-page-jump-form]')) {
+			applyPlatformUserSearchPage((form.querySelector('[data-platform-user-page-input]') as HTMLInputElement | null)?.value || '', true);
+			return true;
+		}
+		if (form.matches('form[data-managed-org-page-jump-form]')) {
+			applyManagedOrganizationListPage((form.querySelector('[data-managed-org-page-input]') as HTMLInputElement | null)?.value || '', true);
 			return true;
 		}
 		if (form.matches('form[data-platform-org-create-form]')) {
@@ -10612,7 +12271,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			void saveOrganizationCampus(organization, form);
 			return true;
 		}
-		if (form.matches('form[data-org-course-package-form]')) {
+		if (form.matches('form[data-org-course-package-form], form[data-org-course-package-assignment-form]')) {
 			const organization = managedOrganizations.find((item) => item.id === (form.dataset.orgId || ''));
 			if (!organization) {
 				showToast('组织信息已失效，请刷新后重试');
@@ -10687,22 +12346,45 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function handleDashboardOrganizationChange(target: HTMLElement | null): boolean {
+		const memberPermissionControl = target?.closest('[data-org-role],[data-org-permission]') as HTMLInputElement | null;
+		if (memberPermissionControl?.closest('form[data-org-member-form]')) {
+			syncOrganizationMemberPermissionUi(memberPermissionControl);
+			return true;
+		}
+		if (handleManagedOrganizationPaginationChange(target)) return true;
+		const workspaceOrganization = target?.closest('[data-managed-org-workspace-select]') as HTMLSelectElement | null;
+		if (workspaceOrganization) {
+			managedOrganizationWorkspaceId = workspaceOrganization.value || '';
+			const mode: ManagedOrganizationMode = activeRoleContent === 'org-groups' ? 'groups' : 'coursePackages';
+			if (managedOrganizationWorkspaceId) {
+				managedOrganizationOpenState[`${mode}:${managedOrganizationWorkspaceId}`] = true;
+				void loadManagedOrganizationDetails(managedOrganizationWorkspaceId);
+			}
+			renderSectionContent({ preserveScroll: true });
+			return true;
+		}
 		const platformAccessRole = target?.closest('[data-platform-access-role]') as HTMLSelectElement | null;
 		if (platformAccessRole) {
 			platformUserAccessDraft.roleId = platformAccessRole.value || 'assistant';
 			platformUserAccessPreview = null;
 			return true;
 		}
+		const platformUserPageSize = target?.closest('[data-platform-user-page-size]') as HTMLSelectElement | null;
+		if (platformUserPageSize) {
+			platformUserSearchPageSize = [10, 20, 50].includes(Number(platformUserPageSize.value)) ? Number(platformUserPageSize.value) : 10;
+			platformUserSearchPage = 1;
+			renderSectionContent({ preserveScroll: true });
+			return true;
+		}
+		const platformUserPageInput = target?.closest('[data-platform-user-page-input]') as HTMLInputElement | null;
+		if (platformUserPageInput) {
+			applyPlatformUserSearchPage(platformUserPageInput.value, true);
+			return true;
+		}
 		const campusControl = target?.closest('[data-org-campus-list-sort],[data-org-campus-list-order],[data-org-campus-list-page-size]') as HTMLSelectElement | null;
 		if (campusControl) {
 			const organizationId = (campusControl.closest('form[data-org-campus-list-form]') as HTMLFormElement | null)?.dataset.orgId || '';
 			if (organizationId) { const state = organizationCampusPageState(organizationId); if (campusControl.hasAttribute('data-org-campus-list-sort')) state.sort = campusControl.value || 'name'; if (campusControl.hasAttribute('data-org-campus-list-order')) state.order = campusControl.value === 'desc' ? 'desc' : 'asc'; if (campusControl.hasAttribute('data-org-campus-list-page-size')) state.pageSize = Math.max(10, Number(campusControl.value) || 20); state.page = 1; state.loaded = false; void loadOrganizationCampusPage(organizationId); renderSectionContent({ preserveScroll: true }); }
-			return true;
-		}
-		const packageControl = target?.closest('[data-org-package-list-sort],[data-org-package-list-order],[data-org-package-list-page-size]') as HTMLSelectElement | null;
-		if (packageControl) {
-			const organizationId = (packageControl.closest('form[data-org-package-list-form]') as HTMLFormElement | null)?.dataset.orgId || '';
-			if (organizationId) { const state = organizationCoursePackagePageState(organizationId); if (packageControl.hasAttribute('data-org-package-list-sort')) state.sort = packageControl.value || 'expires_at'; if (packageControl.hasAttribute('data-org-package-list-order')) state.order = packageControl.value === 'desc' ? 'desc' : 'asc'; if (packageControl.hasAttribute('data-org-package-list-page-size')) state.pageSize = Math.max(10, Number(packageControl.value) || 20); state.page = 1; state.loaded = false; void loadOrganizationCoursePackagePage(organizationId); renderSectionContent({ preserveScroll: true }); }
 			return true;
 		}
 		const memberControl = target?.closest('[data-org-member-list-sort],[data-org-member-list-order],[data-org-member-list-page-size]') as HTMLSelectElement | null;
@@ -10738,8 +12420,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			if (feedbackControl.hasAttribute('data-platform-feedback-page-size')) platformFeedbackPageSize = Math.max(10, Number(feedbackControl.value) || 20);
 			platformFeedbackPage = 1; platformFeedbackLoaded = false; void loadFeedbackQueue(true); return true;
 		}
-		const paymentControl = target?.closest('[data-platform-payment-sort],[data-platform-payment-order],[data-platform-payment-page-size]') as HTMLSelectElement | null;
+		const paymentControl = target?.closest('[data-platform-payment-status],[data-platform-payment-sort],[data-platform-payment-order],[data-platform-payment-page-size]') as HTMLSelectElement | null;
 		if (paymentControl) {
+			if (paymentControl.hasAttribute('data-platform-payment-status')) platformPaymentStatus = paymentControl.value || '';
 			if (paymentControl.hasAttribute('data-platform-payment-sort')) platformPaymentSort = paymentControl.value || 'created_at';
 			if (paymentControl.hasAttribute('data-platform-payment-order')) platformPaymentOrder = paymentControl.value === 'asc' ? 'asc' : 'desc';
 			if (paymentControl.hasAttribute('data-platform-payment-page-size')) platformPaymentPageSize = Math.max(10, Number(paymentControl.value) || 20);
@@ -10788,9 +12471,121 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function attachDashboardHandlers(container: HTMLElement): void {
 		bindOrganizationMemberForms(container);
-		container.querySelectorAll<HTMLFormElement>('form[data-org-subscription-form], form[data-org-course-package-form]').forEach((form) => { form.noValidate = true; });
+		container.querySelectorAll<HTMLDetailsElement>('[data-admin-page-size-menu],[data-admin-select-menu]').forEach((menu) => {
+			menu.addEventListener('toggle', () => {
+				if (menu.classList.contains('is-disabled') && menu.open) {
+					menu.open = false;
+					return;
+				}
+				menu.querySelector('summary')?.setAttribute('aria-expanded', String(menu.open));
+				if (!menu.open) return;
+				container.querySelectorAll<HTMLDetailsElement>('[data-admin-page-size-menu][open],[data-admin-select-menu][open]').forEach((other) => {
+					if (other !== menu) other.open = false;
+				});
+			});
+			menu.addEventListener('focusout', () => {
+				requestAnimationFrame(() => {
+					if (!menu.contains(document.activeElement)) menu.open = false;
+				});
+			});
+		});
+		let platformUserPageWheelTimer: number | null = null;
+		container.addEventListener('wheel', (event) => {
+			const target = eventTargetElement(event.target);
+			const input = target?.closest('[data-platform-user-page-input],[data-managed-org-page-input]') as HTMLInputElement | null;
+			if (!input || document.activeElement !== input || event.deltaY === 0) return;
+			event.preventDefault();
+			stepAdminListPageInput(input, event.deltaY < 0 ? 1 : -1);
+			if (platformUserPageWheelTimer !== null) window.clearTimeout(platformUserPageWheelTimer);
+			platformUserPageWheelTimer = window.setTimeout(() => {
+				platformUserPageWheelTimer = null;
+				applyAdminListPageInput(input, true);
+			}, 180);
+		}, { passive: false });
+		container.addEventListener('keydown', (event) => {
+			const target = eventTargetElement(event.target);
+			const adminSelectMenu = target?.closest<HTMLDetailsElement>('[data-admin-select-menu]');
+			if (adminSelectMenu?.classList.contains('is-disabled')) return;
+			if (adminSelectMenu && event.key === 'Escape') {
+				event.preventDefault();
+				adminSelectMenu.open = false;
+				adminSelectMenu.querySelector<HTMLElement>('summary')?.focus();
+				return;
+			}
+			const adminSelectSummary = target?.closest('summary');
+			if (adminSelectMenu && adminSelectSummary && event.key === 'ArrowDown') {
+				event.preventDefault();
+				adminSelectMenu.open = true;
+				requestAnimationFrame(() => adminSelectMenu.querySelector<HTMLButtonElement>('[data-admin-select-option]')?.focus());
+				return;
+			}
+			const adminSelectOption = target?.closest('[data-admin-select-option]') as HTMLButtonElement | null;
+			if (adminSelectMenu && adminSelectOption && ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+				event.preventDefault();
+				const options = Array.from(adminSelectMenu.querySelectorAll<HTMLButtonElement>('[data-admin-select-option]'));
+				const index = options.indexOf(adminSelectOption);
+				const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : event.key === 'ArrowDown' ? Math.min(options.length - 1, index + 1) : Math.max(0, index - 1);
+				options[nextIndex]?.focus();
+				return;
+			}
+			const pageSizeMenu = target?.closest<HTMLDetailsElement>('[data-admin-page-size-menu]');
+			if (pageSizeMenu && event.key === 'Escape') {
+				event.preventDefault();
+				pageSizeMenu.open = false;
+				pageSizeMenu.querySelector<HTMLElement>('summary')?.focus();
+				return;
+			}
+			const pageSizeSummary = target?.closest('summary');
+			if (pageSizeMenu && pageSizeSummary && event.key === 'ArrowDown') {
+				event.preventDefault();
+				pageSizeMenu.open = true;
+				requestAnimationFrame(() => pageSizeMenu.querySelector<HTMLButtonElement>('[data-admin-page-size-option]')?.focus());
+				return;
+			}
+			const pageSizeOption = target?.closest('[data-admin-page-size-option]') as HTMLButtonElement | null;
+			if (pageSizeMenu && pageSizeOption && ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+				event.preventDefault();
+				const options = Array.from(pageSizeMenu.querySelectorAll<HTMLButtonElement>('[data-admin-page-size-option]'));
+				const index = options.indexOf(pageSizeOption);
+				const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : event.key === 'ArrowDown' ? Math.min(options.length - 1, index + 1) : Math.max(0, index - 1);
+				options[nextIndex]?.focus();
+				return;
+			}
+			if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+			const input = target?.closest('[data-platform-user-page-input],[data-managed-org-page-input]') as HTMLInputElement | null;
+			if (!input) return;
+			event.preventDefault();
+			stepAdminListPageInput(input, event.key === 'ArrowUp' ? 1 : -1);
+			applyAdminListPageInput(input, true);
+		});
+		container.querySelectorAll<HTMLDetailsElement>('[data-platform-payment-advanced]').forEach((details) => {
+			details.addEventListener('toggle', () => { platformPaymentAdvancedOpen = details.open; });
+		});
+		container.querySelectorAll<HTMLDetailsElement>('[data-platform-flag-group]').forEach((group) => {
+			group.addEventListener('toggle', () => {
+				const id = group.dataset.platformFlagGroup || '';
+				if (!id || platformSystemFlagQuery || platformSystemFlagFilter !== 'all') return;
+				if (group.open) platformSystemFlagOpenGroups.add(id);
+				else platformSystemFlagOpenGroups.delete(id);
+			});
+		});
+		applyPlatformSystemFlagFilters(container);
+		container.querySelectorAll<HTMLFormElement>('form[data-org-subscription-form], form[data-org-course-package-form], form[data-org-course-package-assignment-form]').forEach((form) => { form.noValidate = true; });
 		container.onclick = (event: MouseEvent) => {
 			const target = eventTargetElement(event.target);
+			const disabledAdminSelect = target?.closest('.pc-admin-select.is-disabled > summary');
+			if (disabledAdminSelect) {
+				event.preventDefault();
+				return;
+			}
+			const activeSelectMenu = target?.closest<HTMLDetailsElement>('[data-admin-page-size-menu],[data-admin-select-menu]');
+			container.querySelectorAll<HTMLDetailsElement>('[data-admin-page-size-menu][open],[data-admin-select-menu][open]').forEach((menu) => {
+				if (menu !== activeSelectMenu) menu.open = false;
+			});
+			if (handleAdminSelectMenuClick(target)) return;
+			if (handleAdminPageSizeMenuClick(target)) {
+				return;
+			}
 			if (handleAccountSessionClick(target)) {
 				return;
 			}
@@ -10823,6 +12618,71 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			}
 			if (target?.closest('[data-payment-notifications-refresh]')) {
 				void ensurePaymentNotifications(true);
+				return;
+			}
+			const pricingPlanScopeTab = target?.closest('[data-pricing-plan-scope]') as HTMLButtonElement | null;
+			if (pricingPlanScopeTab) {
+				const scope = pricingPlanScopeTab.dataset.pricingPlanScope as PricingScope | undefined;
+				const pricingForm = pricingPlanScopeTab.closest<HTMLFormElement>('[data-pricing-form]');
+				if (pricingForm && (scope === 'personal' || scope === 'organization')) {
+					activePricingPlanScope = scope;
+					pricingForm.querySelectorAll<HTMLButtonElement>('[data-pricing-plan-scope]').forEach((tab) => {
+						const active = tab.dataset.pricingPlanScope === scope;
+						tab.classList.toggle('is-active', active);
+						tab.setAttribute('aria-selected', String(active));
+					});
+					pricingForm.querySelectorAll<HTMLElement>('[data-pricing-plan-panel]').forEach((panel) => {
+						panel.hidden = panel.dataset.pricingPlanPanel !== scope;
+					});
+				}
+				return;
+			}
+			const pricingOfferScopeTab = target?.closest('[data-pricing-offer-scope]') as HTMLButtonElement | null;
+			if (pricingOfferScopeTab) {
+				const scope = pricingOfferScopeTab.dataset.pricingOfferScope as PricingScope | undefined;
+				const pricingForm = pricingOfferScopeTab.closest<HTMLFormElement>('[data-pricing-form]');
+				if (pricingForm && (scope === 'personal' || scope === 'organization')) {
+					activePricingOfferScope = scope;
+					pricingForm.querySelectorAll<HTMLButtonElement>('[data-pricing-offer-scope]').forEach((tab) => {
+						const active = tab.dataset.pricingOfferScope === scope;
+						tab.classList.toggle('is-active', active);
+						tab.setAttribute('aria-selected', String(active));
+					});
+					pricingForm.querySelectorAll<HTMLElement>('[data-pricing-offer-panel]').forEach((panel) => {
+						panel.hidden = panel.dataset.pricingOfferPanel !== scope;
+					});
+				}
+				return;
+			}
+			const pricingOfferEdit = target?.closest('[data-pricing-offer-edit]') as HTMLButtonElement | null;
+			if (pricingOfferEdit) {
+				const editor = pricingOfferEdit.closest<HTMLElement>('[data-price-offer-card]')?.querySelector<HTMLElement>('[data-pricing-offer-editor]');
+				if (editor) {
+					const expanded = editor.hidden;
+					editor.hidden = !expanded;
+					pricingOfferEdit.setAttribute('aria-expanded', String(expanded));
+					pricingOfferEdit.textContent = expanded ? '收起' : '编辑';
+				}
+				return;
+			}
+			const pricingSectionTab = target?.closest('[data-pricing-section-tab]') as HTMLButtonElement | null;
+			if (pricingSectionTab) {
+				const section = pricingSectionTab.dataset.pricingSectionTab as PricingAdminSection | undefined;
+				if (section && ['plans', 'offers', 'renewal', 'runtime'].includes(section)) {
+					activePricingAdminSection = section;
+					const pricingForm = pricingSectionTab.closest<HTMLFormElement>('[data-pricing-form]');
+					pricingForm?.querySelectorAll<HTMLButtonElement>('[data-pricing-section-tab]').forEach((tab) => {
+						const active = tab.dataset.pricingSectionTab === section;
+						tab.classList.toggle('active', active);
+						tab.setAttribute('aria-pressed', String(active));
+						tab.setAttribute('aria-selected', String(active));
+					});
+					pricingForm?.querySelectorAll<HTMLElement>('[data-pricing-section-panel]').forEach((panel) => {
+						panel.hidden = panel.dataset.pricingSectionPanel !== section;
+					});
+					const savebar = pricingForm?.querySelector<HTMLElement>('[data-pricing-savebar]');
+					if (savebar) savebar.hidden = section === 'runtime';
+				}
 				return;
 			}
 			if (target?.closest('[data-renewal-operations-refresh]')) {
@@ -10918,6 +12778,40 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				void addInstitutionTeacherNote(container, noteButton.dataset.instAddNote || '');
 				return;
 			}
+			if (target?.closest('[data-inst-gradebook]')) {
+				void openInstitutionGradebook(container);
+				return;
+			}
+			const studentButton = target?.closest('[data-inst-student]') as HTMLButtonElement | null;
+			if (studentButton) {
+				void openInstitutionStudentProfile(container, studentButton.dataset.instStudent || '');
+				return;
+			}
+			if (target?.closest('[data-inst-import]')) {
+				void openInstitutionImportPreview(container);
+				return;
+			}
+			if (target?.closest('[data-inst-prep]')) {
+				void openInstitutionLessonPrep(container);
+				return;
+			}
+			if (target?.closest('[data-inst-create-learning-group]')) {
+				void createInstitutionLearningGroup(container);
+				return;
+			}
+			if (target?.closest('[data-inst-add-members]')) {
+				void addInstitutionMembers(container);
+				return;
+			}
+			if (target?.closest('[data-inst-create-assignment]')) {
+				void createInstitutionAssignment(container);
+				return;
+			}
+			const submissionsButton = target?.closest('[data-inst-assignment-submissions]') as HTMLButtonElement | null;
+			if (submissionsButton) {
+				void openInstitutionAssignmentSubmissions(container, submissionsButton.dataset.instAssignmentSubmissions || '');
+				return;
+			}
 			const dashboardBack = target?.closest('[data-dashboard-back]') as HTMLButtonElement | null;
 			if (dashboardBack) {
 				if (activeDashboardSubpage === 'favorites' && activeFavoriteFolderId) {
@@ -10967,6 +12861,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const accountAction = target?.closest('[data-account-action]') as HTMLButtonElement | null;
 			if (accountAction) {
 				const action = (accountAction.dataset.accountAction || '') as typeof activeAccountEditor;
+				if (action === 'password' && getContext().authenticationMethod !== 'phone_code') {
+					showToast('为了保护账号，请退出后使用手机验证码登录，再修改密码');
+					return;
+				}
 				activeAccountEditor = activeAccountEditor === action ? '' : action;
 				if (activeAccountEditor === 'phone') {
 					activeContactVerificationEditor = 'phone';
@@ -11003,7 +12901,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				renderSectionContent();
 				return;
 			}
-			const serviceItem = target?.closest('button.service-item') as HTMLButtonElement | null;
+			const serviceItem = target?.closest('button[data-intent]') as HTMLButtonElement | null;
 			if (serviceItem) {
 				handleFeatureIntent(serviceItem.dataset.intent || '');
 			}
@@ -11021,10 +12919,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				return;
 			}
 			if (form.hasAttribute('data-account-password-form')) {
-				const currentPassword = (form.querySelector('[data-account-current-password]') as HTMLInputElement | null)?.value || '';
 				const newPassword = (form.querySelector('[data-account-new-password]') as HTMLInputElement | null)?.value || '';
 				const confirmPassword = (form.querySelector('[data-account-confirm-password]') as HTMLInputElement | null)?.value || '';
-				void changeCurrentPassword(currentPassword, newPassword, confirmPassword, form);
+				void changeCurrentPassword(newPassword, confirmPassword, form);
 				return;
 			}
 			if (form.hasAttribute('data-account-wechat-form')) {
@@ -11056,6 +12953,33 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		container.oninput = (event: Event) => {
 			const target = event.target as HTMLInputElement | HTMLTextAreaElement | null;
 			if (!target) {
+				return;
+			}
+			const pricingOfferCard = target.closest<HTMLElement>('[data-price-offer-card]');
+			if (pricingOfferCard) {
+				if (target.hasAttribute('data-offer-discount')) {
+					const summary = pricingOfferCard.querySelector<HTMLElement>('.pc-pricing-offer-discount');
+					if (summary) summary.textContent = `减免 ${target.value || '0'}%`;
+				}
+				if (target.hasAttribute('data-offer-start') || target.hasAttribute('data-offer-end')) {
+					const start = (pricingOfferCard.querySelector('[data-offer-start]') as HTMLInputElement | null)?.value.slice(0, 10) || '';
+					const end = (pricingOfferCard.querySelector('[data-offer-end]') as HTMLInputElement | null)?.value.slice(0, 10) || '';
+					const windowSummary = pricingOfferCard.querySelector<HTMLElement>('.pc-pricing-offer-window');
+					if (windowSummary) windowSummary.textContent = start && end ? `${start} 至 ${end}` : start ? `${start} 起生效` : end ? `${end} 前有效` : '长期有效';
+				}
+			}
+			if (target.hasAttribute('data-role-permissions')) {
+				const form = target.closest('form[data-platform-role-template-form]') as HTMLFormElement | null;
+				if (form) {
+					const permissions = Array.from(new Set(target.value.split(/\r?\n/).map((value) => value.trim()).filter(Boolean)));
+					updatePlatformRolePermissionSummary(form, permissions);
+					markPlatformRoleFormDirty(form);
+				}
+				return;
+			}
+			if (target.hasAttribute('data-platform-flag-query')) {
+				platformSystemFlagQuery = target.value;
+				applyPlatformSystemFlagFilters(container);
 				return;
 			}
 			const paymentForm = target.closest('form[data-organization-payment-order-form]') as HTMLFormElement | null;
@@ -11104,6 +13028,17 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		};
 		container.onchange = (event: Event) => {
 			const target = event.target as HTMLElement | null;
+			const offerEnabled = target?.closest('[data-offer-enabled]') as HTMLInputElement | null;
+			if (offerEnabled) {
+				const status = offerEnabled.closest<HTMLElement>('[data-price-offer-card]')?.querySelector<HTMLElement>('[data-offer-status]');
+				if (status) status.textContent = offerEnabled.checked ? '已启用' : '未启用';
+			}
+			const platformFlagFilter = target?.closest('[data-platform-flag-filter]') as HTMLSelectElement | null;
+			if (platformFlagFilter) {
+				platformSystemFlagFilter = platformFlagFilter.value || 'all';
+				applyPlatformSystemFlagFilters(container);
+				return;
+			}
 			const workflowSelection = target?.closest('[data-content-workflow-select]') as HTMLInputElement | null;
 			if (workflowSelection) {
 				const examId = workflowSelection.dataset.contentWorkflowSelect || '';
@@ -11346,7 +13281,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}).join('');
 		return `<div class="pc-card pc-info-card" style="margin-top:12px;">
 			<div class="pc-service-header">机构套餐价格</div>
-			<div class="pc-admin-note">价格来自统一支付商品目录。教师和管理员不占席位；${catalog.customQuoteMinSeats} 席及以上进入企业定制报价。</div>
+			<div class="pc-admin-note">价格来自统一支付商品目录。所有正式机构成员统一占席，同一账号只计算一次；${catalog.customQuoteMinSeats} 席及以上进入企业定制报价。</div>
 			<div class="pc-pricing-plan-grid">${cards}</div>
 		</div>`;
 	}
@@ -12160,12 +14095,13 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function attachAdminHubHandlers(container: HTMLElement): void {
-		container.querySelectorAll<HTMLFormElement>('form[data-org-subscription-form], form[data-org-course-package-form]').forEach((form) => { form.noValidate = true; });
+		container.querySelectorAll<HTMLFormElement>('form[data-org-subscription-form], form[data-org-course-package-form], form[data-org-course-package-assignment-form]').forEach((form) => { form.noValidate = true; });
 		bindOrganizationMemberForms(container);
 		if (managedOrganizationToggleHandler) container.removeEventListener('toggle', managedOrganizationToggleHandler, true);
 		managedOrganizationToggleHandler = (event: Event) => {
 			const details = event.target as HTMLDetailsElement | null;
 			if (!details?.matches('details[data-managed-org-id][data-managed-org-mode]')) return;
+			details.classList.toggle('is-expanded', details.open);
 			const organizationId = details.dataset.managedOrgId || '';
 			const mode = details.dataset.managedOrgMode || '';
 			if (!organizationId || !mode) return;
@@ -12175,6 +14111,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		container.addEventListener('toggle', managedOrganizationToggleHandler, true);
 		container.onclick = (event: MouseEvent) => {
 			const target = eventTargetElement(event.target);
+			const shortcut = target?.closest('button[data-intent]') as HTMLButtonElement | null;
+			if (shortcut) {
+				handleFeatureIntent(shortcut.dataset.intent || '');
+				return;
+			}
 			const organizationSummary = target?.closest('summary.pc-managed-org-summary') as HTMLElement | null;
 			if (organizationSummary) {
 				event.preventDefault();
@@ -12183,7 +14124,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				const mode = details?.dataset.managedOrgMode || '';
 				if (organizationId && mode) {
 					const open = !details?.open;
-					if (details) details.open = open;
+					if (details) {
+						details.open = open;
+						details.classList.toggle('is-expanded', open);
+					}
 					managedOrganizationOpenState[`${mode}:${organizationId}`] = open;
 					if (open) void loadManagedOrganizationDetails(organizationId);
 					else renderSectionContent({ preserveScroll: true });
@@ -12192,8 +14136,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			}
 			const organizationPageButton = target?.closest('[data-managed-org-page]') as HTMLButtonElement | null;
 			if (organizationPageButton) {
-				managedOrganizationListPage.page = Math.max(1, managedOrganizationListPage.page + (organizationPageButton.dataset.managedOrgPage === 'next' ? 1 : -1));
-				void reloadManagedOrganizationList();
+				applyManagedOrganizationListPage(String(managedOrganizationListPage.page + (organizationPageButton.dataset.managedOrgPage === 'next' ? 1 : -1)));
 				return;
 			}
 			const workbenchRoot = target?.closest('#pc-institution-workbench') as HTMLElement | null;
@@ -12294,10 +14237,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			}
 			const pickButton = target?.closest('[data-org-pick-user]') as HTMLButtonElement | null;
 			if (pickButton) {
-				const organizationId = pickButton.dataset.orgId || '';
-				const draft = getOrganizationMemberDraft(organizationId);
-				draft.selectedUserId = pickButton.dataset.userId || '';
-				renderSectionContent();
+				selectOrganizationCandidate(pickButton);
 				return;
 			}
 			const memberRoleButton = target?.closest('[data-org-member-role]') as HTMLButtonElement | null;
@@ -12357,6 +14297,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				managedOrganizationListPage.query = (form.querySelector('[data-managed-org-query]') as HTMLInputElement | null)?.value.trim() || '';
 				managedOrganizationListPage.page = 1;
 				void reloadManagedOrganizationList();
+				return;
+			}
+			if (form.matches('form[data-managed-org-page-jump-form]')) {
+				applyManagedOrganizationListPage((form.querySelector('[data-managed-org-page-input]') as HTMLInputElement | null)?.value || '', true);
 				return;
 			}
 			if (form.matches('form[data-org-add-form]')) {
@@ -12449,7 +14393,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				void saveOrganizationCampus(organization, form);
 				return;
 			}
-			if (form.matches('form[data-org-course-package-form]')) {
+			if (form.matches('form[data-org-course-package-form], form[data-org-course-package-assignment-form]')) {
 				const organization = managedOrganizations.find((item) => item.id === (form.dataset.orgId || ''));
 				if (!organization) {
 					showToast('组织信息已失效，请刷新后重试');
@@ -12510,8 +14454,34 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			}
 		};
 
+		container.onchange = (event: Event) => {
+			const target = event.target as HTMLElement | null;
+			handleManagedOrganizationPaginationChange(target);
+		};
+
+		let managedOrganizationPageWheelTimer: number | null = null;
+		container.onwheel = (event: WheelEvent) => {
+			const target = eventTargetElement(event.target);
+			const pageInput = target?.closest('[data-managed-org-page-input]') as HTMLInputElement | null;
+			if (!pageInput || document.activeElement !== pageInput || event.deltaY === 0) return;
+			event.preventDefault();
+			stepAdminListPageInput(pageInput, event.deltaY < 0 ? 1 : -1);
+			if (managedOrganizationPageWheelTimer !== null) window.clearTimeout(managedOrganizationPageWheelTimer);
+			managedOrganizationPageWheelTimer = window.setTimeout(() => {
+				managedOrganizationPageWheelTimer = null;
+				applyManagedOrganizationListPage(pageInput.value, true);
+			}, 180);
+		};
+
 		container.onkeydown = (event: KeyboardEvent) => {
 			const target = event.target as HTMLElement | null;
+			const pageInput = target?.closest('[data-managed-org-page-input]') as HTMLInputElement | null;
+			if (pageInput && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+				event.preventDefault();
+				stepAdminListPageInput(pageInput, event.key === 'ArrowUp' ? 1 : -1);
+				applyManagedOrganizationListPage(pageInput.value, true);
+				return;
+			}
 			if (event.key !== 'Enter' || !target?.hasAttribute('data-org-search-query')) {
 				return;
 			}
@@ -12573,10 +14543,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				control.value = saved.value;
 				if ('checked' in control && typeof saved.checked === 'boolean') control.checked = saved.checked;
 			});
+			if (form.matches('form[data-org-member-form]')) syncOrganizationMemberPermissionUi(form);
 		}
 	}
 
 	function renderSectionContent(options: { preserveScroll?: boolean; focusSelector?: string } = {}): void {
+		if (document.querySelector('#platform-admin-shell.pc-platform-admin-open')) {
+			renderPlatformAdminShell({ preserveScroll: options.preserveScroll, focusSelector: options.focusSelector });
+			return;
+		}
 		const container = document.getElementById('pc-content');
 		if (!container) {
 			return;
@@ -12589,39 +14564,28 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		container.onclick = null;
 		container.onsubmit = null;
 		container.oninput = null;
+		container.onchange = null;
 		container.onkeydown = null;
+		container.onwheel = null;
 		switch (activeSection) {
-			case 'dashboard':
-				void ensurePendingInvitations(ctx);
+		case 'dashboard':
+				if (!activeDashboardSubpage) {
+					container.innerHTML = '';
+					break;
+				}
 				if (activeDashboardSubpage === 'recent') {
 					void ensureRecentLearning(ctx);
 				}
 				if (activeDashboardSubpage === 'favorites') {
 					void ensureFavoriteBookmarks(ctx);
 				}
-				container.innerHTML = renderDashboard(ctx);
+				container.innerHTML = renderDashboardSubpageContent(ctx);
 				attachDashboardHandlers(container);
 				hydrateInstitutionRoleDetail(container);
-				// 业务功能 4：异步刷新"上次未完成"横幅
-				void refreshResumeBanner(ctx);
-				// 业务功能 6：异步刷新"我的作业"横幅
-				void refreshAssignmentsBanner(ctx);
-				// 业务功能 16：异步刷新"每日一练"横幅
-				void refreshDailyPracticeBanner(ctx);
-				// 业务功能 18：异步刷新"备考倒计时"横幅
-				void refreshStudyGoalBanner(ctx);
 				break;
 			case 'profile':
 				container.innerHTML = renderProfileCard(ctx);
 				attachProfileHandlers(container);
-				break;
-			case 'admin-hub':
-				container.innerHTML = renderAdminHub(ctx);
-				if (canManageMembers(ctx)) {
-					void ensureManagedOrganizations(ctx);
-				}
-				attachAdminHubHandlers(container);
-				void refreshInstitutionWorkbench(ctx);
 				break;
 		}
 		restoreDirtyForms(container, dirtyForms);
@@ -13190,12 +15154,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		modal.className = 'risk-modal risk-hidden';
 		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
 		modal.innerHTML = `
-			<div style="background:#fff;border-radius:8px;padding:20px;min-width:620px;max-width:900px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
-				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-					<h3 id="rw-title" style="margin:0;font-size:16px;">今日复习工作台</h3>
-					<button type="button" id="rw-close" aria-label="关闭复习工作台" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+			<div class="pc-review-panel">
+				<div class="pc-review-modal-head">
+					<div><h3 id="rw-title">今日复习</h3><p>按优先级完成今天最需要巩固的内容</p></div>
+					<button type="button" id="rw-close" aria-label="关闭复习计划">×</button>
 				</div>
-				<div id="rw-body" style="min-height:240px;"></div>
+				<div id="rw-body" class="pc-review-body"></div>
 			</div>`;
 		document.body.appendChild(modal);
 		reviewWorkbenchModal = modal;
@@ -13213,71 +15177,39 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		daily: Array<Record<string, unknown>>;
 		completedDaily: string[];
 	}): string {
-		const srsHtml = data.srs.length === 0
-			? '<div style="padding:10px;color:#999;">今天没有到期 SRS 卡片。</div>'
-			: data.srs.slice(0, 5).map((card) => {
-				const snap = (card.snapshot || {}) as Record<string, unknown>;
-				const qid = String(card.question_id || '');
-				const examId = String(card.exam_id || '');
-				const stem = String(snap.question || snap.stem || '');
-				return `<div style="padding:8px;border-top:1px solid #eee;">
-					<div style="font-size:12px;color:#888;">试卷 <code>${escapeHtmlSafe(examId)}</code> · 题 <code>${escapeHtmlSafe(qid)}</code></div>
-					<div style="margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlSafe(stem) || '<span style="color:#999;">（无题干快照）</span>'}</div>
-				</div>`;
-			}).join('');
-		const wrongHtml = data.wrong.length === 0
-			? '<div style="padding:10px;color:#999;">错题本里没有待复习题。</div>'
-			: data.wrong.slice(0, 5).map((item) => {
-				const qid = String(item.question_id || '');
-				const examId = String(item.exam_id || '');
-				const snap = (item.question_snapshot || {}) as Record<string, unknown>;
-				const stem = String(snap.question || snap.stem || '');
-				return `<div style="display:flex;justify-content:space-between;gap:12px;padding:8px;border-top:1px solid #eee;">
-					<div style="min-width:0;flex:1;">
-						<div style="font-size:12px;color:#888;">试卷 <code>${escapeHtmlSafe(examId)}</code> · 题 <code>${escapeHtmlSafe(qid)}</code> · 错 ${escapeHtmlSafe(String(item.wrong_count || 0))} 次</div>
-						<div style="margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlSafe(stem) || '<span style="color:#999;">（无题干快照）</span>'}</div>
-					</div>
-					<button class="risk-btn" data-rw-action="open-question" data-exam-id="${escapeHtmlSafe(examId)}" data-question-id="${escapeHtmlSafe(qid)}">去复习</button>
-				</div>`;
-			}).join('');
 		const dailyDone = new Set(data.completedDaily);
-		const dailyHtml = data.daily.length === 0
-			? '<div style="padding:10px;color:#999;">每日一练暂无题目。</div>'
-			: data.daily.slice(0, 6).map((item, idx) => {
-				const qid = String(item.question_id || '');
-				const examId = String(item.exam_id || '');
-				const source = String(item.source || '');
-				const done = dailyDone.has(qid);
-				const label = source === 'wrong_question' ? '错题' : source === 'srs_due' ? 'SRS' : source || '练习';
-				return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-top:1px solid #eee;">
-					<div>
-						<div style="font-size:13px;">${done ? '已完成' : '待完成'} · 第 ${idx + 1} 题</div>
-						<div style="font-size:12px;color:#888;">${escapeHtmlSafe(label)} · <code>${escapeHtmlSafe(examId)}</code> · <code>${escapeHtmlSafe(qid)}</code></div>
-					</div>
-					<button class="risk-btn" data-rw-action="open-question" data-exam-id="${escapeHtmlSafe(examId)}" data-question-id="${escapeHtmlSafe(qid)}">去练习</button>
-				</div>`;
-			}).join('');
-		return `<div style="display:grid;grid-template-columns:1fr;gap:12px;">
-			<section style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;">
-				<div style="display:flex;justify-content:space-between;align-items:center;">
-					<strong>SRS 到期</strong>
-					<button class="risk-btn" data-rw-action="open-srs">开始 SRS</button>
-				</div>
-				${srsHtml}
+		const taskKey = (item: Record<string, unknown>): string => `${String(item.exam_id || '')}:${String(item.question_id || '')}`;
+		const srsKeys = new Set(data.srs.map(taskKey));
+		const uniqueWrong = data.wrong.filter((item) => !srsKeys.has(taskKey(item)));
+		const assignedKeys = new Set([...srsKeys, ...uniqueWrong.map(taskKey)]);
+		const pendingDaily = data.daily.filter((item) => !dailyDone.has(String(item.question_id || '')) && !assignedKeys.has(taskKey(item)));
+		const completedCount = data.daily.filter((item) => dailyDone.has(String(item.question_id || ''))).length;
+		const pendingCount = data.srs.length + uniqueWrong.length + pendingDaily.length;
+		const totalCount = pendingCount + completedCount;
+		const progress = totalCount ? Math.round((completedCount / totalCount) * 100) : 100;
+		const minutes = Math.max(1, Math.ceil(pendingCount * 1.3));
+		const firstQuestion = uniqueWrong[0] || pendingDaily[0];
+		const firstExamId = String(firstQuestion?.exam_id || '');
+		const firstQuestionId = String(firstQuestion?.question_id || '');
+		const startAction = data.srs.length ? 'open-srs' : firstQuestion ? 'open-question' : '';
+		const examLabel = (examId: string): string => {
+			const match = examId.match(/(N[1-5])[_-](\d{4})[_-](\d{2})/i);
+			return match ? `JLPT ${match[1].toUpperCase()} · ${match[2]}年${Number(match[3])}月` : '日语综合练习';
+		};
+		const dailyGroups = Array.from(new Set(data.daily.map((item) => examLabel(String(item.exam_id || ''))))).slice(0, 2);
+		const statusRow = (label: string, count: number, emptyText: string): string => `<div class="pc-review-status-row"><span><strong>${escapeHtml(label)}</strong><small>${count ? `${count} 题待完成` : emptyText}</small></span><em class="${count ? '' : 'is-done'}">${count ? `${count} 题` : '✓'}</em></div>`;
+		const allDone = pendingCount === 0;
+		return `<div class="pc-review-plan">
+			<section class="pc-review-summary${allDone ? ' is-complete' : ''}">
+				<div class="pc-review-summary-main"><span>${allDone ? '今日复习已完成' : `${pendingCount} 题待完成`}</span><small>${allDone ? '保持节奏，明天继续' : `预计 ${minutes} 分钟`}</small></div>
+				<div class="pc-review-progress"><i style="width:${progress}%"></i></div>
+				<div class="pc-review-progress-label"><span>已完成 ${completedCount} / ${totalCount}</span><em>${progress}%</em></div>
+				<button class="pc-review-primary" type="button" data-rw-action="${startAction}"${startAction ? ` data-exam-id="${escapeHtmlSafe(firstExamId)}" data-question-id="${escapeHtmlSafe(firstQuestionId)}"` : ' disabled'}>${allDone ? '今日已完成' : completedCount ? '继续今日复习' : '开始今日复习'}</button>
 			</section>
-			<section style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;">
-				<div style="display:flex;justify-content:space-between;align-items:center;">
-					<strong>错题复习</strong>
-					<button class="risk-btn" data-rw-action="open-wrong">打开错题本</button>
-				</div>
-				${wrongHtml}
-			</section>
-			<section style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;">
-				<div style="display:flex;justify-content:space-between;align-items:center;">
-					<strong>每日一练</strong>
-					<button class="risk-btn" data-rw-action="open-daily">打开完整清单</button>
-				</div>
-				${dailyHtml}
+			<section class="pc-review-tasks">
+				${statusRow('到期知识点', data.srs.length, '今日无任务')}
+				${statusRow('近期错题', uniqueWrong.length, '今日无任务')}
+				<div class="pc-review-daily-row"><span><strong>每日推荐</strong><small>${dailyGroups.join(' / ') || '暂无推荐题目'}</small></span><div><em>${completedCount} / ${data.daily.length}</em>${data.daily.length ? '<button type="button" data-rw-action="open-daily">查看计划</button>' : ''}</div></div>
 			</section>
 		</div>`;
 	}
@@ -13312,16 +15244,22 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			body.innerHTML = renderReviewWorkbench({ srs, wrong, daily, completedDaily });
 			body.onclick = async (e: MouseEvent) => {
 				const btn = (e.target as HTMLElement | null)?.closest('button[data-rw-action]') as HTMLButtonElement | null;
-				if (!btn) return;
+				if (!btn || btn.disabled) return;
 				const action = btn.dataset.rwAction || '';
-				if (action === 'open-srs') {
-					await openSrsReviewPanel();
-				} else if (action === 'open-wrong') {
-					await openWrongQuestionsPanel();
-				} else if (action === 'open-daily') {
-					await openDailyPracticePanel();
-				} else if (action === 'open-question') {
-					await openExamQuestion(btn.dataset.examId || '', btn.dataset.questionId || '');
+				const finishAction = beginOrganizationAction(btn, '正在打开…');
+				if (!finishAction) return;
+				try {
+					if (action === 'open-srs') {
+						await openSrsReviewPanel();
+					} else if (action === 'open-wrong') {
+						await openWrongQuestionsPanel();
+					} else if (action === 'open-daily') {
+						await openDailyPracticePanel();
+					} else if (action === 'open-question') {
+						await openExamQuestion(btn.dataset.examId || '', btn.dataset.questionId || '', undefined, '已开始今日复习');
+					}
+				} finally {
+					finishAction();
 				}
 			};
 		} catch (err) {
@@ -13853,10 +15791,92 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		lastItems: Array<Record<string, unknown>>;
 		actions: string[];
 		actionLabels: Record<string, string>;
-	} = { offset: 0, limit: 50, lastTotal: 0, lastItems: [], actions: [], actionLabels: {} };
+		organizationLabels: Record<string, string>;
+	} = { offset: 0, limit: 50, lastTotal: 0, lastItems: [], actions: [], actionLabels: {}, organizationLabels: {} };
 
 	function auditActionLabel(action: string, fallback?: unknown): string {
 		return String(fallback || auditLogState.actionLabels[action] || action || '未知操作');
+	}
+
+	function auditLogSurface(): HTMLElement | null {
+		return document.querySelector<HTMLElement>('[data-audit-log-surface="embedded"]') || auditLogModal;
+	}
+
+	function auditLogFiltersMarkup(): string {
+		const isSuper = hasAnyRole(getContext(), ['superAdmin']);
+		const orgInput = isSuper
+			? '<label>机构 <select id="al-org"><option value="">全部机构</option><option value="" disabled>正在加载机构…</option></select></label>'
+			: '';
+		return `<div class="pc-audit-filters">
+			${orgInput}
+			<label>操作 <select id="al-action"><option value="">全部</option></select></label>
+			<label>操作者 <input id="al-actor" type="text" placeholder="user_id" /></label>
+			<label>起始 <input id="al-since" type="datetime-local" /></label>
+			<label>截止 <input id="al-until" type="datetime-local" /></label>
+			<label class="pc-audit-limit">每页 <input id="al-limit" type="number" min="1" max="500" value="50" /></label>
+			<div class="pc-audit-filter-actions"><button class="pc-audit-primary" id="al-search" type="button">查询</button>
+			<button class="pc-audit-secondary" id="al-reset" type="button">重置</button></div>
+		</div>`;
+	}
+
+	function auditLogResultsMarkup(): string {
+		return `<div id="al-summary" class="pc-audit-summary"></div>
+			<div id="al-body" class="pc-audit-body"><div style="padding:24px;text-align:center;color:#999;">正在加载审计日志…</div></div>
+			<div class="pc-audit-pagination">
+				<button class="pc-audit-secondary" id="al-prev" type="button">← 上一页</button>
+				<span id="al-page"></span>
+				<button class="pc-audit-secondary" id="al-next" type="button">下一页 →</button>
+			</div>`;
+	}
+
+	function renderEmbeddedAuditLogPage(): string {
+		auditLogModal?.remove();
+		auditLogModal = null;
+		const isSuper = hasAnyRole(getContext(), ['superAdmin']);
+		const description = isSuper
+			? '内容修改、授权、退款和系统变更均记录在这里。'
+			: '仅展示当前账号所属机构的操作记录。';
+		return `<section class="pc-audit-page" data-audit-log-surface="embedded">
+			<div class="pc-audit-page-head">
+				<p>${escapeHtml(description)}</p>
+				<button class="pc-audit-secondary pc-audit-export" id="al-export" type="button">导出 CSV</button>
+			</div>
+			${auditLogFiltersMarkup()}
+			${auditLogResultsMarkup()}
+		</section>`;
+	}
+
+	async function reloadAuditOrganizations(surface: HTMLElement): Promise<void> {
+		const select = surface.querySelector<HTMLSelectElement>('#al-org');
+		if (!select) return;
+		const api = window.APIClient;
+		const token = activeToken(getContext());
+		if (!api || typeof api.getOrganizations !== 'function' || !token) {
+			select.innerHTML = '<option value="">全部机构</option>';
+			return;
+		}
+		const currentValue = select.value;
+		try {
+			const payload = asRecord(await api.getOrganizations(token, { summary: 1, page: 1, page_size: 200 })) || {};
+			const organizations = (Array.isArray(payload.items) ? payload.items : [])
+				.map((item) => asRecord(item))
+				.filter((item): item is Record<string, unknown> => Boolean(item))
+				.map((item) => ({
+					id: readString(item.organization_id) || readString(item.id) || '',
+					name: readString(item.name) || readString(item.organization_name) || ''
+				}))
+				.filter((item) => Boolean(item.id));
+			auditLogState.organizationLabels = Object.fromEntries(organizations.map((item) => [item.id, item.name || item.id]));
+			select.innerHTML = '<option value="">全部机构</option>' + organizations
+				.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name || '未命名机构')} · ${escapeHtml(item.id)}</option>`)
+				.join('');
+			if (currentValue && organizations.some((item) => item.id === currentValue)) select.value = currentValue;
+			const body = surface.querySelector<HTMLDivElement>('#al-body');
+			if (body && auditLogState.lastItems.length) body.innerHTML = renderAuditTable(auditLogState.lastItems);
+		} catch (error) {
+			log('load audit organizations failed', error);
+			select.innerHTML = '<option value="">全部机构（列表加载失败）</option>';
+		}
 	}
 
 	function ensureAuditDetailModal(): HTMLDivElement {
@@ -13864,7 +15884,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const modal = document.createElement('div');
 		modal.id = 'audit-detail-modal';
 		modal.className = 'risk-modal risk-hidden';
-		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.48);display:flex;align-items:center;justify-content:center;z-index:10000;';
+		modal.style.cssText = 'position:fixed;inset:0;background:rgba(31,25,20,0.38);display:flex;align-items:center;justify-content:center;z-index:10040;';
 		modal.innerHTML = `
 			<div style="background:#fff;border-radius:8px;padding:20px;width:min(720px,calc(100vw - 40px));max-height:84vh;overflow:auto;box-shadow:0 8px 28px rgba(0,0,0,0.24);">
 				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -13960,46 +15980,55 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		modal.addEventListener('click', (e) => {
 			if (e.target === modal) hideLegacyModal(modal);
 		});
-		(modal.querySelector('#al-search') as HTMLButtonElement).onclick = () => {
-			auditLogState.offset = 0;
-			void reloadAuditLogs();
-		};
-		(modal.querySelector('#al-reset') as HTMLButtonElement).onclick = () => {
-			const orgEl = modal.querySelector('#al-org') as HTMLInputElement | null;
-			if (orgEl) orgEl.value = '';
-			(modal.querySelector('#al-action') as HTMLSelectElement).value = '';
-			(modal.querySelector('#al-actor') as HTMLInputElement).value = '';
-			(modal.querySelector('#al-since') as HTMLInputElement).value = '';
-			(modal.querySelector('#al-until') as HTMLInputElement).value = '';
-			(modal.querySelector('#al-limit') as HTMLInputElement).value = '50';
-			auditLogState.offset = 0;
-			void reloadAuditLogs();
-		};
-		(modal.querySelector('#al-prev') as HTMLButtonElement).onclick = () => {
-			const lim = readAuditLimit();
-			auditLogState.offset = Math.max(0, auditLogState.offset - lim);
-			void reloadAuditLogs();
-		};
-		(modal.querySelector('#al-next') as HTMLButtonElement).onclick = () => {
-			const lim = readAuditLimit();
-			if (auditLogState.offset + lim < auditLogState.lastTotal) {
-				auditLogState.offset += lim;
-				void reloadAuditLogs();
-			}
-		};
-		(modal.querySelector('#al-export') as HTMLButtonElement).onclick = () => {
-			exportAuditLogsCsv();
-		};
+		bindAuditLogControls(modal);
 		return modal;
 	}
 
-	function readAuditLimit(): number {
-		const el = auditLogModal?.querySelector('#al-limit') as HTMLInputElement | null;
+	function bindAuditLogControls(surface: HTMLElement): void {
+		if (surface.dataset.auditControlsBound === '1') return;
+		surface.dataset.auditControlsBound = '1';
+		const searchButton = surface.querySelector<HTMLButtonElement>('#al-search');
+		if (!searchButton) return;
+		searchButton.onclick = () => {
+			auditLogState.offset = 0;
+			void reloadAuditLogs(surface);
+		};
+		(surface.querySelector('#al-reset') as HTMLButtonElement).onclick = () => {
+			const orgEl = surface.querySelector('#al-org') as HTMLInputElement | null;
+			if (orgEl) orgEl.value = '';
+			(surface.querySelector('#al-action') as HTMLSelectElement).value = '';
+			(surface.querySelector('#al-actor') as HTMLInputElement).value = '';
+			(surface.querySelector('#al-since') as HTMLInputElement).value = '';
+			(surface.querySelector('#al-until') as HTMLInputElement).value = '';
+			(surface.querySelector('#al-limit') as HTMLInputElement).value = '50';
+			auditLogState.offset = 0;
+			void reloadAuditActions(surface);
+			void reloadAuditLogs(surface);
+		};
+		(surface.querySelector('#al-prev') as HTMLButtonElement).onclick = () => {
+			const lim = readAuditLimit(surface);
+			auditLogState.offset = Math.max(0, auditLogState.offset - lim);
+			void reloadAuditLogs(surface);
+		};
+		(surface.querySelector('#al-next') as HTMLButtonElement).onclick = () => {
+			const lim = readAuditLimit(surface);
+			if (auditLogState.offset + lim < auditLogState.lastTotal) {
+				auditLogState.offset += lim;
+				void reloadAuditLogs(surface);
+			}
+		};
+		(surface.querySelector('#al-export') as HTMLButtonElement).onclick = () => {
+			exportAuditLogsCsv();
+		};
+	}
+
+	function readAuditLimit(surface: HTMLElement | null = auditLogSurface()): number {
+		const el = surface?.querySelector('#al-limit') as HTMLInputElement | null;
 		const v = parseInt(el?.value || '50', 10);
 		return Math.min(500, Math.max(1, isNaN(v) ? 50 : v));
 	}
 
-	function readAuditFilters(): {
+	function readAuditFilters(surface: HTMLElement): {
 		orgId?: string;
 		actorId?: string;
 		action?: string;
@@ -14008,13 +16037,13 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		limit: number;
 		offset: number;
 	} {
-		const m = auditLogModal!;
+		const m = surface;
 		const orgEl = m.querySelector('#al-org') as HTMLInputElement | null;
 		const action = (m.querySelector('#al-action') as HTMLSelectElement).value.trim();
 		const actor = (m.querySelector('#al-actor') as HTMLInputElement).value.trim();
 		const since = (m.querySelector('#al-since') as HTMLInputElement).value.trim();
 		const until = (m.querySelector('#al-until') as HTMLInputElement).value.trim();
-		const lim = readAuditLimit();
+		const lim = readAuditLimit(surface);
 		auditLogState.limit = lim;
 		// datetime-local 形如 2024-05-01T08:30，转 ISO（保留秒）
 		const toIso = (v: string): string | undefined => (v ? new Date(v).toISOString() : undefined);
@@ -14037,40 +16066,43 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			.map((it, index) => {
 				const t = escapeHtmlSafe(String(it.created_at || ''));
 				const actor = escapeHtmlSafe(String(it.actor_username || it.actor_user_id || ''));
-				const org = escapeHtmlSafe(String(it.org_id || (it.scope === 'platform' ? '平台' : '')));
+				const orgId = String(it.org_id || '');
+				const orgName = auditLogState.organizationLabels[orgId] || '';
+				const org = escapeHtmlSafe(orgName ? `${orgName} · ${orgId}` : orgId || (it.scope === 'platform' ? '平台' : ''));
 				const actionCode = String(it.action || '');
 				const action = escapeHtmlSafe(auditActionLabel(actionCode, it.action_label));
 				const escapedActionCode = escapeHtmlSafe(actionCode);
 				const summary = escapeHtmlSafe(String(it.summary || ''));
-				const detailsCell = `<button type="button" data-audit-detail="${index}" style="padding:3px 9px;border:1px solid #b9cef0;background:#f4f8ff;color:#165da8;border-radius:4px;cursor:pointer;">查看详情</button>`;
+				const detailsCell = `<button class="pc-audit-detail-button" type="button" data-audit-detail="${index}">查看详情</button>`;
 				return `<tr>
-					<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px;white-space:nowrap;">${t}</td>
-					<td style="padding:6px 8px;border-bottom:1px solid #eee;">${actor}</td>
-					<td style="padding:6px 8px;border-bottom:1px solid #eee;color:#888;font-size:11px;">${org}</td>
-					<td style="padding:6px 8px;border-bottom:1px solid #eee;"><span title="${escapedActionCode}" style="background:#f0f4ff;padding:2px 6px;border-radius:3px;font-size:12px;">${action}</span></td>
-					<td style="padding:6px 8px;border-bottom:1px solid #eee;">${summary}</td>
-					<td style="padding:6px 8px;border-bottom:1px solid #eee;max-width:240px;">${detailsCell}</td>
+					<td class="pc-audit-cell-time">${t}</td>
+					<td class="pc-audit-cell-actor">${actor}</td>
+					<td class="pc-audit-cell-org">${org}</td>
+					<td class="pc-audit-cell-action"><span title="${escapedActionCode}">${action}</span></td>
+					<td class="pc-audit-cell-summary">${summary}</td>
+					<td class="pc-audit-cell-detail">${detailsCell}</td>
 				</tr>`;
 			})
 			.join('');
-		return `<div class="pc-responsive-table-region" role="region" aria-label="审计日志" tabindex="0"><table class="pc-responsive-table" style="border-collapse:collapse;width:100%;font-size:13px;">
-			<thead><tr style="background:#fafafa;">
-				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">时间</th>
-				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">操作者</th>
-				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">组织</th>
-				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">操作</th>
-				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">摘要</th>
-				<th style="padding:6px 8px;text-align:left;border-bottom:2px solid #ddd;">详情</th>
+		return `<div class="pc-responsive-table-region" role="region" aria-label="审计日志" tabindex="0"><table class="pc-responsive-table pc-audit-table">
+			<colgroup><col class="pc-audit-col-time"><col class="pc-audit-col-actor"><col class="pc-audit-col-org"><col class="pc-audit-col-action"><col class="pc-audit-col-summary"><col class="pc-audit-col-detail"></colgroup>
+			<thead><tr>
+				<th>时间</th>
+				<th>操作者</th>
+				<th>组织</th>
+				<th>操作</th>
+				<th>摘要</th>
+				<th>详情</th>
 			</tr></thead>
 			<tbody>${rows}</tbody>
 		</table></div>`;
 	}
 
-	async function reloadAuditLogs(): Promise<void> {
-		const modal = auditLogModal!;
-		const body = modal.querySelector('#al-body') as HTMLDivElement;
-		const summary = modal.querySelector('#al-summary') as HTMLDivElement;
-		const pageLabel = modal.querySelector('#al-page') as HTMLSpanElement;
+	async function reloadAuditLogs(surface: HTMLElement | null = auditLogSurface()): Promise<void> {
+		if (!surface) return;
+		const body = surface.querySelector('#al-body') as HTMLDivElement;
+		const summary = surface.querySelector('#al-summary') as HTMLDivElement;
+		const pageLabel = surface.querySelector('#al-page') as HTMLSpanElement;
 		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
 		const api = window.APIClient;
 		if (!api || typeof api.queryAuditLogs !== 'function') {
@@ -14078,7 +16110,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return;
 		}
 		try {
-			const params = readAuditFilters();
+			const params = readAuditFilters(surface);
 			const data = (await api.queryAuditLogs(params)) as Record<string, unknown> | null;
 			const items = Array.isArray(data?.items) ? (data!.items as Array<Record<string, unknown>>) : [];
 			const total = Number(data?.total || 0);
@@ -14089,7 +16121,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			body.onclick = (event: MouseEvent) => {
 				const resetButton = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('button[data-audit-reset-empty]');
 				if (resetButton) {
-					(auditLogModal?.querySelector('#al-reset') as HTMLButtonElement | null)?.click();
+					(surface.querySelector('#al-reset') as HTMLButtonElement | null)?.click();
 					return;
 				}
 				const button = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('button[data-audit-detail]');
@@ -14104,11 +16136,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
-	async function reloadAuditActions(): Promise<void> {
+	async function reloadAuditActions(surface: HTMLElement | null = auditLogSurface()): Promise<void> {
 		const api = window.APIClient;
-		if (!api || typeof api.listAuditLogActions !== 'function' || !auditLogModal) return;
+		if (!api || typeof api.listAuditLogActions !== 'function' || !surface) return;
 		try {
-			const orgEl = auditLogModal.querySelector('#al-org') as HTMLInputElement | null;
+			const orgEl = surface.querySelector('#al-org') as HTMLInputElement | null;
 			const orgId = orgEl?.value.trim() || undefined;
 			const data = (await api.listAuditLogActions(orgId)) as Record<string, unknown> | null;
 			const arr = Array.isArray(data?.actions) ? (data!.actions as unknown[]).map(String) : [];
@@ -14119,7 +16151,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				options.map((option) => [String(option.value || ''), String(option.label || option.value || '')])
 			);
 			auditLogState.actions = arr;
-			const sel = auditLogModal.querySelector('#al-action') as HTMLSelectElement;
+			const sel = surface.querySelector('#al-action') as HTMLSelectElement;
 			const cur = sel.value;
 			sel.innerHTML = '<option value="">全部</option>' +
 				arr.map((a) => `<option value="${escapeHtmlSafe(a)}">${escapeHtmlSafe(auditActionLabel(a))}</option>`).join('');
@@ -14169,8 +16201,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	async function openAuditLogPanel(): Promise<void> {
 		const modal = ensureAuditLogModal();
 		showLegacyModal(modal, '#al-close');
-		await reloadAuditActions();
-		await reloadAuditLogs();
+		await reloadAuditActions(modal);
+		await reloadAuditLogs(modal);
 	}
 
 	// ---------------------------------------------------------------------
@@ -14271,7 +16303,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					try {
 						await api.completeDailyPracticeItem(qid);
 						await reloadDailyPractice();
-						void refreshDailyPracticeBanner(getContext());
 					} catch (err) {
 						showToast(readErrorMessage(err, '标记失败'));
 					}
@@ -14301,7 +16332,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		});
 		try {
 			await api.regenerateDailyPractice();
-			void refreshDailyPracticeBanner(getContext());
 			if (reloadModal && dailyModal) await reloadDailyPractice();
 			showToast('已重新生成');
 		} catch (err) {
@@ -14618,63 +16648,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return Math.round((target.getTime() - t0.getTime()) / 86400000);
 	}
 
-	async function refreshStudyGoalBanner(ctx: PCContext): Promise<void> {
-		const banner = document.getElementById('pc-goal-banner') as HTMLDivElement | null;
-		if (!banner) return;
-		if (ctx.guest || !ctx.id) {
-			banner.hidden = true;
-			banner.innerHTML = '';
-			return;
-		}
-		if (window.isFeatureEnabled && !window.isFeatureEnabled('study_goal')) {
-			banner.hidden = true;
-			banner.innerHTML = '';
-			return;
-		}
-		const api = window.APIClient;
-		if (!api || typeof api.listStudyGoals !== 'function') {
-			banner.hidden = true;
-			return;
-		}
-		try {
-			const data = (await api.listStudyGoals()) as { items?: Array<Record<string, unknown>> } | null;
-			const items = Array.isArray(data?.items) ? data!.items : [];
-			if (items.length === 0) {
-				banner.hidden = false;
-				banner.innerHTML = `
-					<div style="display:flex;justify-content:space-between;align-items:center;">
-						<div>🎯 还没有设定备考目标，设定一个让自己更有动力。</div>
-						<button class="pc-btn" data-pc-action="open-goal">立即设定</button>
-					</div>`;
-				const btn = banner.querySelector('[data-pc-action="open-goal"]') as HTMLButtonElement | null;
-				if (btn) btn.onclick = () => void openStudyGoalPanel();
-				return;
-			}
-			// 选取最近未过期目标，否则取首个
-			const future = items.filter((g) => daysUntil(String(g.target_date || '')) >= 0);
-			const pick = (future.length > 0 ? future : items)[0];
-			const days = daysUntil(String(pick.target_date || ''));
-			const dailyTarget = Number(pick.daily_question_target || 0);
-			banner.hidden = false;
-			banner.innerHTML = `
-				<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-					<div>
-						<div style="font-size:12px;color:#888;">备考倒计时</div>
-						<div style="font-size:20px;font-weight:600;margin-top:2px;">${escapeHtmlSafe(String(pick.title || ''))}</div>
-						<div style="font-size:13px;color:#666;margin-top:2px;">距离 ${escapeHtmlSafe(String(pick.target_date || ''))}：
-							<span style="color:${days < 0 ? '#a33' : '#0a7'};font-weight:600;">${days >= 0 ? days + ' 天' : '已过期 ' + Math.abs(days) + ' 天'}</span>
-							${dailyTarget > 0 ? `· 建议每日 ${dailyTarget} 题` : ''}
-						</div>
-					</div>
-					<button class="pc-btn" data-pc-action="open-goal">管理目标</button>
-				</div>`;
-			const btn = banner.querySelector('[data-pc-action="open-goal"]') as HTMLButtonElement | null;
-			if (btn) btn.onclick = () => void openStudyGoalPanel();
-		} catch {
-			banner.hidden = true;
-		}
-	}
-
 	let studyGoalModal: HTMLDivElement | null = null;
 
 	function ensureStudyGoalModal(): HTMLDivElement {
@@ -14776,7 +16749,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			(modal.querySelector('#sg-form') as HTMLFormElement).reset();
 			showToast('目标已添加');
 			await reloadStudyGoals();
-			void refreshStudyGoalBanner(getContext());
 		} catch (err) {
 			showToast(readErrorMessage(err, '添加失败'));
 		} finally {
@@ -14796,7 +16768,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			await api.deleteStudyGoal(goalId);
 			showToast('已删除');
 			await reloadStudyGoals();
-			void refreshStudyGoalBanner(getContext());
 		} catch (err) {
 			showToast(readErrorMessage(err, '删除失败'));
 		} finally {
@@ -15632,6 +17603,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		resetPersonalCenterIdentityState();
 		personalCenterIdentityKey = 'guest';
 		setContext({ guest: true });
+		closeSuperAdminAccountMenu();
+		closePlatformAdmin();
 		closePanel();
 		void buildTrigger();
 	};

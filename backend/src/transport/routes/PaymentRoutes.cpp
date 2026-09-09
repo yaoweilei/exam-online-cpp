@@ -115,7 +115,8 @@ void registerPaymentRoutes(const AppContext &ctx)
                                          ? req->getParameter("organization_id")
                                          : actorId;
                 if (scopeType == "organization" &&
-                    !ctx.organizationService->canManageOrganization(actorId, session["roles"], scopeId))
+                    !ctx.organizationService->hasOrganizationPermission(
+                        actorId, session["roles"], scopeId, "organization.billing.manage"))
                 {
                     throw common::AppException("FORBIDDEN", "无权查看该机构的自动续费设置", k403Forbidden);
                 }
@@ -138,7 +139,8 @@ void registerPaymentRoutes(const AppContext &ctx)
                                          ? requireBoundedString(body, "organization_id", 1, 120)
                                          : actorId;
                 if (scopeType == "organization" &&
-                    !ctx.organizationService->canManageOrganization(actorId, session["roles"], scopeId))
+                    !ctx.organizationService->hasOrganizationPermission(
+                        actorId, session["roles"], scopeId, "organization.billing.manage"))
                 {
                     throw common::AppException("FORBIDDEN", "无权修改该机构的自动续费设置", k403Forbidden);
                 }

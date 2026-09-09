@@ -48,6 +48,10 @@ export class LoginModal {
 			if ((e.target as HTMLElement).id === 'login-modal') this.close();
 		});
 		this.modal.querySelector('[data-login-close]')?.addEventListener('click', () => {
+			if (this.currentMode === 'password' || this.currentMode === 'wechat') {
+				this.switchMode('phone');
+				return;
+			}
 			this.close();
 		});
 		this.modal.addEventListener('keydown', (event) => {
@@ -77,9 +81,6 @@ export class LoginModal {
 		this.modal.querySelectorAll<HTMLElement>('[data-login-phone-back]').forEach((el) => {
 			el.addEventListener('click', () => this.switchMode('phone'));
 		});
-		this.modal.querySelectorAll<HTMLButtonElement>('[data-password-view]').forEach((button) => {
-			button.addEventListener('click', () => this.switchPasswordView(button.dataset.passwordView || 'login'));
-		});
 		this.modal.querySelectorAll<HTMLButtonElement>('[data-oauth]').forEach((btn) => {
 			btn.addEventListener('click', () => {
 				if (!this.ensureAgreementAccepted()) return;
@@ -96,9 +97,6 @@ export class LoginModal {
 		this.modal.querySelector<HTMLButtonElement>('#login-password-toggle')?.addEventListener('click', () => {
 			this.togglePasswordVisibility();
 		});
-		this.modal.querySelector('#login-btn-register')?.addEventListener('click', () => void this.submitRegistration());
-		this.modal.querySelector('#login-btn-reset-send-code')?.addEventListener('click', () => void this.sendPasswordResetCode());
-		this.modal.querySelector('#login-btn-reset-password')?.addEventListener('click', () => void this.submitPasswordReset());
 
 		// Phone send code
 		this.modal.querySelector('#login-btn-send-code')?.addEventListener('click', () => {
@@ -144,6 +142,10 @@ export class LoginModal {
 		this.modal.classList.toggle('login-mode-phone', mode === 'phone');
 		this.modal.classList.toggle('login-mode-password', mode === 'password');
 		this.modal.classList.toggle('login-mode-wechat', mode === 'wechat');
+		const title = this.modal.querySelector<HTMLElement>('#login-modal-title');
+		if (title) title.textContent = mode === 'password' ? '密码登录' : mode === 'wechat' ? '微信登录' : '验证码登录';
+		const closeButton = this.modal.querySelector<HTMLElement>('[data-login-close]');
+		if (closeButton) closeButton.setAttribute('aria-label', mode === 'phone' ? '关闭登录' : '返回验证码登录');
 
 		if (mode === 'wechat') {
 			void this.startWechatLogin();
@@ -151,6 +153,7 @@ export class LoginModal {
 		this.prefillLastLoginPhone();
 		this.updatePhoneSendButtonState();
 		this.updateLoginScale();
+		requestAnimationFrame(() => this.focusInitialControl());
 	}
 
 	private focusInitialControl(): void {
@@ -266,7 +269,13 @@ export class LoginModal {
 		const ok = await requestAppConfirmation('将打开微信完成授权登录。', '打开微信');
 		if (!ok) return;
 		try {
-			const data = await this.api.request<{ auth_url?: string; qrcode_url?: string }>('/auth/wechat/authorize');
+			const data = await this.api.request<{ auth_url?: string; qrcode_url?: string; stub?: boolean; test_ids?: string[] }>('/auth/wechat/authorize');
+			if (data.stub) {
+				// 本地或局域网开发环境没有真实微信身份。进入明确的测试
+				// 账号选择页，不能再默认冒充 student_demo。
+				this.switchMode('wechat');
+				return;
+			}
 			const authUrl = data.auth_url || data.qrcode_url || '';
 			if (!authUrl) {
 				this.showError('微信授权地址生成失败，请稍后重试');
@@ -395,18 +404,12 @@ export class LoginModal {
 		const input = this.modal.querySelector<HTMLInputElement>('#login-password');
 		const button = this.modal.querySelector<HTMLButtonElement>('#login-password-toggle');
 		if (!input || !button) return;
-		const visible = input.type === 'text';
-		input.type = visible ? 'password' : 'text';
-		button.classList.toggle('is-visible', !visible);
-		button.setAttribute('aria-pressed', String(!visible));
-		button.setAttribute('aria-label', visible ? '显示密码' : '隐藏密码');
-	}
-
-	private switchPasswordView(view: string): void {
-		this.modal.querySelectorAll<HTMLElement>('[data-password-panel]').forEach((panel) => {
-			panel.classList.toggle('is-active', panel.dataset.passwordPanel === view);
-		});
-		this.clearError();
+		const nextVisible = input.type === 'password';
+		input.type = nextVisible ? 'text' : 'password';
+		button.classList.toggle('is-visible', nextVisible);
+		button.setAttribute('aria-pressed', String(nextVisible));
+		button.setAttribute('aria-label', nextVisible ? '隐藏密码' : '显示密码');
+		button.title = nextVisible ? '隐藏密码' : '显示密码';
 	}
 
 	private async submitPassword(): Promise<void> {
@@ -432,46 +435,6 @@ export class LoginModal {
 		} catch (e) {
 			this.showError((e as Error).message || '登录失败，请检查手机号和密码');
 		} finally { finishAction(); }
-	}
-
-	private async submitRegistration(): Promise<void> {
-		if (!this.ensureAgreementAccepted()) return;
-		const username = this.modal.querySelector<HTMLInputElement>('#register-username')?.value.trim() || '';
-		const email = this.modal.querySelector<HTMLInputElement>('#register-email')?.value.trim() || '';
-		const password = this.modal.querySelector<HTMLInputElement>('#register-password')?.value || '';
-		const confirmation = this.modal.querySelector<HTMLInputElement>('#register-password-confirm')?.value || '';
-		if (!username || !email) { this.showError('请输入用户名和邮箱'); return; }
-		if (password !== confirmation) { this.showError('两次输入的密码不一致'); return; }
-		const button = this.modal.querySelector<HTMLButtonElement>('#login-btn-register');
-		const finish = this.beginLoginAction(button, '注册中…'); if (!finish) return;
-		try {
-			const data = await this.api.request<{ token?: string; user_id: string; username: string; roles: string[] }>('/auth/register', { method: 'POST', body: JSON.stringify({ username, email, password, referral_code: readPendingReferralCode() }) });
-			await this.onLoginSuccess(data);
-		} catch (e) { this.showError((e as Error).message || '注册失败'); } finally { finish(); }
-	}
-
-	private async sendPasswordResetCode(): Promise<void> {
-		if (!this.ensureAgreementAccepted()) return;
-		const loginId = this.modal.querySelector<HTMLInputElement>('#reset-login-id')?.value.trim() || '';
-		if (!loginId) { this.showError('请输入账号'); return; }
-		const button = this.modal.querySelector<HTMLButtonElement>('#login-btn-reset-send-code');
-		const finish = this.beginLoginAction(button, '发送中…'); if (!finish) return;
-		try { await this.api.request('/auth/password/reset/send-code', { method: 'POST', body: JSON.stringify({ login_id: loginId }) }); this.showError('验证码已发送'); }
-		catch (e) { this.showError((e as Error).message || '验证码发送失败'); } finally { finish(); }
-	}
-
-	private async submitPasswordReset(): Promise<void> {
-		if (!this.ensureAgreementAccepted()) return;
-		const loginId = this.modal.querySelector<HTMLInputElement>('#reset-login-id')?.value.trim() || '';
-		const code = this.modal.querySelector<HTMLInputElement>('#reset-code')?.value.trim() || '';
-		const newPassword = this.modal.querySelector<HTMLInputElement>('#reset-new-password')?.value || '';
-		if (!loginId || !code || !newPassword) { this.showError('请填写账号、验证码和新密码'); return; }
-		const button = this.modal.querySelector<HTMLButtonElement>('#login-btn-reset-password');
-		const finish = this.beginLoginAction(button, '重置中…'); if (!finish) return;
-		try {
-			const data = await this.api.request<{ token?: string; user_id: string; username: string; roles: string[] }>('/auth/password/reset', { method: 'POST', body: JSON.stringify({ login_id: loginId, code, new_password: newPassword }) });
-			await this.onLoginSuccess(data);
-		} catch (e) { this.showError((e as Error).message || '密码重置失败'); } finally { finish(); }
 	}
 
 	// ─── Phone ───────────────────────────────────────────────────────────────
@@ -571,7 +534,8 @@ export class LoginModal {
 			}
 		}
 		const user = buildCurrentUser(context, compatibilityToken);
-		const shouldPromptPhoneBinding = this.currentMode === 'wechat' && !user.phone_verified;
+		const authenticationMethod = (context.session?.authentication_method || '').trim().toLowerCase();
+		const shouldPromptPhoneBinding = authenticationMethod === 'wechat' && !user.phone_verified;
 		if (user.phone) this.rememberLoginPhone(user.phone);
 		persistSession(user);
 		this.store.setState({ user });

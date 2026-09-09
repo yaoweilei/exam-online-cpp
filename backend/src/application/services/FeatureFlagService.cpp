@@ -372,8 +372,36 @@ Json::Value FeatureFlagService::updateSystemFlags(const Json::Value &patch)
 
 Json::Value FeatureFlagService::updateOrgFlags(const std::string &orgId, const Json::Value &patch)
 {
-    auto current = repo_.loadOrgFlags(orgId);
-    auto next = sanitize(current, patch, /*allowLock=*/true);
+    // 机构层只允许写入注册表中明确开放 allowOrgOverride 的开关。
+    // 同时过滤已有配置，避免历史版本写入的无效平台级开关继续残留。
+    Json::Value filteredCurrent(Json::objectValue);
+    const auto current = repo_.loadOrgFlags(orgId);
+    if (current.isObject())
+    {
+        for (const auto &k : current.getMemberNames())
+        {
+            const auto *def = findDef(k);
+            if (def != nullptr && def->allowOrgOverride)
+            {
+                filteredCurrent[k] = current[k];
+            }
+        }
+    }
+
+    Json::Value filteredPatch(Json::objectValue);
+    if (patch.isObject())
+    {
+        for (const auto &k : patch.getMemberNames())
+        {
+            const auto *def = findDef(k);
+            if (def != nullptr && def->allowOrgOverride)
+            {
+                filteredPatch[k] = patch[k];
+            }
+        }
+    }
+
+    auto next = sanitize(filteredCurrent, filteredPatch, /*allowLock=*/true);
     repo_.saveOrgFlags(orgId, next);
     return next;
 }

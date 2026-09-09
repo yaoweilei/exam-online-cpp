@@ -426,7 +426,7 @@ std::string OrganizationRepository::normalizeRole(const std::string &role)
         return "orgAdmin";
     }
     if (role == "guest" || role == "student" || role == "assistant" || role == "teacher" ||
-        role == "orgAdmin" || role == "contentAdmin" || role == "superAdmin")
+        role == "orgContentAdmin" || role == "orgAdmin" || role == "contentAdmin" || role == "superAdmin")
     {
         return role;
     }
