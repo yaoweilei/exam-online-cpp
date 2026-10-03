@@ -1,5 +1,5 @@
 {
-  "count" : 187,
+  "count" : 191,
   "items" : 
   [
     {
@@ -812,6 +812,35 @@
       ],
       "subject" : "japanese",
       "title" : "EJU-Japanese-2024_01",
+      "year" : "2024"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : true
+      },
+      "checked" : false,
+      "display" : "EJU_JAPANESE_DIAGNOSTIC_V1",
+      "family" : "eju",
+      "id" : "EJU_JAPANESE_DIAGNOSTIC_V1",
+      "level" : "",
+      "paper_type" : "diagnostic",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\eju\\EJU_JAPANESE_DIAGNOSTIC_V1.json",
+      "questionCount" : 40,
+      "session" : "01",
+      "skills" : 
+      [
+        "eju.listening",
+        "eju.listening_reading",
+        "eju.reading",
+        "eju.writing"
+      ],
+      "subject" : "japanese",
+      "title" : "EJU 日本語 入门测评（40题）",
       "year" : "2024"
     },
     {
@@ -2329,6 +2358,40 @@
       "subject" : "japanese",
       "title" : "JLPT-N1-2025_12 (Template)",
       "year" : "2025"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : true
+      },
+      "checked" : true,
+      "display" : "N1_DIAGNOSTIC_V1",
+      "family" : "jlpt",
+      "id" : "N1_DIAGNOSTIC_V1",
+      "level" : "N1",
+      "paper_type" : "diagnostic",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\jlpt\\n1\\N1_DIAGNOSTIC_V1.json",
+      "questionCount" : 40,
+      "session" : "",
+      "skills" : 
+      [
+        "grammar.form",
+        "grammar.pattern",
+        "listening.detail",
+        "listening.task",
+        "reading.claim",
+        "reading.detail.locate",
+        "reading.inference",
+        "vocab.context",
+        "vocab.kanji.reading"
+      ],
+      "subject" : "japanese",
+      "title" : "JLPT N1 入门测评（40题）",
+      "year" : ""
     },
     {
       "access_level" : "free",
@@ -3867,6 +3930,55 @@
       "capabilities" : 
       {
         "audio" : true,
+        "image" : false,
+        "ruby" : false,
+        "translation" : true
+      },
+      "checked" : false,
+      "display" : "N2_DIAGNOSTIC_V1",
+      "family" : "jlpt",
+      "id" : "N2_DIAGNOSTIC_V1",
+      "level" : "N2",
+      "paper_type" : "diagnostic",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\jlpt\\n2\\N2_DIAGNOSTIC_V1.json",
+      "questionCount" : 40,
+      "session" : "",
+      "skills" : 
+      [
+        "grammar.discourse",
+        "grammar.form",
+        "grammar.pattern",
+        "grammar.sentence.completion",
+        "grammar.word_order",
+        "listening.detail",
+        "listening.integrated",
+        "listening.intent",
+        "listening.main_idea",
+        "listening.response",
+        "listening.task",
+        "reading.claim",
+        "reading.detail.locate",
+        "reading.inference",
+        "reading.inference.intent",
+        "reading.information_retrieval",
+        "reading.integrated",
+        "reading.structure",
+        "vocab.context",
+        "vocab.kanji.reading",
+        "vocab.kanji.writing",
+        "vocab.synonym",
+        "vocab.word.usage",
+        "vocab.word_formation"
+      ],
+      "subject" : "japanese",
+      "title" : "JLPT N2 å…¥é—¨è¯Šæ–­ï¼ˆ40é¢˜ï¼‰",
+      "year" : ""
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
         "image" : true,
         "ruby" : false,
         "translation" : true
@@ -5235,6 +5347,41 @@
       "subject" : "japanese",
       "title" : "JLPT-N3-2025_12 (Template)",
       "year" : "2025"
+    },
+    {
+      "access_level" : "free",
+      "capabilities" : 
+      {
+        "audio" : true,
+        "image" : true,
+        "ruby" : false,
+        "translation" : true
+      },
+      "checked" : false,
+      "display" : "N3_DIAGNOSTIC_V1",
+      "family" : "jlpt",
+      "id" : "N3_DIAGNOSTIC_V1",
+      "level" : "N3",
+      "paper_type" : "diagnostic",
+      "path" : "D:\\_develop\\_side\\exam-online-cpp\\data\\paper\\jlpt\\n3\\N3_DIAGNOSTIC_V1.json",
+      "questionCount" : 40,
+      "session" : "",
+      "skills" : 
+      [
+        "grammar.form",
+        "grammar.pattern",
+        "listening.detail",
+        "listening.task",
+        "reading.claim",
+        "reading.detail.locate",
+        "reading.inference",
+        "reading.summary",
+        "vocab.kanji.reading",
+        "vocab.kanji.writing"
+      ],
+      "subject" : "japanese",
+      "title" : "JLPT N3 入门测评（40题）",
+      "year" : ""
     },
     {
       "access_level" : "free",
@@ -6709,5 +6856,5 @@
       "year" : "2025"
     }
   ],
-  "updated_at" : "2026-09-09T00:22:20.059Z"
+  "updated_at" : "2026-10-01T14:38:23.750Z"
 }

@@ -426,13 +426,14 @@
 	gap: 8px;
 	max-height: 400px;
 	overflow-y: auto;
-.explanation.answer-extras {
-	margin-top: 12px;
-}
 	padding: 10px;
 	border: 1px solid var(--vscode-input-border);
 	border-radius: 6px;
 	background-color: var(--vscode-input-background);
+}
+
+.explanation.answer-extras {
+	margin-top: 12px;
 }
 
 .question-item {

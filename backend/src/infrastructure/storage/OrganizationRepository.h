@@ -43,6 +43,10 @@ class OrganizationRepository
 
     int memberCount(const std::string &scopeId) const;
 
+    int billableMemberCount(const std::string &scopeId) const;
+
+    static bool membershipUsesPaidSeat(const Json::Value &membership);
+
     std::unordered_map<std::string, int> memberCounts() const;
 
   private:

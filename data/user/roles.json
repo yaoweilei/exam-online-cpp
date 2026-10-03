@@ -2,9 +2,9 @@
   "assistant" : 
   {
     "allow_organization_override" : true,
-    "description" : "负责教学协作、作业批改与催交、成绩查看和学员跟进，可按需追加权限。",
+    "description" : "负责作业流转、催交、成绩汇总和学员跟进；默认不查看试卷、答案或解析，也不占付费席位。",
     "id" : "assistant",
-    "name" : "教学运营",
+    "name" : "教学管理员",
     "permissions" : 
     [
       "assignment.review",
@@ -46,7 +46,7 @@
   "orgAdmin" : 
   {
     "allow_organization_override" : true,
-    "description" : "管理机构成员、学习组、课程包、套餐席位、机构看板和审计。",
+    "description" : "管理机构成员、学习组、课程包、套餐席位、机构看板和审计；默认不查看试卷、答案或解析，也不占付费席位。",
     "id" : "orgAdmin",
     "name" : "机构管理员",
     "permissions" : 
@@ -77,7 +77,7 @@
   "student" : 
   {
     "allow_organization_override" : true,
-    "description" : "个人用户或机构学员，可做题、提交作业、查看自己的学习报告。",
+    "description" : "个人用户或机构学员，可做题、提交作业、查看自己的学习报告；加入机构后占用付费内容席位。",
     "id" : "student",
     "name" : "学员",
     "permissions" : 
@@ -104,7 +104,7 @@
   "teacher" : 
   {
     "allow_organization_override" : true,
-    "description" : "负责学习组教学、作业、批改、课后反馈和备课。",
+    "description" : "负责学习组教学、作业、批改、课后反馈和备课；加入机构后占用付费内容席位。",
     "id" : "teacher",
     "name" : "老师",
     "permissions" : 

@@ -6,6 +6,19 @@
  *  via any medium, is strictly prohibited without prior written permission.
  *--------------------------------------------------------------------------------------------*/
 
+function guestTrialStatus(kind: 'jlpt' | 'eju'): { used: number; remaining: number; storageAvailable: boolean } {
+	return (window as Window & { GuestTrialQuota?: { guestTrialStatus: (trialKind: 'jlpt' | 'eju') => { used: number; remaining: number; storageAvailable: boolean } } }).GuestTrialQuota?.guestTrialStatus(kind)
+		?? { used: 1, remaining: 0, storageAvailable: false };
+}
+
+function consumeGuestTrial(kind: 'jlpt' | 'eju', id: string): boolean {
+	return (window as Window & { GuestTrialQuota?: { consumeGuestTrial: (trialKind: 'jlpt' | 'eju', trialId: string) => boolean } }).GuestTrialQuota?.consumeGuestTrial(kind, id) ?? false;
+}
+
+function guestPracticeKind(examId: string, family = ''): 'jlpt' | 'eju' {
+	return family.toLowerCase() === 'eju' || /^EJU(?:_|-)/i.test(examId) || /^20\d{2}[_-]\d{2}$/.test(examId) ? 'eju' : 'jlpt';
+}
+
 interface LegacyQuestion {
 	id: string | number;
 	correct_answer?: string | string[] | null;
@@ -40,6 +53,18 @@ interface ScoreResult {
 	[key: string]: unknown;
 }
 
+interface PracticeRecord {
+	exam_id: string;
+	label: string;
+	section_indexes: number[];
+	answers: Record<string, unknown>;
+	submission_id: string;
+	created_at: number;
+	owner_id?: string;
+}
+
+const PENDING_PRACTICE_KEY = 'japanese.pending-practice-results.v1';
+
 interface AnswerManagerExamViewer {
 	currentSectionIndex: number;
 	currentQuestionIndex: number;
@@ -50,6 +75,13 @@ interface AnswerManagerExamViewer {
 	showAnswers: boolean;
 	isSubmitted?: boolean;
 	examMode?: 'practice' | 'mock';
+	checkedPracticeQuestions?: Set<string>;
+	practiceScope?: { label: string; sectionIndexes: number[] } | null;
+	savedPracticeMode?: 'review' | 'retest' | null;
+	renderQuestionNavigation?: () => void;
+	choosePracticeCategory?: () => void;
+	reselectPracticeGroups?: () => void;
+	choosePracticePaper?: () => void;
 	questionMapManager?: {
 		refreshQuestionMapAnswered: () => void;
 	};
@@ -59,6 +91,8 @@ interface AnswerManagerExamViewer {
 	setAnswerSaveStatus?: (state: 'idle' | 'saving' | 'saved' | 'failed' | 'submitted', text: string) => void;
 	onAnswersSubmitted?: () => void;
 	applyDraftSnapshot?: (draft: Record<string, unknown>) => void;
+	beginPracticeReview?: () => () => void;
+	wrongCorrectionContext?: Record<string, unknown> | null;
 }
 
 /**
@@ -67,26 +101,53 @@ interface AnswerManagerExamViewer {
 class AnswerManager {
 	private readonly examViewer: AnswerManagerExamViewer;
 
-	// 业务功能 4：草稿自动保存的节流计时器（避免每次点击都打接口）
+	// 每题作答后立即保存；连续作答时串行合并，避免草稿版本冲突。
 	private draftSaveTimer: number | null = null;
+	private draftSaveInFlight: Promise<void> | null = null;
+	private draftSaveQueued = false;
+	private draftSaveQueuedForceOverwrite = false;
 	private draftRetryCount = 0;
 	private draftRevision = 0;
 	private submissionInFlight: Promise<void> | null = null;
 	private submissionId = '';
 	private attemptId = this.createAttemptId();
 	private modalReturnFocus: HTMLElement | null = null;
+	private practiceReviewRestore: (() => void) | null = null;
+	private currentPracticeRecord: PracticeRecord | null = null;
+	private currentPracticeSignature = '';
+	private currentPracticeSaveState: 'local' | 'saving' | 'saved' | 'failed' = 'local';
+	private currentPracticeQuotaBlocked = false;
+	private practiceSaveInFlight = false;
+	private practiceSaveQueued = false;
 
 	constructor(examViewer: AnswerManagerExamViewer) {
 		this.examViewer = examViewer;
 		document.addEventListener('keydown', (event) => this.handleResultModalKeydown(event));
+		window.addEventListener('userContextChanged', (event) => {
+			const context = (event as CustomEvent<Record<string, unknown>>).detail;
+			const userId = String(context?.user_id || context?.id || 'guest');
+			if (userId !== 'guest') void this.flushPendingPracticeRecords(userId);
+		});
+	}
+
+	saveCurrentDraft(): void {
+		if (this.examViewer.savedPracticeMode) return;
+		if (!this.examViewer.isSubmitted && Object.values(this.examViewer.userAnswers).some(answer => answer !== null && answer !== undefined && answer !== '')) this.scheduleDraftSave();
+	}
+
+	prepareNewPracticeAttempt(): void {
+		this.currentPracticeRecord = null;
+		this.currentPracticeSignature = '';
+		this.currentPracticeQuotaBlocked = false;
 	}
 
 	/**
-	 * 业务功能 4：节流保存草稿（自上次触发起 1.5 秒内合并）
+	 * 每次答案变化后立即保存草稿；已有请求进行时，排队保存最新快照。
 	 * - 仅登录用户保存（guest 不写）
 	 * - 仅有 _currentExamId 时保存
 	 */
 	private scheduleDraftSave(fromRetry = false, forceOverwrite = false): void {
+		if (this.examViewer.savedPracticeMode) return;
 		const userId = this.examViewer.userId;
 		const examId = this.examViewer._currentExamId;
 		if (!userId || userId === 'guest' || !examId) {
@@ -102,13 +163,20 @@ class AnswerManager {
 		if (!api || typeof api.saveDraft !== 'function') {
 			return;
 		}
+		if (this.draftSaveInFlight) {
+			this.draftSaveQueued = true;
+			this.draftSaveQueuedForceOverwrite ||= forceOverwrite;
+			this.examViewer.setAnswerSaveStatus?.('saving', '正在保存…');
+			return;
+		}
 		if (this.draftSaveTimer !== null) {
 			window.clearTimeout(this.draftSaveTimer);
 		}
 		if (!fromRetry) this.draftRetryCount = 0;
-		this.examViewer.setAnswerSaveStatus?.('saving', '等待保存…');
-		this.draftSaveTimer = window.setTimeout(async () => {
+		this.examViewer.setAnswerSaveStatus?.('saving', '正在保存…');
+		this.draftSaveTimer = window.setTimeout(() => {
 			this.draftSaveTimer = null;
+			this.draftSaveInFlight = (async () => {
 			try {
 				const allAnswers = this.examViewer.userAnswers || {};
 				// 仅保留已作答的（非 null/undefined），减少体积
@@ -140,10 +208,12 @@ class AnswerManager {
 				this.examViewer.setAnswerSaveStatus?.('saved', '已保存');
 			} catch (error) {
 				if (this.errorCode(error) === 'ATTEMPT_SUBMITTED') {
+					this.draftSaveQueued = false;
 					this.handleAlreadySubmitted();
 					return;
 				}
 				if (this.isDraftConflict(error)) {
+					this.draftSaveQueued = false;
 					this.examViewer.setAnswerSaveStatus?.('failed', '发现其他设备的新草稿');
 					void this.resolveDraftConflict(userId);
 					return;
@@ -160,7 +230,15 @@ class AnswerManager {
 					this.examViewer.setAnswerSaveStatus?.('failed', '保存失败，请检查网络');
 				}
 			}
-		}, 1500);
+			})().finally(() => {
+				this.draftSaveInFlight = null;
+				if (!this.draftSaveQueued) return;
+				this.draftSaveQueued = false;
+				const queuedForceOverwrite = this.draftSaveQueuedForceOverwrite;
+				this.draftSaveQueuedForceOverwrite = false;
+				this.scheduleDraftSave(false, queuedForceOverwrite);
+			});
+		}, 0);
 	}
 
 	setDraftRevision(revision: unknown): void {
@@ -276,6 +354,7 @@ class AnswerManager {
 			this.examViewer.userAnswers[questionId] = optionIndex;
 		}
 
+		const wasChecked = this.examViewer.checkedPracticeQuestions?.delete(`${this.examViewer.currentSectionIndex}:${questionId}`);
 		const options = document.querySelectorAll(`[data-question-id="${questionId}"]`);
 		options.forEach((option) => {
 			option.classList.remove('selected');
@@ -299,8 +378,9 @@ class AnswerManager {
 			// ignore
 		}
 
+		if (wasChecked) this.examViewer.renderExam();
 		// 业务功能 4：每次答题变更后触发草稿节流保存
-		this.scheduleDraftSave();
+		if (!this.examViewer.wrongCorrectionContext) this.scheduleDraftSave();
 	}
 
 	/**
@@ -366,6 +446,7 @@ class AnswerManager {
 	 * 更新答题概览
 	 */
 	updateAnswerSummary(): void {
+		this.examViewer.renderQuestionNavigation?.();
 		const summary = document.getElementById('answer-summary');
 		if (!summary) return;
 
@@ -377,6 +458,201 @@ class AnswerManager {
 			<p>已答题: ${answeredCount}/${totalCount}</p>
 			<p>进度: ${progress}%</p>
 		`;
+	}
+
+	private pendingPracticeRecords(): PracticeRecord[] {
+		try {
+			const records = JSON.parse(localStorage.getItem(PENDING_PRACTICE_KEY) || '[]') as PracticeRecord[];
+			return Array.isArray(records) ? records.filter(record => record && Date.now() - Number(record.created_at) < 7 * 86400000 && record.submission_id) : [];
+		} catch { return []; }
+	}
+
+	private storePendingPracticeRecords(records: PracticeRecord[]): boolean {
+		try {
+			const guest = !this.examViewer.userId || this.examViewer.userId === 'guest';
+			localStorage.setItem(PENDING_PRACTICE_KEY, JSON.stringify(records.slice(guest ? -3 : -20)));
+			return true;
+		} catch { return false; }
+	}
+
+	private updatePracticeSaveStatus(): void {
+		const host = document.querySelector<HTMLElement>('#exam-result-panel [data-practice-save-status]');
+		if (!host || !this.currentPracticeRecord) return;
+		const guest = !this.examViewer.userId || this.examViewer.userId === 'guest';
+		const messages = {
+			local: guest ? '本次结果暂存在此浏览器；每类体验各 1 次，7 天内在此登录可转存到账号。' : '本次结果暂存在此浏览器，等待保存到账号。',
+			saving: '正在保存本次结果到学习记录…',
+			saved: '本次结果已保存到账号的学习记录。',
+			failed: this.currentPracticeQuotaBlocked ? '访客体验已达上限。本次结果尚未暂存，请登录并保存。' : '保存失败，结果仍暂存在此浏览器，可重试。'
+		};
+		host.textContent = messages[this.currentPracticeSaveState];
+		host.dataset.state = this.currentPracticeSaveState;
+		const retry = document.querySelector<HTMLButtonElement>('#exam-result-panel [data-practice-save-retry]');
+		if (retry) retry.hidden = this.currentPracticeSaveState !== 'failed' || this.currentPracticeQuotaBlocked;
+		const login = document.querySelector<HTMLButtonElement>('#exam-result-panel [data-practice-save-login]');
+		if (login) login.hidden = !guest;
+	}
+
+	private async flushPendingPracticeRecords(userId: string): Promise<void> {
+		if (this.practiceSaveInFlight) { this.practiceSaveQueued = true; return; }
+		if (!window.APIClient?.savePracticeGroup) return;
+		this.practiceSaveInFlight = true;
+		try {
+			const records = this.pendingPracticeRecords();
+			if (this.currentPracticeRecord && !records.some(record => record.submission_id === this.currentPracticeRecord?.submission_id)
+				&& this.currentPracticeSaveState !== 'saved') records.push(this.currentPracticeRecord);
+			records.sort((left, right) => Number(right.submission_id === this.currentPracticeRecord?.submission_id) - Number(left.submission_id === this.currentPracticeRecord?.submission_id));
+			for (const record of records) {
+				if (record.owner_id && record.owner_id !== userId) continue;
+				if (record.submission_id === this.currentPracticeRecord?.submission_id) {
+					this.draftSaveQueued = false;
+					if (this.draftSaveTimer !== null) { window.clearTimeout(this.draftSaveTimer); this.draftSaveTimer = null; }
+					if (this.draftSaveInFlight) await this.draftSaveInFlight;
+					if (this.draftSaveTimer !== null) { window.clearTimeout(this.draftSaveTimer); this.draftSaveTimer = null; }
+					this.currentPracticeSaveState = 'saving';
+					this.updatePracticeSaveStatus();
+				}
+				try {
+					await window.APIClient.savePracticeGroup(record);
+					this.storePendingPracticeRecords(this.pendingPracticeRecords().filter(item => item.submission_id !== record.submission_id));
+					if (record.submission_id === this.currentPracticeRecord?.submission_id) {
+						this.currentPracticeSaveState = 'saved';
+						this.updatePracticeSaveStatus();
+					}
+					window.dispatchEvent(new Event('practiceRecordSaved'));
+				} catch {
+					if (record.submission_id === this.currentPracticeRecord?.submission_id) {
+						this.currentPracticeSaveState = 'failed';
+						this.updatePracticeSaveStatus();
+					}
+					break;
+				}
+			}
+		} finally {
+			this.practiceSaveInFlight = false;
+			if (this.practiceSaveQueued) {
+				this.practiceSaveQueued = false;
+				void this.flushPendingPracticeRecords(userId);
+			}
+		}
+	}
+
+	showPracticeResults(label: string, questions: Array<{ sectionIndex: number; questionIndex: number; question: LegacyQuestion }>): void {
+		const panel = document.getElementById('exam-result-panel');
+		if (!panel) return;
+		const rows = questions.map(item => {
+			const answer = this.getAnswerComposite(item.sectionIndex, String(item.question.id));
+			const answered = answer !== undefined && answer !== null && answer !== '';
+			const correct = item.question.correct_answer;
+			const gradable = correct !== undefined && correct !== null && correct !== '';
+			const matches = Array.isArray(correct) ? Array.isArray(answer) && this.arraysEqualShallow(answer, correct) : String(answer) === String(correct);
+			return { ...item, answered, gradable, status: !answered ? 'unanswered' : !gradable ? 'ungraded' : matches ? 'correct' : 'wrong' };
+		});
+		const answered = rows.filter(row => row.answered).length;
+		const correct = rows.filter(row => row.status === 'correct').length;
+		const wrong = rows.filter(row => row.status === 'wrong').length;
+		const graded = correct + wrong;
+		const ungraded = rows.filter(row => row.status === 'ungraded').length;
+		const targets = rows.filter(row => row.status === 'wrong' || row.status === 'unanswered');
+		const guest = !this.examViewer.userId || this.examViewer.userId === 'guest';
+		const examId = this.examViewer._currentExamId || '';
+		const trialKind = guestPracticeKind(examId, String((this.examViewer.currentExam as LegacyExam & { family?: string } | null)?.family || ''));
+		if (answered && examId) {
+			const answers: Record<string, unknown> = {};
+			for (const row of rows) if (row.answered) answers[`${row.sectionIndex}:${row.question.id}`] = this.getAnswerComposite(row.sectionIndex, String(row.question.id));
+			const sectionIndexes = [...new Set(questions.map(item => item.sectionIndex))];
+			const signature = JSON.stringify([examId, label, sectionIndexes, answers]);
+			if (signature !== this.currentPracticeSignature) {
+				this.currentPracticeSignature = signature;
+				this.currentPracticeQuotaBlocked = false;
+				const submissionId = this.createSubmissionId();
+				this.currentPracticeRecord = {
+					exam_id: examId, label, section_indexes: sectionIndexes, answers,
+					submission_id: submissionId, created_at: Date.now(),
+					...(this.examViewer.userId && this.examViewer.userId !== 'guest' ? { owner_id: this.examViewer.userId } : {})
+				};
+				if (guest && !consumeGuestTrial(trialKind, `practice:${submissionId}`)) {
+					this.currentPracticeQuotaBlocked = true;
+					this.currentPracticeSaveState = 'failed';
+				} else this.currentPracticeSaveState = this.storePendingPracticeRecords([...this.pendingPracticeRecords(), this.currentPracticeRecord]) ? 'local' : 'failed';
+			}
+		} else {
+			this.currentPracticeRecord = null;
+			this.currentPracticeSignature = '';
+		}
+		const rate = graded ? `${Math.round(correct / graded * 100)}%` : '—';
+		if (guest && answered) this.examViewer.isSubmitted = true;
+		const guestQuotaUsed = guest && guestTrialStatus(trialKind).remaining === 0;
+		panel.innerHTML = `<div class="practice-result">
+			<button type="button" class="exam-result-close" data-practice-action="close" aria-label="关闭练习结果" title="关闭">×</button>
+			<p class="practice-result-kicker">${this.escapeHtml(label)} · 练习完成</p>
+			<h2 id="exam-result-title">${this.escapeHtml(label)}练习结果</h2>
+			<p class="practice-result-intro">${answered === rows.length ? '这组题已完成。' : `已完成 ${answered} / ${rows.length} 题，未答题也可以继续回看。`}${targets.length ? `接下来可以复盘 ${targets.length} 道错题与未答题。` : '这组题没有错题与未答题。'}</p>
+			<div class="practice-result-overview"><div class="practice-result-rate"><strong>${rate}</strong><span>正确率</span></div><div class="practice-result-stats"><div>已答<strong>${answered} / ${rows.length}</strong></div><div>正确<strong>${correct}</strong></div><div>错误<strong>${wrong}</strong></div><div>未答<strong>${rows.length - answered}</strong></div></div></div>
+			<p class="practice-result-note">正确率按已答且可自动判分的题目计算。${ungraded ? `${ungraded} 道主观题需对照参考答案自行复盘。` : ''}</p>
+			<section class="practice-result-save" aria-label="保存这次练习"><div class="practice-result-save-copy"><strong>保存这次练习</strong><p data-practice-save-status role="status">${answered ? '正在准备保存…' : '尚未作答，本次没有需要保存的结果。'}</p></div>${answered ? '<button type="button" data-practice-save-login>登录并保存到账号</button><button type="button" data-practice-save-retry hidden>重试保存</button>' : ''}</section>
+			<div class="exam-result-actions practice-result-main-actions"><button type="button" class="${targets.length ? 'result-primary' : ''}" data-practice-action="review" ${targets.length ? '' : 'hidden'}>复盘错题与未答</button><button type="button" class="${targets.length ? '' : 'result-primary'}" data-practice-action="choose">${guestQuotaUsed ? '选择其他考试' : '练习其他题型'}</button><button type="button" data-practice-action="retry">${guestQuotaUsed ? '登录后再练' : '再练一次'}</button></div>
+			<details class="practice-result-more"><summary>其他操作</summary><div class="exam-result-actions"><button type="button" data-practice-action="reselect">重新选择题组</button><button type="button" data-practice-action="paper">更换试卷</button><button type="button" data-practice-action="continue">${guest && answered ? '查看原题' : '返回作答'}</button></div></details>
+		</div>`;
+		if (this.currentPracticeRecord) {
+			this.updatePracticeSaveStatus();
+			if (this.examViewer.userId && this.examViewer.userId !== 'guest' && this.currentPracticeSaveState !== 'saved') void this.flushPendingPracticeRecords(this.examViewer.userId);
+		}
+		panel.querySelector('[data-practice-save-login]')?.addEventListener('click', () => (window as Window & { __openLoginModal?: () => void }).__openLoginModal?.());
+		panel.querySelector('[data-practice-save-retry]')?.addEventListener('click', () => {
+			if (this.examViewer.userId && this.examViewer.userId !== 'guest') void this.flushPendingPracticeRecords(this.examViewer.userId);
+			else (window as Window & { __openLoginModal?: () => void }).__openLoginModal?.();
+		});
+		panel.querySelector('[data-practice-action="close"]')?.addEventListener('click', () => this.closeResultPanel());
+		panel.querySelector('[data-practice-action="continue"]')?.addEventListener('click', () => this.closeResultPanel());
+		panel.querySelector('[data-practice-action="review"]')?.addEventListener('click', () => {
+			if (!targets.length) return;
+			targets.forEach(item => this.examViewer.checkedPracticeQuestions?.add(`${item.sectionIndex}:${item.question.id}`));
+			this.closeResultPanel();
+			this.practiceReviewRestore = this.examViewer.beginPracticeReview?.() || null;
+			this.openReviewQueue(targets, '错题与未答复盘', () => this.showPracticeResults(label, questions));
+		});
+		panel.querySelector('[data-practice-action="retry"]')?.addEventListener('click', () => {
+			if ((!this.examViewer.userId || this.examViewer.userId === 'guest') && guestTrialStatus(trialKind).remaining === 0) {
+				(window as Window & { __openLoginModal?: () => void }).__openLoginModal?.();
+				return;
+			}
+			this.currentPracticeRecord = null;
+			this.currentPracticeSignature = '';
+			this.currentPracticeQuotaBlocked = false;
+			this.examViewer.isSubmitted = false;
+			questions.forEach(item => {
+				delete this.examViewer.userAnswers[this._makeKey(item.sectionIndex, String(item.question.id))];
+				delete this.examViewer.userAnswers[String(item.question.id)];
+				this.examViewer.checkedPracticeQuestions?.delete(`${item.sectionIndex}:${item.question.id}`);
+			});
+			this.removeReviewBar();
+			this.closeResultPanel();
+			if (questions[0]) this.examViewer.jumpToQuestion?.(questions[0].sectionIndex, questions[0].questionIndex);
+			this.examViewer.questionMapManager?.refreshQuestionMapAnswered();
+			this.scheduleDraftSave();
+		});
+		panel.querySelector('[data-practice-action="paper"]')?.addEventListener('click', () => {
+			this.closeResultPanel(); this.removeReviewBar();
+			if (!this.examViewer.userId || this.examViewer.userId === 'guest') window.dispatchEvent(new CustomEvent('guestWelcomeNavigate', { detail: { action: 'home' } }));
+			else this.examViewer.choosePracticePaper?.();
+		});
+		panel.querySelector('[data-practice-action="reselect"]')?.addEventListener('click', () => {
+			if ((!this.examViewer.userId || this.examViewer.userId === 'guest') && guestTrialStatus(trialKind).remaining === 0) (window as Window & { __openLoginModal?: () => void }).__openLoginModal?.();
+			else this.examViewer.reselectPracticeGroups?.();
+		});
+		panel.querySelector('[data-practice-action="choose"]')?.addEventListener('click', () => {
+			if ((!this.examViewer.userId || this.examViewer.userId === 'guest') && guestTrialStatus(trialKind).remaining === 0) {
+				this.closeResultPanel();
+				this.removeReviewBar();
+				window.dispatchEvent(new CustomEvent('guestWelcomeNavigate', { detail: { action: 'home' } }));
+				return;
+			}
+			this.closeResultPanel();
+			this.removeReviewBar();
+			this.examViewer.choosePracticeCategory?.();
+		});
+		this.openResultPanel(targets.length ? '[data-practice-action="review"]' : '[data-practice-action="choose"]');
 	}
 
 	/**
@@ -394,6 +670,16 @@ class AnswerManager {
 			const submitButton = document.getElementById('submit-exam') as HTMLButtonElement | null;
 			if (submitButton) submitButton.disabled = true;
 			this.examViewer.setAnswerSaveStatus?.('saving', '正在交卷…');
+			// 快速答到末题后可能仍有最后一次草稿写入。必须先等它结束，
+			// 否则较晚完成的草稿会把“已提交”状态覆盖回“待提交”。
+			this.draftSaveQueued = false;
+			this.draftSaveQueuedForceOverwrite = false;
+			if (this.draftSaveTimer !== null) {
+				window.clearTimeout(this.draftSaveTimer);
+				this.draftSaveTimer = null;
+			}
+			if (this.draftSaveInFlight) await this.draftSaveInFlight;
+			// 保存失败可能安排了重试；提交即将成为最终状态，不再允许旧草稿重试。
 			if (this.draftSaveTimer !== null) {
 				window.clearTimeout(this.draftSaveTimer);
 				this.draftSaveTimer = null;
@@ -628,7 +914,7 @@ class AnswerManager {
 		});
 	}
 
-	private openReviewQueue(targets: Array<{ sectionIndex: number; questionIndex: number; status: string }>, title = '错题复盘'): void {
+	private openReviewQueue(targets: Array<{ sectionIndex: number; questionIndex: number; status: string }>, title = '错题复盘', onClose?: () => void): void {
 		let index = 0;
 		const show = () => {
 			const target = targets[index];
@@ -642,7 +928,8 @@ class AnswerManager {
 			bar.innerHTML = `<strong>${title}</strong><span>第 ${index + 1} / ${targets.length} 题 · ${target.status === 'unanswered' ? '未作答' : '回答错误'}</span><div><button type="button" data-review-action="prev" ${index === 0 ? 'disabled' : ''}>上一题</button><button type="button" data-review-action="next" ${index === targets.length - 1 ? 'disabled' : ''}>下一题</button><button type="button" data-review-action="close">退出复盘</button></div>`;
 			bar.querySelector('[data-review-action="prev"]')?.addEventListener('click', () => { if (index > 0) { index -= 1; show(); } });
 			bar.querySelector('[data-review-action="next"]')?.addEventListener('click', () => { if (index < targets.length - 1) { index += 1; show(); } });
-			bar.querySelector('[data-review-action="close"]')?.addEventListener('click', () => this.removeReviewBar());
+			if (onClose) bar.querySelector('[data-review-action="close"]')!.textContent = '返回练习结果';
+			bar.querySelector('[data-review-action="close"]')?.addEventListener('click', () => { this.removeReviewBar(); onClose?.(); });
 		};
 		show();
 	}
@@ -686,6 +973,9 @@ class AnswerManager {
 
 	private removeReviewBar(): void {
 		document.getElementById('exam-review-bar')?.remove();
+		const restore = this.practiceReviewRestore;
+		this.practiceReviewRestore = null;
+		restore?.();
 	}
 
 	private safeNumber(value: unknown): number {

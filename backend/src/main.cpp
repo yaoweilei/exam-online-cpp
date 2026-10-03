@@ -40,6 +40,7 @@
 #include "application/services/OAuthService.h"
 #include "application/services/RelatedQuestionsService.h"
 #include "application/services/ChapterService.h"
+#include "application/services/AdaptiveLearningService.h"
 #include "application/services/RedeemService.h"
 #include "application/services/PaymentService.h"
 #include "application/services/InstitutionService.h"
@@ -268,7 +269,7 @@ int main()
     application::services::AuditLogService auditLogService(cfg.dataUserDir, organizationRepo);
     // 每日一练 Service（业务功能 16）
     application::services::DailyPracticeService dailyPracticeService(
-        cfg.dataUserDir, wrongQuestionRepo, srsService, examRepo);
+        cfg.dataUserDir, wrongQuestionRepo, srsService, examRepo, answerRepo);
     // 学习报告 Service（业务功能 17）
     application::services::LearningReportService learningReportService(answerRepo, wrongQuestionRepo, srsRepo, cfg.dataUserDir);
     // 备考目标 / 倒计时 Service（业务功能 18）
@@ -293,6 +294,7 @@ int main()
     application::services::RelatedQuestionsService relatedQuestionsService(examRepo);
     // 章节式学习路径 Service（功能 #18）—复用 Exam + Answer Repository
     application::services::ChapterService chapterService(examRepo, answerRepo);
+    application::services::AdaptiveLearningService adaptiveLearningService(cfg.dataUserDir);
     application::services::RedeemService redeemService(cfg.dataSystemDir, profileRepo, subscriptionService);
     application::services::PaymentService paymentService(
         cfg.dataUserDir,
@@ -368,6 +370,7 @@ int main()
         .paymentService = &paymentService,
         .institutionService = &institutionService,
         .contentWorkflowService = &contentWorkflowService,
+        .adaptiveLearningService = &adaptiveLearningService,
         .recentLearningRepository = &recentLearningRepo,
         .recommendationStrategy = &recommendationStrategy};
 
@@ -403,7 +406,11 @@ int main()
     // range responses required by Safari/iOS media playback.
     const auto audioAlias = std::filesystem::relative(cfg.dataRoot / "audio", cfg.staticDir).generic_string();
     app().addALocation("/data/audio", "audio/mpeg", audioAlias, false, false, true);
-    app().setFileTypes({"html", "css", "js", "map", "png", "jpg", "jpeg", "svg", "ico", "json", "mp3", "wav"});
+    // Exam diagrams are stored beside the papers, outside the public document
+    // root. Expose only the image directory through a dedicated static alias.
+    const auto imageAlias = std::filesystem::relative(cfg.dataRoot / "image", cfg.staticDir).generic_string();
+    app().addALocation("/data/image", "", imageAlias, false, false, true);
+    app().setFileTypes({"html", "css", "js", "map", "png", "jpg", "jpeg", "webp", "svg", "ico", "json", "mp3", "wav"});
     app().enableServerHeader(false);
 
     app().registerSyncAdvice([](const HttpRequestPtr &req) -> HttpResponsePtr {

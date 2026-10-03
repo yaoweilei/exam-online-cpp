@@ -53,7 +53,8 @@ const std::vector<std::string> &SyncService::knownModules()
     // 注意：列表名 = data/user 下子目录名（除 daily_practice 外都已在其它功能中创建）
     static const std::vector<std::string> kModules{
         "bookmarks",        "wrong_questions",  "streak",         "draft",        "srs",
-        "bookmark_folders", "study_goals",      "daily_practice", "attempt_timer"};
+        "bookmark_folders", "study_goals",      "daily_practice", "attempt_timer",
+        "adaptive_learning"};
     return kModules;
 }
 

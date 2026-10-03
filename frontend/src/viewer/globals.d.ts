@@ -29,6 +29,7 @@ interface LegacyApiClientShape {
 	updateExam(examId: string, examData: unknown): Promise<unknown>;
 	deleteExam(examId: string): Promise<unknown>;
 	submitAnswers(userId: string, examId: string, answers: Record<string, unknown>, submissionId?: string, attemptId?: string, examMode?: string): Promise<unknown>;
+	savePracticeGroup(payload: { exam_id: string; label: string; section_indexes: number[]; answers: Record<string, unknown>; submission_id: string }): Promise<unknown>;
 	getAnswerAttempts(userId: string, examId: string, limit?: number): Promise<unknown>;
 	getAnswers(userId: string, examId: string): Promise<unknown>;
 	getProgress(userId: string): Promise<unknown>;
@@ -88,6 +89,8 @@ interface LegacyApiClientShape {
 	updateOrganizationSubscription(organizationId: string, token: string, payload: unknown): Promise<unknown>;
 	updateUserSubscription(userId: string, token: string, payload: unknown): Promise<unknown>;
 	createPaymentOrder(token: string, payload: unknown): Promise<unknown>;
+	listPaymentOrders(token: string, fromYear?: number, toYear?: number): Promise<unknown>;
+	simulateWechatPaymentSuccess(token: string, orderId: string): Promise<unknown>;
 	getPaymentQuote(token: string, payload: unknown): Promise<unknown>;
 	getAutoRenewal(token: string, scopeType?: 'personal' | 'organization', organizationId?: string): Promise<unknown>;
 	updateAutoRenewal(token: string, payload: unknown): Promise<unknown>;
@@ -106,6 +109,7 @@ interface LegacyApiClientShape {
 	listAdminPaymentLedger(token: string, filters?: Record<string, string | number>): Promise<unknown>;
 	getAdminPaymentReconciliation(token: string): Promise<unknown>;
 	createOrganizationPaymentOrder(token: string, payload: unknown): Promise<unknown>;
+	createOrganizationSelfServiceOrder(token: string, payload: unknown): Promise<unknown>;
 	updatePaymentRefundStatus(token: string, refundId: string, payload: unknown): Promise<unknown>;
 	getInstitutionDashboard(token: string, orgId?: string): Promise<unknown>;
 	getInstitutionWorkbench(token: string, orgId?: string): Promise<unknown>;
@@ -136,6 +140,11 @@ interface LegacyApiClientShape {
 	removeWrongQuestion(userId: string, questionId: string): Promise<unknown>;
 	masterWrongQuestion(userId: string, questionId: string): Promise<unknown>;
 	unmasterWrongQuestion(userId: string, questionId: string): Promise<unknown>;
+	submitWrongQuestionCorrection(
+		userId: string,
+		questionId: string,
+		payload: { exam_id: string; actual_question_id: string; section_index: number; answer: unknown; exam_target?: string }
+	): Promise<unknown>;
 	resetWrongQuestions(userId: string, confirmation: string): Promise<unknown>;
 	// 学习连续天数 / 每日目标（业务功能 2）
 	getStreakSummary(userId: string): Promise<unknown>;
@@ -210,9 +219,10 @@ interface LegacyApiClientShape {
 	}): Promise<unknown>;
 	listAuditLogActions(orgId?: string): Promise<unknown>;
 	// 每日一练（业务功能 16）
-	getDailyPractice(count?: number): Promise<unknown>;
-	regenerateDailyPractice(count?: number): Promise<unknown>;
-	completeDailyPracticeItem(questionId: string): Promise<unknown>;
+	getDailyPractice(count?: number, dailyMinutes?: number, examTarget?: string): Promise<unknown>;
+	regenerateDailyPractice(count?: number, dailyMinutes?: number, examTarget?: string): Promise<unknown>;
+	completeDailyPracticeItem(questionId: string, examId?: string, examTarget?: string): Promise<unknown>;
+	getAdaptiveLearningProfile(examTarget?: string): Promise<unknown>;
 	// 学习报告（业务功能 17）
 	getLearningReport(period?: 'week' | 'month'): Promise<unknown>;
 	// 备考目标 / 倒计时（业务功能 18）

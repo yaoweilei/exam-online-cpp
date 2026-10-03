@@ -65,6 +65,9 @@ class UserRepository
                                       int rewardCredits = 0,
                                       const std::string &rewardRecipientUserId = "");
 
+    bool resetReferralRewardAfterReversal(const std::string &userId,
+                                          const std::string &trigger);
+
     Json::Value upsertWechatUser(const std::string &openid,
                                  const std::string &nickname,
                                  const std::string &avatarUrl,

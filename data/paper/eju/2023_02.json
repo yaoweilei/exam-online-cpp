@@ -1162,7 +1162,7 @@
             "passage": {
               "alt_text": "読聴解 1番",
               "type": "image",
-              "url": "/data/image/eju/2023_02/listening_reading_q01_material.jpg"
+              "url": "/data/image/eju/2023_02/listening_reading_q01.jpg"
             },
             "questions": [
               {
@@ -1171,13 +1171,8 @@
                 "eju_question_no": 1,
                 "has_ans": false,
                 "id": 26,
-                "options": [
-                  "1",
-                  "2",
-                  "3",
-                  "4"
-                ],
-                "question": "試験問題として成立していますが、出版上の都合により本問題の掲載はいたしません。",
+                "options": [],
+                "question": "試験問題として成立していますが、出版上の都合により本問題の掲載はいたしません。解答できないため、次の問題へ進んでください。",
                 "script": [
                   {
                     "text": "1番 試験問題として成立していますが、出版上の都合により本問題の掲載はいたしません。",

@@ -3,6 +3,114 @@
 	margin-bottom: 20px;
 }
 
+#exam-workarea.is-wrong-correction #section-navigation,
+#exam-workarea.is-wrong-correction #question-navigation,
+#exam-workarea.is-wrong-correction #open-question-map,
+#exam-workarea.is-wrong-correction #submit-exam,
+#exam-workarea.is-wrong-correction #toggle-answers,
+#exam-workarea.is-wrong-correction #toggle-explanations {
+	display: none !important;
+}
+
+#exam-workarea.is-wrong-correction #current-question-container {
+	margin-bottom: 12px;
+}
+
+.wrong-correction-bar {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 12px 24px;
+	align-items: center;
+	margin: 0 0 28px;
+	padding: 18px 20px;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	background: var(--vscode-panel-background);
+}
+
+.wrong-correction-head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	grid-column: 1 / -1;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.wrong-correction-head span {
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.wrong-correction-head em {
+	color: var(--vscode-descriptionForeground);
+	font-style: normal;
+}
+
+.wrong-correction-result {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wrong-correction-result strong {
+	font-size: 16px;
+}
+
+.wrong-correction-result span {
+	color: var(--vscode-descriptionForeground);
+}
+
+.wrong-correction-bar.is-correct .wrong-correction-result strong {
+	color: var(--vscode-testing-iconPassed, #2e7d32);
+}
+
+.wrong-correction-bar.is-wrong .wrong-correction-result strong {
+	color: var(--vscode-testing-iconFailed, #c33);
+}
+
+.wrong-correction-actions {
+	display: flex;
+	gap: 10px;
+	justify-content: flex-end;
+}
+
+.wrong-correction-actions button {
+	min-height: 42px;
+	padding: 8px 18px;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	background: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	cursor: pointer;
+	font: inherit;
+}
+
+.wrong-correction-actions .wrong-correction-primary {
+	border-color: var(--vscode-button-background);
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+}
+
+.wrong-correction-actions button:disabled {
+	cursor: wait;
+	opacity: .65;
+}
+
+@media (max-width: 680px) {
+	.wrong-correction-bar {
+		grid-template-columns: 1fr;
+	}
+
+	.wrong-correction-actions {
+		justify-content: stretch;
+	}
+
+	.wrong-correction-actions button {
+		flex: 1 1 0;
+	}
+}
+
 .current-question {
 	background-color: var(--vscode-panel-background);
 	border-radius: 8px;
@@ -115,7 +223,17 @@
 }
 
 .question-counter {
-	display: none;
+	display: inline-flex;
+	align-items: center;
+	min-height: 36px;
+	padding: 0 10px;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 14px;
+	background: var(--vscode-panel-background);
+	color: var(--vscode-descriptionForeground);
+	font-size: 12px;
+	line-height: 18px;
+	white-space: nowrap;
 }
 
 /* Question Select Styles */

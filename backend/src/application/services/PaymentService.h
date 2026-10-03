@@ -30,7 +30,12 @@ class PaymentService
     Json::Value createOrganizationOrder(const std::string &actorId,
                                         const std::string &organizationId,
                                         const Json::Value &payload);
+    Json::Value simulateWechatPaymentSuccess(const std::string &userId,
+                                             const std::string &orderId);
     Json::Value getOrder(const std::string &userId, const Json::Value &roles, const std::string &orderId) const;
+    Json::Value listUserOrders(const std::string &userId,
+                               int fromYear = 0,
+                               int toYear = 0) const;
     Json::Value listLedger(const std::string &userId, const Json::Value &roles, const std::string &targetUserId) const;
     Json::Value listOrders(const Json::Value &filters) const;
     Json::Value listRefunds(const Json::Value &filters) const;
@@ -45,7 +50,8 @@ class PaymentService
     Json::Value updatePricingConfig(const Json::Value &payload);
     Json::Value quote(const std::string &actorId,
                       const Json::Value &roles,
-                      const Json::Value &payload) const;
+                      const Json::Value &payload,
+                      bool organizationAccessAuthorized = false) const;
     Json::Value getAutoRenewal(const std::string &actorId,
                                const std::string &scopeType,
                                const std::string &scopeId) const;

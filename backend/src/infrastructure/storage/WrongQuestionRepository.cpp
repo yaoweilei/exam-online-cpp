@@ -311,4 +311,76 @@ void WrongQuestionRepository::reset(const std::string &userId, const std::string
     writeJsonFileAtomic(path, doc);
 }
 
+Json::Value WrongQuestionRepository::recordCorrection(const std::string &userId,
+                                                       const std::string &examId,
+                                                       const std::string &questionId,
+                                                       const std::string &correctAnswer,
+                                                       const std::string &userAnswer,
+                                                       bool correct,
+                                                       int autoMasterThreshold)
+{
+    if (userId.empty() || examId.empty() || questionId.empty())
+    {
+        return Json::Value();
+    }
+
+    const auto path = wrongDir_ / (userId + ".json");
+    std::unique_lock lock(mutex_);
+    if (!std::filesystem::exists(path))
+    {
+        return Json::Value();
+    }
+
+    auto doc = readJsonFile(path);
+    if (!doc["items"].isArray())
+    {
+        return Json::Value();
+    }
+
+    int idx = -1;
+    for (Json::ArrayIndex i = 0; i < doc["items"].size(); ++i)
+    {
+        const auto &candidate = doc["items"][i];
+        if (candidate.get("question_id", "").asString() == questionId
+            && candidate.get("exam_id", "").asString() == examId)
+        {
+            idx = static_cast<int>(i);
+            break;
+        }
+    }
+    if (idx < 0)
+    {
+        return Json::Value();
+    }
+
+    const auto now = common::nowIso8601();
+    auto &item = doc["items"][static_cast<Json::ArrayIndex>(idx)];
+    item["last_user_answer"] = userAnswer;
+    item["correct_answer"] = correctAnswer;
+    item["exam_id"] = examId;
+    if (correct)
+    {
+        item["last_correct_at"] = now;
+        item["correct_streak"] = item.get("correct_streak", 0).asInt() + 1;
+        if (item["correct_streak"].asInt() >= autoMasterThreshold)
+        {
+            item["mastered"] = true;
+            item["mastered_at"] = now;
+        }
+    }
+    else
+    {
+        item["wrong_count"] = item.get("wrong_count", 0).asInt() + 1;
+        item["last_wrong_at"] = now;
+        item["correct_streak"] = 0;
+        item["mastered"] = false;
+        item["mastered_at"] = "";
+    }
+
+    doc["updated_at"] = now;
+    const auto updated = item;
+    writeJsonFileAtomic(path, doc);
+    return updated;
+}
+
 }  // namespace infrastructure::storage

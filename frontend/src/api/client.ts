@@ -329,6 +329,20 @@ export class ApiClient {
 		});
 	}
 
+	listPaymentOrders(token: string, fromYear?: number, toYear?: number): Promise<unknown> {
+		const query = new URLSearchParams({ token });
+		if (fromYear) query.set('from_year', String(fromYear));
+		if (toYear) query.set('to_year', String(toYear));
+		return this.request(`/payments/orders?${query.toString()}`);
+	}
+
+	simulateWechatPaymentSuccess(token: string, orderId: string): Promise<unknown> {
+		return this.request(`/payments/orders/${encodeURIComponent(orderId)}/simulate-success`, {
+			method: 'POST',
+			body: JSON.stringify({ token })
+		});
+	}
+
 	getPaymentQuote(token: string, payload: unknown): Promise<unknown> {
 		return this.request('/payments/quote', {
 			method: 'POST',
@@ -425,6 +439,12 @@ export class ApiClient {
 
 	createOrganizationPaymentOrder(token: string, payload: unknown): Promise<unknown> {
 		return this.request('/admin/payments/organization-orders', {
+			method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	createOrganizationSelfServiceOrder(token: string, payload: unknown): Promise<unknown> {
+		return this.request('/payments/organization-orders', {
 			method: 'POST', body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
 		});
 	}
@@ -563,6 +583,17 @@ export class ApiClient {
 		return this.request(
 			`/wrong-questions/${encodeURIComponent(userId)}/${encodeURIComponent(questionId)}/unmaster`,
 			{ method: 'POST', body: '{}' }
+		);
+	}
+
+	submitWrongQuestionCorrection(
+		userId: string,
+		questionId: string,
+		payload: { exam_id: string; actual_question_id: string; section_index: number; answer: unknown; exam_target?: string }
+	): Promise<unknown> {
+		return this.request(
+			`/wrong-questions/${encodeURIComponent(userId)}/${encodeURIComponent(questionId)}/correction`,
+			{ method: 'POST', body: JSON.stringify(payload) }
 		);
 	}
 
@@ -937,23 +968,29 @@ export class ApiClient {
 	// 每日一练（业务功能 16）
 	// ---------------------------------------------------------------------
 
-	getDailyPractice(count?: number): Promise<unknown> {
-		const suffix = count ? `?count=${count}` : '';
-		return this.request(`/me/daily-practice${suffix}`);
+	getDailyPractice(count = 50, dailyMinutes = 0, examTarget = ''): Promise<unknown> {
+		const params = new URLSearchParams({ count: String(count) });
+		if (dailyMinutes > 0) params.set('minutes', String(dailyMinutes));
+		if (examTarget) params.set('target', examTarget);
+		return this.request(`/me/daily-practice?${params.toString()}`);
 	}
 
-	regenerateDailyPractice(count?: number): Promise<unknown> {
+	regenerateDailyPractice(count = 50, dailyMinutes = 0, examTarget = ''): Promise<unknown> {
 		return this.request('/me/daily-practice/regenerate', {
 			method: 'POST',
-			body: JSON.stringify(count ? { count } : {})
+			body: JSON.stringify({ count, minutes: dailyMinutes, target: examTarget })
 		});
 	}
 
-	completeDailyPracticeItem(questionId: string): Promise<unknown> {
+	completeDailyPracticeItem(questionId: string, examId = '', examTarget = ''): Promise<unknown> {
 		return this.request('/me/daily-practice/complete', {
 			method: 'POST',
-			body: JSON.stringify({ question_id: questionId })
+			body: JSON.stringify({ question_id: questionId, exam_id: examId, target: examTarget })
 		});
+	}
+
+	getAdaptiveLearningProfile(examTarget = ''): Promise<unknown> {
+		return this.request(`/me/adaptive-learning${examTarget ? `?exam_target=${encodeURIComponent(examTarget)}` : ''}`);
 	}
 
 	// ---------------------------------------------------------------------

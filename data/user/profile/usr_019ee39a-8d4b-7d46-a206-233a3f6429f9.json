@@ -6,9 +6,23 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-08-29T01:37:53.075Z",
+  "last_active_at" : "2026-09-16T15:38:03.078Z",
   "last_credit_reason" : "",
   "last_xp_reason" : "study.pomodoro",
+  "learning_credit_awards" : 
+  {
+    "referral:usr_019ee061-3af0-7518-a63c-e985c77fa52b:pay_1789517943368_6ae4445558e72dd1" : 
+    {
+      "amount_cents" : 1998,
+      "currency" : "cny",
+      "granted_at" : "2026-09-16T00:19:16.784Z",
+      "reason" : "referral.first_pro_purchase",
+      "status" : "available"
+    }
+  },
+  "learning_credit_cents" : 1998,
+  "learning_credit_debt_cents" : 0,
+  "learning_credit_updated_at" : "2026-09-16T00:19:16.784Z",
   "locale" : "zh-CN",
   "longest_streak" : 8,
   "notification_enabled" : true,
@@ -19,7 +33,7 @@
   "plan_status" : "active",
   "scope_id" : "usr_019ee39a-8d4b-7d46-a206-233a3f6429f9",
   "scope_type" : "personal",
-  "streak_days" : 8,
+  "streak_days" : 1,
   "study_stats" : 
   {
     "awarded_now" : 0,

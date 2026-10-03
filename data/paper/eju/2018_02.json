@@ -233,7 +233,7 @@
             "passage": {
               "title": "次の案内の内容と合っているものはどれですか。",
               "type": "text",
-              "value": "外国人のための防災訓練\n次のように、外国人のための防災訓練を行います。ご参加をお待ちしています。\n外国人のお友達にも、ぜひお知らせください。\n日　　時：7月5日（木）9:00～13:00\n会　　場：南公園体育館\n内　　容：・大地震のとき、どれぐらい揺れるのか、体験します。\n・心臓マッサージや人工呼吸の方法を学びます。\n・緊急時の電話のかけ方を学びます。\nその他、防災について学びます。詳しい内容は、参加申込者に郵送します。\n募集人数：約50名\n費　　用：無料\n申込み　：参加を希望する方は、下記サイトの申込みフォームから、またはA4用紙に\n必要事項を記入の上ファックスで、6月8日（金）までにお申し込みください。\nhttp://xxxxxxxx.jp\nFax：03-1234-xxxx\n必要事項：①名前　②住所　③電話番号　④国籍　⑤使用言語\n問合せ　：南市役所　防災課　（担当者　田中・山本）\n（月～金　9:00～17:00、日本語または英語で対応可能）\nTel：03-1234-xxxx　　Fax：03-1234-xxxx\nE-mail：info@xxxxxxxxjp\n※　訓練当日は、参加者の使用言語に合わせて、通訳ボランティアがご案内します。日本語がわからない方も安心してご参加いただけます。\n※　来年度以降のチラシに写真を載せるため、参加風景を撮影することがあります。ご了承ください。\n※　個人情報は訓練のためだけに使用させていただきます。"
+              "value": "外国人のための防災訓練\n次のように、外国人のための防災訓練を行います。ご参加をお待ちしています。\n外国人のお友達にも、ぜひお知らせください。\n日　　時：7月5日（木）9:00～13:00\n会　　場：南公園体育館\n内　　容：・大地震のとき、どれぐらい揺れるのか、体験します。\n・心臓マッサージや人工呼吸の方法を学びます。\n・緊急時の電話のかけ方を学びます。\nその他、防災について学びます。詳しい内容は、参加申込者に郵送します。\n募集人数：約50名\n費　　用：無料\n申込み　：参加を希望する方は、下記サイトの申込みフォームから、またはA4用紙に必要事項を記入の上ファックスで、6月8日（金）までにお申し込みください。\nhttp://xxxxxxxx.jp\nFax：03-1234-xxxx\n必要事項：①名前　②住所　③電話番号　④国籍　⑤使用言語\n問合せ　：南市役所　防災課　（担当者　田中・山本）\n（月～金　9:00～17:00、日本語または英語で対応可能）\nTel：03-1234-xxxx　　Fax：03-1234-xxxx\nE-mail：info@xxxxxxxxjp\n※　訓練当日は、参加者の使用言語に合わせて、通訳ボランティアがご案内します。日本語がわからない方も安心してご参加いただけます。\n※　来年度以降のチラシに写真を載せるため、参加風景を撮影することがあります。ご了承ください。\n※　個人情報は訓練のためだけに使用させていただきます。"
             },
             "questions": [
               {
@@ -1227,7 +1227,7 @@
             "questions": [
               {
                 "answer": 3,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_06.mp3",
                 "correct_answer": 3,
                 "eju_answer_no": 1,
                 "eju_question_no": 1,
@@ -1299,7 +1299,7 @@
             "questions": [
               {
                 "answer": 2,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_07.mp3",
                 "correct_answer": 2,
                 "eju_answer_no": 2,
                 "eju_question_no": 2,
@@ -1386,7 +1386,7 @@
             "questions": [
               {
                 "answer": 3,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_08.mp3",
                 "correct_answer": 3,
                 "eju_answer_no": 3,
                 "eju_question_no": 3,
@@ -1552,7 +1552,7 @@
             "questions": [
               {
                 "answer": 4,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_09.mp3",
                 "correct_answer": 4,
                 "eju_answer_no": 4,
                 "eju_question_no": 4,
@@ -1664,7 +1664,7 @@
             "questions": [
               {
                 "answer": 3,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_10.mp3",
                 "correct_answer": 3,
                 "eju_answer_no": 5,
                 "eju_question_no": 5,
@@ -1684,7 +1684,7 @@
                   "3",
                   "4"
                 ],
-                "question": "先生が日本の伝統音楽の雅楽について話しています。この先生によると、雅楽では.、打楽器、弦楽器、管楽器は、どのような配置になりますか。",
+                "question": "先生が日本の伝統音楽の雅楽について話しています。この先生によると、雅楽では、打楽器、弦楽器、管楽器は、どのような配置になりますか。",
                 "script": [
                   {
                     "end": "04:39.32",
@@ -1756,7 +1756,7 @@
             "questions": [
               {
                 "answer": 4,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_11.mp3",
                 "correct_answer": 4,
                 "eju_answer_no": 6,
                 "eju_question_no": 6,
@@ -1776,7 +1776,7 @@
                   "3",
                   "4"
                 ],
-                "question": "先生が、認知科学の授業で、創造性について話しています。この先生が、創造的だととらえているのは.、資料のどの例ですか。",
+                "question": "先生が、認知科学の授業で、創造性について話しています。この先生が、創造的だととらえているのは、資料のどの例ですか。",
                 "script": [
                   {
                     "end": "10:15.88",
@@ -1858,7 +1858,7 @@
             "questions": [
               {
                 "answer": 1,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_12.mp3",
                 "correct_answer": 1,
                 "eju_answer_no": 7,
                 "eju_question_no": 7,
@@ -1960,7 +1960,7 @@
             "questions": [
               {
                 "answer": 4,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_13.mp3",
                 "correct_answer": 4,
                 "eju_answer_no": 8,
                 "eju_question_no": 8,
@@ -2120,7 +2120,7 @@
             "questions": [
               {
                 "answer": 3,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_14.mp3",
                 "correct_answer": 3,
                 "eju_answer_no": 9,
                 "eju_question_no": 9,
@@ -2222,7 +2222,7 @@
             "questions": [
               {
                 "answer": 3,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_15.mp3",
                 "correct_answer": 3,
                 "eju_answer_no": 10,
                 "eju_question_no": 10,
@@ -2309,7 +2309,7 @@
             "questions": [
               {
                 "answer": 1,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_16.mp3",
                 "correct_answer": 1,
                 "eju_answer_no": 11,
                 "eju_question_no": 11,
@@ -2396,7 +2396,7 @@
             "questions": [
               {
                 "answer": 4,
-                "audio": "/data/audio/eju/2018_02/track_01.mp3",
+                "audio": "/data/audio/eju/2018_02/track_17.mp3",
                 "correct_answer": 4,
                 "eju_answer_no": 12,
                 "eju_question_no": 12,
@@ -2493,7 +2493,7 @@
         "questions": [
           {
             "answer": 2,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_22.mp3",
             "correct_answer": 2,
             "eju_answer_no": 13,
             "eju_question_no": 13,
@@ -2649,7 +2649,7 @@
           },
           {
             "answer": 3,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_23.mp3",
             "correct_answer": 3,
             "eju_answer_no": 14,
             "eju_question_no": 14,
@@ -2749,7 +2749,7 @@
           },
           {
             "answer": 4,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_24.mp3",
             "correct_answer": 4,
             "eju_answer_no": 15,
             "eju_question_no": 15,
@@ -2875,7 +2875,7 @@
           },
           {
             "answer": 4,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_25.mp3",
             "correct_answer": 4,
             "eju_answer_no": 16,
             "eju_question_no": 16,
@@ -2970,7 +2970,7 @@
           },
           {
             "answer": 1,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_26.mp3",
             "correct_answer": 1,
             "eju_answer_no": 17,
             "eju_question_no": 17,
@@ -3070,7 +3070,7 @@
           },
           {
             "answer": 4,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_27.mp3",
             "correct_answer": 4,
             "eju_answer_no": 18,
             "eju_question_no": 18,
@@ -3232,7 +3232,7 @@
           },
           {
             "answer": 2,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_28.mp3",
             "correct_answer": 2,
             "eju_answer_no": 19,
             "eju_question_no": 19,
@@ -3337,7 +3337,7 @@
           },
           {
             "answer": 4,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_29.mp3",
             "correct_answer": 4,
             "eju_answer_no": 20,
             "eju_question_no": 20,
@@ -3469,7 +3469,7 @@
           },
           {
             "answer": 1,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_30.mp3",
             "correct_answer": 1,
             "eju_answer_no": 21,
             "eju_question_no": 21,
@@ -3569,7 +3569,7 @@
           },
           {
             "answer": 3,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_31.mp3",
             "correct_answer": 3,
             "eju_answer_no": 22,
             "eju_question_no": 22,
@@ -3664,7 +3664,7 @@
           },
           {
             "answer": 4,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_32.mp3",
             "correct_answer": 4,
             "eju_answer_no": 23,
             "eju_question_no": 23,
@@ -3784,7 +3784,7 @@
           },
           {
             "answer": 2,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_33.mp3",
             "correct_answer": 2,
             "eju_answer_no": 24,
             "eju_question_no": 24,
@@ -3894,7 +3894,7 @@
           },
           {
             "answer": 2,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_34.mp3",
             "correct_answer": 2,
             "eju_answer_no": 25,
             "eju_question_no": 25,
@@ -3999,7 +3999,7 @@
           },
           {
             "answer": 1,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_35.mp3",
             "correct_answer": 1,
             "eju_answer_no": 26,
             "eju_question_no": 26,
@@ -4089,7 +4089,7 @@
           },
           {
             "answer": 2,
-            "audio": "/data/audio/eju/2018_02/track_01.mp3",
+            "audio": "/data/audio/eju/2018_02/track_36.mp3",
             "correct_answer": 2,
             "eju_answer_no": 27,
             "eju_question_no": 27,

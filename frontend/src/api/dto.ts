@@ -236,6 +236,7 @@ export interface OrganizationView {
 	created_at: string;
 	updated_at: string;
 	member_count: number;
+	billable_member_count?: number;
 	seats: number;
 	subscription: SubscriptionView;
 	invitations?: OrganizationInvitationView[];
@@ -264,8 +265,26 @@ export interface PermissionView {
 
 export interface UserBalance {
 	credits: number;
+	learning_credit_cents?: number;
+	learningCreditCents?: number;
+	learning_credit_earned_cents?: number;
+	learningCreditEarnedCents?: number;
+	learning_credit_debt_cents?: number;
+	learningCreditDebtCents?: number;
 	updated_at: string;
 	updatedAt: string;
+}
+
+export interface ReferralRewardRecordView {
+	id: string;
+	invitee_label?: string;
+	inviteeLabel?: string;
+	amount_cents?: number;
+	amountCents?: number;
+	currency: string;
+	status: string;
+	granted_at?: string;
+	grantedAt?: string;
 }
 
 export interface ReferralView {
@@ -285,8 +304,18 @@ export interface ReferralView {
 	rewardTrigger?: string;
 	reward_credit_amount?: number;
 	rewardCreditAmount?: number;
+	reward_amount_cents?: number;
+	rewardAmountCents?: number;
+	reward_currency?: string;
+	rewardCurrency?: string;
 	reward_credit_recipient_user_id?: string;
 	rewardCreditRecipientUserId?: string;
+	invite_reward_count?: number;
+	inviteRewardCount?: number;
+	invite_reward_earned_cents?: number;
+	inviteRewardEarnedCents?: number;
+	invite_reward_records?: ReferralRewardRecordView[];
+	inviteRewardRecords?: ReferralRewardRecordView[];
 	has_referrer: boolean;
 	hasReferrer?: boolean;
 }

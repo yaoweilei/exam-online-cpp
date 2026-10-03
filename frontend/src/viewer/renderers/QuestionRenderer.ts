@@ -16,6 +16,7 @@ interface RendererExamViewer {
 	currentSectionIndex: number;
 	currentQuestionIndex: number;
 	showAnswers: boolean;
+	isCurrentPracticeQuestionChecked?: () => boolean;
 	showExplanations: boolean;
 	showReadingKana: boolean;
 	showReadingZh: boolean;
@@ -27,6 +28,14 @@ export class QuestionRenderer {
 	private readonly examViewer: RendererExamViewer;
 	constructor(examViewer: RendererExamViewer) {
 		this.examViewer = examViewer;
+		window.addEventListener('resize', () => this.updatePaperHeight());
+	}
+
+	private updatePaperHeight(): void {
+		const container = document.getElementById('current-question-container');
+		if (!container || !container.getClientRects().length) return;
+		const top = Math.max(0, container.getBoundingClientRect().top + window.scrollY);
+		container.style.setProperty('--question-paper-top', `${top}px`);
 	}
 
 	/**
@@ -56,6 +65,22 @@ export class QuestionRenderer {
 
 		const questionDiv = document.createElement("div");
 		questionDiv.className = "current-question";
+		const examId = String(this.examViewer.currentExam.exam_info.exam_id || this.examViewer.currentExam.exam_info.id || this.examViewer._currentExamId || '');
+		if (!examId.toUpperCase().includes('EJU')) {
+			if (currentSection.section_type === 'vocabulary') questionDiv.classList.add('jlpt-vocabulary-paper');
+			const options = currentQuestion.options;
+			if (Array.isArray(options) && options.length === 4) {
+				const optionLengths = options.map((option: unknown) => String(option || '')
+					.replace(/<[^>]*>/g, '')
+					.replace(/^\s*[1-4１-４]\s*[.．、)）]\s*/, '')
+					.trim());
+				if (currentSection.section_type === 'vocabulary' && optionLengths.every(option => Array.from(option).length <= 6 && !/[。！？!?]/.test(option))) {
+					questionDiv.classList.add('jlpt-short-options');
+				} else if (optionLengths.some(option => Array.from(option).length > 6 || /[。！？!?]/.test(option))) {
+					questionDiv.classList.add('jlpt-long-options');
+				}
+			}
+		}
 
 		const questionNumber = currentQuestion.id;
 
@@ -120,13 +145,15 @@ export class QuestionRenderer {
 				currentQuestion,
 				this.examViewer.currentSectionIndex,
 				this.examViewer.currentQuestionIndex,
-				renderGroupPassageInsideQuestion ? currentQuestion._groupPassage : null
+				renderGroupPassageInsideQuestion ? currentQuestion._groupPassage : null,
+				questionDiv.classList.contains('jlpt-long-options')
 			)
 		);
 
 		questionDiv.appendChild(sectionInfo);
 		questionDiv.appendChild(questionContent);
 		container.appendChild(questionDiv);
+		requestAnimationFrame(() => this.updatePaperHeight());
 	}
 
 	/**
@@ -264,7 +291,8 @@ export class QuestionRenderer {
 		question: RendererAnyRecord,
 		sectionIndex: number,
 		questionIndex: number,
-		inlinePassage: RendererAnyRecord | null = null
+		inlinePassage: RendererAnyRecord | null = null,
+		longOptions = false
 	) {
 		const questionDiv = DOMUtils.createElementWithClass("div", "question");
 		questionDiv.id = `question-${question.id}`;
@@ -311,7 +339,7 @@ export class QuestionRenderer {
 			questionDiv.appendChild(questionPassageDiv);
 		}
 
-		const optionsContainer = this.createOptionsContainer(question);
+		const optionsContainer = this.createOptionsContainer(question, longOptions);
 		if (optionsContainer.childNodes.length > 0) {
 			questionDiv.appendChild(optionsContainer);
 		}
@@ -324,14 +352,14 @@ export class QuestionRenderer {
 	/**
 	 * 创建选项容器
 	 */
-	createOptionsContainer(question: RendererAnyRecord) {
+	createOptionsContainer(question: RendererAnyRecord, longOptions = false) {
 		const optionsContainer = DOMUtils.createElementWithClass("div", "options-container");
 		const shouldRenderOptions = this.hasRenderableOptions(question) && !this.isWritingQuestion(question);
 
 		if (shouldRenderOptions && Array.isArray(question.options)) {
 			question.options.forEach((option: string, optionIndex: number) => {
 				optionsContainer.appendChild(
-					this.createOptionElement(question, option, optionIndex)
+					this.createOptionElement(question, option, optionIndex, longOptions)
 				);
 			});
 		}
@@ -345,7 +373,7 @@ export class QuestionRenderer {
 		//  - 显示答案模式（复盘）下直接展示完整 transcript
 		//  - 否则进入「三段式练习」流程：盲听 → 看原文 → 再盲听，由 AudioManager 控制显隐
 		if (question.script) {
-			if (this.examViewer.showAnswers) {
+			if ((this.examViewer.showAnswers || this.examViewer.isCurrentPracticeQuestionChecked?.())) {
 				optionsContainer.appendChild(this.examViewer.audioManager.createScriptElement(question));
 			} else if (question.audio) {
 				optionsContainer.appendChild(this.examViewer.audioManager.createPracticeStageElement(question));
@@ -374,7 +402,7 @@ export class QuestionRenderer {
 	 * @param {number} optionIndex - 选项索引（0-3，对应选项 1-4）
 	 * @returns {HTMLElement} 返回创建的选项 DOM 元素
 	 */
-	createOptionElement(question: RendererAnyRecord, option: string, optionIndex: number) {
+	createOptionElement(question: RendererAnyRecord, option: string, optionIndex: number, longOption = false) {
 		// 创建选项容器 div
 		const optionDiv = document.createElement("div");
 		optionDiv.className = "option"; // 添加 CSS 类名用于样式
@@ -383,12 +411,20 @@ export class QuestionRenderer {
 		optionDiv.dataset.questionId = String(question.id); // 题目 ID
 		optionDiv.dataset.optionIndex = String(optionIndex + 1); // 选项编号（1-4）
 
+		if (longOption) {
+			const number = document.createElement('span');
+			number.className = 'option-number';
+			number.textContent = `${optionIndex + 1}.`;
+			optionDiv.appendChild(number);
+		}
+
 		// 创建选项文本元素
 		const textSpan = document.createElement("span");
 		textSpan.className = "option-text"; // 添加 CSS 类名
 
 		// 格式化选项文本（处理 && 标记）
-		const formattedOption = this.formatOptionText(question, option);
+		const displayOption = longOption ? option.replace(/^\s*[1-4１-４]\s*[.．、)）]\s*/, '') : option;
+		const formattedOption = this.formatOptionText(question, displayOption);
 		textSpan.innerHTML = this.shouldSkipReadingChoiceAssist(formattedOption)
 			? formattedOption
 			: this.renderInlineTranslationAssist(
@@ -421,12 +457,12 @@ export class QuestionRenderer {
 		}
 
 		// 显示答案模式下，给用户勾选的选项加一个显式标记（区分于正确答案的✔）
-		if (this.examViewer.showAnswers && selectedAnswer === optionIndex + 1) {
+		if ((this.examViewer.showAnswers || this.examViewer.isCurrentPracticeQuestionChecked?.()) && selectedAnswer === optionIndex + 1) {
 			optionDiv.classList.add("chosen-option");
 		}
 
 		// 如果显示答案，给正确选项添加 "correct-option" 类名
-		if (this.examViewer.showAnswers && question.correct_answer === optionIndex + 1) {
+		if ((this.examViewer.showAnswers || this.examViewer.isCurrentPracticeQuestionChecked?.()) && question.correct_answer === optionIndex + 1) {
 			optionDiv.classList.add("correct-option");
 		}
 
@@ -439,7 +475,7 @@ export class QuestionRenderer {
 	 */
 	appendAnswerAndExplanation(questionDiv: HTMLElement, question: RendererAnyRecord) {
 		// 不再显示"正确答案：X"文本，改为在选项上高亮显示
-		// if (this.examViewer.showAnswers && question.correct_answer) {
+		// if ((this.examViewer.showAnswers || this.examViewer.isCurrentPracticeQuestionChecked?.()) && question.correct_answer) {
 		// 	questionDiv.appendChild(this.createAnswerElement(question));
 		// }
 		const writingAnswerParts = this.isWritingQuestion(question)
@@ -480,18 +516,19 @@ export class QuestionRenderer {
 			}
 
 			questionDiv.appendChild(explanationWrapper);
-		} else if (this.examViewer.showAnswers) {
+		} else if ((this.examViewer.showAnswers || this.examViewer.isCurrentPracticeQuestionChecked?.())) {
 			// 显示答案：展示题目解析（explanation），用于快速回看
-			const answerText = ((question.explanation || writingAnswerParts.core || "") || "").trim();
-			if (!answerText) return;
+			const coreText = ((question.explanation || writingAnswerParts.core || "") || "").trim();
+			if (!coreText) return;
 
 			const explanationWrapper = document.createElement("div");
 			explanationWrapper.style.position = "relative";
 
-			const explanation = DOMUtils.createElementWithClass("div", "explanation answer-extras");
-			explanation.innerHTML = this.formatExplanationText(answerText);
-			explanationWrapper.appendChild(explanation);
-
+			if (coreText) {
+				const explanation = DOMUtils.createElementWithClass("div", "explanation");
+				explanation.innerHTML = this.formatExplanationText(coreText);
+				explanationWrapper.appendChild(explanation);
+			}
 			// 如果是管理员，添加编辑按钮（编辑 explanation）
 			if (this.isAdmin()) {
 				const editBtn = this.createEditButton('explanation', question);
@@ -719,7 +756,7 @@ export class QuestionRenderer {
 	isAdmin() {
 		const userContext = this.examViewer.userContextManager?.getUserContext();
 		const roles = Array.isArray(userContext?.roles) ? userContext.roles : [];
-		return roles.some((role: string) => ['teacher', 'assistant', 'orgAdmin', 'contentAdmin', 'superAdmin'].includes(role));
+		return roles.some((role: string) => ['contentAdmin', 'superAdmin'].includes(role));
 	}
 
 	/**

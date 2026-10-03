@@ -15,8 +15,8 @@ const roleCases = [
     role: 'assistant',
     expectedFeatures: ['profile'],
     absentFeatures: ['questions', 'contentAdmin', 'memberAdmin', 'sysFlags'],
-    expectedSections: ['learning'],
-    absentSections: ['admin-hub']
+    expectedSections: [],
+    absentSections: ['learning', 'admin-hub']
   },
   {
     prefix: 'teacher_role_perm',
@@ -31,8 +31,8 @@ const roleCases = [
     role: 'orgAdmin',
     expectedFeatures: ['memberAdmin'],
     absentFeatures: ['questions', 'contentAdmin', 'sysFlags'],
-    expectedSections: ['learning'],
-    absentSections: ['admin-hub']
+    expectedSections: [],
+    absentSections: ['learning', 'admin-hub']
   },
   {
     prefix: 'contentadmin_role_perm',
@@ -173,6 +173,48 @@ async function prepareRoleFixture(request) {
 
   return { sessions, organizationId, learningGroupId, assignment };
 }
+
+test('机构只对学员和内容老师计入付费席位', async ({ request }) => {
+  const owner = await loginApi(request, uniqueLoginId('superadmin_billable_seats'));
+  const firstStudent = await loginApi(request, uniqueLoginId('student_billable_first'));
+  const secondStudent = await loginApi(request, uniqueLoginId('student_billable_second'));
+  const manager = await loginApi(request, uniqueLoginId('assistant_billable_manager'));
+  const organization = await createOrganizationApi(request, owner.token, `E2E 付费席位 ${Date.now()}`);
+  const organizationId = organization.organization_id || organization.scope_id || organization.id;
+
+  await addOrganizationMemberApi(request, owner.token, organizationId, firstStudent.user_id, ['student']);
+  await addOrganizationMemberApi(request, owner.token, organizationId, manager.user_id, ['assistant']);
+
+  const detail = await getOkJson(await request.get(
+    `/api/v1/organizations/${encodeURIComponent(organizationId)}?token=${encodeURIComponent(owner.token)}`
+  ));
+  expect(detail.data.member_count).toBe(3);
+  expect(detail.data.billable_member_count).toBe(1);
+
+  const oneSeatOrganization = await getOkJson(await request.post('/api/v1/organizations', {
+    data: {
+      token: owner.token,
+      name: `E2E 单席机构 ${Date.now()}`,
+      organization_type: 'school',
+      seats: 1,
+      owner_roles: ['orgAdmin']
+    }
+  }));
+  const oneSeatId = oneSeatOrganization.data.organization_id || oneSeatOrganization.data.scope_id;
+  await addOrganizationMemberApi(request, owner.token, oneSeatId, firstStudent.user_id, ['student']);
+  await addOrganizationMemberApi(request, owner.token, oneSeatId, manager.user_id, ['assistant']);
+  const overCapacity = await request.post(`/api/v1/organizations/${encodeURIComponent(oneSeatId)}/members`, {
+    data: {
+      token: owner.token,
+      user_id: secondStudent.user_id,
+      roles: ['student'],
+      confirmation: '确认修改机构成员',
+      reauth_password: ''
+    }
+  });
+  expect(overCapacity.status()).toBe(409);
+  expect((await overCapacity.json()).code).toBe('ORGANIZATION_SEATS_FULL');
+});
 
 test('各正式角色的上下文、功能入口和工作台权限矩阵正确', async ({ request }) => {
   for (const item of roleCases) {
@@ -479,24 +521,47 @@ test('套餐价格配置只允许超级管理员维护，订单金额读取配�
 
   const publicPricing = await request.get('/api/v1/payments/pricing');
   const publicPayload = await getOkJson(publicPricing);
-  expect(publicPayload.data.prices_cents.cny.pro['30']).toBe(1900);
-  expect(publicPayload.data.version).toBe(4);
+  expect(publicPayload.data.prices_cents.cny.pro['30']).toBe(1290);
+  expect(publicPayload.data.version).toBe(9);
+  expect(publicPayload.data.catalogs.personal.list_prices_cents.cny.pro).toEqual({
+    30: 1500,
+    90: 4000,
+    365: 14500,
+  });
   expect(publicPayload.data.catalogs.organization.prices_cents.cny.pro['30']).toBe(1500);
-  expect(publicPayload.data.catalogs.organization.prices_cents.cny.pro['365']).toBe(11900);
-  expect(publicPayload.data.catalogs.organization.plans.pro.minimum_seats).toBe(20);
-  expect(publicPayload.data.catalogs.organization.custom_quote_min_seats).toBe(200);
+  expect(publicPayload.data.catalogs.organization.prices_cents.cny.pro['90']).toBe(2990);
+  expect(publicPayload.data.catalogs.organization.prices_cents.cny.pro['365']).toBe(9990);
+  expect(publicPayload.data.catalogs.organization.durations).toEqual([30, 90, 365]);
+  expect(publicPayload.data.catalogs.personal.plans.ultra.enabled).toBe(false);
+  expect(publicPayload.data.catalogs.organization.plans.ultra.enabled).toBe(false);
+  expect(publicPayload.data.catalogs.organization.prices_cents.cny.ultra).toMatchObject({
+    '30': 3900, '90': 9900, '365': 29900
+  });
+  expect(publicPayload.data.catalogs.organization.plans.pro.minimum_seats).toBe(1);
+  expect(publicPayload.data.catalogs.organization.plans.pro.pricing_mode).toBe('progressive');
+  expect(publicPayload.data.catalogs.organization.custom_quote_min_seats).toBe(0);
+  expect(publicPayload.data.catalogs.organization.seat_tiers.map((tier) => tier.min_seats)).toEqual([1, 21, 201, 501]);
   expect(publicPayload.data.catalogs.personal.offers.map((offer) => offer.id)).toEqual([
     'first_purchase',
     'renewal',
-    'campaign'
+    'campaign',
+    'referral_reward'
   ]);
+  const referralReward = publicPayload.data.catalogs.personal.offers.find((offer) => offer.id === 'referral_reward');
+  expect(referralReward.enabled).toBe(true);
+  expect(referralReward.reward_percent).toBe(20);
+  expect(referralReward.maximum_reward_cents).toBe(2000);
+
+  await expectApiCode(await request.post('/api/v1/payments/orders', {
+    data: { token: student.token, plan: 'ultra', days: 30, provider: 'wechat', currency: 'cny' }
+  }), 'PAYMENT_PLAN_UNAVAILABLE');
 
   const pricingPayload = {
     token: student.token,
     default_provider: 'wechat',
     prices_cents: {
       cny: {
-        pro: { 30: 1900, 90: 4900, 365: 15900 },
+        pro: { 30: 1290, 90: 2990, 365: 9990 },
         ultra: { 30: 3900, 90: 9900, 365: 29900 }
       }
     }
@@ -509,7 +574,7 @@ test('套餐价格配置只允许超级管理员维护，订单金额读取配�
   });
   const updatedPayload = await getOkJson(updated);
   expect(updatedPayload.data.default_provider).toBe('wechat');
-  expect(updatedPayload.data.prices_cents.cny.pro['30']).toBe(1900);
+  expect(updatedPayload.data.prices_cents.cny.pro['30']).toBe(1290);
 
   const order = await request.post('/api/v1/payments/orders', {
     data: {
@@ -521,7 +586,7 @@ test('套餐价格配置只允许超级管理员维护，订单金额读取配�
     }
   });
   const orderPayload = await getOkJson(order);
-  expect(orderPayload.data.amount_cents).toBe(1900);
+  expect(orderPayload.data.amount_cents).toBe(1290);
   expect(orderPayload.data.provider).toBe('wechat');
 });
 

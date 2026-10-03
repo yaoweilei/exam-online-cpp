@@ -1677,6 +1677,19 @@
       "status" : "resolved",
       "updated_at" : "2026-09-09T00:50:13.232Z",
       "user_id" : "usr_01a083a4-60ec-768c-bbfa-15def879aa40"
+    },
+    {
+      "admin_note" : "已处理并关闭",
+      "category" : "question",
+      "created_at" : "2026-09-09T12:54:56.550Z",
+      "description" : "Playwright 平台反馈处理闭环",
+      "exam_id" : "2023_02",
+      "feedback_id" : "fb_01a0863c-5726-7f10-a624-d73fcbf2690b",
+      "paper_id" : "2023_02",
+      "question_id" : "29",
+      "status" : "resolved",
+      "updated_at" : "2026-09-09T12:55:13.590Z",
+      "user_id" : "usr_01a0863c-50f9-770b-aeea-f1ff367b89e7"
     }
   ],
   "paper_id" : "2023_02"

@@ -6,30 +6,92 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-09-09T00:26:11.909Z",
+  "last_active_at" : "2026-09-29T00:33:59.308Z",
   "last_credit_reason" : "",
   "last_xp_reason" : "study.pomodoro",
+  "learning_credit_awards" : {},
+  "learning_credit_cents" : 0,
+  "learning_credit_debt_cents" : 0,
+  "learning_credit_updated_at" : "",
   "locale" : "zh-CN",
-  "longest_streak" : 6,
+  "longest_streak" : 7,
   "notification_enabled" : true,
   "organization_type" : "",
-  "plan" : "free",
-  "plan_expires" : "",
-  "plan_expires_at" : "",
+  "plan" : "pro",
+  "plan_expires" : "2028-09-15",
+  "plan_expires_at" : "2028-09-15",
   "plan_status" : "active",
+  "redeemed_codes" : 
+  {
+    "EJUPRO30" : 
+    {
+      "code" : "EJU-PRO-30",
+      "description" : "兑换后开通或顺延 PRO 套餐 30 天。",
+      "effect" : 
+      {
+        "days" : 30,
+        "expires_at" : "2028-08-16",
+        "plan" : "pro"
+      },
+      "effect_summary" : "PRO 套餐已顺延 30 天",
+      "id" : "red_EJUPRO30",
+      "kind" : "subscription",
+      "normalized_code" : "EJUPRO30",
+      "redeemedAt" : "2026-08-16T03:20:00.000Z",
+      "redeemed_at" : "2026-08-16T03:20:00.000Z",
+      "status" : "used",
+      "title" : "PRO 30 天体验卡"
+    },
+    "EJUULTRA30" : 
+    {
+      "code" : "EJU-ULTRA-30",
+      "description" : "兑换后获得 ULTRA 套餐 30 天体验权益。",
+      "effect" : 
+      {
+        "days" : 30,
+        "expires_at" : "2026-08-01",
+        "plan" : "ultra"
+      },
+      "effect_summary" : "ULTRA 体验权益已使用",
+      "id" : "red_EJUULTRA30",
+      "kind" : "subscription",
+      "normalized_code" : "EJUULTRA30",
+      "redeemedAt" : "2026-07-02T07:45:00.000Z",
+      "redeemed_at" : "2026-07-02T07:45:00.000Z",
+      "status" : "used",
+      "title" : "ULTRA 30 天体验卡"
+    },
+    "WELCOME100" : 
+    {
+      "code" : "WELCOME-100",
+      "description" : "兑换后增加 100 学习积分。",
+      "effect" : 
+      {
+        "credits" : 100
+      },
+      "effect_summary" : "已到账 100 学习积分",
+      "id" : "red_WELCOME100",
+      "kind" : "credits",
+      "normalized_code" : "WELCOME100",
+      "redeemedAt" : "2026-09-12T06:30:00.000Z",
+      "redeemed_at" : "2026-09-12T06:30:00.000Z",
+      "status" : "used",
+      "title" : "新用户学习积分包"
+    }
+  },
   "scope_id" : "usr_019ee061-3af0-7518-a63c-e985c77fa52b",
   "scope_type" : "personal",
-  "streak_days" : 5,
+  "streak_days" : 3,
   "study_stats" : 
   {
     "awarded_now" : 0,
     "daily_xp_cap" : 2,
-    "date" : "2026-08-06",
+    "date" : "2026-09-24",
     "pomodoro_seconds" : 1500,
-    "today_minutes" : 0,
-    "today_seconds" : 30,
+    "today_minutes" : 6,
+    "today_seconds" : 360,
     "today_xp_awarded" : 0,
-    "updated_at" : "2026-08-06T14:53:47.304Z"
+    "updated_at" : "2026-09-24T14:52:53.120Z"
   },
   "user_id" : "usr_019ee061-3af0-7518-a63c-e985c77fa52b",
   "xp" : 12,

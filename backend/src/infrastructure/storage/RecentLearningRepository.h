@@ -65,6 +65,7 @@ class RecentLearningRepository
         }
 
         const auto examId = item.get("exam_id", "").asString();
+        const auto practiceGroup = item.get("source", "").asString() == "practice_group";
         const auto now = common::nowIso8601();
         item["user_id"] = userId;
         item["updated_at"] = now;
@@ -77,7 +78,8 @@ class RecentLearningRepository
         next.append(item);
         for (const auto &existing : doc["items"])
         {
-            if (!examId.empty() && existing.get("exam_id", "").asString() == examId)
+            if (!examId.empty() && existing.get("exam_id", "").asString() == examId
+                && (existing.get("source", "").asString() == "practice_group") == practiceGroup)
             {
                 continue;
             }

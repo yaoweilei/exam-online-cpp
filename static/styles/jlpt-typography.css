@@ -1,0 +1,51 @@
+/* Typography measured from the JLPT 2018 N2 official sample PDFs.
+   Ryumin is used when installed; platform Mincho faces are fallbacks. */
+:root {
+  --jlpt-font-mincho: "Ryumin", "Ryumin-Regular", "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "MS PMincho", "MS Mincho", "Noto Serif CJK JP", "Noto Serif JP", serif;
+  --jlpt-font-gothic: "FutoGoB101-Bold", "Yu Gothic", "Hiragino Kaku Gothic ProN", "MS Gothic", "Noto Sans CJK JP", sans-serif;
+  --jlpt-body-size: 11.3pt;
+  --jlpt-body-leading: 8.49mm;
+  --jlpt-screen-body-size: 14.125pt;
+  --jlpt-screen-leading: 10.6125mm;
+}
+/* Match the official PDF at 125% screen zoom while keeping its ~41.5-glyph line measure. */
+#guest-welcome .gw-reading-sheet {
+  width: 100%;
+  max-width: 825px;
+  margin-inline: auto;
+}
+#current-question-container .question-text,
+#current-question-container .passage-content,
+#current-question-container .question-passage,
+#current-question-container .option,
+#current-question-container .option-text,
+#guest-welcome .gw-passage,
+#guest-welcome .gw-options button,
+#guest-welcome h2[lang="ja"] {
+  font-family: var(--jlpt-font-mincho);
+  font-size: var(--jlpt-screen-body-size);
+  font-weight: 400;
+  line-height: var(--jlpt-screen-leading);
+  letter-spacing: normal;
+}
+#current-question-container .section-instruction-text,
+#current-question-container .section-title {
+  font-family: var(--jlpt-font-gothic);
+  font-size: var(--jlpt-screen-body-size);
+  font-weight: 700;
+  line-height: var(--jlpt-screen-leading);
+}
+#current-question-container .question-text .target-word { font-weight: 400; }
+#current-question-container ruby rt { font-family: var(--jlpt-font-mincho); font-size: 7pt; line-height: 1; }
+#current-question-container .question-text .text-assist-source,
+#current-question-container .passage-content .text-assist-source,
+#current-question-container .option-text .text-assist-source { font: inherit; line-height: inherit; }
+#current-question-container .question-number-inline { font-family: var(--jlpt-font-gothic); font-size: var(--jlpt-screen-body-size); }
+
+#guest-welcome .gw-reading-sheet .gw-passage,
+#guest-welcome .gw-reading-sheet h2[lang="ja"],
+#guest-welcome .gw-reading-sheet .gw-options button {
+  font-size: var(--jlpt-screen-body-size);
+  line-height: var(--jlpt-screen-leading);
+}
+#guest-welcome .gw-reading-sheet .gw-passage { padding: 20px; }

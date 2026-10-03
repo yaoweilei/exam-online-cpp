@@ -15,6 +15,17 @@
 	/* 供 #width-drag-handle 绝对定位 */
 }
 
+#saved-practice-notice {
+	align-self: stretch;
+	margin: 8px 0;
+	padding: 9px 14px;
+	border: 1px solid #d8e4ef;
+	border-radius: 9px;
+	background: #f3f8fc;
+	color: #35516a;
+	font-size: 13px;
+}
+
 #exam-timer-bar {
 	display: flex;
 	align-items: center;
@@ -28,55 +39,6 @@
 
 #exam-timer-bar strong { color: var(--vscode-button-background); }
 #exam-timer-bar.is-expired strong { color: var(--vscode-errorForeground, #c53030); }
-
-/* 仅题目正文区域受宽度控制（左对齐，不居中） */
-#exam-workarea {
-	--exam-content-width-internal: auto;
-}
-
-#exam-workarea.limited {
-	width: var(--exam-content-width-internal, auto);
-	max-width: 100%;
-	border-right: 1px solid var(--vscode-button-background);
-	transition: width .15s ease-out;
-}
-
-#width-drag-handle {
-	position: absolute;
-	top: 0;
-	right: -4px;
-	/* 覆盖在右侧边线外一点方便抓取 */
-	width: 8px;
-	height: 100%;
-	cursor: col-resize;
-	background: transparent;
-	user-select: none;
-	z-index: 10;
-}
-
-#width-drag-handle::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 3px;
-	width: 2px;
-	height: 100%;
-	background: var(--vscode-button-background);
-	opacity: 0.6;
-	transition: background .15s, opacity .15s;
-}
-
-#width-drag-handle:hover::before,
-body.resizing-width #width-drag-handle::before {
-	opacity: 1;
-	background: var(--vscode-button-hoverBackground);
-}
-
-#exam-workarea.unlimited {
-	width: auto;
-	border-right: none;
-	transition: width .15s ease-out;
-}
 
 /* 移除原来的闪烁背景效果，保持平滑宽度变化 */
 

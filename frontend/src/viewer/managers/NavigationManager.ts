@@ -36,6 +36,8 @@ interface NavigationExamViewer {
 	currentSectionIndex: number;
 	currentQuestionIndex: number;
 	currentCategory: string | null;
+	examMode?: string;
+	practiceScope?: { sectionIndexes: number[] } | null;
 	stateManager: {
 		updateNavigationState: (sectionIndex: number, questionIndex: number, categoryId?: string) => void;
 	};
@@ -62,6 +64,12 @@ class NavigationManager {
 	}
 
 	calculateNextPosition(direction: 'next' | 'prev'): NavPosition | null {
+		if (this.examViewer.examMode === 'practice' && this.examViewer.practiceScope) {
+			const sections = this.examViewer.currentExam?.exam_info?.sections || [];
+			const positions = this.examViewer.practiceScope.sectionIndexes.flatMap(sectionIndex => (sections[sectionIndex]?.questions || []).map((_, questionIndex) => ({ sectionIndex, questionIndex })));
+			const index = positions.findIndex(position => position.sectionIndex === this.examViewer.currentSectionIndex && position.questionIndex === this.examViewer.currentQuestionIndex);
+			return index >= 0 ? positions[index + (direction === 'next' ? 1 : -1)] || null : null;
+		}
 		const { currentExam, currentSectionIndex, currentQuestionIndex, currentCategory } = this.examViewer;
 
 		this.logger.debug('calculateNextPosition called with:', {

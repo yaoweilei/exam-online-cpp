@@ -45,6 +45,7 @@
 #include "application/services/InstitutionService.h"
 #include "infrastructure/storage/RecentLearningRepository.h"
 #include "application/services/ContentWorkflowService.h"
+#include "application/services/AdaptiveLearningService.h"
 
 namespace transport
 {
@@ -120,6 +121,7 @@ struct AppContext
     // 机构端管理工作台
     application::services::InstitutionService *institutionService{nullptr};
     application::services::ContentWorkflowService *contentWorkflowService{nullptr};
+    application::services::AdaptiveLearningService *adaptiveLearningService{nullptr};
     // 最近学习记录（保留 10 条，首页默认展示 3 条）
     infrastructure::storage::RecentLearningRepository *recentLearningRepository{nullptr};
     application::recommendation::RecommendationStrategy *recommendationStrategy{nullptr};

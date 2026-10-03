@@ -1,0 +1,26 @@
+{
+  "user_id": "usr_019ee061-3af0-7518-a63c-e985c77fa52b",
+  "items": [
+    {
+      "id": "vw_demo_chiryou",
+      "word": "治療",
+      "reading": "ちりょう",
+      "note": "治疗；常用搭配：治療を受ける。",
+      "exam_id": "N2_2016_07",
+      "question_id": "1",
+      "added_at": "2026-09-16T12:25:00.000Z",
+      "updated_at": "2026-09-16T12:25:00.000Z"
+    },
+    {
+      "id": "vw_demo_kisou",
+      "word": "競う",
+      "reading": "きそう",
+      "note": "竞争、比拼；て形是「競って」。",
+      "exam_id": "N2_2016_07",
+      "question_id": "2",
+      "added_at": "2026-09-17T09:35:00.000Z",
+      "updated_at": "2026-09-17T09:35:00.000Z"
+    }
+  ],
+  "updated_at": "2026-09-17T09:35:00.000Z"
+}

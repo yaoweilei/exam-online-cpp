@@ -77,6 +77,7 @@ if(BUILD_TESTING)
         src/application/services/DailyPracticeService.cpp
         src/application/services/LearningReportService.cpp
         src/application/services/StudyGoalService.cpp
+        src/application/services/AdaptiveLearningService.cpp
         src/application/services/SyncService.cpp
         src/application/services/LeaderboardService.cpp
         src/application/services/OAuthService.cpp

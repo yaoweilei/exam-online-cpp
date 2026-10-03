@@ -1,0 +1,109 @@
+/* Keep reading and entry content centered while toolbars remain full width. */
+:root {
+  --learning-text-max-width: 754px;
+  --learning-content-max-width: calc(var(--learning-text-max-width) + 48px);
+}
+#guest-welcome .gw-content {
+  width: 100%;
+  max-width: var(--learning-content-max-width);
+  margin-inline: auto;
+  padding-inline: 24px;
+  box-sizing: border-box;
+}
+#current-question-container {
+  width: 100%;
+  max-width: calc(var(--learning-text-max-width) + 240px);
+  margin-inline: auto;
+  padding-inline: 0;
+  box-sizing: border-box;
+  min-width: 0;
+}
+#current-question-container .current-question {
+  min-height: calc(100vh - var(--question-paper-top, 180px));
+  min-height: calc(100dvh - var(--question-paper-top, 180px));
+  padding-left: 106px;
+  padding-right: 132px;
+  box-sizing: border-box;
+}
+/* Preserve the reading column while reducing paper margins on narrow windows. */
+@media (max-width: 1000px) {
+  #current-question-container .current-question {
+    padding-inline: clamp(16px, calc((100vw - 788px) / 2), 119px);
+  }
+}
+#current-question-container .jlpt-vocabulary-paper .question-text {
+  padding-left: 48px;
+  position: relative;
+}
+#current-question-container .jlpt-vocabulary-paper .question-number-inline {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  min-width: 26px;
+  text-align: center;
+  border: 1px solid currentColor;
+  line-height: 1.4;
+}
+#current-question-container .jlpt-short-options .options-container {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding-left: 24px;
+}
+#current-question-container .jlpt-short-options .options-container > :not(.option) {
+  grid-column: 1 / -1;
+}
+#current-question-container .jlpt-short-options .option {
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+#current-question-container .jlpt-long-options .options-container {
+  grid-template-columns: minmax(0, 1fr);
+  padding-left: 24px;
+}
+#current-question-container .jlpt-long-options .option {
+  display: grid;
+  grid-template-columns: 1.6em minmax(0, 1fr) auto auto;
+  column-gap: 8px;
+  align-items: start;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+#current-question-container .jlpt-long-options .option-number {
+  grid-column: 1;
+  text-align: right;
+  white-space: nowrap;
+}
+#current-question-container .jlpt-long-options .option-text {
+  grid-column: 2;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#current-question-container .jlpt-long-options .option.chosen-option::before,
+#current-question-container .jlpt-long-options .option.correct-option::after {
+  position: static;
+  top: auto;
+  right: auto;
+  grid-row: 1;
+  line-height: inherit;
+}
+#current-question-container .jlpt-long-options .option.chosen-option::before { grid-column: 3; }
+#current-question-container .jlpt-long-options .option.correct-option::after { grid-column: 4; }
+#question-navigation {
+  width: 100%;
+  max-width: var(--learning-content-max-width);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  #guest-welcome .gw-content { padding-inline: 16px; }
+  #current-question-container .current-question { padding-inline: 16px; }
+  #current-question-container .jlpt-vocabulary-paper .question-text { padding-left: 36px; }
+  #current-question-container .jlpt-short-options .options-container {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+  }
+  #current-question-container .jlpt-long-options .options-container { padding-left: 0; }
+}

@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <string>
+#include <unordered_set>
+#include <vector>
 
 #include <drogon/HttpAppFramework.h>
 
@@ -30,6 +32,117 @@ Json::Value recentItemFromScore(const std::string &userId, const std::string &ex
 
 void registerAnswerRoutes(const AppContext &ctx)
 {
+    app().registerHandler("/api/v1/answers/practice-group",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                const auto userId = session.get("user_id", session.get("id", "")).asString();
+                const auto body = parseJsonBody(req);
+                const auto examId = requireBoundedString(body, "exam_id", 1, 100);
+                const auto label = requireBoundedString(body, "label", 1, 80);
+                const auto submissionId = requireBoundedString(body, "submission_id", 1, 100);
+                const auto indexes = body["section_indexes"];
+                const auto answers = body["answers"];
+                auto exam = ctx.examService->getExam(examId);
+                auto &sections = exam["exam_info"]["sections"];
+                if (!sections.isArray() || !indexes.isArray() || indexes.empty() || indexes.size() > sections.size()
+                    || !answers.isObject() || answers.size() > 1000)
+                    throw common::AppException("VALIDATION_ERROR", "Invalid practice group", k422UnprocessableEntity);
+                std::vector<bool> selected(sections.size(), false);
+                for (const auto &value : indexes)
+                {
+                    if (!value.isInt() && !value.isUInt())
+                        throw common::AppException("VALIDATION_ERROR", "Invalid section index", k422UnprocessableEntity);
+                    const auto index = value.asInt();
+                    if (index < 0 || index >= static_cast<int>(sections.size()) || selected[index])
+                        throw common::AppException("VALIDATION_ERROR", "Invalid section index", k422UnprocessableEntity);
+                    selected[index] = true;
+                }
+                for (Json::ArrayIndex index = 0; index < sections.size(); ++index)
+                {
+                    if (selected[index]) continue;
+                    sections[index]["questions"] = Json::arrayValue;
+                    sections[index]["passages"] = Json::arrayValue;
+                }
+                auto score = ctx.answerService->calculateScore(examId, answers, exam);
+                int practiceTotal = 0;
+                int practiceAnswered = 0;
+                std::unordered_set<std::string> counted;
+                for (Json::ArrayIndex index = 0; index < sections.size(); ++index)
+                {
+                    if (!selected[index]) continue;
+                    const auto countQuestion = [&](const Json::Value &question) {
+                        const auto questionId = question.get("id", "").asString();
+                        const auto key = std::to_string(index) + ":" + questionId;
+                        if (questionId.empty() || !counted.insert(key).second) return;
+                        ++practiceTotal;
+                        const auto answer = answers.isMember(key) ? answers[key] : answers[questionId];
+                        if (!answer.isNull() && (!answer.isString() || !answer.asString().empty())
+                            && (!answer.isArray() || !answer.empty())) ++practiceAnswered;
+                    };
+                    for (const auto &question : sections[index]["questions"]) countQuestion(question);
+                    for (const auto &passage : sections[index]["passages"])
+                        for (const auto &question : passage["questions"]) countQuestion(question);
+                }
+                score["exam_mode"] = "practice_group";
+                score["practice_label"] = label;
+                score["section_indexes"] = indexes;
+                score["practice_total_questions"] = practiceTotal;
+                score["practice_answered_count"] = practiceAnswered;
+                const auto saved = ctx.answerService->save(userId, examId + "__practice", answers, score, "practice-" + submissionId);
+                if (ctx.recentLearningRepository != nullptr && !saved.get("idempotent_replay", false).asBool())
+                {
+                    auto item = recentItemFromScore(userId, examId, score);
+                    item["source"] = "practice_group";
+                    item["practice_label"] = label;
+                    item["exam_title"] = exam["exam_info"].get("title", examId).asString() + " · " + label;
+                    item["total_questions"] = practiceTotal;
+                    item["answered_count"] = practiceAnswered;
+                    ctx.recentLearningRepository->upsert(userId, item);
+                }
+                return common::ok(req, saved);
+            });
+        }, {Post});
+
+    // An experience is a single practice record, not a submitted full paper or diagnostic.
+    app().registerHandler("/api/v1/me/experience",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                const auto userId = session.get("user_id", session.get("id", "")).asString();
+                const auto body = parseJsonBody(req);
+                const auto questionId = readBoundedIntField(body, "question_id", 0, 59, 62);
+                const auto answer = readBoundedIntField(body, "answer", 0, 1, 4);
+                const auto submission = requireBoundedString(body, "submission_id", 1, 100);
+                if (questionId != 59 && questionId != 62)
+                    throw common::AppException("VALIDATION_ERROR", "Invalid experience question", k422UnprocessableEntity);
+                const std::string examId = "N3_2010_07";
+                auto exam = ctx.examService->getExam(examId);
+                Json::Value selected(Json::arrayValue);
+                for (const auto &passage : exam["exam_info"]["sections"][8]["passages"])
+                    for (const auto &question : passage["questions"])
+                        if (question.get("id", 0).asInt() == questionId) selected.append(question);
+                if (selected.empty())
+                    throw common::AppException("NOT_FOUND", "Experience question unavailable", k404NotFound);
+                // Preserve the original section index while scoring only the selected question.
+                exam["exam_info"]["sections"] = Json::Value(Json::arrayValue);
+                for (int i = 0; i < 9; ++i) exam["exam_info"]["sections"].append(Json::Value(Json::objectValue));
+                exam["exam_info"]["sections"][8]["questions"] = selected;
+                Json::Value answers(Json::objectValue);
+                answers[std::to_string(questionId)] = answer;
+                auto score = ctx.answerService->calculateScore(examId, answers, exam);
+                score["exam_mode"] = "experience";
+                const auto saved = ctx.answerService->save(userId, examId, answers, score, "experience-" + submission);
+                if (ctx.recentLearningRepository != nullptr && !saved.get("idempotent_replay", false).asBool())
+                {
+                    auto item = recentItemFromScore(userId, examId, score);
+                    item["exam_title"] = "JLPT N3 · 短篇阅读体验";
+                    item["source"] = "experience";
+                    ctx.recentLearningRepository->upsert(userId, item);
+                }
+                return common::ok(req, saved);
+            });
+        }, {Post});
     app().registerHandler(
         "/api/v1/answers/submit",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
@@ -148,6 +261,17 @@ void registerAnswerRoutes(const AppContext &ctx)
                     catch (...)
                     {
                         // SRS 入卡异常不应阻断答题提交
+                    }
+                }
+                if (ctx.adaptiveLearningService != nullptr)
+                {
+                    try
+                    {
+                        ctx.adaptiveLearningService->recordSubmission(userId, examId, exam, score);
+                    }
+                    catch (...)
+                    {
+                        // 掌握画像失败不影响已完成的试卷提交；后续可从答题记录重建。
                     }
                 }
                 auto submittedScore = score;

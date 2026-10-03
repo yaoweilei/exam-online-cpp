@@ -8,12 +8,15 @@ const viewports = [
 ];
 
 const studentModals = [
-  { intent: 'openWrongQuestions', id: '#wq-modal' },
   { intent: 'openReviewWorkbench', id: '#review-workbench-modal' },
-  { intent: 'openDailyPractice', id: '#daily-practice-modal' },
+  { intent: 'openChapterPath', id: '#chapter-modal' },
   { intent: 'openLearningReport', id: '#learning-report-modal' },
-  { intent: 'openVocabNotebook', id: '#vocab-modal' },
   { intent: 'openStudyGoal', id: '#study-goal-modal' }
+];
+
+const reviewLibraryModals = [
+  { intent: 'openWrongQuestions', id: '#wq-modal' },
+  { intent: 'openVocabNotebook', id: '#vocab-modal' }
 ];
 
 async function loginStudent(page) {
@@ -76,16 +79,17 @@ for (const viewport of viewports) {
       await expect(trigger).toBeFocused();
     }
 
-    const communityTrigger = page.locator('#platform-admin-shell [data-role-admin-intent="openCommunity"]').first();
-    await communityTrigger.click();
-    const inputDialog = page.locator('.pc-confirm-dialog');
-    await expect(inputDialog).toBeVisible();
-    await expectModalLayout(page, '.pc-confirm-overlay', viewport.width <= 520);
-    await inputDialog.locator('[data-pc-input]').fill('2023_02');
-    await inputDialog.locator('[data-pc-input-ok]').click();
-    await expect(page.locator('#community-modal')).toBeVisible({ timeout: 20000 });
-    await expectModalLayout(page, '#community-modal', viewport.width <= 520);
-    await page.keyboard.press('Escape');
-    await expect(page.locator('#community-modal')).toBeHidden();
+    // 错题本和生词本已经收拢到“复习资料”，按用户真实可达路径审计弹窗。
+    await page.locator('#platform-admin-shell').getByRole('button', { name: '复习资料', exact: true }).click();
+    for (const item of reviewLibraryModals) {
+      const trigger = page.locator(`#platform-admin-shell [data-intent="${item.intent}"]`).first();
+      await expect(trigger).toBeVisible();
+      await trigger.click();
+      await expect(page.locator(item.id)).toBeVisible({ timeout: 20000 });
+      await expectModalLayout(page, item.id, viewport.width <= 520);
+      await page.keyboard.press('Escape');
+      await expect(page.locator(item.id)).toBeHidden();
+      await expect(trigger).toBeFocused();
+    }
   });
 }

@@ -43,6 +43,26 @@ export function normalizeReferral(value: unknown): PCReferral | undefined {
 		return undefined;
 	}
 	const code = readString(raw.code) || readString(raw.referral_code) || '';
+	const rewardRecordsRaw = Array.isArray(raw.inviteRewardRecords)
+		? raw.inviteRewardRecords
+		: Array.isArray(raw.invite_reward_records)
+			? raw.invite_reward_records
+			: [];
+	const inviteRewardRecords = rewardRecordsRaw.flatMap((value) => {
+		const record = asRecord(value);
+		if (!record) return [];
+		const id = readString(record.id);
+		const amountCents = readCount(record.amountCents) ?? readCount(record.amount_cents) ?? 0;
+		if (!id || amountCents <= 0) return [];
+		return [{
+			id,
+			inviteeLabel: readString(record.inviteeLabel) || readString(record.invitee_label) || '受邀用户',
+			amountCents,
+			currency: readString(record.currency) || 'cny',
+			status: readString(record.status) || 'granted',
+			grantedAt: readString(record.grantedAt) || readString(record.granted_at) || ''
+		}];
+	});
 	return {
 		code,
 		hasReferrer: readBoolean(raw.hasReferrer) ?? readBoolean(raw.has_referrer) ?? Boolean(readString(raw.referredByCode) || readString(raw.referred_by_code)),
@@ -51,7 +71,12 @@ export function normalizeReferral(value: unknown): PCReferral | undefined {
 		rewardStatus: readString(raw.rewardStatus) || readString(raw.reward_status) || (code ? 'none' : undefined),
 		rewardGrantedAt: readString(raw.rewardGrantedAt) || readString(raw.reward_granted_at),
 		rewardCreditAmount: readCount(raw.rewardCreditAmount) ?? readCount(raw.reward_credit_amount),
-		rewardCreditRecipientUserId: readString(raw.rewardCreditRecipientUserId) || readString(raw.reward_credit_recipient_user_id)
+		rewardAmountCents: readCount(raw.rewardAmountCents) ?? readCount(raw.reward_amount_cents),
+		rewardCurrency: readString(raw.rewardCurrency) || readString(raw.reward_currency),
+		rewardCreditRecipientUserId: readString(raw.rewardCreditRecipientUserId) || readString(raw.reward_credit_recipient_user_id),
+		inviteRewardCount: readCount(raw.inviteRewardCount) ?? readCount(raw.invite_reward_count) ?? inviteRewardRecords.length,
+		inviteRewardEarnedCents: readCount(raw.inviteRewardEarnedCents) ?? readCount(raw.invite_reward_earned_cents) ?? inviteRewardRecords.reduce((sum, item) => sum + item.amountCents, 0),
+		inviteRewardRecords
 	};
 }
 

@@ -35,6 +35,22 @@ std::string addDaysIso(int days)
     return os.str();
 }
 
+std::string addMinutesIso(int minutes)
+{
+    using namespace std::chrono;
+    auto t = system_clock::now() + std::chrono::minutes(minutes);
+    std::time_t tt = system_clock::to_time_t(t);
+    std::tm tm{};
+#if defined(_WIN32)
+    gmtime_s(&tm, &tt);
+#else
+    gmtime_r(&tt, &tm);
+#endif
+    std::ostringstream os;
+    os << std::put_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
+    return os.str();
+}
+
 // 简化的 question snapshot 抽取：复用错题本的字段约定
 Json::Value buildSnapshot(const Json::Value &q)
 {
@@ -43,7 +59,8 @@ Json::Value buildSnapshot(const Json::Value &q)
         return Json::Value(Json::objectValue);
     }
     Json::Value out(Json::objectValue);
-    for (const char *f : {"question", "options", "correct_answer", "explanation", "type", "passage"})
+    for (const char *f : {"question", "options", "correct_answer", "explanation", "explanation_expand",
+                          "explanation_source", "target_words", "skill_tags", "type", "passage"})
     {
         if (q.isMember(f))
         {
@@ -66,31 +83,49 @@ std::string pickType(const Json::Value &q)
 std::unordered_map<std::string, Json::Value> buildIndex(const Json::Value &examData)
 {
     std::unordered_map<std::string, Json::Value> idx;
-    auto pushArr = [&](const Json::Value &arr) {
+    auto pushArr = [&](const Json::Value &arr, int sectionIndex) {
         if (!arr.isArray()) return;
         for (const auto &q : arr)
         {
             if (q.isObject() && q.isMember("id"))
             {
-                idx[q["id"].asString()] = q;
+                const auto questionId = q["id"].asString();
+                if (questionId.empty()) continue;
+                auto indexed = q;
+                indexed["section_index"] = sectionIndex;
+                indexed["source_question_id"] = questionId;
+                idx[std::to_string(sectionIndex) + ":" + questionId] = indexed;
+                if (idx.find(questionId) == idx.end()) idx[questionId] = indexed;
             }
         }
     };
     if (examData.isObject())
     {
-        if (examData.isMember("sections") && examData["sections"].isArray())
+        const auto &root = examData.isMember("exam_info") && examData["exam_info"].isObject()
+                               ? examData["exam_info"]
+                               : examData;
+        if (root.isMember("sections") && root["sections"].isArray())
         {
-            for (const auto &s : examData["sections"])
+            int sectionIndex = 0;
+            for (const auto &s : root["sections"])
             {
                 if (s.isObject() && s.isMember("questions"))
                 {
-                    pushArr(s["questions"]);
+                    pushArr(s["questions"], sectionIndex);
                 }
+                if (s.isObject() && s.isMember("passages") && s["passages"].isArray())
+                {
+                    for (const auto &passage : s["passages"])
+                    {
+                        if (passage.isObject() && passage.isMember("questions")) pushArr(passage["questions"], sectionIndex);
+                    }
+                }
+                ++sectionIndex;
             }
         }
-        if (examData.isMember("questions"))
+        if (root.isMember("questions"))
         {
-            pushArr(examData["questions"]);
+            pushArr(root["questions"], 0);
         }
     }
     return idx;
@@ -186,7 +221,8 @@ Json::Value SrsService::review(const std::string &userId, const std::string &car
     patch["interval_days"] = interval;
     patch["reps"] = reps;
     patch["lapses"] = lapses;
-    patch["due_at"] = addDaysIso(interval);
+    // “再来”表示本轮稍后再次回忆；其他评分才按天进入后续复习。
+    patch["due_at"] = grade == 0 ? addMinutesIso(10) : addDaysIso(interval);
     patch["last_reviewed_at"] = common::nowIso8601();
     patch["last_grade"] = grade;
 
@@ -217,12 +253,16 @@ int SrsService::ingestWrongFromScore(const std::string &userId,
         if (row.get("status", "").asString() != "wrong") continue;
         Json::Value snap(Json::objectValue);
         std::string qtype;
-        auto it = qIndex.find(qid);
-        if (it != qIndex.end())
-        {
-            snap = buildSnapshot(it->second);
-            qtype = pickType(it->second);
-        }
+        const auto sectionIndex = row.get("section_index", -1).asInt();
+        const auto compositeKey = sectionIndex >= 0 ? std::to_string(sectionIndex) + ":" + qid : questionKey;
+        auto it = qIndex.find(compositeKey);
+        if (it == qIndex.end()) it = qIndex.find(qid);
+        // 无法还原题面时不创建空复习卡；否则学生只会看到内部题号。
+        if (it == qIndex.end()) continue;
+        snap = buildSnapshot(it->second);
+        snap["question_id"] = qid;
+        snap["section_index"] = sectionIndex;
+        qtype = pickType(it->second);
         if (repository_.upsertCard(userId, examId, questionKey, qtype, snap, now))
         {
             ++added;

@@ -8,7 +8,7 @@
 //     reps == 1 → interval=3 天
 //     否则      → interval = round(prevInterval * ease)
 //     困难      → interval = max(1, round(prevInterval * 1.2))
-//     再来      → reps=0, lapses+=1, interval=1
+//     再来      → reps=0, lapses+=1, 10 分钟后再次复习
 //   - 与错题本联动：recordWrongCards 由调用方在评分提交后异步触发
 
 #include <string>

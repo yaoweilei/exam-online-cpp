@@ -985,7 +985,9 @@ Json::Value InstitutionService::buildSeatSummary(const std::string &orgId, const
 {
     Json::Value out(Json::objectValue);
     out["org_id"] = orgId;
-    out["used_seats"] = static_cast<Json::Int>(collectStudentIds(learningGroups).size());
+    out["used_seats"] = orgId.empty()
+                            ? static_cast<Json::Int>(collectStudentIds(learningGroups).size())
+                            : organizationRepository_.billableMemberCount(orgId);
     out["member_count"] = orgId.empty() ? out["used_seats"].asInt() : organizationRepository_.memberCount(orgId);
     out["purchased_seats"] = 0;
     if (!orgId.empty())

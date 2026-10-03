@@ -18,25 +18,25 @@
     {
       "id": "orgAdmin",
       "name": "机构管理员",
-      "description": "管理机构成员、学习组、课程包、套餐席位、机构看板和审计。",
+      "description": "管理机构成员、学习组、课程包、套餐席位、机构看板和审计；默认不查看试卷、答案或解析，也不占付费席位。",
       "privileges": ["organization.member.manage", "learning_group.manage", "course_package.manage", "lesson.booking.manage", "organization.dashboard.view", "organization.billing.manage", "audit.view"]
     },
     {
       "id": "teacher",
       "name": "老师",
-      "description": "负责学习组教学、作业、批改、课后反馈和备课。",
+      "description": "负责学习组教学、作业、批改、课后反馈和备课；加入机构后占用付费内容席位。",
       "privileges": ["assignment.create", "assignment.review", "assignment.remind", "gradebook.view", "student.profile.view", "student.profile.edit", "lesson_prep.create", "lesson_prep.export", "learning_record.feedback.edit"]
     },
     {
       "id": "assistant",
-      "name": "教学运营",
-      "description": "助教、班主任、教务或课程顾问的基础角色，通过权限模板区分职责。",
+      "name": "教学管理员",
+      "description": "负责作业流转、催交、成绩汇总和学员跟进；默认不查看试卷、答案或解析，也不占付费席位。",
       "privileges": ["assignment.review", "assignment.remind", "student.profile.view", "student.profile.edit", "student.followup.edit", "learning_record.comment", "course_package.view"]
     },
     {
       "id": "student",
       "name": "学员",
-      "description": "个人用户或机构学员，可做题、提交作业、查看自己的学习报告。",
+      "description": "个人用户或机构学员，可做题、提交作业、查看自己的学习报告；加入机构后占用付费内容席位。",
       "privileges": ["exam.practice", "answer.submit", "analysis.view", "assignment.submit", "report.view.self", "learning_record.view.self"]
     }
   ]

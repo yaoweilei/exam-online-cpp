@@ -16,7 +16,7 @@ function logAppReady(levels: number): void {
 
 async function bootstrap(): Promise<void> {
 	const viewerBootstrapUrl = new URL(
-		'./features/viewerBootstrap.js?v=20260909-pricing-workspace-v25',
+		'./features/viewerBootstrap.js?v=20261002-practice-close-v1',
 		import.meta.url
 	).href;
 	const { bootViewerApp } = await import(viewerBootstrapUrl) as typeof import('./features/viewerBootstrap.js');
@@ -38,12 +38,17 @@ async function bootstrap(): Promise<void> {
 		setUserContext?: (ctx: Record<string, unknown>) => void;
 		refreshPersonalCenterTrigger?: () => Promise<void> | void;
 		logoutUser?: () => void;
+		UserContextManager?: { getInstance: () => { setUserContext: (ctx: Record<string, unknown>) => void } };
 	};
+	function applyUserContext(context: Record<string, unknown>): void {
+		if (appWindow.setUserContext) appWindow.setUserContext(context);
+		else appWindow.UserContextManager?.getInstance().setUserContext(context);
+	}
 
 	function syncViewerUserState(): void {
 		const currentUser = store.getState().user;
 		if (currentUser && !currentUser.guest) {
-			appWindow.setUserContext?.(currentUser as unknown as Record<string, unknown>);
+			applyUserContext(currentUser as unknown as Record<string, unknown>);
 			// 登录后异步拉取功能开关，注入到 window.__FEATURE_FLAGS__
 			void refreshFeatureFlags(api).then(() => ensurePwaRegistration());
 			return;
@@ -51,13 +56,14 @@ async function bootstrap(): Promise<void> {
 		// 注销 / guest：清空功能开关缓存（前端按默认开启对待）
 		clearFeatureFlags();
 		void ensurePwaRegistration();
-		appWindow.setUserContext?.({ guest: true });
+		applyUserContext({ guest: true });
 		appWindow.refreshPersonalCenterTrigger?.();
 	}
 
-	void restoreSession(api, store).finally(() => {
+	const sessionReady = restoreSession(api, store).finally(() => {
 		syncViewerUserState();
 	});
+	window.addEventListener('examViewerReady', syncViewerUserState, { once: true });
 
 	appWindow.__openLoginModal = () => loginModal.open();
 	appWindow.__onLoginSuccess = () => {
@@ -70,7 +76,14 @@ async function bootstrap(): Promise<void> {
 		console.error('[main] loadExams failed, fallback to viewer bootstrap fetch:', error);
 	});
 	await bootViewerApp(examsReady);
+	await sessionReady;
 	syncViewerUserState();
+	const guestWelcomeUrl = new URL('./features/guestWelcome.js?v=20261002-guest-record-quota-v1', import.meta.url).href;
+	const { initGuestWelcome } = await import(guestWelcomeUrl) as typeof import('./features/guestWelcome.js');
+	initGuestWelcome(api, store, () => loginModal.open());
+	const learningShellUrl = new URL('./features/learningShell.js?v=20261002-tablet-three-columns-v1', import.meta.url).href;
+	const { initLearningShell } = await import(learningShellUrl) as typeof import('./features/learningShell.js');
+	initLearningShell(store);
 
 	const viewerLogout = appWindow.logoutUser;
 	appWindow.logoutUser = async () => {

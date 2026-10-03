@@ -99,6 +99,15 @@ Json::Value StudyGoalService::normalize(const Json::Value &payload)
             throw common::AppException("VALIDATION_ERROR", "daily_question_target 必须在 0-1000 之间", drogon::k422UnprocessableEntity);
         out["daily_question_target"] = n;
     }
+    if (payload.isMember("daily_minutes"))
+    {
+        if (!payload["daily_minutes"].isIntegral())
+            throw common::AppException("VALIDATION_ERROR", "daily_minutes 必须是整数", drogon::k422UnprocessableEntity);
+        const int n = payload["daily_minutes"].asInt();
+        if (n < 5 || n > 180)
+            throw common::AppException("VALIDATION_ERROR", "daily_minutes 必须在 5-180 之间", drogon::k422UnprocessableEntity);
+        out["daily_minutes"] = n;
+    }
     if (payload.isMember("note"))
     {
         if (!payload["note"].isString())
@@ -119,6 +128,17 @@ Json::Value StudyGoalService::list(const std::string &userId) const
     std::sort(arr.begin(), arr.end(), [](const Json::Value &a, const Json::Value &b) {
         return a.get("target_date", "").asString() < b.get("target_date", "").asString();
     });
+    const auto hasPrimary = std::any_of(arr.begin(), arr.end(), [](const Json::Value &goal) {
+        return goal.get("is_primary", false).asBool();
+    });
+    if (!hasPrimary && !arr.empty())
+    {
+        auto primary = std::max_element(arr.begin(), arr.end(), [](const Json::Value &a, const Json::Value &b) {
+            return a.get("updated_at", a.get("created_at", "")).asString() <
+                   b.get("updated_at", b.get("created_at", "")).asString();
+        });
+        if (primary != arr.end()) (*primary)["is_primary"] = true;
+    }
     Json::Value items(Json::arrayValue);
     for (const auto &g : arr) items.append(g);
     Json::Value out(Json::objectValue);
@@ -130,10 +150,12 @@ Json::Value StudyGoalService::create(const std::string &userId, const Json::Valu
 {
     auto fields = normalize(payload);
     auto doc = loadDoc(userId);
+    for (auto &existing : doc["goals"]) existing["is_primary"] = false;
     Json::Value goal = fields;
     goal["goal_id"] = common::generateOpaqueId("goal_");
     goal["created_at"] = common::nowIso8601();
     goal["updated_at"] = goal["created_at"];
+    goal["is_primary"] = true;
     doc["goals"].append(goal);
     saveDoc(userId, doc);
     return goal;
@@ -145,6 +167,7 @@ Json::Value StudyGoalService::update(const std::string &userId, const std::strin
         throw common::AppException("VALIDATION_ERROR", "goal_id 必填", drogon::k422UnprocessableEntity);
     auto doc = loadDoc(userId);
     auto &arr = doc["goals"];
+    for (auto &existing : arr) existing["is_primary"] = false;
     for (auto &g : arr)
     {
         if (g.get("goal_id", "").asString() != goalId) continue;
@@ -154,6 +177,7 @@ Json::Value StudyGoalService::update(const std::string &userId, const std::strin
         auto fields = normalize(merged);
         for (const auto &k : fields.getMemberNames()) g[k] = fields[k];
         g["updated_at"] = common::nowIso8601();
+        g["is_primary"] = true;
         saveDoc(userId, doc);
         return g;
     }
@@ -166,12 +190,36 @@ bool StudyGoalService::remove(const std::string &userId, const std::string &goal
     auto &arr = doc["goals"];
     Json::Value next(Json::arrayValue);
     bool removed = false;
+    bool removedPrimary = false;
     for (const auto &g : arr)
     {
-        if (g.get("goal_id", "").asString() == goalId) { removed = true; continue; }
+        if (g.get("goal_id", "").asString() == goalId)
+        {
+            removed = true;
+            removedPrimary = g.get("is_primary", false).asBool();
+            continue;
+        }
         next.append(g);
     }
     if (!removed) return false;
+    if (removedPrimary && !next.empty())
+    {
+        const auto today = common::nowIso8601().substr(0, 10);
+        Json::ArrayIndex primaryIndex = 0;
+        bool foundUpcoming = next[0].get("target_date", "").asString() >= today;
+        for (Json::ArrayIndex index = 1; index < next.size(); ++index)
+        {
+            const auto candidateDate = next[index].get("target_date", "").asString();
+            const auto candidateUpcoming = candidateDate >= today;
+            if ((candidateUpcoming && !foundUpcoming) ||
+                (candidateUpcoming == foundUpcoming && candidateDate < next[primaryIndex].get("target_date", "").asString()))
+            {
+                primaryIndex = index;
+                foundUpcoming = candidateUpcoming;
+            }
+        }
+        next[primaryIndex]["is_primary"] = true;
+    }
     doc["goals"] = next;
     saveDoc(userId, doc);
     return true;

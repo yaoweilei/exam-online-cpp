@@ -66,6 +66,7 @@ void ApiRouter::registerRoutes() const
     routes::registerRelatedQuestionsRoutes(context_);
     // 章节式学习路径路由（功能 #18）
     routes::registerChapterRoutes(context_);
+    routes::registerAdaptiveLearningRoutes(context_);
     // 兑换码 / 卡券包
     routes::registerRedeemRoutes(context_);
     // 支付订单 / 回调 / 退款 / 流水

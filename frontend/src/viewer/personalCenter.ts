@@ -6,7 +6,6 @@
  *  via any medium, is strictly prohibited without prior written permission.
  *--------------------------------------------------------------------------------------------*/
 
-
 import type {
 	PCBalance, PCSubscription, PCReferral, PCUser, PCContext, PCContextManager,
 	ManagedOrganizationMember, ManagedOrganizationInvitation, PendingOrganizationInvitation,
@@ -87,7 +86,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		{
 			// 业务功能 7：SRS 复习入口（功能开关：srs）
 			id: 'srsReview',
-			title: '今日复习',
+			title: '今日学习',
 			icon: 'book',
 			intent: 'openReviewWorkbench',
 			gate: (u) => !u.guest && (window.isFeatureEnabled?.('srs') ?? true)
@@ -195,7 +194,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		},
 		{
 			id: 'paymentLedger',
-			title: '支付流水',
+			title: '订单记录',
 			icon: 'wallet',
 			intent: 'openPaymentLedger',
 			gate: (u) => !u.guest
@@ -243,12 +242,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	const roleDefs: RoleDef[] = [
 		{ id: 'guest', name: '访客', desc: '未登录，仅可浏览公开内容', risk: 'low' },
 		{ id: 'student', name: '学员', desc: '做题 / 作业 / 学习报告', risk: 'low' },
-		{ id: 'assistant', name: '教学运营', desc: '助教、班主任、教务、顾问的基础角色', risk: 'medium' },
-		{ id: 'teacher', name: '老师', desc: '教学 / 作业 / 批改 / 反馈', risk: 'medium' },
+		{ id: 'assistant', name: '教学管理员', desc: '教学协作与学员管理，不占付费席位', risk: 'medium' },
+		{ id: 'teacher', name: '老师', desc: '教学 / 备课 / 试卷内容，占付费席位', risk: 'medium' },
 		{ id: 'orgContentAdmin', name: '机构内容管理员', desc: '当前机构的课程包内容管理', risk: 'medium' },
 		{ id: 'orgAdmin', name: '机构管理员', desc: '机构成员、学习组、课程包和看板管理', risk: 'medium' },
 		{ id: 'contentAdmin', name: '内容管理员', desc: '试卷、音频、答案和解析维护', risk: 'high' },
-		{ id: 'superAdmin', name: '平台超级管理员', desc: '平台全部权限和高危系统操作', risk: 'critical' }
+		{ id: 'superAdmin', name: '超级管理员', desc: '平台全部权限和高危系统操作', risk: 'critical' }
 	];
 
 	const organizationMemberRoleDefs = roleDefs.filter((role) => ['student', 'assistant', 'teacher', 'orgContentAdmin', 'orgAdmin'].includes(role.id));
@@ -368,6 +367,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	let platformAdminMobilePreview = false;
 	let platformAdminAccountMenuOpen = false;
 	let platformAdminMode: 'platform' | 'role' = 'platform';
+	let pendingWorkbenchSwitchTimer: number | null = null;
 	let superAdminAccountMenuOpen = false;
 	let personalCenterIdentityKey = '';
 	let allUsers: PCUser[] = [];
@@ -462,6 +462,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	let recentLearningCacheKey = '';
 	let recentLearningLoading: Promise<void> | null = null;
 	let recentLearningItems: Record<string, unknown>[] = [];
+	let recentLearningError = '';
+	let studentStudyGoalsCacheKey = '';
+	let studentStudyGoalsLoading: Promise<void> | null = null;
+	let studentStudyGoals: Record<string, unknown>[] = [];
+	let studentStudyGoalsError = '';
+	let studentGoalTargetChangeNotice: { goalId: string; previousTarget: string; target: string } | null = null;
 	let myAssignmentsCacheKey = '';
 	let myAssignmentsLoading: Promise<void> | null = null;
 	let myAssignmentItems: Record<string, unknown>[] = [];
@@ -469,6 +475,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	let institutionRoleWorkbenchCacheKey = '';
 	let institutionRoleWorkbenchLoading: Promise<void> | null = null;
 	let institutionRoleWorkbenchData: Record<string, unknown> | null = null;
+	let institutionRoleWorkbenchError = '';
 	let contentPublishExamItems: Record<string, unknown>[] = [];
 	let contentWorkflowItems: Record<string, unknown>[] = [];
 	let contentWorkflowMessages: Record<string, string> = {};
@@ -512,6 +519,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const balance = balanceRecord
 			? {
 					credits: readNumber(balanceRecord.credits) ?? 0,
+					learningCreditCents: readNumber(balanceRecord.learningCreditCents) ?? readNumber(balanceRecord.learning_credit_cents) ?? 0,
+					learningCreditEarnedCents: readNumber(balanceRecord.learningCreditEarnedCents) ?? readNumber(balanceRecord.learning_credit_earned_cents) ?? 0,
+					learningCreditDebtCents: readNumber(balanceRecord.learningCreditDebtCents) ?? readNumber(balanceRecord.learning_credit_debt_cents) ?? 0,
 					updatedAt: readString(balanceRecord.updatedAt) || readString(balanceRecord.updated_at) || new Date().toISOString()
 			  }
 			: (ctx as PCContext).balance;
@@ -541,8 +551,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const normalizedReferral = normalizeReferral(raw.referral) ?? normalizeReferral(user?.referral) ?? (ctx as PCContext).referral;
 		const couponCount =
 			readNumber(raw.couponCount) ??
+			readNumber(raw.coupon_count) ??
 			(Array.isArray(raw.coupons) ? raw.coupons.length : undefined) ??
-			(subscriptionRecord && Array.isArray(subscriptionRecord.entitlements) ? subscriptionRecord.entitlements.length : 0);
+			readNumber(user?.couponCount) ??
+			readNumber(user?.coupon_count) ??
+			(ctx as PCContext).couponCount ??
+			0;
 		return {
 			...(ctx as PCContext),
 			guest: raw.guest === true,
@@ -773,6 +787,20 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	type LegacyModalFocusOrigin = { element: HTMLElement | null; selector: string };
 	const legacyModalFocusOrigins = new WeakMap<HTMLElement, LegacyModalFocusOrigin>();
+	const learningToolPages: Record<string, { title: string; intent: string }> = {
+		'student-learning-detail': { title: '学习任务', intent: 'openStudentQueue' },
+		'review-workbench-modal': { title: '今日学习', intent: 'openReviewWorkbench' },
+		'chapter-modal': { title: '专项练习', intent: 'openChapterPath' },
+		'learning-report-modal': { title: '学习报告', intent: 'openLearningReport' },
+		'wq-modal': { title: '错题本', intent: 'openWrongQuestions' },
+		'vocab-modal': { title: '生词本', intent: 'openVocabNotebook' },
+		'srs-modal': { title: '到期复习', intent: 'openSrsReview' },
+		'daily-practice-modal': { title: '每日一练', intent: 'openDailyPractice' },
+		'recommended-review-modal': { title: '推荐复习', intent: 'openRecommendedReview' },
+		'study-goal-modal': { title: '学习目标', intent: 'openStudyGoal' }
+	};
+	// Retain the actual nodes so filters, forms and async responses survive shell refreshes.
+	const learningToolSurfaces = new Map<string, HTMLDivElement>();
 
 	function legacyFocusOrigin(element: HTMLElement | null): LegacyModalFocusOrigin {
 		if (!element) return { element: null, selector: '' };
@@ -800,6 +828,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			panel.setAttribute('aria-labelledby', titleId);
 		}
 		modal.addEventListener('keydown', (event) => {
+			if (modal.classList.contains('pc-learning-tool-page')) return;
 			if (event.key === 'Escape' && !document.querySelector('.pc-confirm-overlay')) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -818,6 +847,35 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function showLegacyModal(modal: HTMLDivElement, focusSelector?: string): void {
+		if (learningToolPages[modal.id] && platformAdminMode === 'role'
+			&& document.querySelector('#platform-admin-shell.pc-platform-admin-open')) {
+			learningToolSurfaces.set(modal.id, modal);
+			modal.classList.add('pc-learning-tool-page');
+			modal.classList.remove('risk-hidden');
+			modal.style.display = 'block';
+			const panel = modal.querySelector<HTMLElement>('.pc-legacy-modal-panel');
+			panel?.setAttribute('role', 'region');
+			panel?.removeAttribute('aria-modal');
+			const key = `student-tool:${modal.id}`;
+			if (activeRoleContent && activeRoleContent !== key) platformAdminRoleContentHistory.push(activeRoleContent);
+			activeRoleContent = key;
+			activeDashboardSubpage = 'role-content';
+			renderPlatformAdminShell();
+			const heading = document.querySelector<HTMLElement>('#platform-admin-shell .pc-platform-topbar h1');
+			if (heading) {
+				heading.tabIndex = -1;
+				heading.focus({ preventScroll: true });
+			}
+			return;
+		}
+		if (modal.classList.contains('pc-learning-tool-page')) {
+			modal.classList.remove('pc-learning-tool-page');
+			modal.classList.add('risk-hidden');
+			const panel = modal.querySelector<HTMLElement>('.pc-legacy-modal-panel');
+			panel?.setAttribute('role', 'dialog');
+			panel?.setAttribute('aria-modal', 'true');
+			document.body.appendChild(modal);
+		}
 		if (modal.classList.contains('risk-hidden') || modal.style.display === 'none') {
 			legacyModalFocusOrigins.set(modal, legacyFocusOrigin(document.activeElement as HTMLElement | null));
 		}
@@ -830,6 +888,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function hideLegacyModal(modal: HTMLDivElement): void {
+		if (modal.classList.contains('pc-learning-tool-page')) {
+			if (activeRoleContent === `student-tool:${modal.id}`) {
+				activeRoleContent = platformAdminRoleContentHistory.pop() || '';
+				activeDashboardSubpage = activeRoleContent ? 'role-content' : '';
+				renderPlatformAdminShell();
+			}
+			return;
+		}
 		modal.classList.remove('risk-open');
 		modal.classList.add('risk-hidden');
 		modal.style.display = 'none';
@@ -856,7 +922,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function getContext(): PCContext {
 		const manager = getContextManager();
-		return manager ? normalizeContext(manager.getUserContext()) : normalizeContext({ ...localContext });
+		const ctx = manager ? normalizeContext(manager.getUserContext()) : normalizeContext({ ...localContext });
+		if (platformAdminMode === 'role' && hasAnyRole(ctx, ['superAdmin']) && ['teacher', 'assistant', 'orgAdmin', 'orgContentAdmin'].includes(activeWorkbench)) {
+			const organization = managedOrganizations.find((item) => item.id === managedOrganizationWorkspaceId) || managedOrganizations.find((item) => item.id === ctx.organizationId) || managedOrganizations[0];
+			if (organization) return { ...ctx, organizationId: organization.id, organizationName: organization.name };
+		}
+		return ctx;
 	}
 
 	function toPCUser(normalized: PCContext): PCUser {
@@ -937,6 +1008,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return 'free';
 		}
 		return plan.toUpperCase();
+	}
+
+	function subscriptionStatusLabel(status: string | undefined): string {
+		const labels: Record<string, string> = {
+			active: '使用中',
+			trial: '试用中',
+			expired: '已到期',
+			canceled: '已取消'
+		};
+		return labels[status || 'active'] || status || '使用中';
 	}
 
 	function scopeLabel(ctx: PCContext): string {
@@ -1097,6 +1178,18 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		recentLearningLoading = null;
 	}
 
+	window.addEventListener('practiceRecordSaved', () => {
+		invalidateRecentLearning();
+		if (isOpen()) renderSectionContent({ preserveScroll: true });
+	});
+
+	function invalidateStudentStudyGoals(): void {
+		studentStudyGoals = [];
+		studentStudyGoalsError = '';
+		studentStudyGoalsCacheKey = '';
+		studentStudyGoalsLoading = null;
+	}
+
 	function invalidateFavoriteBookmarks(): void {
 		favoriteBookmarkQuestions = [];
 		favoriteBookmarkFolders = [];
@@ -1221,7 +1314,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			} finally {
 				favoriteBookmarksLoading = null;
 				const legacyFavoritesOpen = activeSection === 'dashboard' && activeDashboardSubpage === 'favorites' && isOpen();
-				if (legacyFavoritesOpen || shouldRefreshRoleContent('student-favorites')) renderSectionContent({ preserveScroll: true });
+				if (legacyFavoritesOpen || shouldRefreshRoleContent('student-favorites') || shouldRefreshRoleOverview('student')) renderSectionContent({ preserveScroll: true });
 			}
 		})();
 
@@ -1230,6 +1323,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	async function ensureRecentLearning(ctx: PCContext): Promise<void> {
 		const cacheKey = recentLearningKey(ctx);
+		if (recentLearningCacheKey !== cacheKey) recentLearningError = '';
 		if (ctx.guest || !ctx.id) {
 			recentLearningItems = [];
 			recentLearningCacheKey = cacheKey;
@@ -1239,6 +1333,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const userId = ctx.id;
 		const api = window.APIClient;
 		if (!api || typeof api.listRecentLearning !== 'function') {
+			recentLearningError = '学习进度接口暂不可用';
 			recentLearningItems = [];
 			recentLearningCacheKey = cacheKey;
 			recentLearningLoading = null;
@@ -1254,21 +1349,65 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		recentLearningCacheKey = cacheKey;
 		recentLearningLoading = (async () => {
 			try {
-				const data = asRecord(await api.listRecentLearning(userId, 3));
+				const data = asRecord(await api.listRecentLearning(userId, 10));
 				recentLearningItems = Array.isArray(data?.items)
 					? data.items.map((item) => asRecord(item)).filter((item): item is Record<string, unknown> => Boolean(item))
 					: [];
 			} catch (error) {
 				recentLearningItems = [];
+				recentLearningError = readErrorMessage(error, '学习进度加载失败');
 				log('load recent learning failed', error);
 			} finally {
 				recentLearningLoading = null;
 				const legacyRecentOpen = activeSection === 'dashboard' && activeDashboardSubpage === 'recent' && isOpen();
-				if (legacyRecentOpen || shouldRefreshRoleContent('student-recent')) renderSectionContent({ preserveScroll: true });
+				if (legacyRecentOpen || shouldRefreshRoleContent('student-recent') || shouldRefreshRoleOverview('student')) renderSectionContent({ preserveScroll: true });
 			}
 		})();
 
 		await recentLearningLoading;
+	}
+
+	async function ensureStudentStudyGoals(ctx: PCContext, force = false): Promise<void> {
+		const cacheKey = recentLearningKey(ctx);
+		if (ctx.guest || !ctx.id) {
+			studentStudyGoals = [];
+			studentStudyGoalsError = '';
+			studentStudyGoalsCacheKey = cacheKey;
+			studentStudyGoalsLoading = null;
+			return;
+		}
+		const api = window.APIClient;
+		if (!api || typeof api.listStudyGoals !== 'function') {
+			studentStudyGoals = [];
+			studentStudyGoalsError = '学习计划接口不可用';
+			studentStudyGoalsCacheKey = cacheKey;
+			return;
+		}
+		if (!force && studentStudyGoalsCacheKey === cacheKey) {
+			if (studentStudyGoalsLoading) await studentStudyGoalsLoading;
+			return;
+		}
+		studentStudyGoalsCacheKey = cacheKey;
+		studentStudyGoalsError = '';
+		studentStudyGoalsLoading = (async () => {
+			try {
+				const data = asRecord(await api.listStudyGoals());
+				studentStudyGoals = Array.isArray(data?.items)
+					? data.items.map((item) => asRecord(item)).filter((item): item is Record<string, unknown> => Boolean(item))
+					: [];
+			} catch (error) {
+				studentStudyGoals = [];
+				studentStudyGoalsError = readErrorMessage(error, '学习计划加载失败');
+			} finally {
+				studentStudyGoalsLoading = null;
+				// 身份切换时这个请求可能从 API 缓存立即返回；延后到当前
+				// 工作台外壳完成绘制后再刷新，避免外层绘制覆盖已加载状态。
+				window.setTimeout(() => {
+					if (shouldRefreshRoleOverview('student')) renderSectionContent({ preserveScroll: true });
+				}, 0);
+			}
+		})();
+		await studentStudyGoalsLoading;
 	}
 
 	function assignmentCacheKey(ctx: PCContext): string {
@@ -1278,6 +1417,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	async function ensureMyAssignments(ctx: PCContext, force = false): Promise<void> {
 		const cacheKey = assignmentCacheKey(ctx);
 		if (ctx.guest || !ctx.id) {
+			myAssignmentsCacheKey = cacheKey;
+			myAssignmentItems = [];
+			myAssignmentsError = '';
+			myAssignmentsLoading = null;
+			return;
+		}
+		// 超级管理员切到学员工作台只是切换界面视角，不应把平台所有机构
+		// 作业当成“我的作业”下载。真实学员账号仍按本人学习组读取。
+		if (hasAnyRole(ctx, ['superAdmin']) && activeWorkbenchDef(ctx).id === 'student') {
 			myAssignmentsCacheKey = cacheKey;
 			myAssignmentItems = [];
 			myAssignmentsError = '';
@@ -1295,6 +1443,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			if (myAssignmentsLoading) await myAssignmentsLoading;
 			return;
 		}
+		if (myAssignmentsCacheKey !== cacheKey) myAssignmentItems = [];
 		myAssignmentsCacheKey = cacheKey;
 		myAssignmentsError = '';
 		myAssignmentsLoading = (async () => {
@@ -1316,7 +1465,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				myAssignmentsError = readErrorMessage(error, '作业加载失败');
 			} finally {
 				myAssignmentsLoading = null;
-				if (shouldRefreshRoleContent('student-assignments')) renderSectionContent({ preserveScroll: true });
+				if (shouldRefreshRoleContent('student-assignments') || shouldRefreshRoleContent('account-messages') || shouldRefreshRoleOverview('student')) renderSectionContent({ preserveScroll: true });
 			}
 		})();
 		await myAssignmentsLoading;
@@ -1348,7 +1497,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			} finally {
 				contentPublishQueueLoaded = true;
 				contentPublishQueueLoading = null;
-				if (shouldRefreshRoleContent('content-publish')) {
+				if (shouldRefreshRoleContent('content-publish') || shouldRefreshRoleOverview('contentAdmin')) {
 					if (activePlatformAdminPage === 'overview' && document.querySelector('#platform-admin-shell.pc-platform-admin-open')) renderPlatformAdminShell({ preserveScroll: true });
 					else renderSectionContent({ preserveScroll: true });
 				}
@@ -1377,6 +1526,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function invalidateInstitutionRoleWorkbench(): void {
 		institutionRoleWorkbenchData = null;
+		institutionRoleWorkbenchError = '';
 		institutionRoleWorkbenchCacheKey = '';
 		accountSessions = [];
 		accountSessionsLoaded = false;
@@ -1401,6 +1551,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return;
 		}
 		institutionRoleWorkbenchCacheKey = cacheKey;
+		institutionRoleWorkbenchError = '';
 		institutionRoleWorkbenchLoading = (async () => {
 			try {
 				const [workbenchResult, dashboardResult] = await Promise.all([
@@ -1411,15 +1562,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				]);
 				const workbench = asRecord(workbenchResult) || {};
 				const dashboard = asRecord(dashboardResult) || {};
+				if (institutionRoleWorkbenchCacheKey !== cacheKey) return;
 				institutionRoleWorkbenchData = { ...dashboard, ...workbench };
 			} catch (error) {
+				if (institutionRoleWorkbenchCacheKey !== cacheKey) return;
 				institutionRoleWorkbenchData = null;
+				institutionRoleWorkbenchError = readErrorMessage(error, '教学数据加载失败，请重试');
 				log('load institution role workbench failed', error);
 			} finally {
+				if (institutionRoleWorkbenchCacheKey !== cacheKey) return;
 				institutionRoleWorkbenchLoading = null;
 				const roleShellOpen = platformAdminMode === 'role' && Boolean(document.querySelector('#platform-admin-shell.pc-platform-admin-open'));
 				const legacyPanelOpen = activeSection === 'dashboard' && activeDashboardSubpage === 'role-content' && isOpen();
-				if (isInstitutionRoleContent(activeRoleContent) && (roleShellOpen || legacyPanelOpen)) renderSectionContent({ preserveScroll: true });
+				if ((isInstitutionRoleContent(activeRoleContent) && (roleShellOpen || legacyPanelOpen)) || shouldRefreshRoleOverview('teacher', 'assistant', 'orgAdmin', 'orgContentAdmin')) renderSectionContent({ preserveScroll: true });
 			}
 		})();
 		await institutionRoleWorkbenchLoading;
@@ -1454,7 +1609,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function readErrorMessage(error: unknown, fallback: string): string {
 		if (error instanceof Error && error.message.trim()) {
-			return error.message.trim();
+			const message = error.message.trim();
+			if (/networkerror|failed to fetch|fetch failed|load failed|network request failed/i.test(message)) {
+				return '暂时无法连接服务，请确认后端已启动。';
+			}
+			return message;
 		}
 		return fallback;
 	}
@@ -1474,6 +1633,22 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					hour: '2-digit',
 					minute: '2-digit',
 					hour12: false
+			  });
+	}
+
+	function formatCalendarDate(value: string | undefined): string {
+		if (!value) return '未设置';
+		const normalized = value.trim();
+		const dateOnly = normalized.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+		if (dateOnly) return `${dateOnly[1]}/${dateOnly[2]}/${dateOnly[3]}`;
+		const ts = Date.parse(normalized);
+		return Number.isNaN(ts)
+			? normalized
+			: new Date(ts).toLocaleDateString('zh-CN', {
+					timeZone: 'Asia/Shanghai',
+					year: 'numeric',
+					month: '2-digit',
+					day: '2-digit'
 			  });
 	}
 
@@ -1550,11 +1725,13 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		pricesCents: PaymentPriceMatrix;
 	};
 	type PaymentPricingOffer = {
-		id: 'first_purchase' | 'renewal' | 'campaign';
-		kind: 'first_purchase' | 'renewal' | 'campaign';
+		id: 'first_purchase' | 'renewal' | 'campaign' | 'referral_reward';
+		kind: 'first_purchase' | 'renewal' | 'campaign' | 'referral_reward';
 		label: string;
 		enabled: boolean;
 		discountPercent: number;
+		rewardPercent?: number;
+		maximumRewardCents?: number;
 		startsAt: string;
 		endsAt: string;
 	};
@@ -1620,6 +1797,18 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		total: number;
 		unreadCount: number;
 	};
+	type MessageCenterCategory = 'all' | 'system' | 'teaching' | 'interaction';
+	type MessageCenterItem = {
+		id: string;
+		category: Exclude<MessageCenterCategory, 'all'>;
+		title: string;
+		message: string;
+		createdAt: string;
+		readAt?: string;
+		meta?: string;
+		intent?: string;
+		paymentNotificationId?: string;
+	};
 	type RenewalOperationsView = {
 		agreementsTotal: number;
 		attemptsTotal: number;
@@ -1639,12 +1828,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			personal: {
 				durations: number[];
 				pricesCents: PaymentPriceMatrix;
+				listPricesCents: PaymentPriceMatrix;
+				planEnabled: Record<PaidPersonalPlan, boolean>;
 				offers: PaymentPricingOffer[];
 			};
 			organization: {
 				durations: number[];
 				pricesCents: PaymentPriceMatrix;
+				planEnabled: Record<PaidPersonalPlan, boolean>;
 				minimumSeats: Record<PaidPersonalPlan, number>;
+				pricingMode: Record<PaidPersonalPlan, 'progressive' | 'volume'>;
 				customQuoteMinSeats: number;
 				seatTiers: OrganizationPriceTier[];
 				offers: PaymentPricingOffer[];
@@ -1691,14 +1884,26 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		catalogs: {
 			personal: {
 				durations: [30, 90, 365],
+				planEnabled: { pro: true, ultra: false },
 				offers: [
 					{ id: 'first_purchase', kind: 'first_purchase', label: '个人首购优惠', enabled: false, discountPercent: 20, startsAt: '', endsAt: '' },
 					{ id: 'renewal', kind: 'renewal', label: '个人续费优惠', enabled: false, discountPercent: 10, startsAt: '', endsAt: '' },
-					{ id: 'campaign', kind: 'campaign', label: '个人限时活动', enabled: false, discountPercent: 15, startsAt: '', endsAt: '' }
+					{ id: 'campaign', kind: 'campaign', label: '个人限时活动', enabled: false, discountPercent: 15, startsAt: '', endsAt: '' },
+					{ id: 'referral_reward', kind: 'referral_reward', label: '个人邀请奖励', enabled: true, discountPercent: 0, rewardPercent: 20, maximumRewardCents: 2000, startsAt: '', endsAt: '' }
 				],
 				pricesCents: {
 					cny: {
-						pro: { '30': 1900, '90': 4900, '365': 15900 },
+						pro: { '30': 1290, '90': 2990, '365': 9990 },
+						ultra: { '30': 3900, '90': 9900, '365': 29900 }
+					},
+					usd: {
+						pro: { '30': 399, '90': 999, '365': 2999 },
+						ultra: { '30': 699, '90': 1799, '365': 4999 }
+					}
+				},
+				listPricesCents: {
+					cny: {
+						pro: { '30': 1500, '90': 4000, '365': 14500 },
 						ultra: { '30': 3900, '90': 9900, '365': 29900 }
 					},
 					usd: {
@@ -1708,9 +1913,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				}
 			},
 			organization: {
-				durations: [30, 365],
-				minimumSeats: { pro: 20, ultra: 30 },
-				customQuoteMinSeats: 200,
+				durations: [30, 90, 365],
+				planEnabled: { pro: true, ultra: false },
+				minimumSeats: { pro: 1, ultra: 30 },
+				pricingMode: { pro: 'progressive', ultra: 'volume' },
+				customQuoteMinSeats: 0,
 				offers: [
 					{ id: 'first_purchase', kind: 'first_purchase', label: '机构首购优惠', enabled: false, discountPercent: 10, startsAt: '', endsAt: '' },
 					{ id: 'renewal', kind: 'renewal', label: '机构续费优惠', enabled: false, discountPercent: 5, startsAt: '', endsAt: '' },
@@ -1718,19 +1925,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				],
 				pricesCents: {
 					cny: {
-						pro: { '30': 1500, '365': 11900 },
-						ultra: { '30': 2900, '365': 22900 }
+						pro: { '30': 1500, '90': 2990, '365': 9990 },
+						ultra: { '30': 3900, '90': 9900, '365': 29900 }
 					},
 					usd: {
-						pro: { '30': 299, '365': 1999 },
-						ultra: { '30': 499, '365': 3799 }
+						pro: { '30': 299, '90': 799, '365': 1999 },
+						ultra: { '30': 699, '90': 1799, '365': 4999 }
 					}
 				},
 				seatTiers: [
-					{ minSeats: 20, maxSeats: 29, pricesCents: { cny: { pro: { '365': 11900 }, ultra: { '365': 0 } }, usd: { pro: { '365': 1999 }, ultra: { '365': 0 } } } },
-					{ minSeats: 30, maxSeats: 49, pricesCents: { cny: { pro: { '365': 11900 }, ultra: { '365': 22900 } }, usd: { pro: { '365': 1999 }, ultra: { '365': 3799 } } } },
-					{ minSeats: 50, maxSeats: 99, pricesCents: { cny: { pro: { '365': 10900 }, ultra: { '365': 21900 } }, usd: { pro: { '365': 1799 }, ultra: { '365': 3599 } } } },
-					{ minSeats: 100, maxSeats: 199, pricesCents: { cny: { pro: { '365': 9900 }, ultra: { '365': 20900 } }, usd: { pro: { '365': 1599 }, ultra: { '365': 3399 } } } }
+					{ minSeats: 1, maxSeats: 20, pricesCents: { cny: { pro: { '365': 9990 }, ultra: { '365': 29900 } }, usd: { pro: { '365': 1999 }, ultra: { '365': 4999 } } } },
+					{ minSeats: 21, maxSeats: 200, pricesCents: { cny: { pro: { '365': 8990 }, ultra: { '365': 29900 } }, usd: { pro: { '365': 1799 }, ultra: { '365': 4999 } } } },
+					{ minSeats: 201, maxSeats: 500, pricesCents: { cny: { pro: { '365': 7990 }, ultra: { '365': 29900 } }, usd: { pro: { '365': 1599 }, ultra: { '365': 4999 } } } },
+					{ minSeats: 501, maxSeats: 100000, pricesCents: { cny: { pro: { '365': 6990 }, ultra: { '365': 29900 } }, usd: { pro: { '365': 1399 }, ultra: { '365': 4999 } } } }
 				]
 			}
 		}
@@ -1745,10 +1952,18 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	const autoRenewalViews = new Map<string, AutoRenewalView>();
 	const autoRenewalLoading = new Set<string>();
 	const autoRenewalErrors = new Map<string, string>();
+	let accountOrderHistoryOrders: PaymentOrderRecord[] = [];
+	let accountOrderHistoryLedger: PaymentLedgerEntry[] = [];
+	let accountOrderHistoryOwnerId = '';
+	let accountOrderHistoryLoading = false;
+	let accountOrderHistoryLoaded = false;
+	let accountOrderHistoryError = '';
+	let accountOrderHistoryExpanded = false;
 	let paymentNotificationInbox: PaymentNotificationInbox | null = null;
 	let paymentNotificationOwnerId = '';
 	let paymentNotificationsLoading = false;
 	let paymentNotificationsError = '';
+	let activeMessageCenterCategory: MessageCenterCategory = 'all';
 	let renewalOperationsView: RenewalOperationsView | null = null;
 	let renewalOperationsLoading = false;
 	let renewalOperationsError = '';
@@ -1841,7 +2056,17 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				offer.enabled = source.enabled === true;
 				const discount = readNumber(source.discount_percent);
 				if (typeof discount === 'number' && discount >= 0 && discount <= 90) {
-					offer.discountPercent = Math.round(discount);
+				offer.discountPercent = Math.round(discount);
+				}
+				if (offer.id === 'referral_reward') {
+					const rewardPercent = readNumber(source.reward_percent);
+					const maximumRewardCents = readNumber(source.maximum_reward_cents);
+					if (typeof rewardPercent === 'number' && rewardPercent >= 1 && rewardPercent <= 50) {
+						offer.rewardPercent = Math.round(rewardPercent);
+					}
+					if (typeof maximumRewardCents === 'number' && maximumRewardCents > 0) {
+						offer.maximumRewardCents = Math.round(maximumRewardCents);
+					}
 				}
 				offer.startsAt = readString(source.starts_at) || '';
 				offer.endsAt = readString(source.ends_at) || '';
@@ -1852,6 +2077,26 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			personalRaw?.prices_cents,
 			config.catalogs.personal.durations
 		);
+		normalizeMatrix(
+			config.catalogs.personal.listPricesCents,
+			personalRaw?.list_prices_cents,
+			config.catalogs.personal.durations
+		);
+		for (const currency of ['cny', 'usd']) {
+			for (const plan of ['pro', 'ultra'] as PaidPersonalPlan[]) {
+				for (const days of config.catalogs.personal.durations.map(String)) {
+					config.catalogs.personal.listPricesCents[currency][plan][days] = Math.max(
+						config.catalogs.personal.pricesCents[currency][plan][days],
+						config.catalogs.personal.listPricesCents[currency][plan][days]
+					);
+				}
+			}
+		}
+		const personalPlanRules = asRecord(personalRaw?.plans);
+		for (const plan of ['pro', 'ultra'] as PaidPersonalPlan[]) {
+			const enabled = asRecord(personalPlanRules?.[plan])?.enabled;
+			if (typeof enabled === 'boolean') config.catalogs.personal.planEnabled[plan] = enabled;
+		}
 		normalizeOffers(config.catalogs.personal.offers, personalRaw?.offers);
 		if (organizationRaw) {
 			normalizeMatrix(
@@ -1862,11 +2107,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const planRules = asRecord(organizationRaw.plans);
 			for (const plan of ['pro', 'ultra'] as PaidPersonalPlan[]) {
 				const rule = asRecord(planRules?.[plan]);
+				if (typeof rule?.enabled === 'boolean') config.catalogs.organization.planEnabled[plan] = rule.enabled;
 				const minimum = readCount(rule?.minimum_seats);
 				if (minimum && minimum > 0) config.catalogs.organization.minimumSeats[plan] = minimum;
+				const pricingMode = readString(rule?.pricing_mode);
+				if (pricingMode === 'progressive' || pricingMode === 'volume') {
+					config.catalogs.organization.pricingMode[plan] = pricingMode;
+				}
 			}
 			const customQuote = readCount(organizationRaw.custom_quote_min_seats);
-			if (customQuote && customQuote > 1) config.catalogs.organization.customQuoteMinSeats = customQuote;
+			if (typeof customQuote === 'number') config.catalogs.organization.customQuoteMinSeats = customQuote > 1 ? customQuote : 0;
 			if (Array.isArray(organizationRaw.seat_tiers)) {
 				organizationRaw.seat_tiers.slice(0, config.catalogs.organization.seatTiers.length).forEach((item, index) => {
 					const tierRaw = asRecord(item);
@@ -1929,6 +2179,27 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return amount;
 	}
 
+	function personalListPriceCents(plan: PersonalPlan, days = 30, currency = 'cny'): number {
+		if (plan === 'free') return 0;
+		const key = String(days);
+		const sellingPrice = pricingAmountCents(plan, days, currency, 'personal');
+		return Math.max(
+			sellingPrice,
+			paymentPricingConfig.catalogs.personal.listPricesCents[currency]?.[plan]?.[key] ?? sellingPrice
+		);
+	}
+
+	function organizationBaseAmountCents(plan: PaidPersonalPlan, days: number, seats: number): number {
+		const catalog = paymentPricingConfig.catalogs.organization;
+		if (days !== 365 || catalog.pricingMode[plan] !== 'progressive') {
+			return pricingAmountCents(plan, days, 'cny', 'organization', seats) * seats;
+		}
+		return catalog.seatTiers.reduce((total, tier) => {
+			const quantity = Math.max(0, Math.min(seats, tier.maxSeats) - tier.minSeats + 1);
+			return total + quantity * (tier.pricesCents.cny[plan]['365'] || 0);
+		}, 0);
+	}
+
 	function formatAmountCny(cents: number): string {
 		if (cents <= 0) return '免费';
 		const amount = cents / 100;
@@ -1940,11 +2211,32 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return `${formatAmountCny(pricingAmountCents(plan, days))} / ${days}天起`;
 	}
 
-	function personalPlanPriceSummary(plan: PersonalPlan): string {
-		if (plan === 'free') return '免费';
-		return paymentPricingConfig.catalogs.personal.durations
-			.map((days) => `${days}天 ${formatAmountCny(pricingAmountCents(plan, days))}`)
-			.join(' · ');
+	function personalPlanPriceMarkup(plan: PersonalPlan): string {
+		if (plan === 'free') return '<span class="pc-plan-price-free">长期免费</span>';
+		return `<div class="pc-plan-price-grid">${paymentPricingConfig.catalogs.personal.durations.map((days) => {
+			const selling = pricingAmountCents(plan, days);
+			const list = personalListPriceCents(plan, days);
+			const discounted = list > selling;
+			return `<div class="pc-plan-price-item${days === 365 ? ' is-recommended' : ''}">
+				<span>${days} 天${days === 365 ? '<em>推荐</em>' : ''}</span>
+				<div class="pc-plan-price-main"><strong>${formatAmountCny(selling)}</strong><small>（${formatAmountCny(selling / days)}/天）</small></div>
+				${discounted ? `<small class="pc-plan-price-reference">日常价 <s>${formatAmountCny(list)}</s>（省 ${formatAmountCny(list - selling)}）</small>` : ''}
+			</div>`;
+		}).join('')}</div>`;
+	}
+
+	function rechargeDurationChoicesMarkup(plan: PaidPersonalPlan, selectedDays = 365): string {
+		return `<div class="pc-recharge-duration-grid" role="radiogroup" aria-label="购买时长">${paymentPricingConfig.catalogs.personal.durations.map((days) => {
+			const selling = pricingAmountCents(plan, days);
+			const list = personalListPriceCents(plan, days);
+			const discounted = list > selling;
+			return `<label class="pc-recharge-duration-card${days === 365 ? ' is-recommended' : ''}">
+				<input type="radio" name="recharge-days-choice" value="${days}" data-recharge-days${days === selectedDays ? ' checked' : ''} />
+				<span class="pc-recharge-duration-label">${days} 天${days === 365 ? '<em>推荐</em>' : ''}</span>
+				<span class="pc-recharge-duration-price">${formatAmountCny(selling)}<small>（${formatAmountCny(selling / days)}/天）</small></span>
+				${discounted ? `<small class="pc-recharge-duration-reference">日常价 <s>${formatAmountCny(list)}</s>（省 ${formatAmountCny(list - selling)}）</small>` : ''}
+			</label>`;
+		}).join('')}</div>`;
 	}
 
 	function normalizePersonalPlan(value: string | undefined): PersonalPlan {
@@ -2106,9 +2398,37 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		fallback: { plan: string; status: string; expiresAt: string; seats?: number }
 	): string {
 		const key = autoRenewalKey(scopeType, scopeId);
-		const renewal = autoRenewalViews.get(key);
+		const storedRenewal = autoRenewalViews.get(key);
 		const error = autoRenewalErrors.get(key);
-		if (!renewal && !error) void ensureAutoRenewal(scopeType, scopeId);
+		const fallbackPlan = normalizePersonalPlan(fallback.plan);
+		const renewal: AutoRenewalView | undefined = storedRenewal || (fallbackPlan === 'free' ? {
+			scopeType,
+			scopeId,
+			enabled: false,
+			status: 'disabled',
+			chargeReady: false,
+			plan: 'free',
+			days: 365,
+			seats: fallback.seats || 1,
+			provider: paymentPricingConfig.defaultProvider,
+			currency: 'cny',
+			priceSnapshotCents: 0,
+			consentAt: '',
+			nextChargeAt: '',
+			gracePeriodDays: paymentPricingConfig.renewal.gracePeriodDays,
+			notifyEmail: true,
+			reminderSchedule: paymentPricingConfig.renewal.reminderDays.map((daysBefore) => ({ daysBefore, scheduledFor: '' })),
+			notices: [],
+			currentQuote: null,
+			subscription: {
+				plan: 'free',
+				status: fallback.status || 'active',
+				expiresAt: fallback.expiresAt || '',
+				seats: fallback.seats || 1,
+				isActive: false
+			}
+		} : undefined);
+		if (!storedRenewal && !error) void ensureAutoRenewal(scopeType, scopeId);
 		if (!renewal) {
 			return `<section class="pc-auto-renew-card" data-auto-renew-card data-renew-scope="${scopeType}" data-renew-id="${escapeHtml(scopeId)}">
 				<div class="pc-auto-renew-head"><div><h4>自动续费</h4><p>${error ? escapeHtml(error) : '正在读取授权和提醒设置…'}</p></div><span class="pc-tag muted">${error ? '加载失败' : '加载中'}</span></div>
@@ -2146,11 +2466,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				<strong>${escapeHtml(notice.title)}</strong>${priceChange}<p>${escapeHtml(notice.message)}</p>
 			</div>`;
 		}).join('');
+		const availableDurations = scopeType === 'organization' && currentPlan !== 'pro'
+			? paymentPricingConfig.catalogs.organization.durations.filter((days) => days !== 90)
+			: paymentPricingConfig.catalogs[scopeType].durations;
 		const durationSelect = renderAdminSelect(
 			String(renewal.days),
-			paymentPricingConfig.catalogs[scopeType].durations.map((days) => ({
+			availableDurations.map((days) => ({
 				value: String(days),
-				label: days === 365 ? '年付（365 天）' : days === 30 ? '月付（30 天）' : `${days} 天`
+				label: days === 365 ? '年付（365 天）' : days === 90 ? '季付（90 天）' : '月付（30 天）'
 			})),
 			'data-auto-renew-days',
 			'续费周期',
@@ -2180,7 +2503,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			<div class="pc-auto-renew-controls">
 				<div class="pc-org-field"><span>续费周期</span>${durationSelect}</div>
 				<div class="pc-org-field"><span>支付渠道</span>${providerSelect}</div>
-				<label class="pc-auto-renew-check"><input type="checkbox" data-auto-renew-email${renewal.notifyEmail ? ' checked' : ''}${renewal.enabled ? ' disabled' : ''} /><span>同时接收邮件提醒</span></label>
+				<label class="pc-auto-renew-check"><input type="checkbox" data-auto-renew-email${renewal.notifyEmail ? ' checked' : ''}${renewal.enabled ? ' disabled' : ''} /><span>邮件提醒</span></label>
 				<button class="${renewal.enabled ? 'pc-inline-ghost' : 'pc-inline-btn'}" type="button" data-auto-renew-toggle data-renew-enabled="${renewal.enabled ? 'true' : 'false'}"${!renewal.enabled && !canEnable ? ' disabled' : ''}>${renewal.enabled ? '关闭自动续费' : canEnable ? '开启自动续费' : '购买付费套餐后可开启'}</button>
 			</div>
 			<div class="pc-auto-renew-footnote">续费前按当前配置展示下期价格；价格变化不影响本期。扣款失败后保留 ${renewal.gracePeriodDays} 天宽限期。</div>
@@ -2299,26 +2622,33 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
+	function paymentNotificationEmailStatusText(item: PaymentNotification): string {
+		if (item.emailStatus === 'delivered') return '邮件已发送';
+		if (item.emailStatus === 'pending') return '邮件待发送';
+		if (item.emailStatus === 'retry_scheduled') {
+			return item.emailNextAttemptAt
+				? `邮件将在 ${formatDateTime(item.emailNextAttemptAt)} 重试`
+				: '邮件等待自动重试';
+		}
+		if (item.emailStatus === 'dead_letter') return '邮件多次发送失败，站内通知仍有效';
+		if (item.emailStatus === 'failed') return '邮件发送失败，等待重试';
+		return '未启用邮件提醒';
+	}
+
 	function renderPaymentNotificationInbox(): string {
 		if (!paymentNotificationInbox && !paymentNotificationsError) void ensurePaymentNotifications();
 		const inbox = paymentNotificationInbox;
-		const emailStatusText = (item: PaymentNotification): string => {
-			if (item.emailStatus === 'delivered') return '邮件已发送';
-			if (item.emailStatus === 'pending') return '邮件待发送';
-			if (item.emailStatus === 'retry_scheduled') {
-				return item.emailNextAttemptAt
-					? `邮件将在 ${formatDateTime(item.emailNextAttemptAt)} 重试`
-					: '邮件等待自动重试';
-			}
-			if (item.emailStatus === 'dead_letter') return '邮件多次发送失败，站内通知仍有效';
-			if (item.emailStatus === 'failed') return '邮件发送失败，等待重试';
-			return '未启用邮件提醒';
-		};
 		const rows = inbox?.items.map((item) => `<article class="pc-renewal-notification${item.readAt ? '' : ' is-unread'}">
 			<div><div class="pc-renewal-notification-title"><strong>${escapeHtml(item.title)}</strong>${item.readAt ? '' : '<span>未读</span>'}</div>
-			<p>${escapeHtml(item.message)}</p><small>${escapeHtml(formatDateTime(item.createdAt))} · ${escapeHtml(emailStatusText(item))}${item.emailAttempts ? ` · 已尝试 ${item.emailAttempts} 次` : ''}</small></div>
+			<p>${escapeHtml(item.message)}</p><small>${escapeHtml(formatDateTime(item.createdAt))} · ${escapeHtml(paymentNotificationEmailStatusText(item))}${item.emailAttempts ? ` · 已尝试 ${item.emailAttempts} 次` : ''}</small></div>
 			${item.readAt ? '' : `<button class="pc-inline-ghost" type="button" data-payment-notification-read="${escapeHtml(item.id)}">标为已读</button>`}
 		</article>`).join('') || '';
+		if (inbox && !paymentNotificationsError && !paymentNotificationsLoading && !rows) {
+			return `<section class="pc-card pc-renewal-inbox pc-renewal-inbox-empty" data-payment-notification-inbox>
+				<div><h4>续费通知</h4><p>暂时没有续费通知，有新消息时会显示在这里。</p></div>
+				<button class="pc-inline-ghost" type="button" data-payment-notifications-refresh>刷新</button>
+			</section>`;
+		}
 		return `<section class="pc-card pc-lite-list-card pc-renewal-inbox" data-payment-notification-inbox>
 			<div class="pc-auto-renew-head"><div><h4>续费通知</h4><p>到期、调价、渠道签约和扣款结果会保存在这里。</p></div><span class="pc-auto-renew-status${inbox?.unreadCount ? ' is-pending' : ''}">${inbox?.unreadCount || 0} 条未读</span></div>
 			${paymentNotificationsError ? `<div class="pc-admin-note">${escapeHtml(paymentNotificationsError)}</div>` : ''}
@@ -2328,6 +2658,112 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				<button class="pc-inline-btn" type="button" data-payment-notifications-read-all${!inbox?.unreadCount ? ' disabled' : ''}>全部已读</button>
 			</div>
 		</section>`;
+	}
+
+	function messageCenterTeachingItems(): MessageCenterItem[] {
+		return myAssignmentItems.flatMap((assignment) => {
+			const assignmentId = readString(assignment.assignment_id) || '';
+			const examId = readString(assignment.exam_id) || '';
+			const assignmentTitle = readString(assignment.title) || '未命名作业';
+			const intent = examId ? `openAssignmentExam:${encodeURIComponent(assignmentId)}:${encodeURIComponent(examId)}` : '';
+			const items: MessageCenterItem[] = [];
+			const reminders = Array.isArray(assignment.own_reminders)
+				? assignment.own_reminders.map(asRecord).filter((entry): entry is Record<string, unknown> => Boolean(entry))
+				: [];
+			for (const reminder of reminders) {
+				const createdAt = readString(reminder.created_at) || '';
+				items.push({
+					id: readString(reminder.reminder_id) || `assignment-reminder:${assignmentId}:${createdAt}`,
+					category: 'teaching',
+					title: `作业提醒 · ${assignmentTitle}`,
+					message: readString(reminder.message) || '老师提醒你尽快完成作业。',
+					createdAt,
+					meta: '老师提醒',
+					...(intent ? { intent } : {})
+				});
+			}
+			const submission = asRecord(assignment.own_submission);
+			const teacherComment = readString(submission?.teacher_comment) || '';
+			if (teacherComment) {
+				const createdAt = readString(submission?.reviewed_at) || readString(submission?.updated_at) || readString(submission?.submitted_at) || '';
+				const returned = readString(submission?.review_status) === 'returned' || readString(submission?.status) === 'returned';
+				items.push({
+					id: `assignment-review:${assignmentId}:${createdAt}`,
+					category: 'teaching',
+					title: `${returned ? '作业已退回' : '老师已批改'} · ${assignmentTitle}`,
+					message: teacherComment,
+					createdAt,
+					meta: returned ? '需要修改' : '批改反馈',
+					...(intent ? { intent } : {})
+				});
+			}
+			return items;
+		}).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+	}
+
+	function messageCenterItems(ctx: PCContext): MessageCenterItem[] {
+		const systemItems: MessageCenterItem[] = (paymentNotificationInbox?.items || []).map((item) => ({
+			id: item.id,
+			category: 'system',
+			title: item.title,
+			message: item.message,
+			createdAt: item.createdAt,
+			readAt: item.readAt,
+			meta: paymentNotificationEmailStatusText(item),
+			paymentNotificationId: item.id
+		}));
+		const teachingItems = hasAnyRole(ctx, ['student', 'superAdmin']) ? messageCenterTeachingItems() : [];
+		return [...systemItems, ...teachingItems]
+			.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+	}
+
+	function renderMessageCenterPage(ctx: PCContext): string {
+		if (!paymentNotificationInbox && !paymentNotificationsError) void ensurePaymentNotifications();
+		const canReceiveStudentTeachingMessages = hasAnyRole(ctx, ['student', 'superAdmin']);
+		if (canReceiveStudentTeachingMessages) void ensureMyAssignments(ctx);
+		const allItems = messageCenterItems(ctx);
+		const categories: Array<{ id: MessageCenterCategory; label: string }> = [
+			{ id: 'all', label: '全部' },
+			{ id: 'system', label: '系统与续费' },
+			{ id: 'teaching', label: '教学消息' },
+			{ id: 'interaction', label: '互动消息' }
+		];
+		const counts: Record<MessageCenterCategory, number> = {
+			all: allItems.length,
+			system: allItems.filter((item) => item.category === 'system').length,
+			teaching: allItems.filter((item) => item.category === 'teaching').length,
+			interaction: allItems.filter((item) => item.category === 'interaction').length
+		};
+		const visibleItems = activeMessageCenterCategory === 'all'
+			? allItems
+			: allItems.filter((item) => item.category === activeMessageCenterCategory);
+		const emptyText = activeMessageCenterCategory === 'interaction'
+			? '暂时没有互动消息。收到评论回复或伙伴消息后会显示在这里。'
+			: activeMessageCenterCategory === 'teaching'
+				? '暂时没有教学消息。老师发送催交提醒或批改反馈后会显示在这里。'
+				: activeMessageCenterCategory === 'system'
+					? '暂时没有系统与续费消息。'
+					: '暂时没有消息。';
+		const categoryLabel = (category: MessageCenterItem['category']): string => category === 'system' ? '系统与续费' : category === 'teaching' ? '教学消息' : '互动消息';
+		const rows = visibleItems.map((item) => `<article class="pc-message-center-row${item.readAt || !item.paymentNotificationId ? '' : ' is-unread'}">
+			<div class="pc-message-center-row-main">
+				<div class="pc-message-center-row-title"><strong>${escapeHtml(item.title)}</strong>${item.readAt || !item.paymentNotificationId ? '' : '<span>未读</span>'}</div>
+				<p>${escapeHtml(item.message)}</p>
+				<small>${escapeHtml(categoryLabel(item.category))}${item.createdAt ? ` · ${escapeHtml(formatDateTime(item.createdAt))}` : ''}${item.meta ? ` · ${escapeHtml(item.meta)}` : ''}</small>
+			</div>
+			<div class="pc-message-center-row-actions">
+				${item.intent ? `<button class="pc-inline-ghost" type="button" data-intent="${escapeHtml(item.intent)}">去处理</button>` : ''}
+				${item.paymentNotificationId && !item.readAt ? `<button class="pc-inline-ghost" type="button" data-payment-notification-read="${escapeHtml(item.paymentNotificationId)}">标为已读</button>` : ''}
+			</div>
+		</article>`).join('');
+		const loading = (paymentNotificationsLoading && !paymentNotificationInbox) || (canReceiveStudentTeachingMessages && Boolean(myAssignmentsLoading));
+		const toolbar = `<section class="pc-card pc-message-center-toolbar" aria-label="消息筛选">
+			<div class="pc-message-center-tabs" role="tablist">${categories.map((category) => `<button type="button" role="tab" class="${activeMessageCenterCategory === category.id ? 'active' : ''}" data-message-center-category="${category.id}" aria-selected="${activeMessageCenterCategory === category.id}">${escapeHtml(category.label)}<span>${counts[category.id]}</span></button>`).join('')}</div>
+			<div class="pc-message-center-tools"><button class="pc-inline-ghost" type="button" data-message-center-refresh>刷新</button><button class="pc-inline-btn" type="button" data-payment-notifications-read-all${paymentNotificationInbox?.unreadCount ? '' : ' disabled'}>全部已读</button></div>
+		</section>`;
+		const errors = `${paymentNotificationsError ? `<div class="pc-admin-note" role="alert">${escapeHtml(paymentNotificationsError)}</div>` : ''}${canReceiveStudentTeachingMessages && myAssignmentsError && (activeMessageCenterCategory === 'all' || activeMessageCenterCategory === 'teaching') ? `<div class="pc-admin-note" role="alert">${escapeHtml(myAssignmentsError)}</div>` : ''}`;
+		const body = `${toolbar}<section class="pc-card pc-message-center-list" data-message-center-list>${errors}${loading && !visibleItems.length ? '<div class="pc-admin-note">正在读取消息…</div>' : rows || `<div class="pc-message-center-empty">${escapeHtml(emptyText)}</div>`}</section>`;
+		return renderDashboardSubpage('消息中心', body, '所有身份共用同一个收件箱；系统、教学和互动消息按来源分类。');
 	}
 
 	async function markPaymentNotificationRead(notificationId?: string): Promise<void> {
@@ -2445,29 +2881,31 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
-	function paymentQuoteMarkup(quote: PaymentQuote, unitSuffix = ''): string {
+	function paymentQuoteMarkup(quote: PaymentQuote, unitSuffix = '', listAmountCents = 0): string {
 		const price = `<b>${formatAmountCny(quote.amountCents)}${unitSuffix}</b>`;
+		const hasListSaving = listAmountCents > quote.baseAmountCents;
+		const listPrice = hasListSaving ? `日常价 <s>${formatAmountCny(listAmountCents)}${unitSuffix}</s> · ` : '';
+		const listSaving = hasListSaving ? ` · 当前售价已省 ${formatAmountCny(listAmountCents - quote.baseAmountCents)}` : '';
 		if (!quote.offer || quote.discountCents <= 0) {
-			return `${price}<span>当前按基础价格结算。</span>`;
+			return `<strong>${hasListSaving ? '当前优惠价' : '当前售价'}${listSaving}</strong><span>${listPrice}${price}</span>`;
 		}
 		const windowText = quote.offer.endsAt
 			? ` · 有效至 ${new Date(quote.offer.endsAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`
 			: '';
 		return `<strong>${escapeHtml(quote.offer.label)} · ${quote.offer.discountPercent}% 优惠</strong>
-			<span><s>${formatAmountCny(quote.baseAmountCents)}</s> ${price} · 已优惠 ${formatAmountCny(quote.discountCents)}${escapeHtml(windowText)}</span>`;
+			<span>${listPrice}当前售价 <s>${formatAmountCny(quote.baseAmountCents)}</s> ${price} · 本单再省 ${formatAmountCny(quote.discountCents)}${escapeHtml(windowText)}</span>`;
 	}
 
 	function ensureRechargeModal(): HTMLDivElement {
 		if (rechargeModal) return rechargeModal;
 		const modal = document.createElement('div');
 		modal.id = 'pc-recharge-modal';
-		modal.className = 'risk-modal risk-hidden';
-		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:flex-start;justify-content:center;z-index:9999;padding:16px;box-sizing:border-box;overflow:auto;';
+		modal.className = 'risk-modal risk-hidden pc-recharge-modal';
 		modal.innerHTML = `
-			<div style="background:#fff;border-radius:8px;padding:20px;width:min(760px, calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);box-sizing:border-box;">
-				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-					<h3 id="recharge-title" style="margin:0;font-size:16px;">续费 / 升级套餐</h3>
-					<button type="button" id="recharge-close" aria-label="关闭续费面板" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+			<div class="pc-recharge-dialog">
+				<div class="pc-recharge-header">
+					<h3 id="recharge-title">续费 / 升级套餐</h3>
+					<button type="button" id="recharge-close" class="pc-recharge-close" aria-label="关闭续费面板">×</button>
 				</div>
 				<div id="recharge-body"></div>
 			</div>`;
@@ -2481,74 +2919,169 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return modal;
 	}
 
+	function rechargePreferencesMarkup(ctx: PCContext): string {
+		const renewal = autoRenewalViews.get(autoRenewalKey('personal', ctx.id || ''));
+		const emailChecked = renewal ? renewal.notifyEmail : true;
+		return `<div class="pc-recharge-preferences">
+			<label class="pc-recharge-preference is-disabled">
+				<input type="checkbox" data-recharge-auto-renew disabled aria-disabled="true" />
+				<span><strong>到期自动续费</strong><small data-recharge-renewal-note>渠道签约暂未开放，请到期前手动续费。</small></span>
+			</label>
+			<label class="pc-recharge-preference">
+				<input type="checkbox" data-recharge-email${emailChecked ? ' checked' : ''} />
+				<span><strong>邮件提醒</strong><small>接收到期、调价和扣款结果通知。</small></span>
+			</label>
+		</div>`;
+	}
+
+	function renderAccountPurchasePanel(ctx: PCContext): string {
+		const currentPlan = normalizePersonalPlan(ctx.subscription?.plan);
+		const paidAndActive = currentPlan === 'pro' && ctx.subscription?.status === 'active';
+		const currentStatus = subscriptionStatusLabel(ctx.subscription?.status);
+		const currentExpiry = subscriptionExpirySummary(ctx.subscription?.expiresAt, ctx.subscription?.status || 'active');
+		return `<section class="pc-card pc-account-purchase-card" data-account-recharge-panel>
+			<div class="pc-account-purchase-head">
+				<div>
+					<h4>${paidAndActive ? '续费 PRO' : '开通 PRO'}</h4>
+					<p class="pc-account-current-plan">当前套餐：${planLabel(ctx.subscription?.plan)} · ${currentStatus} · ${currentExpiry}</p>
+					<p>长期备考套餐：完整题库与解析、薄弱项分析、个性化推荐和标准导出。</p>
+				</div>
+			</div>
+			<form class="pc-recharge-form pc-account-recharge-form" data-account-recharge-form>
+				<input type="hidden" name="recharge-plan" value="pro" data-recharge-plan />
+				${rechargeDurationChoicesMarkup('pro')}
+				<div class="pc-recharge-checkout-grid">
+					<label class="pc-recharge-provider-field"><span>支付方式</span>
+						<select class="pc-profile-input" data-recharge-provider>
+							<option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信支付</option>
+							<option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option>
+							<option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe（海外卡/国际支付）</option>
+						</select>
+					</label>
+					${rechargePreferencesMarkup(ctx)}
+				</div>
+				<div class="pc-recharge-settlement">
+					<div data-recharge-preview class="pc-pricing-order-preview pc-recharge-preview"></div>
+					<button type="submit" class="pc-inline-btn" data-recharge-submit>确认购买</button>
+				</div>
+			</form>
+			<div class="pc-account-ultra-note"><strong>ULTRA · 暂未开放</strong><span>高阶学习能力正在准备中，开放后可在此升级。</span></div>
+		</section>`;
+	}
+
 	function renderRechargePanel(ctx: PCContext): string {
 		const currentPlan = normalizePersonalPlan(ctx.subscription?.plan);
 		const currentStatus = ctx.subscription?.status || 'active';
 		const currentExpiry = ctx.subscription?.expiresAt || ctx.planExpiresAt || '';
+		const selectedPlan = currentPlan === 'free' ? 'pro' : currentPlan;
 		const cards = personalPlanOptions
 			.map((plan) => {
-				const checked = plan.id === currentPlan ? ' checked' : '';
+				const available = plan.id === 'free' || paymentPricingConfig.catalogs.personal.planEnabled[plan.id];
+				const checked = plan.id === selectedPlan ? ' checked' : '';
 				const featureList = plan.features.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
-				return `<label style="display:block;width:100%;box-sizing:border-box;border:1px solid ${plan.id === currentPlan ? '#1976d2' : '#e0e0e0'};border-radius:8px;padding:12px;margin-bottom:10px;cursor:pointer;">
-					<div style="display:flex;gap:10px;align-items:flex-start;">
-						<input type="radio" name="recharge-plan" value="${plan.id}"${checked} style="margin-top:4px;" />
-						<div style="flex:1;">
-							<div style="display:flex;justify-content:space-between;gap:12px;">
-								<strong>${escapeHtml(plan.name)}</strong>
-								<span style="color:#1976d2;font-weight:600;text-align:right;">${escapeHtml(personalPlanPriceSummary(plan.id))}</span>
-							</div>
-							<div style="font-size:12px;color:#666;margin-top:3px;">${escapeHtml(plan.desc)}</div>
-							<ul style="margin:8px 0 0 18px;padding:0;font-size:12px;color:#555;line-height:1.7;">${featureList}</ul>
+				return `<label class="pc-recharge-plan-card${available ? '' : ' is-unavailable'}">
+					<input class="pc-recharge-plan-radio" type="radio" name="recharge-plan" value="${plan.id}"${checked}${available ? '' : ' disabled'} />
+					<div class="pc-recharge-plan-layout">
+						<div class="pc-recharge-plan-copy">
+							<strong>${escapeHtml(plan.name)}${available ? '' : ' · 暂未开放'}</strong>
+							<p>${escapeHtml(plan.desc)}</p>
+							<ul>${featureList}</ul>
 						</div>
-					</div>
+						<div class="pc-recharge-plan-prices">${personalPlanPriceMarkup(plan.id)}</div>
+						</div>
 				</label>`;
 			})
 			.join('');
-		return `<div style="font-size:13px;color:#333;width:100%;box-sizing:border-box;">
-			<div style="border:1px solid #eee;border-radius:8px;padding:12px;margin-bottom:14px;background:#fafafa;box-sizing:border-box;">
+		return `<div class="pc-recharge-panel">
+			<div class="pc-recharge-current">
 				<div>当前套餐：<strong>${escapeHtml(planLabel(currentPlan))}</strong> / ${escapeHtml(currentStatus)}</div>
-				<div style="margin-top:4px;color:#666;">到期时间：${escapeHtml(currentExpiry || '长期有效')}</div>
+				<div>到期时间：${escapeHtml(currentExpiry || '长期有效')}</div>
 			</div>
-			<form id="recharge-form">
+			<form id="recharge-form" class="pc-recharge-form">
 				${cards}
-				<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
-					<label style="font-size:12px;color:#666;">续费时长
-						<select id="recharge-days" style="display:block;width:100%;height:38px;margin-top:4px;padding:7px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;background:#fff;">
+				<div class="pc-recharge-controls">
+					<label>续费时长
+						<select id="recharge-days" class="pc-profile-input">
 							${paymentPricingConfig.catalogs.personal.durations.map((days) => `<option value="${days}"${days === 365 ? ' selected' : ''}>${days} 天${days === 365 ? ' · 推荐' : ''}</option>`).join('')}
 						</select>
 					</label>
-					<label style="font-size:12px;color:#666;">支付渠道
-						<select id="recharge-provider" style="display:block;width:100%;height:38px;margin-top:4px;padding:7px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;background:#fff;">
+					<label>支付渠道
+						<select id="recharge-provider" class="pc-profile-input">
 							<option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信支付</option>
 							<option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option>
 							<option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe（海外卡/国际支付）</option>
 						</select>
 					</label>
 				</div>
-				<div id="recharge-preview" class="pc-pricing-order-preview" style="margin-top:12px;"></div>
-				<div style="margin-top:10px;color:#999;font-size:11px;line-height:1.6;">
+				${rechargePreferencesMarkup(ctx)}
+				<div id="recharge-preview" class="pc-pricing-order-preview pc-recharge-preview"></div>
+				<div class="pc-recharge-note">
 					付费套餐会先创建支付订单；只有支付渠道回调确认成功后，系统才会发放套餐权益并写入流水。
 				</div>
-				<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
-					<button type="button" id="recharge-cancel" style="padding:7px 12px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;">取消</button>
-					<button type="submit" id="recharge-submit" style="padding:7px 14px;border:0;background:#1976d2;color:#fff;border-radius:4px;cursor:pointer;">创建支付订单</button>
+				<div class="pc-recharge-actions">
+					<button type="button" id="recharge-cancel" class="pc-inline-ghost">取消</button>
+					<button type="submit" id="recharge-submit" class="pc-inline-btn">创建支付订单</button>
 				</div>
 			</form>
 		</div>`;
 	}
 
-	async function updateRechargePreview(modal: HTMLDivElement, ctx: PCContext): Promise<void> {
-		const plan = normalizePersonalPlan((modal.querySelector('input[name="recharge-plan"]:checked') as HTMLInputElement | null)?.value);
-		const days = Number((modal.querySelector('#recharge-days') as HTMLSelectElement | null)?.value || 365);
-		const preview = modal.querySelector('#recharge-preview') as HTMLDivElement | null;
-		if (!preview) return;
+	function rechargePlan(root: HTMLElement): PersonalPlan {
+		const selected = root.querySelector('input[name="recharge-plan"]:checked, [data-recharge-plan]') as HTMLInputElement | null;
+		return normalizePersonalPlan(selected?.value);
+	}
+
+	function rechargeDays(root: HTMLElement): number {
+		const selected = root.querySelector('[data-recharge-days]:checked, #recharge-days') as HTMLInputElement | HTMLSelectElement | null;
+		return Number(selected?.value || 365);
+	}
+
+	function rechargeProvider(root: HTMLElement): string {
+		return (root.querySelector('[data-recharge-provider], #recharge-provider') as HTMLSelectElement | null)?.value || 'wechat';
+	}
+
+	function updateRechargeSubmitLabel(root: HTMLElement, ctx: PCContext, plan: PersonalPlan, amountCents: number): void {
+		const submit = root.querySelector('[data-recharge-submit], #recharge-submit') as HTMLButtonElement | null;
+		if (!submit || submit.getAttribute('aria-busy') === 'true') return;
 		if (plan === 'free') {
-			preview.textContent = '将切换为 FREE：套餐长期有效，但高级访问权益会回到基础范围。';
+			submit.disabled = true;
+			submit.textContent = '当前已是免费套餐';
 			return;
 		}
-		const provider = (modal.querySelector('#recharge-provider') as HTMLSelectElement | null)?.value || 'wechat';
+		const renewing = normalizePersonalPlan(ctx.subscription?.plan) === plan && ctx.subscription?.status === 'active';
+		submit.disabled = !paymentPricingConfig.catalogs.personal.planEnabled[plan];
+		submit.textContent = `${formatAmountCny(amountCents)} · ${renewing ? '续费' : '开通'} ${planLabel(plan)}`;
+	}
+
+	async function updateRechargePreview(root: HTMLElement, ctx: PCContext): Promise<void> {
+		const plan = rechargePlan(root);
+		const days = rechargeDays(root);
+		const preview = root.querySelector('[data-recharge-preview], #recharge-preview') as HTMLDivElement | null;
+		if (!preview) return;
+		const autoRenew = root.querySelector('[data-recharge-auto-renew]') as HTMLInputElement | null;
+		const renewalNote = root.querySelector('[data-recharge-renewal-note]') as HTMLElement | null;
+		if (autoRenew) {
+			autoRenew.checked = false;
+			autoRenew.disabled = true;
+		}
+		if (renewalNote) {
+			renewalNote.textContent = '渠道签约暂未开放，请到期前手动续费。';
+		}
+		if ((plan === 'pro' || plan === 'ultra') && !paymentPricingConfig.catalogs.personal.planEnabled[plan]) {
+			preview.innerHTML = `<strong>${planLabel(plan)} 暂未开放</strong><span>价格方案已预设，功能准备完成后再开放购买。</span>`;
+			updateRechargeSubmitLabel(root, ctx, plan, 0);
+			return;
+		}
+		if (plan === 'free') {
+			preview.innerHTML = '<strong>FREE 长期有效</strong><span>免费套餐无需创建支付订单。</span>';
+			updateRechargeSubmitLabel(root, ctx, plan, 0);
+			return;
+		}
+		const provider = rechargeProvider(root);
 		const baseAmount = pricingAmountCents(plan, days);
-		preview.innerHTML = `<strong>${planLabel(plan)} · ${days} 天</strong><span>${formatAmountCny(baseAmount)} · ${escapeHtml(paymentProviderLabel(provider))} · 正在确认可用优惠…</span>`;
+		const listAmount = personalListPriceCents(plan, days);
+		updateRechargeSubmitLabel(root, ctx, plan, baseAmount);
+		preview.innerHTML = `<strong>${days} 天 ${planLabel(plan)}</strong><span>${escapeHtml(paymentProviderLabel(provider))} · 正在确认订单价格…</span>`;
 		const api = window.APIClient;
 		const token = activeToken(ctx);
 		const sequence = ++paymentQuoteRequestSequence;
@@ -2561,8 +3094,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				currency: 'cny'
 			}));
 			if (sequence !== paymentQuoteRequestSequence || !quote || !preview.isConnected) return;
-			preview.innerHTML = `${paymentQuoteMarkup(quote)}
-				<span>渠道：${escapeHtml(paymentProviderLabel(provider))} · 支付成功后预计到期 ${escapeHtml(nextSubscriptionExpiry(ctx, days))}</span>`;
+			const hasAdditionalOffer = Boolean(quote.offer && quote.discountCents > 0);
+			preview.innerHTML = hasAdditionalOffer
+				? `${paymentQuoteMarkup(quote)}<span>${escapeHtml(paymentProviderLabel(provider))} · 预计到期 ${escapeHtml(nextSubscriptionExpiry(ctx, days))}</span>`
+				: `<strong>${days} 天 ${planLabel(plan)}</strong><span>${escapeHtml(paymentProviderLabel(provider))} · 预计到期 ${escapeHtml(nextSubscriptionExpiry(ctx, days))}</span>`;
+			updateRechargeSubmitLabel(root, ctx, plan, quote.amountCents);
 		} catch (error) {
 			if (sequence !== paymentQuoteRequestSequence || !preview.isConnected) return;
 			preview.innerHTML = `<strong>${planLabel(plan)} · ${days} 天 · ${formatAmountCny(baseAmount)}</strong>
@@ -2570,8 +3106,132 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
-	async function submitRecharge(modal: HTMLDivElement, ctx: PCContext): Promise<void> {
-		const form = modal.querySelector('#recharge-form') as HTMLFormElement | null;
+	function mockWechatQrMarkup(seed: string): string {
+		const size = 25;
+		let state = Array.from(seed).reduce((total, character) => ((total * 33) ^ character.charCodeAt(0)) >>> 0, 2166136261);
+		const finderCell = (x: number, y: number, originX: number, originY: number): boolean | null => {
+			const localX = x - originX;
+			const localY = y - originY;
+			if (localX < 0 || localY < 0 || localX >= 7 || localY >= 7) return null;
+			return localX === 0 || localY === 0 || localX === 6 || localY === 6 || (localX >= 2 && localX <= 4 && localY >= 2 && localY <= 4);
+		};
+		const cells: string[] = [];
+		for (let y = 0; y < size; y += 1) {
+			for (let x = 0; x < size; x += 1) {
+				const finder = finderCell(x, y, 0, 0) ?? finderCell(x, y, size - 7, 0) ?? finderCell(x, y, 0, size - 7);
+				state = (state * 1664525 + 1013904223) >>> 0;
+				if (finder === true || (finder === null && ((state >>> 29) & 1) === 1)) {
+					cells.push(`<rect x="${x}" y="${y}" width="1" height="1" />`);
+				}
+			}
+		}
+		return `<div class="pc-mock-wechat-qr"><svg viewBox="-2 -2 ${size + 4} ${size + 4}" role="img" aria-label="模拟微信收款二维码"><rect x="-2" y="-2" width="${size + 4}" height="${size + 4}" fill="#fff"/><g fill="#15110e">${cells.join('')}</g></svg><span>微信</span></div>`;
+	}
+
+	function renderMockWechatPaymentSuccess(
+		modal: HTMLDivElement,
+		order: Record<string, unknown>,
+		fallbackAmountCents: number
+	): void {
+		const orderId = readString(order.id);
+		const amountCents = readNumber(order.amount_cents) ?? fallbackAmountCents;
+		const days = readNumber(order.days) ?? 0;
+		const plan = readString(order.plan) || 'pro';
+		const subscription = normalizeSubscription(order.subscription);
+		const dialog = modal.querySelector<HTMLElement>('.pc-mock-wechat-dialog');
+		if (!dialog) return;
+		dialog.innerHTML = `<div class="pc-mock-wechat-head">
+			<div><h3 id="pc-mock-wechat-title">支付成功</h3><p>订单已完成，套餐权益已经发放</p></div>
+			<button type="button" class="pc-recharge-close" data-mock-wechat-done aria-label="关闭支付成功面板">×</button>
+		</div>
+		<div class="pc-mock-wechat-success">
+			<span class="pc-payment-success-mark" aria-hidden="true">✓</span>
+			<strong>${escapeHtml(planLabel(plan))} ${escapeHtml(paymentDurationLabel(days))}已生效</strong>
+			<p>实付 ${escapeHtml(formatPaymentAmount(amountCents, 'cny'))}${subscription?.expiresAt ? ` · 有效期 ${escapeHtml(formatCalendarDate(subscription.expiresAt))}` : ''}</p>
+			<div><span>订单号</span><code>${escapeHtml(orderId)}</code></div>
+			<div class="pc-mock-wechat-success-actions">
+				<button type="button" class="pc-inline-ghost" data-mock-wechat-done>完成</button>
+				<button type="button" class="pc-inline-btn" data-mock-wechat-view-order>查看订单详情</button>
+			</div>
+		</div>`;
+		dialog.querySelectorAll<HTMLButtonElement>('[data-mock-wechat-done]').forEach((button) => {
+			button.onclick = () => hideLegacyModal(modal);
+		});
+		const viewOrder = dialog.querySelector<HTMLButtonElement>('[data-mock-wechat-view-order]');
+		if (viewOrder) {
+			viewOrder.onclick = async () => {
+				hideLegacyModal(modal);
+				await ensureAccountOrderHistory(getContext(), true);
+				if (orderId) focusInlinePaymentOrder(orderId);
+			};
+			requestAnimationFrame(() => viewOrder.focus());
+		}
+	}
+
+	function showMockWechatPayment(order: Record<string, unknown>, ctx: PCContext): void {
+		const orderId = readString(order.id);
+		const amountCents = readNumber(order.amount_cents) ?? 0;
+		if (!orderId) return;
+		document.getElementById('pc-mock-wechat-payment')?.remove();
+		const modal = document.createElement('div');
+		modal.id = 'pc-mock-wechat-payment';
+		modal.className = 'risk-modal risk-hidden pc-mock-wechat-payment';
+		modal.innerHTML = `<div class="pc-mock-wechat-dialog">
+			<div class="pc-mock-wechat-head">
+				<div><h3 id="pc-mock-wechat-title">微信收款</h3><p>请使用微信扫描二维码完成支付</p></div>
+				<button type="button" class="pc-recharge-close" data-mock-wechat-close aria-label="关闭微信收款面板">×</button>
+			</div>
+			<div class="pc-mock-wechat-body">
+				<div class="pc-mock-wechat-code">${mockWechatQrMarkup(orderId)}<span>模拟收款码</span></div>
+				<div class="pc-mock-wechat-detail">
+					<span class="pc-mock-wechat-badge">微信支付 · 开发演示</span>
+					<strong>${escapeHtml(formatAmountCny(amountCents))}</strong>
+					<p>${escapeHtml(readString(order.description) || 'PRO 套餐')}</p>
+					<small>订单号 ${escapeHtml(orderId)}</small>
+					<button type="button" class="pc-inline-btn" data-mock-wechat-success>模拟支付成功</button>
+					<em>此按钮仅在开发环境出现，不会发起真实扣款。</em>
+				</div>
+			</div>
+		</div>`;
+		document.body.appendChild(modal);
+		prepareLegacyModal(modal, 'pc-mock-wechat-title');
+		modal.querySelector<HTMLButtonElement>('[data-mock-wechat-close]')!.onclick = () => hideLegacyModal(modal);
+		modal.addEventListener('click', (event) => {
+			if (event.target === modal) hideLegacyModal(modal);
+		});
+		const successButton = modal.querySelector<HTMLButtonElement>('[data-mock-wechat-success]')!;
+		successButton.onclick = async () => {
+			const api = window.APIClient;
+			const token = activeToken(ctx);
+			if (!api || !token || typeof api.simulateWechatPaymentSuccess !== 'function') {
+				showToast('模拟支付接口暂不可用');
+				return;
+			}
+			successButton.disabled = true;
+			successButton.setAttribute('aria-busy', 'true');
+			successButton.textContent = '确认收款中…';
+			try {
+				const paidOrder = asRecord(await api.simulateWechatPaymentSuccess(token, orderId)) || order;
+				await refreshCurrentContextFromApi();
+				autoRenewalViews.delete(autoRenewalKey('personal', ctx.id || ''));
+				accountOrderHistoryLoaded = false;
+				await ensureAccountOrderHistory(getContext(), true);
+				renderSections();
+				renderSectionContent();
+				renderMockWechatPaymentSuccess(modal, paidOrder, amountCents);
+				showToast('模拟支付成功，PRO 权益已生效');
+			} catch (error) {
+				successButton.disabled = false;
+				successButton.removeAttribute('aria-busy');
+				successButton.textContent = '模拟支付成功';
+				showToast(readErrorMessage(error, '模拟支付失败'));
+			}
+		};
+		showLegacyModal(modal, '[data-mock-wechat-success]');
+	}
+
+	async function submitRecharge(root: HTMLElement, ctx: PCContext): Promise<void> {
+		const form = (root.matches('form') ? root : root.querySelector('#recharge-form, [data-account-recharge-form]')) as HTMLFormElement | null;
 		if (form) clearFormFieldErrors(form);
 		const token = activeToken(ctx);
 		const userId = ctx.id || '';
@@ -2584,10 +3244,17 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			showToast('支付接口暂不可用');
 			return;
 		}
-		const plan = normalizePersonalPlan((modal.querySelector('input[name="recharge-plan"]:checked') as HTMLInputElement | null)?.value);
-		const days = Number((modal.querySelector('#recharge-days') as HTMLSelectElement | null)?.value || 30);
-		const provider = (modal.querySelector('#recharge-provider') as HTMLSelectElement | null)?.value || 'wechat';
-		const submit = modal.querySelector('#recharge-submit') as HTMLButtonElement | null;
+		const plan = rechargePlan(root);
+		if ((plan === 'pro' || plan === 'ultra') && !paymentPricingConfig.catalogs.personal.planEnabled[plan]) {
+			showToast(`${planLabel(plan)} 套餐正在规划中，暂未开放购买`);
+			return;
+		}
+		const days = rechargeDays(root);
+		const provider = rechargeProvider(root);
+		const autoRenewalControl = root.querySelector('[data-recharge-auto-renew]') as HTMLInputElement | null;
+		const autoRenewal = autoRenewalControl?.disabled !== true && autoRenewalControl?.checked === true;
+		const notifyEmail = (root.querySelector('[data-recharge-email]') as HTMLInputElement | null)?.checked !== false;
+		const submit = root.querySelector('[data-recharge-submit], #recharge-submit') as HTMLButtonElement | null;
 		if (submit?.disabled) return;
 		if (submit) {
 			submit.disabled = true;
@@ -2612,7 +3279,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					});
 				}
 				await refreshCurrentContextFromApi();
-				hideLegacyModal(modal);
+				if (root.id === 'pc-recharge-modal') hideLegacyModal(root as HTMLDivElement);
 				showToast('已切换为 FREE');
 				renderSections();
 				renderSectionContent();
@@ -2622,56 +3289,78 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				plan,
 				days,
 				provider,
-				currency: 'cny'
+				currency: 'cny',
+				auto_renewal: autoRenewal,
+				notify_email: notifyEmail
 			})) || {};
+			accountOrderHistoryLoaded = false;
 			const providerPayload = asRecord(order.provider_payload);
 			const paymentUrl = readString(providerPayload?.payment_url);
 			if (paymentUrl) {
 				window.open(paymentUrl, '_blank', 'noopener');
 				showToast('支付订单已创建，请在新窗口完成支付');
+			} else if (provider === 'wechat' && providerPayload?.mock_available === true) {
+				showMockWechatPayment(order, ctx);
+				showToast('模拟微信收款已打开');
 			} else {
 				showToast(readString(providerPayload?.message) || readString(providerPayload?.error) || '支付订单已创建，渠道尚未返回支付链接');
 			}
-			const preview = modal.querySelector('#recharge-preview') as HTMLDivElement | null;
+			const preview = root.querySelector('[data-recharge-preview], #recharge-preview') as HTMLDivElement | null;
 			if (preview) {
 				const orderOffer = asRecord(order.offer);
 				const offerLabel = readString(orderOffer?.label);
 				const orderAmount = readNumber(order.amount_cents) ?? 0;
-				preview.textContent = `订单 ${readString(order.id) || ''} 已创建，金额 ${formatAmountCny(orderAmount)}${offerLabel ? `，已使用“${offerLabel}”` : ''}，状态：${readString(order.status) || 'pending'}。`;
+				preview.innerHTML = `<strong>订单 ${escapeHtml(readString(order.id) || '')} 已创建</strong>
+					<span>金额 ${escapeHtml(formatAmountCny(orderAmount))}${offerLabel ? `，已使用“${escapeHtml(offerLabel)}”` : ''}${autoRenewal ? '，支付成功后申请自动续费授权' : ''}，状态：${escapeHtml(readString(order.status) || 'pending')}。</span>`;
 			}
 		} catch (error) {
 			const message = readErrorMessage(error, '支付订单创建失败');
-			setFieldError(modal.querySelector('#recharge-provider') as HTMLSelectElement | null, message);
+			setFieldError(root.querySelector('[data-recharge-provider], #recharge-provider') as HTMLSelectElement | null, message);
 			showToast(message);
 		} finally {
 			if (submit) {
 				submit.disabled = false;
 				submit.removeAttribute('aria-busy');
-				submit.textContent = '创建支付订单';
+				updateRechargeSubmitLabel(root, ctx, plan, pricingAmountCents(plan, days));
 			}
 		}
 	}
 
-	async function openRechargePanel(): Promise<void> {
-		const ctx = getContext();
-		if (ctx.guest || !ctx.id) {
-			showToast('请先登录后续费');
-			return;
-		}
-		await loadPaymentPricing();
-		const modal = ensureRechargeModal();
+	function mountRechargePanel(modal: HTMLDivElement, ctx: PCContext, selection?: {
+		plan?: string;
+		days?: string;
+		provider?: string;
+		autoRenewal?: boolean;
+		notifyEmail?: boolean;
+	}): void {
 		const body = modal.querySelector('#recharge-body') as HTMLDivElement | null;
 		if (!body) return;
 		body.innerHTML = renderRechargePanel(ctx);
-		showLegacyModal(modal, '#recharge-close');
+		if (selection?.plan) {
+			const plan = modal.querySelector(`input[name="recharge-plan"][value="${CSS.escape(selection.plan)}"]`) as HTMLInputElement | null;
+			if (plan && !plan.disabled) plan.checked = true;
+		}
+		const days = modal.querySelector('#recharge-days') as HTMLSelectElement | null;
+		if (days && selection?.days && Array.from(days.options).some((option) => option.value === selection.days)) {
+			days.value = selection.days;
+		}
+		const provider = modal.querySelector('#recharge-provider') as HTMLSelectElement | null;
+		if (provider && selection?.provider && Array.from(provider.options).some((option) => option.value === selection.provider)) {
+			provider.value = selection.provider;
+		}
+		const autoRenewal = modal.querySelector('[data-recharge-auto-renew]') as HTMLInputElement | null;
+		if (autoRenewal) {
+			autoRenewal.checked = false;
+			autoRenewal.disabled = true;
+		}
+		const notifyEmail = modal.querySelector('[data-recharge-email]') as HTMLInputElement | null;
+		if (notifyEmail && typeof selection?.notifyEmail === 'boolean') notifyEmail.checked = selection.notifyEmail;
 		void updateRechargePreview(modal, ctx);
-		modal.querySelectorAll('input[name="recharge-plan"], #recharge-days, #recharge-provider').forEach((el) => {
+		modal.querySelectorAll('input[name="recharge-plan"], #recharge-days, #recharge-provider, [data-recharge-auto-renew], [data-recharge-email]').forEach((el) => {
 			(el as HTMLInputElement | HTMLSelectElement).onchange = () => { void updateRechargePreview(modal, ctx); };
 		});
 		const cancel = modal.querySelector('#recharge-cancel') as HTMLButtonElement | null;
-		if (cancel) {
-			cancel.onclick = () => hideLegacyModal(modal);
-		}
+		if (cancel) cancel.onclick = () => hideLegacyModal(modal);
 		const form = modal.querySelector('#recharge-form') as HTMLFormElement | null;
 		if (form) {
 			form.onsubmit = (event) => {
@@ -2679,6 +3368,30 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				void submitRecharge(modal, ctx);
 			};
 		}
+	}
+
+	function openRechargePanel(): void {
+		const ctx = getContext();
+		if (ctx.guest || !ctx.id) {
+			showToast('请先登录后续费');
+			return;
+		}
+		const needsPricingRefresh = !paymentPricingLoaded;
+		const modal = ensureRechargeModal();
+		mountRechargePanel(modal, ctx);
+		showLegacyModal(modal, '#recharge-close');
+		if (!needsPricingRefresh) return;
+		void loadPaymentPricing().then(() => {
+			if (!modal.isConnected || modal.classList.contains('risk-hidden') || modal.style.display === 'none') return;
+			const selection = {
+				plan: (modal.querySelector('input[name="recharge-plan"]:checked') as HTMLInputElement | null)?.value,
+				days: (modal.querySelector('#recharge-days') as HTMLSelectElement | null)?.value,
+				provider: (modal.querySelector('#recharge-provider') as HTMLSelectElement | null)?.value,
+				autoRenewal: (modal.querySelector('[data-recharge-auto-renew]') as HTMLInputElement | null)?.checked,
+				notifyEmail: (modal.querySelector('[data-recharge-email]') as HTMLInputElement | null)?.checked
+			};
+			mountRechargePanel(modal, ctx, selection);
+		});
 	}
 
 	type WalletCoupon = {
@@ -2707,6 +3420,25 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		currency: string;
 		summary: string;
 		createdAt: string;
+	};
+
+	type PaymentOrderRecord = {
+		id: string;
+		status: string;
+		plan: string;
+		days: number;
+		provider: string;
+		currency: string;
+		amountCents: number;
+		baseAmountCents: number;
+		discountCents: number;
+		description: string;
+		createdAt: string;
+		paidAt: string;
+		offerLabel: string;
+		autoRenewalEnabled: boolean;
+		notifyEmail: boolean;
+		subscription?: PCSubscription;
 	};
 
 	type PlatformPaymentState = {
@@ -2791,6 +3523,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	let walletModal: HTMLDivElement | null = null;
+	const expandedInlineBenefitSections = new Set<string>();
 
 	function normalizeWalletCoupon(value: unknown): WalletCoupon | null {
 		const raw = asRecord(value);
@@ -2842,6 +3575,13 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			|| platformAdminOpen && (keys.includes(activeRoleContent) || activePlatformAdminPage === 'overview' && keys.some((key) => overviewKeys.includes(key)));
 	}
 
+	function shouldRefreshRoleOverview(...workbenchIds: WorkbenchId[]): boolean {
+		return platformAdminMode === 'role'
+			&& !activeRoleContent
+			&& Boolean(document.querySelector('#platform-admin-shell.pc-platform-admin-open'))
+			&& workbenchIds.includes(activeWorkbenchDef(getContext()).id);
+	}
+
 	function normalizeWallet(value: unknown): WalletView {
 		const raw = asRecord(value) || {};
 		const balanceRecord = asRecord(raw.balance);
@@ -2852,6 +3592,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			balance: balanceRecord
 				? {
 						credits: readNumber(balanceRecord.credits) ?? 0,
+						learningCreditCents: readNumber(balanceRecord.learningCreditCents) ?? readNumber(balanceRecord.learning_credit_cents) ?? 0,
+						learningCreditEarnedCents: readNumber(balanceRecord.learningCreditEarnedCents) ?? readNumber(balanceRecord.learning_credit_earned_cents) ?? 0,
+						learningCreditDebtCents: readNumber(balanceRecord.learningCreditDebtCents) ?? readNumber(balanceRecord.learning_credit_debt_cents) ?? 0,
 						updatedAt: readString(balanceRecord.updatedAt) || readString(balanceRecord.updated_at) || ''
 				  }
 				: undefined,
@@ -2881,13 +3624,87 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		};
 	}
 
+	function normalizePaymentOrder(value: unknown): PaymentOrderRecord | null {
+		const raw = asRecord(value);
+		const id = readString(raw?.id);
+		if (!raw || !id) return null;
+		const metadata = asRecord(raw.metadata);
+		const autoRenewal = asRecord(raw.auto_renewal);
+		const offer = asRecord(raw.offer);
+		const plan = normalizePersonalPlan(readString(raw.plan));
+		const days = readNumber(raw.days) ?? 0;
+		const currency = readString(raw.currency) || 'cny';
+		const amountCents = readNumber(raw.amount_cents) ?? readNumber(raw.amountCents) ?? 0;
+		const quotedBaseAmount = readNumber(raw.base_amount_cents) ?? readNumber(raw.baseAmountCents) ?? amountCents;
+		const baseAmountCents = readNumber(raw.list_price_cents)
+			?? readNumber(raw.listPriceCents)
+			?? (plan === 'free' ? quotedBaseAmount : personalListPriceCents(plan, days, currency));
+		return {
+			id,
+			status: readString(raw.status) || 'pending',
+			plan,
+			days,
+			provider: readString(raw.provider) || 'wechat',
+			currency,
+			amountCents,
+			baseAmountCents,
+			discountCents: readNumber(raw.total_savings_cents) ?? readNumber(raw.totalSavingsCents) ?? Math.max(0, baseAmountCents - amountCents),
+			description: readString(raw.description) || '',
+			createdAt: readString(raw.created_at) || readString(raw.createdAt) || '',
+			paidAt: readString(raw.paid_at) || readString(raw.paidAt) || '',
+			offerLabel: readString(offer?.label) || '',
+			autoRenewalEnabled: autoRenewal?.enabled === true || metadata?.auto_renewal === true,
+			notifyEmail: metadata?.notify_email !== false,
+			subscription: normalizeSubscription(raw.subscription)
+		};
+	}
+
 	function formatPaymentAmount(amountCents: number, currency: string): string {
 		const symbol = currency.toLowerCase() === 'usd' ? '$' : '¥';
 		const sign = amountCents < 0 ? '-' : '';
 		return `${sign}${symbol}${(Math.abs(amountCents) / 100).toFixed(2)}`;
 	}
 
-	function applyWalletToContext(wallet: WalletView): void {
+	function paymentOrderStatusLabel(status: string): string {
+		return ({
+			pending: '待支付',
+			paid: '已支付',
+			partially_refunded: '部分退款',
+			refunded: '已退款',
+			cancelled: '已取消',
+			closed: '已关闭',
+			failed: '支付失败'
+		} as Record<string, string>)[status] || status || '状态未知';
+	}
+
+	function paymentOrderStatusTone(status: string): string {
+		if (status === 'paid') return 'success';
+		if (status === 'pending') return 'pending';
+		if (status === 'refunded' || status === 'partially_refunded') return 'refund';
+		return 'muted';
+	}
+
+	function paymentDurationLabel(days: number): string {
+		if (days === 365) return '年度套餐';
+		if (days === 90) return '季度套餐';
+		if (days === 30) return '月度套餐';
+		return days > 0 ? `${days} 天套餐` : '套餐';
+	}
+
+	function paymentLedgerEventLabel(type: string): string {
+		return ({
+			'order.created': '创建订单',
+			'payment.succeeded': '支付成功',
+			'subscription.granted': '套餐权益已生效',
+			'refund.requested': '提交退款申请',
+			'refund.processing': '退款处理中',
+			'refund.succeeded': '退款成功',
+			'refund.failed': '退款失败',
+			'subscription.reversed': '套餐权益已撤销'
+		} as Record<string, string>)[type] || '订单状态已更新';
+	}
+
+	function applyWalletToContext(wallet: WalletView, render = true): void {
 		const ctx = getContext();
 		setContext({
 			...ctx,
@@ -2896,6 +3713,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			planExpiresAt: wallet.subscription?.expiresAt || ctx.planExpiresAt,
 			couponCount: wallet.couponCount
 		});
+		if (!render) return;
 		void renderIdentity();
 		renderSections();
 		renderSectionContent({ preserveScroll: true });
@@ -2919,10 +3737,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		modal.className = 'risk-modal risk-hidden';
 		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:9999;';
 		modal.innerHTML = `
-			<div style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
-				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-					<h3 id="wallet-title" style="margin:0;font-size:16px;"></h3>
-					<button type="button" id="wallet-close" aria-label="关闭账户钱包" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
+			<div class="pc-wallet-dialog">
+				<div class="pc-wallet-header">
+					<h3 id="wallet-title"></h3>
+					<button type="button" id="wallet-close" aria-label="关闭账户钱包">×</button>
 				</div>
 				<div id="wallet-body"></div>
 			</div>`;
@@ -2952,12 +3770,17 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function renderRedeemPanel(ctx: PCContext, wallet: WalletView): string {
 		const credits = wallet.balance?.credits ?? ctx.balance?.credits ?? 0;
+		const learningCreditCents = wallet.balance?.learningCreditCents ?? ctx.balance?.learningCreditCents ?? 0;
 		const coupons = wallet.couponCount ?? ctx.couponCount ?? 0;
 		return `<div style="font-size:13px;color:#333;">
-			<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+			<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;">
 				<div style="border:1px solid #eee;border-radius:8px;padding:12px;background:#fafafa;">
 					<div style="color:#666;font-size:12px;">学习积分</div>
 					<strong style="font-size:20px;">${credits}</strong>
+				</div>
+				<div style="border:1px solid #eee;border-radius:8px;padding:12px;background:#fafafa;">
+					<div style="color:#666;font-size:12px;">邀请学习金</div>
+					<strong style="font-size:20px;">¥${(learningCreditCents / 100).toFixed(2)}</strong>
 				</div>
 				<div style="border:1px solid #eee;border-radius:8px;padding:12px;background:#fafafa;">
 					<div style="color:#666;font-size:12px;">已兑换卡券</div>
@@ -3006,6 +3829,98 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			</div>
 			${cards}
 		</div>`;
+	}
+
+	function renderInlineRedemptionRecords(wallet: WalletView): string {
+		if (!wallet.coupons.length) {
+			return '<div class="pc-inline-empty">暂无兑换记录</div>';
+		}
+		return `<div class="pc-redemption-record-list">${wallet.coupons
+			.slice()
+			.sort((a, b) => (b.redeemedAt || '').localeCompare(a.redeemedAt || ''))
+			.map((record) => `<div class="pc-redemption-record-row">
+				<span><strong>${escapeHtml(record.title)}</strong><em>${escapeHtml(record.code)} · ${escapeHtml(couponKindLabel(record.kind))}</em></span>
+				<span><b>${escapeHtml(record.effectSummary || '已兑换')}</b><em>${escapeHtml(formatDateTime(record.redeemedAt))}</em></span>
+			</div>`)
+			.join('')}</div>`;
+	}
+
+	function applyInlineWalletView(card: HTMLElement, wallet: WalletView): void {
+		const credits = wallet.balance?.credits ?? getContext().balance?.credits ?? 0;
+		const creditsNode = card.querySelector<HTMLElement>('[data-inline-learning-credits]');
+		const recordCountNode = card.querySelector<HTMLElement>('[data-inline-redemption-count]');
+		const recordBody = card.querySelector<HTMLElement>('[data-inline-redemption-body]');
+		if (creditsNode) creditsNode.textContent = `${credits} 积分`;
+		if (recordCountNode) recordCountNode.textContent = `${wallet.couponCount} 条`;
+		if (recordBody) {
+			recordBody.innerHTML = renderInlineRedemptionRecords(wallet);
+			recordBody.dataset.inlineWalletLoaded = 'true';
+		}
+	}
+
+	async function loadInlineRedemptionRecords(details: HTMLDetailsElement): Promise<void> {
+		const body = details.querySelector<HTMLElement>('[data-inline-redemption-body]');
+		if (!body || body.dataset.inlineWalletLoaded === 'true' || body.dataset.inlineWalletLoading === 'true') return;
+		body.dataset.inlineWalletLoading = 'true';
+		body.innerHTML = '<div class="pc-inline-empty">正在读取兑换记录…</div>';
+		try {
+			const wallet = await loadWallet(getContext());
+			const card = details.closest<HTMLElement>('.pc-benefit-card');
+			if (card) applyInlineWalletView(card, wallet);
+		} catch (error) {
+			body.innerHTML = `<div class="pc-inline-error">${escapeHtml(readErrorMessage(error, '兑换记录加载失败'))}</div>`;
+		} finally {
+			delete body.dataset.inlineWalletLoading;
+		}
+	}
+
+	async function submitInlineRedeem(form: HTMLFormElement): Promise<void> {
+		const ctx = getContext();
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		const input = form.querySelector('[data-inline-redeem-code]') as HTMLInputElement | null;
+		const submit = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+		const result = form.querySelector('[data-inline-redeem-result]') as HTMLElement | null;
+		const code = (input?.value || '').trim();
+		clearFormFieldErrors(form);
+		if (!code) {
+			setFieldError(input, '请输入兑换码');
+			return;
+		}
+		if (!token || !api || typeof api.redeemCode !== 'function') {
+			showToast('兑换接口暂不可用');
+			return;
+		}
+		if (submit?.disabled) return;
+		if (submit) {
+			submit.disabled = true;
+			submit.setAttribute('aria-busy', 'true');
+			submit.textContent = '兑换中…';
+		}
+		try {
+			const response = asRecord(await api.redeemCode(token, code)) || {};
+			const wallet = normalizeWallet(response.wallet);
+			const redemption = normalizeWalletCoupon(response.redemption);
+			applyWalletToContext(wallet, false);
+			const card = form.closest<HTMLElement>('.pc-benefit-card');
+			if (card) applyInlineWalletView(card, wallet);
+			if (result) {
+				result.hidden = false;
+				result.textContent = redemption?.effectSummary || '兑换成功';
+			}
+			if (input) input.value = '';
+			showToast('兑换成功');
+		} catch (error) {
+			const message = readErrorMessage(error, '兑换失败');
+			setFieldError(input, message);
+			showToast(message);
+		} finally {
+			if (submit) {
+				submit.disabled = false;
+				submit.removeAttribute('aria-busy');
+				submit.textContent = '确认兑换';
+			}
+		}
 	}
 
 	async function submitRedeem(modal: HTMLDivElement, ctx: PCContext): Promise<void> {
@@ -3117,45 +4032,107 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 	}
 
-	async function openPaymentLedgerPanel(): Promise<void> {
+	function renderPaymentOrderRecords(
+		orders: PaymentOrderRecord[],
+		ledger: PaymentLedgerEntry[],
+		initialOrderId = ''
+	): string {
+		if (!orders.length) {
+			return `<div class="pc-order-empty"><strong>暂无订单记录</strong><span>购买套餐后，订单和支付状态会显示在这里。</span></div>`;
+		}
+		const eventsByOrder = new Map<string, PaymentLedgerEntry[]>();
+		ledger.forEach((entry) => {
+			if (!entry.orderId) return;
+			const rows = eventsByOrder.get(entry.orderId) || [];
+			rows.push(entry);
+			eventsByOrder.set(entry.orderId, rows);
+		});
+		const sorted = orders.slice().sort((a, b) => (b.paidAt || b.createdAt).localeCompare(a.paidAt || a.createdAt));
+		const cards = sorted.map((order, index) => {
+			const events = (eventsByOrder.get(order.id) || []).slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+			const expiry = order.subscription?.expiresAt || '';
+			const discountCents = Math.max(0, order.discountCents || order.baseAmountCents - order.amountCents);
+			const open = order.id === initialOrderId;
+			const timeline = events.length
+				? events.map((event) => `<li><span></span><div><strong>${escapeHtml(paymentLedgerEventLabel(event.type))}</strong><small>${escapeHtml(formatDateTime(event.createdAt))}</small></div></li>`).join('')
+				: `<li><span></span><div><strong>订单已创建</strong><small>${escapeHtml(formatDateTime(order.createdAt))}</small></div></li>`;
+			return `<details class="pc-order-record" data-payment-order-id="${escapeHtml(order.id)}"${open ? ' open' : ''}>
+				<summary class="pc-lite-row">
+					<div class="pc-order-record-product"><div class="pc-order-record-copy"><strong>${escapeHtml(planLabel(order.plan))} ${escapeHtml(paymentDurationLabel(order.days))}</strong><small>${escapeHtml(paymentProviderLabel(order.provider))} · ${escapeHtml(String(order.days))} 天 · ${escapeHtml(formatDateTime(order.paidAt || order.createdAt))}</small></div></div>
+					<div class="pc-order-record-total"><strong>${escapeHtml(formatPaymentAmount(order.amountCents, order.currency))}</strong><span class="pc-tag ${escapeHtml(paymentOrderStatusTone(order.status))}">${escapeHtml(paymentOrderStatusLabel(order.status))}</span></div>
+					<span class="pc-order-record-chevron" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path class="pc-order-chevron-down" d="M1 4.5 8 11.5 15 4.5" /><path class="pc-order-chevron-up" d="M1 11.5 8 4.5 15 11.5" /></svg></span>
+			</summary>
+			<div class="pc-order-record-detail">
+				<div class="pc-order-detail-main">
+					<div class="pc-order-detail-grid">
+						<div><span>套餐内容</span><strong>${escapeHtml(planLabel(order.plan))} · ${escapeHtml(String(order.days))} 天</strong></div>
+						<div><span>支付方式</span><strong>${escapeHtml(paymentProviderLabel(order.provider))}</strong></div>
+						<div><span>日常价</span><strong>${escapeHtml(formatPaymentAmount(order.baseAmountCents, order.currency))}</strong></div>
+						<div><span>优惠金额</span><strong class="discount">${discountCents > 0 ? `-${escapeHtml(formatPaymentAmount(discountCents, order.currency))}` : '无额外优惠'}</strong></div>
+						<div><span>实付金额</span><strong>${escapeHtml(formatPaymentAmount(order.amountCents, order.currency))}</strong></div>
+						<div><span>有效期</span><strong>${expiry ? escapeHtml(formatCalendarDate(expiry)) : order.status === 'pending' ? '支付后生效' : '长期有效'}</strong></div>
+						<div><span>自动续费</span><strong>${order.autoRenewalEnabled ? '已开启' : '未开启'}</strong></div>
+						<div><span>邮件提醒</span><strong>${order.notifyEmail ? '已开启' : '未开启'}</strong></div>
+					</div>
+					${order.offerLabel ? `<div class="pc-order-offer">本单已使用：${escapeHtml(order.offerLabel)}</div>` : ''}
+					<div class="pc-order-number"><span>订单号</span><code>${escapeHtml(order.id)}</code><button type="button" aria-label="复制订单号" data-copy-payment-order="${escapeHtml(order.id)}">复制</button></div>
+				</div>
+				<div class="pc-order-timeline"><h4>订单进度</h4><ol>${timeline}</ol></div>
+			</div>
+		</details>`;
+		}).join('');
+		return `<div class="pc-lite-list pc-order-records">${cards}</div>`;
+	}
+
+	function focusInlinePaymentOrder(orderId: string): void {
+		const history = document.querySelector<HTMLDetailsElement>('[data-account-order-history]');
+		if (history) {
+			accountOrderHistoryExpanded = true;
+			history.open = true;
+		}
+		const selector = `[data-account-order-history] [data-payment-order-id="${CSS.escape(orderId)}"]`;
+		const order = document.querySelector<HTMLDetailsElement>(selector);
+		if (!order) return;
+		order.open = true;
+		order.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		window.setTimeout(() => order.querySelector<HTMLElement>('summary')?.focus({ preventScroll: true }), 250);
+	}
+
+	async function openPaymentLedgerPanel(initialOrderId = ''): Promise<void> {
 		const ctx = getContext();
 		const token = activeToken(ctx);
 		const api = window.APIClient;
 		if (ctx.guest || !ctx.id || !token) {
-			showToast('请先登录后查看支付流水');
+			showToast('请先登录后查看订单记录');
 			return;
 		}
 		const modal = ensureWalletModal();
 		const title = modal.querySelector('#wallet-title') as HTMLElement | null;
 		const body = modal.querySelector('#wallet-body') as HTMLDivElement | null;
 		if (!body) return;
-		if (title) title.textContent = '支付流水';
-		body.innerHTML = '<div style="padding:18px;color:#777;">正在加载支付流水…</div>';
+		if (title) title.textContent = '订单记录';
+		body.innerHTML = '<div class="pc-order-loading">正在加载订单记录…</div>';
 		showLegacyModal(modal, '#wallet-close');
 		try {
-			if (!api || typeof api.listPaymentLedger !== 'function') {
-				throw new Error('支付流水接口暂不可用');
+			if (!api || typeof api.listPaymentOrders !== 'function' || typeof api.listPaymentLedger !== 'function') {
+				throw new Error('订单记录接口暂不可用');
 			}
-			const rawRows = await api.listPaymentLedger(token);
+			const [rawOrders, rawRows] = await Promise.all([
+				api.listPaymentOrders(token),
+				api.listPaymentLedger(token)
+			]);
+			const orders = Array.isArray(rawOrders)
+				? rawOrders.map(normalizePaymentOrder).filter((item): item is PaymentOrderRecord => Boolean(item))
+				: [];
 			const rows = Array.isArray(rawRows)
 				? rawRows.map(normalizePaymentLedgerEntry).filter((item): item is PaymentLedgerEntry => Boolean(item))
 				: [];
-			body.innerHTML = rows.length
-				? rows
-						.slice()
-						.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-						.map((entry) => `<div style="border:1px solid #e3e8ef;border-radius:8px;padding:12px;margin-bottom:10px;background:#fff;">
-							<div style="display:flex;justify-content:space-between;gap:12px;">
-								<strong>${escapeHtml(entry.summary || entry.type)}</strong>
-								<span style="font-weight:600;color:${entry.amountCents < 0 ? '#a33' : '#1976d2'};">${escapeHtml(formatPaymentAmount(entry.amountCents, entry.currency))}</span>
-							</div>
-							<div style="font-size:12px;color:#777;margin-top:6px;">${escapeHtml(entry.type)} · ${escapeHtml(entry.orderId)}</div>
-							<div style="font-size:11px;color:#999;margin-top:6px;">${escapeHtml(formatDateTime(entry.createdAt))}</div>
-						</div>`)
-						.join('')
-				: '<div style="border:1px dashed #d8dee6;border-radius:8px;padding:18px;text-align:center;color:#777;background:#fafafa;">暂无支付流水</div>';
+			body.innerHTML = renderPaymentOrderRecords(orders, rows, initialOrderId);
+			body.querySelectorAll<HTMLButtonElement>('[data-copy-payment-order]').forEach((button) => {
+				button.onclick = () => { void copyPaymentOrderNumber(button); };
+			});
 		} catch (error) {
-			body.innerHTML = `<div style="padding:18px;color:#a33;">${escapeHtml(readErrorMessage(error, '支付流水加载失败'))}</div>`;
+			body.innerHTML = `<div class="pc-order-load-error">${escapeHtml(readErrorMessage(error, '订单记录加载失败'))}</div>`;
 		}
 	}
 
@@ -3387,16 +4364,20 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} finally { finishSubmitting(); }
 	}
 
+	function organizationRolesUsePaidSeat(roles: string[]): boolean {
+		return roles.some((role) => role === 'student' || role === 'teacher');
+	}
+
 	function isOrganizationSeatFull(organization: ManagedOrganization, pendingAdds = 0): boolean {
-		return organization.seats > 0 && organization.memberCount + pendingAdds >= organization.seats;
+		return organization.seats > 0 && organization.billableMemberCount + pendingAdds >= organization.seats;
 	}
 
 	function organizationSeatSummary(organization: ManagedOrganization): string {
 		if (organization.seats <= 0) {
-			return `当前 ${organization.memberCount} 人，席位不限。`;
+			return `当前 ${organization.memberCount} 名成员，付费内容席位不限。`;
 		}
-		const remaining = Math.max(0, organization.seats - organization.memberCount);
-		return `当前 ${organization.memberCount}/${organization.seats} 席，剩余 ${remaining} 席。`;
+		const remaining = Math.max(0, organization.seats - organization.billableMemberCount);
+		return `付费内容席位 ${organization.billableMemberCount}/${organization.seats}，剩余 ${remaining} 席；共 ${organization.memberCount} 名成员。`;
 	}
 
 	function normalizeManagedCampus(value: unknown): ManagedCampus | null {
@@ -4222,8 +5203,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			: '<div class="pc-org-empty">当前角色没有待接受邀请。</div>';
 		const totalMembers = usePagedList && pageState.loaded ? pageState.total : fallbackMembers.length;
 		const seatLabel = organization.seats > 0
-			? `${organization.memberCount}/${organization.seats} 席 · 剩余 ${Math.max(0, organization.seats - organization.memberCount)} 席`
-			: `${organization.memberCount} 人 · 席位不限`;
+			? `${organization.billableMemberCount}/${organization.seats} 付费席位 · 剩余 ${Math.max(0, organization.seats - organization.billableMemberCount)} 席`
+			: `${organization.memberCount} 名成员 · 付费席位不限`;
 		const listControls = `<form class="pc-member-list-toolbar" data-org-member-list-form data-org-id="${escapeHtml(organization.id)}" data-role-id="${escapeHtml(activeRoleId)}">
 			<input class="pc-profile-input pc-member-list-query" aria-label="搜索当前角色" data-org-member-list-query value="${escapeHtml(pageState.query)}" placeholder="搜索姓名、账号或成员编号" />
 			<select class="pc-profile-input pc-org-select" aria-label="排序字段" data-org-member-list-sort><option value="username"${pageState.sort === 'username' ? ' selected' : ''}>姓名/账号</option><option value="member_no"${pageState.sort === 'member_no' ? ' selected' : ''}>成员编号</option><option value="status"${pageState.sort === 'status' ? ' selected' : ''}>状态</option></select>
@@ -4235,10 +5216,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return `<div class="pc-org-subsection pc-member-role-section">
 			<div class="pc-org-subsection-head"><h4>成员管理</h4><span>${escapeHtml(seatLabel)}</span></div>
 			<div class="pc-member-role-tabs">${roleTabs}</div>
-			<div class="pc-member-seat-note">正式成员占席 · 同一账号多角色只算 1 席 · 待接受邀请暂不占席</div>
+			<div class="pc-member-seat-note">学员、可查看试卷内容的老师占付费席位 · 管理账号不占席 · 同一账号多角色只算 1 席</div>
 			${renderOrganizationAddForm(organization, 'member', { embedded: true })}
 			${usePagedList ? listControls : ''}
-			<div class="pc-member-list-section"><div class="pc-member-list-heading"><strong>正式成员</strong><span>${escapeHtml(String(totalMembers))} 人 · 占用席位</span></div><div class="pc-org-member-list pc-org-unified-member-list">${memberList}</div></div>
+			<div class="pc-member-list-section"><div class="pc-member-list-heading"><strong>正式成员</strong><span>${escapeHtml(String(totalMembers))} 人</span></div><div class="pc-org-member-list pc-org-unified-member-list">${memberList}</div></div>
 			<div class="pc-member-list-section pc-member-invitation-section"><div class="pc-member-list-heading"><strong>待接受邀请</strong><span>${escapeHtml(String(filteredInvitations.length))} 个 · 暂不占席</span></div><div class="pc-org-member-list pc-org-unified-member-list">${invitationList}</div></div>
 		</div>`;
 	}
@@ -4332,7 +5313,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			showToast('至少选择一个成员角色');
 			return;
 		}
-		if (isOrganizationSeatFull(organization) && !organization.members.some((member) => member.userId === userId.trim())) {
+		const existingMember = organization.members.find((member) => member.userId === userId.trim());
+		const addsPaidSeat = organizationRolesUsePaidSeat(roles) && (!existingMember || !organizationRolesUsePaidSeat(existingMember.roles));
+		if (addsPaidSeat && isOrganizationSeatFull(organization)) {
 			setFieldError(form?.querySelector('[data-org-search-query]') as HTMLInputElement | null, '当前机构席位已满');
 			showToast('当前组织席位已满，请先释放席位');
 			return;
@@ -5097,6 +6080,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					let learningGroups: ManagedLearningGroup[] = [];
 					let coursePackages: ManagedCoursePackage[] = [];
 					let memberCount = readCount(organization.member_count) ?? 0;
+					let billableMemberCount = readCount(organization.billable_member_count) ?? memberCount;
 					const invitations = Array.isArray(organization.invitations)
 						? organization.invitations
 								.map((item) => asRecord(item))
@@ -5145,6 +6129,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 							'未命名组织',
 						organizationType: readString(organization.organization_type) || ctx.organizationType,
 						memberCount,
+						billableMemberCount,
 						seats: readCount(organization.seats) ?? organizationSubscription?.seats ?? 0,
 						plan: readString(organization.plan) || organizationSubscription?.plan || 'free',
 						status: readString(organization.status) || organizationSubscription?.status || 'active',
@@ -5166,7 +6151,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			} finally {
 				managedOrganizationsLoading = null;
 				const roleContentFormBusy = hasActiveRoleContentFormEdit();
-				if (!roleContentFormBusy && shouldRefreshRoleContent('platform-orgs', 'platform-roles', 'org-members', 'org-permissions', 'org-groups', 'org-settings', 'org-course-packages', 'org-course-accounts', 'org-seats', 'org-plan', 'org-invites', 'org-audit')) {
+				if (!roleContentFormBusy && (shouldRefreshRoleContent('platform-orgs', 'platform-roles', 'org-members', 'org-permissions', 'org-groups', 'org-settings', 'org-course-packages', 'org-course-accounts', 'org-seats', 'org-plan', 'org-invites', 'org-audit') || shouldRefreshRoleOverview('teacher', 'assistant', 'orgAdmin', 'orgContentAdmin'))) {
 					renderSectionContent({ preserveScroll: true });
 				}
 			}
@@ -5191,11 +6176,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		managedOrganizationDetailState[organizationId] = 'loading';
 		renderSectionContent({ preserveScroll: true });
 		try {
+			const contentOnly = hasAnyRole(ctx, ['orgContentAdmin']) && !hasAnyRole(ctx, ['orgAdmin', 'superAdmin']);
 			const [rawDetail, rawMembers, rawCampuses, rawGroups, rawPackages] = await Promise.all([
 				api.getOrganization(organizationId, token),
-				api.getOrganizationMembers(organizationId, token),
-				api.getOrganizationCampuses(organizationId, token),
-				api.getOrganizationLearningGroups(organizationId, token),
+				contentOnly ? Promise.resolve([]) : api.getOrganizationMembers(organizationId, token),
+				contentOnly ? Promise.resolve([]) : api.getOrganizationCampuses(organizationId, token),
+				contentOnly ? Promise.resolve([]) : api.getOrganizationLearningGroups(organizationId, token),
 				api.getOrganizationCoursePackages(organizationId, token)
 			]);
 			const detail = asRecord(rawDetail) || {};
@@ -5219,6 +6205,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				}];
 			});
 			organization.memberCount = organization.memberCount || organization.members.length;
+			organization.billableMemberCount = readCount(detail.billable_member_count)
+				?? organization.members.filter((member) => organizationRolesUsePaidSeat(member.roles)).length;
 			organization.campuses = (Array.isArray(rawCampuses) ? rawCampuses : []).map(normalizeManagedCampus).filter((item): item is ManagedCampus => Boolean(item));
 			organization.learningGroups = (Array.isArray(rawGroups) ? rawGroups : []).map(normalizeManagedLearningGroup).filter((item): item is ManagedLearningGroup => Boolean(item));
 			organization.coursePackages = (Array.isArray(rawPackages) ? rawPackages : []).map(normalizeManagedCoursePackage).filter((item): item is ManagedCoursePackage => Boolean(item));
@@ -5350,13 +6338,65 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function renderOrganizationSubscriptionPanel(organization: ManagedOrganization): string {
+		const isPlatformAdjustment = activeRoleContent === 'platform-orgs' || activeRoleContent.startsWith('platform-org-detail:');
+		if (!isPlatformAdjustment) {
+			const catalog = paymentPricingConfig.catalogs.organization;
+			const plan: PaidPersonalPlan = 'pro';
+			const minimumSeats = catalog.minimumSeats[plan];
+			const currentSeats = Math.max(organization.seats || 0, organization.billableMemberCount || 0);
+			const suggestedSeats = organization.plan === 'free'
+				? Math.max(minimumSeats, organization.billableMemberCount || 1)
+				: Math.max(minimumSeats, currentSeats);
+			const customQuoteMax = catalog.customQuoteMinSeats > 0 ? ` max="${catalog.customQuoteMinSeats - 1}"` : '';
+			const statusLabels: Record<string, string> = { active: '使用中', trial: '试用中', expired: '已到期', canceled: '已取消' };
+			const expiryLabel = organization.expiresAt ? organizationExpiryLabel(organization.expiresAt) : '长期有效';
+			const durationSelect = renderAdminSelect('365', [
+				{ value: '30', label: '月付 · 30 天' },
+				{ value: '90', label: '季付 · 90 天' },
+				{ value: '365', label: '年付 · 365 天（推荐）' }
+			], 'data-org-payment-days', '计费周期');
+			const providerSelect = renderAdminSelect(paymentPricingConfig.defaultProvider, [
+				{ value: 'wechat', label: '微信支付' },
+				{ value: 'alipay', label: '支付宝' },
+				{ value: 'stripe', label: 'Stripe' }
+			], 'data-org-payment-provider', '支付方式');
+			const subscriptionSummary = `<div class="pc-org-subsection pc-org-subscription-section pc-org-billing-section">
+				<div class="pc-org-subsection-head"><div><h4>套餐与账单</h4><p>套餐权益只会在支付成功后更新；机构资料和校区可在“机构设置”中维护。</p></div><span>${escapeHtml(subscriptionExpirySummary(organization.expiresAt, organization.status))}</span></div>
+				<div class="pc-org-billing-summary">
+					<div><span>当前套餐</span><strong>${escapeHtml(planLabel(organization.plan))}</strong></div>
+					<div><span>套餐状态</span><strong>${escapeHtml(statusLabels[organization.status] || organization.status || '未知')}</strong></div>
+					<div><span>付费内容席位</span><strong>${escapeHtml(String(organization.billableMemberCount || 0))} / ${escapeHtml(String(organization.seats || 0))}</strong></div>
+					<div><span>到期日期</span><strong>${escapeHtml(expiryLabel)}</strong></div>
+				</div>
+				<details class="pc-org-billing-purchase" data-org-billing-purchase>
+					<summary><span>${organization.plan === 'free' ? '购买机构 PRO' : '续费或增加席位'}</span><small>选择总席位与周期，确认报价后支付</small></summary>
+					<form class="pc-org-add-form pc-org-self-service-order-form" data-org-self-service-order-form data-org-id="${escapeHtml(organization.id)}">
+						<input type="hidden" data-org-payment-organization-id value="${escapeHtml(organization.id)}" />
+						<div class="pc-org-form-grid pc-org-form-grid-3">
+							<div class="pc-org-field"><span>套餐</span><div class="pc-org-billing-fixed-value"><strong>机构 PRO</strong><small>当前开放套餐</small></div><input type="hidden" data-org-payment-plan value="pro" /></div>
+							<label class="pc-org-field"><span>购买后的总席位</span><input class="pc-profile-input" type="number" min="${minimumSeats}"${customQuoteMax} step="1" value="${suggestedSeats}" data-org-payment-seats /></label>
+							<div class="pc-org-field"><span>计费周期</span>${durationSelect}</div>
+							<div class="pc-org-field"><span>支付方式</span>${providerSelect}</div>
+							<label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-org-payment-password placeholder="用于确认本次购买" /></label>
+						</div>
+						<div class="pc-pricing-order-preview" data-org-payment-preview>${organizationPaymentPreviewText(plan, 365, suggestedSeats)}</div>
+						<div class="pc-admin-note">席位数表示付款后的总容量，不是本次新增数量。学员和可查看试卷内容的老师占席；纯管理、教务角色不占席。</div>
+						<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">确认报价并支付</button></div>
+					</form>
+				</details>
+			</div>`;
+			return `${subscriptionSummary}${renderAutoRenewalCard('organization', organization.id, {
+				plan: organization.plan,
+				status: organization.status,
+				expiresAt: organization.expiresAt || '',
+				seats: organization.seats
+			})}`;
+		}
 		const expiryInput = organization.expiresAt ? organization.expiresAt.slice(0, 10) : '';
-		const upgradeNote = hasAnyRole(getContext(), ['superAdmin'])
-			? '升级或扩席请优先通过平台支付管理；直接修改将记入审计。'
-			: '升级、续期或扩席请通过支付订单完成。';
+		const upgradeNote = '这是平台人工调整入口，仅用于客服补偿、迁移或异常修复；所有修改都会记入审计。';
 		const planSelect = renderAdminSelect(organization.plan, [{ value: 'free', label: 'FREE' }, { value: 'pro', label: 'PRO' }, { value: 'ultra', label: 'ULTRA' }], 'data-org-plan', '套餐');
 		const statusSelect = renderAdminSelect(organization.status, [{ value: 'active', label: 'active' }, { value: 'trial', label: 'trial' }, { value: 'expired', label: 'expired' }, { value: 'canceled', label: 'canceled' }], 'data-org-status', '状态');
-		const subscriptionEditor = `<div class="pc-org-subsection pc-org-subscription-section"><div class="pc-org-subsection-head"><h4>套餐与席位</h4><span>${escapeHtml(subscriptionExpirySummary(organization.expiresAt, organization.status))}</span></div><form class="pc-org-add-form pc-org-subscription-form" data-org-subscription-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-subscription-fields"><div class="pc-org-field"><span>套餐</span>${planSelect}</div><div class="pc-org-field"><span>状态</span>${statusSelect}</div><label class="pc-org-field"><span>到期日期</span><input class="pc-profile-input" type="date" data-org-expires-at value="${escapeHtml(expiryInput)}" /></label><label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-seats value="${escapeHtml(String(organization.seats || defaultSeatsForPlan(organization.plan)))}" /></label><button class="pc-inline-btn pc-org-subscription-save" type="submit">保存套餐</button></div><div class="pc-admin-note">当前成员 ${escapeHtml(String(organization.memberCount))} 人；席位不可低于成员数。${escapeHtml(upgradeNote)}</div></form></div>`;
+		const subscriptionEditor = `<div class="pc-org-subsection pc-org-subscription-section"><div class="pc-org-subsection-head"><div><h4>平台人工调整</h4><p>绕过支付直接修改机构套餐，仅供平台客服处理特殊情况。</p></div><span>${escapeHtml(subscriptionExpirySummary(organization.expiresAt, organization.status))}</span></div><form class="pc-org-add-form pc-org-subscription-form" data-org-subscription-form data-org-id="${escapeHtml(organization.id)}"><div class="pc-org-subscription-fields"><div class="pc-org-field"><span>套餐</span>${planSelect}</div><div class="pc-org-field"><span>状态</span>${statusSelect}</div><label class="pc-org-field"><span>到期日期</span><input class="pc-profile-input" type="date" data-org-expires-at value="${escapeHtml(expiryInput)}" /></label><label class="pc-org-field"><span>席位数</span><input class="pc-profile-input" type="number" min="1" step="1" data-org-seats value="${escapeHtml(String(organization.seats || defaultSeatsForPlan(organization.plan)))}" /></label><button class="pc-inline-btn pc-org-subscription-save" type="submit">保存调整</button></div><div class="pc-admin-note">当前成员 ${escapeHtml(String(organization.memberCount))} 人；席位不可低于成员数。${escapeHtml(upgradeNote)}</div></form></div>`;
 		return `${subscriptionEditor}${renderAutoRenewalCard('organization', organization.id, {
 			plan: organization.plan,
 			status: organization.status,
@@ -5633,7 +6673,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function renderOrganizationManagerPanel(organization: ManagedOrganization): string {
 		const draft = getOrganizationMemberDraft(organization.id);
-		const seatFull = isOrganizationSeatFull(organization);
 		const selectedUser = draft.searchResults.find((user) => user.id === draft.selectedUserId);
 		const defaultRoles = ['orgAdmin'];
 		const allowedRoleIds = organizationManagerRoleIds;
@@ -5671,12 +6710,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			? `<div class="pc-org-manager-selection-bar" data-org-manager-selection>
 				<div class="pc-org-manager-selected-user" data-org-selected-user><span>已选择</span><strong>${escapeHtml(selectedUser.displayName)}</strong>${selectedUserMeta ? `<em>${escapeHtml(selectedUserMeta)}</em>` : ''}</div>
 				<div class="pc-org-manager-role-field"><span>角色</span><div class="pc-role-toggle-group">${renderOrganizationRoleControls(defaultRoles, `org-manager-add-${organization.id}`, allowedRoleIds)}</div></div>
-				<button class="pc-inline-btn pc-org-manager-add-button" type="submit"${seatFull ? ' disabled' : ''}>添加</button>
+				<button class="pc-inline-btn pc-org-manager-add-button" type="submit">添加</button>
 			</div>`
 			: '';
 		return `<div class="pc-org-subsection pc-org-manager-config-section">
 			<div class="pc-org-subsection-head"><h4>管理人员配置</h4><span>${escapeHtml(String(managerCount))} 人 · ${escapeHtml(String(pendingCount))} 待接受</span></div>
-			${seatFull ? `<div class="pc-org-capacity is-full">${escapeHtml(organizationSeatSummary(organization))} 请先移除成员或升级席位。</div>` : ''}
+			<div class="pc-admin-note">机构管理员和教学管理员不占付费席位；老师角色可查看试卷内容，会占用 1 个付费席位。</div>
 			<form class="pc-org-add-form pc-org-manager-flow" data-org-add-form data-org-id="${escapeHtml(organization.id)}" data-org-add-mode="manager">
 				<div class="pc-org-manager-search-only-row">
 					<label class="pc-org-field pc-org-manager-search-field">
@@ -5695,7 +6734,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					</div>
 					<div class="pc-org-manager-action-row">
 						<div class="pc-role-toggle-group">${renderOrganizationRoleControls(defaultRoles, `org-manager-invite-${organization.id}`, allowedRoleIds)}</div>
-						<div class="pc-org-form-actions"><button class="pc-inline-btn" type="submit"${seatFull ? ' disabled' : ''}>创建邀请</button></div>
+						<div class="pc-org-form-actions"><button class="pc-inline-btn" type="submit">创建邀请</button></div>
 					</div>
 				</form>
 			</details>
@@ -5708,12 +6747,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function renderOrganizationAddForm(organization: ManagedOrganization, mode: 'member' | 'manager' = 'member', options: { embedded?: boolean } = {}): string {
 		const draft = getOrganizationMemberDraft(organization.id);
-		const seatFull = isOrganizationSeatFull(organization);
 		const selectedUser = draft.searchResults.find((user) => user.id === draft.selectedUserId);
 		const inviteContact = draft.searchQuery.trim();
 		const canInviteFromInput = looksLikeOrganizationInviteContact(inviteContact);
 		const isManagerMode = mode === 'manager';
 		const activeMemberRole = activeOrganizationMemberRoleId(organization);
+		const seatFull = !isManagerMode && organizationRolesUsePaidSeat([activeMemberRole]) && isOrganizationSeatFull(organization);
 		const activeMemberRoleName = roleLabels([activeMemberRole])[0] || '成员';
 		const defaultRoles = isManagerMode ? ['orgAdmin'] : [activeMemberRole];
 		const allowedRoleIds = isManagerMode ? organizationManagerRoleIds : undefined;
@@ -5908,12 +6947,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		activeSection = 'dashboard';
 		activeDashboardSubpage = '';
 		activeRoleContent = '';
+		platformAdminRoleContentHistory = [];
 		pendingCoursePackageAllocation = null;
 		activeWorkbench = '';
 		activeFavoriteFolderId = '';
 		activeAccountEditor = '';
 		activeContactVerificationEditor = '';
+		activeMessageCenterCategory = 'all';
 		managedOrganizationOpenState = {};
+		invalidateStudentStudyGoals();
 		const content = document.getElementById('pc-content');
 		if (content) content.scrollTop = 0;
 	}
@@ -5939,8 +6981,17 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		favoriteBookmarksCacheKey = '';
 		recentLearningItems = [];
 		recentLearningCacheKey = '';
+		myAssignmentItems = [];
+		myAssignmentsCacheKey = '';
+		myAssignmentsLoading = null;
+		myAssignmentsError = '';
+		paymentNotificationInbox = null;
+		paymentNotificationOwnerId = '';
+		paymentNotificationsLoading = false;
+		paymentNotificationsError = '';
 		institutionRoleWorkbenchData = null;
 		institutionRoleWorkbenchCacheKey = '';
+		institutionRoleWorkbenchError = '';
 		referralCodeDraft = '';
 		contactVerificationDraft = {
 			email: '',
@@ -5975,7 +7026,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (destination === 'home') {
 			const ctx = getContext();
 			if (!ctx.guest) {
-				if (hasAnyRole(ctx, ['superAdmin'])) openPlatformAdmin();
+				if (activeWorkbenchDef(ctx).id === 'superAdmin') openPlatformAdmin();
 				else openRoleWorkspace();
 				return;
 			}
@@ -6032,19 +7083,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const ctx = getContext();
 		const name = preferredDisplayName(ctx);
 		const workbench = activeWorkbenchDef(ctx);
-		const identitySubtitle = [scopeLabel(ctx), roleLabels(ctx.roles).slice(0, 2).join(' / ')].filter(Boolean).join(' · ');
-		const roleWorkspaceTitles: Partial<Record<WorkbenchId, string>> = {
-			teacher: '进入教学管理',
-			assistant: '进入教学运营',
-			orgContentAdmin: '进入机构内容管理',
-			orgAdmin: '进入机构管理',
-			contentAdmin: '进入内容管理'
-		};
+		const identitySubtitle = `当前身份：${workbench.label}`;
 		const primary = workbench.id === 'superAdmin'
 			? { title: '进入平台管理', desc: '总览与业务管理' }
-			: workbench.id === 'student'
-				? { title: '进入学习中心', desc: '学习内容与进度' }
-				: { title: roleWorkspaceTitles[workbench.id] || `进入${workbench.label}`, desc: workbench.subtitle };
+			: { title: `进入${workbench.title}`, desc: workbench.id === 'student' ? '学习内容与进度' : workbench.subtitle };
 		menu.innerHTML = `<div class="pc-superadmin-account-summary">
 			<span class="pc-avatar pc-superadmin-menu-avatar">${ctx.avatar
 				? `<img class="pc-avatar-image" src="${escapeHtml(ctx.avatar)}" alt="" />`
@@ -6056,7 +7098,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			<button type="button" role="menuitem" data-superadmin-account-action="workspace"><span>${escapeHtml(primary.title)}</span><em>${escapeHtml(primary.desc)}</em></button>
 			<button type="button" role="menuitem" data-superadmin-account-action="profile"><span>个人资料</span><em>头像与联系方式</em></button>
 			<button type="button" role="menuitem" data-superadmin-account-action="security"><span>账号安全</span><em>密码与登录设备</em></button>
-			<button type="button" role="menuitem" data-superadmin-account-action="switch"><span>切换账号</span><em>登录其他角色</em></button>
+			<button type="button" role="menuitem" data-superadmin-account-action="messages"><span>消息中心</span><em>系统、教学与互动消息</em></button>
+			<button type="button" role="menuitem" data-superadmin-account-action="switch"><span>切换账号</span><em>登录其他账号</em></button>
 		</div>
 		<button class="pc-superadmin-account-logout" type="button" role="menuitem" data-superadmin-account-action="logout">退出登录</button>`;
 	}
@@ -6086,6 +7129,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			}
 			if (action === 'profile') openPanel('profile');
 			if (action === 'security') openPanel('security');
+			if (action === 'messages') openAccountMessages();
 			if (action === 'switch') void switchPlatformAdminAccount();
 			if (action === 'logout') window.logoutUser?.();
 		});
@@ -6137,7 +7181,24 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return '返回上一页';
 	}
 
+	function roleContentBackLabel(previousRoleContent: string): string {
+		const labels: Record<string, string> = {
+			'student-account-feedback': '返回帮助与反馈',
+			'support-customer-service': '返回客服',
+			'support-feedback': '返回问题反馈',
+			'support-user-agreement': '返回用户协议',
+			'support-privacy-policy': '返回隐私政策'
+		};
+		return labels[previousRoleContent] || '返回上一页';
+	}
+
 	function renderPlatformAdminDetailNavigation(): string {
+		if (platformAdminMode === 'role') {
+			const previousRoleContent = platformAdminRoleContentHistory[platformAdminRoleContentHistory.length - 1] || '';
+			if (!activeRoleContent || previousRoleContent === activeRoleContent) return '';
+			const label = previousRoleContent ? roleContentBackLabel(previousRoleContent) : '返回总览';
+			return `<div class="pc-platform-detail-nav"><button class="pc-inline-ghost" type="button" data-platform-admin-detail-back aria-label="${escapeHtml(label)}">← ${escapeHtml(label)}</button></div>`;
+		}
 		const defaultRoleContent = platformAdminPageRoleContent(activePlatformAdminPage);
 		if (!activeRoleContent || activeRoleContent === defaultRoleContent && platformAdminRoleContentHistory.length === 0) return '';
 		const previousRoleContent = platformAdminRoleContentHistory[platformAdminRoleContentHistory.length - 1] || defaultRoleContent;
@@ -6166,13 +7227,42 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		document.body.appendChild(shell);
 			shell.addEventListener('click', (event) => {
 			const target = eventTargetElement(event.target);
+			const copyPaymentOrder = target?.closest('[data-copy-payment-order]') as HTMLButtonElement | null;
+			if (copyPaymentOrder) {
+				event.preventDefault();
+				event.stopPropagation();
+				void copyPaymentOrderNumber(copyPaymentOrder);
+				return;
+			}
+			if (target?.closest('[data-account-orders-refresh]')) {
+				event.preventDefault();
+				void ensureAccountOrderHistory(getContext(), true);
+				return;
+			}
+			const roleWorkbenchButton = target?.closest('[data-role-workbench]') as HTMLButtonElement | null;
+			if (roleWorkbenchButton) {
+				activateRoleWorkbench(getContext(), roleWorkbenchButton.dataset.roleWorkbench || '');
+				return;
+			}
+			if (target?.closest('[data-role-workbench-retry]')) {
+				invalidateInstitutionRoleWorkbench();
+				void ensureInstitutionRoleWorkbench(getContext());
+				renderPlatformAdminShell();
+				return;
+			}
 			const roleAdminNav = target?.closest('[data-role-admin-intent]') as HTMLButtonElement | null;
 			if (roleAdminNav && platformAdminMode === 'role') {
 				const intent = roleAdminNav.dataset.roleAdminIntent || '';
 				platformAdminAccountMenuOpen = false;
 				const contentKey = roleWorkspaceContentKey(intent);
 				if (intent === '__overview__' || contentKey) {
+					if (intent === '__overview__') {
+						studentLearningQueueKey = '';
+						recentLearningCacheKey = '';
+						myAssignmentsCacheKey = '';
+					}
 					if (contentKey === 'org-course-accounts') pendingCoursePackageAllocation = null;
+					platformAdminRoleContentHistory = [];
 					activeRoleContent = contentKey;
 					activeDashboardSubpage = activeRoleContent ? 'role-content' : '';
 					if (contentKey === 'student-favorites') {
@@ -6205,9 +7295,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				return;
 			}
 			const roleAccountPage = target?.closest('[data-role-account-page]') as HTMLButtonElement | null;
-			if (roleAccountPage && platformAdminMode === 'role') {
+			if (roleAccountPage) {
+				platformAdminRoleContentHistory = [];
 				activeRoleContent = roleAccountPage.dataset.roleAccountPage || '';
 				activeDashboardSubpage = activeRoleContent ? 'role-content' : '';
+				platformAdminMode = 'role';
 				platformAdminAccountMenuOpen = false;
 				renderPlatformAdminShell();
 				return;
@@ -6257,8 +7349,29 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				renderPlatformAdminShell();
 			}
 		});
+		shell.addEventListener('change', (event) => {
+			const target = eventTargetElement(event.target);
+			if (target?.matches('[data-role-organization-switch]') && hasAnyRole(getContext(), ['superAdmin'])) {
+				const organizationId = (target as HTMLSelectElement).value;
+				if (!managedOrganizations.some((item) => item.id === organizationId)) return;
+				managedOrganizationWorkspaceId = organizationId;
+				invalidateInstitutionRoleWorkbench();
+				platformAdminRoleContentHistory = [];
+				activeRoleContent = '';
+				activeDashboardSubpage = '';
+				renderPlatformAdminShell();
+				return;
+			}
+			if (target?.matches('[data-role-workbench-switch]')) {
+				scheduleRoleWorkbenchActivation((target as HTMLSelectElement).value);
+			}
+		});
 		shell.addEventListener('input', (event) => {
 			const target = eventTargetElement(event.target);
+			if (target?.matches('[data-role-workbench-switch]')) {
+				scheduleRoleWorkbenchActivation((target as HTMLSelectElement).value);
+				return;
+			}
 			if (target?.matches('[data-org-package-student-search], [data-org-course-package-student]')) {
 				const form = target.closest<HTMLFormElement>('form[data-org-course-package-assignment-form]');
 				if (form) updateOrganizationPackageStudentPicker(form);
@@ -6277,6 +7390,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		closePanel();
 		platformAdminMode = 'platform';
+		activeWorkbench = 'superAdmin';
 		activePlatformAdminPage = 'overview';
 		activeRoleContent = '';
 		platformAdminRoleContentHistory = [];
@@ -6292,6 +7406,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function openRoleWorkspace(): void {
+		studentLearningQueueKey = '';
+		recentLearningCacheKey = '';
+		myAssignmentsCacheKey = '';
 		const ctx = getContext();
 		const workbench = activeWorkbenchDef(ctx);
 		if (ctx.guest || workbench.id === 'superAdmin') {
@@ -6300,6 +7417,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		closePanel();
 		platformAdminMode = 'role';
+		platformAdminRoleContentHistory = [];
 		activeRoleContent = '';
 		activeDashboardSubpage = '';
 		platformAdminExpanded = true;
@@ -6312,12 +7430,35 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		renderPlatformAdminShell();
 	}
 
+	function openAccountMessages(): void {
+		const ctx = getContext();
+		if (ctx.guest) {
+			showToast('请先登录后查看消息');
+			return;
+		}
+		closePanel();
+		platformAdminMode = 'role';
+		platformAdminRoleContentHistory = [];
+		activeRoleContent = 'account-messages';
+		activeDashboardSubpage = 'role-content';
+		platformAdminExpanded = true;
+		platformAdminMobilePreview = false;
+		platformAdminAccountMenuOpen = false;
+		const shell = ensurePlatformAdminShell();
+		shell.classList.remove('pc-platform-admin-hidden');
+		shell.classList.add('pc-platform-admin-open', 'pc-platform-admin-expanded');
+		renderPlatformAdminShell();
+	}
+
 	function closePlatformAdmin(): void {
 		const shell = document.getElementById('platform-admin-shell');
 		shell?.classList.remove('pc-platform-admin-open');
 		shell?.classList.remove('pc-platform-admin-expanded');
 		shell?.classList.remove('pc-platform-admin-mobile-preview');
 		shell?.classList.add('pc-platform-admin-hidden');
+		if (shell?.dataset.learningRole === 'student') {
+			window.dispatchEvent(new CustomEvent('learningWorkspaceChanged', { detail: { role: 'student', intent: '__practice__' } }));
+		}
 		platformAdminExpanded = false;
 		platformAdminMobilePreview = false;
 		platformAdminAccountMenuOpen = false;
@@ -6332,7 +7473,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	async function buildTrigger(): Promise<void> {
 		let trigger = document.getElementById('user-menu-trigger') as HTMLButtonElement | null;
-		const triggerHost = document.getElementById('exam-library-panel') || document.getElementById('exam-workarea') || document.body;
+		const triggerHost = document.getElementById('learning-account') || document.getElementById('exam-library-panel') || document.getElementById('exam-workarea') || document.body;
 		if (!trigger) {
 			trigger = document.createElement('button');
 			trigger.type = 'button';
@@ -6670,6 +7811,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					// 跳题失败不阻断
 				}
 			}
+			closePlatformAdmin();
 			closePanel();
 			showToast(successMessage);
 		} catch (err) {
@@ -6689,6 +7831,16 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			for (let questionIndex = 0; questionIndex < questions.length; questionIndex += 1) {
 				if (String(questions[questionIndex]?.id ?? '') === questionId) {
 					return { sectionIndex, questionIndex };
+				}
+			}
+			if (!questions.length && Array.isArray(section?.passages)) {
+				let flattenedIndex = 0;
+				for (const passage of section.passages as Array<Record<string, unknown>>) {
+					const passageQuestions = Array.isArray(passage.questions) ? passage.questions as Array<Record<string, unknown>> : [];
+					for (const question of passageQuestions) {
+						if (String(question?.id ?? '') === questionId) return { sectionIndex, questionIndex: flattenedIndex };
+						flattenedIndex += 1;
+					}
 				}
 			}
 		}
@@ -6731,6 +7883,56 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			});
 		} catch (err) {
 			showToast(readErrorMessage(err, '打开题目失败'));
+		}
+	}
+
+	async function openWrongCorrectionQuestion(index: number): Promise<void> {
+		const item = activeWrongCorrectionItems[index];
+		const api = window.APIClient;
+		const viewer = (window as unknown as {
+			examViewer?: {
+				loadExamData: (data: unknown) => void;
+				jumpToQuestion: (sectionIndex: number, questionIndex: number) => void;
+				beginWrongQuestionCorrection: (context: Record<string, unknown>) => void;
+				_currentExamId?: string | null;
+				examMode?: 'practice' | 'mock';
+			};
+		}).examViewer;
+		if (!item || !api?.getExam || !viewer?.beginWrongQuestionCorrection) {
+			showToast('当前无法打开错题订正');
+			return;
+		}
+		const examId = readString(item.exam_id) || '';
+		const storedQuestionId = readString(item.question_id) || '';
+		const snapshot = asRecord(item.question_snapshot);
+		const actualQuestionId = String(snapshot?.id ?? storedQuestionId.split(':').pop() ?? '');
+		const storedSection = storedQuestionId.includes(':') ? Number(storedQuestionId.split(':')[0]) : undefined;
+		const preferredSection = Number.isFinite(readNumber(item.section_index))
+			? readNumber(item.section_index)
+			: Number.isFinite(storedSection) ? storedSection : undefined;
+		try {
+			const examData = await api.getExam(examId) as Record<string, unknown>;
+			const pos = findQuestionPosition(examData, actualQuestionId, preferredSection);
+			if (!pos) throw new Error('原题已更新，暂时无法定位这道错题');
+			activeWrongCorrectionIndex = index;
+			viewer._currentExamId = examId;
+			viewer.examMode = 'practice';
+			viewer.beginWrongQuestionCorrection({
+				userId: getContext().id || '', examId, questionId: storedQuestionId, actualQuestionId,
+				sectionIndex: pos.sectionIndex, questionIndex: pos.questionIndex,
+				examTarget: studentCurrentExamTarget(), position: index + 1,
+				total: activeWrongCorrectionItems.length, hasNext: index + 1 < activeWrongCorrectionItems.length
+			});
+			viewer.loadExamData(examData);
+			viewer.jumpToQuestion(pos.sectionIndex, pos.questionIndex);
+			closePlatformAdmin();
+			closePanel();
+			document.querySelectorAll<HTMLElement>('.risk-modal').forEach((modal) => {
+				modal.classList.add('risk-hidden');
+				modal.style.display = 'none';
+			});
+		} catch (error) {
+			showToast(readErrorMessage(error, '打开错题失败'));
 		}
 	}
 
@@ -6839,12 +8041,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (!referral?.code) {
 			return '';
 		}
-		referralCodeDraft = referralCodeDraft || referralCodeFromUrl();
-		const rewardText = referral.hasReferrer
-			? referral.rewardStatus === 'granted' && (referral.rewardCreditAmount || 0) > 0
-				? `当前账号已绑定推荐码 ${referral.referredByCode || '-'}，奖励已结算；推荐人已获得 ${referral.rewardCreditAmount || 0} credits。`
-				: `当前账号已绑定推荐码 ${referral.referredByCode || '-'}，奖励状态：${referral.rewardStatus || 'pending'}`
-			: '新用户注册后会自动继承 ?ref=... 的归因；完成首次有效学习或付费后结算奖励。';
 		let referralLink = '';
 		try {
 			const url = new URL(window.location.href);
@@ -6855,10 +8051,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		} catch {
 			referralLink = `?ref=${encodeURIComponent(referral.code)}`;
 		}
-		const claimForm = referral.hasReferrer
-			? ''
-			: `<form class="pc-org-add-form" data-referral-claim-form><div class="pc-org-search-row"><input class="pc-profile-input" type="text" data-referral-code value="${escapeHtml(referralCodeDraft)}" placeholder="输入推荐码，例如 REFABC123" /><button class="pc-inline-btn" type="submit">绑定推荐码</button></div></form>`;
-		return `<div class="pc-card pc-info-card pc-referral-card"><div class="pc-referral-head"><div class="pc-service-header">我的推荐</div><button class="pc-inline-ghost pc-referral-copy" type="button" data-referral-copy="${escapeHtml(referralLink)}">复制链接</button></div><div class="pc-info-list pc-profile-facts"><div class="pc-info-row"><span>推荐码</span><strong class="pc-referral-code">${escapeHtml(referral.code)}</strong></div><div class="pc-info-row pc-referral-link-row"><span>推荐链接</span><strong class="pc-inline-url">${escapeHtml(referralLink)}</strong></div></div><div class="pc-admin-note">${escapeHtml(rewardText)}</div>${claimForm}</div>`;
+		return `<div class="pc-card pc-info-card pc-referral-card">
+			<div class="pc-referral-head"><div><div class="pc-service-header">邀请好友</div><div class="pc-admin-note">分享推荐链接，好友完成个人 PRO 首购后获得学习金。</div></div></div>
+			<div class="pc-referral-lines">
+				<div class="pc-referral-line"><span>推荐链接</span><strong class="pc-inline-url" title="${escapeHtml(referralLink)}">${escapeHtml(referralLink)}</strong><button class="pc-inline-ghost pc-referral-copy" type="button" data-referral-copy="${escapeHtml(referralLink)}" data-referral-copy-label="推荐链接">复制链接</button></div>
+			</div>
+		</div>`;
 	}
 
 	function renderInviteEntryCard(inviteToken: string): string {
@@ -6895,6 +8093,49 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		textarea.remove();
 		return copied;
+	}
+
+	async function copyReferralValue(button: HTMLButtonElement): Promise<void> {
+		if (button.disabled) return;
+		const value = button.dataset.referralCopy || '';
+		const label = button.dataset.referralCopyLabel || '推荐链接';
+		const originalText = button.textContent || '复制';
+		button.disabled = true;
+		const copied = await copyTextToClipboard(value);
+		button.textContent = copied ? '已复制' : '复制失败';
+		showToast(copied ? `${label}已复制` : '复制失败，请手动复制');
+		window.setTimeout(() => {
+			button.disabled = false;
+			button.textContent = originalText;
+		}, 1600);
+	}
+
+	async function copyPaymentOrderNumber(button: HTMLButtonElement): Promise<void> {
+		const orderId = button.dataset.copyPaymentOrder || '';
+		if (!orderId || button.disabled) return;
+		button.disabled = true;
+		const copied = await copyTextToClipboard(orderId);
+		if (copied) {
+			button.textContent = '已复制';
+			button.classList.add('is-copied');
+			showToast('订单号已复制');
+		} else {
+			const code = button.closest('.pc-order-number')?.querySelector('code');
+			if (code) {
+				const selection = window.getSelection();
+				const range = document.createRange();
+				range.selectNodeContents(code);
+				selection?.removeAllRanges();
+				selection?.addRange(range);
+			}
+			button.textContent = '请按 Ctrl+C';
+			showToast('未能自动复制，订单号已选中');
+		}
+		window.setTimeout(() => {
+			button.disabled = false;
+			button.textContent = '复制';
+			button.classList.remove('is-copied');
+		}, 1600);
 	}
 
 	interface WorkbenchAction {
@@ -6940,6 +8181,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	function availableWorkbenches(ctx: PCContext): WorkbenchDef[] {
 		const roles = new Set(ctx.roles || []);
 		const defs = workbenchDefs();
+		if (roles.has('superAdmin')) {
+			return ['superAdmin', 'student', 'teacher', 'assistant', 'orgAdmin', 'orgContentAdmin', 'contentAdmin'].map((id) => defs[id as WorkbenchId]);
+		}
 		const ids: WorkbenchId[] = [];
 		if (roles.has('student') || roles.size === 0) ids.push('student');
 		if (roles.has('teacher')) ids.push('teacher');
@@ -6952,12 +8196,65 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return ids.map((id) => defs[id]).filter(Boolean);
 	}
 
+	function roleWorkbenchStorageKey(ctx: PCContext): string {
+		return `exam_v2_active_workbench:${ctx.id || ctx.username || 'anonymous'}`;
+	}
+
+	function rememberedWorkbench(ctx: PCContext, available: WorkbenchDef[]): WorkbenchId | '' {
+		try {
+			const remembered = localStorage.getItem(roleWorkbenchStorageKey(ctx)) as WorkbenchId | null;
+			return remembered && available.some((item) => item.id === remembered) ? remembered : '';
+		} catch {
+			return '';
+		}
+	}
+
+	function rememberWorkbench(ctx: PCContext, workbenchId: WorkbenchId): void {
+		try {
+			localStorage.setItem(roleWorkbenchStorageKey(ctx), workbenchId);
+		} catch {
+			// 身份切换仍然生效；隐私模式下只是不跨页面记忆。
+		}
+	}
+
 	function activeWorkbenchDef(ctx: PCContext): WorkbenchDef {
 		const available = availableWorkbenches(ctx);
 		if (!activeWorkbench || !available.some((item) => item.id === activeWorkbench)) {
-			activeWorkbench = available[0]?.id || 'student';
+			activeWorkbench = rememberedWorkbench(ctx, available) || available[0]?.id || 'student';
 		}
 		return available.find((item) => item.id === activeWorkbench) || available[0] || workbenchDefs().student;
+	}
+
+	function activateRoleWorkbench(ctx: PCContext, workbenchId: string): void {
+		const available = availableWorkbenches(ctx);
+		const next = available.find((item) => item.id === workbenchId);
+		if (!next) return;
+		activeWorkbench = next.id;
+		rememberWorkbench(ctx, next.id);
+		platformAdminMode = next.id === 'superAdmin' ? 'platform' : 'role';
+		activeSection = 'dashboard';
+		activePlatformAdminPage = 'overview';
+		platformAdminRoleContentHistory = [];
+		activeRoleContent = '';
+		activeDashboardSubpage = '';
+		pendingCoursePackageAllocation = null;
+		platformAdminAccountMenuOpen = false;
+		renderPlatformAdminShell();
+		const shell = document.getElementById('platform-admin-shell');
+		const selector = shell?.querySelector<HTMLElement>('[data-role-workbench-switch]');
+		const focusTarget = selector?.offsetParent ? selector : shell?.querySelector<HTMLElement>('[data-platform-admin-account-menu]');
+		focusTarget?.focus({ preventScroll: true });
+		showToast(`已切换至${next.label}身份`);
+	}
+
+	function scheduleRoleWorkbenchActivation(workbenchId: string): void {
+		if (pendingWorkbenchSwitchTimer !== null) window.clearTimeout(pendingWorkbenchSwitchTimer);
+		// Windows 原生 select 可能依次触发 input/change；等选择面板关闭后再重绘，
+		// 并把两次事件合并为一次切换。
+		pendingWorkbenchSwitchTimer = window.setTimeout(() => {
+			pendingWorkbenchSwitchTimer = null;
+			activateRoleWorkbench(getContext(), workbenchId);
+		}, 0);
 	}
 
 	function workbenchDefs(): Record<WorkbenchId, WorkbenchDef> {
@@ -6966,22 +8263,18 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				id: 'student',
 				label: '学员',
 				title: '学习工作台',
-				subtitle: '今天先完成复习、作业和错题订正。',
+				subtitle: '按今天的计划学习、完成作业并及时复盘。',
 				actions: [
-					actionFromFeature('srsReview', { title: '今日复习', icon: 'book', intent: 'openReviewWorkbench' }),
+					actionFromFeature('srsReview', { title: '今日学习', icon: 'book', intent: 'openReviewWorkbench' }),
 					{ title: '我的作业', desc: '老师布置的任务', icon: 'folder', intent: 'openAssignments' },
-					actionFromFeature('wrongQuestions', { title: '错题本', icon: 'book', intent: 'openWrongQuestions' }),
+					actionFromFeature('chapterPath', { title: '专项练习', desc: '按考点查看进度并继续练习', icon: 'book', intent: 'openChapterPath' }),
+					{ title: '复习资料', desc: '错题、收藏和生词集中整理', icon: 'folder', intent: 'openRoleContent:student-review-library' },
 					actionFromFeature('learningReport', { title: '学习报告', icon: 'chart', intent: 'openLearningReport' })
 				],
 				more: [
-					{ title: '最近学习', desc: '继续上次进度', icon: 'clock', intent: 'openRecentLearningPage' },
-					actionFromFeature('bookmarkFolders', { title: '收藏题', icon: 'book', intent: 'openBookmarkFolders' }),
-					actionFromFeature('vocabNotebook', { title: '生词本', icon: 'book', intent: 'openVocabNotebook' }),
-					actionFromFeature('dailyPractice', { title: '每日一练', icon: 'chart', intent: 'openDailyPractice' }),
-					actionFromFeature('studyGoal', { title: '备考目标', icon: 'badge', intent: 'openStudyGoal' }),
-					actionFromFeature('recommendedReview', { title: '推荐复习', icon: 'chart', intent: 'openRecommendedReview' }),
-					actionFromFeature('chapterPath', { title: '章节学习', icon: 'book', intent: 'openChapterPath' }),
-					actionFromFeature('community', { title: '社区讨论', icon: 'community', intent: 'openCommunity' })
+					{ title: '套餐与订单', desc: '订阅、续费和支付记录', icon: 'wallet', intent: 'openRoleContent:student-account-plan' },
+					{ title: '优惠与邀请', desc: '邀请奖励、学习金和兑换记录', icon: 'ticket', intent: 'openRoleContent:student-account-coupons' },
+					{ title: '帮助与反馈', desc: '客服、协议和问题反馈', icon: 'community', intent: 'openRoleContent:student-account-feedback' }
 				]
 			},
 			teacher: {
@@ -7004,8 +8297,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			},
 			assistant: {
 				id: 'assistant',
-				label: '教学运营',
-				title: '运营工作台',
+				label: '教学管理员',
+				title: '教学管理工作台',
 				subtitle: '催交、跟进、约课和课程包。',
 				actions: [
 					{ title: '催交作业', desc: '未提交与逾期', icon: 'book', intent: 'openRoleContent:assistant-remind' },
@@ -7038,7 +8331,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				actions: [
 					{ title: '成员管理', desc: '成员、邀请和导入', icon: 'profileMark', intent: 'openRoleContent:org-members' },
 					{ title: '权限管理', desc: '角色和额外授权', icon: 'settings', intent: 'openRoleContent:org-permissions' },
-					{ title: '机构设置', desc: '套餐、校区和审计', icon: 'wallet', intent: 'openRoleContent:org-settings' },
+					{ title: '套餐与账单', desc: '购买、续费和席位', icon: 'wallet', intent: 'openRoleContent:org-plan' },
+					{ title: '机构设置', desc: '校区和机构审计', icon: 'settings', intent: 'openRoleContent:org-settings' },
 					{ title: '课程包', desc: '课程规格与课时数', icon: 'ticket', intent: 'openRoleContent:org-course-packages' },
 					{ title: '课时管理', desc: '分配、余额与扣课', icon: 'clock', intent: 'openRoleContent:org-course-accounts' },
 					{ title: '学习组', desc: '班级与约课组', icon: 'folder', intent: 'openRoleContent:org-groups' },
@@ -7061,7 +8355,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			},
 			superAdmin: {
 				id: 'superAdmin',
-				label: '平台管理',
+				label: '超级管理员',
 				title: '平台工作台',
 				subtitle: '处理全站用户、机构、权限和系统配置。',
 				actions: [
@@ -7089,6 +8383,26 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return `<div class="pc-workbench-switcher" aria-label="身份切换">
 			${workbenches.map((item) => `<button type="button" class="${item.id === active.id ? 'active' : ''}" data-workbench="${item.id}">${escapeHtml(item.label)}</button>`).join('')}
 		</div>`;
+	}
+
+	function renderRoleIdentitySwitcher(ctx: PCContext, active: WorkbenchDef): string {
+		const workbenches = availableWorkbenches(ctx);
+		if (workbenches.length <= 1) return '';
+		return `<label class="pc-role-identity-switcher">
+			<span>当前身份</span>
+			<select data-role-workbench-switch aria-label="切换当前身份">
+				${workbenches.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === active.id ? ' selected' : ''}>${escapeHtml(item.label)}</option>`).join('')}
+			</select>
+		</label>`;
+	}
+
+	function renderRoleIdentityMenu(ctx: PCContext, active: WorkbenchDef): string {
+		const workbenches = availableWorkbenches(ctx);
+		if (workbenches.length <= 1) return '';
+		return `<section class="pc-role-identity-menu" role="group" aria-label="切换身份">
+			<span>切换身份</span>
+			${workbenches.map((item) => `<button type="button" role="menuitemradio" aria-checked="${item.id === active.id ? 'true' : 'false'}" class="${item.id === active.id ? 'active' : ''}" data-role-workbench="${escapeHtml(item.id)}" aria-label="切换到${escapeHtml(item.label)}">${escapeHtml(item.label)}${item.id === active.id ? '<em>当前</em>' : ''}</button>`).join('')}
+		</section>`;
 	}
 
 	function renderActionGrid(ctx: PCContext, actions: WorkbenchAction[], className = 'pc-workbench-grid', limit = 4): string {
@@ -7187,14 +8501,17 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const examTitle = readString(item.exam_title) || readString(item.paper_title) || examId;
 			const total = readNumber(item.total_questions) ?? 0;
 			const answered = readNumber(item.answered_count) ?? 0;
+			const correct = readNumber(item.correct_count) ?? 0;
+			const wrong = readNumber(item.wrong_count) ?? 0;
 			const status = readString(item.status) || 'draft';
+			const source = readString(item.source) || '';
 			const sectionIndex = readNumber(item.last_section_index) ?? 0;
 			const questionIndex = readNumber(item.last_question_index) ?? 0;
 			const updatedAt = formatShortDateTime(readString(item.updated_at));
 			return {
 				title: examTitle,
-				desc: `${status === 'submitted' ? '已提交' : '未完成'} · ${answered}${total > 0 ? `/${total}` : ''} 题${updatedAt ? ` · ${updatedAt}` : ''}`,
-				meta: status === 'submitted' ? '查看' : '继续',
+				desc: `${source === 'practice_group' ? `已练习 · ${answered}${total > 0 ? `/${total}` : ''} 题 · 正确 ${correct} · 错误 ${wrong}` : `${status === 'submitted' ? '已提交' : '未完成'} · ${answered}${total > 0 ? `/${total}` : ''} 题`}${updatedAt ? ` · ${updatedAt}` : ''}`,
+				meta: source === 'practice_group' ? '打开试卷' : status === 'submitted' ? '查看' : '继续',
 				intent: openExamQuestionIntent(examId, String(Math.max(1, questionIndex + 1)), sectionIndex)
 			};
 		});
@@ -7428,27 +8745,127 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return renderDashboardSubpage('账号安全', `${renderAccountManagementCard(ctx)}${exportCard}`, '管理手机号、密码、第三方绑定和注销账号。');
 	}
 
+	function accountOrderYearRange(): { fromYear: number; toYear: number } {
+		const toYear = new Date().getFullYear();
+		return { fromYear: toYear, toYear };
+	}
+
+	function refreshAccountOrderHistoryView(): void {
+		if (document.querySelector('#platform-admin-shell.pc-platform-admin-open')) {
+			renderPlatformAdminShell({ preserveScroll: true });
+		} else {
+			renderSectionContent({ preserveScroll: true });
+		}
+	}
+
+	async function ensureAccountOrderHistory(ctx: PCContext, force = false): Promise<void> {
+		const token = activeToken(ctx);
+		const api = window.APIClient;
+		if (!ctx.id || !token || !api || typeof api.listPaymentOrders !== 'function' || typeof api.listPaymentLedger !== 'function') {
+			accountOrderHistoryError = '订单记录接口暂不可用';
+			return;
+		}
+		if (!force && accountOrderHistoryLoaded && accountOrderHistoryOwnerId === ctx.id) return;
+		if (accountOrderHistoryLoading) return;
+		accountOrderHistoryLoading = true;
+		accountOrderHistoryError = '';
+		if (accountOrderHistoryOwnerId !== ctx.id) {
+			accountOrderHistoryOrders = [];
+			accountOrderHistoryLedger = [];
+			accountOrderHistoryLoaded = false;
+			accountOrderHistoryOwnerId = ctx.id;
+			accountOrderHistoryExpanded = false;
+		}
+		refreshAccountOrderHistoryView();
+		try {
+			const { fromYear, toYear } = accountOrderYearRange();
+			const [rawOrders, rawLedger] = await Promise.all([
+				api.listPaymentOrders(token, fromYear, toYear),
+				api.listPaymentLedger(token)
+			]);
+			accountOrderHistoryOrders = Array.isArray(rawOrders)
+				? rawOrders.map(normalizePaymentOrder).filter((item): item is PaymentOrderRecord => Boolean(item))
+				: [];
+			accountOrderHistoryLedger = Array.isArray(rawLedger)
+				? rawLedger.map(normalizePaymentLedgerEntry).filter((item): item is PaymentLedgerEntry => Boolean(item))
+				: [];
+			accountOrderHistoryLoaded = true;
+		} catch (error) {
+			accountOrderHistoryError = readErrorMessage(error, '订单记录加载失败');
+		} finally {
+			accountOrderHistoryLoading = false;
+			refreshAccountOrderHistoryView();
+		}
+	}
+
+	function renderInlineAccountOrderHistory(): string {
+		const { fromYear } = accountOrderYearRange();
+		let content = '';
+		if (accountOrderHistoryLoading && !accountOrderHistoryLoaded) {
+			content = '<div class="pc-order-loading">正在加载订单记录…</div>';
+		} else if (accountOrderHistoryError) {
+			content = `<div class="pc-order-load-error">${escapeHtml(accountOrderHistoryError)}<button type="button" class="pc-inline-ghost" data-account-orders-refresh>重新加载</button></div>`;
+		} else {
+			content = renderPaymentOrderRecords(accountOrderHistoryOrders, accountOrderHistoryLedger);
+		}
+		const countText = accountOrderHistoryLoading && !accountOrderHistoryLoaded
+			? '加载中'
+			: accountOrderHistoryLoaded ? `${accountOrderHistoryOrders.length} 笔` : '';
+		return `<details class="pc-card pc-lite-list-card pc-account-order-history" data-account-order-history${accountOrderHistoryExpanded ? ' open' : ''}>
+			<summary data-account-order-history-summary><strong class="pc-my-content-head">${fromYear}~至今订单</strong><span class="pc-tag muted pc-account-order-count">${escapeHtml(countText)}</span><span class="pc-order-record-chevron" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path class="pc-order-chevron-down" d="M1 4.5 8 11.5 15 4.5" /><path class="pc-order-chevron-up" d="M1 11.5 8 4.5 15 11.5" /></svg></span></summary>
+			<div class="pc-account-order-history-body">${content}</div>
+		</details>`;
+	}
+
 	function renderAccountPlanPage(ctx: PCContext): string {
-		const subscription = ctx.subscription;
-		const body = `${renderRoleListCard('套餐记录', [
-			{ title: '当前套餐', desc: `${planLabel(subscription?.plan)} · ${subscription?.status || 'active'} · ${subscription?.expiresAt || '长期'}`, meta: '当前' },
-			{ title: '续费 / 升级', desc: '选择个人套餐并创建支付订单', meta: '进入', intent: 'openRecharge' },
-			{ title: '支付流水', desc: '查看真实订单、支付成功、退款申请和权益发放记录', meta: '流水', intent: 'openPaymentLedger' }
-		])}${renderAutoRenewalCard('personal', ctx.id || '', {
-			plan: subscription?.plan || 'free',
-			status: subscription?.status || 'active',
-			expiresAt: subscription?.expiresAt || ctx.planExpiresAt || '',
-			seats: 1
-		})}${renderPaymentNotificationInbox()}`;
-		return renderDashboardSubpage('套餐', body, '查看当前套餐、自动续费授权、到期提醒、订单和退款记录。');
+		if (!paymentPricingLoaded) {
+			void loadPaymentPricing().then(() => renderSectionContent({ preserveScroll: true }));
+		}
+		if (ctx.id && !autoRenewalViews.has(autoRenewalKey('personal', ctx.id)) && !autoRenewalLoading.has(autoRenewalKey('personal', ctx.id))) {
+			void ensureAutoRenewal('personal', ctx.id);
+		}
+		if (ctx.id && (!accountOrderHistoryLoaded || accountOrderHistoryOwnerId !== ctx.id) && !accountOrderHistoryLoading) {
+			void ensureAccountOrderHistory(ctx);
+		}
+		const body = `${renderAccountPurchasePanel(ctx)}${renderInlineAccountOrderHistory()}`;
+		return renderDashboardSubpage('套餐与订单', body, '选择套餐、购买时长和续费方式，并查看订单记录。');
 	}
 
 	function renderAccountCouponsPage(ctx: PCContext): string {
-		const body = `${renderRoleListCard('卡券', [
-			{ title: '兑换码', desc: '输入兑换码兑换套餐、卡券或学习权益', meta: '兑换', intent: 'openRedeem' },
-			{ title: '卡券包', desc: `当前卡券 ${ctx.couponCount ?? 0} 张，列表来自钱包接口`, meta: '查看', intent: 'openCoupons' }
-		])}`;
-		return renderDashboardSubpage('卡券', body, '兑换码、优惠券、卡券包和邀请奖励统一放在这里。');
+		const learningCreditCents = ctx.balance?.learningCreditCents || 0;
+		const earnedLearningCreditCents = ctx.balance?.learningCreditEarnedCents ?? learningCreditCents;
+		const learningCredits = ctx.balance?.credits ?? 0;
+		const inviteRewards = ctx.referral?.inviteRewardRecords || [];
+		const inviteRewardCount = ctx.referral?.inviteRewardCount ?? inviteRewards.length;
+		const inviteRewardRows = inviteRewards.length
+			? inviteRewards.map((record) => `<div class="pc-referral-reward-row"><span><strong>${escapeHtml(record.inviteeLabel)}</strong><em>${escapeHtml(formatDateTime(record.grantedAt))}</em></span><b>+¥${(record.amountCents / 100).toFixed(2)}</b></div>`).join('')
+			: '<div class="pc-inline-empty">暂时还没有已到账的邀请奖励</div>';
+		const benefitCard = `<div class="pc-card pc-lite-list-card pc-benefit-card">
+			<div class="pc-my-content-head">我的优惠</div>
+			<div class="pc-lite-list">
+				<details class="pc-inline-collapse pc-benefit-section pc-learning-credit-section" data-inline-benefit-section="learning"${expandedInlineBenefitSections.has('learning') ? ' open' : ''}>
+					<summary class="pc-lite-row"><span><strong>学习金</strong><em>成功邀请 ${inviteRewardCount} 人；奖励到账后可在这里查看，退款后相应金额会撤回</em></span><div class="pc-benefit-balance"><span>当前可用 <b>¥${(learningCreditCents / 100).toFixed(2)}</b></span><span>累计获得 ¥${(earnedLearningCreditCents / 100).toFixed(2)}</span></div><i class="pc-inline-chevron" aria-hidden="true"></i></summary>
+					<div class="pc-inline-benefit-body pc-learning-credit-records">${inviteRewardRows}</div>
+				</details>
+				<details class="pc-inline-collapse pc-benefit-section" data-inline-benefit-section="redeem" data-inline-wallet-section="redeem"${expandedInlineBenefitSections.has('redeem') ? ' open' : ''}>
+					<summary class="pc-lite-row"><span><strong>兑换码</strong><em>兑换套餐、学习积分或其他权益</em></span><b data-inline-learning-credits>${learningCredits} 积分</b><i class="pc-inline-chevron" aria-hidden="true"></i></summary>
+					<div class="pc-inline-benefit-body">
+						<form class="pc-inline-redeem-form" data-inline-redeem-form novalidate>
+							<label><span class="pc-visually-hidden">兑换码</span><input class="pc-profile-input" data-inline-redeem-code aria-label="兑换码" autocomplete="off" placeholder="输入兑换码，例如 WELCOME-100"></label>
+							<button class="pc-inline-btn" type="submit">确认兑换</button>
+							<div class="pc-inline-redeem-result" data-inline-redeem-result hidden></div>
+							<div class="pc-admin-note">兑换结果将记录在当前账号，已使用过的兑换码不能重复兑换。</div>
+						</form>
+					</div>
+				</details>
+				<details class="pc-inline-collapse pc-benefit-section" data-inline-benefit-section="records" data-inline-wallet-section="records"${expandedInlineBenefitSections.has('records') ? ' open' : ''}>
+					<summary class="pc-lite-row"><span><strong>兑换记录</strong><em>查看积分码、套餐码和权益码的兑换结果</em></span><b data-inline-redemption-count>${escapeHtml(String(ctx.couponCount ?? 0))} 条</b><i class="pc-inline-chevron" aria-hidden="true"></i></summary>
+					<div class="pc-inline-benefit-body" data-inline-redemption-body><div class="pc-inline-empty">展开后读取兑换记录</div></div>
+				</details>
+			</div>
+		</div>`;
+		const body = `${renderReferralCard(ctx)}${benefitCard}`;
+		return renderDashboardSubpage('优惠与邀请', body, '邀请奖励、学习金、兑换码和兑换记录集中展示。');
 	}
 
 	function renderAccountFeedbackPage(): string {
@@ -7459,6 +8876,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			{ title: '隐私政策', desc: '查看个人数据收集、使用和导出说明', meta: '查看', intent: openRoleContentIntent('support-privacy-policy') }
 		])}`;
 		return renderDashboardSubpage('反馈', body, '帮助、客服、协议和隐私政策集中展示。');
+	}
+
+	function renderStudentReviewLibraryPage(): string {
+		const rows: RoleContentRow[] = [
+			{ title: '错题本', desc: '查看未掌握题目、错因标签和同考点练习', meta: '订正', intent: 'openWrongQuestions' },
+			{ title: '收藏题', desc: '按收藏清单整理题目和个人复习备注', meta: '整理', intent: openRoleContentIntent('student-favorites') },
+			{ title: '生词本', desc: '复习做题时收集的词语、读音和笔记', meta: '复习', intent: 'openVocabNotebook' }
+		];
+		return renderDashboardSubpage('复习资料', renderRoleListCard('资料分类', rows), '错题、收藏和生词统一从这里进入。');
 	}
 
 	function institutionStudentRows(data: Record<string, unknown>): RoleContentRow[] {
@@ -7565,7 +8991,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function institutionRenewalRiskRows(data: Record<string, unknown>): RoleContentRow[] {
-		const risks = Array.isArray(data.renewal_risks) ? data.renewal_risks : [];
+		const risks = actionableRenewalRisks(data);
 		return risks.map((item) => {
 			const raw = asRecord(item) || {};
 			const student = asRecord(raw.student) || {};
@@ -7574,7 +9000,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return {
 				title: readString(student.display_name) || readString(student.username) || studentId || '学员',
 				desc: `${readString(raw.reason) || '需要跟进'}${institutionNumber(raw.inactive_days) > 0 ? ` · ${institutionNumber(raw.inactive_days)} 天未学习` : ''}${expiresAt ? ` · 到期 ${formatShortDateTime(expiresAt)}` : ''}`,
-				meta: readString(raw.level) || '关注',
+				meta: readString(raw.level) === 'high' ? '高风险' : '需关注',
 				intent: studentId ? openRoleContentIntent(`teacher-student:${encodeURIComponent(studentId)}`) : undefined
 			};
 		});
@@ -7840,6 +9266,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		const data = institutionRoleWorkbenchData || {};
 		let page: RoleContentPage;
+		if (institutionRoleWorkbenchError) return renderDashboardSubpage('教学数据', renderInstitutionRoleError());
 		if (key === 'teacher-students') {
 			page = { title: '我的学生', subtitle: '来自分配给当前老师的学习组。', rows: institutionStudentRows(data) };
 		} else if (key === 'teacher-groups') {
@@ -7872,7 +9299,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			page = { title: '异常提醒', subtitle: '由真实未交作业和续费风险合并生成。', rows: [...institutionAssignmentRows(data, true), ...institutionRenewalRiskRows(data)] };
 		}
 		if (page.rows.length === 0) {
-			page.rows = [{ title: '暂无真实数据', desc: '接口当前没有返回可显示记录；请联系机构管理员添加成员、学习组、作业或课程包。', meta: '' }];
+			page.rows = [{ title: '暂无记录', desc: ['assistant-renewal', 'assistant-alerts', 'assistant-remind', 'teacher-review'].includes(key) ? '当前没有需要处理的记录。' : '添加学习组、作业或课程包后，可在这里查看。', meta: '' }];
 		}
 		return renderDashboardSubpage(page.title, renderRoleListCard(page.title, page.rows), page.subtitle);
 	}
@@ -8124,7 +9551,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return '';
 		}
 		const organizationTypeSelect = renderAdminSelect('school', [{ value: 'school', label: '培训机构' }, { value: 'business', label: '企业' }], 'data-platform-org-type', '机构类型');
-		const organizationPlanSelect = renderAdminSelect('free', [{ value: 'free', label: 'FREE' }, { value: 'pro', label: 'PRO' }, { value: 'ultra', label: 'ULTRA' }], 'data-platform-org-plan', '套餐');
+		const organizationPlanSelect = renderAdminSelect('free', [{ value: 'free', label: 'FREE' }, { value: 'pro', label: 'PRO' }], 'data-platform-org-plan', '套餐');
 		return `<details class="pc-card pc-platform-org-create-panel" data-platform-org-create-panel>
 			<summary><strong>＋ 新建机构</strong><b>展开</b></summary>
 			<form class="pc-org-add-form pc-platform-org-create-form" data-platform-org-create-form>
@@ -8174,14 +9601,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					{ label: '套餐', value: planLabel(organization.plan) },
 					{ label: '状态', value: organization.status || 'active' },
 					{ label: '到期', value: organizationExpiryLabel(organization.expiresAt) },
-					{ label: '席位', value: `${memberCount}/${organization.seats || defaultSeatsForPlan(organization.plan)}` }
+					{ label: '成员', value: `${memberCount} 人` }
 				];
 			}
 			if (mode === 'settings') {
 				return [
 					{ label: '套餐', value: planLabel(organization.plan) },
 					{ label: '校区', value: String(organization.campuses.length) },
-					{ label: '席位', value: `${memberCount}/${organization.seats || defaultSeatsForPlan(organization.plan)}` },
+					{ label: '成员', value: `${memberCount} 人` },
 					{ label: '审计', value: `${Math.min(organization.auditLogs.length, 8)}条` }
 				];
 			}
@@ -8266,7 +9693,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			panels.push(renderOrganizationLearningGroupPanel(organization));
 			panels.push(renderOrganizationSchedulePanel(organization));
 		} else if (mode === 'settings') {
-			panels.push(renderOrganizationSubscriptionPanel(organization));
 			panels.push(renderOrganizationCampusPanel(organization));
 			panels.push(renderOrganizationAuditPanel(organization));
 		} else if (mode === 'coursePackages') {
@@ -8306,9 +9732,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			platform: '超级管理员创建机构；机构管理员维护自己机构的成员、课程和席位。',
 			permissions: activeRoleContent === 'platform-roles' ? '查看角色默认能力、权限模板和授权规则。' : '维护当前机构的角色权限差异，再按成员设置学生/老师/教学运营/机构管理员角色。',
 			groups: '班级、小班、一对一约课和课程包扣课。',
-			settings: '机构资料、套餐席位、校区信息和操作审计。',
+			settings: '维护校区信息并查看机构操作审计；套餐与席位在“套餐与账单”中管理。',
 			coursePackages: activeRoleContent === 'org-course-accounts' ? '分配课时，并查询学员余额、课程归属和使用状态。' : '维护可重复分配的课程规格和课时数。',
-			subscription: '机构套餐、席位、课程包和续费风险。',
+			subscription: '查看当前套餐与席位，通过报价、订单和支付完成购买、续费或扩席。',
 			members: '账号已存在时直接添加；账号未创建时先发邀请。'
 		};
 		const createPanel = mode === 'platform' ? renderOrganizationCreatePanel(ctx) : '';
@@ -8333,7 +9759,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				managedOrganizationOpenState[`${mode}:${selectedOrganization.id}`] = true;
 				if (!managedOrganizationDetailState[selectedOrganization.id]) void loadManagedOrganizationDetails(selectedOrganization.id);
 			}
-			const organizationSelector = isPlatformAdmin
+			const organizationSelector = isPlatformAdmin && platformAdminMode !== 'role'
 				? `<div class="pc-card pc-organization-workspace-toolbar"><form data-managed-org-list-form><input class="pc-profile-input" data-managed-org-query value="${escapeHtml(managedOrganizationListPage.query)}" placeholder="搜索机构" /><button class="pc-inline-ghost" type="submit">搜索</button></form><label><span>当前机构</span><select class="pc-profile-input pc-org-select" data-managed-org-workspace-select>${managedOrganizations.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === selectedOrganization?.id ? ' selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}</select></label></div>`
 				: '';
 			const workspaceBody = managedOrganizationsLoading
@@ -8700,36 +10126,45 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function roleWorkspaceActions(ctx: PCContext, workbench: WorkbenchDef): WorkbenchAction[] {
-		return [...workbench.actions, ...workbench.more].filter((action) => visibleAction(ctx, action));
+		const messageCenter: WorkbenchAction = { title: '消息中心', desc: '系统、教学与互动消息', icon: 'community', intent: 'openRoleContent:account-messages' };
+		return [...workbench.actions, ...workbench.more, messageCenter].filter((action) => visibleAction(ctx, action));
 	}
 
 	function roleWorkspaceNavigationGroups(workbench: WorkbenchDef, actions: WorkbenchAction[]): Array<{ label: string; actions: WorkbenchAction[] }> {
 		const groups: Array<{ label: string; intents: string[] }> = workbench.id === 'orgAdmin'
 			? [
 				{ label: '成员与权限', intents: ['openRoleContent:org-members', 'openRoleContent:org-permissions'] },
-				{ label: '教学运营', intents: ['openRoleContent:org-course-packages', 'openRoleContent:org-course-accounts', 'openRoleContent:org-groups'] },
-				{ label: '机构', intents: ['openRoleContent:org-settings', 'openRoleContent:org-dashboard'] }
+				{ label: '教学运营', intents: ['openRoleContent:org-course-packages', 'openRoleContent:org-course-accounts', 'openRoleContent:org-groups', 'openRoleContent:org-dashboard'] },
+				{ label: '机构管理', intents: ['openRoleContent:org-plan', 'openRoleContent:org-settings', 'openRoleContent:org-audit'] }
 			]
 			: workbench.id === 'orgContentAdmin'
 				? [{ label: '机构内容', intents: ['openRoleContent:org-course-packages'] }]
 			: workbench.id === 'teacher'
 				? [
-					{ label: '学员', intents: ['openRoleContent:teacher-students', 'openRoleContent:teacher-groups'] },
-					{ label: '教学', intents: ['openRoleContent:teacher-schedule', 'openRoleContent:teacher-arrange', 'openRoleContent:teacher-review', 'openRoleContent:teacher-assign', 'openRoleContent:teacher-gradebook', 'openRoleContent:teacher-prep'] }
+					{ label: '学员管理', intents: ['openRoleContent:teacher-students', 'openRoleContent:teacher-groups', 'openRoleContent:teacher-gradebook'] },
+					{ label: '教学任务', intents: ['openRoleContent:teacher-schedule', 'openRoleContent:teacher-arrange', 'openRoleContent:teacher-assign', 'openRoleContent:teacher-review'] },
+					{ label: '教学内容', intents: ['openRoleContent:teacher-prep'] }
 				]
 				: workbench.id === 'assistant'
 					? [
 						{ label: '学员运营', intents: ['openRoleContent:assistant-remind', 'openRoleContent:assistant-followup', 'openRoleContent:assistant-renewal', 'openRoleContent:assistant-alerts'] },
-						{ label: '教学支持', intents: ['openRoleContent:teacher-groups', 'openRoleContent:teacher-schedule', 'openRoleContent:assistant-package', 'openRoleContent:assistant-arrange'] }
+						{ label: '教务支持', intents: ['openRoleContent:teacher-groups', 'openRoleContent:teacher-schedule', 'openRoleContent:assistant-arrange', 'openRoleContent:assistant-package'] }
 					]
 					: workbench.id === 'contentAdmin'
-						? [{ label: '内容', intents: actions.map((action) => action.intent) }]
+						? [
+							{ label: '内容处理', intents: ['openRoleContent:content-feedback', 'openRoleContent:content-publish'] },
+							{ label: '记录', intents: ['openAuditLog'] }
+						]
 						: workbench.id === 'student'
 							? [
-								{ label: '学习', intents: workbench.actions.map((action) => action.intent) },
-								{ label: '更多', intents: workbench.more.map((action) => action.intent) }
+								{ label: '学习安排', intents: ['openReviewWorkbench', 'openAssignments', 'openChapterPath'] },
+								{ label: '复习与分析', intents: ['openRoleContent:student-review-library', 'openLearningReport'] },
+								{ label: '账户', intents: ['openRoleContent:account-messages', 'openRoleContent:student-account-plan', 'openRoleContent:student-account-coupons', 'openRoleContent:student-account-feedback'] }
 							]
-							: [{ label: workbench.label, intents: actions.map((action) => action.intent) }];
+							: [{ label: workbench.label, intents: actions.map((action) => action.intent).filter((intent) => intent !== 'openRoleContent:account-messages') }];
+		if (workbench.id !== 'student') {
+			groups.push({ label: '消息', intents: ['openRoleContent:account-messages'] });
+		}
 		const assigned = new Set<string>();
 		const result = groups.map((group) => {
 			const groupedActions = actions.filter((action) => group.intents.includes(action.intent));
@@ -8741,25 +10176,1095 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return result;
 	}
 
-	function renderRoleWorkspaceOverview(ctx: PCContext, workbench: WorkbenchDef, actions: WorkbenchAction[]): string {
-		let supplementary = '';
-		if (workbench.id === 'student') {
-			organizationInviteTokenDraft = organizationInviteTokenDraft || inviteTokenFromUrl();
-			void ensurePendingInvitations(ctx);
-			supplementary = `${renderPendingInvitationPanel(ctx)}${renderInviteEntryCard(organizationInviteTokenDraft)}`;
+	type RoleOverviewStat = { label: string; value: string | number; note: string; intent: string };
+	type RoleOverviewTask = { title: string; desc: string; count: string | number; intent: string; tone?: 'warning' | 'danger' };
+
+	function roleOverviewActions(actions: WorkbenchAction[], intents: string[]): WorkbenchAction[] {
+		return intents
+			.map((intent) => actions.find((action) => action.intent === intent))
+			.filter((action): action is WorkbenchAction => Boolean(action));
+	}
+
+	function renderRoleOverviewLayout(
+		workbench: WorkbenchDef,
+		stats: RoleOverviewStat[],
+		tasks: RoleOverviewTask[],
+		quickActions: WorkbenchAction[],
+		supplementary = ''
+	): string {
+		const teachingError = ['teacher', 'assistant', 'orgAdmin'].includes(workbench.id) && institutionRoleWorkbenchError;
+		if (teachingError && workbench.id !== 'orgAdmin') {
+			stats = stats.map((item) => ({ ...item, value: '—' }));
+			tasks = tasks.map((item) => ({ ...item, count: '—', tone: undefined }));
 		}
-		const isOrganizationOverview = workbench.id === 'orgAdmin';
-		const welcome = isOrganizationOverview ? '' : `<section class="pc-platform-overview-panel pc-role-admin-welcome">
-				<div><strong>${escapeHtml(workbench.title)}</strong><span>${escapeHtml(workbench.subtitle)}</span></div>
-				<em>${actions.length} 项可用功能</em>
-			</section>`;
-		return `<div class="pc-role-admin-overview${isOrganizationOverview ? ' pc-role-admin-overview-org' : ''}">
-			${welcome}
-			<section class="pc-role-admin-launcher" aria-label="${escapeHtml(workbench.label)}功能">
-				${actions.map((action) => `<button type="button" data-role-admin-intent="${escapeHtml(action.intent)}"><span class="pc-role-admin-launcher-icon">${renderOutlineIcon(action.icon, 'pc-platform-nav-icon')}</span><span><strong>${escapeHtml(action.title)}</strong><em>${escapeHtml(action.desc || '进入业务页面')}</em></span><b>›</b></button>`).join('')}
+		const statMarkup = stats.map((item) => `<button class="pc-platform-stat" type="button" data-role-admin-intent="${escapeHtml(item.intent)}"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(String(item.value))}</strong><em>${escapeHtml(item.note)}</em></button>`).join('');
+		const taskMarkup = tasks.map((item) => `<button class="pc-platform-task${item.tone ? ` is-${item.tone}` : ''}" type="button" data-role-admin-intent="${escapeHtml(item.intent)}"><span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.desc)}</em></span><b>${escapeHtml(String(item.count))}</b></button>`).join('');
+		const quickMarkup = quickActions.map((action) => `<button type="button" data-role-admin-intent="${escapeHtml(action.intent)}">${escapeHtml(action.title)}<span>›</span></button>`).join('');
+		return `<div class="pc-platform-overview-grid pc-role-admin-overview" data-role-overview="${escapeHtml(workbench.id)}">
+			${teachingError ? `<div class="pc-role-overview-supplementary">${renderInstitutionRoleError()}</div>` : ''}
+			<section class="pc-platform-stats" aria-label="${escapeHtml(workbench.label)}概览">${statMarkup}</section>
+			<section class="pc-platform-overview-panel pc-platform-tasks">
+				<div class="pc-platform-panel-head"><div><strong>待处理</strong><span>${escapeHtml(workbench.subtitle)}</span></div></div>
+				${taskMarkup}
 			</section>
-			${supplementary}
+			<section class="pc-platform-overview-panel pc-platform-quick-actions pc-role-overview-actions">
+				<div class="pc-platform-panel-head"><div><strong>快捷操作</strong><span>常用入口</span></div></div>
+				${quickMarkup}
+			</section>
+			${supplementary ? `<div class="pc-role-overview-supplementary">${supplementary}</div>` : ''}
 		</div>`;
+	}
+
+	function roleOverviewLoading(value: string | number, loading: boolean): string | number {
+		return loading ? '…' : value;
+	}
+
+	type StudentLearningQueue = {
+		srs: Record<string, unknown>[];
+		wrong: Record<string, unknown>[];
+		recommended: Record<string, unknown>[];
+		plannedCount: number;
+		completedCount: number;
+	};
+	type StudentDomainId = 'vocabulary' | 'grammar' | 'writing' | 'reading' | 'listening_reading' | 'listening';
+	type StudentDomainDefinition = { id: StudentDomainId; title: string; mark: string; desc: string; steps: string[]; intent: string; action: string };
+	type StudentDomainResult = {
+		correct: number;
+		total: number;
+		score: number;
+		evidence: 'unassessed' | 'insufficient' | 'initial' | 'sufficient';
+		historicalAccuracy?: number;
+		recentAccuracy?: number;
+		retentionScore?: number | null;
+		learningDays?: number;
+		materialCount?: number;
+	};
+	type StudentDiagnosticProfile = {
+		examTarget: string;
+		availableTargets: string[];
+		savedAt: string;
+		total: number;
+		diagnosticAnswered: number;
+		modelVersion: string;
+		dailyMinutes: number;
+		knowledgeTarget: number;
+		weakKnowledgeCount: number;
+		domains: Partial<Record<StudentDomainId, StudentDomainResult>>;
+	};
+	type StudentFocusKind = 'diagnostic' | 'target_practice' | 'refresh' | 'evidence' | 'weak_domain' | 'mock' | 'current_plan' | 'extension';
+	type StudentFocusDecision = {
+		priority: 'P0' | 'P1' | 'P2' | 'P3' | 'P4';
+		kind: StudentFocusKind;
+		key: string;
+		title: string;
+		reason: string;
+		action: string;
+		intent: string;
+		domain?: StudentDomainId;
+		progress?: number;
+		target?: number;
+	};
+	type StudentDailyPlanItem = {
+		key: string;
+		title: string;
+		detail: string;
+		minutes: number;
+		intent: string;
+		isFocus?: boolean;
+	};
+	type StudentFocusPhase = {
+		version: 1;
+		domain: StudentDomainId;
+		baselineObservations: number;
+		targetGroups: number;
+		startedOn: string;
+	};
+	const studentDiagnosticExams: Record<string, { examId: string; questions: number }> = {
+		'JLPT N1': { examId: 'N1_DIAGNOSTIC_V1', questions: 40 },
+		'JLPT N2': { examId: 'N2_DIAGNOSTIC_V1', questions: 40 },
+		'JLPT N3': { examId: 'N3_DIAGNOSTIC_V1', questions: 40 },
+		'EJU 日本語': { examId: 'EJU_JAPANESE_DIAGNOSTIC_V1', questions: 40 }
+	};
+	const jlptStudentDomains: StudentDomainDefinition[] = [
+		{ id: 'vocabulary', title: '词汇', mark: '字', desc: '读音 · 搭配 · 语境理解', steps: ['在句子中认识词义与读音', '整理搭配和易混词', '做题验证，再按到期安排复习'], intent: 'openVocabNotebook', action: '打开生词本' },
+		{ id: 'grammar', title: '语法', mark: '文', desc: '句子逻辑 · 易混辨析', steps: ['理解接续与句子逻辑', '对比相似表达和使用限制', '在题目中判断含义并查看解析'], intent: 'openChapterPath', action: '选择语法练习' },
+		{ id: 'reading', title: '阅读', mark: '読', desc: '长句 · 主旨 · 信息检索', steps: ['先独立完成一篇长句阅读', '对照解析，找出主干和关键信息', '再用一篇新材料确认是否掌握'], intent: 'openChapterPath', action: '选择阅读练习' },
+		{ id: 'listening', title: '听力', mark: '聴', desc: '关键词 · 意图 · 信息保持', steps: ['先盲听并独立作答', '对照解析精听，定位没听懂的片段', '再次听完整材料，检查理解'], intent: 'openChapterPath', action: '选择听力练习' }
+	];
+	const ejuStudentDomains: StudentDomainDefinition[] = [
+		{ id: 'writing', title: '记述', mark: '記', desc: '任务回应 · 结构 · 表达', steps: ['确认题目要求并确定立场', '按段落组织理由和例子', '检查任务完成度、结构和表达'], intent: 'openChapterPath', action: '选择记述练习' },
+		{ id: 'reading', title: '读解', mark: '読', desc: '主旨 · 论理关系 · 信息检索', steps: ['先独立阅读并作答', '检查主旨、论理关系和定位依据', '换一份材料验证理解'], intent: 'openChapterPath', action: '选择读解练习' },
+		{ id: 'listening_reading', title: '听读解', mark: '聴読', desc: '图表整合 · 信息判断', steps: ['先阅读选项和图表', '边听边整合视觉与语音信息', '检查判断依据和遗漏信息'], intent: 'openChapterPath', action: '选择听读解练习' },
+		{ id: 'listening', title: '听解', mark: '聴', desc: '要点 · 意图 · 信息保持', steps: ['先完整听取并独立作答', '定位关键信息和说话意图', '再次听取并检查理解'], intent: 'openChapterPath', action: '选择听解练习' }
+	];
+
+	function studentCurrentExamTarget(goal: Record<string, unknown> | undefined = studentPrimaryGoal()): string {
+		return normalizeStudyGoalTarget(goal) || readString(goal?.exam_target) || 'JLPT N2';
+	}
+
+	function studentTargetChangeForGoal(goal: Record<string, unknown> | undefined = studentPrimaryGoal()) {
+		if (!goal || !studentGoalTargetChangeNotice) return null;
+		const goalId = readString(goal.goal_id) || '';
+		const target = studentCurrentExamTarget(goal);
+		return studentGoalTargetChangeNotice.goalId === goalId && studentGoalTargetChangeNotice.target === target
+			? studentGoalTargetChangeNotice
+			: null;
+	}
+
+	function studentDomainsForTarget(target = studentCurrentExamTarget()): StudentDomainDefinition[] {
+		return target === 'EJU 日本語' ? ejuStudentDomains : jlptStudentDomains;
+	}
+
+	function studentDiagnosticExamForTarget(target = studentCurrentExamTarget()): { examId: string; questions: number } | null {
+		return studentDiagnosticExams[target] || null;
+	}
+	let studentLearningQueue: StudentLearningQueue | null = null;
+	let studentLearningQueueKey = '';
+	let studentLearningQueueLoading = false;
+	let studentLearningQueueError = '';
+	let activeWrongCorrectionItems: Record<string, unknown>[] = [];
+	let activeWrongCorrectionIndex = 0;
+	let studentDiagnosticProfile: StudentDiagnosticProfile | null = null;
+	let studentDiagnosticProfileKey = '';
+	let studentDiagnosticProfileLoading = false;
+	let studentDiagnosticProfileError = '';
+
+	function studentExamTitle(item: Record<string, unknown>): string {
+		const title = readString(item.exam_title) || readString(item.paper_title) || readString(item.exam_id) || readString(item.paper_id) || '';
+		const diagnosticTarget = Object.entries(studentDiagnosticExams).find(([, config]) => config.examId === title)?.[0];
+		if (diagnosticTarget) return `${diagnosticTarget} · 入门测评（40题）`;
+		const match = title.match(/^(?:JLPT[_ -])?(N[1-5])[_-](\d{4})[_-](\d{2})$/i);
+		if (match) return `JLPT ${match[1].toUpperCase()} · ${match[2]}年${Number(match[3])}月真题`;
+		return title || '未命名试卷';
+	}
+
+	function studentPracticeTitle(item: Record<string, unknown>): string {
+		const title = studentExamTitle(item);
+		if (item.source !== 'practice_group') return title;
+		const label = readString(item.practice_label) || '题组练习';
+		const base = title.endsWith(` · ${label}`) ? title.slice(0, -label.length - 3) : title;
+		const match = base.match(/^(?:JLPT[_ -])?(N[1-5])[_-](\d{4})[_-](\d{2})$/i);
+		const paper = match ? `JLPT ${match[1].toUpperCase()} · ${match[2]}年${Number(match[3])}月真题` : base;
+		return `${paper} · ${label}`;
+	}
+
+	async function ensureStudentDiagnosticProfile(ctx: PCContext, force = false): Promise<void> {
+		const target = studentCurrentExamTarget();
+		const diagnostic = studentDiagnosticExamForTarget(target);
+		const domainIds = studentDomainsForTarget(target).map((domain) => domain.id);
+		const key = `${recentLearningKey(ctx)}:${target}`;
+		if (!ctx.id || (!force && studentDiagnosticProfileKey === key)) return;
+		studentDiagnosticProfileKey = key;
+		studentDiagnosticProfileLoading = true;
+		studentDiagnosticProfileError = '';
+		try {
+			const api = window.APIClient;
+			if (!api?.getAnswerAttempts) throw new Error('诊断结果接口暂不可用');
+			// 首先只读取轻量的能力画像和最新诊断记录。绝大多数用户在这里
+			// 就能完成首页计算，不应因为首页展示而下载整份 40 题试卷。
+			const [adaptiveData, attemptData] = await Promise.all([
+				(typeof api.getAdaptiveLearningProfile === 'function' ? api.getAdaptiveLearningProfile(target) : Promise.resolve(null)).catch(() => null),
+				diagnostic ? api.getAnswerAttempts(ctx.id, diagnostic.examId, 1).catch(() => []) : Promise.resolve([])
+			]);
+			if (studentDiagnosticProfileKey !== key) return;
+			const adaptive = asRecord(adaptiveData);
+			const adaptiveDomains = asRecord(adaptive?.domains);
+			const attempts = Array.isArray(attemptData) ? attemptData.map(asRecord).filter((item): item is Record<string, unknown> => Boolean(item)) : [];
+			// reading/listening exist in both JLPT and EJU. Never accept those same-named
+			// fields unless the service confirms that the profile belongs to this target.
+			// The overview also remains unassessed until this target's own assessment has
+			// produced an attempt; ordinary practice cannot create the initial baseline.
+			const adaptiveTarget = normalizeStudyGoalTarget({ exam_target: readString(adaptive?.exam_target) });
+			const adaptiveMatchesTarget = adaptiveTarget === target;
+			const attemptResults = asRecord(asRecord(attempts[0]?.statistics)?.results);
+			const diagnosticAnswered = attemptResults
+				? Object.keys(attemptResults).length
+				: attempts.length && diagnostic ? diagnostic.questions : 0;
+			const hasAdaptiveEvidence = attempts.length > 0 && adaptiveMatchesTarget
+				&& domainIds.some((id) => (readNumber(asRecord(adaptiveDomains?.[id])?.observation_count) || 0) > 0);
+			if (hasAdaptiveEvidence) {
+				const domains = {} as StudentDiagnosticProfile['domains'];
+				for (const id of domainIds) {
+					const summary = asRecord(adaptiveDomains?.[id]);
+					const total = Math.max(0, readNumber(summary?.observation_count) || 0);
+					domains[id] = {
+						correct: Math.max(0, readNumber(summary?.correct_count) || 0),
+						total,
+						score: Math.round(readNumber(summary?.score) || 0),
+						evidence: (readString(summary?.evidence) as StudentDomainResult['evidence']) || 'insufficient',
+						historicalAccuracy: readNumber(summary?.historical_accuracy) ?? undefined,
+						recentAccuracy: readNumber(summary?.recent_accuracy) ?? undefined,
+						retentionScore: readNumber(summary?.retention_score),
+						learningDays: Math.max(0, readNumber(summary?.learning_days) || 0),
+						materialCount: Math.max(0, readNumber(summary?.material_count) || 0)
+					};
+				}
+				studentDiagnosticProfile = {
+					examTarget: readString(adaptive?.exam_target) || target,
+					availableTargets: Array.isArray(adaptive?.available_targets) ? adaptive.available_targets.map((item) => readString(item)).filter((item): item is string => Boolean(item)) : [],
+					savedAt: readString(adaptive?.updated_at) || '',
+					total: Object.values(domains).reduce((sum, value) => sum + (value?.total || 0), 0),
+					diagnosticAnswered,
+					modelVersion: readString(adaptive?.model_version) || 'mastery-v0.1',
+					dailyMinutes: Math.max(1, readNumber(adaptive?.daily_minutes) || 20),
+					knowledgeTarget: Math.max(1, readNumber(adaptive?.knowledge_target) || 5),
+					weakKnowledgeCount: Array.isArray(adaptive?.weak_knowledge) ? adaptive.weak_knowledge.length : 0,
+					domains
+				};
+				return;
+			}
+			// 首页只接受新版分领域能力画像；缺少新版证据时保持未评估。
+			studentDiagnosticProfile = adaptive ? {
+				examTarget: readString(adaptive.exam_target) || target,
+				availableTargets: Array.isArray(adaptive.available_targets) ? adaptive.available_targets.map((item) => readString(item)).filter((item): item is string => Boolean(item)) : [],
+				savedAt: readString(adaptive.updated_at) || '', total: 0, diagnosticAnswered: 0,
+				modelVersion: readString(adaptive.model_version) || 'mastery-v0.2', dailyMinutes: 20,
+				knowledgeTarget: 5, weakKnowledgeCount: 0, domains: {}
+			} : null;
+		} catch (error) {
+			if (studentDiagnosticProfileKey === key) studentDiagnosticProfileError = readErrorMessage(error, '诊断结果读取失败');
+		} finally {
+			if (studentDiagnosticProfileKey === key) {
+				studentDiagnosticProfileLoading = false;
+				window.setTimeout(() => { if (shouldRefreshRoleOverview('student')) renderSectionContent({ preserveScroll: true }); }, 0);
+			}
+		}
+	}
+
+	function studentTargetLevel(): string {
+		const goal = studentPrimaryGoal();
+		return ((readString(goal?.exam_target) || '').match(/N[1-5]/i)?.[0] || '').toUpperCase();
+	}
+
+	function studentPrimaryGoal(): Record<string, unknown> | undefined {
+		const upcoming = studentStudyGoals
+			.filter((item) => Boolean(normalizeStudyGoalTarget(item)))
+			.filter((item) => daysUntil(readString(item.target_date) || '') >= 0);
+		return upcoming.find((item) => readBoolean(item.is_primary) === true) || upcoming[0];
+	}
+
+	async function ensureStudentLearningQueue(ctx: PCContext, force = false): Promise<void> {
+		const key = `${recentLearningKey(ctx)}:${new Date().toLocaleDateString()}:${studentCurrentExamTarget()}:${studentPlanMinutes()}`;
+		if (!force && studentLearningQueueKey === key) return;
+		studentLearningQueueKey = key;
+		studentLearningQueue = null;
+		studentLearningQueueLoading = true;
+		studentLearningQueueError = '';
+		try {
+			const api = window.APIClient;
+			if (!ctx.id || !api?.getDailyPractice) throw new Error('学习清单暂不可用');
+			const daily = await api.getDailyPractice(50, studentPlanMinutes(), studentCurrentExamTarget());
+			if (studentLearningQueueKey !== key || recentLearningKey(getContext()) !== recentLearningKey(ctx)) return;
+			const rows = (value: unknown): Record<string, unknown>[] => {
+				const items = Array.isArray(value) ? value : asRecord(value)?.items;
+				return Array.isArray(items) ? items.map(asRecord).filter((item): item is Record<string, unknown> => Boolean(item)) : [];
+			};
+			const dailyRows = rows(daily);
+			const completed = new Set((asRecord(daily)?.completed_question_ids as unknown[] || []).map(String));
+			const isCompleted = (item: Record<string, unknown>) => completed.has(String(item.question_id)) || completed.has(`${item.exam_id}\u001f${item.question_id}`);
+			const available = dailyRows.filter((item) => !isCompleted(item));
+			const allSrs = available.filter((item) => item.source === 'srs_due' && Boolean(readString(item.card_id)));
+			const srs = allSrs.slice(0, 10);
+			const id = (item: Record<string, unknown>) => `${item.exam_id}:${item.question_id}`;
+			const seen = new Set(srs.map(id));
+			const wrongItems = available.filter((item) => item.source === 'wrong_question' && !seen.has(id(item)));
+			wrongItems.forEach((item) => seen.add(id(item)));
+			const heavyDueBacklog = allSrs.length >= Math.max(10, Math.round(studentPlanMinutes() * 0.75));
+			studentLearningQueue = {
+				srs,
+				wrong: wrongItems,
+				recommended: heavyDueBacklog ? [] : available.filter((item) => item.source === 'recommended' && !seen.has(id(item))),
+				plannedCount: dailyRows.length,
+				completedCount: dailyRows.filter(isCompleted).length
+			};
+		} catch (error) {
+			if (studentLearningQueueKey === key) studentLearningQueueError = readErrorMessage(error, '学习清单加载失败');
+		} finally {
+			if (studentLearningQueueKey === key) {
+				studentLearningQueueLoading = false;
+				window.setTimeout(() => { if (shouldRefreshRoleOverview('student')) renderSectionContent({ preserveScroll: true }); }, 0);
+			}
+		}
+	}
+
+	function studentRecommendedItems(): Record<string, unknown>[] {
+		return (studentLearningQueue?.recommended || []).filter(studentItemMatchesCurrentTarget);
+	}
+
+	function studentTargetItems(items: Record<string, unknown>[]): Record<string, unknown>[] {
+		return items.filter(studentItemMatchesCurrentTarget);
+	}
+
+	function studentItemMatchesCurrentTarget(item: Record<string, unknown>): boolean {
+		const target = studentCurrentExamTarget();
+		const snapshot = asRecord(item.question_snapshot);
+		const family = `${readString(item.family) || ''} ${readString(item.exam_family) || ''} ${readString(snapshot?.family) || ''}`.toLowerCase();
+		const identity = `${readString(item.exam_id) || ''} ${readString(item.exam_title) || ''} ${readString(item.paper_title) || ''}`;
+		if (target === 'EJU 日本語') return family.includes('eju') || /\bEJU\b/i.test(identity) || /^\d{4}_(?:01|02)$/.test(readString(item.exam_id) || '');
+		const level = (target.match(/N[1-5]/i)?.[0] || '').toUpperCase();
+		return !level || (identity.match(/N[1-5]/i)?.[0] || '').toUpperCase() === level;
+	}
+
+	function studentItemDomain(item: Record<string, unknown>): StudentDomainId | null {
+		const section = readString(item.section_id) || '';
+		if (/^1\.0[1-6]$/.test(section)) return 'vocabulary';
+		if (/^1\.0[7-9]$/.test(section)) return 'grammar';
+		if (/^1\.1[0-4]$/.test(section)) return 'reading';
+		if (/^2\./.test(section)) return 'listening';
+		const snapshot = asRecord(item.question_snapshot);
+		const type = `${readString(item.question_type) || ''} ${readString(item.section_type) || ''} ${readString(snapshot?.type) || ''} ${readString(snapshot?.section_type) || ''} ${readString(item.skill_tag) || ''}`.toLowerCase();
+		if (type.includes('listening_reading') || type.includes('听读') || type.includes('読聴')) return 'listening_reading';
+		if (type.includes('writing') || type.includes('记述') || type.includes('記述')) return 'writing';
+		if (type.includes('vocab')) return 'vocabulary';
+		if (type.includes('grammar')) return 'grammar';
+		if (type.includes('read')) return 'reading';
+		if (type.includes('listen')) return 'listening';
+		return null;
+	}
+
+	function studentWeakestDomain(): StudentDomainDefinition | null {
+		if (!studentDiagnosticProfile) return null;
+		return studentDomainsForTarget()
+			.filter((domain) => (studentDiagnosticProfile!.domains[domain.id]?.total || 0) > 0)
+			.sort((a, b) => (studentDiagnosticProfile!.domains[a.id]?.score || 0) - (studentDiagnosticProfile!.domains[b.id]?.score || 0))[0] || null;
+	}
+
+	function studentPlanMinutes(goal?: Record<string, unknown>): number {
+		return Math.max(5, Math.min(180, readNumber(goal?.daily_minutes) || studentDiagnosticProfile?.dailyMinutes || 20));
+	}
+
+	function studentReliableWeakestDomain(): StudentDomainDefinition | null {
+		if (!studentDiagnosticProfile) return null;
+		const measured = studentDomainsForTarget()
+			.filter((domain) => {
+				const result = studentDiagnosticProfile!.domains[domain.id];
+				return Boolean(result && result.total >= 8 && result.evidence === 'sufficient');
+			})
+			.sort((a, b) => (studentDiagnosticProfile!.domains[a.id]?.score || 0) - (studentDiagnosticProfile!.domains[b.id]?.score || 0));
+		if (!measured.length) return null;
+		const weakest = measured[0];
+		const weakestScore = studentDiagnosticProfile.domains[weakest.id]?.score || 0;
+		const strongestScore = studentDiagnosticProfile.domains[measured[measured.length - 1].id]?.score || 0;
+		return weakestScore <= 65 || strongestScore - weakestScore >= 12 ? weakest : null;
+	}
+
+	function studentFocusPhaseKey(ctx: PCContext, goal?: Record<string, unknown>): string {
+		return `student.focus-phase.v1.${ctx.id || 'guest'}.${readString(goal?.goal_id) || studentCurrentExamTarget(goal) || 'default'}`;
+	}
+
+	function readStudentFocusPhase(ctx: PCContext, goal?: Record<string, unknown>): StudentFocusPhase | null {
+		try {
+			const raw = localStorage.getItem(studentFocusPhaseKey(ctx, goal));
+			if (!raw) return null;
+			const value = JSON.parse(raw) as Partial<StudentFocusPhase>;
+			if (value.version !== 1 || !['vocabulary', 'grammar', 'writing', 'reading', 'listening_reading', 'listening'].includes(value.domain || '')) return null;
+			return {
+				version: 1,
+				domain: value.domain as StudentDomainId,
+				baselineObservations: Math.max(0, Number(value.baselineObservations) || 0),
+				targetGroups: Math.max(1, Number(value.targetGroups) || 5),
+				startedOn: String(value.startedOn || '')
+			};
+		} catch {
+			return null;
+		}
+	}
+
+	function writeStudentFocusPhase(ctx: PCContext, goal: Record<string, unknown> | undefined, phase: StudentFocusPhase): void {
+		try { localStorage.setItem(studentFocusPhaseKey(ctx, goal), JSON.stringify(phase)); } catch { /* 存储不可用时按当前证据即时计算 */ }
+	}
+
+	function resolveStudentWeakFocus(ctx: PCContext, goal?: Record<string, unknown>): { domain: StudentDomainDefinition; progress: number; target: number } | null {
+		if (!studentDiagnosticProfile) return null;
+		const stored = readStudentFocusPhase(ctx, goal);
+		if (stored) {
+			const domain = studentDomainsForTarget().find((item) => item.id === stored.domain);
+			const result = studentDiagnosticProfile.domains[stored.domain];
+			const progress = Math.min(stored.targetGroups, Math.floor(Math.max(0, (result?.total || 0) - stored.baselineObservations) / 5));
+			if (domain && result?.evidence === 'sufficient' && progress < stored.targetGroups && result.score < 70) {
+				return { domain, progress, target: stored.targetGroups };
+			}
+		}
+		const domain = studentReliableWeakestDomain();
+		if (!domain) return null;
+		const result = studentDiagnosticProfile.domains[domain.id];
+		if (!result) return null;
+		const phase: StudentFocusPhase = {
+			version: 1,
+			domain: domain.id as StudentDomainId,
+			baselineObservations: result.total,
+			targetGroups: 5,
+			startedOn: new Date().toISOString().slice(0, 10)
+		};
+		writeStudentFocusPhase(ctx, goal, phase);
+		return { domain, progress: 0, target: phase.targetGroups };
+	}
+
+	function resolveStudentFocus(
+		ctx: PCContext,
+		goal: Record<string, unknown> | undefined,
+		remaining: number,
+		recommended: Record<string, unknown>[]
+	): StudentFocusDecision {
+		const target = studentCurrentExamTarget(goal);
+		const diagnostic = studentDiagnosticExamForTarget(target);
+		const targetChange = studentTargetChangeForGoal(goal);
+		if (!studentDiagnosticProfile?.total && targetChange) {
+			return {
+				priority: 'P0', kind: 'refresh', key: 'refresh-target', title: '尚未形成重点',
+				reason: `目标已改为 ${target}，请完成对应诊断。`,
+				action: diagnostic ? '重新诊断' : '开始练习', intent: diagnostic ? 'startStudentDiagnosis' : 'openChapterPath'
+			};
+		}
+		if (!studentDiagnosticProfile?.total) {
+			if (!diagnostic) {
+				return {
+					priority: 'P0', kind: 'target_practice', key: 'target-practice', title: '尚未形成重点',
+					reason: `${target} 暂无专用诊断，先完成各题型练习。`,
+					action: '选择练习', intent: 'openChapterPath'
+				};
+			}
+			return {
+				priority: 'P0', kind: 'diagnostic', key: 'diagnostic', title: '尚未形成重点',
+				reason: `${target} 尚未诊断。`,
+				action: '开始诊断', intent: 'startStudentDiagnosis'
+			};
+		}
+		const savedAt = Date.parse(studentDiagnosticProfile.savedAt || '');
+		if (Number.isFinite(savedAt) && Date.now() - savedAt > 90 * 86400000) {
+			return {
+				priority: 'P0', kind: 'refresh', key: 'refresh-stale', title: '建议更新能力画像',
+				reason: '超过 90 天没有新的作答，建议更新诊断。',
+				action: diagnostic ? '重新诊断' : '开始练习', intent: diagnostic ? 'startStudentDiagnosis' : 'openChapterPath'
+			};
+		}
+		const weakFocus = resolveStudentWeakFocus(ctx, goal);
+		if (weakFocus) {
+			const id = weakFocus.domain.id as StudentDomainId;
+			const result = studentDiagnosticProfile.domains[id];
+			if (!result) throw new Error(`missing focus domain: ${id}`);
+			const recommendedCount = recommended.filter((item) => studentItemDomain(item) === id).length;
+			return {
+				priority: 'P2', kind: 'weak_domain', key: `weak:${id}`, domain: id,
+				title: `本阶段重点：${weakFocus.domain.title} · ${weakFocus.domain.desc.split(' · ')[0]}`,
+				reason: `${weakFocus.domain.title} ${result.total} 次作答 · 当前表现 ${result.score}%`,
+				action: '开始训练', intent: recommendedCount ? `openStudentQueue:recommended:${id}` : `openStudentDomain:${id}`,
+				progress: weakFocus.progress, target: weakFocus.target
+			};
+		}
+		const sufficientDomains = studentDomainsForTarget().filter((domain) => {
+			const result = studentDiagnosticProfile!.domains[domain.id];
+			return Boolean(result && result.total >= 8 && result.evidence === 'sufficient');
+		});
+		if (!sufficientDomains.length) {
+			const completedDiagnostic = diagnostic ? studentDiagnosticProfile.diagnosticAnswered >= diagnostic.questions : studentDiagnosticProfile.total > 0;
+			const initialWeakest = completedDiagnostic ? studentWeakestDomain() : null;
+			if (initialWeakest) {
+				const id = initialWeakest.id as StudentDomainId;
+				return {
+					priority: 'P2', kind: 'evidence', key: `evidence:${id}`, domain: id,
+					title: `初步重点：${initialWeakest.title} · ${initialWeakest.desc.split(' · ')[0]}`,
+					reason: diagnostic ? '诊断结果中，这项相对较弱。' : `${target} 练习中，这项相对较弱。`,
+					 action: '开始练习', intent: `openStudentDomain:${id}`
+				};
+			}
+			if (completedDiagnostic) {
+				return {
+					priority: 'P0', kind: 'diagnostic', key: 'diagnostic-invalid', title: '暂无有效诊断结果',
+					reason: '请重新诊断。', action: '重新诊断', intent: 'startStudentDiagnosis'
+				};
+			}
+			return {
+				priority: 'P2', kind: 'evidence', key: 'evidence',
+				title: '诊断进行中',
+				reason: `已完成 ${studentDiagnosticProfile.diagnosticAnswered}/${diagnostic?.questions || 40} 题。`,
+				action: '继续诊断', intent: 'startStudentDiagnosis'
+			};
+		}
+		if (remaining >= 0 && remaining <= 21) {
+			return {
+				priority: 'P3', kind: 'mock', key: 'mock', title: '考前巩固阶段',
+				reason: `距考试 ${remaining} 天，重点练习时间分配与稳定性。`,
+				action: '选择真题', intent: 'openChapterPath'
+			};
+		}
+		if (recommended.length) {
+			return {
+				priority: 'P3', kind: 'current_plan', key: 'current_plan', title: '当前表现较稳定',
+				reason: `暂无明显短板，今日安排 ${recommended.length} 道新题。`,
+				action: '开始学习', intent: 'openStudentQueue:recommended:'
+			};
+		}
+		return {
+			priority: 'P4', kind: 'extension', key: 'extension', title: '暂无集中重点',
+			reason: '暂无明显短板，今日安排新专项。',
+			action: '选择内容', intent: 'openChapterPath'
+		};
+	}
+
+	function studentFocusPlanTitle(focus: StudentFocusDecision): string {
+		if (focus.kind === 'diagnostic') return '完成入门诊断';
+		if (focus.kind === 'target_practice') return `选择 ${studentCurrentExamTarget()} 练习`;
+		if (focus.kind === 'refresh') return studentDiagnosticExamForTarget() ? '更新入门诊断' : `选择 ${studentCurrentExamTarget()} 练习`;
+		if (focus.kind === 'evidence' && !focus.domain) {
+			const diagnostic = studentDiagnosticExamForTarget();
+			return !diagnostic || (studentDiagnosticProfile?.diagnosticAnswered || 0) >= diagnostic.questions ? '选择今日学习内容' : '继续完成入门诊断';
+		}
+		if (focus.kind === 'mock') return '考前真题训练';
+		if (focus.kind === 'current_plan') return '继续当前学习计划';
+		if (focus.kind === 'extension') return '选择一个新专项';
+		return focus.title.replace(/^(?:本阶段重点|初步重点)：/, '');
+	}
+
+	function distributeStudentPlanMinutes(items: Array<StudentDailyPlanItem & { weight: number }>, budget: number): StudentDailyPlanItem[] {
+		if (!items.length) return [];
+		if (items.length === 1) return [{ ...items[0], minutes: budget }];
+		const weights = items.reduce((sum, item) => sum + item.weight, 0);
+		const allocated = items.map((item) => ({ ...item, minutes: Math.max(1, Math.floor(budget * item.weight / weights)) }));
+		let difference = budget - allocated.reduce((sum, item) => sum + item.minutes, 0);
+		for (let index = 0; difference > 0; index = (index + 1) % allocated.length, --difference) allocated[index].minutes += 1;
+		for (let index = allocated.length - 1; difference < 0 && index >= 0; index = index > 0 ? index - 1 : allocated.length - 1) {
+			if (allocated[index].minutes <= 1) continue;
+			allocated[index].minutes -= 1;
+			difference += 1;
+		}
+		return allocated.map(({ weight: _weight, ...item }) => item);
+	}
+
+	function studentPracticeIntent(item: Record<string, unknown>): string {
+		return openExamQuestionIntent(
+			readString(item.exam_id) || '',
+			readString(item.question_id) || '',
+			Math.max(0, readNumber(item.section_index) || 0)
+		);
+	}
+
+	function studentPracticeDetail(domain: StudentDomainId, items: Record<string, unknown>[]): string {
+		const materials = new Set(items.map((item) => readString(item.material_id) || '').filter(Boolean));
+		const unit = domain === 'reading' ? '篇' : domain === 'listening' || domain === 'listening_reading' ? '段' : '组';
+		return `${materials.size ? `${materials.size} ${unit}材料 · ` : ''}${items.length} 题`;
+	}
+
+	function studentFocusTaskTitle(domain: StudentDomainDefinition): string {
+		const skill = domain.desc.split(' · ')[0] || domain.title;
+		if (domain.id === 'reading') return `${skill}${domain.title}训练`;
+		if (domain.id === 'listening_reading') return `${skill}听读解训练`;
+		if (domain.id === 'listening') return `${skill}${domain.title}训练`;
+		if (domain.id === 'writing') return `${skill}记述训练`;
+		return `${domain.title} · ${skill}训练`;
+	}
+
+	function buildStudentDailyPlan(focus: StudentFocusDecision, budget: number, recommended: Record<string, unknown>[], wrong: Record<string, unknown>[], recent?: Record<string, unknown>): StudentDailyPlanItem[] {
+		if (recent) {
+			const examId = readString(recent.exam_id) || readString(recent.paper_id) || '';
+			const answered = Math.max(0, readNumber(recent.answered_count) || 0);
+			const total = Math.max(0, readNumber(recent.total_questions) || 0);
+			const diagnostic = examId === studentDiagnosticExamForTarget()?.examId;
+			return [{
+				key: `resume:${examId}`,
+				title: diagnostic ? '继续完成 N2 入门诊断' : `继续 ${studentExamTitle(recent)}`,
+				detail: total ? (answered >= total ? '已答完，待提交' : `已答 ${answered}/${total} 题`) : '已有未提交进度',
+				minutes: budget,
+				intent: `openStudentRecent:${encodeURIComponent(examId)}`,
+				isFocus: focus.kind === 'diagnostic'
+			}];
+		}
+		if (focus.kind === 'diagnostic' && !studentDiagnosticProfile?.total) {
+			return [{ key: focus.key, title: studentFocusPlanTitle(focus), detail: '建立能力基线', minutes: budget, intent: focus.intent, isFocus: true }];
+		}
+		const items: Array<StudentDailyPlanItem & { weight: number }> = [];
+		const dueCount = studentLearningQueue?.srs.length || 0;
+		const dueThreshold = Math.max(10, Math.round(budget * 0.75));
+		const heavyDue = dueCount >= Math.min(10, dueThreshold);
+		const repeatedWrong = wrong.filter((item) => (readNumber(item.wrong_count) || 0) >= 2);
+		if (heavyDue) items.push({ key: 'due', title: '到期复习', detail: `${dueCount} 道题 · 今天优先复习`, minutes: 0, intent: 'openSrsReview', weight: 60 });
+		if (repeatedWrong.length >= 2) items.push({ key: 'repeated-wrong', title: '反复错题订正', detail: `${repeatedWrong.length} 道题已重复答错`, minutes: 0, intent: 'openStudentQueue:wrong', weight: 50 });
+		const focusDomain = focus.domain ? studentDomainsForTarget().find((domain) => domain.id === focus.domain) : undefined;
+		const focusPractice = focusDomain ? recommended.filter((item) => studentItemDomain(item) === focusDomain.id) : [];
+		if (focusDomain && focusPractice.length) {
+			items.push({
+				key: focus.key,
+				title: studentFocusTaskTitle(focusDomain),
+				detail: studentPracticeDetail(focusDomain.id, focusPractice),
+				minutes: 0,
+				intent: studentPracticeIntent(focusPractice[0]),
+				isFocus: true,
+				weight: heavyDue || repeatedWrong.length >= 2 ? 35 : 50
+			});
+		}
+		if (dueCount && !heavyDue) items.push({ key: 'due', title: '到期复习', detail: `${dueCount} 道题 · 已到复习时间`, minutes: 0, intent: 'openSrsReview', weight: 25 });
+		if (wrong.length && repeatedWrong.length < 2) items.push({ key: 'wrong', title: '错题订正', detail: `${wrong.length} 道近期错题 · 重新理解错因`, minutes: 0, intent: 'openStudentQueue:wrong', weight: 20 });
+		const grouped = new Map<StudentDomainId | 'mixed', Record<string, unknown>[]>();
+		for (const item of ['current_plan', 'evidence'].includes(focus.kind) ? [] : recommended) {
+			const domain = studentItemDomain(item) || 'mixed';
+			if (focusPractice.includes(item)) continue;
+			const group = grouped.get(domain) || [];
+			group.push(item);
+			grouped.set(domain, group);
+		}
+		const domainNames: Record<StudentDomainId, string> = { vocabulary: '词汇', grammar: '语法', writing: '记述', reading: '阅读', listening_reading: '听读解', listening: '听力' };
+		for (const [domain, group] of Array.from(grouped.entries()).slice(0, Math.max(0, 3 - items.length))) {
+			const concreteDomain = domain === 'mixed' ? null : studentDomainsForTarget().find((item) => item.id === domain);
+			items.push({
+				key: `recommended:${domain}`, title: domain === 'mixed' ? '新材料练习' : `${domainNames[domain]}练习`,
+				detail: concreteDomain ? studentPracticeDetail(concreteDomain.id, group) : `${group.length} 题`,
+				minutes: 0, intent: studentPracticeIntent(group[0]), weight: 15
+			});
+		}
+		return distributeStudentPlanMinutes(items.slice(0, 3), budget);
+	}
+
+	function studentDailyPlanRow(item: StudentDailyPlanItem): string {
+		return `<button type="button" class="pc-learning-row pc-daily-plan-row${item.isFocus ? ' is-focus' : ''}" data-role-admin-intent="${escapeHtml(item.intent)}"><span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.detail)}</em></span></button>`;
+	}
+
+	function renderStudentFreeStudy(focus: StudentFocusDecision, dailyMinutes: number): string {
+		const domains = studentDomainsForTarget();
+		const currentDomain = focus.domain || '';
+		const completedToday = Boolean(studentLearningQueue?.plannedCount) && studentLearningQueue!.completedCount >= studentLearningQueue!.plannedCount;
+		const heading = completedToday ? '今日学习已完成' : '自由学习';
+		const description = completedToday
+			? `已完成今天安排的 ${dailyMinutes} 分钟学习，可以继续自由练习。`
+			: '当前没有待完成任务，可以自由选择练习。';
+		const primaryDomain = currentDomain || domains[0]?.id || '';
+		const domainRows = domains.map((domain) => {
+			const result = studentDiagnosticProfile?.domains[domain.id];
+			const status = domain.id === currentDomain
+				? '当前重点'
+				: result && result.total > 0 ? `${Math.round(result.score)}%` : '未评估';
+			return `<button type="button" class="pc-free-study-domain${domain.id === currentDomain ? ' is-focus' : ''}" data-role-admin-intent="openStudentFreePractice:${domain.id}"><strong>${escapeHtml(domain.title)}</strong><span>${escapeHtml(status)}</span></button>`;
+		}).join('');
+		return `<div class="pc-free-study">
+			<div class="pc-free-study-head"><strong>${heading}</strong><span>${escapeHtml(description)}</span></div>
+			<div class="pc-free-study-actions"><button class="pc-inline-btn" type="button" data-role-admin-intent="openStudentFreePractice:${escapeHtml(primaryDomain)}">专项练习</button><button class="pc-inline-ghost" type="button" data-role-admin-intent="openCurrentTargetExamLibrary">完整试卷</button></div>
+			<div class="pc-free-study-domains" aria-label="专项练习方向">${domainRows}</div>
+		</div>`;
+	}
+
+	function studentHomeRow(title: string, detail: string, action: string, intent: string, primary = false): string {
+		const arrow = primary ? '' : '<svg class="pc-learning-action-arrow" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4.5 9.5 8 6 11.5"></path></svg>';
+		return `<div class="pc-learning-row"><div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span></div><button class="${primary ? 'pc-inline-btn' : 'pc-inline-ghost'}" type="button" data-role-admin-intent="${escapeHtml(intent)}"><span>${escapeHtml(action)}</span>${arrow}</button></div>`;
+	}
+
+	function studentWorkbenchStage(index: number, title: string, note = ''): string {
+		return `<div class="pc-workbench-stage"><span>${String(index).padStart(2, '0')}</span><div><strong>${escapeHtml(title)}</strong>${note ? `<em>${escapeHtml(note)}</em>` : ''}</div></div>`;
+	}
+
+	function openStudentLearningDetail(title: string): HTMLElement {
+		let modal = learningToolSurfaces.get('student-learning-detail');
+		if (!modal) {
+			modal = document.createElement('div');
+			modal.id = 'student-learning-detail';
+			modal.className = 'risk-modal risk-hidden';
+			modal.innerHTML = '<section class="pc-learning-section"><h2 id="student-learning-detail-title"></h2><div data-student-learning-detail-body></div></section>';
+			prepareLegacyModal(modal, 'student-learning-detail-title');
+		}
+		modal.querySelector('#student-learning-detail-title')!.textContent = title;
+		learningToolPages[modal.id].title = title;
+		showLegacyModal(modal);
+		return modal.querySelector<HTMLElement>('[data-student-learning-detail-body]')!;
+	}
+
+	async function openStudentResult(examId: string, source = ''): Promise<void> {
+		const item = recentLearningItems.find((row) => String(row.exam_id || row.paper_id) === examId
+			&& row.status === 'submitted'
+			&& (!source || (source === 'practice_group' ? row.source === source : row.source !== 'practice_group')));
+		const isPracticeGroup = source === 'practice_group' || item?.source === 'practice_group';
+		const body = openStudentLearningDetail(item ? studentPracticeTitle(item) : '学习结果');
+		body.innerHTML = '<p class="pc-learning-note">正在读取提交结果…</p>';
+		try {
+			const api = window.APIClient;
+			if (!api?.getAnswerAttempts || !getContext().id) throw new Error('学习结果接口不可用');
+			const data = await api.getAnswerAttempts(getContext().id!, isPracticeGroup ? `${examId}__practice` : examId, 5);
+			const attempts = Array.isArray(data) ? data.map(asRecord).filter((row): row is Record<string, unknown> => Boolean(row)) : [];
+			body.innerHTML = attempts.map((attempt, index) => {
+				const stats = asRecord(attempt.statistics);
+				const field = (key: string) => escapeHtml(String(readNumber(stats?.[key]) ?? '—'));
+				if (isPracticeGroup) {
+					const total = readNumber(stats?.practice_total_questions) ?? readNumber(stats?.total_questions) ?? 0;
+					const answered = readNumber(stats?.practice_answered_count) ?? total - (readNumber(stats?.unanswered_count) ?? 0);
+					const correct = readNumber(stats?.correct_count) ?? 0;
+					const wrong = readNumber(stats?.wrong_count) ?? 0;
+					const accuracy = correct + wrong ? `${Math.round(correct / (correct + wrong) * 100)}%` : '待自评';
+					const issues = Object.entries(asRecord(stats?.results) || {}).flatMap(([key, value]) => {
+						const result = asRecord(value);
+						if (result?.status !== 'wrong' && result?.status !== 'unanswered') return [];
+						const question = readString(result.question_id) || key.split(':').slice(-1)[0] || key;
+						const chosen = result.status === 'unanswered' ? '未作答' : `选 ${String(result.user_answer ?? '—')}`;
+						return [`<div class="pc-learning-row"><div><strong>题 ${escapeHtml(question)}</strong><span>${escapeHtml(chosen)} · 正确 ${escapeHtml(String(result.correct_answer ?? '—'))}</span></div></div>`];
+					}).join('');
+					return `<details class="pc-learning-result-attempt" ${index === 0 ? 'open' : ''}><summary>${escapeHtml(formatShortDateTime(readString(attempt.saved_at)) || '练习记录')} · ${accuracy}</summary><p class="pc-learning-note">${escapeHtml(readString(stats?.practice_label) || '题组练习')} · 已答 ${answered}/${total} · 正确 ${correct} · 错误 ${wrong} · 未答 ${Math.max(0, total - answered)}</p>${issues || '<p class="pc-learning-note">本次没有错题或未答题。</p>'}<div class="pc-learning-result-actions"><button type="button" class="pc-inline-ghost" data-practice-attempt-mode="review" data-practice-attempt-index="${index}">复习原题</button><button type="button" class="pc-inline-btn" data-practice-attempt-mode="retest" data-practice-attempt-index="${index}">再测试</button></div></details>`;
+				}
+				return `<div class="pc-learning-row"><div><strong>${escapeHtml(formatShortDateTime(readString(attempt.saved_at)) || '已提交')}</strong><span>正确 ${field('correct_count')} · 错误 ${field('wrong_count')} · 未答 ${field('unanswered_count')}</span></div><strong>${field('score')} 分</strong></div>`;
+			}).join('') || '<p class="pc-learning-note">暂无可读取的提交结果。</p>';
+			body.querySelectorAll<HTMLButtonElement>('[data-practice-attempt-mode]').forEach((button) => {
+				button.addEventListener('click', () => {
+					const index = Number(button.dataset.practiceAttemptIndex);
+					const mode = button.dataset.practiceAttemptMode === 'retest' ? 'retest' : 'review';
+					if (Number.isInteger(index) && attempts[index]) void openSavedPracticeAttempt(examId, attempts[index], mode);
+				});
+			});
+		} catch (error) {
+			body.innerHTML = `<p class="pc-learning-note" role="alert">${escapeHtml(readErrorMessage(error, '结果读取失败'))}</p>`;
+		}
+	}
+
+	async function openSavedPracticeAttempt(examId: string, attempt: Record<string, unknown>, mode: 'review' | 'retest'): Promise<void> {
+		const stats = asRecord(attempt.statistics);
+		const indexes = Array.isArray(stats?.section_indexes) ? stats.section_indexes.map(Number) : [];
+		const api = window.APIClient;
+		const viewer = (window as unknown as { examViewer?: {
+			openSavedPracticeAttempt?: (id: string, data: Record<string, unknown>, record: { label: string; sectionIndexes: number[]; answers: Record<string, unknown> }, mode: 'review' | 'retest') => void;
+		} }).examViewer;
+		if (!api?.getExam || !viewer?.openSavedPracticeAttempt || !indexes.length || indexes.some((index) => !Number.isInteger(index) || index < 0)) {
+			showToast('这次练习缺少题组信息，暂时无法打开原题');
+			return;
+		}
+		try {
+			const examData = await api.getExam(examId) as Record<string, unknown>;
+			const sections = asRecord(examData.exam_info)?.sections;
+			if (!Array.isArray(sections) || indexes.some((index) => index >= sections.length)) throw new Error('原试卷已变化，无法定位保存的题组');
+			viewer.openSavedPracticeAttempt(examId, examData, {
+				label: readString(stats?.practice_label) || '题组练习',
+				sectionIndexes: indexes,
+				answers: asRecord(attempt.answers) || {}
+			}, mode);
+			closePlatformAdmin();
+			closePanel();
+			showToast(mode === 'review' ? '已打开历史作答，仅供查看' : '已开始新一次测试，提交后会生成独立成绩');
+		} catch (error) {
+			showToast(readErrorMessage(error, '打开练习失败'));
+		}
+	}
+
+	function studentEvidenceLabel(result: StudentDomainResult | undefined): string {
+		if (!result?.total) return '未评估';
+		if (result.evidence === 'sufficient') return '掌握度';
+		if (result.retentionScore !== null && typeof result.retentionScore === 'number') return '初步掌握';
+		return '初步表现';
+	}
+
+	function renderStudentGoalSummary(goal: Record<string, unknown> | undefined, remaining: number): string {
+		const target = normalizeStudyGoalTarget(goal) || readString(goal?.exam_target) || readString(goal?.title) || 'JLPT N2';
+		const dailyMinutes = studentPlanMinutes(goal);
+		const targetDate = readString(goal?.target_date) || '';
+		const hasUserTimeBudget = (readNumber(goal?.daily_minutes) || 0) > 0;
+		const summary = goal
+			? `${target} · ${remaining >= 0 ? `剩余 ${remaining} 天` : targetDate} · ${hasUserTimeBudget ? '每天' : '系统建议每天'} ${dailyMinutes} 分钟`
+			: '尚未设置考试目标';
+		return `<section class="pc-learning-section pc-goal-summary pc-workbench-step" aria-label="备考目标">
+			${studentWorkbenchStage(1, '目标', summary)}
+			<button class="pc-inline-ghost" type="button" data-role-admin-intent="openStudyGoal">${goal ? '调整目标' : '设置目标'}</button>
+		</section>`;
+	}
+
+	function renderStudentAbilitySummary(focus: StudentFocusDecision | null): string {
+		const profile = studentDiagnosticProfile;
+		return `<em class="pc-focus-overview" role="region" aria-label="四项能力概况">${studentDomainsForTarget().map((domain) => {
+				const result = profile?.domains[domain.id];
+				const state = result?.total ? `${result.score}%` : '未评估';
+				return `<button type="button" class="pc-focus-ability${focus?.domain === domain.id ? ' is-focus' : ''}" data-role-admin-intent="openStudentDomain:${domain.id}"><span>${domain.title}</span><strong>${state}</strong></button>`;
+			}).join('')}</em>`;
+	}
+
+	function renderStudentFocusStage(focus: StudentFocusDecision | null): string {
+		return `<div class="pc-workbench-stage pc-focus-stage"><span>02</span><div><strong>重点</strong>${renderStudentAbilitySummary(focus)}</div></div>`;
+	}
+
+	function openStudentLearningGuide(domainId?: string): void {
+		const target = studentCurrentExamTarget();
+		const domains = studentDomainsForTarget(target);
+		const diagnostic = studentDiagnosticExamForTarget(target);
+		const domain = domains.find((item) => item.id === domainId);
+		const result = domain ? studentDiagnosticProfile?.domains[domain.id] : null;
+		const profile = studentDiagnosticProfile;
+		const measured = profile ? domains.filter((item) => (profile.domains[item.id]?.total || 0) > 0) : [];
+		const weakest = measured.slice().sort((a, b) => (profile?.domains[a.id]?.score || 0) - (profile?.domains[b.id]?.score || 0))[0] || null;
+		const primarySkill = domain?.desc.split(' · ')[0] || '';
+		const body = openStudentLearningDetail(domain ? `${domain.title} · ${primarySkill}` : diagnostic ? '入门诊断' : '能力画像');
+		if (domain) {
+			const phaseFocus = resolveStudentWeakFocus(getContext(), studentPrimaryGoal());
+			const isCurrentFocus = phaseFocus?.domain.id === domain.id || (!phaseFocus && studentWeakestDomain()?.id === domain.id);
+			const guidance: Partial<Record<StudentDomainId, string>> = {
+				vocabulary: '练习时重点确认读音、词义和句中的实际用法。',
+				grammar: '练习时重点确认接续、句子逻辑和相似表达的区别。',
+				writing: '练习时重点确认任务回应、文章结构和表达是否清楚。',
+				reading: '练习时重点确认句子主干和前后关系。',
+				listening_reading: '练习时重点整合图表与听到的关键信息。',
+				listening: '练习时重点确认关键词、说话意图和信息关系。'
+			};
+			const recommended = studentRecommendedItems().filter((item) => studentItemDomain(item) === domain.id);
+			const first = recommended[0];
+			const practiceIntent = first
+				? openExamQuestionIntent(readString(first.exam_id) || '', readString(first.question_id) || '', Math.max(0, readNumber(first.section_index) || 0))
+				: domain.intent;
+			const practiceAction = first ? `开始${primarySkill}练习` : domain.action;
+			const evidence = result?.total
+				? `<strong>当前掌握度　${result.score}%</strong><p>${result.total} 次有效作答 · 答对 ${result.correct} 次</p><p>${result.evidence === 'sufficient' ? '已积累多次练习记录，可作为当前学习参考。' : '当前数据较少，暂作初步参考。'}</p>`
+				: '<strong>当前掌握度　未评估</strong><p>完成练习后生成学习记录。</p>';
+			body.innerHTML = `<div class="pc-study-guide"><span class="pc-study-eyebrow">${escapeHtml(target)} · ${isCurrentFocus ? '当前学习重点' : '能力详情'}</span><p>${escapeHtml(`${isCurrentFocus ? `目前${primarySkill}表现较弱，` : ''}${guidance[domain.id] || '先独立完成练习，再对照解析检查理解。'}`)}</p>
+				<strong class="pc-study-section-title">练习方法</strong><ol class="pc-study-steps">${domain.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>
+				<div class="pc-study-evidence">${evidence}</div>
+				<div class="pc-study-guide-actions"><button type="button" class="pc-inline-btn" data-role-admin-intent="${escapeHtml(practiceIntent)}">${escapeHtml(practiceAction)}</button><button type="button" class="pc-inline-ghost" data-role-admin-intent="openLearningReport">查看学习记录</button></div></div>`;
+			return;
+		}
+		const targetChange = studentTargetChangeForGoal();
+		const savedAt = Date.parse(profile?.savedAt || '');
+		const stale = Boolean(profile?.total && Number.isFinite(savedAt) && Date.now() - savedAt > 90 * 86400000);
+		const sufficient = measured.filter((item) => profile?.domains[item.id]?.evidence === 'sufficient');
+		let heading = '尚未开始入门诊断';
+		let description = diagnostic
+			? `${domains.map((item) => item.title).join('、')}共 ${diagnostic.questions} 题。完成后生成初步学习重点。`
+			: `${target} 暂无独立入门诊断；系统会根据各题型练习逐步形成能力画像。`;
+		let evidence = diagnostic ? `尚未开始 ${diagnostic.questions} 题诊断` : '尚未形成有效作答证据';
+		let action = diagnostic ? `开始${diagnostic.questions}题诊断` : `选择${target}练习`;
+		let intent = diagnostic ? 'startStudentDiagnosis' : 'openChapterPath';
+		let steps = diagnostic
+			? [`独立完成${domains.map((item) => item.title).join('、')}题`, '查看各领域初步表现', '结合后续复习记录形成阶段重点']
+			: [`分别完成${domains.map((item) => item.title).join('、')}练习`, '积累不同材料和学习日的作答记录', '证据充分后形成阶段学习重点'];
+		if (!profile?.total && targetChange) {
+			heading = '目标已更新';
+			description = `目标已从 ${targetChange.previousTarget} 改为 ${target}，请完成对应诊断。`;
+			evidence = `当前目标：${target}`;
+			action = diagnostic ? '开始当前目标诊断' : `选择${target}练习`;
+		} else if (profile?.total && diagnostic && profile.diagnosticAnswered < diagnostic.questions) {
+			heading = '入门诊断进行中';
+			description = `已记录 ${profile.diagnosticAnswered}/${diagnostic.questions} 题，完成后生成初步学习重点。`;
+			evidence = `已记录 ${profile.total} 条有效作答`;
+			action = '继续诊断';
+			steps = ['继续完成尚未作答的领域', '提交后查看四项初步表现', '根据初步重点进入今日计划'];
+		} else if (stale) {
+			heading = '建议更新能力画像';
+			description = `${target} 超过 90 天没有新的作答，请更新诊断。`;
+			evidence = `已有 ${profile?.total || 0} 条历史作答证据`;
+			action = diagnostic ? '重新诊断' : `选择${target}练习`;
+		} else if (profile?.total && sufficient.length) {
+			heading = `${diagnostic ? '诊断完成，' : ''}本阶段重点：${weakest?.title || '保持当前节奏'}`;
+			description = weakest ? `${weakest.title}目前相对较弱，已达到跨日判断所需的证据量。` : '当前各领域表现较为稳定。';
+			evidence = `已形成 ${profile.total} 条有效作答证据 · ${sufficient.length}/${domains.length} 个领域证据充分`;
+			action = '查看今日计划';
+			intent = '__overview__';
+			steps = ['查看各领域掌握情况', '按阶段重点分配更多练习时间', '完成阶段训练后重新评估'];
+		} else if (profile?.total) {
+			heading = diagnostic ? '诊断完成，已形成初步重点' : '已形成初步重点';
+			description = `当前最需要优先关注：${weakest?.title || '待分析'}。结果仍属于初步表现。`;
+			evidence = `已形成 ${profile.total} 条有效作答证据`;
+			action = diagnostic ? '重新诊断' : '选择专项练习';
+			steps = ['查看已测范围和初步表现', '按初步重点完成不同材料的练习', '积累跨日证据后升级为阶段重点'];
+		}
+		body.innerHTML = `<div class="pc-study-guide"><span class="pc-study-eyebrow">${escapeHtml(target)} · ${diagnostic ? `${diagnostic.questions}题入门诊断` : '能力画像'}</span><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(description)}</p>
+			<ol class="pc-study-steps">${steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>
+			<div class="pc-study-evidence"><strong>${escapeHtml(evidence)}</strong><p>未作答领域保持未知；诊断结果不代表考试通过概率。</p></div>
+			<div class="pc-study-guide-actions"><button type="button" class="pc-inline-btn" data-role-admin-intent="${escapeHtml(intent)}">${escapeHtml(action)}</button><button type="button" class="pc-inline-ghost" data-role-admin-intent="openLearningReport">查看学习记录</button></div></div>`;
+	}
+
+	function renderStudentRoleOverview(ctx: PCContext, _workbench: WorkbenchDef, _actions: WorkbenchAction[]): string {
+		void ensureStudentStudyGoals(ctx);
+		void ensureRecentLearning(ctx);
+		void ensureMyAssignments(ctx);
+		void ensureStudentLearningQueue(ctx);
+		void ensureStudentDiagnosticProfile(ctx);
+		const goal = studentPrimaryGoal();
+		const remaining = goal ? daysUntil(readString(goal.target_date) || '') : -1;
+		const targetLevel = studentTargetLevel();
+		const unfinished = recentLearningItems.filter((item) => item.status !== 'submitted');
+		const recent = unfinished.find((item) => !targetLevel || (String(item.exam_id || item.paper_id).match(/N[1-5]/i)?.[0] || '').toUpperCase() === targetLevel) || unfinished[0];
+		const completed = recentLearningItems.filter((item) => item.status === 'submitted').slice(0, 3);
+		const dailyMinutes = studentPlanMinutes(goal);
+		const recommended = studentRecommendedItems();
+		const wrong = studentTargetItems(studentLearningQueue?.wrong || []);
+		let focus: StudentFocusDecision | null = null;
+		let continuation = '';
+		// 学习重点只依赖当前目标和能力画像，不应等待今日题目队列或最近记录。
+		const focusLoading = Boolean(studentStudyGoalsLoading) || studentDiagnosticProfileLoading;
+		if (focusLoading) continuation = `<section class="pc-learning-section pc-learning-continue pc-workbench-step" aria-label="学习重点">${studentWorkbenchStage(2, '重点')}<p class="pc-learning-note" role="status">正在读取学习记录…</p></section>`;
+		else {
+			focus = resolveStudentFocus(ctx, goal, remaining, recommended);
+			const detailAction = studentDiagnosticProfile
+				? '<button class="pc-focus-detail" type="button" data-role-admin-intent="openStudentDiagnosis"><span>查看详情</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 4.5 3.5 3.5L6 11.5"></path></svg></button>'
+				: '';
+			continuation = `<section class="pc-learning-section pc-learning-continue pc-learning-focus pc-workbench-step" aria-label="学习重点">
+				<div class="pc-learning-section-head pc-focus-head">${renderStudentFocusStage(focus)}${detailAction}</div>
+				<div class="pc-focus-main"><div><strong>${escapeHtml(focus.title)}</strong><span>${escapeHtml(focus.reason)}</span></div></div>
+				${studentDiagnosticProfileError ? `<p class="pc-learning-note" role="alert">${escapeHtml(studentDiagnosticProfileError)}</p>` : ''}
+			</section>`;
+		}
+		const pending = myAssignmentItems.filter((item) => {
+			const submission = asRecord(item.own_submission);
+			return !readString(submission?.submitted_at) || submission?.review_status === 'returned' || submission?.status === 'returned';
+		});
+		const urgent = (item: Record<string, unknown>) => { const due = Date.parse(readString(item.due_at) || ''); return Number.isFinite(due) && due <= Date.now() + 86400000; };
+		const assignmentRows = (items: Record<string, unknown>[]) => items.map((item) => {
+			const examId = readString(item.exam_id) || '';
+			const due = readString(item.due_at) || '';
+			const submission = asRecord(item.own_submission);
+			const returned = submission?.review_status === 'returned' || submission?.status === 'returned';
+			const detail = [returned ? '老师已退回，请订正' : '', due ? `${Date.parse(due) < Date.now() ? '已逾期 · ' : ''}截止 ${formatShortDateTime(due)}` : '不限截止时间'].filter(Boolean).join(' · ');
+			return studentHomeRow(readString(item.title) || '学习作业', detail, returned ? '去订正' : '去完成', examId ? `openAssignmentExam:${encodeURIComponent(String(item.assignment_id || item.id || ''))}:${encodeURIComponent(examId)}` : 'openAssignments');
+		}).join('');
+		const urgentItems = pending.filter(urgent), normalItems = pending.filter((item) => !urgent(item));
+		let today = '<div class="pc-learning-note" role="status">正在生成今日计划…</div>';
+		let plan: StudentDailyPlanItem[] = [];
+		if (!focusLoading && !recentLearningLoading && focus) {
+			plan = buildStudentDailyPlan(focus, dailyMinutes, recommended, wrong, recent);
+			const queueNotice = studentLearningQueueError && !studentLearningQueueLoading
+				? `<div class="pc-learning-note" role="status">${escapeHtml(studentLearningQueueError)} <button class="pc-inline-ghost" data-role-admin-intent="refreshStudentLearning">重试</button></div>`
+				: '';
+			const emptyState = studentLearningQueueLoading
+				? '<div class="pc-learning-note" role="status">正在生成今日计划…</div>'
+				: renderStudentFreeStudy(focus, dailyMinutes);
+			today = `${plan.length ? plan.map(studentDailyPlanRow).join('') : emptyState}${queueNotice}${recentLearningError ? `<div class="pc-learning-note" role="alert">${escapeHtml(recentLearningError)}</div>` : ''}`;
+		}
+		const todayCompleted = !plan.length && Boolean(studentLearningQueue?.plannedCount) && studentLearningQueue!.completedCount >= studentLearningQueue!.plannedCount;
+		const completedSection = completed.length
+			? `<details class="pc-learning-section pc-learning-completed pc-workbench-step" aria-label="最近完成"><summary class="pc-learning-completed-summary">${studentWorkbenchStage(4, '最近', `${completed.length} 条`)}<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 6 3 3-3"></path></svg></summary><div class="pc-learning-completed-list">${completed.map((item) => studentHomeRow(studentPracticeTitle(item), item.updated_at ? formatShortDateTime(String(item.updated_at)) : '', '查看结果', `openStudentResult:${encodeURIComponent(String(item.exam_id || item.paper_id || ''))}:${item.source === 'practice_group' ? 'practice_group' : 'exam'}`)).join('')}</div></details>`
+			: `<section class="pc-learning-section pc-learning-completed pc-workbench-step" aria-label="最近完成">${studentWorkbenchStage(4, '最近', '暂无记录')}</section>`;
+		return `<div class="pc-learning-home pc-learning-home-compact" data-role-overview="student">
+			${renderStudentGoalSummary(goal, remaining)}
+			${studentStudyGoalsError ? `<p class="pc-learning-note" role="alert">${escapeHtml(studentStudyGoalsError)}</p>` : ''}
+			${continuation}
+			<section class="pc-learning-section pc-today-section pc-workbench-step" aria-label="今日计划"><div class="pc-learning-section-head">${studentWorkbenchStage(3, '今日', `${dailyMinutes} 分钟${todayCompleted ? ' · 已完成' : plan.length ? ` · ${plan.length} 项` : ''}`)}${plan.length ? `<button class="pc-inline-btn" type="button" data-role-admin-intent="${escapeHtml(plan[0].intent)}">开始学习</button>` : ''}</div>${urgentItems.length ? `<div class="pc-today-priority"><h2>老师安排的优先任务</h2>${assignmentRows(urgentItems)}</div>` : ''}<div class="pc-daily-plan-list">${today}</div></section>
+			${completedSection}
+			${myAssignmentsLoading ? '<p class="pc-learning-note">正在读取作业…</p>' : myAssignmentsError ? `<div class="pc-learning-note" role="alert">${escapeHtml(myAssignmentsError)} <button class="pc-inline-ghost" data-role-admin-intent="refreshAssignments">重试</button></div>` : normalItems.length ? `<section class="pc-learning-section" aria-label="老师的作业"><h2>老师的作业</h2>${assignmentRows(normalItems)}</section>` : ''}
+			<p class="pc-learning-footnote">连续学习 ${Math.max(0, ctx.streakDays || 0)} 天</p>
+		</div>`;
+	}
+
+	function institutionOverviewData(ctx: PCContext): { data: Record<string, unknown>; loading: boolean } {
+		if (hasAnyRole(ctx, ['superAdmin']) && !ctx.organizationId) {
+			return { data: {}, loading: Boolean(managedOrganizationsLoading) };
+		}
+		void ensureInstitutionRoleWorkbench(ctx);
+		return { data: institutionRoleWorkbenchData || {}, loading: Boolean(institutionRoleWorkbenchLoading) };
+	}
+
+	function renderInstitutionRoleError(): string {
+		return `<div class="pc-card pc-role-data-error" role="alert"><span>${escapeHtml(institutionRoleWorkbenchError)}</span><button type="button" class="pc-inline-ghost" data-role-workbench-retry>重试</button></div>`;
+	}
+
+	function actionableRenewalRisks(data: Record<string, unknown>): Record<string, unknown>[] {
+		return (Array.isArray(data.renewal_risks) ? data.renewal_risks : [])
+			.map((item) => asRecord(item) || {})
+			.filter((item) => ['medium', 'high'].includes(readString(item.level) || ''));
+	}
+
+	function renderTeacherRoleOverview(ctx: PCContext, workbench: WorkbenchDef, actions: WorkbenchAction[]): string {
+		const { data, loading } = institutionOverviewData(ctx);
+		const students = Array.isArray(data.student_relationships) ? data.student_relationships.length : 0;
+		const groups = Array.isArray(data.learning_groups) ? data.learning_groups.length : 0;
+		const schedule = Array.isArray(data.schedule) ? data.schedule.length : 0;
+		const assignments = Array.isArray(data.assignments) ? data.assignments.map((item) => asRecord(item) || {}) : [];
+		const pendingReview = assignments.reduce((total, item) => total + institutionNumber(item.pending_review_count), 0);
+		const unsubmitted = assignments.reduce((total, item) => total + Math.max(0, institutionNumber(item.student_count) - institutionNumber(item.submitted_count)), 0);
+		const prepPlans = Array.isArray(data.lesson_prep_plans) ? data.lesson_prep_plans.length : 0;
+		return renderRoleOverviewLayout(workbench, [
+			{ label: '我的学员', value: roleOverviewLoading(students, loading), note: '已建立教学关系', intent: 'openRoleContent:teacher-students' },
+			{ label: '学习组', value: roleOverviewLoading(groups, loading), note: '班级与约课组', intent: 'openRoleContent:teacher-groups' },
+			{ label: '待批改', value: roleOverviewLoading(pendingReview, loading), note: '学员已提交的作业', intent: 'openRoleContent:teacher-review' },
+			{ label: '近期课程', value: roleOverviewLoading(schedule, loading), note: '已排课程与预约', intent: 'openRoleContent:teacher-schedule' }
+		], [
+			{ title: '待批改作业', desc: '真实提交中尚未完成批改的数量', count: roleOverviewLoading(pendingReview, loading), intent: 'openRoleContent:teacher-review', tone: pendingReview ? 'warning' : undefined },
+			{ title: '学员未提交', desc: '已布置作业中的未交人次', count: roleOverviewLoading(unsubmitted, loading), intent: 'openRoleContent:teacher-review', tone: unsubmitted ? 'warning' : undefined },
+			{ title: '近期课程', desc: '查看已排课程和待确认预约', count: roleOverviewLoading(schedule, loading), intent: 'openRoleContent:teacher-schedule' },
+			{ title: '已保存备课', desc: '备课方案和关联试卷', count: roleOverviewLoading(prepPlans, loading), intent: 'openRoleContent:teacher-prep' }
+		], roleOverviewActions(actions, ['openRoleContent:teacher-assign', 'openRoleContent:teacher-arrange', 'openRoleContent:teacher-prep', 'openRoleContent:teacher-gradebook']));
+	}
+
+	function renderAssistantRoleOverview(ctx: PCContext, workbench: WorkbenchDef, actions: WorkbenchAction[]): string {
+		const { data, loading } = institutionOverviewData(ctx);
+		const relationships = Array.isArray(data.student_relationships) ? data.student_relationships.length : 0;
+		const schedule = Array.isArray(data.schedule) ? data.schedule.length : 0;
+		const risks = actionableRenewalRisks(data).length;
+		const assignments = Array.isArray(data.assignments) ? data.assignments.map((item) => asRecord(item) || {}) : [];
+		const unsubmitted = assignments.reduce((total, item) => total + Math.max(0, institutionNumber(item.student_count) - institutionNumber(item.submitted_count)), 0);
+		const exceptionCount = assignments.filter((item) => institutionNumber(item.submitted_count) < institutionNumber(item.student_count)).length + risks;
+		return renderRoleOverviewLayout(workbench, [
+			{ label: '待催交', value: roleOverviewLoading(unsubmitted, loading), note: '作业未提交人次', intent: 'openRoleContent:assistant-remind' },
+			{ label: '学员跟进', value: roleOverviewLoading(relationships, loading), note: '可查看的学员关系', intent: 'openRoleContent:assistant-followup' },
+			{ label: '续费风险', value: roleOverviewLoading(risks, loading), note: '到期与活跃度风险', intent: 'openRoleContent:assistant-renewal' },
+			{ label: '近期排课', value: roleOverviewLoading(schedule, loading), note: '班课与约课安排', intent: 'openRoleContent:teacher-schedule' }
+		], [
+			{ title: '待催交作业', desc: '尚有学员未提交的作业', count: roleOverviewLoading(unsubmitted, loading), intent: 'openRoleContent:assistant-remind', tone: unsubmitted ? 'warning' : undefined },
+			{ title: '续费风险', desc: '课时、到期时间或活跃度异常', count: roleOverviewLoading(risks, loading), intent: 'openRoleContent:assistant-renewal', tone: risks ? 'warning' : undefined },
+			{ title: '异常提醒', desc: '作业逾期和学习中断的聚合提醒', count: roleOverviewLoading(exceptionCount, loading), intent: 'openRoleContent:assistant-alerts', tone: exceptionCount ? 'danger' : undefined },
+			{ title: '近期课程', desc: '查看排课、约课与待确认课次', count: roleOverviewLoading(schedule, loading), intent: 'openRoleContent:teacher-schedule' }
+		], roleOverviewActions(actions, ['openRoleContent:assistant-followup', 'openRoleContent:assistant-arrange', 'openRoleContent:teacher-groups', 'openRoleContent:assistant-package']));
+	}
+
+	function renderOrganizationRoleOverview(ctx: PCContext, workbench: WorkbenchDef, actions: WorkbenchAction[]): string {
+		void ensureManagedOrganizations(ctx);
+		const { data, loading: workbenchLoading } = institutionOverviewData(ctx);
+		const organization = managedOrganizations.find((item) => item.id === ctx.organizationId) || managedOrganizations[0];
+		const loading = Boolean(managedOrganizationsLoading) || workbenchLoading;
+		const groups = Array.isArray(data.learning_groups) ? data.learning_groups.length : organization?.learningGroups.length || 0;
+		const packages = Array.isArray(data.course_packages) ? data.course_packages.length : organization?.coursePackages.length || 0;
+		const risks = actionableRenewalRisks(data).length;
+		const pendingInvites = organization?.invitations.filter((item) => ['pending', 'created', 'delivered'].includes(item.status)).length || 0;
+		const remainingSeats = Math.max(0, (organization?.seats || 0) - (organization?.billableMemberCount || 0));
+		return renderRoleOverviewLayout(workbench, [
+			{ label: '成员总数', value: roleOverviewLoading(organization?.memberCount || 0, loading), note: '机构内已加入成员', intent: 'openRoleContent:org-members' },
+			{ label: '付费席位', value: roleOverviewLoading(`${organization?.billableMemberCount || 0}/${organization?.seats || 0}`, loading), note: '已使用 / 已购买', intent: 'openRoleContent:org-plan' },
+			{ label: '学习组', value: roleOverviewLoading(groups, loading), note: '班级、小班与约课组', intent: 'openRoleContent:org-groups' },
+			{ label: '课程包', value: roleOverviewLoading(packages, loading), note: '课程规格与课时账户', intent: 'openRoleContent:org-course-packages' }
+		], [
+			{ title: '待接受邀请', desc: '已发出但尚未加入的成员邀请', count: roleOverviewLoading(pendingInvites, loading), intent: 'openRoleContent:org-members', tone: pendingInvites ? 'warning' : undefined },
+			{ title: '剩余席位', desc: '新增学员或内容教师前请确认', count: roleOverviewLoading(remainingSeats, loading), intent: 'openRoleContent:org-plan', tone: !loading && remainingSeats === 0 ? 'danger' : undefined },
+			{ title: '学员风险', desc: '套餐到期和学习活跃度异常', count: roleOverviewLoading(risks, loading), intent: 'openRoleContent:org-dashboard', tone: risks ? 'warning' : undefined },
+			{ title: '机构状态', desc: `${organization?.plan?.toUpperCase() || 'FREE'} 套餐 · ${organization?.status || '正常'}`, count: organization?.expiresAt ? formatShortDateTime(organization.expiresAt) : '长期', intent: 'openRoleContent:org-plan' }
+		], roleOverviewActions(actions, ['openRoleContent:org-members', 'openRoleContent:org-groups', 'openRoleContent:org-course-packages', 'openRoleContent:org-dashboard']));
+	}
+
+	function renderOrganizationContentRoleOverview(ctx: PCContext, workbench: WorkbenchDef, actions: WorkbenchAction[]): string {
+		void ensureManagedOrganizations(ctx);
+		const organization = managedOrganizations.find((item) => item.id === (ctx.organizationId || managedOrganizationWorkspaceId)) || managedOrganizations[0];
+		if (organization && !managedOrganizationDetailState[organization.id]) void loadManagedOrganizationDetails(organization.id);
+		const loading = Boolean(managedOrganizationsLoading) || Boolean(organization && managedOrganizationDetailState[organization.id] === 'loading');
+		const packages = (organization?.coursePackages || []).filter((item) => item.recordType !== 'assignment');
+		const activePackages = packages.filter((item) => item.status === 'active').length;
+		const expiringPackages = packages.filter((item) => item.status !== 'active' || item.expiresAt && Date.parse(item.expiresAt) < Date.now()).length;
+		return renderRoleOverviewLayout(workbench, [
+			{ label: '课程包', value: roleOverviewLoading(packages.length, loading), note: '可维护的机构内容', intent: 'openRoleContent:org-course-packages' },
+			{ label: '启用中', value: roleOverviewLoading(activePackages, loading), note: '当前有效课程包', intent: 'openRoleContent:org-course-packages' },
+			{ label: '需关注', value: roleOverviewLoading(expiringPackages, loading), note: '到期或状态异常', intent: 'openRoleContent:org-course-packages' },
+			{ label: '当前机构', value: organization ? 1 : 0, note: organization?.name || '暂无可管理机构', intent: 'openRoleContent:org-course-packages' }
+		], [
+			{ title: '待关注课程包', desc: '检查到期、停用或课时异常', count: roleOverviewLoading(expiringPackages, loading), intent: 'openRoleContent:org-course-packages', tone: expiringPackages ? 'warning' : undefined },
+			{ title: '课程包维护', desc: '维护课程规格、科目和课时数', count: roleOverviewLoading(packages.length, loading), intent: 'openRoleContent:org-course-packages' }
+		], roleOverviewActions(actions, ['openRoleContent:org-course-packages']));
+	}
+
+	function renderContentAdminRoleOverview(workbench: WorkbenchDef, actions: WorkbenchAction[]): string {
+		void loadFeedbackQueue();
+		void ensureContentPublishQueue();
+		const loading = platformFeedbackLoading || contentPublishQueueLoading !== null;
+		const openFeedback = platformFeedbackItems.filter((item) => !['resolved', 'closed'].includes(readString(item.status) || '')).length;
+		const pendingContent = contentWorkflowItems.filter((item) => readString(item.status) !== 'published').length;
+		const readyToPublish = contentWorkflowItems.filter((item) => {
+			const secondary = asRecord(item.secondary_review) || asRecord(item.secondaryReview) || {};
+			return readString(item.status) !== 'published' && readString(secondary.status) === 'approved';
+		}).length;
+		const published = contentWorkflowItems.filter((item) => readString(item.status) === 'published').length;
+		return renderRoleOverviewLayout(workbench, [
+			{ label: '待处理反馈', value: roleOverviewLoading(openFeedback, platformFeedbackLoading), note: '题目、解析和资源问题', intent: 'openRoleContent:content-feedback' },
+			{ label: '流程中内容', value: roleOverviewLoading(pendingContent, loading), note: '质检、审核与复核', intent: 'openRoleContent:content-publish' },
+			{ label: '待发布', value: roleOverviewLoading(readyToPublish, loading), note: '已完成审核和复核', intent: 'openRoleContent:content-publish' },
+			{ label: '已发布', value: roleOverviewLoading(published, loading), note: '当前流程记录', intent: 'openRoleContent:content-publish' }
+		], [
+			{ title: '待处理反馈', desc: '题目、答案、解析和资源问题', count: roleOverviewLoading(openFeedback, platformFeedbackLoading), intent: 'openRoleContent:content-feedback', tone: openFeedback ? 'warning' : undefined },
+			{ title: '待完成工作流', desc: '质检、解析审核或二次复核', count: roleOverviewLoading(pendingContent, loading), intent: 'openRoleContent:content-publish', tone: pendingContent ? 'warning' : undefined },
+			{ title: '待发布内容', desc: '已通过必要审核，等待发布', count: roleOverviewLoading(readyToPublish, loading), intent: 'openRoleContent:content-publish', tone: readyToPublish ? 'warning' : undefined },
+			{ title: '内容日志', desc: '查看发布、回滚与审核记录', count: '查看', intent: 'openAuditLog' }
+		], roleOverviewActions(actions, ['openRoleContent:content-feedback', 'openRoleContent:content-publish', 'openAuditLog']));
+	}
+
+	function renderRoleWorkspaceOverview(ctx: PCContext, workbench: WorkbenchDef, actions: WorkbenchAction[]): string {
+		if (workbench.id === 'student') return renderStudentRoleOverview(ctx, workbench, actions);
+		if (workbench.id === 'teacher') return renderTeacherRoleOverview(ctx, workbench, actions);
+		if (workbench.id === 'assistant') return renderAssistantRoleOverview(ctx, workbench, actions);
+		if (workbench.id === 'orgAdmin') return renderOrganizationRoleOverview(ctx, workbench, actions);
+		if (workbench.id === 'orgContentAdmin') return renderOrganizationContentRoleOverview(ctx, workbench, actions);
+		if (workbench.id === 'contentAdmin') return renderContentAdminRoleOverview(workbench, actions);
+		return renderRoleOverviewLayout(workbench, [], [], actions.slice(0, 4));
 	}
 
 	function bindPlatformContentScrollHint(content: HTMLElement): void {
@@ -8816,34 +11321,61 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function renderRoleWorkspaceShell(shell: HTMLElement, ctx: PCContext, options: { preserveScroll?: boolean; focusSelector?: string } = {}): void {
+		shell.dataset.learningRole = activeWorkbenchDef(ctx).id;
+		if (shell.dataset.learningRole === 'student') {
+			const navigationIntent = activeRoleContent === 'student-assignments' ? 'openAssignments'
+				: activeRoleContent === 'student-favorites' ? 'openBookmarkFolders'
+				: activeRoleContent === 'student-recent' ? 'openRecentLearningPage'
+				: activeRoleContent ? `openRoleContent:${activeRoleContent}` : '__overview__';
+			window.dispatchEvent(new CustomEvent('learningWorkspaceChanged', { detail: { role: 'student', intent: navigationIntent } }));
+		}
+		const toolId = activeRoleContent.startsWith('student-tool:') ? activeRoleContent.slice('student-tool:'.length) : '';
+		const toolPage = learningToolPages[toolId];
+		const toolSurface = learningToolSurfaces.get(toolId);
 		const previousContent = shell.querySelector('.pc-platform-admin-content') as HTMLElement | null;
 		const previousScrollTop = previousContent?.scrollTop || 0;
+		const dirtyForms = previousContent ? captureDirtyForms(previousContent) : [];
 		const workbench = activeWorkbenchDef(ctx);
+		const needsOrganization = hasAnyRole(ctx, ['superAdmin']) && ['teacher', 'assistant', 'orgAdmin', 'orgContentAdmin'].includes(workbench.id);
+		if (needsOrganization) { void ensureManagedOrganizations(ctx); ctx = getContext(); }
 		const actions = roleWorkspaceActions(ctx, workbench);
 		const navigationGroups = roleWorkspaceNavigationGroups(workbench, actions);
 		const activeAction = activeRoleContent
-			? actions.find((action) => roleWorkspaceContentKey(action.intent) === activeRoleContent)
+			? actions.find((action) => toolPage ? action.intent === toolPage.intent : roleWorkspaceContentKey(action.intent) === activeRoleContent)
 			: undefined;
 		const nav = `<div class="pc-platform-nav-group">
 			<button type="button" class="pc-platform-nav-item${activeRoleContent ? '' : ' active'}" data-role-admin-intent="__overview__" aria-label="总览">${renderOutlineIcon('chart', 'pc-platform-nav-icon')}<span aria-hidden="true">总览</span></button>
 		</div>${navigationGroups.map((group) => `<div class="pc-platform-nav-group"><div class="pc-platform-nav-label">${escapeHtml(group.label)}</div>
-			${group.actions.map((action) => `<button type="button" class="pc-platform-nav-item${activeRoleContent && roleWorkspaceContentKey(action.intent) === activeRoleContent ? ' active' : ''}" data-role-admin-intent="${escapeHtml(action.intent)}" aria-label="${escapeHtml(action.title)}">${renderOutlineIcon(action.icon, 'pc-platform-nav-icon')}<span aria-hidden="true">${escapeHtml(action.title)}</span></button>`).join('')}
+			${group.actions.map((action) => `<button type="button" class="pc-platform-nav-item${activeAction === action ? ' active' : ''}" data-role-admin-intent="${escapeHtml(action.intent)}" aria-label="${escapeHtml(action.title)}">${renderOutlineIcon(action.icon, 'pc-platform-nav-icon')}<span aria-hidden="true">${escapeHtml(action.title)}</span></button>`).join('')}
 		</div>`).join('')}`;
 		const accountPageInfo: Record<string, { title: string; subtitle: string }> = {
+			'account-messages': { title: '消息中心', subtitle: '系统、教学与互动消息' },
 			'student-account-plan': { title: '套餐与订单', subtitle: '套餐、续费和支付记录' },
-			'student-account-coupons': { title: '卡券', subtitle: '兑换码与优惠权益' },
-			'student-account-feedback': { title: '帮助与反馈', subtitle: '客服、协议和问题反馈' }
+			'student-account-coupons': { title: '优惠与邀请', subtitle: '邀请奖励、学习金与兑换记录' },
+			'student-account-feedback': { title: '帮助与反馈', subtitle: '客服、协议和问题反馈' },
+			'student-review-library': { title: '复习资料', subtitle: '错题、收藏和生词集中整理' },
+			'support-feedback': { title: '问题反馈', subtitle: '提交题目、解析、支付或账号问题' },
+			'support-customer-service': { title: '客服', subtitle: '客服联系方式和服务时间' },
+			'support-user-agreement': { title: '用户协议', subtitle: '账号、学习内容和付费权益的使用规则' },
+			'support-privacy-policy': { title: '隐私政策', subtitle: '个人数据收集、使用、导出和注销说明' }
 		};
-		const pageTitle = activeAction?.title || accountPageInfo[activeRoleContent]?.title || workbench.title;
+		const pageTitle = toolPage?.title || activeAction?.title || accountPageInfo[activeRoleContent]?.title || workbench.title;
 		const teachingPage = ['org-course-packages', 'org-course-accounts', 'org-groups'].includes(activeRoleContent);
 		const pageSubtitle = teachingPage ? '' : activeAction?.desc || accountPageInfo[activeRoleContent]?.subtitle || workbench.subtitle;
-		const body = activeRoleContent ? renderRoleContentPage(ctx) : renderRoleWorkspaceOverview(ctx, workbench, actions);
-		const roleText = roleLabels(ctx.roles).slice(0, 2).join(' / ') || workbench.label;
+		const organizationScope = needsOrganization ? `<div class="pc-card pc-organization-workspace-toolbar"><form data-managed-org-list-form><input class="pc-profile-input" data-managed-org-query aria-label="搜索工作台机构" value="${escapeHtml(managedOrganizationListPage.query)}" placeholder="搜索机构名称或 ID" /><button type="submit" class="pc-inline-ghost">搜索</button></form><label><span>当前机构</span><select class="pc-profile-input" data-role-organization-switch aria-label="当前工作台机构">${managedOrganizations.length ? managedOrganizations.map((item) => `<option value="${escapeHtml(item.id)}"${ctx.organizationId === item.id ? ' selected' : ''}>${escapeHtml(item.name)}</option>`).join('') : '<option value="">暂无可选机构</option>'}</select></label></div>` : '';
+		const detailNavigation = renderPlatformAdminDetailNavigation();
+		const body = organizationScope + detailNavigation + (needsOrganization && !ctx.organizationId
+			? `<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">${managedOrganizationsLoading ? '正在读取机构数据...' : '暂无可用机构，请搜索或先在平台管理中创建机构。'}</div></div>`
+			: toolSurface ? '<div data-learning-tool-host></div>' : activeRoleContent ? renderRoleContentPage(ctx) : renderRoleWorkspaceOverview(ctx, workbench, actions));
+		const workbenches = availableWorkbenches(ctx);
+		const roleText = workbenches.length > 1 ? `${workbench.label} · ${workbenches.length} 个身份` : workbench.label;
+		const messageCenterEntry = '<button type="button" role="menuitem" data-role-account-page="account-messages">消息中心</button>';
 		const studentAccountEntries = workbench.id === 'student'
-			? '<button type="button" role="menuitem" data-role-account-page="student-account-plan">套餐与订单</button><button type="button" role="menuitem" data-role-account-page="student-account-coupons">卡券</button><button type="button" role="menuitem" data-role-account-page="student-account-feedback">帮助与反馈</button>'
+			? '<button type="button" role="menuitem" data-role-account-page="student-account-plan">套餐与订单</button><button type="button" role="menuitem" data-role-account-page="student-account-coupons">优惠与邀请</button><button type="button" role="menuitem" data-role-account-page="student-account-feedback">帮助与反馈</button>'
 			: '';
 		shell.classList.toggle('pc-platform-admin-expanded', platformAdminExpanded);
 		shell.classList.toggle('pc-platform-admin-mobile-preview', platformAdminMobilePreview);
+		shell.classList.toggle('pc-role-overview-active', !activeRoleContent);
 		shell.classList.toggle('pc-platform-content-active', activeRoleContent === 'content-publish');
 		shell.classList.toggle('pc-platform-overview-active', activePlatformAdminPage === 'overview');
 		shell.classList.toggle('pc-platform-users-active', activePlatformAdminPage === 'users');
@@ -8860,6 +11392,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 6h4M11 18h2"/></svg>';
 		shell.innerHTML = `<aside class="pc-platform-sidebar">
 			<div class="pc-platform-brand"><span>試</span><div><strong>${escapeHtml(workbench.label)}</strong><em>Exam Workspace</em></div></div>
+			${renderRoleIdentitySwitcher(ctx, workbench)}
 			<nav>${nav}</nav>
 			<div class="pc-platform-sidebar-footer"><button type="button" data-platform-admin-account>个人资料</button><button type="button" data-platform-admin-logout>退出登录</button></div>
 		</aside>
@@ -8869,7 +11402,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				<div class="pc-platform-topbar-spacer" aria-hidden="true"></div>
 				<div class="pc-platform-account">
 					<button class="pc-platform-admin-user" type="button" data-platform-admin-account-menu aria-label="账号菜单" aria-haspopup="menu" aria-expanded="${platformAdminAccountMenuOpen ? 'true' : 'false'}"><span class="pc-avatar pc-platform-admin-avatar">${ctx.avatar ? `<img class="pc-avatar-image" src="${escapeHtml(ctx.avatar)}" alt="" />` : renderOutlineIcon('brandMark', 'pc-avatar-icon')}</span><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><em>${escapeHtml(roleText)}</em></div></button>
-					${platformAdminAccountMenuOpen ? `<div class="pc-platform-account-menu" role="menu"><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><span>${escapeHtml(roleText)}</span></div><button type="button" role="menuitem" data-platform-admin-account>个人资料</button><button type="button" role="menuitem" data-platform-admin-security>账号安全</button>${studentAccountEntries}<button type="button" role="menuitem" data-platform-admin-switch-account>切换账号</button><button type="button" role="menuitem" data-platform-admin-logout>退出登录</button></div>` : ''}
+					${platformAdminAccountMenuOpen ? `<div class="pc-platform-account-menu" role="menu"><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><span>${escapeHtml(roleText)}</span></div>${renderRoleIdentityMenu(ctx, workbench)}<button type="button" role="menuitem" data-platform-admin-account>个人资料</button><button type="button" role="menuitem" data-platform-admin-security>账号安全</button>${messageCenterEntry}${studentAccountEntries}<button type="button" role="menuitem" data-platform-admin-switch-account>切换账号</button><button type="button" role="menuitem" data-platform-admin-logout>退出登录</button></div>` : ''}
 				</div>
 				<div class="pc-platform-window-actions"><button class="pc-platform-window-button${platformAdminMobilePreview ? ' active' : ''}" type="button" data-platform-admin-display-toggle aria-pressed="${platformAdminMobilePreview ? 'true' : 'false'}" aria-label="${displayToggleLabel}" title="${displayToggleLabel}">${displayToggleIcon}</button><button class="pc-platform-window-button pc-platform-close" type="button" data-platform-admin-close aria-label="关闭工作台" title="关闭工作台">×</button></div>
 			</header>
@@ -8877,6 +11410,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		</div>`;
 		const content = shell.querySelector('.pc-platform-admin-content') as HTMLElement | null;
 		if (content) {
+			const toolHost = content.querySelector('[data-learning-tool-host]');
+			if (toolHost && toolSurface) toolHost.appendChild(toolSurface);
+			restoreDirtyForms(content, dirtyForms);
 			attachDashboardHandlers(content);
 			hydrateInstitutionRoleDetail(content);
 			if (options.preserveScroll) content.scrollTop = previousScrollTop;
@@ -8897,10 +11433,28 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function renderPlatformAdminShell(options: { preserveScroll?: boolean; focusSelector?: string } = {}): void {
 		const shell = ensurePlatformAdminShell();
+		shell.dataset.learningRole = platformAdminMode === 'role' ? activeWorkbenchDef(getContext()).id : 'superAdmin';
 		if (!shell.classList.contains('pc-platform-admin-open')) return;
+		const focused = document.activeElement;
+		const identityFocusSelector = focused && shell.contains(focused)
+			? focused.matches('[data-role-workbench-switch]') ? '[data-role-workbench-switch]'
+				: focused.matches('[data-role-organization-switch]') ? '[data-role-organization-switch]'
+				: focused.matches('[data-platform-admin-account-menu]') ? '[data-platform-admin-account-menu]'
+				: focused.matches('[data-role-admin-intent]')
+					? `[data-role-admin-intent="${CSS.escape(focused.getAttribute('data-role-admin-intent') || '')}"]`
+				: focused.matches('[data-platform-admin-page]')
+					? `[data-platform-admin-page="${CSS.escape(focused.getAttribute('data-platform-admin-page') || '')}"]`
+				: ''
+			: '';
+		const restoreIdentityFocus = () => {
+			if (identityFocusSelector) shell.querySelector<HTMLElement>(identityFocusSelector)?.focus({ preventScroll: true });
+		};
 		const ctx = getContext();
+		if (ctx.guest) { closePlatformAdmin(); return; }
+		if (platformAdminMode === 'platform' && !hasAnyRole(ctx, ['superAdmin'])) platformAdminMode = 'role';
 		if (platformAdminMode === 'role') {
 			renderRoleWorkspaceShell(shell, ctx, options);
+			restoreIdentityFocus();
 			return;
 		}
 		const previousContent = shell.querySelector('.pc-platform-admin-content') as HTMLElement | null;
@@ -8919,6 +11473,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		shell.classList.toggle('pc-platform-admin-expanded', platformAdminExpanded);
 		shell.classList.toggle('pc-platform-admin-mobile-preview', platformAdminMobilePreview);
+		shell.classList.remove('pc-role-overview-active');
 		shell.classList.toggle('pc-platform-content-active', activePlatformAdminPage === 'content');
 		shell.classList.toggle('pc-platform-overview-active', activePlatformAdminPage === 'overview');
 		shell.classList.toggle('pc-platform-users-active', activePlatformAdminPage === 'users');
@@ -8935,6 +11490,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 6h4M11 18h2"/></svg>';
 		shell.innerHTML = `<aside class="pc-platform-sidebar">
 			<div class="pc-platform-brand"><span>試</span><div><strong>平台管理</strong><em>Exam Admin</em></div></div>
+			${renderRoleIdentitySwitcher(ctx, workbenchDefs().superAdmin)}
 			<nav>${nav}</nav>
 			<div class="pc-platform-sidebar-footer"><button type="button" data-platform-admin-account>个人资料</button><button type="button" data-platform-admin-logout>退出登录</button></div>
 		</aside>
@@ -8943,8 +11499,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				<div><h1>${escapeHtml(pageInfo.title)}</h1><p>${escapeHtml(pageInfo.subtitle)}</p></div>
 				<div class="pc-platform-topbar-spacer" aria-hidden="true"></div>
 				<div class="pc-platform-account">
-					<button class="pc-platform-admin-user" type="button" data-platform-admin-account-menu aria-label="账号菜单" aria-haspopup="menu" aria-expanded="${platformAdminAccountMenuOpen ? 'true' : 'false'}"><span class="pc-avatar pc-platform-admin-avatar">${ctx.avatar ? `<img class="pc-avatar-image" src="${escapeHtml(ctx.avatar)}" alt="" />` : renderOutlineIcon('brandMark', 'pc-avatar-icon')}</span><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><em>平台超级管理员</em></div></button>
-					${platformAdminAccountMenuOpen ? `<div class="pc-platform-account-menu" role="menu"><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><span>平台超级管理员</span></div><button type="button" role="menuitem" data-platform-admin-account>个人资料</button><button type="button" role="menuitem" data-platform-admin-security>账号安全</button><button type="button" role="menuitem" data-platform-admin-switch-account>切换账号</button><button type="button" role="menuitem" data-platform-admin-logout>退出登录</button></div>` : ''}
+					<button class="pc-platform-admin-user" type="button" data-platform-admin-account-menu aria-label="账号菜单" aria-haspopup="menu" aria-expanded="${platformAdminAccountMenuOpen ? 'true' : 'false'}"><span class="pc-avatar pc-platform-admin-avatar">${ctx.avatar ? `<img class="pc-avatar-image" src="${escapeHtml(ctx.avatar)}" alt="" />` : renderOutlineIcon('brandMark', 'pc-avatar-icon')}</span><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><em>超级管理员</em></div></button>
+					${platformAdminAccountMenuOpen ? `<div class="pc-platform-account-menu" role="menu"><div><strong>${escapeHtml(preferredDisplayName(ctx))}</strong><span>超级管理员</span></div>${renderRoleIdentityMenu(ctx, workbenchDefs().superAdmin)}<button type="button" role="menuitem" data-platform-admin-account>个人资料</button><button type="button" role="menuitem" data-platform-admin-security>账号安全</button><button type="button" role="menuitem" data-role-account-page="account-messages">消息中心</button><button type="button" role="menuitem" data-platform-admin-switch-account>切换账号</button><button type="button" role="menuitem" data-platform-admin-logout>退出登录</button></div>` : ''}
 				</div>
 				<div class="pc-platform-window-actions">
 					<button class="pc-platform-window-button${platformAdminMobilePreview ? ' active' : ''}" type="button" data-platform-admin-display-toggle aria-pressed="${platformAdminMobilePreview ? 'true' : 'false'}" aria-label="${displayToggleLabel}" title="${displayToggleLabel}">${displayToggleIcon}</button>
@@ -8970,6 +11526,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			void reloadAuditActions(embeddedAuditLog);
 			void reloadAuditLogs(embeddedAuditLog);
 		}
+		restoreIdentityFocus();
 	}
 
 	async function loadFeedbackQueue(force = false): Promise<void> {
@@ -8995,7 +11552,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			platformFeedbackLoaded = true;
 		} finally {
 			platformFeedbackLoading = false;
-			if (shouldRefreshRoleContent('platform-feedback', 'content-feedback')) {
+			if (shouldRefreshRoleContent('platform-feedback', 'content-feedback') || shouldRefreshRoleOverview('contentAdmin')) {
 				if (activePlatformAdminPage === 'overview' && document.querySelector('#platform-admin-shell.pc-platform-admin-open')) renderPlatformAdminShell({ preserveScroll: true });
 				else renderSectionContent({ preserveScroll: true });
 			}
@@ -9121,7 +11678,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function renderPlatformOrganizationOrderCreatePage(ctx: PCContext): string {
 		if (!hasAnyRole(ctx, ['superAdmin'])) return renderDashboardSubpage('创建机构订单', '<div class="pc-admin-note">需要超级管理员权限。</div>', '');
-		const body = `<div class="pc-card pc-lite-list-card pc-platform-payment-form-card"><div class="pc-my-content-head">创建机构套餐订单</div><div class="pc-admin-note">为机构购买或增加付费席位，创建后可在订单列表中查看支付和权益状态。</div><form class="pc-org-add-form" data-organization-payment-order-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>机构 ID</span><input class="pc-profile-input" data-org-payment-organization-id required /></label><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input" data-org-payment-plan><option value="pro">机构 PRO</option><option value="ultra">机构 ULTRA</option></select></label><label class="pc-org-field"><span>成员席位</span><input class="pc-profile-input" type="number" min="${paymentPricingConfig.catalogs.organization.minimumSeats.pro}" max="${paymentPricingConfig.catalogs.organization.customQuoteMinSeats - 1}" value="${paymentPricingConfig.catalogs.organization.minimumSeats.pro}" data-org-payment-seats /></label><label class="pc-org-field"><span>计费周期</span><select class="pc-profile-input" data-org-payment-days><option value="30">月付 · 30 天</option><option value="365" selected>年付 · 365 天（推荐）</option></select></label><label class="pc-org-field"><span>渠道</span><select class="pc-profile-input" data-org-payment-provider><option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信</option><option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option><option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe</option></select></label><label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-org-payment-password /></label></div><div class="pc-pricing-order-preview" data-org-payment-preview>${organizationPaymentPreviewText('pro', 365, paymentPricingConfig.catalogs.organization.minimumSeats.pro)}</div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">创建机构订单</button></div><div class="pc-admin-note">所有正式机构成员统一占用成员席位；同一账号拥有多个角色只计算一次；${paymentPricingConfig.catalogs.organization.customQuoteMinSeats} 席及以上转企业销售定制报价。</div></form></div>`;
+		const organizationCatalog = paymentPricingConfig.catalogs.organization;
+		const maxSeatsAttribute = organizationCatalog.customQuoteMinSeats > 0
+			? ` max="${organizationCatalog.customQuoteMinSeats - 1}"`
+			: '';
+		const body = `<div class="pc-card pc-lite-list-card pc-platform-payment-form-card"><div class="pc-my-content-head">创建机构套餐订单</div><div class="pc-admin-note">为学校或教育机构购买、增加付费内容席位，创建后可在订单列表中查看支付和权益状态。</div><form class="pc-org-add-form" data-organization-payment-order-form><div class="pc-org-form-grid pc-org-form-grid-3"><label class="pc-org-field"><span>机构 ID</span><input class="pc-profile-input" data-org-payment-organization-id required /></label><label class="pc-org-field"><span>套餐</span><select class="pc-profile-input" data-org-payment-plan><option value="pro">机构 PRO</option><option value="ultra" disabled>机构 ULTRA（暂未开放）</option></select></label><label class="pc-org-field"><span>付费内容席位</span><input class="pc-profile-input" type="number" min="${organizationCatalog.minimumSeats.pro}"${maxSeatsAttribute} value="${organizationCatalog.minimumSeats.pro}" data-org-payment-seats /></label><label class="pc-org-field"><span>计费周期</span><select class="pc-profile-input" data-org-payment-days><option value="30">月付 · 30 天</option><option value="90">季付 · 90 天</option><option value="365" selected>年付 · 365 天（推荐）</option></select></label><label class="pc-org-field"><span>渠道</span><select class="pc-profile-input" data-org-payment-provider><option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信</option><option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option><option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe</option></select></label><label class="pc-org-field"><span>当前密码</span><input class="pc-profile-input" type="password" autocomplete="current-password" data-org-payment-password /></label></div><div class="pc-pricing-order-preview" data-org-payment-preview>${organizationPaymentPreviewText('pro', 365, organizationCatalog.minimumSeats.pro)}</div><div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-btn" type="submit">创建机构订单</button></div><div class="pc-admin-note">仅学员和可查看试卷内容的老师占用付费席位；机构管理员、教学管理员不占席位；同一账号多角色只计算一次。PRO 年付采用累进计价。</div></form></div>`;
 		return renderDashboardSubpage('创建机构订单', body, '机构套餐、席位、计费周期和支付渠道。');
 	}
 
@@ -9262,36 +11823,58 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function organizationPaymentPreviewText(plan: PaidPersonalPlan, days: number, seats: number): string {
 		const catalog = paymentPricingConfig.catalogs.organization;
-		if (seats >= catalog.customQuoteMinSeats) {
-			return `<strong>定制报价</strong><span>${seats} 席已达到企业销售门槛，请转销售合同流程。</span>`;
+		if (catalog.customQuoteMinSeats > 0 && seats >= catalog.customQuoteMinSeats) {
+			return `<strong>定制报价</strong><span>${seats} 席已达到大型机构定制门槛，请转合同报价流程。</span>`;
 		}
 		const minimumSeats = catalog.minimumSeats[plan];
 		if (seats < minimumSeats) {
 			return `<strong>最低 ${minimumSeats} 席</strong><span>${plan.toUpperCase()} 当前席位数不足，无法创建自助订单。</span>`;
 		}
 		const unitCents = pricingAmountCents(plan, days, 'cny', 'organization', seats);
-		const totalCents = unitCents * seats;
-		const monthlyEquivalent = days === 365 ? totalCents / 12 : totalCents;
-		return `<strong>${plan.toUpperCase()} · ${seats} 席 · ${days === 365 ? '年付' : '月付'}</strong>
-			<span>单价 ${formatAmountCny(unitCents)}/席/${days === 365 ? '年' : '月'} · 合计 ${formatAmountCny(totalCents)}${days === 365 ? ` · 折合 ${formatAmountCny(Math.round(monthlyEquivalent))}/月` : '/月'}</span>`;
+		const totalCents = organizationBaseAmountCents(plan, days, seats);
+		const monthlyEquivalent = days === 365 ? totalCents / 12 : days === 90 ? totalCents / 3 : totalCents;
+		if (days === 365 && catalog.pricingMode[plan] === 'progressive') {
+			const detail = catalog.seatTiers
+				.filter((tier) => seats >= tier.minSeats)
+				.map((tier) => {
+					const quantity = Math.min(seats, tier.maxSeats) - tier.minSeats + 1;
+					return `${quantity} 席×${formatAmountCny(tier.pricesCents.cny[plan]['365'])}`;
+				})
+				.join(' ＋ ');
+			return `<strong>${plan.toUpperCase()} · ${seats} 席 · 年付累进价</strong>
+				<span>${escapeHtml(detail)} · 合计 ${formatAmountCny(totalCents)} · 折合 ${formatAmountCny(Math.round(monthlyEquivalent))}/月</span>`;
+		}
+		const periodName = days === 365 ? '年付' : days === 90 ? '季付' : '月付';
+		const periodUnit = days === 365 ? '年' : days === 90 ? '90 天' : '月';
+		return `<strong>${plan.toUpperCase()} · ${seats} 席 · ${periodName}</strong>
+			<span>单价 ${formatAmountCny(unitCents)}/席/${periodUnit} · 合计 ${formatAmountCny(totalCents)}${days === 365 || days === 90 ? ` · 折合 ${formatAmountCny(Math.round(monthlyEquivalent))}/月` : '/月'}</span>`;
 	}
 
 	async function updateOrganizationPaymentPreview(form: HTMLFormElement, enforceMinimum = false): Promise<void> {
 		const plan = ((form.querySelector('[data-org-payment-plan]') as HTMLSelectElement | null)?.value === 'ultra'
 			? 'ultra'
 			: 'pro') as PaidPersonalPlan;
-		const days = Number((form.querySelector('[data-org-payment-days]') as HTMLSelectElement | null)?.value || '365');
+		const durationInput = form.querySelector('[data-org-payment-days]') as HTMLSelectElement | null;
+		let days = Number(durationInput?.value || '365');
+		if (plan === 'ultra' && days === 90) {
+			days = 365;
+			if (durationInput) durationInput.value = '365';
+		}
 		const seatsInput = form.querySelector('[data-org-payment-seats]') as HTMLInputElement | null;
 		const minimumSeats = paymentPricingConfig.catalogs.organization.minimumSeats[plan];
 		if (seatsInput) {
 			seatsInput.min = String(minimumSeats);
+			const customQuoteMinSeats = paymentPricingConfig.catalogs.organization.customQuoteMinSeats;
+			if (customQuoteMinSeats > 0) seatsInput.max = String(customQuoteMinSeats - 1);
+			else seatsInput.removeAttribute('max');
 			if (enforceMinimum && Number(seatsInput.value) < minimumSeats) seatsInput.value = String(minimumSeats);
 		}
 		const seats = Number(seatsInput?.value || minimumSeats);
 		const preview = form.querySelector('[data-org-payment-preview]') as HTMLElement | null;
 		if (!preview) return;
 		preview.innerHTML = organizationPaymentPreviewText(plan, days, seats);
-		if (seats < minimumSeats || seats >= paymentPricingConfig.catalogs.organization.customQuoteMinSeats) return;
+		const customQuoteMinSeats = paymentPricingConfig.catalogs.organization.customQuoteMinSeats;
+		if (seats < minimumSeats || (customQuoteMinSeats > 0 && seats >= customQuoteMinSeats)) return;
 		const organizationId = ((form.querySelector('[data-org-payment-organization-id]') as HTMLInputElement | null)?.value || '').trim();
 		const api = window.APIClient;
 		const token = activeToken(getContext());
@@ -9309,7 +11892,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			}));
 			if (sequence !== organizationQuoteRequestSequence || !quote || !preview.isConnected) return;
 			preview.innerHTML = `${paymentQuoteMarkup(quote)}
-				<span>优惠后单价 ${formatAmountCny(quote.unitPriceCents)}/席/${days === 365 ? '年' : '月'} · ${plan.toUpperCase()} · ${seats} 席</span>`;
+				<span>优惠后平均 ${formatAmountCny(quote.unitPriceCents)}/席/${days === 365 ? '年' : days === 90 ? '90 天' : '月'} · ${plan.toUpperCase()} · ${seats} 席</span>`;
 		} catch (error) {
 			if (sequence !== organizationQuoteRequestSequence || !preview.isConnected) return;
 			preview.innerHTML = organizationPaymentPreviewText(plan, days, seats);
@@ -9335,7 +11918,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const seats = Number(seatsInput?.value || '0');
 		const minimumSeats = paymentPricingConfig.catalogs.organization.minimumSeats[plan];
 		if (!Number.isInteger(seats) || seats < minimumSeats) { setFieldError(seatsInput, `${plan.toUpperCase()} 最低购买 ${minimumSeats} 席`); return; }
-		if (seats >= paymentPricingConfig.catalogs.organization.customQuoteMinSeats) {
+		if (paymentPricingConfig.catalogs.organization.customQuoteMinSeats > 0 &&
+			seats >= paymentPricingConfig.catalogs.organization.customQuoteMinSeats) {
 			setFieldError(seatsInput, `${paymentPricingConfig.catalogs.organization.customQuoteMinSeats} 席及以上需要企业定制报价`);
 			return;
 		}
@@ -9361,6 +11945,64 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			showToast(readErrorMessage(error, '扩席订单创建失败'));
 		} finally {
 			if (submit) { submit.disabled = false; submit.textContent = '创建扩席订单'; }
+		}
+	}
+
+	async function submitOrganizationSelfServiceOrder(form: HTMLFormElement): Promise<void> {
+		clearFormFieldErrors(form);
+		const token = activeToken(getContext());
+		const api = window.APIClient;
+		const organizationId = form.dataset.orgId || (form.querySelector('[data-org-payment-organization-id]') as HTMLInputElement | null)?.value || '';
+		const seatsInput = form.querySelector('[data-org-payment-seats]') as HTMLInputElement | null;
+		const passwordInput = form.querySelector('[data-org-payment-password]') as HTMLInputElement | null;
+		if (!organizationId || !token || !api || typeof api.createOrganizationSelfServiceOrder !== 'function' || typeof api.getPaymentQuote !== 'function') {
+			showToast('机构套餐支付接口暂不可用');
+			return;
+		}
+		const plan: PaidPersonalPlan = 'pro';
+		const days = Number((form.querySelector('[data-org-payment-days]') as HTMLSelectElement | null)?.value || '365');
+		const seats = Number(seatsInput?.value || '0');
+		const minimumSeats = paymentPricingConfig.catalogs.organization.minimumSeats[plan];
+		if (!Number.isInteger(seats) || seats < minimumSeats) {
+			setFieldError(seatsInput, `机构 PRO 最低购买 ${minimumSeats} 席`);
+			return;
+		}
+		const customQuoteMinSeats = paymentPricingConfig.catalogs.organization.customQuoteMinSeats;
+		if (customQuoteMinSeats > 0 && seats >= customQuoteMinSeats) {
+			setFieldError(seatsInput, `${customQuoteMinSeats} 席及以上需要联系平台获取定制报价`);
+			return;
+		}
+		const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+		if (submit?.disabled) return;
+		if (submit) { submit.disabled = true; submit.textContent = '正在确认报价...'; }
+		try {
+			const quote = normalizePaymentQuote(await api.getPaymentQuote(token, {
+				scope_type: 'organization', organization_id: organizationId, plan, days, seats, currency: 'cny'
+			}));
+			if (!quote) throw new Error('机构报价数据无效');
+			if (submit) submit.textContent = '等待确认...';
+			if (!await requestConfirmation(`确认以 ${formatAmountCny(quote.amountCents)} 购买机构 PRO（${seats} 个总席位，${days} 天）？`)) return;
+			if (submit) submit.textContent = '正在创建订单...';
+			const order = asRecord(await api.createOrganizationSelfServiceOrder(token, {
+				organization_id: organizationId,
+				plan,
+				seats,
+				days,
+				provider: (form.querySelector('[data-org-payment-provider]') as HTMLSelectElement | null)?.value || 'wechat',
+				reauth_password: passwordInput?.value || '',
+				confirmation: '确认购买机构套餐'
+			}));
+			const orderId = readString(order?.id);
+			const paymentUrl = readString(asRecord(order?.provider_payload)?.payment_url);
+			showToast(paymentUrl ? '订单已创建，正在前往支付' : `订单已创建：${orderId || '待支付'}`);
+			if (paymentUrl) window.location.href = paymentUrl;
+		} catch (error) {
+			const message = readErrorMessage(error, '机构套餐订单创建失败');
+			if (/密码|password/i.test(message)) setFieldError(passwordInput, message);
+			else setFieldError(seatsInput, message);
+			showToast(message);
+		} finally {
+			if (submit?.isConnected) { submit.disabled = false; submit.textContent = '确认报价并支付'; }
 		}
 	}
 
@@ -9486,24 +12128,33 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (!hasAnyRole(ctx, ['superAdmin'])) {
 			return renderDashboardSubpage('价格与套餐', '<div class="pc-card pc-lite-list-card"><div class="pc-admin-note">需要超级管理员权限。</div></div>', '维护平台套餐价格。');
 		}
-		const renderPriceInput = (scope: PricingScope, plan: PaidPersonalPlan, days: number) => {
-			const yuan = pricingAmountCents(plan, days, 'cny', scope) / 100;
-			return `<div class="pc-pricing-money-field"><span>¥</span><input class="pc-profile-input pc-pricing-input" aria-label="${scope === 'personal' ? '个人' : '机构'} ${plan.toUpperCase()} ${days} 天价格"
-				type="number" min="0.01" step="0.01" data-price-scope="${scope}" data-price-plan="${plan}" data-price-days="${days}" value="${escapeHtml(String(yuan))}" />${scope === 'organization' ? '<b>/ 席</b>' : ''}</div>`;
+		const renderPriceInput = (scope: PricingScope, plan: PaidPersonalPlan, days: number, kind: 'selling' | 'list' = 'selling') => {
+			const yuan = (scope === 'personal' && kind === 'list'
+				? personalListPriceCents(plan, days)
+				: pricingAmountCents(plan, days, 'cny', scope)) / 100;
+			const dataAttribute = kind === 'list' ? 'data-list-price-scope' : 'data-price-scope';
+			const priceLabel = kind === 'list' ? '日常价' : '当前售价';
+			return `<div class="pc-pricing-money-field"><span>¥</span><input class="pc-profile-input pc-pricing-input" aria-label="${scope === 'personal' ? '个人' : '机构'} ${plan.toUpperCase()} ${days} 天${priceLabel}"
+				type="number" min="0.01" step="0.01" ${dataAttribute}="${scope}" data-price-plan="${plan}" data-price-days="${days}" value="${escapeHtml(String(yuan))}" />${scope === 'organization' ? '<b>/ 席</b>' : ''}</div>`;
 		};
+		const renderPersonalPricePair = (plan: PaidPersonalPlan, days: number): string => `<div class="pc-pricing-price-pair">
+			<label><span>日常价</span>${renderPriceInput('personal', plan, days, 'list')}</label>
+			<label><span>当前售价</span>${renderPriceInput('personal', plan, days)}</label>
+		</div>`;
 		const organization = paymentPricingConfig.catalogs.organization;
 		const personalRows = (['pro', 'ultra'] as PaidPersonalPlan[]).map((plan) => `<tr>
-			<th scope="row">${plan.toUpperCase()}${plan === 'pro' ? '<small>主推长期订阅</small>' : '<small>AI 与冲刺能力</small>'}</th>
-			${paymentPricingConfig.catalogs.personal.durations.map((days) => `<td>${renderPriceInput('personal', plan, days)}</td>`).join('')}
+			<th scope="row">${plan.toUpperCase()}${paymentPricingConfig.catalogs.personal.planEnabled[plan] ? '' : '<span class="pc-tag muted">暂未开放</span>'}${plan === 'pro' ? '<small>主推长期订阅</small>' : '<small>AI 与冲刺能力</small>'}</th>
+			${paymentPricingConfig.catalogs.personal.durations.map((days) => `<td>${renderPersonalPricePair(plan, days)}</td>`).join('')}
 		</tr>`).join('');
 		const organizationRows = (['pro', 'ultra'] as PaidPersonalPlan[]).map((plan) => `<tr>
-			<th scope="row">${plan.toUpperCase()}${plan === 'pro' ? '<small>单校区 / 小型机构</small>' : '<small>多校区 / 深度分析</small>'}</th>
+			<th scope="row">${plan.toUpperCase()}${organization.planEnabled[plan] ? '' : '<span class="pc-tag muted">暂未开放</span>'}${plan === 'pro' ? '<small>单校区 / 小型机构</small>' : '<small>多校区 / 深度分析</small>'}</th>
 			<td>${renderPriceInput('organization', plan, 30)}</td>
+			<td>${renderPriceInput('organization', plan, 90)}</td>
 			<td><div class="pc-pricing-suffix-field"><input class="pc-profile-input pc-pricing-input" aria-label="机构 ${plan.toUpperCase()} 最低席位" type="number" min="1" step="1" data-price-min-seats="${plan}" value="${organization.minimumSeats[plan]}" /><b>席</b></div></td>
-			<td><span class="pc-pricing-method">按席位阶梯</span><input type="hidden" data-price-scope="organization" data-price-plan="${plan}" data-price-days="365" value="${pricingAmountCents(plan, 365, 'cny', 'organization') / 100}" /></td>
+			<td><span class="pc-pricing-method">${organization.pricingMode[plan] === 'progressive' ? '累进阶梯' : '整单阶梯'}</span><input type="hidden" data-price-scope="organization" data-price-plan="${plan}" data-price-days="365" value="${pricingAmountCents(plan, 365, 'cny', 'organization') / 100}" /></td>
 		</tr>`).join('');
 		const tierRows = organization.seatTiers.map((tier, index) => `<tr>
-			<th scope="row">${tier.minSeats}～${tier.maxSeats} 席</th>
+			<th scope="row">${tier.maxSeats >= 100000 ? `${tier.minSeats} 席以上` : `${tier.minSeats}～${tier.maxSeats} 席`}</th>
 			<td><div class="pc-pricing-money-field"><span>¥</span><input class="pc-profile-input pc-pricing-input" aria-label="${tier.minSeats} 到 ${tier.maxSeats} 席 PRO 年单价" type="number" min="0.01" step="0.01" data-price-tier="${index}" data-price-plan="pro" value="${tier.pricesCents.cny.pro['365'] / 100}" /><b>/ 席</b></div></td>
 			<td>${tier.pricesCents.cny.ultra['365'] > 0
 				? `<div class="pc-pricing-money-field"><span>¥</span><input class="pc-profile-input pc-pricing-input" aria-label="${tier.minSeats} 到 ${tier.maxSeats} 席 ULTRA 年单价" type="number" min="0.01" step="0.01" data-price-tier="${index}" data-price-plan="ultra" value="${tier.pricesCents.cny.ultra['365'] / 100}" /><b>/ 席</b></div>`
@@ -9518,7 +12169,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const offerDescription: Record<PaymentPricingOffer['id'], string> = {
 			first_purchase: '仅从未产生过成功付费订单的客户',
 			renewal: '仅当前仍有有效付费套餐的客户',
-			campaign: '时间范围内的所有新订单'
+			campaign: '时间范围内的所有新订单',
+			referral_reward: '好友首次实付购买个人 PRO 后奖励邀请人'
 		};
 		const offerWindowText = (offer: PaymentPricingOffer): string => {
 			const start = offer.startsAt ? offer.startsAt.slice(0, 10) : '';
@@ -9528,21 +12180,29 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			if (end) return `${end} 前有效`;
 			return '长期有效';
 		};
-		const renderOfferCards = (scope: PricingScope): string => paymentPricingConfig.catalogs[scope].offers.map((offer) => `
+		const renderOfferCards = (scope: PricingScope): string => paymentPricingConfig.catalogs[scope].offers.map((offer) => {
+			const referralReward = offer.id === 'referral_reward';
+			const rewardPercent = offer.rewardPercent ?? 20;
+			const maximumRewardYuan = (offer.maximumRewardCents ?? 2000) / 100;
+			return `
 			<div class="pc-pricing-offer-card" data-price-offer-card data-offer-scope="${scope}" data-offer-id="${offer.id}">
 				<div class="pc-pricing-offer-summary">
 					<div class="pc-pricing-offer-title"><strong>${escapeHtml(offer.label)}</strong><small>${escapeHtml(offerDescription[offer.id])}</small></div>
-					<span class="pc-pricing-offer-discount">减免 ${offer.discountPercent}%</span>
+					<span class="pc-pricing-offer-discount">${referralReward ? `返 ${rewardPercent}% · 最高 ¥${maximumRewardYuan}` : `减免 ${offer.discountPercent}%`}</span>
 					<span class="pc-pricing-offer-window">${escapeHtml(offerWindowText(offer))}</span>
 					<label class="pc-pricing-switch"><input type="checkbox" data-offer-enabled${offer.enabled ? ' checked' : ''} /><span data-offer-status>${offer.enabled ? '已启用' : '未启用'}</span></label>
 					<button class="pc-inline-ghost pc-pricing-offer-edit" type="button" data-pricing-offer-edit aria-expanded="false">编辑</button>
 				</div>
 				<div class="pc-pricing-offer-fields" data-pricing-offer-editor hidden>
-					<label class="pc-org-field"><span>减免比例</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="0" max="90" step="1" data-offer-discount value="${offer.discountPercent}" /><b>%</b></div></label>
+					${referralReward
+						? `<label class="pc-org-field"><span>返还比例</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="1" max="50" step="1" data-offer-reward-percent value="${rewardPercent}" /><b>%</b></div></label>
+							<label class="pc-org-field"><span>单次最高奖励</span><div class="pc-pricing-money-field"><span>¥</span><input class="pc-profile-input pc-pricing-input" type="number" min="0.01" max="1000" step="0.01" data-offer-reward-cap value="${maximumRewardYuan}" /></div></label>`
+						: `<label class="pc-org-field"><span>减免比例</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="0" max="90" step="1" data-offer-discount value="${offer.discountPercent}" /><b>%</b></div></label>`}
 					<label class="pc-org-field"><span>开始时间（可留空）</span><input class="pc-profile-input" type="datetime-local" data-offer-start value="${escapeHtml(offerDateValue(offer.startsAt))}" /></label>
 					<label class="pc-org-field"><span>结束时间（可留空）</span><input class="pc-profile-input" type="datetime-local" data-offer-end value="${escapeHtml(offerDateValue(offer.endsAt))}" /></label>
 				</div>
-			</div>`).join('');
+			</div>`;
+		}).join('');
 		const pricingSections: Array<{ id: PricingAdminSection; label: string; meta: string; status?: boolean }> = [
 			{ id: 'plans', label: '套餐定价', meta: '2' },
 			{ id: 'offers', label: '优惠规则', meta: String(paymentPricingConfig.catalogs.personal.offers.length + organization.offers.length) },
@@ -9555,49 +12215,38 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}).join('');
 		const renderPricingScopeTabs = (kind: 'plan' | 'offer', activeScope: PricingScope): string => `<div class="pc-pricing-scope-tabs" role="tablist" aria-label="${kind === 'plan' ? '套餐类型' : '优惠对象'}">
 			<button type="button" role="tab" class="pc-pricing-scope-tab${activeScope === 'personal' ? ' is-active' : ''}" data-pricing-${kind}-scope="personal" aria-selected="${activeScope === 'personal'}">个人${kind === 'plan' ? '套餐' : '订阅'}</button>
-			<button type="button" role="tab" class="pc-pricing-scope-tab${activeScope === 'organization' ? ' is-active' : ''}" data-pricing-${kind}-scope="organization" aria-selected="${activeScope === 'organization'}">机构 / 企业${kind === 'plan' ? '套餐' : '订阅'}</button>
+			<button type="button" role="tab" class="pc-pricing-scope-tab${activeScope === 'organization' ? ' is-active' : ''}" data-pricing-${kind}-scope="organization" aria-selected="${activeScope === 'organization'}">学校 / 教育机构</button>
 		</div>`;
-		const tierBoundaryWarnings: string[] = [];
-		(['pro', 'ultra'] as PaidPersonalPlan[]).forEach((plan) => {
-			const applicable = organization.seatTiers.filter((tier) => tier.pricesCents.cny[plan]['365'] > 0);
-			for (let index = 1; index < applicable.length; index += 1) {
-				const previous = applicable[index - 1];
-				const current = applicable[index];
-				const previousTotal = previous.maxSeats * previous.pricesCents.cny[plan]['365'];
-				const currentTotal = current.minSeats * current.pricesCents.cny[plan]['365'];
-				if (currentTotal < previousTotal) tierBoundaryWarnings.push(`${plan.toUpperCase()} ${previous.maxSeats}→${current.minSeats} 席`);
-			}
-		});
+		const defaultProviderSelect = renderAdminSelect(paymentPricingConfig.defaultProvider, [
+			{ value: 'wechat', label: '微信支付' },
+			{ value: 'alipay', label: '支付宝' },
+			{ value: 'stripe', label: 'Stripe（海外卡/国际支付）' }
+		], 'data-pricing-default-provider', '默认支付渠道');
 		const hiddenWhenInactive = (section: PricingAdminSection): string => activePricingAdminSection === section ? '' : ' hidden';
 		const body = `<form data-pricing-form class="pc-pricing-form">
 			<div class="pc-platform-payment-tabs pc-pricing-section-tabs" role="tablist" aria-label="价格与套餐配置分类">${sectionTabs}</div>
 			<section class="pc-pricing-workspace" data-pricing-section-panel="plans"${hiddenWhenInactive('plans')}>
 				${renderPricingScopeTabs('plan', activePricingPlanScope)}
 				<div class="pc-card pc-lite-list-card" data-pricing-plan-panel="personal"${activePricingPlanScope === 'personal' ? '' : ' hidden'}>
-					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">个人套餐</div><p>PRO 是长期订阅主档；ULTRA 的差异集中在 AI、自动化和高级分析。</p></div><span class="pc-tag">按周期定价</span></div>
+					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">个人套餐</div><p>日常价用于用户端划线展示；当前售价用于报价和实际支付。日常价不得低于当前售价。</p></div><span class="pc-tag">双价格展示</span></div>
 					<div class="pc-responsive-table-region" role="region" aria-label="个人套餐价格" tabindex="0">
 						<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天</th><th>90 天</th><th>365 天</th></tr></thead><tbody>${personalRows}</tbody></table>
 					</div>
 				</div>
 				<div class="pc-card pc-lite-list-card" data-pricing-plan-panel="organization"${activePricingPlanScope === 'organization' ? '' : ' hidden'}>
-					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构 / 企业套餐</div><p>月付价格在这里维护；年付订单统一按下方席位阶梯计价。</p></div><span class="pc-tag">成员席位计费</span></div>
+					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">学校 / 教育机构套餐</div><p>PRO 支持月付、季付和年付；年付订单统一按下方席位阶梯计价。</p></div><span class="pc-tag">机构席位计费</span></div>
 					<div class="pc-responsive-table-region" role="region" aria-label="机构套餐价格" tabindex="0">
-						<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天单价</th><th>最低席位</th><th>年付方式</th></tr></thead><tbody>${organizationRows}</tbody></table>
+						<table class="pc-pricing-table"><thead><tr><th>套餐</th><th>30 天单价</th><th>90 天单价</th><th>最低席位</th><th>年付方式</th></tr></thead><tbody>${organizationRows}</tbody></table>
 					</div>
 				</div>
 				<div class="pc-card pc-lite-list-card" data-pricing-plan-panel="organization"${activePricingPlanScope === 'organization' ? '' : ' hidden'}>
-					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构年付阶梯价</div><p>命中档位后，全部席位采用该档年单价；达到定制门槛后不再创建自助订单。</p></div><span class="pc-tag">整单阶梯</span></div>
+					<div class="pc-pricing-section-head"><div><div class="pc-my-content-head">机构年付阶梯价</div><p>PRO 按各档实际席位数累进计价；前一档席位不会因人数增加而改价。</p></div><span class="pc-tag">累进计价</span></div>
 					<div class="pc-responsive-table-region" role="region" aria-label="机构年付阶梯价格" tabindex="0">
-						<table class="pc-pricing-table"><thead><tr><th>有效席位</th><th>PRO 年单价</th><th>ULTRA 年单价</th></tr></thead><tbody>${tierRows}</tbody></table>
+						<table class="pc-pricing-table"><thead><tr><th>有效席位</th><th>PRO 年单价</th><th>ULTRA 年单价（暂未开放）</th></tr></thead><tbody>${tierRows}</tbody></table>
 					</div>
-					${tierBoundaryWarnings.length ? `<div class="pc-pricing-boundary-warning"><strong>阶梯边界提醒</strong><span>${escapeHtml(tierBoundaryWarnings.join('、'))} 的订单总价会下降，请确认符合定价策略。</span></div>` : ''}
 					<div class="pc-pricing-controls">
-						<label class="pc-org-field"><span>转定制报价席位数</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="2" step="1" data-price-custom-quote value="${organization.customQuoteMinSeats}" /><b>席</b></div></label>
-						<label class="pc-org-field"><span>默认支付渠道</span><select class="pc-profile-input" data-pricing-default-provider>
-							<option value="wechat"${paymentPricingConfig.defaultProvider === 'wechat' ? ' selected' : ''}>微信支付</option>
-							<option value="alipay"${paymentPricingConfig.defaultProvider === 'alipay' ? ' selected' : ''}>支付宝</option>
-							<option value="stripe"${paymentPricingConfig.defaultProvider === 'stripe' ? ' selected' : ''}>Stripe（海外卡/国际支付）</option>
-						</select></label>
+						<label class="pc-org-field"><span>转定制报价席位数</span><div class="pc-pricing-suffix-field"><input class="pc-profile-input" type="number" min="0" step="1" data-price-custom-quote value="${organization.customQuoteMinSeats}" /><b>席</b></div><small>填写 0 表示不强制转人工报价。</small></label>
+						<div class="pc-org-field pc-pricing-provider-field"><span>默认支付渠道</span>${defaultProviderSelect}<small>用于新建订单和自动续费的默认选项。</small></div>
 					</div>
 				</div>
 			</section>
@@ -9642,12 +12291,20 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				personal: {
 					durations: [...paymentPricingConfig.catalogs.personal.durations],
 					prices_cents: JSON.parse(JSON.stringify(paymentPricingConfig.catalogs.personal.pricesCents)) as PaymentPriceMatrix,
-					offers: paymentPricingConfig.catalogs.personal.offers.map((offer) => ({
+					list_prices_cents: JSON.parse(JSON.stringify(paymentPricingConfig.catalogs.personal.listPricesCents)) as PaymentPriceMatrix,
+					plans: {
+						pro: { enabled: paymentPricingConfig.catalogs.personal.planEnabled.pro },
+						ultra: { enabled: paymentPricingConfig.catalogs.personal.planEnabled.ultra }
+					},
+						offers: paymentPricingConfig.catalogs.personal.offers.map((offer) => ({
 						id: offer.id,
 						kind: offer.kind,
 						label: offer.label,
 						enabled: offer.enabled,
-						discount_percent: offer.discountPercent,
+							discount_percent: offer.discountPercent,
+							reward_percent: offer.rewardPercent,
+							maximum_reward_cents: offer.maximumRewardCents,
+							eligible_plan: offer.id === 'referral_reward' ? 'pro' : undefined,
 						starts_at: offer.startsAt,
 						ends_at: offer.endsAt
 					}))
@@ -9656,16 +12313,19 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					durations: [...paymentPricingConfig.catalogs.organization.durations],
 					prices_cents: JSON.parse(JSON.stringify(paymentPricingConfig.catalogs.organization.pricesCents)) as PaymentPriceMatrix,
 					plans: {
-						pro: { minimum_seats: paymentPricingConfig.catalogs.organization.minimumSeats.pro },
-						ultra: { minimum_seats: paymentPricingConfig.catalogs.organization.minimumSeats.ultra }
+						pro: { enabled: paymentPricingConfig.catalogs.organization.planEnabled.pro, minimum_seats: paymentPricingConfig.catalogs.organization.minimumSeats.pro, pricing_mode: paymentPricingConfig.catalogs.organization.pricingMode.pro },
+						ultra: { enabled: paymentPricingConfig.catalogs.organization.planEnabled.ultra, minimum_seats: paymentPricingConfig.catalogs.organization.minimumSeats.ultra, pricing_mode: paymentPricingConfig.catalogs.organization.pricingMode.ultra }
 					},
 					custom_quote_min_seats: paymentPricingConfig.catalogs.organization.customQuoteMinSeats,
-					offers: paymentPricingConfig.catalogs.organization.offers.map((offer) => ({
+						offers: paymentPricingConfig.catalogs.organization.offers.map((offer) => ({
 						id: offer.id,
 						kind: offer.kind,
 						label: offer.label,
 						enabled: offer.enabled,
-						discount_percent: offer.discountPercent,
+							discount_percent: offer.discountPercent,
+							reward_percent: offer.rewardPercent,
+							maximum_reward_cents: offer.maximumRewardCents,
+							eligible_plan: offer.id === 'referral_reward' ? 'pro' : undefined,
 						starts_at: offer.startsAt,
 						ends_at: offer.endsAt
 					})),
@@ -9687,6 +12347,15 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				payload.catalogs[scope].prices_cents.cny[plan][days] = Math.round(yuan * 100);
 			} else if (!invalidPriceInput) invalidPriceInput = input;
 		});
+		form.querySelectorAll<HTMLInputElement>('[data-list-price-scope="personal"][data-price-plan][data-price-days]').forEach((input) => {
+			const plan = input.dataset.pricePlan as PaidPersonalPlan;
+			const days = input.dataset.priceDays || '30';
+			const yuan = Number(input.value);
+			const sellingPriceCents = payload.catalogs.personal.prices_cents.cny[plan]?.[days] || 0;
+			if ((plan === 'pro' || plan === 'ultra') && Number.isFinite(yuan) && yuan > 0 && Math.round(yuan * 100) >= sellingPriceCents) {
+				payload.catalogs.personal.list_prices_cents.cny[plan][days] = Math.round(yuan * 100);
+			} else if (!invalidPriceInput) invalidPriceInput = input;
+		});
 		form.querySelectorAll<HTMLInputElement>('[data-price-min-seats]').forEach((input) => {
 			const plan = input.dataset.priceMinSeats as PaidPersonalPlan;
 			const value = Number(input.value);
@@ -9704,7 +12373,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		});
 		const customQuoteInput = form.querySelector('[data-price-custom-quote]') as HTMLInputElement | null;
 		const customQuote = Number(customQuoteInput?.value || '0');
-		if (Number.isInteger(customQuote) && customQuote > 1) {
+		if (Number.isInteger(customQuote) && (customQuote === 0 || customQuote > 1)) {
 			payload.catalogs.organization.custom_quote_min_seats = customQuote;
 		} else if (!invalidPriceInput) invalidPriceInput = customQuoteInput;
 		const reminderInput = form.querySelector('[data-renewal-reminder-days]') as HTMLInputElement | null;
@@ -9733,11 +12402,26 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				: payload.catalogs.organization.offers;
 			const offer = offers.find((item) => item.id === id);
 			const discountInput = card.querySelector('[data-offer-discount]') as HTMLInputElement | null;
+			const rewardPercentInput = card.querySelector('[data-offer-reward-percent]') as HTMLInputElement | null;
+			const rewardCapInput = card.querySelector('[data-offer-reward-cap]') as HTMLInputElement | null;
 			const startInput = card.querySelector('[data-offer-start]') as HTMLInputElement | null;
 			const endInput = card.querySelector('[data-offer-end]') as HTMLInputElement | null;
 			const discount = Number(discountInput?.value || '0');
 			const toIso = (value: string): string => value ? new Date(value).toISOString() : '';
-			if (!offer || !Number.isInteger(discount) || discount < 0 || discount > 90) {
+			if (!offer) {
+				return;
+			}
+			if (id === 'referral_reward') {
+				const rewardPercent = Number(rewardPercentInput?.value || '0');
+				const rewardCapYuan = Number(rewardCapInput?.value || '0');
+				if (!Number.isInteger(rewardPercent) || rewardPercent < 1 || rewardPercent > 50 ||
+					!Number.isFinite(rewardCapYuan) || rewardCapYuan <= 0 || rewardCapYuan > 1000) {
+					if (!invalidPriceInput) invalidPriceInput = rewardPercent < 1 || rewardPercent > 50 ? rewardPercentInput : rewardCapInput;
+					return;
+				}
+				offer.reward_percent = rewardPercent;
+				offer.maximum_reward_cents = Math.round(rewardCapYuan * 100);
+			} else if (!Number.isInteger(discount) || discount < 0 || discount > 90) {
 				if (!invalidPriceInput) invalidPriceInput = discountInput;
 				return;
 			}
@@ -9755,7 +12439,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				return;
 			}
 			offer.enabled = (card.querySelector('[data-offer-enabled]') as HTMLInputElement | null)?.checked === true;
-			offer.discount_percent = discount;
+			offer.discount_percent = id === 'referral_reward' ? 0 : discount;
 			offer.starts_at = startsAt;
 			offer.ends_at = endsAt;
 		});
@@ -10259,13 +12943,18 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (activeRoleContent === 'student-assignments') {
 			return renderMyAssignmentsPage(ctx);
 		}
+		if (activeRoleContent === 'student-review-library') {
+			return renderStudentReviewLibraryPage();
+		}
 		if (activeRoleContent === 'student-favorites') {
+			void ensureFavoriteBookmarks(ctx);
 			return renderFavoritesPage();
 		}
 		if (activeRoleContent === 'student-recent') {
 			void ensureRecentLearning(ctx);
 			return renderRecentLearningPage();
 		}
+		if (activeRoleContent === 'account-messages') return renderMessageCenterPage(ctx);
 		if (activeRoleContent === 'student-account-plan') return renderAccountPlanPage(ctx);
 		if (activeRoleContent === 'student-account-coupons') return renderAccountCouponsPage(ctx);
 		if (activeRoleContent === 'student-account-feedback') return renderAccountFeedbackPage();
@@ -11321,10 +14010,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const target = event.target as HTMLElement | null;
 			const referralCopyButton = target?.closest('[data-referral-copy]') as HTMLButtonElement | null;
 			if (referralCopyButton) {
-				const value = referralCopyButton.dataset.referralCopy || '';
-				void copyTextToClipboard(value).then((copied) => {
-					showToast(copied ? '推荐链接已复制' : '复制失败，请手动复制');
-				});
+				void copyReferralValue(referralCopyButton);
 				return;
 			}
 			if (handleAccountSessionClick(target)) {
@@ -11486,6 +14172,76 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	function handleFeatureIntent(intent: string): void {
+		if (intent.startsWith('openStudentFreePractice:')) {
+			const requestedDomain = intent.slice('openStudentFreePractice:'.length) as StudentDomainId;
+			const target = studentCurrentExamTarget();
+			chapterFilterFamily = target === 'EJU 日本語' ? 'eju' : 'jlpt';
+			chapterFilterLevel = target.match(/N[1-5]/i)?.[0]?.toUpperCase() || '';
+			chapterFilterDomain = studentDomainsForTarget(target).some((domain) => domain.id === requestedDomain) ? requestedDomain : '';
+			chapterLockedToCurrentTarget = true;
+			void openChapterPathPanel();
+			return;
+		}
+		if (intent === 'openCurrentTargetExamLibrary') {
+			closePlatformAdmin();
+			window.dispatchEvent(new CustomEvent('selectExamTarget', { detail: { target: studentCurrentExamTarget() } }));
+			return;
+		}
+		if (intent === 'startStudentDiagnosis') {
+			const target = studentCurrentExamTarget();
+			const diagnostic = studentDiagnosticExamForTarget(target);
+			if (!diagnostic) {
+				showToast(`${target} 暂无独立入门诊断，请先选择专项练习`);
+				handleFeatureIntent('openChapterPath');
+				return;
+			}
+			const viewer = (window as unknown as { examViewer?: { examMode?: 'practice' | 'mock' } }).examViewer;
+			if (viewer) viewer.examMode = 'mock';
+			try { localStorage.setItem('examViewer.mode', 'mock'); } catch { }
+			void resumeExam(diagnostic.examId, null, `已开始 ${target} 入门诊断`);
+			return;
+		}
+		if (intent === 'openStudentDiagnosis' || intent.startsWith('openStudentDomain:')) {
+			openStudentLearningGuide(intent.split(':')[1]);
+			return;
+		}
+		if (intent === 'refreshStudentLearning') {
+			void ensureStudentLearningQueue(getContext(), true);
+			renderSectionContent();
+			return;
+		}
+		if (intent.startsWith('openStudentQueue:')) {
+			const wrong = intent.endsWith(':wrong');
+			const requestedDomain = wrong ? '' : intent.split(':')[2] || '';
+			const items = wrong
+				? studentTargetItems(studentLearningQueue?.wrong || [])
+				: studentRecommendedItems().filter((item) => !requestedDomain || requestedDomain === 'mixed' ? !requestedDomain || !studentItemDomain(item) : studentItemDomain(item) === requestedDomain);
+			const surface = openStudentLearningDetail(wrong ? '近期错题订正' : 'N2 验证练习');
+			if (wrong) activeWrongCorrectionItems = items;
+			surface.innerHTML = items.map((item, index) => studentHomeRow(
+				studentExamTitle(item),
+				`题目 ${String(item.question_id || '')}`,
+				wrong ? '去订正' : '去练习',
+				wrong ? `openWrongCorrection:${index}` : openExamQuestionIntent(String(item.exam_id || ''), String(item.question_id || ''), Math.max(0, readNumber(item.section_index) || 0))
+			)).join('') || '<p class="pc-learning-note">当前没有待学题目。</p>';
+			return;
+		}
+		if (intent.startsWith('openWrongCorrection:')) {
+			const index = Number(intent.slice('openWrongCorrection:'.length));
+			void openWrongCorrectionQuestion(Number.isInteger(index) ? index : 0);
+			return;
+		}
+		if (intent.startsWith('openStudentRecent:')) {
+			const examId = decodeURIComponent(intent.slice('openStudentRecent:'.length));
+			const item = recentLearningItems.find((row) => String(row.exam_id || row.paper_id) === examId);
+			if (item) void resumeExam(examId, { last_section_index: readNumber(item.last_section_index), last_question_index: readNumber(item.last_question_index) });
+			return;
+		}
+		if (intent.startsWith('openStudentResult:')) {
+			const [examId, source = ''] = intent.slice('openStudentResult:'.length).split(':');
+			void openStudentResult(decodeURIComponent(examId), source);
+			return;
+		}
 		if (intent.startsWith('openEntitlementUpgrade:')) {
 			const [, entitlementKey = '', requiredPlan = ''] = intent.split(':');
 			const planLabel = decodeURIComponent(requiredPlan || '').toUpperCase() || '更高';
@@ -11656,6 +14412,8 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				break;
 			case 'openChapterPath':
 				// 功能 #18：章节式学习路径
+				chapterFilterDomain = '';
+				chapterLockedToCurrentTarget = false;
 				void openChapterPathPanel();
 				break;
 			case 'openStudyGoal':
@@ -12178,6 +14936,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			void submitOrganizationPaymentOrder(form);
 			return true;
 		}
+		if (form.matches('form[data-org-self-service-order-form]')) {
+			void submitOrganizationSelfServiceOrder(form);
+			return true;
+		}
 		if (form.matches('form[data-platform-refund-status-form]')) {
 			void submitRefundStatus(form);
 			return true;
@@ -12471,6 +15233,29 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	function attachDashboardHandlers(container: HTMLElement): void {
 		bindOrganizationMemberForms(container);
+		requestAnimationFrame(() => {
+			container.querySelectorAll<HTMLElement>('[data-account-recharge-panel]').forEach((panel) => {
+				if (panel.isConnected) void updateRechargePreview(panel, getContext());
+			});
+		});
+		container.querySelectorAll<HTMLDetailsElement>('[data-account-order-history]').forEach((history) => {
+			history.addEventListener('toggle', () => {
+				accountOrderHistoryExpanded = history.open;
+			});
+		});
+		container.querySelectorAll<HTMLDetailsElement>('[data-inline-benefit-section]').forEach((details) => {
+			details.addEventListener('toggle', () => {
+				const section = details.dataset.inlineBenefitSection || '';
+				if (details.open) expandedInlineBenefitSections.add(section);
+				else expandedInlineBenefitSections.delete(section);
+				if (details.open && section === 'records') {
+					void loadInlineRedemptionRecords(details);
+				}
+			});
+			if (details.open && details.dataset.inlineBenefitSection === 'records') {
+				void loadInlineRedemptionRecords(details);
+			}
+		});
 		container.querySelectorAll<HTMLDetailsElement>('[data-admin-page-size-menu],[data-admin-select-menu]').forEach((menu) => {
 			menu.addEventListener('toggle', () => {
 				if (menu.classList.contains('is-disabled') && menu.open) {
@@ -12573,6 +15358,20 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		container.querySelectorAll<HTMLFormElement>('form[data-org-subscription-form], form[data-org-course-package-form], form[data-org-course-package-assignment-form]').forEach((form) => { form.noValidate = true; });
 		container.onclick = (event: MouseEvent) => {
 			const target = eventTargetElement(event.target);
+			const referralCopyButton = target?.closest('[data-referral-copy]') as HTMLButtonElement | null;
+			if (referralCopyButton) {
+				event.preventDefault();
+				event.stopPropagation();
+				void copyReferralValue(referralCopyButton);
+				return;
+			}
+			const copyPaymentOrder = target?.closest('[data-copy-payment-order]') as HTMLButtonElement | null;
+			if (copyPaymentOrder) {
+				event.preventDefault();
+				event.stopPropagation();
+				void copyPaymentOrderNumber(copyPaymentOrder);
+				return;
+			}
 			const disabledAdminSelect = target?.closest('.pc-admin-select.is-disabled > summary');
 			if (disabledAdminSelect) {
 				event.preventDefault();
@@ -12605,6 +15404,22 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			const autoRenewToggle = target?.closest('[data-auto-renew-toggle]') as HTMLButtonElement | null;
 			if (autoRenewToggle) {
 				void toggleAutoRenewal(autoRenewToggle);
+				return;
+			}
+			const messageCategory = target?.closest('[data-message-center-category]') as HTMLButtonElement | null;
+			if (messageCategory) {
+				const category = messageCategory.dataset.messageCenterCategory as MessageCenterCategory | undefined;
+				if (category && ['all', 'system', 'teaching', 'interaction'].includes(category)) {
+					activeMessageCenterCategory = category;
+					renderSectionContent({ preserveScroll: true });
+				}
+				return;
+			}
+			if (target?.closest('[data-message-center-refresh]')) {
+				const ctx = getContext();
+				const requests: Promise<void>[] = [ensurePaymentNotifications(true)];
+				if (hasAnyRole(ctx, ['student', 'superAdmin'])) requests.push(ensureMyAssignments(ctx, true));
+				void Promise.all(requests);
 				return;
 			}
 			const notificationRead = target?.closest('[data-payment-notification-read]') as HTMLButtonElement | null;
@@ -12912,6 +15727,14 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			if (!form) {
 				return;
 			}
+			if (form.hasAttribute('data-inline-redeem-form')) {
+				void submitInlineRedeem(form);
+				return;
+			}
+			if (form.hasAttribute('data-account-recharge-form')) {
+				void submitRecharge(form, getContext());
+				return;
+			}
 			if (handleContactVerificationSubmit(form)) {
 				return;
 			}
@@ -12961,6 +15784,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					const summary = pricingOfferCard.querySelector<HTMLElement>('.pc-pricing-offer-discount');
 					if (summary) summary.textContent = `减免 ${target.value || '0'}%`;
 				}
+				if (target.hasAttribute('data-offer-reward-percent') || target.hasAttribute('data-offer-reward-cap')) {
+					const percent = (pricingOfferCard.querySelector('[data-offer-reward-percent]') as HTMLInputElement | null)?.value || '0';
+					const cap = (pricingOfferCard.querySelector('[data-offer-reward-cap]') as HTMLInputElement | null)?.value || '0';
+					const summary = pricingOfferCard.querySelector<HTMLElement>('.pc-pricing-offer-discount');
+					if (summary) summary.textContent = `返 ${percent}% · 最高 ¥${cap}`;
+				}
 				if (target.hasAttribute('data-offer-start') || target.hasAttribute('data-offer-end')) {
 					const start = (pricingOfferCard.querySelector('[data-offer-start]') as HTMLInputElement | null)?.value.slice(0, 10) || '';
 					const end = (pricingOfferCard.querySelector('[data-offer-end]') as HTMLInputElement | null)?.value.slice(0, 10) || '';
@@ -12982,7 +15811,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				applyPlatformSystemFlagFilters(container);
 				return;
 			}
-			const paymentForm = target.closest('form[data-organization-payment-order-form]') as HTMLFormElement | null;
+			const paymentForm = target.closest('form[data-organization-payment-order-form], form[data-org-self-service-order-form]') as HTMLFormElement | null;
 			if (paymentForm && target.matches('[data-org-payment-seats]')) {
 				void updateOrganizationPaymentPreview(paymentForm);
 				return;
@@ -13028,6 +15857,12 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		};
 		container.onchange = (event: Event) => {
 			const target = event.target as HTMLElement | null;
+			const accountRechargeForm = target?.closest('form[data-account-recharge-form]') as HTMLFormElement | null;
+			if (accountRechargeForm) {
+				accountRechargeForm.dataset.pcDirty = 'true';
+				void updateRechargePreview(accountRechargeForm, getContext());
+				return;
+			}
 			const offerEnabled = target?.closest('[data-offer-enabled]') as HTMLInputElement | null;
 			if (offerEnabled) {
 				const status = offerEnabled.closest<HTMLElement>('[data-price-offer-card]')?.querySelector<HTMLElement>('[data-offer-status]');
@@ -13063,7 +15898,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			}
 			const editedForm = target?.closest('form');
 			if (editedForm) editedForm.dataset.pcDirty = 'true';
-			const paymentForm = target?.closest('form[data-organization-payment-order-form]') as HTMLFormElement | null;
+			const paymentForm = target?.closest('form[data-organization-payment-order-form], form[data-org-self-service-order-form]') as HTMLFormElement | null;
 			if (paymentForm && target?.matches('[data-org-payment-plan], [data-org-payment-days], [data-org-payment-organization-id]')) {
 				void updateOrganizationPaymentPreview(paymentForm, target.matches('[data-org-payment-plan]'));
 				return;
@@ -13261,11 +16096,11 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const definitions: Record<PaidPersonalPlan, { target: string; features: string[] }> = {
 			pro: {
 				target: '单校区、小型培训机构和小型团队',
-				features: ['完整教学闭环', '1 个校区', '3 个机构管理员', '基础统计与标准导出']
+				features: ['完整教学闭环', '1 个主管理员', '可增管理账号', '基础统计与标准导出']
 			},
 			ultra: {
 				target: '多校区、中型机构及深度分析需求',
-				features: ['跨校区分析', '风险预警与自动报告', '5 个校区', '10 个机构管理员']
+				features: ['跨校区分析', '风险预警与自动报告', '1 个主管理员', '可增管理账号']
 			}
 		};
 		const cards = (['pro', 'ultra'] as PaidPersonalPlan[]).map((plan) => {
@@ -13281,7 +16116,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}).join('');
 		return `<div class="pc-card pc-info-card" style="margin-top:12px;">
 			<div class="pc-service-header">机构套餐价格</div>
-			<div class="pc-admin-note">价格来自统一支付商品目录。所有正式机构成员统一占席，同一账号只计算一次；${catalog.customQuoteMinSeats} 席及以上进入企业定制报价。</div>
+			<div class="pc-admin-note">价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500、501 席以上累进计价。</div>
 			<div class="pc-pricing-plan-grid">${cards}</div>
 		</div>`;
 	}
@@ -14293,6 +17128,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			if (!form) {
 				return;
 			}
+			if (form.matches('form[data-org-self-service-order-form]')) {
+				void submitOrganizationSelfServiceOrder(form);
+				return;
+			}
 			if (form.matches('form[data-managed-org-list-form]')) {
 				managedOrganizationListPage.query = (form.querySelector('[data-managed-org-query]') as HTMLInputElement | null)?.value.trim() || '';
 				managedOrganizationListPage.page = 1;
@@ -14673,10 +17512,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		const el = document.createElement('div');
 		el.id = 'wq-modal';
-		el.className = 'risk-modal risk-hidden';
+		el.className = 'risk-modal risk-hidden pc-student-tool-modal';
 		el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:9999;';
 		el.innerHTML = `<div class="risk-backdrop" data-wq-act="close"></div>
-			<div class="risk-panel" style="position:relative;background:#fff;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,0.2);max-width:720px;width:90%;max-height:88vh;overflow:auto;">
+			<div class="risk-panel pc-student-tool-panel" style="position:relative;background:#fff;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,0.2);max-width:720px;width:90%;max-height:88vh;overflow:auto;">
 				<div class="risk-header"><strong id="wq-title">错题本</strong><button type="button" id="wq-close" class="risk-close" data-wq-act="close" aria-label="关闭错题本">×</button></div>
 				<div id="wq-summary" style="padding:8px 16px;font-size:13px;color:#555;"></div>
 				<div id="wq-toolbar" style="display:flex;gap:8px;align-items:center;padding:0 16px 8px 16px;flex-wrap:wrap;font-size:13px;">
@@ -15022,6 +17861,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	//   - 渲染当前卡（题面 + 答案揭示）+ 0/1/2/3 评分按钮
 	//   - 评分后取下一张；列表空则显示"今日已复习完毕"
 	let srsModal: HTMLDivElement | null = null;
+	let activeSrsReviewQueue: Record<string, unknown>[] = [];
+	let activeSrsReviewTotal = 0;
+	const activeSrsRetryCards = new Set<string>();
 	function ensureSrsModal(): HTMLDivElement {
 		if (srsModal) return srsModal;
 		const modal = document.createElement('div');
@@ -15053,54 +17895,159 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return modal;
 	}
 
+	function findSrsQuestion(examData: unknown, questionId: string, requestedSectionIndex?: number): Record<string, unknown> | null {
+		const document = asRecord(examData);
+		const root = asRecord(document?.exam_info) || document;
+		const sections = Array.isArray(root?.sections) ? root.sections : [];
+		for (const [sectionIndex, sectionValue] of sections.entries()) {
+			if (requestedSectionIndex !== undefined && sectionIndex !== requestedSectionIndex) continue;
+			const section = asRecord(sectionValue);
+			if (!section) continue;
+			const sectionTitle = readString(section.section_title) || readString(section.description) || readString(section.section_name) || '';
+			const direct = Array.isArray(section.questions) ? section.questions : [];
+			for (const value of direct) {
+				const question = asRecord(value);
+				if (question && String(question.id ?? '') === questionId) return { ...question, __section_title: sectionTitle };
+			}
+			const passages = Array.isArray(section.passages) ? section.passages : [];
+			for (const passageValue of passages) {
+				const passage = asRecord(passageValue);
+				const questions = Array.isArray(passage?.questions) ? passage.questions : [];
+				for (const value of questions) {
+					const question = asRecord(value);
+					if (question && String(question.id ?? '') === questionId) {
+						return { ...question, passage: question.passage || passage?.passage || passage?.text || '', __section_title: sectionTitle };
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	function formatSrsQuestion(text: string, targetWords: unknown): string {
+		let html = escapeHtmlSafe(text);
+		if (!Array.isArray(targetWords)) return html;
+		for (const raw of targetWords) {
+			const word = String(raw || '').trim();
+			if (!word) continue;
+			const escaped = escapeHtmlSafe(word);
+			html = html.split(escaped).join(`<span class="pc-srs-target">${escaped}</span>`);
+		}
+		return html;
+	}
+
+	function formatSrsExplanation(text: string): string {
+		return text.split(/\r?\n/).map((line) => {
+			const trimmed = line.trim();
+			if (!trimmed) return '<span class="pc-srs-explanation-space" aria-hidden="true"></span>';
+			if (/^【[^】]+】$/.test(trimmed)) return `<strong class="pc-srs-explanation-label">${escapeHtmlSafe(trimmed)}</strong>`;
+			return `<span>${escapeHtmlSafe(line)}</span>`;
+		}).join('');
+	}
+
 	function renderSrsCard(card: Record<string, unknown> | null): string {
 		if (!card) {
-			return '<div style="padding:24px;text-align:center;color:#3a7;">🎉 今日复习已完成，明天见！</div>';
+			return '<div class="pc-srs-empty">今日到期题目已复习完成</div>';
 		}
 		const snapshot = (card.snapshot as Record<string, unknown>) || {};
 		const question = String(snapshot.question || '(无题面快照)');
 		const correct = String(snapshot.correct_answer || '');
 		const explanation = String(snapshot.explanation || '');
-		const optionsHtml = Array.isArray(snapshot.options)
-			? `<ul style="margin:8px 0;padding-left:20px;">${(snapshot.options as unknown[])
-					.map((o) => `<li>${escapeHtmlSafe(String(o))}</li>`)
-					.join('')}</ul>`
-			: '';
-		return `
-			<div>
-				<div style="font-size:12px;color:#999;margin-bottom:6px;">试卷 <code>${escapeHtmlSafe(String(card.exam_id || ''))}</code> · 题 <code>${escapeHtmlSafe(String(card.question_id || ''))}</code></div>
-				<div style="font-size:14px;margin-bottom:8px;">${escapeHtmlSafe(question)}</div>
-				${optionsHtml}
-				<details style="margin-top:8px;">
-					<summary style="cursor:pointer;color:#1976d2;">查看答案与解析</summary>
-					<div style="margin-top:6px;padding:8px;background:#f5f5f5;border-radius:4px;">
-						<div><strong>答案：</strong>${escapeHtmlSafe(correct)}</div>
-						${explanation ? `<div style="margin-top:4px;color:#666;">${escapeHtmlSafe(explanation)}</div>` : ''}
-					</div>
-				</details>
-			</div>`;
+		const explanationExpand = String(snapshot.explanation_expand || '');
+		const sectionTitle = String(snapshot.__section_title || '');
+		const options = Array.isArray(snapshot.options) ? snapshot.options : [];
+		const normalizedCorrect = correct.trim().toUpperCase();
+		const optionsHtml = options.map((option, index) => {
+			const value = String(option);
+			const prefix = value.match(/^\s*([1-9]|[A-Z])[.．、\s]/i)?.[1]?.toUpperCase() || String(index + 1);
+			const isCorrect = normalizedCorrect === prefix || normalizedCorrect === String(index + 1) || normalizedCorrect === String.fromCharCode(65 + index);
+			return `<div class="pc-srs-option${isCorrect ? ' is-correct' : ''}">${escapeHtmlSafe(value)}</div>`;
+		}).join('');
+		const explanationHtml = [
+			explanation ? `<div class="pc-srs-explanation">${formatSrsExplanation(explanation)}</div>` : '',
+			explanationExpand ? `<div class="pc-srs-explanation pc-srs-explanation-expand">${formatSrsExplanation(explanationExpand)}</div>` : ''
+		].filter(Boolean).join('');
+		return `<article class="pc-srs-card">
+			<div class="pc-srs-card-meta"><span>${escapeHtmlSafe(studentExamTitle(card))}</span><strong>问题 ${escapeHtmlSafe(String(snapshot.id || snapshot.question_id || card.question_id || ''))}</strong></div>
+			${sectionTitle ? `<h2>${escapeHtmlSafe(sectionTitle)}</h2>` : ''}
+			<div class="pc-srs-question">${formatSrsQuestion(question, snapshot.target_words)}</div>
+			<div class="pc-srs-options">${optionsHtml}</div>
+			<details class="pc-srs-answer">
+				<summary>查看答案与解析</summary>
+				<div class="pc-srs-answer-body"><div class="pc-srs-correct-answer">正确答案：${escapeHtmlSafe(correct || '—')}</div>${explanationHtml || '<p>这道题暂时没有解析。</p>'}</div>
+			</details>
+		</article>`;
 	}
 
-	async function loadAndRenderSrsCard(modal: HTMLDivElement, userId: string): Promise<void> {
+	function srsQuestionKey(item: Record<string, unknown>): string {
+		const snapshot = asRecord(item.snapshot) || asRecord(item.question_snapshot);
+		const storedQuestionId = readString(item.question_id) || '';
+		const composite = storedQuestionId.match(/^\d+:(.+)$/);
+		const questionId = readString(snapshot?.question_id) || composite?.[1] || storedQuestionId;
+		return `${readString(item.exam_id)}\u001f${questionId}`;
+	}
+
+	async function hydrateSrsCard(card: Record<string, unknown>): Promise<Record<string, unknown>> {
+		const api = window.APIClient;
+		if (typeof api?.getExam !== 'function') return card;
+		try {
+			const exam = await api.getExam(String(card.exam_id || ''));
+			const snapshot = asRecord(card.snapshot) || {};
+			const storedQuestionId = String(card.question_id || '');
+			const composite = storedQuestionId.match(/^(\d+):(.+)$/);
+			const sourceQuestionId = readString(snapshot.question_id) || composite?.[2] || storedQuestionId;
+			const rawSectionIndex = readNumber(snapshot.section_index);
+			const sectionIndex = rawSectionIndex !== null && rawSectionIndex !== undefined
+				? Math.max(0, rawSectionIndex)
+				: composite ? Number(composite[1]) : undefined;
+			const liveQuestion = findSrsQuestion(exam, sourceQuestionId, sectionIndex);
+			if (liveQuestion) return { ...card, snapshot: { ...snapshot, ...liveQuestion } };
+		} catch { /* 试卷不可读取时继续使用入卡快照。 */ }
+		return card;
+	}
+
+	async function loadAndRenderSrsCard(modal: HTMLDivElement): Promise<void> {
 		const body = modal.querySelector('#srs-body') as HTMLDivElement;
 		const footer = modal.querySelector('#srs-footer') as HTMLDivElement;
 		body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">加载中…</div>';
 		footer.style.display = 'none';
+		let card = activeSrsReviewQueue[0] || null;
+		if (card) {
+			card = await hydrateSrsCard(card);
+			activeSrsReviewQueue[0] = card;
+		}
+		body.innerHTML = renderSrsCard(card);
+		body.dataset.cardId = card ? String(card.card_id || '') : '';
+		const title = modal.querySelector('#srs-title');
+		const completed = Math.max(0, activeSrsReviewTotal - activeSrsReviewQueue.length);
+		if (title) title.textContent = card ? `到期复习 ${completed + 1}/${activeSrsReviewTotal}` : '今日到期复习已完成';
+		const answer = body.querySelector<HTMLDetailsElement>('.pc-srs-answer');
+		answer?.addEventListener('toggle', () => {
+			footer.style.display = answer.open ? 'block' : 'none';
+		});
+	}
+
+	async function prepareTodaySrsQueue(ctx: PCContext): Promise<void> {
 		const api = window.APIClient;
-		if (!api || typeof api.listSrsDue !== 'function') {
-			body.innerHTML = '<div style="padding:24px;color:#a33;">客户端 SRS API 未注入</div>';
+		if (!ctx.id || !api || typeof api.listSrsDue !== 'function' || typeof api.getDailyPractice !== 'function') {
+			activeSrsReviewQueue = [];
+			activeSrsReviewTotal = 0;
 			return;
 		}
-		try {
-			const data = (await api.listSrsDue(userId, 1)) as { items?: Array<Record<string, unknown>> } | null;
-			const items = Array.isArray(data?.items) ? data!.items : [];
-			const card = items[0] || null;
-			body.innerHTML = renderSrsCard(card);
-			body.dataset.cardId = card ? String(card.card_id || '') : '';
-			footer.style.display = card ? 'block' : 'none';
-		} catch (err) {
-			body.innerHTML = `<div style="padding:24px;color:#a33;">加载失败：${escapeHtmlSafe(readErrorMessage(err, '未知错误'))}</div>`;
-		}
+		const daily = asRecord(await api.getDailyPractice(50, studentPlanMinutes(), studentCurrentExamTarget()));
+		const dailyItems = Array.isArray(daily?.items) ? daily.items.map(asRecord).filter((item): item is Record<string, unknown> => Boolean(item)) : [];
+		const completed = new Set(Array.isArray(daily?.completed_question_ids) ? daily.completed_question_ids.map(String) : []);
+		const plannedSrs = dailyItems.filter((item) => item.source === 'srs_due'
+			&& Boolean(readString(item.card_id))
+			&& !completed.has(String(item.question_id || ''))
+			&& !completed.has(`${item.exam_id}\u001f${item.question_id}`)).slice(0, 10);
+		const plannedKeys = new Set(plannedSrs.map(srsQuestionKey));
+		const data = (await api.listSrsDue(ctx.id, 100)) as { items?: Array<Record<string, unknown>> } | null;
+		const dueItems = Array.isArray(data?.items) ? data!.items.filter(studentItemMatchesCurrentTarget) : [];
+		const dueByKey = new Map(dueItems.map((item) => [srsQuestionKey(item), item]));
+		activeSrsReviewQueue = Array.from(plannedKeys).map((key) => dueByKey.get(key)).filter((item): item is Record<string, unknown> => Boolean(item));
+		activeSrsReviewTotal = activeSrsReviewQueue.length;
+		activeSrsRetryCards.clear();
 	}
 
 	async function openSrsReviewPanel(): Promise<void> {
@@ -15112,6 +18059,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		const modal = ensureSrsModal();
 		showLegacyModal(modal, '#srs-close');
+		await prepareTodaySrsQueue(ctx);
 
 		// 评分按钮事件（每次打开覆盖）
 		const footer = modal.querySelector('#srs-footer') as HTMLDivElement;
@@ -15130,8 +18078,24 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			btn.setAttribute('aria-busy', 'true');
 			btn.textContent = '提交中…';
 			try {
+				const currentCard = activeSrsReviewQueue.shift();
 				await api.reviewSrsCard(userId, cardId, grade);
-				await loadAndRenderSrsCard(modal, userId);
+				const shouldRetryOnce = grade === 0 && !activeSrsRetryCards.has(cardId);
+				if (currentCard && shouldRetryOnce) {
+					activeSrsRetryCards.add(cardId);
+					activeSrsReviewQueue.push(currentCard);
+				} else if (currentCard && typeof api.completeDailyPracticeItem === 'function') {
+					try {
+						await api.completeDailyPracticeItem(String(currentCard.question_id || ''), String(currentCard.exam_id || ''), studentCurrentExamTarget());
+					} catch (error) {
+						console.warn('[personalCenter] SRS 已评分，但今日完成状态保存失败', error);
+					}
+				}
+				await loadAndRenderSrsCard(modal);
+				if (activeSrsReviewQueue.length === 0) {
+					await ensureStudentLearningQueue(getContext(), true);
+					renderSectionContent({ preserveScroll: true });
+				}
 			} catch (err) {
 				showToast(readErrorMessage(err, '评分失败'));
 			} finally {
@@ -15141,23 +18105,23 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			}
 		};
 
-		await loadAndRenderSrsCard(modal, userId);
+		await loadAndRenderSrsCard(modal);
 	}
 
-	// 今日复习工作台：把 SRS 到期、错题复习、每日一练放到同一个入口
+	// 今日学习工作台：把 SRS 到期、错题复习、每日一练放到同一个入口
 	let reviewWorkbenchModal: HTMLDivElement | null = null;
 
 	function ensureReviewWorkbenchModal(): HTMLDivElement {
 		if (reviewWorkbenchModal) return reviewWorkbenchModal;
 		const modal = document.createElement('div');
 		modal.id = 'review-workbench-modal';
-		modal.className = 'risk-modal risk-hidden';
+		modal.className = 'risk-modal risk-hidden pc-student-tool-modal';
 		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
 		modal.innerHTML = `
-			<div class="pc-review-panel">
+			<div class="pc-review-panel pc-student-tool-panel">
 				<div class="pc-review-modal-head">
-					<div><h3 id="rw-title">今日复习</h3><p>按优先级完成今天最需要巩固的内容</p></div>
-					<button type="button" id="rw-close" aria-label="关闭复习计划">×</button>
+					<div><h3 id="rw-title">今日学习</h3><p>按优先级完成复习与推荐练习</p></div>
+					<button type="button" id="rw-close" aria-label="关闭今日学习">×</button>
 				</div>
 				<div id="rw-body" class="pc-review-body"></div>
 			</div>`;
@@ -15201,10 +18165,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		const allDone = pendingCount === 0;
 		return `<div class="pc-review-plan">
 			<section class="pc-review-summary${allDone ? ' is-complete' : ''}">
-				<div class="pc-review-summary-main"><span>${allDone ? '今日复习已完成' : `${pendingCount} 题待完成`}</span><small>${allDone ? '保持节奏，明天继续' : `预计 ${minutes} 分钟`}</small></div>
+				<div class="pc-review-summary-main"><span>${allDone ? '今日学习任务已完成' : `${pendingCount} 题待完成`}</span><small>${allDone ? '保持节奏，明天继续' : `预计 ${minutes} 分钟`}</small></div>
 				<div class="pc-review-progress"><i style="width:${progress}%"></i></div>
 				<div class="pc-review-progress-label"><span>已完成 ${completedCount} / ${totalCount}</span><em>${progress}%</em></div>
-				<button class="pc-review-primary" type="button" data-rw-action="${startAction}"${startAction ? ` data-exam-id="${escapeHtmlSafe(firstExamId)}" data-question-id="${escapeHtmlSafe(firstQuestionId)}"` : ' disabled'}>${allDone ? '今日已完成' : completedCount ? '继续今日复习' : '开始今日复习'}</button>
+				<button class="pc-review-primary" type="button" data-rw-action="${startAction}"${startAction ? ` data-exam-id="${escapeHtmlSafe(firstExamId)}" data-question-id="${escapeHtmlSafe(firstQuestionId)}"` : ' disabled'}>${allDone ? '今日已完成' : completedCount ? '继续今日学习' : '开始今日学习'}</button>
 			</section>
 			<section class="pc-review-tasks">
 				${statusRow('到期知识点', data.srs.length, '今日无任务')}
@@ -15256,7 +18220,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					} else if (action === 'open-daily') {
 						await openDailyPracticePanel();
 					} else if (action === 'open-question') {
-						await openExamQuestion(btn.dataset.examId || '', btn.dataset.questionId || '', undefined, '已开始今日复习');
+						await openExamQuestion(btn.dataset.examId || '', btn.dataset.questionId || '', undefined, '已开始今日学习');
 					}
 				} finally {
 					finishAction();
@@ -15270,7 +18234,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	async function openReviewWorkbenchPanel(): Promise<void> {
 		const ctx = getContext();
 		if (!ctx.id) {
-			showToast('请先登录后开始复习');
+			showToast('请先登录后开始今日学习');
 			return;
 		}
 		const modal = ensureReviewWorkbenchModal();
@@ -16217,10 +19181,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (dailyModal) return dailyModal;
 		const modal = document.createElement('div');
 		modal.id = 'daily-practice-modal';
-		modal.className = 'risk-modal risk-hidden';
+		modal.className = 'risk-modal risk-hidden pc-student-tool-modal';
 		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
 		modal.innerHTML = `
-			<div style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:85vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+			<div class="pc-student-tool-panel" style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:760px;max-height:85vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
 				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
 					<h3 id="dp-title" style="margin:0;font-size:16px;">🎯 每日一练 <span id="dp-date" style="color:#999;font-size:12px;font-weight:normal;"></span></h3>
 					<div>
@@ -16255,7 +19219,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				const examId = String(it.exam_id || '');
 				const source = String(it.source || '');
 				const sourceLabel = source === 'wrong_question' ? '错题本' : source === 'srs_due' ? 'SRS 到期' : source;
-				const isDone = done.has(qid);
+			const isDone = done.has(qid) || done.has(`${examId}\u001f${qid}`);
 				const checkmark = isDone ? '✅' : '⬜';
 				return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #eee;">
 					<div style="flex:1;min-width:0;">
@@ -16282,7 +19246,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			return;
 		}
 		try {
-			const data = (await api.getDailyPractice()) as Record<string, unknown> | null;
+			const data = (await api.getDailyPractice(50, studentPlanMinutes(), studentCurrentExamTarget())) as Record<string, unknown> | null;
 			const items = Array.isArray(data?.items) ? (data!.items as Array<Record<string, unknown>>) : [];
 			const completed = Array.isArray(data?.completed_question_ids)
 				? (data!.completed_question_ids as unknown[]).map(String)
@@ -16301,7 +19265,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					await openExamQuestion(examId, qid);
 				} else if (action === 'complete' && qid) {
 					try {
-						await api.completeDailyPracticeItem(qid);
+						await api.completeDailyPracticeItem(qid, examId, studentCurrentExamTarget());
 						await reloadDailyPractice();
 					} catch (err) {
 						showToast(readErrorMessage(err, '标记失败'));
@@ -16331,7 +19295,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			button.textContent = '生成中…';
 		});
 		try {
-			await api.regenerateDailyPractice();
+		await api.regenerateDailyPractice(50, studentPlanMinutes(), studentCurrentExamTarget());
 			if (reloadModal && dailyModal) await reloadDailyPractice();
 			showToast('已重新生成');
 		} catch (err) {
@@ -16353,10 +19317,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (recommendedReviewModal) return recommendedReviewModal;
 		const modal = document.createElement('div');
 		modal.id = 'recommended-review-modal';
-		modal.className = 'risk-modal risk-hidden';
+		modal.className = 'risk-modal risk-hidden pc-student-tool-modal';
 		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
 		modal.innerHTML = `
-			<div style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:820px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+			<div class="pc-student-tool-panel" style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:820px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
 				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
 					<h3 id="rr-title" style="margin:0;font-size:16px;">推荐复习</h3>
 					<button type="button" id="rr-close" aria-label="关闭推荐复习" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
@@ -16494,10 +19458,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (learningReportModal) return learningReportModal;
 		const modal = document.createElement('div');
 		modal.id = 'learning-report-modal';
-		modal.className = 'risk-modal risk-hidden';
+		modal.className = 'risk-modal risk-hidden pc-student-tool-modal';
 		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
 		modal.innerHTML = `
-			<div style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:820px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+			<div class="pc-student-tool-panel" style="background:#fff;border-radius:8px;padding:20px;min-width:560px;max-width:820px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
 				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
 					<h3 id="lr-title" style="margin:0;font-size:16px;">📈 学习报告</h3>
 					<div>
@@ -16649,33 +19613,114 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	let studyGoalModal: HTMLDivElement | null = null;
+	let studyGoalEditorItems: Record<string, unknown>[] = [];
+	const standardStudyGoalLimit = 2;
+
+	function hasUnlimitedStudyGoals(): boolean {
+		const subscription = getContext().subscription;
+		const plan = normalizePersonalPlan(subscription?.effectivePlan || subscription?.plan);
+		return plan === 'ultra' && subscription?.isActive !== false;
+	}
+
+	function normalizeStudyGoalTarget(item?: Record<string, unknown>): string | null {
+		const rawTarget = String(item?.exam_target || item?.title || '');
+		if (/EJU(?:\s*日本語)?/i.test(rawTarget)) return 'EJU 日本語';
+		const level = rawTarget.match(/(?:JLPT\s*)?(N[1-3])/i)?.[1]?.toUpperCase();
+		return level ? `JLPT ${level}` : null;
+	}
+
+	function studyGoalTarget(item?: Record<string, unknown>): string {
+		return normalizeStudyGoalTarget(item) || 'JLPT N1';
+	}
+	const jlptOfficialExamDates = ['2026-07-05', '2026-12-06'];
+	const ejuOfficialExamDates = ['2026-06-21', '2026-11-08'];
+	type StudyGoalDateSource = 'official' | 'estimated' | 'saved' | 'manual';
+	type StudyGoalDateSuggestion = { date: string; source: 'official' | 'estimated' };
+
+	function upcomingConfiguredExamDates(officialDates: string[], estimatedDates: (year: number) => string[], count = 2): StudyGoalDateSuggestion[] {
+		const now = new Date();
+		const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+		const candidates = new Map<string, 'official' | 'estimated'>();
+		for (let year = now.getFullYear(); year <= now.getFullYear() + 3; year += 1) {
+			for (const date of estimatedDates(year)) if (date >= today) candidates.set(date, 'estimated');
+		}
+		for (const date of officialDates) if (date >= today) candidates.set(date, 'official');
+		return Array.from(candidates.entries())
+			.sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+			.slice(0, count)
+			.map(([date, source]) => ({ date, source }));
+	}
+
+	function nextConfiguredExamDate(officialDates: string[], estimatedDates: (year: number) => string[]): StudyGoalDateSuggestion {
+		return upcomingConfiguredExamDates(officialDates, estimatedDates, 1)[0] || { date: '', source: 'estimated' };
+	}
+
+	function nthSunday(year: number, month: number, occurrence: number): string {
+		const first = new Date(year, month, 1);
+		const date = new Date(year, month, 1 + ((7 - first.getDay()) % 7) + (occurrence - 1) * 7);
+		return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+	}
+
+	function nextJlptExamDate(): StudyGoalDateSuggestion {
+		return nextConfiguredExamDate(jlptOfficialExamDates, (year) => [nthSunday(year, 6, 1), nthSunday(year, 11, 1)]);
+	}
+
+	function nextEjuExamDate(): StudyGoalDateSuggestion {
+		return nextConfiguredExamDate(ejuOfficialExamDates, (year) => [nthSunday(year, 5, 3), nthSunday(year, 10, 2)]);
+	}
+
+	function upcomingExamDatesForTarget(target: string): StudyGoalDateSuggestion[] {
+		if (/^JLPT N[1-3]$/.test(target)) return upcomingConfiguredExamDates(jlptOfficialExamDates, (year) => [nthSunday(year, 6, 1), nthSunday(year, 11, 1)]);
+		if (target === 'EJU 日本語') return upcomingConfiguredExamDates(ejuOfficialExamDates, (year) => [nthSunday(year, 5, 3), nthSunday(year, 10, 2)]);
+		return [];
+	}
+
+	function setStudyGoalDate(value: string, source: StudyGoalDateSource = 'manual'): void {
+		const input = studyGoalModal?.querySelector<HTMLInputElement>('#sg-date');
+		if (!input) return;
+		input.value = value;
+		input.dataset.dateSource = value ? source : '';
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+	}
+
+	function applyNextJlptExamDate(): void {
+		const suggestion = nextJlptExamDate();
+		setStudyGoalDate(suggestion.date, suggestion.source);
+	}
+
+	function applyNextEjuExamDate(): void {
+		const suggestion = nextEjuExamDate();
+		setStudyGoalDate(suggestion.date, suggestion.source);
+	}
 
 	function ensureStudyGoalModal(): HTMLDivElement {
 		if (studyGoalModal) return studyGoalModal;
 		const modal = document.createElement('div');
 		modal.id = 'study-goal-modal';
-		modal.className = 'risk-modal risk-hidden';
+		modal.className = 'risk-modal risk-hidden pc-student-tool-modal';
 		modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
 		modal.innerHTML = `
-			<div style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:720px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
+			<div class="pc-student-tool-panel" style="background:#fff;border-radius:8px;padding:20px;min-width:520px;max-width:720px;max-height:88vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,0.2);">
 				<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
 					<h3 id="sg-modal-title" style="margin:0;font-size:16px;">🎯 备考目标管理</h3>
 					<button type="button" id="sg-close" aria-label="关闭备考目标" style="background:none;border:0;font-size:18px;cursor:pointer;">×</button>
 				</div>
-				<div id="sg-list" style="margin-bottom:14px;"></div>
-				<form id="sg-form" style="border-top:1px solid #eee;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-					<label style="grid-column:1/-1;font-size:12px;color:#666;">新增目标</label>
-					<input id="sg-title" placeholder="目标标题，如：CET6 冲刺 / EJU 文综稳定 320+" maxlength="80" style="grid-column:1/-1;padding:6px;border:1px solid #ddd;border-radius:4px;" required />
-					<input id="sg-date" type="date" style="padding:6px;border:1px solid #ddd;border-radius:4px;" required />
-					<input id="sg-daily" type="number" min="0" max="1000" placeholder="每日目标题量（可选）" style="padding:6px;border:1px solid #ddd;border-radius:4px;" />
-					<input id="sg-target" placeholder="目标考试或级别（可选），如 N1 / EJU / CET6" maxlength="40" style="padding:6px;border:1px solid #ddd;border-radius:4px;" />
-					<button type="submit" style="padding:6px 12px;background:#0a7;color:#fff;border:0;border-radius:4px;cursor:pointer;">添加目标</button>
+				<div id="sg-list" class="pc-goal-list"></div>
+				<form id="sg-form" class="pc-org-add-form" data-goal-id="">
+					<div class="pc-student-tool-note">选择考试目标，再设置考试日期和每天可投入时间，系统会据此生成学习节奏。</div>
+					<div class="pc-org-form-grid">
+						<div class="pc-org-field"><span id="sg-exam-target-label">目标考试</span><div class="pc-goal-select" data-goal-select><select id="sg-exam-target" class="pc-goal-select-native" tabindex="-1" aria-hidden="true"><option value="JLPT N1" selected>JLPT N1</option><option value="JLPT N2">JLPT N2</option><option value="JLPT N3">JLPT N3</option><option value="EJU 日本語">EJU 日本語</option></select><button class="pc-goal-select-trigger" id="sg-exam-target-trigger" type="button" aria-labelledby="sg-exam-target-label sg-exam-target-value" aria-haspopup="listbox" aria-expanded="false" aria-controls="sg-exam-target-menu"><span id="sg-exam-target-value">JLPT N1</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"></path></svg></button><div class="pc-goal-select-menu" id="sg-exam-target-menu" role="listbox" aria-labelledby="sg-exam-target-label" hidden><button type="button" role="option" aria-selected="true" data-goal-value="JLPT N1">JLPT N1</button><button type="button" role="option" aria-selected="false" data-goal-value="JLPT N2">JLPT N2</button><button type="button" role="option" aria-selected="false" data-goal-value="JLPT N3">JLPT N3</button><button type="button" role="option" aria-selected="false" data-goal-value="EJU 日本語">EJU 日本語</button></div></div></div>
+						<div class="pc-org-field"><span id="sg-date-label">考试日期 <small class="pc-goal-field-hint">（自动填入；可手选）</small></span><div class="pc-goal-date" data-goal-date><input id="sg-date" class="pc-goal-date-native" type="date" tabindex="-1" aria-hidden="true" /><button class="pc-goal-date-trigger" id="sg-date-trigger" type="button" aria-labelledby="sg-date-label sg-date-value" aria-haspopup="dialog" aria-expanded="false" aria-controls="sg-date-popover"><span id="sg-date-value">选择年 / 月 / 日</span><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12" rx="2"></rect><path d="M6.5 2.8v3.3M13.5 2.8v3.3M3 8h14"></path></svg></button><div class="pc-goal-calendar" id="sg-date-popover" role="dialog" aria-modal="false" aria-label="选择考试日期" hidden><div class="pc-goal-date-presets" data-calendar-presets aria-label="推荐考试场次"></div><div class="pc-goal-calendar-head"><button type="button" data-calendar-prev aria-label="上个月"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3-5 5 5 5"></path></svg></button><strong data-calendar-title></strong><button type="button" data-calendar-next aria-label="下个月"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5"></path></svg></button></div><div class="pc-goal-calendar-week" aria-hidden="true"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div><div class="pc-goal-calendar-grid" role="grid" data-calendar-grid></div><div class="pc-goal-calendar-actions"><button type="button" data-calendar-clear>清除</button><button type="button" data-calendar-today>今天</button></div></div></div></div>
+						<label class="pc-org-field"><span>每天可投入时间</span><select class="pc-profile-input pc-org-select" id="sg-minutes"><option value="10">10 分钟</option><option value="15">15 分钟</option><option value="20" selected>20 分钟</option><option value="30">30 分钟</option><option value="45">45 分钟</option><option value="60">60 分钟</option><option value="120">2 小时</option><option value="180">3 小时</option></select></label>
+					</div>
+					<div class="pc-org-form-actions pc-org-form-actions-end"><button class="pc-inline-ghost" type="button" id="sg-back">返回</button><button class="pc-inline-btn" type="submit">保存目标</button></div>
 				</form>
 			</div>`;
 		document.body.appendChild(modal);
 		studyGoalModal = modal;
 		prepareLegacyModal(modal, 'sg-modal-title');
 		(modal.querySelector('#sg-close') as HTMLButtonElement).onclick = () => hideLegacyModal(modal);
+		(modal.querySelector('#sg-back') as HTMLButtonElement).onclick = () => hideLegacyModal(modal);
 		modal.addEventListener('click', (e) => {
 			if (e.target === modal) hideLegacyModal(modal);
 		});
@@ -16683,10 +19728,206 @@ import { resolveEntitlement } from '../features/entitlements.js';
 			ev.preventDefault();
 			void submitStudyGoal();
 		});
+		const goalSelect = modal.querySelector<HTMLElement>('[data-goal-select]');
+		const goalNative = modal.querySelector<HTMLSelectElement>('#sg-exam-target');
+		const goalTrigger = modal.querySelector<HTMLButtonElement>('#sg-exam-target-trigger');
+		const goalValue = modal.querySelector<HTMLElement>('#sg-exam-target-value');
+		const goalMenu = modal.querySelector<HTMLElement>('#sg-exam-target-menu');
+		const goalOptions = Array.from(modal.querySelectorAll<HTMLButtonElement>('[data-goal-value]'));
+		const closeGoalMenu = () => {
+			if (!goalMenu || !goalTrigger) return;
+			goalMenu.hidden = true;
+			goalTrigger.setAttribute('aria-expanded', 'false');
+		};
+		const syncGoalSelect = () => {
+			if (!goalNative || !goalValue) return;
+			goalValue.textContent = goalNative.selectedOptions[0]?.textContent || goalNative.value;
+			goalOptions.forEach((option) => option.setAttribute('aria-selected', String(option.dataset.goalValue === goalNative.value)));
+		};
+		goalNative?.addEventListener('change', syncGoalSelect);
+		goalTrigger?.addEventListener('click', () => {
+			if (!goalMenu) return;
+			const opening = goalMenu.hidden;
+			goalMenu.hidden = !opening;
+			goalTrigger.setAttribute('aria-expanded', String(opening));
+			if (opening) (goalOptions.find((option) => option.dataset.goalValue === goalNative?.value) || goalOptions[0])?.focus();
+		});
+		goalTrigger?.addEventListener('keydown', (event) => {
+			if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+			event.preventDefault();
+			goalTrigger.click();
+		});
+		goalOptions.forEach((option, index) => {
+			option.addEventListener('click', () => {
+				if (!goalNative) return;
+				goalNative.value = option.dataset.goalValue || '';
+				goalNative.dispatchEvent(new Event('change', { bubbles: true }));
+				if (/^JLPT N[1-3]$/.test(goalNative.value)) applyNextJlptExamDate();
+				else if (goalNative.value === 'EJU 日本語') applyNextEjuExamDate();
+				closeGoalMenu();
+				goalTrigger?.focus();
+			});
+			option.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape') {
+					event.preventDefault();
+					closeGoalMenu();
+					goalTrigger?.focus();
+					return;
+				}
+				if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+				event.preventDefault();
+				const next = event.key === 'Home' ? 0 : event.key === 'End' ? goalOptions.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + goalOptions.length) % goalOptions.length;
+				goalOptions[next]?.focus();
+			});
+		});
+		modal.addEventListener('click', (event) => {
+			if (goalSelect && !goalSelect.contains(event.target as Node)) closeGoalMenu();
+		});
+		const goalDate = modal.querySelector<HTMLElement>('[data-goal-date]');
+		const dateInput = modal.querySelector<HTMLInputElement>('#sg-date');
+		const dateTrigger = modal.querySelector<HTMLButtonElement>('#sg-date-trigger');
+		const dateValue = modal.querySelector<HTMLElement>('#sg-date-value');
+		const datePopover = modal.querySelector<HTMLElement>('#sg-date-popover');
+		const calendarPresets = modal.querySelector<HTMLElement>('[data-calendar-presets]');
+		const calendarTitle = modal.querySelector<HTMLElement>('[data-calendar-title]');
+		const calendarGrid = modal.querySelector<HTMLElement>('[data-calendar-grid]');
+		const calendarPrev = modal.querySelector<HTMLButtonElement>('[data-calendar-prev]');
+		const calendarNext = modal.querySelector<HTMLButtonElement>('[data-calendar-next]');
+		const calendarClear = modal.querySelector<HTMLButtonElement>('[data-calendar-clear]');
+		const calendarToday = modal.querySelector<HTMLButtonElement>('[data-calendar-today]');
+		const today = new Date();
+		const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		const dateToValue = (value: Date) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+		const valueToDate = (value: string) => {
+			const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+			return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : null;
+		};
+		let calendarMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+		const closeDatePopover = () => {
+			if (!datePopover || !dateTrigger) return;
+			datePopover.hidden = true;
+			dateTrigger.setAttribute('aria-expanded', 'false');
+		};
+		const syncDateDisplay = () => {
+			if (!dateInput || !dateValue) return;
+			const selected = valueToDate(dateInput.value);
+			dateValue.textContent = selected
+				? `${dateInput.dataset.dateSource === 'estimated' ? '预计 · ' : ''}${selected.getFullYear()} 年 ${selected.getMonth() + 1} 月 ${selected.getDate()} 日`
+				: '选择年 / 月 / 日';
+			calendarMonth = selected
+				? new Date(selected.getFullYear(), selected.getMonth(), 1)
+				: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+		};
+		const renderDatePresets = () => {
+			if (!calendarPresets) return;
+			const suggestions = upcomingExamDatesForTarget(goalNative?.value || '');
+			calendarPresets.innerHTML = suggestions.map((suggestion, index) => {
+				const date = valueToDate(suggestion.date);
+				if (!date) return '';
+				const label = index === 0 ? '下一场' : '下下场';
+				const source = suggestion.source === 'official' ? '官方' : '预计';
+				return `<button type="button" data-calendar-preset="${suggestion.date}" data-calendar-source="${suggestion.source}"${dateInput?.value === suggestion.date ? ' aria-current="date"' : ''}><span>${label}</span><strong>${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日</strong><em>${source}</em></button>`;
+			}).join('');
+			calendarPresets.querySelectorAll<HTMLButtonElement>('[data-calendar-preset]').forEach((button) => {
+				button.addEventListener('click', () => {
+					setStudyGoalDate(button.dataset.calendarPreset || '', button.dataset.calendarSource === 'official' ? 'official' : 'estimated');
+					closeDatePopover();
+					dateTrigger?.focus();
+				});
+			});
+		};
+		const renderCalendar = () => {
+			if (!calendarGrid || !calendarTitle) return;
+			calendarTitle.textContent = `${calendarMonth.getFullYear()} 年 ${calendarMonth.getMonth() + 1} 月`;
+			const first = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
+			const start = new Date(first.getFullYear(), first.getMonth(), 1 - first.getDay());
+			const selectedValue = dateInput?.value || '';
+			calendarGrid.innerHTML = Array.from({ length: 42 }, (_, index) => {
+				const day = new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
+				const value = dateToValue(day);
+				const outside = day.getMonth() !== calendarMonth.getMonth();
+				const disabled = day.getTime() < todayDate.getTime();
+				const classes = [outside ? 'is-outside' : '', value === selectedValue ? 'is-selected' : '', value === dateToValue(todayDate) ? 'is-today' : ''].filter(Boolean).join(' ');
+				return `<button type="button" role="gridcell" data-date="${value}" class="${classes}" aria-label="${day.getFullYear()}年${day.getMonth() + 1}月${day.getDate()}日"${disabled ? ' disabled aria-disabled="true"' : ''}>${day.getDate()}</button>`;
+			}).join('');
+			calendarGrid.querySelectorAll<HTMLButtonElement>('[data-date]').forEach((button) => {
+				button.addEventListener('click', () => {
+					if (!dateInput || button.disabled) return;
+					setStudyGoalDate(button.dataset.date || '', 'manual');
+					closeDatePopover();
+					dateTrigger?.focus();
+				});
+			});
+			if (calendarPrev) calendarPrev.disabled = calendarMonth.getFullYear() === todayDate.getFullYear() && calendarMonth.getMonth() <= todayDate.getMonth();
+		};
+		if (dateInput) {
+			dateInput.min = dateToValue(todayDate);
+			dateInput.addEventListener('change', () => { syncDateDisplay(); renderDatePresets(); renderCalendar(); });
+		}
+		dateTrigger?.addEventListener('click', () => {
+			if (!datePopover) return;
+			const opening = datePopover.hidden;
+			if (opening) {
+				syncDateDisplay();
+				renderDatePresets();
+				renderCalendar();
+			}
+			datePopover.hidden = !opening;
+			dateTrigger.setAttribute('aria-expanded', String(opening));
+		});
+		calendarPrev?.addEventListener('click', () => {
+			calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1);
+			renderCalendar();
+		});
+		calendarNext?.addEventListener('click', () => {
+			calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1);
+			renderCalendar();
+		});
+		calendarClear?.addEventListener('click', () => {
+			if (!dateInput) return;
+			setStudyGoalDate('', 'manual');
+			closeDatePopover();
+			dateTrigger?.focus();
+		});
+		calendarToday?.addEventListener('click', () => {
+			if (!dateInput) return;
+			setStudyGoalDate(dateToValue(todayDate), 'manual');
+			closeDatePopover();
+			dateTrigger?.focus();
+		});
+		datePopover?.addEventListener('keydown', (event) => {
+			if (event.key !== 'Escape') return;
+			event.preventDefault();
+			closeDatePopover();
+			dateTrigger?.focus();
+		});
+		modal.addEventListener('click', (event) => {
+			if (goalDate && !goalDate.contains(event.target as Node)) closeDatePopover();
+		});
 		return modal;
 	}
 
-	async function reloadStudyGoals(): Promise<void> {
+	function populateStudyGoalForm(goal?: Record<string, unknown>): void {
+		const form = studyGoalModal?.querySelector<HTMLFormElement>('#sg-form');
+		if (!form) return;
+		form.dataset.goalId = String(goal?.goal_id || '');
+		const targetInput = form.querySelector<HTMLSelectElement>('#sg-exam-target');
+		const minutesInput = form.querySelector<HTMLSelectElement>('#sg-minutes');
+		const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+		const target = studyGoalTarget(goal);
+		if (targetInput) {
+			targetInput.value = target;
+			targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+		if (goal) setStudyGoalDate(String(goal.target_date || ''), 'saved');
+		else if (/^JLPT N[1-3]$/.test(target)) applyNextJlptExamDate();
+		else if (target === 'EJU 日本語') applyNextEjuExamDate();
+		else setStudyGoalDate('', 'manual');
+		if (minutesInput) minutesInput.value = String(Number(goal?.daily_minutes || 20));
+		if (submit) submit.textContent = goal ? '保存修改' : '创建目标';
+	}
+
+	async function reloadStudyGoals(preferredGoalId = ''): Promise<void> {
 		const list = (studyGoalModal!.querySelector('#sg-list') as HTMLDivElement);
 		list.innerHTML = '<div style="padding:12px;text-align:center;color:#999;">加载中…</div>';
 		const api = window.APIClient;
@@ -16697,27 +19938,45 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		try {
 			const data = (await api.listStudyGoals()) as { items?: Array<Record<string, unknown>> } | null;
 			const items = Array.isArray(data?.items) ? data!.items : [];
-			if (items.length === 0) {
-				list.innerHTML = '<div style="padding:12px;color:#999;">暂无目标，添加一个开始备考吧。</div>';
+			const targetItems = items.filter((item) => Boolean(normalizeStudyGoalTarget(item)));
+			studyGoalEditorItems = targetItems;
+			const activeGoal = targetItems.find((item) => String(item.goal_id || '') === preferredGoalId)
+				|| targetItems.find((item) => readBoolean(item.is_primary) === true && daysUntil(String(item.target_date || '')) >= 0)
+				|| targetItems.find((item) => daysUntil(String(item.target_date || '')) >= 0)
+				|| targetItems[0];
+			populateStudyGoalForm(activeGoal);
+			if (targetItems.length === 0) {
+				list.innerHTML = '<div class="pc-student-tool-note">尚未设置考试目标。</div>';
 				return;
 			}
-			list.innerHTML = items
+			const unlimited = hasUnlimitedStudyGoals();
+			const atLimit = !unlimited && targetItems.length >= standardStudyGoalLimit;
+			const countLabel = unlimited
+				? `已设置 ${targetItems.length} 个目标 · ULTRA 不限数量`
+				: `已设置 ${targetItems.length}/${standardStudyGoalLimit} 个目标`;
+			list.innerHTML = `<div class="pc-goal-list-head"><div><strong>我的目标</strong><span>${escapeHtmlSafe(countLabel)}</span></div><button type="button" class="pc-inline-ghost" data-sg-new${atLimit ? ' disabled' : ''}>${atLimit ? '已达上限' : '新增目标'}</button></div>` + targetItems
 				.map((g) => {
 					const days = daysUntil(String(g.target_date || ''));
+					const target = studyGoalTarget(g);
 					const tag = days >= 0
-						? `<span style="color:#0a7;">剩余 ${days} 天</span>`
-						: `<span style="color:#a33;">已过期 ${Math.abs(days)} 天</span>`;
-					return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;border-bottom:1px solid #f0f0f0;">
+						? `<span class="is-active">剩余 ${days} 天</span>`
+						: `<span class="is-expired">已过期 ${Math.abs(days)} 天</span>`;
+					return `<div class="pc-goal-list-item${String(g.goal_id || '') === String(activeGoal?.goal_id || '') ? ' is-selected' : ''}">
 						<div>
-							<div style="font-weight:600;">${escapeHtmlSafe(String(g.title || ''))}</div>
-							<div style="font-size:11px;color:#888;">${escapeHtmlSafe(String(g.target_date || ''))} · ${tag}${
-								Number(g.daily_question_target || 0) > 0 ? ` · 每日 ${Number(g.daily_question_target)} 题` : ''
-							}${g.exam_target ? ` · ${escapeHtmlSafe(String(g.exam_target))}` : ''}</div>
+							<div style="font-weight:600;">${escapeHtmlSafe(target)} 备考目标</div>
+							<div class="pc-goal-list-meta">${escapeHtmlSafe(String(g.target_date || ''))} · ${tag} · 每天 ${Number(g.daily_minutes || 20)} 分钟</div>
 						</div>
-						<button class="pc-btn" data-sg-del="${escapeHtmlSafe(String(g.goal_id || ''))}" style="color:#a33;">删除</button>
+						<div class="pc-goal-list-actions"><button class="pc-inline-ghost" type="button" data-sg-edit="${escapeHtmlSafe(String(g.goal_id || ''))}">编辑</button><button class="pc-inline-ghost is-danger" type="button" data-sg-del="${escapeHtmlSafe(String(g.goal_id || ''))}">删除</button></div>
 					</div>`;
 				})
 				.join('');
+			list.querySelector<HTMLButtonElement>('[data-sg-new]')?.addEventListener('click', () => populateStudyGoalForm());
+			list.querySelectorAll<HTMLButtonElement>('[data-sg-edit]').forEach((btn) => {
+				btn.onclick = () => {
+					const goal = studyGoalEditorItems.find((item) => String(item.goal_id || '') === (btn.dataset.sgEdit || ''));
+					if (goal) populateStudyGoalForm(goal);
+				};
+			});
 			list.querySelectorAll<HTMLButtonElement>('[data-sg-del]').forEach((btn) => {
 				btn.onclick = () => void deleteStudyGoal(btn.dataset.sgDel || '');
 			});
@@ -16728,29 +19987,39 @@ import { resolveEntitlement } from '../features/entitlements.js';
 
 	async function submitStudyGoal(): Promise<void> {
 		const modal = studyGoalModal!;
-		const title = (modal.querySelector('#sg-title') as HTMLInputElement).value.trim();
+		const examTarget = (modal.querySelector('#sg-exam-target') as HTMLSelectElement).value;
 		const date = (modal.querySelector('#sg-date') as HTMLInputElement).value;
-		const daily = Number((modal.querySelector('#sg-daily') as HTMLInputElement).value || 0);
-		const target = (modal.querySelector('#sg-target') as HTMLInputElement).value.trim();
-		if (!title || !date) {
-			showToast('标题与日期必填');
+		const dailyMinutes = Number((modal.querySelector('#sg-minutes') as HTMLSelectElement).value || 20);
+		if (!date) {
+			showToast('请选择考试日期');
 			return;
 		}
-		const payload: Record<string, unknown> = { title, target_date: date };
-		if (daily > 0) payload.daily_question_target = daily;
-		if (target) payload.exam_target = target;
+		const payload: Record<string, unknown> = { title: `${examTarget} 备考计划`, exam_target: examTarget, target_date: date, daily_minutes: dailyMinutes };
 		const api = window.APIClient;
 		if (!api || typeof api.createStudyGoal !== 'function') return;
+		const form = modal.querySelector<HTMLFormElement>('#sg-form');
+		const goalId = form?.dataset.goalId || '';
+		const existingGoal = goalId ? studyGoalEditorItems.find((item) => readString(item.goal_id) === goalId) : undefined;
+		const previousTarget = existingGoal ? studyGoalTarget(existingGoal) : '';
+		if (!goalId && !hasUnlimitedStudyGoals() && studyGoalEditorItems.length >= standardStudyGoalLimit) {
+			showToast('当前套餐最多可设置 2 个目标');
+			return;
+		}
 		const submit = modal.querySelector<HTMLButtonElement>('#sg-form button[type="submit"]');
-		const finishAction = submit ? beginOrganizationAction(submit, '添加中…') : null;
+		const finishAction = submit ? beginOrganizationAction(submit, '保存中…') : null;
 		if (submit && !finishAction) return;
 		try {
-			await api.createStudyGoal(payload);
-			(modal.querySelector('#sg-form') as HTMLFormElement).reset();
-			showToast('目标已添加');
-			await reloadStudyGoals();
+			if (goalId && typeof api.updateStudyGoal === 'function') await api.updateStudyGoal(goalId, payload);
+			else await api.createStudyGoal(payload);
+			studentGoalTargetChangeNotice = goalId && previousTarget && previousTarget !== examTarget
+				? { goalId, previousTarget, target: examTarget }
+				: null;
+			invalidateStudentStudyGoals();
+			showToast(goalId ? '目标已更新' : '目标已创建');
+			hideLegacyModal(modal);
+			void ensureStudentStudyGoals(getContext(), true);
 		} catch (err) {
-			showToast(readErrorMessage(err, '添加失败'));
+			showToast(readErrorMessage(err, '保存失败'));
 		} finally {
 			finishAction?.();
 		}
@@ -16766,6 +20035,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		pendingStudyGoalDeletes.add(goalId);
 		try {
 			await api.deleteStudyGoal(goalId);
+			invalidateStudentStudyGoals();
 			showToast('已删除');
 			await reloadStudyGoals();
 		} catch (err) {
@@ -17169,10 +20439,10 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		if (vocabModal) return vocabModal;
 		const el = document.createElement('div');
 		el.id = 'vocab-modal';
-		el.className = 'risk-modal risk-hidden';
+		el.className = 'risk-modal risk-hidden pc-student-tool-modal';
 		el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:9999;';
 		el.innerHTML = `<div class="risk-backdrop" data-vocab-act="close"></div>
-			<div class="risk-panel" style="position:relative;background:#fff;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,0.2);max-width:760px;width:90%;max-height:88vh;overflow:auto;">
+			<div class="risk-panel pc-student-tool-panel" style="position:relative;background:#fff;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,0.2);max-width:760px;width:90%;max-height:88vh;overflow:auto;">
 				<div class="risk-header"><strong id="vocab-title">生词本</strong><button type="button" id="vocab-close" class="risk-close" data-vocab-act="close" aria-label="关闭生词本">×</button></div>
 				<div id="vocab-summary" style="padding:8px 16px;font-size:13px;color:#777;"></div>
 				<div style="display:flex;gap:8px;align-items:center;padding:0 16px 8px 16px;flex-wrap:wrap;font-size:13px;">
@@ -17335,27 +20605,28 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	}
 
 	// ============================================================
-	// 功能 #18：章节式学习路径面板
+	// 学员专项练习：按考点聚合题目和学习进度
 	// ============================================================
 	let chapterModal: HTMLDivElement | null = null;
 	let chapterFilterFamily = 'jlpt';
 	let chapterFilterLevel = '';
+	let chapterFilterDomain: StudentDomainId | '' = '';
+	let chapterLockedToCurrentTarget = false;
 	function ensureChapterModal(): HTMLDivElement {
 		if (chapterModal) return chapterModal;
 		const el = document.createElement('div');
 		el.id = 'chapter-modal';
-		el.className = 'risk-modal risk-hidden';
+		el.className = 'risk-modal risk-hidden pc-student-tool-modal';
 		el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:9999;';
 		el.innerHTML = `<div class="risk-backdrop" data-cp-act="close"></div>
-			<div class="risk-panel" style="position:relative;background:#fff;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,0.2);max-width:820px;width:92%;max-height:88vh;overflow:auto;">
-				<div class="risk-header"><strong id="cp-title">学习路径（章节）</strong><button type="button" id="cp-close" class="risk-close" data-cp-act="close" aria-label="关闭学习路径">×</button></div>
-				<div style="padding:8px 16px;font-size:13px;color:#666;">优先按技能标签聚合；没有技能标签时回退到考试家族内的 section 聚合，适配 JLPT / EJU / CET 等题库。</div>
-				<div style="display:flex;gap:8px;align-items:center;padding:0 16px 8px 16px;flex-wrap:wrap;font-size:13px;">
+			<div class="risk-panel pc-student-tool-panel" style="position:relative;background:#fff;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,0.2);max-width:820px;width:92%;max-height:88vh;overflow:auto;">
+				<div class="risk-header"><strong id="cp-title">专项练习</strong><button type="button" id="cp-close" class="risk-close" data-cp-act="close" aria-label="关闭专项练习">×</button></div>
+				<div id="cp-note" class="pc-student-tool-note">按考点查看完成进度和正确率，可从薄弱项继续练习。</div>
+				<div id="cp-filters" style="display:flex;gap:8px;align-items:center;padding:0 16px 8px 16px;flex-wrap:wrap;font-size:13px;">
 					<label>考试
 						<select id="cp-family">
 							<option value="jlpt">JLPT</option>
 							<option value="eju">EJU</option>
-							<option value="cet">CET</option>
 						</select>
 					</label>
 					<label>等级
@@ -17364,8 +20635,6 @@ import { resolveEntitlement } from '../features/entitlements.js';
 							<option value="N1">N1</option>
 							<option value="N2">N2</option>
 							<option value="N3">N3</option>
-							<option value="N4">N4</option>
-							<option value="N5">N5</option>
 						</select>
 					</label>
 					<button type="button" id="cp-reload" class="risk-btn">刷新</button>
@@ -17385,34 +20654,79 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		return el;
 	}
 
+	function chapterDisplayName(item: Record<string, unknown>): string {
+		const raw = String(item.section_name ?? item.skill_key ?? '').trim();
+		const aliases: Record<string, string> = {
+			'vocab.kanji.reading': '汉字读音',
+			'vocab.context': '语境选词',
+			'vocab.synonym': '近义表达',
+			'vocab.usage': '词汇用法',
+			'grammar.form': '语法形式',
+			'grammar.context': '语法语境',
+			'grammar.text': '篇章语法',
+			'reading.short': '短篇阅读',
+			'reading.medium': '中篇阅读',
+			'reading.long': '长篇阅读',
+			'listening.task': '听力任务',
+			'listening.point': '听力要点',
+			'listening.outline': '听力概要'
+		};
+		return aliases[raw] || raw.replace(/[._-]+/g, ' · ') || '综合练习';
+	}
+
+	function chapterTypeLabel(item: Record<string, unknown>): string {
+		const raw = String(item.section_type ?? '').toLowerCase();
+		const labels: Record<string, string> = {
+			vocabulary: '词汇', grammar: '语法', reading: '阅读', listening: '听力', writing: '写作', section: '综合'
+		};
+		return labels[raw] || '专项';
+	}
+
+	function chapterMatchesDomain(item: Record<string, unknown>, domain: StudentDomainId | ''): boolean {
+		if (!domain) return true;
+		const raw = `${String(item.section_type ?? '')} ${String(item.skill_key ?? '')} ${String(item.section_name ?? '')}`.toLowerCase();
+		if (domain === 'vocabulary') return raw.includes('vocab') || raw.includes('词汇') || raw.includes('語彙');
+		if (domain === 'grammar') return raw.includes('grammar') || raw.includes('语法') || raw.includes('文法');
+		if (domain === 'writing') return raw.includes('writing') || raw.includes('记述') || raw.includes('記述');
+		if (domain === 'listening_reading') return raw.includes('listening_reading') || raw.includes('listening-reading') || raw.includes('听读') || raw.includes('聴読');
+		if (domain === 'reading') return (raw.includes('read') || raw.includes('阅读') || raw.includes('読解')) && !chapterMatchesDomain(item, 'listening_reading');
+		return raw.includes('listen') || raw.includes('听力') || raw.includes('听解') || raw.includes('聴解');
+	}
+
+	function updateChapterLevelOptions(select: HTMLSelectElement, family: string): void {
+		const levels = family === 'jlpt' ? ['N1', 'N2', 'N3'] : [];
+		select.innerHTML = ['<option value="">全部</option>', ...levels.map((level) => `<option value="${level}">${level}</option>`)].join('');
+		if (!levels.includes(chapterFilterLevel)) chapterFilterLevel = '';
+		select.value = chapterFilterLevel;
+		select.closest('label')?.toggleAttribute('hidden', levels.length === 0);
+	}
+
 	function renderChapterRow(item: Record<string, unknown>): string {
 		const id = String(item.id ?? '');
-		const name = String(item.section_name ?? '');
-		const type = String(item.section_type ?? '');
+		const name = chapterDisplayName(item);
+		const type = chapterTypeLabel(item);
 		const family = String(item.family ?? '').toUpperCase();
 		const lvl = String(item.level ?? '');
 		const total = Number(item.question_count ?? 0);
 		const answered = Number(item.answered ?? 0);
 		const correct = Number(item.correct ?? 0);
-		const skillKey = String(item.skill_key ?? '');
 		const progress = total > 0 ? Math.round((answered / total) * 100) : 0;
 		const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : 0;
 		return `<div class="cp-row" style="border-top:1px solid #eee;padding:10px 16px;">
 			<div style="display:flex;align-items:center;gap:10px;">
 				${family ? `<span style="font-size:11px;padding:2px 6px;background:#f4eefc;border-radius:3px;color:#6a45a3;">${escapeHtmlSafe(family)}</span>` : ''}
-				<span style="font-size:11px;padding:2px 6px;background:#eef;border-radius:3px;color:#448;">${escapeHtmlSafe(lvl)}</span>
+				${lvl ? `<span style="font-size:11px;padding:2px 6px;background:#eef;border-radius:3px;color:#448;">${escapeHtmlSafe(lvl)}</span>` : ''}
 				<span style="font-size:11px;padding:2px 6px;background:#efe;border-radius:3px;color:#484;">${escapeHtmlSafe(type)}</span>
 				<span style="font-weight:600;">${escapeHtmlSafe(name)}</span>
 				<span style="margin-left:auto;font-size:11px;color:#888;">${total} 题</span>
 			</div>
-			${skillKey ? `<div style="margin-top:6px;font-size:11px;color:#6b7280;">技能标签：<code>${escapeHtmlSafe(skillKey)}</code></div>` : ''}
 			<div style="margin-top:6px;height:6px;background:#eee;border-radius:3px;overflow:hidden;">
 				<div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#36a,#6c9);"></div>
 			</div>
 			<div style="margin-top:4px;font-size:12px;color:#555;display:flex;gap:12px;">
 				<span>进度 <b>${progress}%</b>（${answered}/${total}）</span>
 				<span>正确率 <b style="color:${accuracy >= 70 ? '#3a7' : accuracy >= 40 ? '#b80' : '#a33'};">${accuracy}%</b></span>
-				<button class="risk-btn" data-cp-act="detail" data-id="${escapeHtmlSafe(id)}" style="margin-left:auto;font-size:11px;padding:2px 8px;">查看题目</button>
+				<button class="risk-btn" data-cp-act="detail" data-id="${escapeHtmlSafe(id)}" style="margin-left:auto;font-size:11px;padding:2px 8px;">展开题目</button>
 			</div>
 			<div class="cp-detail" data-id="${escapeHtmlSafe(id)}"></div>
 		</div>`;
@@ -17431,7 +20745,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 					<span style="min-width:52px;color:${color};">${label}</span>
 					<code style="color:#888;">${escapeHtmlSafe(exam)} · ${escapeHtmlSafe(id)}</code>
 					<span style="flex:1;color:#444;">${escapeHtmlSafe(stem).slice(0, 60)}</span>
-					<a href="#" data-cp-act="goto" data-exam="${escapeHtmlSafe(exam)}" style="color:#36a;">去答题</a>
+					<a href="#" data-cp-act="goto" data-exam="${escapeHtmlSafe(exam)}" style="color:#36a;">开始练习</a>
 				</div>`;
 			})
 			.join('');
@@ -17451,9 +20765,9 @@ import { resolveEntitlement } from '../features/entitlements.js';
 				items?: Array<Record<string, unknown>>;
 				count?: number;
 			};
-			const items = data.items || [];
+			const items = (data.items || []).filter((item) => chapterMatchesDomain(item, chapterFilterDomain));
 			if (items.length === 0) {
-				body.innerHTML = '<div style="padding:24px;text-align:center;color:#999;">暂无章节数据</div>';
+				body.innerHTML = `<div style="padding:24px;text-align:center;color:#999;">${chapterFilterDomain ? '当前方向暂无可用练习' : '暂无章节数据'}</div>`;
 				return;
 			}
 			body.innerHTML = items.map(renderChapterRow).join('');
@@ -17465,23 +20779,33 @@ import { resolveEntitlement } from '../features/entitlements.js';
 	async function openChapterPathPanel(): Promise<void> {
 		const ctx = getContext();
 		if (!ctx.id) {
-			showToast('请先登录后查看学习路径');
+			showToast('请先登录后查看专项练习');
 			return;
 		}
 		const modal = ensureChapterModal();
 		showLegacyModal(modal, '#cp-close');
+		const domain = studentDomainsForTarget().find((item) => item.id === chapterFilterDomain);
+		const title = modal.querySelector('#cp-title');
+		const note = modal.querySelector('#cp-note');
+		const filters = modal.querySelector('#cp-filters') as HTMLElement | null;
+		if (title) title.textContent = domain ? `${domain.title}专项练习` : '专项练习';
+		if (note) note.textContent = chapterLockedToCurrentTarget
+			? `仅显示 ${studentCurrentExamTarget()}${domain ? ` · ${domain.title}` : ''} 的练习，学习记录会正常保存。`
+			: '按考点查看完成进度和正确率，可从薄弱项继续练习。';
+		if (filters) filters.hidden = chapterLockedToCurrentTarget;
 
 		const familySel = modal.querySelector('#cp-family') as HTMLSelectElement | null;
+		const levelSel = modal.querySelector('#cp-level') as HTMLSelectElement | null;
 		if (familySel) {
 			familySel.value = chapterFilterFamily;
 			familySel.onchange = () => {
 				chapterFilterFamily = familySel.value;
+				if (levelSel) updateChapterLevelOptions(levelSel, chapterFilterFamily);
 				void reloadChapters(modal);
 			};
 		}
-		const levelSel = modal.querySelector('#cp-level') as HTMLSelectElement | null;
 		if (levelSel) {
-			levelSel.value = chapterFilterLevel;
+			updateChapterLevelOptions(levelSel, chapterFilterFamily);
 			levelSel.onchange = () => {
 				chapterFilterLevel = levelSel.value;
 				void reloadChapters(modal);
@@ -17592,6 +20916,7 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		}
 		setContext({ ...next, guest: next.guest === true ? true : false });
 		void buildTrigger();
+		renderPlatformAdminShell();
 		if (isOpen()) {
 			void renderIdentity();
 			renderSections();
@@ -17609,12 +20934,62 @@ import { resolveEntitlement } from '../features/entitlements.js';
 		void buildTrigger();
 	};
 
+	const learningNavigation = window as Window & {
+		navigateLearningWorkspace?: (intent: string) => void;
+		closeLearningWorkspace?: () => void;
+	};
+	learningNavigation.closeLearningWorkspace = () => { closePlatformAdmin(); closePanel(); };
+	learningNavigation.navigateLearningWorkspace = (intent) => {
+		const ctx = getContext();
+		if (ctx.guest) { openLoginModal(); return; }
+		if (activeWorkbenchDef(ctx).id !== 'student') { openPanel(); return; }
+		if (!document.querySelector('#platform-admin-shell.pc-platform-admin-open')) openRoleWorkspace();
+		const key = roleWorkspaceContentKey(intent);
+		if (intent === '__overview__' || key) {
+			platformAdminRoleContentHistory = [];
+			activeRoleContent = key;
+			activeDashboardSubpage = key ? 'role-content' : '';
+			renderPlatformAdminShell();
+		} else handleFeatureIntent(intent);
+		window.dispatchEvent(new CustomEvent('learningWorkspaceChanged', { detail: { role: 'student', intent } }));
+	};
 	window.openPersonalCenter = () => openPanel();
 	(window as unknown as { openRechargePanel?: () => void }).openRechargePanel = () => {
 		void openRechargePanel();
 	};
 	window.refreshPersonalCenterTrigger = () => buildTrigger();
 	window.getUserContext = () => ({ ...getContext() });
+	window.addEventListener('examAnswersSubmitted', () => {
+		invalidateRecentLearning();
+		studentLearningQueueKey = '';
+		studentDiagnosticProfileKey = '';
+		const ctx = getContext();
+		if (!ctx.id || ctx.guest) return;
+		void Promise.all([
+			ensureRecentLearning(ctx).catch(() => undefined),
+			ensureStudentLearningQueue(ctx, true).catch(() => undefined),
+			ensureStudentDiagnosticProfile(ctx, true).catch(() => undefined)
+		]).then(() => {
+			if (shouldRefreshRoleOverview('student')) renderSectionContent({ preserveScroll: true });
+		});
+	});
+	window.addEventListener('wrongCorrectionSubmitted', () => {
+		studentLearningQueueKey = '';
+		const ctx = getContext();
+		if (!ctx.id || ctx.guest) return;
+		void ensureStudentLearningQueue(ctx, true).catch(() => undefined);
+	});
+	window.addEventListener('wrongCorrectionNext', () => {
+		const nextIndex = activeWrongCorrectionIndex + 1;
+		if (nextIndex < activeWrongCorrectionItems.length) void openWrongCorrectionQuestion(nextIndex);
+		else openPanel();
+	});
+	window.addEventListener('wrongCorrectionReturn', () => {
+		studentLearningQueueKey = '';
+		const ctx = getContext();
+		if (ctx.id && !ctx.guest) void ensureStudentLearningQueue(ctx, true).catch(() => undefined);
+		openPanel();
+	});
 	window._pcDebug = {
 		openPanel,
 		closePanel,

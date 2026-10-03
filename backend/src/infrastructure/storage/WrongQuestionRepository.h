@@ -63,6 +63,15 @@ class WrongQuestionRepository
                        const std::string &questionId,
                        int autoMasterThreshold = 2);
 
+    // 提交一次单题订正。只更新已经存在的错题，并返回更新后的条目；找不到时返回 null。
+    Json::Value recordCorrection(const std::string &userId,
+                                 const std::string &examId,
+                                 const std::string &questionId,
+                                 const std::string &correctAnswer,
+                                 const std::string &userAnswer,
+                                 bool correct,
+                                 int autoMasterThreshold = 2);
+
     // 手动从错题本移除一题
     bool removeOne(const std::string &userId, const std::string &questionId);
 

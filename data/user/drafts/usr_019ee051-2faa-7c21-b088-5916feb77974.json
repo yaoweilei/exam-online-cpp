@@ -1,0 +1,21 @@
+{
+  "answered_count" : 5,
+  "answers" : 
+  {
+    "4:31" : 4,
+    "4:32" : 3,
+    "4:33" : 4,
+    "4:34" : 3,
+    "4:35" : 2
+  },
+  "attempt_id" : "attempt-b3789887-934b-455d-bf82-794615d9d7d0",
+  "attempt_status" : "draft",
+  "exam_id" : "N3_2024_12",
+  "last_question_index" : 1,
+  "last_section_index" : 4,
+  "revision" : 1,
+  "started_at" : "2026-10-01T14:40:23.522Z",
+  "total_questions" : 5,
+  "updated_at" : "2026-10-01T14:40:23.522Z",
+  "user_id" : "usr_019ee051-2faa-7c21-b088-5916feb77974"
+}

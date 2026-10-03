@@ -77,6 +77,85 @@ const std::string &reason)
     return true;
 }
 
+bool ProfileRepository::grantLearningCreditIfAbsent(const std::string &userId,
+                                                     const std::string &awardKey,
+                                                     int amountCents,
+                                                     const std::string &reason,
+                                                     const std::string &currency)
+{
+    if (awardKey.empty() || amountCents <= 0 || currency != "cny")
+    {
+        return false;
+    }
+
+    std::unique_lock lock(mutex_);
+    const auto path = profileDir_ / (userId + ".json");
+    auto profile = std::filesystem::exists(path) ? normalizeProfile(userId, readJsonFile(path)) : defaultProfile(userId);
+    if (!profile["learning_credit_awards"].isObject())
+    {
+        profile["learning_credit_awards"] = Json::Value(Json::objectValue);
+    }
+    if (profile["learning_credit_awards"].isMember(awardKey))
+    {
+        return false;
+    }
+
+    const auto now = common::nowIso8601();
+    profile["learning_credit_cents"] = profile.get("learning_credit_cents", 0).asInt() + amountCents;
+    profile["learning_credit_updated_at"] = now;
+    Json::Value award(Json::objectValue);
+    award["amount_cents"] = amountCents;
+    award["currency"] = currency;
+    award["reason"] = reason;
+    award["granted_at"] = now;
+    award["status"] = "available";
+    profile["learning_credit_awards"][awardKey] = award;
+
+    writeJsonFileAtomic(path, profile);
+    upsertSearchDocument(profile);
+    return true;
+}
+
+bool ProfileRepository::revokeLearningCreditIfPresent(const std::string &userId,
+                                                       const std::string &awardKey,
+                                                       const std::string &reason)
+{
+    if (awardKey.empty())
+    {
+        return false;
+    }
+
+    std::unique_lock lock(mutex_);
+    const auto path = profileDir_ / (userId + ".json");
+    auto profile = std::filesystem::exists(path) ? normalizeProfile(userId, readJsonFile(path)) : defaultProfile(userId);
+    if (!profile["learning_credit_awards"].isObject() ||
+        !profile["learning_credit_awards"].isMember(awardKey))
+    {
+        return false;
+    }
+    auto &award = profile["learning_credit_awards"][awardKey];
+    if (award.get("status", "available").asString() == "revoked")
+    {
+        return false;
+    }
+
+    const auto amountCents = std::max(0, award.get("amount_cents", 0).asInt());
+    const auto available = std::max(0, profile.get("learning_credit_cents", 0).asInt());
+    const auto deducted = std::min(available, amountCents);
+    const auto now = common::nowIso8601();
+    profile["learning_credit_cents"] = available - deducted;
+    profile["learning_credit_debt_cents"] =
+        std::max(0, profile.get("learning_credit_debt_cents", 0).asInt()) + (amountCents - deducted);
+    profile["learning_credit_updated_at"] = now;
+    award["status"] = "revoked";
+    award["revoked_at"] = now;
+    award["revoke_reason"] = reason;
+
+    writeJsonFileAtomic(path, profile);
+    upsertSearchDocument(profile);
+    return true;
+}
+
 Json::Value ProfileRepository::recordStudySeconds(const std::string &userId, int deltaSeconds)
 {
     if (deltaSeconds <= 0)
@@ -256,6 +335,10 @@ Json::Value ProfileRepository::defaultProfile(const std::string &userId)
     p["credits"] = 0;
     p["credits_updated_at"] = "";
     p["last_credit_reason"] = "";
+    p["learning_credit_cents"] = 0;
+    p["learning_credit_debt_cents"] = 0;
+    p["learning_credit_updated_at"] = "";
+    p["learning_credit_awards"] = Json::Value(Json::objectValue);
     p["plan"] = "free";
     p["plan_status"] = "active";
     p["plan_expires_at"] = "";

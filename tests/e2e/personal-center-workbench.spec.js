@@ -56,59 +56,114 @@ test('旧学员首页入口已删除并统一进入学习工作台', async ({ pa
   await expect(page.locator('.pc-my-content-card, .pc-my-account-card, .pc-student-content-group')).toHaveCount(0);
 });
 
-test('学习工作台旧功能弹层显示在工作台上方并可返回原入口', async ({ page }) => {
+test('套餐页面直接展示购买表单且不会等待支付配置接口返回', async ({ page }) => {
+	let releasePricing;
+	let releaseAutoRenewal;
+	const pricingGate = new Promise((resolve) => { releasePricing = resolve; });
+	const autoRenewalGate = new Promise((resolve) => { releaseAutoRenewal = resolve; });
+	await page.route('**/api/v1/payments/pricing', async (route) => {
+		await pricingGate;
+		await route.continue();
+	});
+	await page.route('**/api/v1/payments/auto-renewal?*', async (route) => {
+		await autoRenewalGate;
+		await route.continue();
+	});
+	await loginWithDevUser(page, 'student_demo', {}, { skipApiStubs: true, skipPersonalCenter: true });
+	await page.evaluate(() => window.openPersonalCenter?.());
+	const shell = page.locator('#platform-admin-shell');
+	await expect(shell).toBeVisible();
+	await shell.getByRole('button', { name: '套餐与订单', exact: true }).click();
+	const purchasePanel = shell.locator('[data-account-recharge-panel]');
+	await expect(purchasePanel).toBeVisible();
+	await expect(purchasePanel).toContainText('开通 PRO');
+	await expect(purchasePanel).toContainText('¥12.9');
+	await expect(purchasePanel.locator('[data-recharge-auto-renew]')).not.toBeChecked();
+	await expect(purchasePanel.locator('[data-recharge-auto-renew]')).toBeDisabled();
+	await expect(purchasePanel.locator('[data-recharge-email]')).toBeChecked();
+	await expect(shell.locator('[data-auto-renew-card][data-renew-scope="personal"]')).toHaveCount(0);
+	await purchasePanel.locator('[data-recharge-days][value="90"]').check();
+	await expect(purchasePanel.locator('[data-recharge-preview]')).toContainText('90 天');
+	const autoRenewalResponse = page.waitForResponse((response) => response.url().includes('/api/v1/payments/auto-renewal'));
+	releaseAutoRenewal();
+	await autoRenewalResponse;
+	const pricingResponse = page.waitForResponse((response) => response.url().includes('/api/v1/payments/pricing'));
+	releasePricing();
+	await pricingResponse;
+	await expect(purchasePanel).toBeVisible();
+	await page.unrouteAll({ behavior: 'wait' });
+});
+
+test('个人 PRO 在管理端与用户端展示日常价和当前售价', async ({ page }) => {
+	await loginWithDevUser(page, 'student_demo', {}, { skipApiStubs: true, skipPersonalCenter: true });
+	await page.evaluate(() => window.openPersonalCenter?.());
+	const shell = page.locator('#platform-admin-shell');
+	await expect(shell).toBeVisible();
+	await shell.getByRole('button', { name: '套餐与订单', exact: true }).click();
+	const purchasePanel = shell.locator('[data-account-recharge-panel]');
+	await expect(purchasePanel).toContainText('¥12.9（¥0.43/天）');
+	await expect(purchasePanel).toContainText('日常价 ¥15（省 ¥2.1）');
+	await expect(purchasePanel).toContainText('¥29.9（¥0.33/天）');
+	await expect(purchasePanel).toContainText('日常价 ¥40（省 ¥10.1）');
+	await expect(purchasePanel).toContainText('¥99.9（¥0.27/天）');
+	await expect(purchasePanel).toContainText('日常价 ¥145（省 ¥45.1）');
+	const selectedDuration = purchasePanel.locator('label:has([data-recharge-days][value="365"])');
+	await expect.poll(() => selectedDuration.evaluate((card) => {
+		const style = getComputedStyle(card);
+		const radio = card.querySelector('[data-recharge-days]');
+		return {
+			background: style.backgroundColor,
+			border: style.borderTopColor,
+			accent: radio ? getComputedStyle(radio).accentColor : ''
+		};
+	})).toEqual({
+		background: 'rgb(255, 247, 241)',
+		border: 'rgb(255, 122, 47)',
+		accent: 'rgb(255, 122, 47)'
+	});
+	await expect(purchasePanel.locator('[data-recharge-preview]')).toContainText('当前优惠价');
+	await expect(purchasePanel.locator('[data-recharge-preview]')).toContainText('当前售价已省 ¥45.1');
+	await expect(purchasePanel.locator('[data-recharge-submit]')).toContainText('¥99.9');
+
+	await loginWithDevUser(page, 'superadmin_demo', {}, { skipApiStubs: true, skipPersonalCenter: true });
+	await openPlatformAdminPage(page, '价格与套餐');
+	await expect(page.locator('[data-list-price-scope="personal"][data-price-plan="pro"][data-price-days="30"]')).toHaveValue('15');
+	await expect(page.locator('[data-price-scope="personal"][data-price-plan="pro"][data-price-days="30"]')).toHaveValue('12.9');
+	await expect(page.locator('[data-list-price-scope="personal"][data-price-plan="pro"][data-price-days="365"]')).toHaveValue('145');
+	await expect(page.locator('[data-price-scope="personal"][data-price-plan="pro"][data-price-days="365"]')).toHaveValue('99.9');
+});
+
+test('学习工具在右侧内容区打开并支持连续切换和窄屏', async ({ page }) => {
 	await loginWithDevUser(page, 'student_demo', {}, { skipPersonalCenter: true });
 	await page.evaluate(() => window.openPersonalCenter?.());
 
 	const shell = page.locator('#platform-admin-shell');
 	await expect(shell).toBeVisible();
 	const entries = [
-		{ name: '今日复习', modal: '#review-workbench-modal' },
-		{ name: '错题本', modal: '#wq-modal' },
-		{ name: '学习报告', modal: '#learning-report-modal' },
-		{ name: '生词本', modal: '#vocab-modal' },
-		{ name: '每日一练', modal: '#daily-practice-modal' },
-		{ name: '备考目标', modal: '#study-goal-modal' },
-		{ name: '推荐复习', modal: '#pc-recharge-modal' },
-		{ name: '章节学习', modal: '#chapter-modal' }
+		{ name: '今日学习', modal: '#review-workbench-modal' },
+		{ name: '专项练习', modal: '#chapter-modal' },
+		{ name: '学习报告', modal: '#learning-report-modal' }
 	];
 
 	for (const entry of entries) {
 		const trigger = shell.getByRole('button', { name: entry.name, exact: true });
 		await expect(trigger).toBeVisible();
 		await trigger.click();
-		const modal = page.locator(entry.modal);
+		const modal = shell.locator(`.pc-platform-admin-content ${entry.modal}`);
 		await expect(modal).toBeVisible({ timeout: 20000 });
-		const layers = await page.evaluate((selector) => ({
-			shell: Number.parseInt(window.getComputedStyle(document.querySelector('#platform-admin-shell')).zIndex || '0', 10),
-			modal: Number.parseInt(window.getComputedStyle(document.querySelector(selector)).zIndex || '0', 10)
-		}), entry.modal);
-		expect(layers.modal, `${entry.name} 应显示在学习工作台上方`).toBeGreaterThan(layers.shell);
-		await page.keyboard.press('Escape');
-		await expect(modal).toBeHidden();
-		await expect(trigger).toBeFocused();
+		await expect(modal).toHaveCSS('position', 'static');
+		await expect(modal.locator('[aria-modal="true"]')).toHaveCount(0);
+		await expect(trigger).toHaveClass(/active/);
+		await expect(shell.locator('.pc-platform-topbar h1')).toHaveText(entry.name);
+		await expect(shell.locator('.pc-learning-tool-page')).toHaveCount(1);
 		await expect(shell).toBeVisible();
 	}
 
-	for (const name of ['我的作业', '最近学习', '收藏题']) {
+	for (const name of ['我的作业', '复习资料']) {
 		await shell.getByRole('button', { name, exact: true }).click();
 		await expect(shell.locator('.pc-platform-topbar')).toContainText(name);
 		await expect(shell.locator('.pc-platform-admin-content')).toBeVisible();
 	}
-
-	const communityTrigger = shell.getByRole('button', { name: '社区讨论', exact: true });
-	await communityTrigger.click();
-	const communityPrompt = page.locator('.pc-confirm-overlay');
-	await expect(communityPrompt).toBeVisible();
-	const promptLayer = await communityPrompt.evaluate((element) => Number.parseInt(window.getComputedStyle(element).zIndex || '0', 10));
-	const shellLayer = await shell.evaluate((element) => Number.parseInt(window.getComputedStyle(element).zIndex || '0', 10));
-	expect(promptLayer).toBeGreaterThan(shellLayer);
-	await communityPrompt.locator('[data-pc-input]').fill('2023_02');
-	await communityPrompt.locator('[data-pc-input-ok]').click();
-	await expect(page.locator('#community-modal')).toBeVisible({ timeout: 20000 });
-	await page.keyboard.press('Escape');
-	await expect(page.locator('#community-modal')).toBeHidden();
-	await expect(communityTrigger).toBeFocused();
 
 	await page.setViewportSize({ width: 390, height: 844 });
 	const mobileReportTrigger = shell.getByRole('button', { name: '学习报告', exact: true });
@@ -122,17 +177,25 @@ test('学习工作台旧功能弹层显示在工作台上方并可返回原入�
 	expect(mobileBounds.left).toBeGreaterThanOrEqual(0);
 	expect(mobileBounds.top).toBeGreaterThanOrEqual(0);
 	expect(mobileBounds.right).toBeLessThanOrEqual(mobileBounds.width);
-	expect(mobileBounds.bottom).toBeLessThanOrEqual(mobileBounds.height);
-	await page.keyboard.press('Escape');
+	await mobileReport.locator('#lr-week').click();
+	await expect(mobileReport.locator('#lr-week')).toBeEnabled();
+	await shell.locator('[data-platform-admin-display-toggle]').click();
+	await expect(shell.locator('.pc-platform-admin-content #learning-report-modal')).toBeVisible();
+	await shell.getByRole('button', { name: '复习资料', exact: true }).click();
+	for (const [intent, id] of [['openWrongQuestions', 'wq-modal'], ['openVocabNotebook', 'vocab-modal']]) {
+		await shell.locator(`[data-intent="${intent}"]`).click();
+		await expect(shell.locator(`.pc-platform-admin-content #${id}`)).toBeVisible();
+		await shell.getByRole('button', { name: '复习资料', exact: true }).click();
+	}
 });
 
 test('教师运营机构和内容工作台全部菜单入口均能打开', async ({ page }) => {
 	test.setTimeout(180000);
 	const cases = [
-		{ loginId: 'teacher_demo', entry: '进入教学管理', items: ['我的学生', '学习组', '课程表', '安排课程', '待批改', '布置作业', '成绩册', '备课'] },
-		{ loginId: 'assistant_demo', entry: '进入教学运营', items: ['催交作业', '学员跟进', '续费风险', '异常提醒', '学习组', '课程表', '课程包', '安排课程'] },
-		{ loginId: 'orgadmin_demo', entry: '进入机构管理', items: ['成员管理', '权限管理', '机构设置', '学习组', '课程包', '机构看板'] },
-		{ loginId: 'contentadmin_demo', entry: '进入内容管理', items: ['内容反馈', '发布工作流', '内容日志'] }
+		{ loginId: 'teacher_demo', entry: '进入教学工作台', items: ['我的学生', '学习组', '课程表', '安排课程', '待批改', '布置作业', '成绩册', '备课'] },
+		{ loginId: 'assistant_demo', entry: '进入教学管理工作台', items: ['催交作业', '学员跟进', '续费风险', '异常提醒', '学习组', '课程表', '课程包', '安排课程'] },
+		{ loginId: 'orgadmin_demo', entry: '进入机构工作台', items: ['成员管理', '权限管理', '套餐与账单', '机构设置', '学习组', '课程包', '机构看板'] },
+		{ loginId: 'contentadmin_demo', entry: '进入内容工作台', items: ['内容反馈', '发布工作流', '内容日志'] }
 	];
 
 	for (const item of cases) {
@@ -183,11 +246,11 @@ test('不同角色的个人中心共用相同面板和头像坐标', async ({ pa
 test('所有角色共用账号菜单、资料安全页和响应式工作台外壳', async ({ page }) => {
 	test.setTimeout(180000);
 	const cases = [
-		{ loginId: 'student_demo', entry: '进入学习中心', workspace: '学习工作台', brand: '学员', shell: true, nav: '我的作业', groups: ['学习', '更多'] },
-		{ loginId: 'teacher_demo', entry: '进入教学管理', workspace: '教学工作台', brand: '老师', shell: true, nav: '我的学生', groups: ['学员', '教学'] },
-		{ loginId: 'assistant_demo', entry: '进入教学运营', workspace: '运营工作台', brand: '教学运营', shell: true, nav: '催交作业', groups: ['学员运营', '教学支持'] },
-		{ loginId: 'orgadmin_demo', entry: '进入机构管理', workspace: '机构工作台', brand: '机构管理', shell: true, nav: '成员管理', groups: ['成员与权限', '教学运营', '机构'] },
-		{ loginId: 'contentadmin_demo', entry: '进入内容管理', workspace: '内容工作台', brand: '内容管理', shell: true, nav: '内容反馈', groups: ['内容'] }
+		{ loginId: 'student_demo', entry: '进入学习工作台', workspace: '学习工作台', brand: '学员', shell: true, nav: '我的作业', groups: ['学习安排', '复习与分析', '账户'] },
+		{ loginId: 'teacher_demo', entry: '进入教学工作台', workspace: '教学工作台', brand: '老师', shell: true, nav: '我的学生', groups: ['学员管理', '教学任务', '教学内容', '消息'] },
+		{ loginId: 'assistant_demo', entry: '进入教学管理工作台', workspace: '教学管理工作台', brand: '教学管理员', shell: true, nav: '催交作业', groups: ['学员运营', '教务支持', '消息'] },
+		{ loginId: 'orgadmin_demo', entry: '进入机构工作台', workspace: '机构工作台', brand: '机构管理', shell: true, nav: '成员管理', groups: ['成员与权限', '教学运营', '机构管理', '消息'] },
+		{ loginId: 'contentadmin_demo', entry: '进入内容工作台', workspace: '内容工作台', brand: '内容管理', shell: true, nav: '内容反馈', groups: ['内容处理', '记录', '消息'] }
 	];
 
 	for (const item of cases) {
@@ -200,6 +263,7 @@ test('所有角色共用账号菜单、资料安全页和响应式工作台外�
 		await expect(menu).toContainText(item.loginId);
 		await expect(menu.getByRole('menuitem', { name: /^个人资料/ })).toBeVisible();
 		await expect(menu.getByRole('menuitem', { name: /^账号安全/ })).toBeVisible();
+		await expect(menu.getByRole('menuitem', { name: /^消息中心/ })).toBeVisible();
 		await expect(menu.getByRole('menuitem', { name: item.entry })).toBeVisible();
 
 		await menu.getByRole('menuitem', { name: /^个人资料/ }).click();
@@ -216,23 +280,34 @@ test('所有角色共用账号菜单、资料安全页和响应式工作台外�
 		const overviewLayout = await shell.evaluate((element) => {
 			const content = element.querySelector('.pc-platform-admin-content');
 			const overview = element.querySelector('.pc-role-admin-overview');
-			const launcher = element.querySelector('.pc-role-admin-launcher');
+			const stats = element.querySelectorAll('.pc-platform-stat');
+			const tasks = element.querySelectorAll('.pc-platform-task');
+			const quickActions = element.querySelectorAll('.pc-role-overview-actions > button');
 			const contentStyle = content ? window.getComputedStyle(content) : null;
 			return {
 				padding: contentStyle ? [contentStyle.paddingTop, contentStyle.paddingRight, contentStyle.paddingBottom, contentStyle.paddingLeft] : [],
 				overviewGap: overview ? window.getComputedStyle(overview).gap : '',
-				launcherGap: launcher ? window.getComputedStyle(launcher).gap : ''
+				statCount: stats.length,
+				taskCount: tasks.length,
+				quickActionCount: quickActions.length
 			};
 		});
-		expect(overviewLayout).toEqual({
-			padding: ['4px', '4px', '4px', '4px'],
-			overviewGap: '4px',
-			launcherGap: '4px'
-		});
+			expect(overviewLayout).toEqual({
+				padding: ['4px', '4px', '4px', '4px'],
+				overviewGap: '4px',
+				statCount: 4,
+				taskCount: 4,
+				quickActionCount: item.loginId === 'contentadmin_demo' ? 3 : 4
+			});
 		await expect(shell.locator('.pc-platform-brand')).toContainText(item.brand);
 		await expect(shell.locator('.pc-platform-topbar')).toContainText(item.workspace);
+		await expect(shell.locator('.pc-role-admin-welcome')).toHaveCount(0);
 		await expect(shell.locator('.pc-platform-nav-label')).toHaveText(item.groups);
 		await expect(shell.getByRole('button', { name: item.nav, exact: true })).toBeVisible();
+		await expect(shell.getByRole('button', { name: '消息中心', exact: true })).toBeVisible();
+		await shell.getByRole('button', { name: '消息中心', exact: true }).click();
+		await expect(shell.locator('.pc-platform-topbar')).toContainText('消息中心');
+		await expect(shell.locator('[data-message-center-category]')).toHaveCount(4);
 		await shell.getByRole('button', { name: item.nav, exact: true }).click();
 		await expect(shell.locator('.pc-platform-topbar')).toContainText(item.nav);
 		await expect(shell.locator('.pc-platform-admin-content')).toBeVisible();
@@ -250,7 +325,7 @@ test('所有角色共用账号菜单、资料安全页和响应式工作台外�
 	await page.setViewportSize({ width: 390, height: 844 });
 	await loginWithDevUser(page, 'teacher_demo', {}, { skipPersonalCenter: true });
 	await page.locator('#user-menu-trigger').click();
-	await page.getByRole('menuitem', { name: '进入教学管理' }).click();
+	await page.getByRole('menuitem', { name: '进入教学工作台' }).click();
 	const mobileShell = page.locator('#platform-admin-shell');
 	const mobileLayout = await mobileShell.evaluate((element) => {
 		const box = element.getBoundingClientRect();
@@ -266,21 +341,180 @@ test('所有角色共用账号菜单、资料安全页和响应式工作台外�
 			headerTops: [title?.top || 0, account?.top || 0, actions?.top || 0]
 		};
 	});
-	expect(mobileLayout.left).toBeGreaterThanOrEqual(3);
-	expect(mobileLayout.top).toBeGreaterThanOrEqual(3);
-	expect(mobileLayout.right).toBeGreaterThanOrEqual(3);
-	expect(mobileLayout.bottom).toBeGreaterThanOrEqual(3);
+	expect(mobileLayout.left).toBeGreaterThanOrEqual(0);
+	expect(mobileLayout.top).toBeGreaterThanOrEqual(0);
+	expect(mobileLayout.right).toBeGreaterThanOrEqual(0);
+	expect(mobileLayout.bottom).toBeGreaterThanOrEqual(0);
 	expect(mobileLayout.overflow).toBeLessThanOrEqual(1);
 	expect(Math.max(...mobileLayout.headerTops) - Math.min(...mobileLayout.headerTops)).toBeLessThanOrEqual(8);
 	await mobileShell.locator('[data-platform-admin-close]').click();
 
 	await loginWithDevUser(page, 'student_demo', {}, { skipPersonalCenter: true });
 	await page.locator('#user-menu-trigger').click();
-	await page.getByRole('menuitem', { name: '进入学习中心' }).click();
+	await page.getByRole('menuitem', { name: '进入学习工作台' }).click();
 	await expect(mobileShell.locator('.pc-platform-topbar')).toContainText('学习工作台');
 	await expect(mobileShell.getByRole('button', { name: '我的作业', exact: true })).toBeVisible();
 	const studentMobileOverflow = await mobileShell.evaluate((element) => element.scrollWidth - element.clientWidth);
 	expect(studentMobileOverflow).toBeLessThanOrEqual(1);
+});
+
+test('超级管理员及机构内容身份可以进入共用消息中心', async ({ page }) => {
+	await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+	await page.evaluate(() => window.openPersonalCenter?.());
+	const shell = page.locator('#platform-admin-shell');
+	await expect(shell).toBeVisible();
+	await shell.locator('[data-platform-admin-account-menu]').click();
+	await shell.getByRole('menuitem', { name: '消息中心', exact: true }).click();
+	await expect(shell.locator('.pc-platform-topbar')).toContainText('消息中心');
+	await expect(shell.locator('[data-message-center-category]')).toHaveCount(4);
+	await expect(shell.getByRole('button', { name: '消息中心', exact: true })).toBeVisible();
+
+	const identity = shell.locator('[data-role-workbench-switch]');
+	await identity.selectOption({ label: '机构内容管理' });
+	await expect(shell.locator('.pc-platform-brand')).toContainText('机构内容管理');
+	await expect(shell.getByRole('button', { name: '消息中心', exact: true })).toBeVisible();
+	await shell.getByRole('button', { name: '消息中心', exact: true }).click();
+	await expect(shell.locator('.pc-platform-topbar')).toContainText('消息中心');
+});
+
+test('多角色账号可以切换工作台并记住当前身份', async ({ page }) => {
+	await loginWithDevUser(page, 'assistant_demo', {}, { skipPersonalCenter: true });
+	await page.evaluate(() => {
+		const context = window.getUserContext?.() || {};
+		window.setUserContext?.({ ...context, roles: ['student', 'assistant'] });
+		window.openPersonalCenter?.();
+	});
+
+	const shell = page.locator('#platform-admin-shell');
+	await expect(shell).toBeVisible();
+	const identitySelect = shell.getByLabel('切换当前身份');
+	await expect(identitySelect).toBeVisible();
+	await expect(identitySelect.locator('option')).toHaveText(['学员', '教学管理员']);
+
+	await identitySelect.selectOption('assistant');
+	await expect(shell.locator('.pc-platform-topbar')).toContainText('教学管理工作台');
+	await expect(shell.locator('.pc-platform-nav-label')).toHaveText(['学员运营', '教务支持', '消息']);
+	await expect(shell.getByRole('button', { name: '我的作业', exact: true })).toHaveCount(0);
+	const remembered = await page.evaluate(() => {
+		const context = window.getUserContext?.() || {};
+		return localStorage.getItem(`exam_v2_active_workbench:${context.id || context.username || 'anonymous'}`);
+	});
+	expect(remembered).toBe('assistant');
+
+	await page.setViewportSize({ width: 390, height: 844 });
+	await shell.locator('[data-platform-admin-account-menu]').click();
+	const studentIdentity = shell.locator('[data-role-workbench="student"]');
+	await expect(studentIdentity).toBeVisible();
+	await expect(studentIdentity).toHaveAttribute('aria-checked', 'false');
+	await studentIdentity.click();
+	await expect(shell.locator('.pc-platform-topbar')).toContainText('学习工作台');
+	await expect(shell.locator('.pc-platform-nav-label').first()).toBeHidden();
+	await expect(shell.getByRole('button', { name: '我的作业', exact: true })).toBeVisible();
+	await expect(shell.getByLabel('切换当前身份')).toBeHidden();
+});
+
+test('超级管理员可切换全部七个工作台并恢复上次身份', async ({ page }, testInfo) => {
+	test.setTimeout(120000);
+	await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+	const originalRoles = await page.evaluate(() => window.getUserContext().roles);
+	const originalOrganization = await page.evaluate(() => window.getUserContext().organizationId);
+	await page.evaluate(() => {
+		window.__workbenchScopes = [];
+		for (const method of ['getInstitutionWorkbench', 'getInstitutionDashboard']) {
+			const original = window.APIClient[method];
+			window.APIClient[method] = function (...args) {
+				window.__workbenchScopes.push(args[1] || '');
+				return original.apply(this, args);
+			};
+		}
+	});
+	await page.evaluate(() => window.openPersonalCenter());
+	const shell = page.locator('#platform-admin-shell');
+	const selector = shell.getByLabel('切换当前身份');
+	await expect(selector.locator('option')).toHaveCount(7);
+	await selector.selectOption('student');
+	const leftEdges = await shell.evaluate((node) => {
+		const identity = node.querySelector('.pc-role-identity-switcher')?.getBoundingClientRect();
+		const activeNav = node.querySelector('.pc-platform-nav-item.active')?.getBoundingClientRect();
+		return [identity?.left || 0, activeNav?.left || 0];
+	});
+	expect(Math.abs(leftEdges[0] - leftEdges[1])).toBeLessThanOrEqual(1);
+	await selector.evaluate((control) => {
+		control.value = 'superAdmin';
+		control.dispatchEvent(new Event('input', { bubbles: true }));
+	});
+	await expect(shell.locator('h1')).toHaveText('平台总览');
+	for (const [id, title, menu] of [
+		['student', '学习工作台', '我的作业'],
+		['teacher', '教学工作台', '我的学生'],
+		['assistant', '教学管理工作台', '催交作业'],
+		['orgAdmin', '机构工作台', '成员管理'],
+		['orgContentAdmin', '机构内容工作台', '课程包'],
+		['contentAdmin', '内容工作台', '内容反馈'],
+		['superAdmin', '平台总览', '用户管理']
+	]) {
+		await selector.selectOption(id);
+		await expect(shell.locator('h1')).toHaveText(title);
+		await expect(selector).toBeFocused();
+		if (id === 'teacher') {
+			const scope = shell.getByLabel('当前工作台机构');
+			await expect(scope).toBeVisible();
+			await expect(scope).not.toHaveValue('');
+			const next = await scope.locator('option').nth(1).getAttribute('value');
+			await scope.selectOption(next);
+			await expect(scope).toHaveValue(next);
+			await expect.poll(() => page.evaluate(() => window.__workbenchScopes.at(-1))).toBe(next);
+			expect(await page.evaluate(() => window.__workbenchScopes.includes(''))).toBe(false);
+		}
+		await expect(shell.locator('.pc-platform-stat strong').filter({ hasText: /^…$/ })).toHaveCount(0);
+		await page.screenshot({ path: testInfo.outputPath(`${id}.png`) });
+		await shell.locator('nav').getByRole('button', { name: menu, exact: true }).click();
+		await expect(shell.locator('h1')).toHaveText(menu);
+		await expect(shell.locator('.pc-platform-admin-content')).not.toBeEmpty();
+	}
+	await selector.selectOption('assistant');
+	await page.reload({ waitUntil: 'domcontentloaded' });
+	await expect(page.locator('#user-menu-trigger')).toHaveAttribute('aria-label', '打开账号菜单');
+	await page.evaluate(() => window.openPersonalCenter());
+	await expect(shell.locator('h1')).toHaveText('教学管理工作台');
+	for (const width of [820, 390]) {
+		await page.setViewportSize({ width, height: 844 });
+		await shell.locator('[data-platform-admin-account-menu]').click();
+		await expect(shell.getByRole('menuitemradio')).toHaveCount(7);
+		await shell.getByRole('menuitemradio', { name: '切换到超级管理员', exact: true }).click();
+		await expect(shell.locator('h1')).toHaveText('平台总览');
+		await expect(shell.locator('[data-platform-admin-account-menu]')).toBeFocused();
+		await shell.locator('[data-platform-admin-account-menu]').click();
+		await shell.getByRole('menuitemradio', { name: '切换到教学管理员', exact: true }).click();
+		await expect(shell.locator('h1')).toHaveText('教学管理工作台');
+		expect(await shell.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+	}
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await shell.locator('[data-platform-admin-account-menu]').click();
+	await shell.getByRole('menuitemradio', { name: '切换到学员', exact: true }).click();
+	await shell.locator('[data-platform-admin-close]').click();
+	await page.locator('#user-menu-trigger').click();
+	const globalMenu = page.locator('#superadmin-account-menu');
+	await expect(globalMenu).toContainText('当前身份：学员');
+	await expect(globalMenu).not.toContainText('当前身份：超级管理员');
+	await expect(globalMenu.getByRole('menuitem', { name: /进入学习工作台/ })).toBeVisible();
+	expect(await page.evaluate(() => window.getUserContext().roles)).toEqual(originalRoles);
+	expect(await page.evaluate(() => window.getUserContext().organizationId)).toEqual(originalOrganization);
+});
+
+test('普通账号不会通过保存的身份偏好获得其他工作台', async ({ page }) => {
+	await loginWithDevUser(page, 'student_demo', {}, { skipPersonalCenter: true });
+	await page.evaluate(() => {
+		const ctx = window.getUserContext();
+		localStorage.setItem(`exam_v2_active_workbench:${ctx.id}`, 'superAdmin');
+	});
+	await page.reload({ waitUntil: 'domcontentloaded' });
+	await expect(page.locator('#user-menu-trigger')).toHaveAttribute('aria-label', '打开账号菜单');
+	await page.evaluate(() => window.openPersonalCenter());
+	const shell = page.locator('#platform-admin-shell');
+	await expect(shell.locator('h1')).toHaveText('学习工作台');
+	await expect(shell.getByLabel('切换当前身份')).toHaveCount(0);
+	await expect(shell.locator('[data-platform-admin-page]')).toHaveCount(0);
 });
 
 test('我的作业进入真实列表而不是只滚动首页横幅', async ({ page }) => {
@@ -432,6 +666,8 @@ test('学习报告支持移动端对话框、周期忙碌态和 FREE 月报升�
   await expect(month).toContainText('PRO');
   await month.click();
   await expect(page.locator('#pc-recharge-modal')).toBeVisible();
+  await expect(page.locator('#pc-recharge-modal input[name="recharge-plan"][value="ultra"]')).toBeDisabled();
+  await expect(page.locator('#pc-recharge-modal')).toContainText('ULTRA · 暂未开放');
   expect(requestedPeriods).not.toContain('month');
   await page.locator('#recharge-close').click();
   await expect(page.locator('#pc-recharge-modal')).toBeHidden();
@@ -536,8 +772,14 @@ test('学习工具旧弹窗统一支持移动端、Esc 和焦点归还', async (
   const { entry: goalEntry, modal: goalModal } = await openTool({
     intent: 'openStudyGoal', modalId: 'study-goal-modal', closeId: 'sg-close', titleId: 'sg-modal-title'
   });
-  await goalModal.locator('#sg-title').fill('N1 冲刺');
-  await goalModal.locator('#sg-date').fill('2026-12-01');
+  await expect(goalModal.locator('#sg-title')).toHaveCount(0);
+  await expect(goalModal.locator('#sg-exam-target option')).toHaveText(['JLPT N1', 'JLPT N2', 'JLPT N3', 'EJU 日本語']);
+  await goalModal.locator('#sg-exam-target').selectOption('JLPT N3');
+  await goalModal.locator('#sg-date').evaluate((input) => {
+    input.value = '2026-12-01';
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await goalModal.locator('#sg-minutes').selectOption('30');
   const submit = goalModal.locator('#sg-form button[type="submit"]');
   await submit.click();
   await expect(submit).toBeDisabled();
@@ -1464,7 +1706,7 @@ test('教学与管理角色显示对应简约工作台入口', async ({ page }) 
   const cases = [
     { loginId: 'teacher_demo', removedFocus: '今日教学', removedTitle: '教学工作台', entries: ['我的学生', '学习组', '课程表', '安排课程', '待批改', '布置作业', '成绩册', '备课'], open: '我的学生', subpageText: /student_demo|暂无真实数据/ },
     { loginId: 'assistant_demo', removedFocus: '今日运营', removedTitle: '运营工作台', entries: ['催交作业', '学员跟进', '续费风险', '异常提醒', '学习组', '课程表', '课程包', '安排课程'], open: '催交作业', pageTitle: '作业', subpageText: /5 人未提交|暂无真实数据/ },
-    { loginId: 'orgadmin_demo', removedFocus: '今日管理', removedTitle: '机构工作台', entries: ['成员管理', '权限管理', '机构设置', '学习组', '课程包', '机构看板'], open: '成员管理', subpageText: /成员管理|还没有可管理机构|正在读取机构数据/ },
+    { loginId: 'orgadmin_demo', removedFocus: '今日管理', removedTitle: '机构工作台', entries: ['成员管理', '权限管理', '套餐与账单', '机构设置', '课程包', '课时管理', '学习组', '机构看板', '审计日志'], open: '成员管理', subpageText: /成员管理|还没有可管理机构|正在读取机构数据/ },
     { loginId: 'contentadmin_demo', removedFocus: '今日内容', removedTitle: '内容工作台', entries: ['内容反馈', '发布工作流', '内容日志'], open: '内容反馈', subpageText: '列表来自反馈接口' }
   ];
 
@@ -2119,7 +2361,8 @@ test('机构与平台管理我的内容入口打开具体子页面', async ({ pa
       expectations: [
         { entry: '成员管理', detail: /成员管理|添加 \/ 邀请|还没有可管理机构|正在读取机构数据/ },
         { entry: '权限管理', detail: /权限管理|成员权限|高级：角色默认权限|还没有可管理机构|正在读取机构数据/ },
-        { entry: '机构设置', detail: /机构设置|套餐与席位|校区管理|操作审计|还没有可管理机构|正在读取机构数据/ },
+        { entry: '套餐与账单', detail: /套餐与账单|购买机构 PRO|续费或增加席位|还没有可管理机构|正在读取机构数据/ },
+        { entry: '机构设置', detail: /机构设置|校区管理|操作审计|还没有可管理机构|正在读取机构数据/ },
         { entry: '学习组', detail: /学习组|还没有可管理机构|正在读取机构数据/ },
         { entry: '课程包', detail: /课程包|还没有可管理机构|正在读取机构数据/ },
 		{ entry: '机构看板', detail: /学习组平均分趋势|暂无趋势数据|正在读取真实学习组/ }
@@ -2165,7 +2408,8 @@ test('机构管理授权和席位入口使用真实管理页面', async ({ page 
   await page.locator('button.pc-nav-item', { hasText: '管理' }).click();
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="机构设置"]').click();
-	await expect(page.locator('.pc-subpage')).toContainText(/套餐与席位|校区管理|操作审计|正在读取机构数据|还没有可管理机构/);
+	await expect(page.locator('.pc-subpage')).toContainText(/校区管理|操作审计|正在读取机构数据|还没有可管理机构/);
+	await expect(page.locator('.pc-subpage')).not.toContainText('平台人工调整');
   await expect(page.locator('.pc-subpage')).not.toContainText('可回收席位');
 });
 
@@ -2247,22 +2491,36 @@ test('平台管理入口支持功能开关、退款和反馈处理闭环', async
 	await expect(page.locator('[data-pricing-section-panel="plans"]').first()).toBeVisible();
 	await expect(page.locator('[data-pricing-section-panel="offers"]')).toBeHidden();
 	const personalProMonthlyPrice = page.locator('[data-price-scope="personal"][data-price-plan="pro"][data-price-days="30"]');
-  await expect(personalProMonthlyPrice).toHaveValue('19');
+  await expect(personalProMonthlyPrice).toHaveValue('12.9');
+	await expect(page.locator('[data-list-price-scope="personal"][data-price-plan="pro"][data-price-days="30"]')).toHaveValue('15');
+	await expect(page.locator('[data-list-price-scope="personal"][data-price-plan="pro"][data-price-days="90"]')).toHaveValue('40');
+	await expect(page.locator('[data-list-price-scope="personal"][data-price-plan="pro"][data-price-days="365"]')).toHaveValue('145');
 	await expect(page.locator('[data-pricing-plan-panel="personal"]')).toBeVisible();
 	await expect(page.locator('[data-pricing-plan-panel="organization"]').first()).toBeHidden();
 	await page.locator('[data-pricing-plan-scope="organization"]').click();
 	await expect(page.locator('[data-pricing-plan-panel="organization"]').first()).toBeVisible();
   await expect(page.locator('[data-price-scope="organization"][data-price-plan="pro"][data-price-days="30"]')).toHaveValue('15');
-  await expect(page.locator('[data-price-min-seats="pro"]')).toHaveValue('20');
-  await expect(page.locator('[data-price-tier="2"][data-price-plan="ultra"]')).toHaveValue('219');
-	await expect(page.locator('.pc-pricing-boundary-warning')).toContainText('阶梯边界提醒');
+  await expect(page.locator('[data-price-scope="organization"][data-price-plan="pro"][data-price-days="90"]')).toHaveValue('29.9');
+  await expect(page.locator('[data-price-scope="organization"][data-price-plan="ultra"][data-price-days="30"]')).toHaveValue('39');
+  await expect(page.locator('[data-price-scope="organization"][data-price-plan="ultra"][data-price-days="90"]')).toHaveValue('99');
+  await expect(page.locator('[data-pricing-plan-panel="organization"]').first()).toContainText('ULTRA暂未开放');
+  await expect(page.locator('[data-price-min-seats="pro"]')).toHaveValue('1');
+  await expect(page.locator('[data-price-tier="2"][data-price-plan="ultra"]')).toHaveValue('299');
+  await expect(page.getByLabel('默认支付渠道：微信支付')).toBeVisible();
+	await expect(page.locator('.pc-pricing-boundary-warning')).toHaveCount(0);
 	await page.locator('[data-pricing-plan-scope="personal"]').click();
-	await personalProMonthlyPrice.fill('19.01');
+	await personalProMonthlyPrice.fill('12.91');
 	await page.locator('[data-pricing-section-tab="offers"]').click();
 	await expect(page.locator('[data-pricing-section-tab="offers"]')).toHaveAttribute('aria-pressed', 'true');
 	await expect(page.locator('[data-pricing-section-panel="offers"]')).toBeVisible();
-  await expect(page.locator('[data-price-offer-card]')).toHaveCount(6);
-  await expect(page.locator('[data-price-offer-card][data-offer-scope="personal"][data-offer-id="first_purchase"] [data-offer-discount]')).toHaveValue('20');
+  await expect(page.locator('[data-price-offer-card]')).toHaveCount(7);
+  const referralOfferCard = page.locator('[data-price-offer-card][data-offer-scope="personal"][data-offer-id="referral_reward"]');
+  await expect(referralOfferCard).toContainText('返 20% · 最高 ¥20');
+  await expect(referralOfferCard.locator('[data-offer-enabled]')).toBeChecked();
+  await referralOfferCard.locator('[data-pricing-offer-edit]').click();
+  await expect(referralOfferCard.locator('[data-offer-reward-percent]')).toHaveValue('20');
+  await expect(referralOfferCard.locator('[data-offer-reward-cap]')).toHaveValue('20');
+  await expect(page.locator('[data-price-offer-card][data-offer-scope="personal"][data-offer-id="first_purchase"] [data-offer-discount]')).toHaveValue('10');
   await expect(page.locator('[data-price-offer-card][data-offer-scope="organization"][data-offer-id="renewal"] [data-offer-discount]')).toHaveValue('5');
 	await expect(page.locator('[data-pricing-offer-panel="personal"]')).toBeVisible();
 	await expect(page.locator('[data-pricing-offer-panel="organization"]')).toBeHidden();
@@ -2314,8 +2572,8 @@ test('平台管理入口支持功能开关、退款和反馈处理闭环', async
 	  await page.setViewportSize({ width: 1440, height: 1100 });
 	  await page.locator('[data-pricing-section-tab="plans"]').click();
 	  await expect(page.locator('[data-pricing-savebar]')).toBeVisible();
-	  await expect(personalProMonthlyPrice).toHaveValue('19.01');
-	  await personalProMonthlyPrice.fill('19');
+	  await expect(personalProMonthlyPrice).toHaveValue('12.91');
+	  await personalProMonthlyPrice.fill('12.9');
 	  const desktopPricingOverflow = await page.locator('#platform-admin-shell .pc-platform-admin-content').evaluate((content) => {
 	    const form = content.querySelector('[data-pricing-form]');
 	    return {

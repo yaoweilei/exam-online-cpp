@@ -19,6 +19,7 @@ namespace transport::routes
 //   DELETE /api/v1/wrong-questions/{userId}/{questionId}     从错题本移除单题
 //   POST   /api/v1/wrong-questions/{userId}/{questionId}/master    标记已掌握
 //   POST   /api/v1/wrong-questions/{userId}/{questionId}/unmaster  取消已掌握
+//   POST   /api/v1/wrong-questions/{userId}/{questionId}/correction 提交单题订正
 //   POST   /api/v1/wrong-questions/{userId}/reset            清空整份错题本
 // ---------------------------------------------------------------------------
 void registerWrongQuestionRoutes(const AppContext &ctx)
@@ -127,6 +128,70 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
                 Json::Value out(Json::objectValue);
                 out["unmastered"] = ctx.wrongQuestionService->unmarkMastered(userId, questionId);
+                return common::ok(req, out);
+            });
+        },
+        {Post});
+
+    // 单题订正：服务端判题，答对后完成今天的任务；连续两次答对才标记掌握。
+    app().registerHandler(
+        "/api/v1/wrong-questions/{1}/{2}/correction",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string userId,
+              std::string questionId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
+                requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
+                const auto examId = requireBoundedString(body, "exam_id", 1, 200);
+                const auto actualQuestionId = requireBoundedString(body, "actual_question_id", 1, 200);
+                const int sectionIndex = readBoundedIntField(body, "section_index", 0, 0, 1000);
+                if (!body.isMember("answer") || body["answer"].isNull())
+                {
+                    throw common::AppException("VALIDATION_ERROR", "请先选择答案", drogon::k422UnprocessableEntity);
+                }
+
+                const auto exam = ctx.examService->getExam(examId);
+                Json::Value answers(Json::objectValue);
+                answers[std::to_string(sectionIndex) + ":" + actualQuestionId] = body["answer"];
+                const auto score = ctx.answerService->calculateScore(examId, answers, exam);
+                const auto resultKey = std::to_string(sectionIndex) + ":" + actualQuestionId;
+                const auto &result = score["results"][resultKey];
+                if (!result.isObject() || result.get("status", "").asString() == "unanswered")
+                {
+                    throw common::AppException("QUESTION_NOT_FOUND", "未找到可订正的题目", drogon::k404NotFound);
+                }
+
+                const bool correct = result.get("status", "").asString() == "correct";
+                const auto correctAnswer = result.get("correct_answer", "").asString();
+                const auto userAnswer = result.get("user_answer", "").asString();
+                const auto updated = ctx.wrongQuestionService->recordCorrection(
+                    userId, examId, questionId, correctAnswer, userAnswer, correct);
+                if (!updated.isObject())
+                {
+                    throw common::AppException("WRONG_QUESTION_NOT_FOUND", "该题已不在待订正列表中", drogon::k404NotFound);
+                }
+
+                if (correct && ctx.dailyPracticeService != nullptr)
+                {
+                    auto target = body.get("exam_target", "").asString();
+                    if (target.size() > 40) target.resize(40);
+                    ctx.dailyPracticeService->markComplete(userId, examId, questionId, target);
+                }
+                if (ctx.streakService != nullptr)
+                {
+                    try { ctx.streakService->recordActivity(userId, 1, correct ? 1 : 0); } catch (...) { }
+                }
+
+                Json::Value out(Json::objectValue);
+                out["correct"] = correct;
+                out["correct_answer"] = correctAnswer;
+                out["user_answer"] = userAnswer;
+                out["correct_streak"] = updated.get("correct_streak", 0);
+                out["mastered"] = updated.get("mastered", false);
+                out["completed_today"] = correct;
                 return common::ok(req, out);
             });
         },

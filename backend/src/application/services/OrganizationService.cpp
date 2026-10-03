@@ -304,10 +304,6 @@ Json::Value OrganizationService::acceptInvitation(const std::string &actorUserId
             }
             const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
             const auto seats = subscription.get("seats", 0).asInt();
-            if (seats > 0 && organizationRepository_.memberCount(organizationId) >= seats)
-            {
-                throw common::AppException("ORGANIZATION_SEATS_FULL", "Organization seat limit reached", drogon::k409Conflict);
-            }
 
             Json::Value membership(Json::objectValue);
             membership["user_id"] = actorUserId;
@@ -322,6 +318,12 @@ Json::Value OrganizationService::acceptInvitation(const std::string &actorUserId
             membership["student_no"] = invitation.get("student_no", "").asString();
             membership["employee_no"] = invitation.get("employee_no", "").asString();
             membership = assignBusinessNumbers(organization, membership, Json::Value(Json::nullValue));
+            if (seats > 0 &&
+                infrastructure::storage::OrganizationRepository::membershipUsesPaidSeat(membership) &&
+                organizationRepository_.billableMemberCount(organizationId) >= seats)
+            {
+                throw common::AppException("ORGANIZATION_SEATS_FULL", "Organization paid content seat limit reached", drogon::k409Conflict);
+            }
             auto savedMembership = organizationRepository_.upsertMembership(membership);
 
             invitation["status"] = "accepted";
@@ -417,14 +419,19 @@ Json::Value OrganizationService::upsertMember(const std::string &actorUserId, co
     }
 
     const auto existing = organizationRepository_.findMembership(userId, organizationId);
+    const auto roles = normalizeMemberRoles(payload.isMember("roles") ? payload["roles"] : defaultMemberRoles());
     const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
     const auto seats = subscription.get("seats", 0).asInt();
-    if (existing.isNull() && seats > 0 && organizationRepository_.memberCount(organizationId) >= seats)
+    Json::Value seatCandidate(Json::objectValue);
+    seatCandidate["roles"] = roles;
+    const bool addsPaidSeat = infrastructure::storage::OrganizationRepository::membershipUsesPaidSeat(seatCandidate) &&
+                              (existing.isNull() ||
+                               !infrastructure::storage::OrganizationRepository::membershipUsesPaidSeat(existing));
+    if (addsPaidSeat && seats > 0 && organizationRepository_.billableMemberCount(organizationId) >= seats)
     {
-        throw common::AppException("ORGANIZATION_SEATS_FULL", "Organization seat limit reached", drogon::k409Conflict);
+        throw common::AppException("ORGANIZATION_SEATS_FULL", "Organization paid content seat limit reached", drogon::k409Conflict);
     }
 
-    const auto roles = normalizeMemberRoles(payload.isMember("roles") ? payload["roles"] : defaultMemberRoles());
     ensureOrgAdminGuard(organizationId, existing, roles);
     const auto permissionTemplates = payload.isMember("permission_templates")
                                          ? normalizePermissionTemplates(payload["permission_templates"], roles)
@@ -1183,6 +1190,7 @@ Json::Value OrganizationService::enrichOrganization(Json::Value organization) co
 {
     const auto organizationId = organization.get("organization_id", organization.get("scope_id", "")).asString();
     organization["member_count"] = organizationRepository_.memberCount(organizationId);
+    organization["billable_member_count"] = organizationRepository_.billableMemberCount(organizationId);
     organization["subscription"] = subscriptionService_.subscriptionForOrganization(organizationId);
     organization["seats"] = organization["subscription"].get("seats", 0).asInt();
     if (!organization.isMember("invitations") || !organization["invitations"].isArray())
@@ -1826,10 +1834,14 @@ const Json::Value &invitation) const
 
     const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
     const auto seats = subscription.get("seats", 0).asInt();
-    if (seats > 0 && organizationRepository_.memberCount(organizationId) >= seats)
+    Json::Value seatCandidate(Json::objectValue);
+    seatCandidate["roles"] = normalizeMemberRoles(invitation.get("roles", defaultMemberRoles()));
+    if (seats > 0 &&
+        infrastructure::storage::OrganizationRepository::membershipUsesPaidSeat(seatCandidate) &&
+        organizationRepository_.billableMemberCount(organizationId) >= seats)
     {
         eligibility.blockCode = "ORGANIZATION_SEATS_FULL";
-        eligibility.blockMessage = "组织席位已满，请联系管理员扩容后再加入。";
+        eligibility.blockMessage = "机构付费内容席位已满，请联系管理员扩容后再加入。";
         return eligibility;
     }
 

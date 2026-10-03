@@ -33,6 +33,25 @@ try {
         $destination = Join-Path $runtimeDataRoot $dataArea
         Copy-Item -LiteralPath $source -Destination $destination -Recurse -Force
     }
+    $sampleImageSource = Join-Path $repoRoot 'data\image\eju\2024_01'
+    $sampleImageParent = Join-Path $runtimeDataRoot 'image\eju'
+    New-Item -ItemType Directory -Path $sampleImageParent -Force | Out-Null
+    Copy-Item -LiteralPath $sampleImageSource -Destination (Join-Path $sampleImageParent '2024_01') -Recurse -Force
+    $sampleAudioSource = Join-Path $repoRoot 'data\audio\eju\2024_01'
+    $sampleAudioParent = Join-Path $runtimeDataRoot 'audio\eju'
+    New-Item -ItemType Directory -Path $sampleAudioParent -Force | Out-Null
+    Copy-Item -LiteralPath $sampleAudioSource -Destination (Join-Path $sampleAudioParent '2024_01') -Recurse -Force
+    foreach ($sample in @(
+        @{ Year = '2018_01'; Image = 'listening_reading_q01_material.jpg'; Audio = 'track_06.mp3' },
+        @{ Year = '2021_01'; Image = 'listening_reading_q04_material.jpg'; Audio = 'track_09.mp3' },
+        @{ Year = '2023_02'; Image = 'listening_reading_q01.jpg'; Audio = 'track_06.mp3' }
+    )) {
+        $imageDestination = Join-Path $sampleImageParent $sample.Year
+        $audioDestination = Join-Path $sampleAudioParent $sample.Year
+        New-Item -ItemType Directory -Path $imageDestination, $audioDestination -Force | Out-Null
+        Copy-Item -LiteralPath (Join-Path $repoRoot "data\image\eju\$($sample.Year)\$($sample.Image)") -Destination $imageDestination -Force
+        Copy-Item -LiteralPath (Join-Path $repoRoot "data\audio\eju\$($sample.Year)\$($sample.Audio)") -Destination $audioDestination -Force
+    }
 
     $env:APP_ENV = 'development'
     $env:BUILD_CONFIG = 'Release'

@@ -15,7 +15,8 @@
  * 采用模块化架构，将功能委托给专门的管理器
  */
 
-import { requestAppConfirmation } from '../../ui/dialogs.js';
+import { requestAppConfirmation, showAppToast } from '../../ui/dialogs.js';
+import { guestTrialStatus, practiceTrialKind } from '../../features/guestTrialRecords.js';
 import { QuestionRenderer } from '../renderers/QuestionRenderer.js';
 
 type LegacyAnyRecord = Record<string, any>;
@@ -67,6 +68,27 @@ interface ExamViewerExamData extends LegacyAnyRecord {
 		[key: string]: any;
 	};
 }
+
+interface WrongCorrectionContext {
+	userId: string;
+	examId: string;
+	questionId: string;
+	actualQuestionId: string;
+	sectionIndex: number;
+	questionIndex: number;
+	examTarget: string;
+	position: number;
+	total: number;
+	hasNext: boolean;
+}
+
+interface WrongCorrectionResult {
+	correct: boolean;
+	correct_answer?: unknown;
+	correct_streak?: number;
+	mastered?: boolean;
+	completed_today?: boolean;
+}
 class ExamViewer {
 	[key: string]: any;
 	private readonly logger: {
@@ -81,13 +103,183 @@ class ExamViewer {
 	currentQuestionIndex = 0;
 	currentCategory: string | null = null;
 	userAnswers: Record<string, unknown> = {};
+	practiceScope: { label: string; sectionIndexes: number[] } | null = null;
+	practiceRangeLocked = false;
+	practiceSelectionDomain = '';
+	checkedPracticeQuestions = new Set<string>();
+	savedPracticeMode: 'review' | 'retest' | null = null;
+	private openingSavedPractice = false;
+
+	openSavedPracticeAttempt(examId: string, examData: LegacyAnyRecord, attempt: {
+		label: string; sectionIndexes: number[]; answers: Record<string, unknown>;
+	}, mode: 'review' | 'retest'): void {
+		this.openingSavedPractice = true;
+		this.savedPracticeMode = mode;
+		this.examMode = 'practice';
+		this._currentExamId = examId;
+		this.loadExamData(examData);
+		const notice = document.createElement('p');
+		notice.id = 'saved-practice-notice';
+		notice.textContent = mode === 'review'
+			? '历史复习 · 正在查看这次提交的答案和解析，不能修改'
+			: '再测试 · 答案已清空，完成后会保存为一条新成绩';
+		document.getElementById('exam-workarea')?.prepend(notice);
+		this.setPracticeScope(attempt.label, attempt.sectionIndexes, true);
+		if (mode === 'review') {
+			this.userAnswers = { ...attempt.answers };
+			this.isSubmitted = true;
+			this.showAnswers = true;
+			this.showExplanations = true;
+			this.showReadingKana = true;
+			this.showReadingZh = true;
+			this.loadTranslationsForReadingAssist();
+		} else {
+			this.answerManager.prepareNewPracticeAttempt();
+			this.showAnswers = false;
+			this.showExplanations = false;
+		}
+		this.jumpToQuestion(attempt.sectionIndexes[0], 0, false);
+		this.renderExam();
+	}
+
+	getPracticeQuestions() {
+		const sections = this.currentExam?.exam_info.sections || [];
+		const indexes = this.practiceScope?.sectionIndexes || sections.map((_, index) => index);
+		return indexes.flatMap(sectionIndex => (sections[sectionIndex]?.questions || []).map((question, questionIndex) => ({ sectionIndex, questionIndex, question })));
+	}
+
+	setPracticeScope(domain: string, selectedIndexes?: number[], locked = false) {
+		const types: Record<string, string[]> = { '词汇 / 语法': ['vocabulary', 'vocab', 'grammar'], '阅读': ['reading'], '读解': ['reading'], '记述': ['writing'], '听力': ['listening'], '听解': ['listening'], '听读解': ['listening_reading', 'listeningreading'] };
+		const sections = this.currentExam?.exam_info.sections || [];
+		const sectionIndexes = sections.map((section, index) => types[domain]?.includes(String(section.section_type).toLowerCase()) ? index : -1).filter(index => index >= 0);
+		const chosen = selectedIndexes || sectionIndexes;
+		this.practiceScope = selectedIndexes ? (!domain && chosen.length === sections.length ? null : { label: domain || '自选题组', sectionIndexes: chosen }) : domain && chosen.length ? { label: domain, sectionIndexes: chosen } : null;
+		this.practiceRangeLocked = locked;
+		this.practiceSelectionDomain = domain;
+		this.checkedPracticeQuestions.clear();
+		this.categoryNavigationManager.initCategoryDropdowns();
+		this.renderQuestionNavigation();
+		window.dispatchEvent(new Event('practiceRangeChanged'));
+	}
+
+	renderPracticeSetup(host: HTMLElement, domain: string, onStart: () => void) {
+		const types: Record<string, string[]> = { '词汇 / 语法': ['vocabulary', 'vocab', 'grammar'], '阅读': ['reading'], '读解': ['reading'], '记述': ['writing'], '听力': ['listening'], '听解': ['listening'], '听读解': ['listening_reading', 'listeningreading'] };
+		const sections = this.currentExam?.exam_info.sections || [];
+		const candidates = sections.map((section, index) => ({ section, index })).filter(({ section }) => (section.questions?.length || 0) > 0 && (!domain || types[domain]?.includes(String(section.section_type).toLowerCase())));
+		host.replaceChildren();
+		host.classList.add('practice-setup');
+		const list = document.createElement('div');
+		list.className = 'practice-section-choices';
+		candidates.forEach(({ section, index }, position) => {
+			const row = document.createElement('label');
+			const input = document.createElement('input');
+			input.type = 'checkbox'; input.value = String(index); input.checked = position === 0;
+			input.dataset.practiceSection = String(index);
+			const name = document.createElement('span');
+			name.textContent = section.section_name || section.section_title || `問題${position + 1}`;
+			const count = document.createElement('small');
+			count.textContent = `${section.questions!.length} 题`;
+			row.append(input, name, count); list.append(row);
+		});
+		const summary = document.createElement('p');
+		summary.className = 'practice-selection-summary'; summary.setAttribute('role', 'status');
+		const start = document.createElement('button');
+		start.type = 'button'; start.className = 'practice-start-btn'; start.textContent = '开始练习';
+		const selected = () => Array.from(list.querySelectorAll<HTMLInputElement>('input:checked')).map(input => Number(input.value));
+		const update = () => {
+			const indexes = selected();
+			const guest = !this.userId || this.userId === 'guest';
+			const quota = guest ? guestTrialStatus(practiceTrialKind(this._currentExamId || '', String(this.currentExam?.family || ''))) : null;
+			summary.textContent = `已选 ${indexes.length} 个题组，共 ${indexes.reduce((count, index) => count + sections[index].questions!.length, 0)} 题${quota ? ` · 本类访客体验剩余 ${quota.remaining} 次` : ''}`;
+			start.textContent = quota?.remaining === 0 ? '登录后继续练习' : '开始练习';
+			start.disabled = !indexes.length;
+		};
+		list.addEventListener('change', update);
+		start.addEventListener('click', async () => {
+			const indexes = selected(); if (!indexes.length) return;
+			if (!await this.setExamMode('practice')) return;
+			if ((!this.userId || this.userId === 'guest') && guestTrialStatus(practiceTrialKind(this._currentExamId || '', String(this.currentExam?.family || ''))).remaining === 0) {
+				summary.textContent = '这类访客体验已用完。登录后可以继续练习并保存成绩。';
+				(window as Window & { __openLoginModal?: () => void }).__openLoginModal?.();
+				return;
+			}
+			this.setPracticeScope(domain, indexes, true);
+			document.getElementById('exam-review-bar')?.remove();
+			this.jumpToQuestion(indexes[0], 0);
+			onStart();
+			this.renderExam();
+		});
+		host.append(list, summary, start); update();
+	}
+
+	reselectPracticeGroups() {
+		const modal = document.getElementById('exam-result-modal');
+		const panel = document.getElementById('exam-result-panel');
+		if (!panel || !modal) return;
+		panel.innerHTML = '<h2 id="exam-result-title">重新选择题组</h2><div class="practice-setup-host"></div>';
+		this.renderPracticeSetup(panel.querySelector<HTMLElement>('.practice-setup-host')!, this.practiceSelectionDomain, () => { modal.hidden = true; modal.setAttribute('aria-hidden', 'true'); });
+		modal.hidden = false; modal.setAttribute('aria-hidden', 'false');
+		panel.querySelector<HTMLInputElement>('input')?.focus();
+	}
+
+	choosePracticePaper() {
+		this.practiceRangeLocked = false;
+		window.dispatchEvent(new Event('practiceRangeChanged'));
+		const picker = document.querySelector<HTMLDetailsElement>('.ls-paper-picker');
+		if (picker) { picker.open = true; picker.querySelector<HTMLSelectElement>('select')?.focus(); }
+	}
+
+	preparePracticeCategory(categoryId: string, sectionIndex?: number) {
+		if (this.practiceRangeLocked) return;
+		if (this.examMode !== 'practice' || !this.practiceScope) return;
+		if (sectionIndex !== undefined && this.practiceScope.sectionIndexes.includes(sectionIndex)) return;
+		const labels: Record<string, string> = { vocab: '词汇 / 语法', vocabulary: '词汇 / 语法', grammar: '词汇 / 语法', reading: '阅读', writing: '记述', listening: '听力', listening_reading: '听读解', listeningreading: '听读解' };
+		const sectionType = sectionIndex === undefined ? categoryId : this.currentExam?.exam_info.sections[sectionIndex]?.section_type || categoryId;
+		this.setPracticeScope(labels[sectionType] || (categoryId === 'writing_reading' ? '读解' : categoryId));
+		document.getElementById('exam-review-bar')?.remove();
+	}
+
+	isCurrentPracticeQuestionChecked() {
+		const question = this.currentExam?.exam_info.sections[this.currentSectionIndex]?.questions?.[this.currentQuestionIndex];
+		return this.examMode === 'practice' && !!question && this.checkedPracticeQuestions.has(`${this.currentSectionIndex}:${question.id}`);
+	}
+
+	finishPractice() {
+		if (this.savedPracticeMode === 'review') return;
+		this.audioManager.stopAllAudio();
+		document.getElementById('exam-review-bar')?.remove();
+		if (this.examMode === 'practice' && this.practiceScope) this.answerManager.showPracticeResults(this.practiceScope.label, this.getPracticeQuestions());
+		else this.questionMapManager.showQuestionMap();
+	}
+
+	choosePracticeCategory() {
+		const panel = document.getElementById('exam-result-panel');
+		const modal = document.getElementById('exam-result-modal');
+		if (!panel || !modal) return;
+		const types: Record<string, string[]> = { '词汇 / 语法': ['vocabulary', 'vocab', 'grammar'], '阅读': ['reading'], '读解': ['reading'], '记述': ['writing'], '听力': ['listening'], '听解': ['listening'], '听读解': ['listening_reading', 'listeningreading'] };
+		const domains = (this.isEjuExam() ? ['记述', '读解', '听读解', '听解'] : ['词汇 / 语法', '阅读', '听力']).filter(domain => this.currentExam?.exam_info.sections.some(section => types[domain].includes(String(section.section_type).toLowerCase())));
+		panel.innerHTML = '<h2 id="exam-result-title">选择下一项练习</h2><div class="exam-result-actions practice-category-choices"></div>';
+		for (const domain of domains) {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.textContent = domain;
+			button.addEventListener('click', () => {
+				panel.innerHTML = '<h2 id="exam-result-title">选择题组</h2><div class="practice-setup-host"></div>';
+				this.renderPracticeSetup(panel.querySelector<HTMLElement>('.practice-setup-host')!, domain, () => { modal.hidden = true; modal.setAttribute('aria-hidden', 'true'); });
+				panel.querySelector<HTMLInputElement>('input')?.focus();
+			});
+			panel.querySelector('.practice-category-choices')!.append(button);
+		}
+		modal.hidden = false;
+		modal.setAttribute('aria-hidden', 'false');
+		panel.querySelector<HTMLButtonElement>('button')?.focus();
+	}
 	showAnswers = false;
 	showExplanations = false;
 	showReadingKana = false;
 	showReadingZh = false;
 	examMode: ExamMode = 'practice';
 	isSubmitted = false;
-	contentWidthPx = 0;
 	private _kbBound = false;
 	private _draftRestoreRequest = 0;
 	private submitConfirmationPending = false;
@@ -95,6 +287,10 @@ class ExamViewer {
 	private floatingNavigationResizeObserver: ResizeObserver | null = null;
 	private expiredSectionIndexes = new Set<number>();
 	_currentExamId: string | null = null;
+	wrongCorrectionContext: WrongCorrectionContext | null = null;
+	private wrongCorrectionResult: WrongCorrectionResult | null = null;
+	private wrongCorrectionSubmitting = false;
+	private wrongCorrectionLoadPending = false;
 	constructor() {
 		// 初始化日志记录器
 		this.logger = Logger.getLogger('ExamViewer');
@@ -112,7 +308,6 @@ class ExamViewer {
 		this.showReadingZh = this.readBooleanPreference('examViewer.showReadingZh', false);
 		this.examMode = this.readExamModePreference();
 		this.isSubmitted = false;
-		this.contentWidthPx = 0;
 
 		// ==================== 初始化管理器 ====================
 		// 注意：初始化顺序很重要，某些管理器依赖其他管理器
@@ -145,7 +340,6 @@ class ExamViewer {
 			this.initExamLibrary();
 		}
 		
-		this.initWidthControl();
 		this.questionMapManager.initQuestionMap();
 		this.categoryNavigationManager.initCategoryDropdowns();
 		(window as unknown as { TranslationManager?: { installDelegation?: () => void } }).TranslationManager?.installDelegation?.();
@@ -167,11 +361,14 @@ class ExamViewer {
 	// ==================== 后端通信管理 ====================
 
 	onUserContextChanged(userContext: LegacyAnyRecord) {
+		const previousUserId = this.userId;
 		this.userId = userContext?.user_id || userContext?.id || 'guest';
 		this.token = userContext?.token || '';
 		this.roles = Array.isArray(userContext?.roles) ? userContext.roles : [];
-		if (this.currentExam && this._currentExamId && this.userId !== 'guest') {
-			void this.restoreDraftForCurrentExam();
+		if (this.currentExam && this._currentExamId && this.userId !== 'guest' && this.userId !== previousUserId && !this.wrongCorrectionContext) {
+			const hasLocalAnswers = Object.values(this.userAnswers).some(answer => answer !== null && answer !== undefined && answer !== '');
+			if (hasLocalAnswers && previousUserId === 'guest' && document.getElementById('exam-result-modal')?.hidden !== false) this.answerManager.saveCurrentDraft();
+			else if (!hasLocalAnswers) void this.restoreDraftForCurrentExam();
 		}
 	}
 
@@ -229,9 +426,19 @@ class ExamViewer {
 	// ==================== 数据加载与管理 ====================
 
 	loadExamData(examData?: LegacyAnyRecord | null) {
+		document.getElementById('saved-practice-notice')?.remove();
+		if (!this.openingSavedPractice) this.savedPracticeMode = null;
+		const skipDraftRestore = this.openingSavedPractice;
+		this.openingSavedPractice = false;
+		this.practiceScope = null;
+		this.practiceRangeLocked = false;
+		this.checkedPracticeQuestions.clear();
+		document.getElementById('exam-review-bar')?.remove();
 		console.log('[ExamViewer] Starting to load exam data:', examData ? 'external data' : 'inline data');
 
 		try {
+			if (!this.wrongCorrectionLoadPending) this.clearWrongQuestionCorrection();
+			this.wrongCorrectionLoadPending = false;
 			if (examData) {
 				console.log('[ExamViewer] Using external exam data');
 				if (examData.exam_info && Array.isArray(examData.exam_info.sections)) {
@@ -294,7 +501,7 @@ class ExamViewer {
 				this.categoryNavigationManager.initCategoryDropdowns();
 				console.log('[ExamViewer] Render completed');
 				this.loadTranslationsForReadingAssist();
-				void this.restoreDraftForCurrentExam();
+				if (!this.wrongCorrectionContext && !skipDraftRestore) void this.restoreDraftForCurrentExam();
 
 				// 模拟考试才启动正式计时；练习模式不展示或累计考试用时。
 				try {
@@ -474,6 +681,7 @@ class ExamViewer {
 		this.questionRenderer.renderCurrentQuestion();
 		this.renderQuestionNavigation();
 		this.renderAnswerPanel();
+		this.renderWrongQuestionCorrectionBar();
 
 		this.logger.debug('renderExam completed');
 	}
@@ -648,7 +856,7 @@ class ExamViewer {
 	renderQuestionNavigation() {
 		this.categoryNavigationManager.syncActiveCategory();
 		const container = DOMUtils.safeGetElement("question-navigation", "renderQuestionNavigation");
-		if (!container || !this.currentExam) { return; }
+		if (!container || !this.currentExam) { this.renderPracticeScrubber(); return; }
 
 		DOMUtils.safeSetInnerHTML(container, "", "renderQuestionNavigation-clear");
 
@@ -656,10 +864,129 @@ class ExamViewer {
 		const currentCategory = this.getCurrentCategory();
 		if (!currentCategory) { return; }
 
-		const navigationData = this.calculateNavigationData(currentCategory);
+		const baseNavigationData = this.calculateNavigationData(currentCategory);
+		if (this.examMode === 'practice' && this.practiceScope) {
+			const questions = this.getPracticeQuestions();
+			baseNavigationData.currentQuestionNumber = questions.findIndex(item => item.sectionIndex === this.currentSectionIndex && item.questionIndex === this.currentQuestionIndex) + 1;
+			baseNavigationData.totalQuestions = questions.length;
+		}
+		const navigationData = {
+			...baseNavigationData,
+			isFinalExamQuestion: baseNavigationData.isQuestionSelected
+				&& !this.navigationManager.calculateNextPosition('next')
+		};
 		const navElement = this.createNavigationElement(navigationData);
 
 		container.appendChild(navElement);
+		this.renderPracticeScrubber();
+	}
+
+	private renderPracticeScrubber(): void {
+		const scoped = document.body.classList.contains('learning-shell-active')
+			&& this.examMode === 'practice' && !!this.practiceScope && !this.wrongCorrectionContext && !this.isSubmitted;
+		const positions = scoped ? this.getPracticeQuestions() : [];
+		document.body.classList.toggle('practice-scrubber-active', scoped);
+		let scrubber = document.getElementById('practice-scrubber');
+		if (positions.length < 2) { scrubber?.remove(); return; }
+
+		if (!scrubber) {
+			scrubber = document.createElement('div');
+			scrubber.id = 'practice-scrubber';
+			scrubber.className = 'practice-scrubber';
+			scrubber.setAttribute('role', 'slider');
+			scrubber.setAttribute('aria-label', '预览并跳转练习题目');
+			scrubber.setAttribute('aria-orientation', 'vertical');
+			scrubber.tabIndex = 0;
+			const track = document.createElement('div');
+			track.className = 'practice-scrubber-track';
+			const preview = document.createElement('div');
+			preview.className = 'practice-scrubber-preview';
+			preview.setAttribute('role', 'tooltip');
+			const title = document.createElement('strong');
+			const questionText = document.createElement('p');
+			questionText.lang = 'ja';
+			const context = document.createElement('p');
+			context.className = 'practice-scrubber-context';
+			context.lang = 'ja';
+			const status = document.createElement('small');
+			preview.append(title, questionText, context, status);
+			scrubber.append(track, preview);
+			const brief = (value: unknown, limit = 100) => String(value ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, limit);
+			const showPreview = (index: number, clientY: number) => {
+				const questions = this.getPracticeQuestions();
+				const item = questions[index];
+				if (!item) return;
+				const section = this.currentExam?.exam_info.sections[item.sectionIndex];
+				const passage = item.question._groupPassage?.value || item.question.passage?.value || '';
+				title.textContent = `${section?.section_name || section?.section_title || this.practiceScope?.label || '练习'} · 第 ${index + 1} 题`;
+				questionText.textContent = brief(item.question.question || item.question.question_text || item.question.text || item.question.options?.[0] || '点击查看题目');
+				context.textContent = brief(passage, 90);
+				context.hidden = !context.textContent;
+				const answer = this.answerManager.getAnswerComposite(item.sectionIndex, String(item.question.id));
+				status.textContent = `${answer === undefined || answer === null || answer === '' ? '未作答' : '已作答'} · 点击跳转`;
+				scrubber!.dataset.previewIndex = String(index);
+				scrubber!.classList.add('has-preview');
+				track.querySelectorAll('.is-preview, .is-wave-center').forEach(tick => tick.classList.remove('is-preview', 'is-wave-center'));
+				track.children[index]?.classList.add('is-preview', 'is-wave-center');
+				const bounds = scrubber!.getBoundingClientRect();
+				const desiredTop = clientY - bounds.top - preview.offsetHeight / 2;
+				preview.style.top = `${Math.max(8 - bounds.top, Math.min(window.innerHeight - preview.offsetHeight - 8 - bounds.top, desiredTop))}px`;
+			};
+			const hidePreview = () => {
+				scrubber!.classList.remove('has-preview');
+				delete scrubber!.dataset.previewIndex;
+				track.querySelectorAll('.is-preview, .is-wave-center').forEach(tick => tick.classList.remove('is-preview', 'is-wave-center'));
+			};
+			const jump = (index: number) => {
+				const questions = this.getPracticeQuestions();
+				const target = questions[Math.max(0, Math.min(questions.length - 1, index))];
+				if (target && (target.sectionIndex !== this.currentSectionIndex || target.questionIndex !== this.currentQuestionIndex)) {
+					this.jumpToQuestion(target.sectionIndex, target.questionIndex);
+				}
+			};
+			const indexAt = (clientY: number) => {
+				const bounds = track.getBoundingClientRect();
+				const count = this.getPracticeQuestions().length;
+				return Math.round(Math.max(0, Math.min(1, (clientY - bounds.top) / bounds.height)) * (count - 1));
+			};
+			track.addEventListener('pointerenter', event => showPreview(indexAt(event.clientY), event.clientY));
+			track.addEventListener('pointermove', event => showPreview(indexAt(event.clientY), event.clientY));
+			track.addEventListener('pointerleave', hidePreview);
+			track.addEventListener('click', event => jump(indexAt(event.clientY)));
+			scrubber.addEventListener('blur', hidePreview);
+			scrubber.addEventListener('keydown', event => {
+				const questions = this.getPracticeQuestions();
+				const current = questions.findIndex(item => item.sectionIndex === this.currentSectionIndex && item.questionIndex === this.currentQuestionIndex);
+				const next = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? current + 1
+					: event.key === 'ArrowUp' || event.key === 'ArrowLeft' ? current - 1
+					: event.key === 'Home' ? 0 : event.key === 'End' ? questions.length - 1 : null;
+				if (next === null) return;
+				event.preventDefault();
+				const tick = track.children[Math.max(0, Math.min(questions.length - 1, next))]?.getBoundingClientRect();
+				if (tick) showPreview(Math.max(0, Math.min(questions.length - 1, next)), tick.top + tick.height / 2);
+				jump(next);
+			});
+			document.body.appendChild(scrubber);
+		}
+
+		const track = scrubber.querySelector<HTMLElement>('.practice-scrubber-track')!;
+		const current = positions.findIndex(item => item.sectionIndex === this.currentSectionIndex && item.questionIndex === this.currentQuestionIndex);
+		const active = Math.max(0, current);
+		track.style.height = `${Math.max(180, Math.min(440, positions.length * 12))}px`;
+		track.style.setProperty('--scrubber-count', String(positions.length));
+		track.replaceChildren(...positions.map((item, index) => {
+			const tick = document.createElement('span');
+			tick.className = 'practice-scrubber-tick';
+			const answer = this.answerManager.getAnswerComposite(item.sectionIndex, String(item.question.id));
+			if (answer !== undefined && answer !== null && answer !== '') tick.classList.add('is-answered');
+			if (index === active) tick.classList.add('is-current');
+			if (scrubber!.classList.contains('has-preview') && scrubber!.dataset.previewIndex === String(index)) tick.classList.add('is-preview', 'is-wave-center');
+			return tick;
+		}));
+		scrubber.setAttribute('aria-valuemin', '1');
+		scrubber.setAttribute('aria-valuemax', String(positions.length));
+		scrubber.setAttribute('aria-valuenow', String(active + 1));
+		scrubber.setAttribute('aria-valuetext', `第 ${active + 1} 题，共 ${positions.length} 题`);
 	}
 
 	/**
@@ -754,11 +1081,13 @@ class ExamViewer {
 	/**
 	 * 跳转到指定题目
 	 */
-	jumpToQuestion(sectionIndex: number, questionIndex: number) {
+	jumpToQuestion(sectionIndex: number, questionIndex: number, persistPosition = true) {
 		if (!this.currentExam) {
 			return;
 		}
 		if (!this.canNavigateToSection(sectionIndex)) return;
+		if (this.wrongCorrectionContext
+			&& (sectionIndex !== this.wrongCorrectionContext.sectionIndex || questionIndex !== this.wrongCorrectionContext.questionIndex)) return;
 		// 停止所有正在播放的音频
 		this.audioManager.stopAllAudio();
 
@@ -774,6 +1103,117 @@ class ExamViewer {
 		// 重新渲染
 		this.questionRenderer.renderCurrentQuestion();
 		this.renderQuestionNavigation();
+		this.renderWrongQuestionCorrectionBar();
+		if (persistPosition) this.answerManager.saveCurrentDraft();
+	}
+
+	beginWrongQuestionCorrection(context: WrongCorrectionContext): void {
+		this.wrongCorrectionContext = { ...context };
+		this.wrongCorrectionResult = null;
+		this.wrongCorrectionSubmitting = false;
+		this.wrongCorrectionLoadPending = true;
+		this.showAnswers = false;
+		this.showExplanations = false;
+		this.isSubmitted = false;
+		document.getElementById('exam-workarea')?.classList.add('is-wrong-correction');
+	}
+
+	clearWrongQuestionCorrection(): void {
+		this.wrongCorrectionContext = null;
+		this.wrongCorrectionResult = null;
+		this.wrongCorrectionSubmitting = false;
+		this.wrongCorrectionLoadPending = false;
+		document.getElementById('wrong-correction-bar')?.remove();
+		document.getElementById('exam-workarea')?.classList.remove('is-wrong-correction');
+	}
+
+	private renderWrongQuestionCorrectionBar(): void {
+		document.getElementById('wrong-correction-bar')?.remove();
+		const context = this.wrongCorrectionContext;
+		const container = document.getElementById('current-question-container');
+		if (!context || !container) return;
+		document.getElementById('exam-workarea')?.classList.add('is-wrong-correction');
+
+		const bar = document.createElement('section');
+		bar.id = 'wrong-correction-bar';
+		bar.className = `wrong-correction-bar${this.wrongCorrectionResult ? (this.wrongCorrectionResult.correct ? ' is-correct' : ' is-wrong') : ''}`;
+		const result = this.wrongCorrectionResult;
+		const status = result
+			? result.correct
+				? `<div class="wrong-correction-result"><strong>订正正确</strong><span>${result.mastered ? '已连续答对 2 次，这道题已掌握。' : '今天的订正已完成，之后会再安排复习。'}</span></div>`
+				: '<div class="wrong-correction-result"><strong>这次没有答对</strong><span>请查看正确选项和解析，理解后再做一次。</span></div>'
+			: '<div class="wrong-correction-result"><strong>重新独立作答</strong><span>选择答案后提交订正。</span></div>';
+		const actions = result
+			? result.correct
+				? `${context.hasNext ? '<button type="button" class="wrong-correction-primary" data-correction-action="next">下一题</button>' : ''}<button type="button" data-correction-action="return">返回今日</button>`
+				: '<button type="button" class="wrong-correction-primary" data-correction-action="retry">再做一次</button><button type="button" data-correction-action="return">返回今日</button>'
+			: `<button type="button" class="wrong-correction-primary" data-correction-action="submit"${this.wrongCorrectionSubmitting ? ' disabled' : ''}>${this.wrongCorrectionSubmitting ? '正在判定…' : '提交订正'}</button><button type="button" data-correction-action="return">返回今日</button>`;
+		bar.innerHTML = `<div class="wrong-correction-head"><span>错题订正</span><em>${context.position}/${context.total}</em></div>${status}<div class="wrong-correction-actions">${actions}</div>`;
+		container.insertAdjacentElement('afterend', bar);
+		bar.querySelectorAll<HTMLButtonElement>('[data-correction-action]').forEach((button) => {
+			button.addEventListener('click', () => {
+				const action = button.dataset.correctionAction;
+				if (action === 'submit') void this.submitWrongQuestionCorrection();
+				else if (action === 'retry') this.retryWrongQuestionCorrection();
+				else if (action === 'next') window.dispatchEvent(new CustomEvent('wrongCorrectionNext'));
+				else if (action === 'return') {
+					this.clearWrongQuestionCorrection();
+					window.dispatchEvent(new CustomEvent('wrongCorrectionReturn'));
+				}
+			});
+		});
+	}
+
+	private async submitWrongQuestionCorrection(): Promise<void> {
+		const context = this.wrongCorrectionContext;
+		if (!context || this.wrongCorrectionSubmitting) return;
+		const answer = this.answerManager?.getAnswerComposite?.(context.sectionIndex, context.actualQuestionId);
+		if (answer === undefined || answer === null || answer === '') {
+			showAppToast('请先选择答案');
+			return;
+		}
+		const api = window.APIClient;
+		if (!api?.submitWrongQuestionCorrection) return;
+		this.wrongCorrectionSubmitting = true;
+		this.renderWrongQuestionCorrectionBar();
+		try {
+			this.wrongCorrectionResult = await api.submitWrongQuestionCorrection(context.userId, context.questionId, {
+				exam_id: context.examId,
+				actual_question_id: context.actualQuestionId,
+				section_index: context.sectionIndex,
+				answer,
+				exam_target: context.examTarget
+			}) as WrongCorrectionResult;
+			const question = this.currentExam?.exam_info?.sections?.[context.sectionIndex]?.questions?.[context.questionIndex];
+			if (question && this.wrongCorrectionResult.correct_answer !== undefined) {
+				const normalized = Number(this.wrongCorrectionResult.correct_answer);
+				question.correct_answer = Number.isFinite(normalized) ? normalized : this.wrongCorrectionResult.correct_answer;
+			}
+			this.showAnswers = true;
+			this.showExplanations = true;
+			this.isSubmitted = true;
+			this.questionRenderer.renderCurrentQuestion();
+			window.dispatchEvent(new CustomEvent('wrongCorrectionSubmitted', { detail: { ...this.wrongCorrectionResult, questionId: context.questionId } }));
+		} catch (error) {
+			const message = (error as { message?: string } | null)?.message || '订正提交失败，请重试';
+			showAppToast(message);
+		} finally {
+			this.wrongCorrectionSubmitting = false;
+			this.renderWrongQuestionCorrectionBar();
+			document.getElementById('wrong-correction-bar')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+	}
+
+	private retryWrongQuestionCorrection(): void {
+		const context = this.wrongCorrectionContext;
+		if (!context) return;
+		this.answerManager?.setAnswerComposite?.(context.sectionIndex, context.actualQuestionId, null);
+		this.wrongCorrectionResult = null;
+		this.showAnswers = false;
+		this.showExplanations = false;
+		this.isSubmitted = false;
+		this.questionRenderer.renderCurrentQuestion();
+		this.renderWrongQuestionCorrectionBar();
 	}
 
 	calculateNavigationData(currentCategory: CategoryItem | null) {
@@ -829,11 +1269,12 @@ class ExamViewer {
 
 	createNavigationElement(data: LegacyAnyRecord) {
 		const navDiv = DOMUtils.createElementWithClass("div", "question-nav");
+		const isFinalExamQuestion = data.isFinalExamQuestion === true;
 
 		const prevBtn = this.createNavigationButton({
 			className: "nav-btn prev-btn",
 			text: "上一题",
-			disabled: false,
+			disabled: !this.navigationManager.calculateNextPosition('prev'),
 			onClick: () => {
 				this.logger.debug('Right-bottom prev button clicked');
 				this.navigateToPreviousQuestion();
@@ -841,10 +1282,16 @@ class ExamViewer {
 		});
 
 		const nextBtn = this.createNavigationButton({
-			className: "nav-btn next-btn",
-			text: "下一题",
-			disabled: false,
-			onClick: () => this.navigateToNextQuestion()
+			className: `nav-btn next-btn${isFinalExamQuestion ? ' finish-btn' : ''}`,
+			text: isFinalExamQuestion ? (this.savedPracticeMode === 'review' ? '已到最后一题' : this.examMode === 'mock' ? '检查并提交' : `完成${this.practiceScope?.label || '练习'}`) : "下一题",
+			disabled: isFinalExamQuestion && this.savedPracticeMode === 'review',
+			onClick: () => {
+				if (isFinalExamQuestion) {
+					this.finishPractice();
+					return;
+				}
+				this.navigateToNextQuestion();
+			}
 		});
 
 		const counter = DOMUtils.createElementWithClass(
@@ -853,9 +1300,27 @@ class ExamViewer {
 			`第${data.currentQuestionNumber}题/共${data.totalQuestions}题`
 		);
 
+		if (this.examMode === 'practice' && !this.wrongCorrectionContext) {
+			const question = this.currentExam?.exam_info.sections[this.currentSectionIndex]?.questions?.[this.currentQuestionIndex];
+			const answer = question && this.answerManager.getAnswerComposite(this.currentSectionIndex, String(question.id));
+			const answered = answer !== undefined && answer !== null && answer !== '';
+			const checked = this.isCurrentPracticeQuestionChecked();
+			if (this.savedPracticeMode !== 'review') {
+				const check = this.createNavigationButton({ className: 'nav-btn check-btn', text: checked ? (this.answerManager.evaluateQuestionAnswer(this.currentSectionIndex, this.currentQuestionIndex) ? '回答正确' : '回答错误') : '检查答案', disabled: !answered || checked || !question?.correct_answer,
+					onClick: () => { this.audioManager.stopAllAudio(); this.checkedPracticeQuestions.add(`${this.currentSectionIndex}:${question!.id}`); this.renderExam(); } });
+				navDiv.appendChild(check);
+			}
+			if (this.practiceScope) {
+				const answeredCount = this.getPracticeQuestions().filter(item => { const value = this.answerManager.getAnswerComposite(item.sectionIndex, String(item.question.id)); return value !== undefined && value !== null && value !== ''; }).length;
+				counter.textContent = `${this.practiceScope.label} · 第${data.currentQuestionNumber}/${data.totalQuestions}题 · 已答${answeredCount}/${data.totalQuestions}`;
+			}
+		}
 		navDiv.appendChild(prevBtn);
 		navDiv.appendChild(counter);
 		navDiv.appendChild(nextBtn);
+		if (this.examMode === 'practice' && this.practiceScope && !this.wrongCorrectionContext && this.savedPracticeMode !== 'review' && !isFinalExamQuestion) {
+			navDiv.appendChild(this.createNavigationButton({ className: 'nav-btn end-practice-btn', text: '结束练习', onClick: () => this.finishPractice() }));
+		}
 
 		return navDiv;
 	}
@@ -919,6 +1384,7 @@ class ExamViewer {
 	}
 
 	canNavigateToSection(sectionIndex: number): boolean {
+		if (this.practiceRangeLocked && this.practiceScope && !this.practiceScope.sectionIndexes.includes(sectionIndex)) return false;
 		if (this.examMode !== 'mock' || this.isSubmitted) return true;
 		if (this.expiredSectionIndexes.has(sectionIndex)) {
 			this.setAnswerSaveStatus('failed', `第 ${sectionIndex + 1} 部分已结束，不能返回修改`);
@@ -1144,7 +1610,7 @@ class ExamViewer {
 		this._kbBound = true;
 
 		document.addEventListener('keydown', (e: KeyboardEvent) => {
-			if (e.altKey || e.ctrlKey || e.metaKey) { return; }
+			if (e.altKey || e.ctrlKey || e.metaKey || document.querySelector('#exam-result-modal:not([hidden])')) { return; }
 
 			const target = e.target as HTMLElement | null;
 			const tag = target?.tagName ? target.tagName.toLowerCase() : '';
@@ -1235,12 +1701,14 @@ class ExamViewer {
 	private async restoreDraftForCurrentExam() {
 		const userId = this.userId;
 		const examId = this._currentExamId;
-		if (!userId || userId === 'guest' || !examId || this.isSubmitted) return;
+		if (!userId || userId === 'guest' || !examId || this.isSubmitted || this.savedPracticeMode) return;
+		if (Object.values(this.userAnswers).some(answer => answer !== null && answer !== undefined && answer !== '')) return;
 		const enabled = (window as Window & { isFeatureEnabled?: (key: string) => boolean }).isFeatureEnabled;
 		if (enabled && !enabled('resume_draft')) return;
 		const api = window.APIClient;
 		if (!api || typeof api.getDraft !== 'function') return;
 		const requestId = ++this._draftRestoreRequest;
+		const answersAtRequest = JSON.stringify(this.userAnswers);
 		try {
 			const draft = await api.getDraft(userId) as {
 				exam_id?: string;
@@ -1252,7 +1720,7 @@ class ExamViewer {
 				revision?: number;
 				attempt_id?: string;
 			} | null;
-			if (requestId !== this._draftRestoreRequest || this._currentExamId !== examId) return;
+			if (requestId !== this._draftRestoreRequest || this._currentExamId !== examId || JSON.stringify(this.userAnswers) !== answersAtRequest) return;
 			if (!draft || String(draft.exam_id || '') !== examId || !draft.answers || typeof draft.answers !== 'object') return;
 			if (draft.exam_mode === 'mock' || draft.exam_mode === 'practice') {
 				this.examMode = draft.exam_mode;
@@ -1276,7 +1744,7 @@ class ExamViewer {
 		}
 			const sectionIndex = Math.max(0, Number(draft.last_section_index || 0));
 			const questionIndex = Math.max(0, Number(draft.last_question_index || 0));
-			try { this.jumpToQuestion(sectionIndex, questionIndex); } catch { this.renderExam(); }
+			try { this.jumpToQuestion(sectionIndex, questionIndex, false); } catch { this.renderExam(); }
 			if (this.examMode === 'mock') this.hideLearningAssists();
 			this.renderExam();
 			const answered = Number(draft.answered_count || Object.values(answers).filter((answer) => answer !== null && answer !== undefined && answer !== '').length);
@@ -1292,6 +1760,7 @@ class ExamViewer {
 	}
 
 	private async setExamMode(mode: ExamMode, userInitiated = false): Promise<boolean> {
+		if (userInitiated && this.savedPracticeMode) return false;
 		if (mode === this.examMode) return true;
 		const hasAnswers = Object.values(this.userAnswers).some((answer) => answer !== null && answer !== undefined && answer !== '');
 		if (userInitiated && hasAnswers) {
@@ -1373,10 +1842,14 @@ class ExamViewer {
 	onAnswersSubmitted() {
 		this.isSubmitted = true;
 		this.setAnswerSaveStatus('submitted', '已提交');
+		window.dispatchEvent(new CustomEvent('examAnswersSubmitted', {
+			detail: { userId: this.userId || '', examId: this._currentExamId || '' }
+		}));
 		this.renderExam();
 	}
 
 	restartCurrentExam() {
+		if (this.savedPracticeMode === 'review') return;
 		if (!this.currentExam) return;
 		this.isSubmitted = false;
 		this.showAnswers = false;
@@ -1486,6 +1959,25 @@ class ExamViewer {
 		});
 	}
 
+	beginPracticeReview(): () => void {
+		const previous = {
+			showAnswers: this.showAnswers,
+			showExplanations: this.showExplanations,
+			showReadingKana: this.showReadingKana,
+			showReadingZh: this.showReadingZh
+		};
+		this.showAnswers = true;
+		this.showExplanations = true;
+		this.showReadingKana = true;
+		this.showReadingZh = true;
+		this.renderExam();
+		this.loadTranslationsForReadingAssist();
+		return () => {
+			Object.assign(this, previous);
+			this.renderExam();
+		};
+	}
+
 	toggleExplanations() {
 		if (!this.canUseLearningAssists()) return;
 		this.showExplanations = !this.showExplanations;
@@ -1586,6 +2078,7 @@ class ExamViewer {
 			try {
 				const success = this.navigationManager.navigateToQuestion('prev');
 				this.logger.debug('Navigation result:', success);
+				if (success) this.answerManager.saveCurrentDraft();
 			} catch (error) {
 				this.logger.error('Navigation error:', error);
 			}
@@ -1616,8 +2109,10 @@ class ExamViewer {
 		if (this.navigationManager) {
 			this.logger.debug('Calling navigationManager.navigateToQuestion("next")');
 			try {
-				const success = this.navigationManager.navigateToQuestion('next');
+				if (this.examMode === 'practice' && this.practiceScope && !this.navigationManager.calculateNextPosition('next')) { this.finishPractice(); return; }
+			const success = this.navigationManager.navigateToQuestion('next');
 				this.logger.debug('Navigation result:', success);
+				if (success) this.answerManager.saveCurrentDraft();
 			} catch (error) {
 				this.logger.error('Navigation error:', error);
 			}
@@ -1731,114 +2226,6 @@ class ExamViewer {
 		});
 	}
 
-	// ==================== 宽度控制 ====================
-
-	initWidthControl() {
-		let slider = document.getElementById('width-slider') as HTMLInputElement | null;
-		if (!slider) {
-			const after = document.getElementById('exam-controls') || document.body.firstElementChild;
-			const wrap = document.createElement('div');
-			wrap.id = 'width-control';
-			wrap.innerHTML = `<input id="width-slider" type="range" min="0" max="1800" step="10" aria-label="调整题目区域宽度" />`;
-			(after && after.parentNode) ? after.parentNode.insertBefore(wrap, after.nextSibling) : document.body.appendChild(wrap);
-			slider = wrap.querySelector('#width-slider') as HTMLInputElement | null;
-		}
-		if (!slider) { return; }
-		const STORAGE_KEY = 'examViewer.contentWidthPx';
-
-		const apply = (px: number) => {
-			this.contentWidthPx = px;
-			const wrapper = document.getElementById('exam-workarea');
-			if (!wrapper) { return; }
-			const wc = document.getElementById('width-control');
-			if (px <= 0) {
-				wrapper.style.setProperty('--exam-content-width-internal', 'auto');
-				wrapper.classList.add('unlimited');
-				wrapper.classList.remove('limited');
-				wrapper.dataset.width = 'auto';
-				if (wc) { wc.style.removeProperty('max-width'); }
-			} else {
-				const effective = Math.max(390, px);
-				if (effective !== px) {
-					const sliderEl = document.getElementById('width-slider') as HTMLInputElement | null;
-					if (sliderEl) { sliderEl.value = String(effective); }
-					this.contentWidthPx = effective;
-				}
-				wrapper.style.setProperty('--exam-content-width-internal', this.contentWidthPx + 'px');
-				wrapper.classList.remove('unlimited');
-				wrapper.classList.add('limited');
-				wrapper.dataset.width = String(this.contentWidthPx);
-				if (wc) { wc.style.maxWidth = this.contentWidthPx + 'px'; }
-			}
-			this.syncExamSettingsLayout();
-		};
-
-		let stored: number;
-		let raw: string | null = null;
-		try { raw = localStorage.getItem(STORAGE_KEY); } catch { raw = null; }
-		if (raw === null || raw === '') {
-			stored = 1133;
-		} else {
-			stored = parseInt(raw, 10);
-			if (isNaN(stored) || stored < 0) {
-				stored = 1133;
-			}
-		}
-		slider.value = String(stored);
-
-		document.getElementById('width-value-label')?.remove();
-		apply(stored);
-
-		let handle = document.getElementById('width-drag-handle') as HTMLElement | null;
-		if (!handle) {
-			handle = document.createElement('div');
-			handle.id = 'width-drag-handle';
-			handle.title = '拖拽调整宽度';
-			const workarea = document.getElementById('exam-workarea');
-			if (workarea) { workarea.appendChild(handle); }
-		}
-		if (handle && !handle._dragBound) {
-			handle._dragBound = true;
-			let dragging = false;
-			let startX = 0;
-			let startWidth = 0;
-			const onMove = (ev: MouseEvent) => {
-				if (!dragging) { return; }
-				const dx = ev.clientX - startX;
-				let newWidth = startWidth + dx;
-				if (newWidth < 390) { newWidth = 390; }
-				if (newWidth > 1800) { newWidth = 1800; }
-				apply(newWidth);
-				if (slider) { slider.value = String(newWidth); }
-				try { localStorage.setItem('examViewer.contentWidthPx', String(newWidth)); } catch { }
-			};
-			const onUp = () => { dragging = false; document.body.classList.remove('resizing-width'); };
-			handle.addEventListener('mousedown', (ev: MouseEvent) => {
-				ev.preventDefault();
-				const workarea = document.getElementById('exam-workarea');
-				if (!workarea) { return; }
-				dragging = true;
-				startX = ev.clientX;
-				startWidth = workarea.getBoundingClientRect().width;
-				document.body.classList.add('resizing-width');
-			});
-			window.addEventListener('mousemove', onMove);
-			window.addEventListener('mouseup', onUp);
-		}
-		slider.addEventListener('input', () => {
-			const px = parseInt(slider.value, 10) || 0;
-			apply(px);
-			try { localStorage.setItem(STORAGE_KEY, String(px)); } catch { }
-		});
-		slider.addEventListener('change', () => {
-			const px = parseInt(slider.value, 10) || 0;
-			if (px !== this.contentWidthPx) {
-				apply(px);
-				try { localStorage.setItem(STORAGE_KEY, String(px)); } catch { }
-			}
-		});
-	}
-
 	unifyTopAndCategoryButtonWidths() {
 		// 统一顶部和分类按钮的宽度
 		// 实现细节保持不变
@@ -1847,6 +2234,7 @@ class ExamViewer {
 	// ==================== 考试控制 ====================
 
 	startExam() {
+		if (this.savedPracticeMode === 'review') return;
 		this.showAnswers = false;
 		this.answerManager.initializeUserAnswers();
 		this.renderExam();
@@ -1860,6 +2248,7 @@ class ExamViewer {
 	}
 
 	async submitAnswers(options: { automatic?: boolean } = {}): Promise<void> {
+		if (this.examMode === 'practice' && this.practiceScope) { this.finishPractice(); return; }
 		if (this.isSubmitted) return;
 		if (this.examMode === 'mock' && !options.automatic) {
 			if (this.submitConfirmationPending) return;

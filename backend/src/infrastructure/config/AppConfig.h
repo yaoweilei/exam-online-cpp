@@ -59,7 +59,9 @@ struct AppConfig
     std::string stripeSecretKey;
     std::string stripePublishableKey;
     std::string stripeWebhookSecret;
-    int referralRewardCredits{10};
+    // Legacy fixed-credit rewards are disabled. Paid-order percentage rewards
+    // are configured in payments/pricing.json.
+    int referralRewardCredits{0};
 };
 
 inline std::string readEnv(const char *name, const std::string &fallback)

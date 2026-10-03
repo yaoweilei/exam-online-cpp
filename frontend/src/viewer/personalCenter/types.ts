@@ -5,6 +5,9 @@
 
 export interface PCBalance {
 	credits: number;
+	learningCreditCents?: number;
+	learningCreditEarnedCents?: number;
+	learningCreditDebtCents?: number;
 	updatedAt: string;
 }
 
@@ -30,7 +33,21 @@ export interface PCReferral {
 	rewardStatus?: string;
 	rewardGrantedAt?: string;
 	rewardCreditAmount?: number;
+	rewardAmountCents?: number;
+	rewardCurrency?: string;
 	rewardCreditRecipientUserId?: string;
+	inviteRewardCount?: number;
+	inviteRewardEarnedCents?: number;
+	inviteRewardRecords?: PCReferralRewardRecord[];
+}
+
+export interface PCReferralRewardRecord {
+	id: string;
+	inviteeLabel: string;
+	amountCents: number;
+	currency: string;
+	status: string;
+	grantedAt: string;
 }
 
 export interface PCUser {
@@ -229,6 +246,7 @@ export interface ManagedOrganization {
 	name: string;
 	organizationType?: string;
 	memberCount: number;
+	billableMemberCount: number;
 	seats: number;
 	plan: string;
 	status: string;

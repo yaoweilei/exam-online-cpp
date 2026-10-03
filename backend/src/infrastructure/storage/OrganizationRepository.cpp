@@ -203,6 +203,35 @@ int OrganizationRepository::memberCount(const std::string &scopeId) const
     return count;
 }
 
+int OrganizationRepository::billableMemberCount(const std::string &scopeId) const
+{
+    std::shared_lock lock(mutex_);
+    const auto memberships = readMembershipsUnlocked();
+    int count = 0;
+    for (const auto &membershipId : memberships.getMemberNames())
+    {
+        const auto membership = normalizeMembership(memberships[membershipId]);
+        if (membership.get("scope_id", "").asString() == scopeId && membershipUsesPaidSeat(membership))
+        {
+            ++count;
+        }
+    }
+    return count;
+}
+
+bool OrganizationRepository::membershipUsesPaidSeat(const Json::Value &membership)
+{
+    for (const auto &role : membership.get("roles", Json::Value(Json::arrayValue)))
+    {
+        const auto roleId = normalizeRole(role.asString());
+        if (roleId == "student" || roleId == "teacher")
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void OrganizationRepository::ensureBaseline()
 {
     std::unique_lock lock(mutex_);

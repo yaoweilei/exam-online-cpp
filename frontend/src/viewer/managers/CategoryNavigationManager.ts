@@ -33,6 +33,9 @@ interface CategoryMenuItem {
 
 interface CategoryNavigationExamViewer {
 	currentCategory: string | null;
+	practiceRangeLocked?: boolean;
+	practiceScope?: { label: string; sectionIndexes: number[] } | null;
+	preparePracticeCategory?: (categoryId: string, sectionIndex?: number) => void;
 	currentExam?: {
 		family?: string;
 		exam_info?: {
@@ -62,10 +65,15 @@ class CategoryNavigationManager {
 	/**
 	 * 初始化分类下拉菜单
 	 */
+	private getVisibleCategories(): CategoryEntry[] {
+		const scope = this.examViewer.practiceRangeLocked ? this.examViewer.practiceScope : null;
+		return this.examViewer.getCategories().map(category => scope ? { ...category, sectionIndexes: category.sectionIndexes.filter(index => scope.sectionIndexes.includes(index)) } : category).filter(category => category.sectionIndexes.length > 0);
+	}
+
 	initCategoryDropdowns(): void {
 		console.log('[CategoryNavigationManager] initCategoryDropdowns called');
 		const categorySlots = document.querySelectorAll('.category-slot');
-		const categories = this.examViewer.getCategories();
+		const categories = this.getVisibleCategories();
 		console.log('[CategoryNavigationManager] Found category slots:', categorySlots.length);
 
 		categorySlots.forEach((slot, index) => {
@@ -82,7 +90,7 @@ class CategoryNavigationManager {
 
 			const label = document.createElement('div');
 			label.className = 'category-dropdown-label';
-			label.textContent = category.label;
+			label.textContent = ({ '記述/読解': '记述 / 阅读', '読聴解': '听读解', '聴解': '听力', '読解': '阅读' } as Record<string, string>)[category.label] || category.label;
 			(slot as HTMLElement).dataset.categoryId = category.id;
 			label.addEventListener('click', () => {
 				this.toggleCategoryDropdown(dropdown);
@@ -150,7 +158,7 @@ class CategoryNavigationManager {
 
 		DOMUtils.safeSetInnerHTML(container, '', 'renderCategoryNavigation-clear');
 
-		const categories = this.examViewer.getCategories();
+		const categories = this.getVisibleCategories();
 
 		categories.forEach((definition) => {
 			const data = definition;
@@ -241,7 +249,7 @@ class CategoryNavigationManager {
 		const sections = this.examViewer.currentExam.exam_info?.sections || [];
 		const items: CategoryMenuItem[] = [];
 
-		const categories = this.examViewer.getCategories();
+		const categories = this.getVisibleCategories();
 		const category = categories.find((entry) => entry.id === catType);
 		if (category && category.sectionIndexes.length > 0) {
 			if (this.isEjuExam()) {
@@ -381,6 +389,7 @@ class CategoryNavigationManager {
 			const sectionIndex = Number.parseInt(value.replace('section-', ''), 10);
 			const totalSections = this.examViewer.currentExam?.exam_info?.sections?.length || 0;
 			if (sectionIndex >= 0 && sectionIndex < totalSections) {
+				this.examViewer.preparePracticeCategory?.(catType, sectionIndex);
 				this.examViewer.stateManager.updateNavigationState(sectionIndex, 0, catType);
 			}
 		} else if (value.startsWith('question-')) {
@@ -395,6 +404,7 @@ class CategoryNavigationManager {
 				questionIndex >= 0 &&
 				questionIndex < (section?.questions?.length || 0)
 			) {
+				this.examViewer.preparePracticeCategory?.(catType, sectionIndex);
 				this.examViewer.stateManager.updateNavigationState(sectionIndex, questionIndex, catType);
 			}
 		}
@@ -405,11 +415,12 @@ class CategoryNavigationManager {
 	 */
 	selectCategory(categoryId: string): void {
 		this.examViewer.audioManager.stopAllAudio();
-		const categories = this.examViewer.getCategories();
+		const categories = this.getVisibleCategories();
 		const mergedEjuCategory = (categoryId === 'writing' || categoryId === 'reading')
 			? categories.find((entry) => entry.id === 'writing_reading')
 			: undefined;
 		const category = categories.find((entry) => entry.id === categoryId) || mergedEjuCategory;
+		if (!category && this.examViewer.practiceRangeLocked) return;
 		const sections = this.examViewer.currentExam?.exam_info?.sections || [];
 		const preferredSectionIndex = mergedEjuCategory?.sectionIndexes.find((index) => {
 			return String(sections[index]?.section_type || '').toLowerCase() === categoryId;
@@ -418,6 +429,7 @@ class CategoryNavigationManager {
 			const section = sections[index];
 			return Array.isArray(section?.questions) && section.questions.length > 0;
 		});
+		this.examViewer.preparePracticeCategory?.(category?.id || categoryId, sectionIndex);
 		this.examViewer.stateManager.updateNavigationState(sectionIndex ?? 0, 0, category?.id || categoryId);
 	}
 }

@@ -333,6 +333,16 @@ bool WrongQuestionService::unmarkMastered(const std::string &userId, const std::
     return repository_.unmarkMastered(userId, questionId);
 }
 
+Json::Value WrongQuestionService::recordCorrection(const std::string &userId,
+                                                    const std::string &examId,
+                                                    const std::string &questionId,
+                                                    const std::string &correctAnswer,
+                                                    const std::string &userAnswer,
+                                                    bool correct)
+{
+    return repository_.recordCorrection(userId, examId, questionId, correctAnswer, userAnswer, correct);
+}
+
 void WrongQuestionService::reset(const std::string &userId, const std::string &actorUserId)
 {
     repository_.reset(userId, actorUserId);

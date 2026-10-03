@@ -52,28 +52,32 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<link href="/static/styles/tokens.css?v=20260830-block-gap-4-v1" rel="stylesheet">
-	<link href="/static/styles/layout.css" rel="stylesheet">
+	<link href="/static/styles/guest-welcome.css?v=20261002-guest-kind-v1" rel="stylesheet">
+	<link href="/static/styles/layout.css?v=20260928-auto-width" rel="stylesheet">
 	<link href="/static/styles/exam-toolbar.css" rel="stylesheet">
-	<link href="/static/styles/exam-controls.css" rel="stylesheet">
-	<link href="/static/styles/question-navigation.css" rel="stylesheet">
+	<link href="/static/styles/exam-controls.css?v=20261001-practice-attempt-v1" rel="stylesheet">
+	<link href="/static/styles/question-navigation.css?v=20260925-wrong-correction-v1" rel="stylesheet">
 	<link href="/static/styles/question.css" rel="stylesheet">
 	<link href="/static/styles/audio-listening.css" rel="stylesheet">
 	<link href="/static/styles/vocab-lookup.css" rel="stylesheet">
-	<link href="/static/styles/answer-explanation.css" rel="stylesheet">
+	<link href="/static/styles/answer-explanation.css?v=20260925-legibility-v1" rel="stylesheet">
 	<link href="/static/styles/image.css?v=20260828-question-tools-v1" rel="stylesheet">
-	<link href="/static/styles/misc.css" rel="stylesheet">
+	<link href="/static/styles/misc.css?v=20260928-login-overlay" rel="stylesheet">
 	<link href="/static/styles/login.css?v=20260827-surface-radius-8" rel="stylesheet">
-	<link href="/static/styles/paper-library.css" rel="stylesheet">
+	<link href="/static/styles/paper-library.css?v=20260925-legibility-v1" rel="stylesheet">
 	<link href="/static/styles/modals.css?v=20260813-platform-risk-layer" rel="stylesheet">
 	<link href="/static/styles/app-dialogs.css" rel="stylesheet">
 	<link href="/static/styles/wechat-login.css" rel="stylesheet">
-	<link href="/static/styles/exam-result.css" rel="stylesheet">
-	<link href="/static/styles/personal-center.css?v=20260909-pricing-workspace-v25" rel="stylesheet">
+	<link href="/static/styles/exam-result.css?v=20261002-practice-close-v1" rel="stylesheet">
+	<link href="/static/styles/personal-center.css?v=20261001-practice-attempt-v1" rel="stylesheet">
 	<link href="/static/styles/product-polish.css?v=20260828-button-radius-8" rel="stylesheet">
-	<link rel="modulepreload" href="/static/app/features/viewerBootstrap.js?v=20260909-pricing-workspace-v25">
-	<link rel="modulepreload" href="/static/app/viewer/core/ExamViewer.js?v=20260828-question-tools-v1">
-	<link rel="modulepreload" href="/static/app/viewer/renderers/QuestionRenderer.js?v=20260828-question-tools-v1">
-	<link rel="modulepreload" href="/static/app/viewer/personalCenter.js?v=20260909-pricing-workspace-v25">
+	<link href="/static/styles/content-width.css?v=20261001-long-options-v1" rel="stylesheet">
+	<link href="/static/styles/jlpt-typography.css?v=20260930-exam-screen-type" rel="stylesheet">
+	<link href="/static/styles/learning-shell.css?v=20261002-tablet-three-columns-v1" rel="stylesheet">
+	<link rel="modulepreload" href="/static/app/features/viewerBootstrap.js?v=20261002-practice-close-v1">
+	<link rel="modulepreload" href="/static/app/viewer/core/ExamViewer.js?v=20261002-guest-record-quota-v1">
+	<link rel="modulepreload" href="/static/app/viewer/renderers/QuestionRenderer.js?v=20261001-long-options-v1">
+	<link rel="modulepreload" href="/static/app/viewer/personalCenter.js?v=20261001-practice-attempt-v1">
 </head>
 
 <body>
@@ -233,7 +237,7 @@
 							<label>考试类型<span data-exam-setting-slot="family"></span></label>
 							<label>等级<span data-exam-setting-slot="level"></span></label>
 							<label>试卷<span data-exam-setting-slot="paper"></span></label>
-							<label>作答方式<span data-exam-setting-slot="mode"></span></label>
+							<label class="exam-mode-field">作答方式<span data-exam-setting-slot="mode"></span></label>
 							<label>显示主题<span><select id="theme-mode-select" class="btn-secondary" autocomplete="off" aria-label="显示主题">
 								<option value="system">跟随系统</option>
 								<option value="light">浅色模式</option>
@@ -241,7 +245,7 @@
 							</select></span></label>
 						</div>
 						<div class="exam-settings-assists">
-							<strong>学习辅助</strong>
+							<strong>显示辅助</strong>
 							<div data-exam-setting-slot="assists"></div>
 						</div>
 					</div>
@@ -276,10 +280,10 @@
 						<span>学习辅助</span><span class="learning-tools-caret" aria-hidden="true">▼</span>
 					</button>
 					<div id="learning-tools-menu" class="learning-tools-menu" role="menu" hidden>
-						<button id="learning-menu-answers" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false">答案解析</button>
-						<button id="learning-menu-explanations" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false">补充解析</button>
-						<button id="learning-menu-kana" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false">假名</button>
-						<button id="learning-menu-zh" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false">中文</button>
+						<button id="learning-menu-answers" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false" title="显示答案及题目解析">答案解析</button>
+						<button id="learning-menu-explanations" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false" title="显示题目提供的补充说明">补充解析</button>
+						<button id="learning-menu-kana" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false" title="显示日文上方的假名标注">假名标注</button>
+						<button id="learning-menu-zh" class="btn-secondary" type="button" role="menuitemcheckbox" aria-checked="false" title="显示题目提供的中文翻译">中文翻译</button>
 					</div>
 				</div>
 				<button id="mobile-tools-toggle" class="btn-secondary" type="button" aria-expanded="false" title="展开更多工具">更多</button>
@@ -295,10 +299,6 @@
 			<div id="category-navigation" style="display:none"></div>
 			<div id="section-navigation"></div>
 
-			<div id="width-control" title="拖动调整内容最大宽度">
-				<input id="width-slider" type="range" min="0" max="1800" step="10" aria-label="调整题目区域宽度" />
-			</div>
-
 			<div id="current-question-container" aria-busy="true"><div style="padding:40px;text-align:center;color:#888;">正在准备试卷，请稍候…</div></div>
 			<div id="question-navigation"></div>
 		</div>
@@ -307,7 +307,7 @@
 		<div id="exam-result-panel" class="exam-result-panel"></div>
 	</div>
 
-	<script type="module" src="/static/app/main.js?v=20260909-pricing-workspace-v25"></script>
+	<script type="module" src="/static/app/main.js?v=20261002-practice-close-v1"></script>
 
 	<script>
 		(function() {

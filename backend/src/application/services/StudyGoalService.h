@@ -2,7 +2,7 @@
 
 // 业务功能 18：学习目标 / 备考倒计时 Service
 //   - 数据：data/user/study_goals/{userId}.json
-//   - 字段：goals:[{goal_id, title, target_date(YYYY-MM-DD), exam_target?, daily_question_target?, note?, created_at, updated_at}]
+//   - 字段：goals:[{goal_id, title, target_date(YYYY-MM-DD), exam_target?, daily_minutes?, daily_question_target?(legacy), is_primary?, note?, created_at, updated_at}]
 //   - 接口：list / create / update / remove
 
 #include <filesystem>

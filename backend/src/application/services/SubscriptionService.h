@@ -43,6 +43,17 @@ class SubscriptionService
 
     void grantPremium(const std::string &userId, const std::string &expiresAt);
 
+    Json::Value settlePaidReferralReward(const std::string &userId,
+                                         const std::string &orderId,
+                                         int paidAmountCents,
+                                         int rewardPercent,
+                                         int maximumRewardCents,
+                                         const std::string &currency);
+
+    bool reversePaidReferralReward(const std::string &userId,
+                                   const std::string &orderId,
+                                   const Json::Value &reward);
+
   private:
     void settleReferralReward(const std::string &userId, const Json::Value &subscription);
 

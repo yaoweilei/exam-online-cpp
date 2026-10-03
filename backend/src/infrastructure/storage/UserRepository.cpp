@@ -1110,9 +1110,9 @@ Json::Value UserRepository::claimReferral(const std::string &userId, const std::
 }
 
 bool UserRepository::grantReferralRewardIfPending(const std::string &userId,
-                                  const std::string &trigger,
-                                  int rewardCredits,
-                                  const std::string &rewardRecipientUserId)
+                                   const std::string &trigger,
+                                   int rewardCredits,
+                                   const std::string &rewardRecipientUserId)
 {
     std::unique_lock lock(mutex_);
     auto usersJson = readUsersUnlocked();
@@ -1140,6 +1140,9 @@ bool UserRepository::grantReferralRewardIfPending(const std::string &userId,
         entry["referral_reward_granted_at"] = common::nowIso8601();
         entry["referral_reward_trigger"] = trigger;
         entry["referral_reward_credit_amount"] = rewardCredits;
+        const bool monetaryReward = trigger.rfind("payment:", 0) == 0;
+        entry["referral_reward_amount_cents"] = monetaryReward ? rewardCredits : 0;
+        entry["referral_reward_currency"] = monetaryReward ? "cny" : "";
         entry["referral_reward_credit_recipient_user_id"] = rewardRecipientUserId;
         updated = normalizeUser(entry);
         changed = true;
@@ -1156,6 +1159,50 @@ bool UserRepository::grantReferralRewardIfPending(const std::string &userId,
     }
 
     wal_.append("referral_reward_granted", updated);
+    writeUsersUnlocked(usersJson);
+    return true;
+}
+
+bool UserRepository::resetReferralRewardAfterReversal(const std::string &userId,
+                                                      const std::string &trigger)
+{
+    std::unique_lock lock(mutex_);
+    auto usersJson = readUsersUnlocked();
+    Json::Value updated(Json::nullValue);
+    bool changed = false;
+    forEachUserValue(usersJson, [&updated, &userId, &trigger, &changed](Json::Value &entry) {
+        if (!updated.isNull())
+        {
+            return;
+        }
+        const auto user = normalizeUser(entry);
+        if (user.get("id", "").asString() != userId)
+        {
+            return;
+        }
+        updated = user;
+        if (user.get("referral_reward_status", "none").asString() != "granted" ||
+            user.get("referral_reward_trigger", "").asString() != trigger)
+        {
+            return;
+        }
+
+        entry["referral_reward_status"] = "pending";
+        entry["referral_reward_granted_at"] = "";
+        entry["referral_reward_trigger"] = "";
+        entry["referral_reward_credit_amount"] = 0;
+        entry["referral_reward_amount_cents"] = 0;
+        entry["referral_reward_currency"] = "";
+        entry["referral_reward_credit_recipient_user_id"] = "";
+        updated = normalizeUser(entry);
+        changed = true;
+    });
+
+    if (!changed)
+    {
+        return false;
+    }
+    wal_.append("referral_reward_reversed", updated);
     writeUsersUnlocked(usersJson);
     return true;
 }
@@ -1276,7 +1323,7 @@ Json::Value UserRepository::defaultRolesMap()
 
     roles["student"]["id"] = "student";
     roles["student"]["name"] = "学员";
-    roles["student"]["description"] = "个人用户或机构学员，可做题、提交作业、查看自己的学习报告。";
+    roles["student"]["description"] = "个人用户或机构学员，可做题、提交作业、查看自己的学习报告；加入机构后占用付费内容席位。";
     roles["student"]["allow_organization_override"] = true;
     roles["student"]["permissions"] = Json::arrayValue;
     roles["student"]["permissions"].append("exam.practice");
@@ -1287,8 +1334,8 @@ Json::Value UserRepository::defaultRolesMap()
     roles["student"]["permissions"].append("learning_record.view.self");
 
     roles["assistant"]["id"] = "assistant";
-    roles["assistant"]["name"] = "教学运营";
-    roles["assistant"]["description"] = "负责教学协作、作业批改与催交、成绩查看和学员跟进，可按需追加权限。";
+    roles["assistant"]["name"] = "教学管理员";
+    roles["assistant"]["description"] = "负责作业流转、催交、成绩汇总和学员跟进；默认不查看试卷、答案或解析，也不占付费席位。";
     roles["assistant"]["allow_organization_override"] = true;
     roles["assistant"]["permissions"] = Json::arrayValue;
     roles["assistant"]["permissions"].append("assignment.review");
@@ -1300,7 +1347,7 @@ Json::Value UserRepository::defaultRolesMap()
 
     roles["teacher"]["id"] = "teacher";
     roles["teacher"]["name"] = "老师";
-    roles["teacher"]["description"] = "负责学习组教学、作业、批改、课后反馈和备课。";
+    roles["teacher"]["description"] = "负责学习组教学、作业、批改、课后反馈和备课；加入机构后占用付费内容席位。";
     roles["teacher"]["allow_organization_override"] = true;
     roles["teacher"]["permissions"] = Json::arrayValue;
     roles["teacher"]["permissions"].append("assignment.create");
@@ -1314,7 +1361,7 @@ Json::Value UserRepository::defaultRolesMap()
 
     roles["orgAdmin"]["id"] = "orgAdmin";
     roles["orgAdmin"]["name"] = "机构管理员";
-    roles["orgAdmin"]["description"] = "管理机构成员、学习组、课程包、套餐席位、机构看板和审计。";
+    roles["orgAdmin"]["description"] = "管理机构成员、学习组、课程包、套餐席位、机构看板和审计；默认不查看试卷、答案或解析，也不占付费席位。";
     roles["orgAdmin"]["allow_organization_override"] = true;
     roles["orgAdmin"]["permissions"] = Json::arrayValue;
     roles["orgAdmin"]["permissions"].append("organization.member.manage");
@@ -1422,6 +1469,10 @@ Json::Value UserRepository::normalizeUser(const Json::Value &input)
     user["referralRewardTrigger"] = user["referral_reward_trigger"].asString();
     user["referral_reward_credit_amount"] = user.get("referral_reward_credit_amount", user.get("referralRewardCreditAmount", 0)).asInt();
     user["referralRewardCreditAmount"] = user["referral_reward_credit_amount"].asInt();
+    user["referral_reward_amount_cents"] = user.get("referral_reward_amount_cents", user.get("referralRewardAmountCents", 0)).asInt();
+    user["referralRewardAmountCents"] = user["referral_reward_amount_cents"].asInt();
+    user["referral_reward_currency"] = user.get("referral_reward_currency", user.get("referralRewardCurrency", "")).asString();
+    user["referralRewardCurrency"] = user["referral_reward_currency"].asString();
     user["referral_reward_credit_recipient_user_id"] = user.get("referral_reward_credit_recipient_user_id", user.get("referralRewardCreditRecipientUserId", "")).asString();
     user["referralRewardCreditRecipientUserId"] = user["referral_reward_credit_recipient_user_id"].asString();
     if (user["referral_code"].asString().empty())

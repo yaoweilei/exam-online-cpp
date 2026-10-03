@@ -47,6 +47,13 @@ class WrongQuestionService
     bool markMastered(const std::string &userId, const std::string &questionId);
     bool unmarkMastered(const std::string &userId, const std::string &questionId);
 
+    Json::Value recordCorrection(const std::string &userId,
+                                 const std::string &examId,
+                                 const std::string &questionId,
+                                 const std::string &correctAnswer,
+                                 const std::string &userAnswer,
+                                 bool correct);
+
     // 错题归因标签（错因分析）：覆盖式设置该题的所有标签
     // 已知标签：vocab_blindspot / grammar_unsure / reading_pace / listening_missed / careless / option_trap
     bool setAttributionTags(const std::string &userId,

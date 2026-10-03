@@ -15,6 +15,7 @@
 #include <openssl/hmac.h>
 
 #include "application/services/ContactChangeChallengeService.h"
+#include "application/services/AdaptiveLearningService.h"
 #include "application/services/DraftService.h"
 #include "application/services/EmailVerificationService.h"
 #include "application/services/FeatureFlagService.h"
@@ -39,6 +40,7 @@
 #include "infrastructure/storage/ProfileRepository.h"
 #include "infrastructure/storage/SessionRepository.h"
 #include "infrastructure/storage/UserRepository.h"
+#include "infrastructure/storage/WrongQuestionRepository.h"
 #include "infrastructure/storage/JsonIo.h"
 #include "infrastructure/config/AppConfig.h"
 
@@ -1486,6 +1488,84 @@ void testOrganizationFeatureFlagsRejectUnsupportedOverrides()
     assert(!persisted.isMember("admin_dashboard"));
     assert(!persisted.isMember("audit_log_viewer"));
 }
+
+void testAdaptiveLearningSeparatesEjuAndJlptTargets()
+{
+    ScopedTempDir tempDir;
+    application::services::AdaptiveLearningService service(tempDir.path());
+
+    Json::Value exam(Json::objectValue);
+    exam["exam_info"]["family"] = "eju";
+    exam["exam_info"]["exam_level"] = "";
+    exam["exam_info"]["sections"] = Json::Value(Json::arrayValue);
+    const std::vector<std::pair<std::string, std::string>> sections = {
+        {"writing", "eju.writing"}, {"reading", "eju.reading"},
+        {"listening_reading", "eju.listening_reading"}, {"listening", "eju.listening"}};
+    Json::Value score(Json::objectValue);
+    score["results"] = Json::Value(Json::objectValue);
+    for (Json::ArrayIndex index = 0; index < sections.size(); ++index)
+    {
+        Json::Value section(Json::objectValue);
+        section["section_type"] = sections[index].first;
+        section["skill_tags"] = Json::Value(Json::arrayValue);
+        section["skill_tags"].append(sections[index].second);
+        section["questions"] = Json::Value(Json::arrayValue);
+        Json::Value question(Json::objectValue);
+        question["id"] = static_cast<int>(index + 1);
+        section["questions"].append(question);
+        exam["exam_info"]["sections"].append(section);
+
+        Json::Value result(Json::objectValue);
+        result["question_id"] = std::to_string(index + 1);
+        result["section_index"] = static_cast<int>(index);
+        result["status"] = "correct";
+        score["results"][std::to_string(index)] = result;
+    }
+
+    service.recordSubmission("student-eju", "2026_01", exam, score);
+    const auto eju = service.profile("student-eju", "EJU 日本語");
+    assert(eju.get("exam_target", "").asString() == "EJU 日本語");
+    assert(eju["domains"]["writing"].get("observation_count", 0).asInt() == 1);
+    assert(eju["domains"]["reading"].get("observation_count", 0).asInt() == 1);
+    assert(eju["domains"]["listening_reading"].get("observation_count", 0).asInt() == 1);
+    assert(eju["domains"]["listening"].get("observation_count", 0).asInt() == 1);
+    assert(eju["available_targets"].size() == 1);
+
+    const auto jlpt = service.profile("student-eju", "JLPT N2");
+    assert(jlpt["domains"]["vocabulary"].get("evidence", "").asString() == "unassessed");
+    assert(jlpt["available_targets"].size() == 1);
+    assert(jlpt["available_targets"][0].asString() == "EJU 日本語");
+}
+
+void testWrongQuestionCorrectionRequiresTwoConsecutiveCorrectAnswers()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::WrongQuestionRepository repository(tempDir.path());
+    Json::Value snapshot(Json::objectValue);
+    snapshot["id"] = 2;
+    snapshot["question"] = "question";
+    repository.recordWrong("student-correction", "N2_2016_07", "2", "1", "3", "1.01", "vocabulary", snapshot);
+
+    const auto first = repository.recordCorrection("student-correction", "N2_2016_07", "2", "1", "1", true);
+    assert(first.isObject());
+    assert(first.get("correct_streak", 0).asInt() == 1);
+    assert(!first.get("mastered", false).asBool());
+
+    const auto wrong = repository.recordCorrection("student-correction", "N2_2016_07", "2", "1", "4", false);
+    assert(wrong.get("correct_streak", -1).asInt() == 0);
+    assert(wrong.get("wrong_count", 0).asInt() == 2);
+    assert(!wrong.get("mastered", false).asBool());
+
+    const auto retry = repository.recordCorrection("student-correction", "N2_2016_07", "2", "1", "1", true);
+    assert(retry.get("correct_streak", 0).asInt() == 1);
+    assert(!retry.get("mastered", false).asBool());
+    const auto mastered = repository.recordCorrection("student-correction", "N2_2016_07", "2", "1", "1", true);
+    assert(mastered.get("correct_streak", 0).asInt() == 2);
+    assert(mastered.get("mastered", false).asBool());
+
+    const auto otherExam = repository.recordCorrection("student-correction", "N2_2022_07", "2", "1", "1", true);
+    assert(otherExam.isNull());
+}
 }  // namespace
 
 int main()
@@ -1515,5 +1595,7 @@ int main()
     testExpiredSectionsPersistInTimerSnapshot();
     testAuditLogsRotateAndRemainQueryable();
     testOrganizationFeatureFlagsRejectUnsupportedOverrides();
+    testAdaptiveLearningSeparatesEjuAndJlptTargets();
+    testWrongQuestionCorrectionRequiresTwoConsecutiveCorrectAnswers();
     return 0;
 }

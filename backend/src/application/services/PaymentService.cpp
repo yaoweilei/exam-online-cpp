@@ -106,6 +106,25 @@ bool hasAnyRole(const Json::Value &roles, std::initializer_list<const char *> ex
     return false;
 }
 
+bool isSupportedOrganizationDuration(int days)
+{
+    return days == 30 || days == 90 || days == 365;
+}
+
+void requirePlanEnabled(const Json::Value &pricing,
+                        const std::string &scopeType,
+                        const std::string &plan)
+{
+    const auto scope = scopeType == "organization" ? "organization" : "personal";
+    if (!pricing["catalogs"][scope]["plans"][plan].get("enabled", plan == "pro").asBool())
+    {
+        throw common::AppException(
+            "PAYMENT_PLAN_UNAVAILABLE",
+            "ULTRA 套餐正在规划中，暂未开放购买",
+            drogon::k422UnprocessableEntity);
+    }
+}
+
 std::string runtimeEnvironmentValue(const char *name, const std::string &fallback = "")
 {
     const char *value = std::getenv(name);
@@ -146,7 +165,7 @@ void requirePaymentProviderEnabled(const std::string &provider)
 Json::Value defaultPricingConfig()
 {
     Json::Value config(Json::objectValue);
-    config["version"] = 4;
+    config["version"] = 9;
     config["default_currency"] = "cny";
     config["default_provider"] = "wechat";
     config["providers"] = Json::arrayValue;
@@ -165,9 +184,11 @@ Json::Value defaultPricingConfig()
     personal["durations"].append(365);
     personal["recommended_plan"] = "pro";
     personal["recommended_duration_days"] = 365;
-    personal["prices_cents"]["cny"]["pro"]["30"] = 1900;
-    personal["prices_cents"]["cny"]["pro"]["90"] = 4900;
-    personal["prices_cents"]["cny"]["pro"]["365"] = 15900;
+    personal["plans"]["pro"]["enabled"] = true;
+    personal["plans"]["ultra"]["enabled"] = false;
+    personal["prices_cents"]["cny"]["pro"]["30"] = 1290;
+    personal["prices_cents"]["cny"]["pro"]["90"] = 2990;
+    personal["prices_cents"]["cny"]["pro"]["365"] = 9990;
     personal["prices_cents"]["cny"]["ultra"]["30"] = 3900;
     personal["prices_cents"]["cny"]["ultra"]["90"] = 9900;
     personal["prices_cents"]["cny"]["ultra"]["365"] = 29900;
@@ -177,6 +198,16 @@ Json::Value defaultPricingConfig()
     personal["prices_cents"]["usd"]["ultra"]["30"] = 699;
     personal["prices_cents"]["usd"]["ultra"]["90"] = 1799;
     personal["prices_cents"]["usd"]["ultra"]["365"] = 4999;
+    // Reference prices are display-only. Orders and renewals always settle
+    // against prices_cents, while clients may show the genuine everyday price
+    // next to the current selling price.
+    personal["list_prices_cents"]["cny"]["pro"]["30"] = 1500;
+    personal["list_prices_cents"]["cny"]["pro"]["90"] = 4000;
+    personal["list_prices_cents"]["cny"]["pro"]["365"] = 14500;
+    personal["list_prices_cents"]["cny"]["ultra"]["30"] = 3900;
+    personal["list_prices_cents"]["cny"]["ultra"]["90"] = 9900;
+    personal["list_prices_cents"]["cny"]["ultra"]["365"] = 29900;
+    personal["list_prices_cents"]["usd"] = personal["prices_cents"]["usd"];
     const auto appendOffer = [](Json::Value &catalog,
                                 const std::string &id,
                                 const std::string &label,
@@ -194,23 +225,44 @@ Json::Value defaultPricingConfig()
     appendOffer(personal, "first_purchase", "个人首购优惠", 20);
     appendOffer(personal, "renewal", "个人续费优惠", 10);
     appendOffer(personal, "campaign", "个人限时活动", 15);
+    Json::Value referralReward(Json::objectValue);
+    referralReward["id"] = "referral_reward";
+    referralReward["kind"] = "referral_reward";
+    referralReward["label"] = "个人邀请奖励";
+    referralReward["enabled"] = true;
+    referralReward["discount_percent"] = 0;
+    referralReward["reward_percent"] = 20;
+    referralReward["maximum_reward_cents"] = 2000;
+    referralReward["eligible_plan"] = "pro";
+    referralReward["starts_at"] = "";
+    referralReward["ends_at"] = "";
+    personal["offers"].append(referralReward);
 
     auto &organization = config["catalogs"]["organization"];
     organization["durations"].append(30);
+    organization["durations"].append(90);
     organization["durations"].append(365);
-    organization["recommended_plan"] = "ultra";
+    organization["recommended_plan"] = "pro";
     organization["recommended_duration_days"] = 365;
-    organization["custom_quote_min_seats"] = 200;
-    organization["plans"]["pro"]["minimum_seats"] = 20;
+    organization["custom_quote_min_seats"] = 0;
+    organization["plans"]["pro"]["minimum_seats"] = 1;
+    organization["plans"]["pro"]["pricing_mode"] = "progressive";
+    organization["plans"]["pro"]["enabled"] = true;
     organization["plans"]["ultra"]["minimum_seats"] = 30;
+    organization["plans"]["ultra"]["pricing_mode"] = "volume";
+    organization["plans"]["ultra"]["enabled"] = false;
     organization["prices_cents"]["cny"]["pro"]["30"] = 1500;
-    organization["prices_cents"]["cny"]["pro"]["365"] = 11900;
-    organization["prices_cents"]["cny"]["ultra"]["30"] = 2900;
-    organization["prices_cents"]["cny"]["ultra"]["365"] = 22900;
+    organization["prices_cents"]["cny"]["pro"]["90"] = 2990;
+    organization["prices_cents"]["cny"]["pro"]["365"] = 9990;
+    organization["prices_cents"]["cny"]["ultra"]["30"] = 3900;
+    organization["prices_cents"]["cny"]["ultra"]["90"] = 9900;
+    organization["prices_cents"]["cny"]["ultra"]["365"] = 29900;
     organization["prices_cents"]["usd"]["pro"]["30"] = 299;
+    organization["prices_cents"]["usd"]["pro"]["90"] = 799;
     organization["prices_cents"]["usd"]["pro"]["365"] = 1999;
-    organization["prices_cents"]["usd"]["ultra"]["30"] = 499;
-    organization["prices_cents"]["usd"]["ultra"]["365"] = 3799;
+    organization["prices_cents"]["usd"]["ultra"]["30"] = 699;
+    organization["prices_cents"]["usd"]["ultra"]["90"] = 1799;
+    organization["prices_cents"]["usd"]["ultra"]["365"] = 4999;
     appendOffer(organization, "first_purchase", "机构首购优惠", 10);
     appendOffer(organization, "renewal", "机构续费优惠", 5);
     appendOffer(organization, "campaign", "机构限时活动", 10);
@@ -223,14 +275,15 @@ Json::Value defaultPricingConfig()
         tier["prices_cents"]["cny"]["ultra"]["365"] = ultraYearCents;
         organization["seat_tiers"].append(tier);
     };
-    appendTier(20, 29, 11900, 0);
-    appendTier(30, 49, 11900, 22900);
-    appendTier(50, 99, 10900, 21900);
-    appendTier(100, 199, 9900, 20900);
+    appendTier(1, 20, 9990, 29900);
+    appendTier(21, 200, 8990, 29900);
+    appendTier(201, 500, 7990, 29900);
+    appendTier(501, 100000, 6990, 29900);
 
     // v1 compatibility aliases: old clients treat the root matrix as personal pricing.
     config["durations"] = personal["durations"];
     config["prices_cents"] = personal["prices_cents"];
+    config["list_prices_cents"] = personal["list_prices_cents"];
     config["updated_at"] = "";
     applyPaymentProviderPolicy(config);
     return config;
@@ -264,6 +317,85 @@ int readPriceCents(const Json::Value &pricing,
         }
     }
     return amount > 0 ? amount : 0;
+}
+
+bool usesProgressiveOrganizationPricing(const Json::Value &pricing,
+                                        const std::string &plan,
+                                        int days)
+{
+    return days == 365 &&
+           pricing["catalogs"]["organization"]["plans"][plan]
+                   .get("pricing_mode", "volume")
+                   .asString() == "progressive";
+}
+
+Json::Value buildOrganizationPricingBreakdown(const Json::Value &pricing,
+                                              const std::string &currency,
+                                              const std::string &plan,
+                                              int days,
+                                              int seats)
+{
+    Json::Value breakdown(Json::arrayValue);
+    if (!usesProgressiveOrganizationPricing(pricing, plan, days))
+    {
+        return breakdown;
+    }
+
+    const auto key = std::to_string(days);
+    const auto fallbackUnit = pricing["catalogs"]["organization"]["prices_cents"][currency][plan]
+                                  .get(key, 0)
+                                  .asInt();
+    for (const auto &tier : pricing["catalogs"]["organization"]["seat_tiers"])
+    {
+        const auto minSeats = std::max(1, tier.get("min_seats", 1).asInt());
+        const auto maxSeats = std::max(minSeats, tier.get("max_seats", minSeats).asInt());
+        if (seats < minSeats)
+        {
+            continue;
+        }
+        const auto quantity = std::min(seats, maxSeats) - minSeats + 1;
+        const auto unitPrice = tier["prices_cents"][currency][plan].get(key, fallbackUnit).asInt();
+        if (quantity <= 0 || unitPrice <= 0)
+        {
+            continue;
+        }
+        Json::Value row(Json::objectValue);
+        row["min_seats"] = minSeats;
+        row["max_seats"] = maxSeats;
+        row["quantity"] = quantity;
+        row["unit_price_cents"] = unitPrice;
+        row["amount_cents"] = static_cast<Json::Int64>(quantity) * unitPrice;
+        breakdown.append(row);
+    }
+    return breakdown;
+}
+
+Json::Int64 readBaseAmountCents(const Json::Value &pricing,
+                               const std::string &scopeType,
+                               const std::string &currency,
+                               const std::string &plan,
+                               int days,
+                               int seats,
+                               Json::Value *breakdown = nullptr)
+{
+    if (scopeType == "organization" && usesProgressiveOrganizationPricing(pricing, plan, days))
+    {
+        const auto rows = buildOrganizationPricingBreakdown(pricing, currency, plan, days, seats);
+        Json::Int64 amount = 0;
+        int coveredSeats = 0;
+        for (const auto &row : rows)
+        {
+            amount += row.get("amount_cents", 0).asInt64();
+            coveredSeats += row.get("quantity", 0).asInt();
+        }
+        if (breakdown != nullptr)
+        {
+            *breakdown = rows;
+        }
+        return coveredSeats == seats ? amount : 0;
+    }
+    const auto unitPrice = readPriceCents(pricing, scopeType, currency, plan, days, seats);
+    return static_cast<Json::Int64>(unitPrice) * seats;
 }
 
 int normalizePriceCents(const Json::Value &value, int fallback)
@@ -332,6 +464,27 @@ bool isPaidSubscriptionActive(const Json::Value &subscription)
            (status == "active" || status == "trial");
 }
 
+Json::Value activeReferralRewardRule(const Json::Value &pricing)
+{
+    const auto now = common::nowIso8601();
+    for (const auto &offer : pricing["catalogs"]["personal"]["offers"])
+    {
+        if (offer.get("id", offer.get("kind", "")).asString() != "referral_reward" ||
+            !offer.get("enabled", false).asBool())
+        {
+            continue;
+        }
+        const auto startsAt = offer.get("starts_at", "").asString();
+        const auto endsAt = offer.get("ends_at", "").asString();
+        if ((!startsAt.empty() && now < startsAt) || (!endsAt.empty() && now >= endsAt))
+        {
+            continue;
+        }
+        return offer;
+    }
+    return Json::Value(Json::nullValue);
+}
+
 Json::Value buildPriceQuote(const Json::Value &pricing,
                             const Json::Value &orders,
                             const Json::Value &subscription,
@@ -342,7 +495,12 @@ Json::Value buildPriceQuote(const Json::Value &pricing,
                             const std::string &currency,
                             int seats)
 {
-    const auto baseUnitPrice = readPriceCents(pricing, scopeType, currency, plan, days, seats);
+    Json::Value pricingBreakdown(Json::arrayValue);
+    const auto baseAmount = readBaseAmountCents(
+        pricing, scopeType, currency, plan, days, seats, &pricingBreakdown);
+    const auto baseUnitPrice = seats > 0
+                                   ? static_cast<int>((baseAmount + seats / 2) / seats)
+                                   : 0;
     const auto now = common::nowIso8601();
     const bool firstPurchase = !hasSettledOrder(orders, scopeType, scopeId);
     const bool renewal = isPaidSubscriptionActive(subscription);
@@ -379,13 +537,14 @@ Json::Value buildPriceQuote(const Json::Value &pricing,
         selectedDiscount = discount;
     }
 
-    const auto unitPrice = baseUnitPrice <= 0
+    const auto amount = baseAmount <= 0
                                ? 0
-                               : static_cast<int>(std::max<long long>(
+                               : static_cast<Json::Int64>(std::max<long long>(
                                      1,
-                                     (static_cast<long long>(baseUnitPrice) * (100 - selectedDiscount) + 50) / 100));
-    const auto baseAmount = static_cast<Json::Int64>(baseUnitPrice) * seats;
-    const auto amount = static_cast<Json::Int64>(unitPrice) * seats;
+                                     (baseAmount * (100 - selectedDiscount) + 50) / 100));
+    const auto unitPrice = seats > 0
+                               ? static_cast<int>((amount + seats / 2) / seats)
+                               : 0;
     Json::Value quote(Json::objectValue);
     quote["scope_type"] = scopeType;
     quote["scope_id"] = scopeId;
@@ -398,6 +557,11 @@ Json::Value buildPriceQuote(const Json::Value &pricing,
     quote["base_amount_cents"] = baseAmount;
     quote["amount_cents"] = amount;
     quote["discount_cents"] = baseAmount - amount;
+    quote["pricing_mode"] = scopeType == "organization" &&
+                                     usesProgressiveOrganizationPricing(pricing, plan, days)
+                                 ? "progressive"
+                                 : "volume";
+    quote["pricing_breakdown"] = pricingBreakdown;
     quote["first_purchase_eligible"] = firstPurchase;
     quote["renewal_eligible"] = renewal;
     quote["quoted_at"] = now;
@@ -425,8 +589,14 @@ Json::Value normalizePricingConfig(const Json::Value &payload)
                 config["catalogs"]["personal"]["prices_cents"][currency][plan][key] = normalizePriceCents(
                     personalSource["prices_cents"][currency][plan][key],
                     config["catalogs"]["personal"]["prices_cents"][currency][plan][key].asInt());
+                const auto sellingPrice = config["catalogs"]["personal"]["prices_cents"][currency][plan][key].asInt();
+                const auto requestedListPrice = normalizePriceCents(
+                    personalSource["list_prices_cents"][currency][plan][key],
+                    config["catalogs"]["personal"]["list_prices_cents"][currency][plan][key].asInt());
+                config["catalogs"]["personal"]["list_prices_cents"][currency][plan][key] =
+                    std::max(sellingPrice, requestedListPrice);
             }
-            for (const auto days : {30, 365})
+            for (const auto days : {30, 90, 365})
             {
                 const auto key = std::to_string(days);
                 config["catalogs"]["organization"]["prices_cents"][currency][plan][key] = normalizePriceCents(
@@ -436,15 +606,30 @@ Json::Value normalizePricingConfig(const Json::Value &payload)
         }
     }
 
+    const auto personalPlans = personalSource.get("plans", Json::Value(Json::objectValue));
     for (const auto &plan : {"pro", "ultra"})
     {
+        config["catalogs"]["personal"]["plans"][plan]["enabled"] =
+            personalPlans[plan].get(
+                "enabled",
+                config["catalogs"]["personal"]["plans"][plan]["enabled"]).asBool();
         const auto fallback = config["catalogs"]["organization"]["plans"][plan]["minimum_seats"].asInt();
         const auto requested = organizationSource["plans"][plan].get("minimum_seats", fallback).asInt();
         config["catalogs"]["organization"]["plans"][plan]["minimum_seats"] = std::clamp(requested, 1, 100000);
+        const auto requestedMode = organizationSource["plans"][plan]
+                                       .get("pricing_mode", config["catalogs"]["organization"]["plans"][plan]["pricing_mode"])
+                                       .asString();
+        config["catalogs"]["organization"]["plans"][plan]["pricing_mode"] =
+            requestedMode == "progressive" ? "progressive" : "volume";
+        config["catalogs"]["organization"]["plans"][plan]["enabled"] =
+            organizationSource["plans"][plan].get(
+                "enabled",
+                config["catalogs"]["organization"]["plans"][plan]["enabled"]).asBool();
     }
     const auto customQuoteFallback = config["catalogs"]["organization"]["custom_quote_min_seats"].asInt();
-    config["catalogs"]["organization"]["custom_quote_min_seats"] = std::clamp(
-        organizationSource.get("custom_quote_min_seats", customQuoteFallback).asInt(), 2, 100000);
+    const auto requestedCustomQuote = organizationSource.get("custom_quote_min_seats", customQuoteFallback).asInt();
+    config["catalogs"]["organization"]["custom_quote_min_seats"] =
+        requestedCustomQuote <= 0 ? 0 : std::clamp(requestedCustomQuote, 2, 100000);
 
     if (organizationSource["seat_tiers"].isArray())
     {
@@ -488,6 +673,16 @@ Json::Value normalizePricingConfig(const Json::Value &payload)
             offers[index]["enabled"] = sourceOffer.get("enabled", false).asBool();
             offers[index]["discount_percent"] = std::clamp(
                 sourceOffer.get("discount_percent", offers[index]["discount_percent"]).asInt(), 0, 90);
+            if (id == "referral_reward")
+            {
+                offers[index]["reward_percent"] = std::clamp(
+                    sourceOffer.get("reward_percent", offers[index].get("reward_percent", 20)).asInt(), 1, 50);
+                offers[index]["maximum_reward_cents"] = std::clamp(
+                    sourceOffer.get("maximum_reward_cents", offers[index].get("maximum_reward_cents", 2000)).asInt(),
+                    1,
+                    100000);
+                offers[index]["eligible_plan"] = "pro";
+            }
             offers[index]["starts_at"] = startsAt;
             offers[index]["ends_at"] = endsAt;
             if (!startsAt.empty() && !endsAt.empty() && startsAt >= endsAt)
@@ -522,6 +717,7 @@ Json::Value normalizePricingConfig(const Json::Value &payload)
         renewalSource.get("grace_period_days", config["renewal"]["grace_period_days"]).asInt(), 0, 30);
     config["durations"] = config["catalogs"]["personal"]["durations"];
     config["prices_cents"] = config["catalogs"]["personal"]["prices_cents"];
+    config["list_prices_cents"] = config["catalogs"]["personal"]["list_prices_cents"];
     config["updated_at"] = common::nowIso8601();
     applyPaymentProviderPolicy(config);
     return config;
@@ -621,6 +817,8 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     {
         throw common::AppException("PAYMENT_PLAN_INVALID", "Paid order requires pro or ultra plan", drogon::k422UnprocessableEntity);
     }
+    const auto pricing = loadPricingConfig();
+    requirePlanEnabled(pricing, "personal", plan);
     const auto days = normalizeDays(payload.get("days", 30).asInt());
     const auto currency = normalizeCurrency(payload.get("currency", "cny").asString());
     const auto provider = normalizeProvider(payload.get(
@@ -632,7 +830,7 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     auto orders = loadOrders();
     auto ledger = loadLedger();
     const auto quote = buildPriceQuote(
-        loadPricingConfig(), orders, subscription, "personal", userId, plan, days, currency, 1);
+        pricing, orders, subscription, "personal", userId, plan, days, currency, 1);
     const auto amountCents = quote.get("amount_cents", 0).asInt();
     if (amountCents <= 0)
     {
@@ -652,6 +850,12 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     order["amount_cents"] = amountCents;
     order["base_amount_cents"] = quote.get("base_amount_cents", amountCents);
     order["discount_cents"] = quote.get("discount_cents", 0);
+    const auto durationKey = std::to_string(days);
+    const auto listPriceCents = pricing["catalogs"]["personal"]["list_prices_cents"][currency][plan]
+                                    .get(durationKey, order["base_amount_cents"])
+                                    .asInt();
+    order["list_price_cents"] = std::max(amountCents, listPriceCents);
+    order["total_savings_cents"] = order["list_price_cents"].asInt() - amountCents;
     order["offer"] = quote["offer"];
     order["pricing_quoted_at"] = quote.get("quoted_at", nowIso());
     order["pricing_scope"] = "personal";
@@ -660,6 +864,20 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     order["created_at"] = nowIso();
     order["updated_at"] = order["created_at"].asString();
     order["metadata"] = payload.get("metadata", Json::Value(Json::objectValue));
+    if (!order["metadata"].isObject())
+    {
+        order["metadata"] = Json::Value(Json::objectValue);
+    }
+    // Purchase preferences are persisted with the order so a successful
+    // provider callback can apply them atomically with the entitlement grant.
+    if (payload.isMember("auto_renewal"))
+    {
+        order["metadata"]["auto_renewal"] = payload["auto_renewal"].asBool();
+    }
+    if (payload.isMember("notify_email"))
+    {
+        order["metadata"]["notify_email"] = payload["notify_email"].asBool();
+    }
     order["provider_payload"] = buildProviderPayload(order);
 
     orders.append(order);
@@ -682,12 +900,14 @@ Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
     {
         throw common::AppException("PAYMENT_PLAN_INVALID", "Paid order requires pro or ultra plan", drogon::k422UnprocessableEntity);
     }
+    const auto pricing = loadPricingConfig();
+    requirePlanEnabled(pricing, "organization", plan);
     const auto requestedDays = payload.get("days", 30).asInt();
-    if (requestedDays != 30 && requestedDays != 365)
+    if (!isSupportedOrganizationDuration(requestedDays))
     {
         throw common::AppException(
             "PAYMENT_DURATION_INVALID",
-            "机构套餐仅支持 30 天月付或 365 天年付",
+            "机构 PRO 支持 30、90 或 365 天，其他套餐支持 30 或 365 天",
             drogon::k422UnprocessableEntity);
     }
     const auto days = requestedDays;
@@ -702,20 +922,16 @@ Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
     {
         throw common::AppException(
             "PAYMENT_MINIMUM_SEATS",
-            plan == "ultra" ? "机构 ULTRA 最低购买 30 席" : "机构 PRO 最低购买 20 席",
+            "该机构套餐最低购买 " + std::to_string(minimumSeats) + " 席",
             drogon::k422UnprocessableEntity);
     }
-    if (seats >= customQuoteMinimumSeats())
+    const auto customQuoteSeats = customQuoteMinimumSeats();
+    if (customQuoteSeats > 0 && seats >= customQuoteSeats)
     {
         throw common::AppException(
             "PAYMENT_CUSTOM_QUOTE_REQUIRED",
-            "200 席及以上需要联系企业销售获取定制报价",
+            std::to_string(customQuoteSeats) + " 席及以上需要联系平台获取定制报价",
             drogon::k422UnprocessableEntity);
-    }
-    const auto unitPrice = priceCents("organization", plan, days, currency, seats);
-    if (unitPrice <= 0 || static_cast<long long>(unitPrice) * seats > 999999999LL)
-    {
-        throw common::AppException("PAYMENT_PRICE_INVALID", "Organization order price is invalid", drogon::k422UnprocessableEntity);
     }
 
     // Validate the organization before persisting or contacting a payment provider.
@@ -724,10 +940,10 @@ Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
     auto orders = loadOrders();
     auto ledger = loadLedger();
     const auto quote = buildPriceQuote(
-        loadPricingConfig(), orders, subscription, "organization", organizationId, plan, days, currency, seats);
+        pricing, orders, subscription, "organization", organizationId, plan, days, currency, seats);
     const auto discountedUnitPrice = quote.get("unit_price_cents", 0).asInt();
-    if (discountedUnitPrice <= 0 ||
-        static_cast<long long>(discountedUnitPrice) * seats > 999999999LL)
+    const auto amountCents = quote.get("amount_cents", 0).asInt64();
+    if (discountedUnitPrice <= 0 || amountCents <= 0 || amountCents > 999999999LL)
     {
         throw common::AppException("PAYMENT_PRICE_INVALID", "Organization order price is invalid", drogon::k422UnprocessableEntity);
     }
@@ -744,27 +960,86 @@ Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
     order["days"] = days;
     order["seats"] = seats;
     order["currency"] = currency;
-    order["base_unit_price_cents"] = quote.get("base_unit_price_cents", unitPrice);
+    order["base_unit_price_cents"] = quote.get("base_unit_price_cents", 0);
     order["unit_price_cents"] = discountedUnitPrice;
-    order["base_amount_cents"] = quote.get("base_amount_cents", unitPrice * seats);
+    order["base_amount_cents"] = quote.get("base_amount_cents", amountCents);
     order["discount_cents"] = quote.get("discount_cents", 0);
+    order["pricing_mode"] = quote.get("pricing_mode", "volume");
+    order["pricing_breakdown"] = quote.get("pricing_breakdown", Json::Value(Json::arrayValue));
     order["offer"] = quote["offer"];
     order["pricing_quoted_at"] = quote.get("quoted_at", nowIso());
     order["pricing_scope"] = "organization";
     order["minimum_seats"] = minimumSeats;
-    order["amount_cents"] = discountedUnitPrice * seats;
+    order["amount_cents"] = amountCents;
     order["amount"] = order["amount_cents"].asInt() / 100.0;
-    order["description"] = "机构扩席：" + plan + " 套餐 " + std::to_string(seats) + " 席 / " + std::to_string(days) + " 天";
+    order["description"] = "机构套餐：" + plan + " · " + std::to_string(seats) + " 席 / " + std::to_string(days) + " 天";
     order["created_at"] = nowIso();
     order["updated_at"] = order["created_at"].asString();
     order["metadata"] = payload.get("metadata", Json::Value(Json::objectValue));
     order["metadata"]["organization_id"] = organizationId;
     order["provider_payload"] = buildProviderPayload(order);
     orders.append(order);
-    appendLedgerEntry(ledger, actorId, order["id"].asString(), "order.created", order["amount_cents"].asInt(), currency, "创建机构扩席订单");
+    appendLedgerEntry(ledger, actorId, order["id"].asString(), "order.created", order["amount_cents"].asInt(), currency, "创建机构套餐订单");
     saveOrders(orders);
     saveLedger(ledger);
     return order;
+}
+
+Json::Value PaymentService::simulateWechatPaymentSuccess(const std::string &userId,
+                                                          const std::string &orderId)
+{
+    if (isProductionPaymentPolicyEnabled())
+    {
+        throw common::AppException(
+            "PAYMENT_SIMULATION_DISABLED",
+            "模拟支付仅在开发环境可用",
+            drogon::k403Forbidden);
+    }
+
+    std::unique_lock lock(mutex_);
+    auto orders = loadOrders();
+    auto ledger = loadLedger();
+    for (const auto &order : orders)
+    {
+        if (order.get("id", "").asString() != orderId) continue;
+        if (order.get("user_id", "").asString() != userId)
+        {
+            throw common::AppException("FORBIDDEN", "无权操作该支付订单", drogon::k403Forbidden);
+        }
+        if (order.get("provider", "").asString() != "wechat")
+        {
+            throw common::AppException(
+                "PAYMENT_PROVIDER_MISMATCH",
+                "只有微信支付订单可以使用微信模拟收款",
+                drogon::k422UnprocessableEntity);
+        }
+        const auto status = order.get("status", "pending").asString();
+        if (status == "paid") return order;
+        if (status != "pending")
+        {
+            throw common::AppException(
+                "PAYMENT_ORDER_NOT_PAYABLE",
+                "当前订单状态不可支付",
+                drogon::k409Conflict);
+        }
+
+        Json::Value providerEvent(Json::objectValue);
+        providerEvent["event_id"] = "mock_wechat_paid:" + orderId;
+        providerEvent["order_id"] = orderId;
+        providerEvent["provider_payment_id"] = "mock_wechat:" + orderId;
+        providerEvent["status"] = "paid";
+        providerEvent["mock"] = true;
+        const auto paid = markOrderPaidUnlocked(
+            orders,
+            ledger,
+            orderId,
+            providerEvent["provider_payment_id"].asString(),
+            providerEvent);
+        saveOrders(orders);
+        saveLedger(ledger);
+        return paid;
+    }
+    throw common::AppException("PAYMENT_ORDER_NOT_FOUND", "Payment order not found", drogon::k404NotFound);
 }
 
 Json::Value PaymentService::getOrder(const std::string &userId, const Json::Value &roles, const std::string &orderId) const
@@ -780,6 +1055,33 @@ Json::Value PaymentService::getOrder(const std::string &userId, const Json::Valu
         throw common::AppException("FORBIDDEN", "You do not have access to this payment order", drogon::k403Forbidden);
     }
     return order;
+}
+
+Json::Value PaymentService::listUserOrders(const std::string &userId,
+                                           int fromYear,
+                                           int toYear) const
+{
+    std::scoped_lock lock(mutex_);
+    const auto now = common::nowIso8601();
+    const auto currentYear = now.size() >= 4 ? std::stoi(now.substr(0, 4)) : 1970;
+    const auto effectiveToYear = toYear >= 1970 && toYear <= currentYear ? toYear : currentYear;
+    const auto effectiveFromYear = fromYear >= 1970 && fromYear <= effectiveToYear
+                                       ? fromYear
+                                       : effectiveToYear - 3;
+    const auto rangeStart = std::to_string(effectiveFromYear) + "-01-01";
+    const auto rangeEnd = std::to_string(effectiveToYear + 1) + "-01-01";
+    Json::Value out(Json::arrayValue);
+    for (const auto &order : loadOrders())
+    {
+        const auto createdAt = order.get("created_at", "").asString();
+        if (order.get("user_id", "").asString() == userId &&
+            order.get("scope_type", "user").asString() != "organization" &&
+            createdAt >= rangeStart && createdAt < rangeEnd)
+        {
+            out.append(order);
+        }
+    }
+    return out;
 }
 
 Json::Value PaymentService::listLedger(const std::string &userId, const Json::Value &roles, const std::string &targetUserId) const
@@ -1201,12 +1503,15 @@ Json::Value PaymentService::updatePricingConfig(const Json::Value &payload)
 
 Json::Value PaymentService::quote(const std::string &actorId,
                                   const Json::Value &roles,
-                                  const Json::Value &payload) const
+                                  const Json::Value &payload,
+                                  bool organizationAccessAuthorized) const
 {
     const auto scopeType = payload.get("scope_type", "personal").asString() == "organization"
                                ? std::string("organization")
                                : std::string("personal");
-    if (scopeType == "organization" && !hasAnyRole(roles, {"superAdmin"}))
+    if (scopeType == "organization" &&
+        !organizationAccessAuthorized &&
+        !hasAnyRole(roles, {"superAdmin"}))
     {
         throw common::AppException("FORBIDDEN", "需要超级管理员权限", drogon::k403Forbidden);
     }
@@ -1228,13 +1533,15 @@ Json::Value PaymentService::quote(const std::string &actorId,
             "Paid quote requires pro or ultra plan",
             drogon::k422UnprocessableEntity);
     }
+    const auto pricing = loadPricingConfig();
+    requirePlanEnabled(pricing, scopeType, plan);
     const auto requestedDays = payload.get("days", 30).asInt();
     const auto days = scopeType == "organization" ? requestedDays : normalizeDays(requestedDays);
-    if (scopeType == "organization" && days != 30 && days != 365)
+    if (scopeType == "organization" && !isSupportedOrganizationDuration(days))
     {
         throw common::AppException(
             "PAYMENT_DURATION_INVALID",
-            "机构套餐仅支持 30 天月付或 365 天年付",
+            "机构 PRO 支持 30、90 或 365 天，其他套餐支持 30 或 365 天",
             drogon::k422UnprocessableEntity);
     }
     const auto currency = normalizeCurrency(payload.get("currency", "cny").asString());
@@ -1248,14 +1555,15 @@ Json::Value PaymentService::quote(const std::string &actorId,
         {
             throw common::AppException(
                 "PAYMENT_MINIMUM_SEATS",
-                plan == "ultra" ? "机构 ULTRA 最低购买 30 席" : "机构 PRO 最低购买 20 席",
+                "该机构套餐最低购买 " + std::to_string(minimumSeats) + " 席",
                 drogon::k422UnprocessableEntity);
         }
-        if (seats >= customQuoteMinimumSeats())
+        const auto customQuoteSeats = customQuoteMinimumSeats();
+        if (customQuoteSeats > 0 && seats >= customQuoteSeats)
         {
             throw common::AppException(
                 "PAYMENT_CUSTOM_QUOTE_REQUIRED",
-                "200 席及以上需要联系企业销售获取定制报价",
+                std::to_string(customQuoteSeats) + " 席及以上需要联系平台获取定制报价",
                 drogon::k422UnprocessableEntity);
         }
     }
@@ -1264,7 +1572,7 @@ Json::Value PaymentService::quote(const std::string &actorId,
                                   : subscriptionService_.subscriptionForUser(actorId);
     std::scoped_lock lock(mutex_);
     const auto result = buildPriceQuote(
-        loadPricingConfig(), loadOrders(), subscription, scopeType, scopeId, plan, days, currency, seats);
+        pricing, loadOrders(), subscription, scopeType, scopeId, plan, days, currency, seats);
     if (result.get("amount_cents", 0).asInt64() <= 0 ||
         result.get("amount_cents", 0).asInt64() > 999999999LL)
     {
@@ -1364,19 +1672,20 @@ Json::Value PaymentService::getAutoRenewal(const std::string &actorId,
         if (normalizedScope == "organization")
         {
             const auto minimumSeats = pricing["catalogs"]["organization"]["plans"][plan]
-                                          .get("minimum_seats", plan == "ultra" ? 30 : 20)
+                                          .get("minimum_seats", plan == "ultra" ? 30 : 1)
                                           .asInt();
             const auto customQuoteMinSeats = pricing["catalogs"]["organization"]
-                                                 .get("custom_quote_min_seats", 200)
+                                                 .get("custom_quote_min_seats", 0)
                                                  .asInt();
-            canQuote = seats >= minimumSeats && seats < customQuoteMinSeats;
+            const bool requiresCustomQuote = customQuoteMinSeats > 0 && seats >= customQuoteMinSeats;
+            canQuote = seats >= minimumSeats && !requiresCustomQuote;
             if (!canQuote)
             {
                 Json::Value notice(Json::objectValue);
                 notice["type"] = "renewal_review_required";
                 notice["level"] = "warning";
-                notice["title"] = seats >= customQuoteMinSeats ? "下期续费需要企业定制报价" : "当前席位不满足套餐续费门槛";
-                notice["message"] = seats >= customQuoteMinSeats
+                notice["title"] = requiresCustomQuote ? "下期续费需要机构定制报价" : "当前席位不满足套餐续费门槛";
+                notice["message"] = requiresCustomQuote
                                         ? "当前席位已达到定制报价门槛，请在到期前联系平台确认下期合同。"
                                         : "请先调整机构席位或套餐，再重新确认自动续费授权。";
                 renewal["notices"].append(notice);
@@ -1487,14 +1796,15 @@ Json::Value PaymentService::updateAutoRenewal(const std::string &actorId,
         {
             const auto pricing = loadPricingConfig();
             const auto plan = normalizePlan(subscription.get("plan", "free").asString());
+            requirePlanEnabled(pricing, normalizedScope, plan);
             const auto days = normalizedScope == "organization"
                                   ? payload.get("days", 365).asInt()
                                   : normalizeDays(payload.get("days", 365).asInt());
-            if (normalizedScope == "organization" && days != 30 && days != 365)
+            if (normalizedScope == "organization" && !isSupportedOrganizationDuration(days))
             {
                 throw common::AppException(
                     "PAYMENT_DURATION_INVALID",
-                    "机构套餐仅支持 30 天月付或 365 天年付",
+                    "机构 PRO 支持 30、90 或 365 天，其他套餐支持 30 或 365 天",
                     drogon::k422UnprocessableEntity);
             }
             const auto seats = normalizedScope == "organization"
@@ -1503,10 +1813,10 @@ Json::Value PaymentService::updateAutoRenewal(const std::string &actorId,
             if (normalizedScope == "organization")
             {
                 const auto minimumSeats = pricing["catalogs"]["organization"]["plans"][plan]
-                                              .get("minimum_seats", plan == "ultra" ? 30 : 20)
+                                              .get("minimum_seats", plan == "ultra" ? 30 : 1)
                                               .asInt();
                 const auto customQuoteMinSeats = pricing["catalogs"]["organization"]
-                                                     .get("custom_quote_min_seats", 200)
+                                                     .get("custom_quote_min_seats", 0)
                                                      .asInt();
                 if (seats < minimumSeats)
                 {
@@ -1515,7 +1825,7 @@ Json::Value PaymentService::updateAutoRenewal(const std::string &actorId,
                         "当前机构席位数低于该套餐的最低购买席位",
                         drogon::k422UnprocessableEntity);
                 }
-                if (seats >= customQuoteMinSeats)
+                if (customQuoteMinSeats > 0 && seats >= customQuoteMinSeats)
                 {
                     throw common::AppException(
                         "PAYMENT_CUSTOM_QUOTE_REQUIRED",
@@ -2575,6 +2885,86 @@ Json::Value PaymentService::markOrderPaidUnlocked(Json::Value &orders,
         order["provider_event"] = providerEvent;
         order["previous_subscription"] = currentEntitlementForOrder(order);
         order["subscription"] = grantEntitlementForOrder(order);
+        const auto scopeType = order.get("scope_type", "user").asString();
+        const auto &metadata = order["metadata"];
+        if (scopeType != "organization" && metadata.isObject() && metadata.isMember("auto_renewal"))
+        {
+            const auto userId = order.get("user_id", "").asString();
+            const auto renewalKey = "personal:" + userId;
+            auto renewal = sqliteStore_.get("payment_auto_renewals", renewalKey);
+            if (renewal.isNull())
+            {
+                renewal = Json::Value(Json::objectValue);
+                renewal["id"] = renewalKey;
+                renewal["created_at"] = order.get("paid_at", nowIso());
+                renewal["provider_mandate_id"] = "";
+            }
+            const auto enabled = metadata.get("auto_renewal", false).asBool();
+            const auto provider = order.get("provider", "wechat").asString();
+            const auto existingProvider = renewal.get("provider", provider).asString();
+            if (existingProvider != provider)
+            {
+                renewal["provider_mandate_id"] = "";
+            }
+            const auto mandateId = renewal.get("provider_mandate_id", "").asString();
+            renewal["scope_type"] = "personal";
+            renewal["scope_id"] = userId;
+            renewal["actor_id"] = userId;
+            renewal["enabled"] = enabled;
+            renewal["status"] = enabled
+                                    ? (mandateId.empty() ? "pending_provider_authorization" : "active")
+                                    : "disabled";
+            renewal["plan"] = order.get("plan", "pro");
+            renewal["days"] = order.get("days", 365);
+            renewal["seats"] = 1;
+            renewal["provider"] = provider;
+            renewal["currency"] = order.get("currency", "cny");
+            renewal["notify_in_app"] = true;
+            renewal["notify_email"] = metadata.get("notify_email", true).asBool();
+            renewal["price_snapshot_cents"] = order.get("amount_cents", 0);
+            renewal["unit_price_snapshot_cents"] = order.get("amount_cents", 0);
+            renewal["next_charge_at"] = order["subscription"].get("expires_at", "");
+            renewal["updated_at"] = order.get("paid_at", nowIso());
+            if (enabled)
+            {
+                renewal["consent_at"] = order.get("paid_at", nowIso());
+                renewal.removeMember("disabled_at");
+            }
+            else
+            {
+                renewal["disabled_at"] = order.get("paid_at", nowIso());
+            }
+            sqliteStore_.upsert("payment_auto_renewals", renewalKey, renewal);
+            order["auto_renewal"]["enabled"] = enabled;
+            order["auto_renewal"]["status"] = renewal["status"];
+            order["auto_renewal"]["notify_email"] = renewal["notify_email"];
+        }
+        if (order.get("scope_type", "user").asString() != "organization" &&
+            order.get("plan", "").asString() == "pro")
+        {
+            const auto referralRule = activeReferralRewardRule(loadPricingConfig());
+            if (!referralRule.isNull())
+            {
+                order["referral_reward"] = subscriptionService_.settlePaidReferralReward(
+                    order.get("user_id", "").asString(),
+                    orderId,
+                    order.get("amount_cents", 0).asInt(),
+                    referralRule.get("reward_percent", 20).asInt(),
+                    referralRule.get("maximum_reward_cents", 2000).asInt(),
+                    order.get("currency", "cny").asString());
+                if (order["referral_reward"].get("awarded", false).asBool())
+                {
+                    appendLedgerEntry(
+                        ledger,
+                        order["referral_reward"].get("recipient_user_id", "").asString(),
+                        orderId,
+                        "referral.reward.granted",
+                        order["referral_reward"].get("amount_cents", 0).asInt(),
+                        order.get("currency", "cny").asString(),
+                        "邀请好友首次购买 PRO，学习金已到账");
+                }
+            }
+        }
         appendLedgerEntry(
             ledger,
             order.get("user_id", "").asString(),
@@ -2658,7 +3048,26 @@ void PaymentService::settleSuccessfulRefundUnlocked(Json::Value &orders,
             refund["entitlement_reversal"] = restoreEntitlementForOrder(order, order["previous_subscription"]);
             refund["entitlement_reversal_status"] = "succeeded";
             appendLedgerEntry(ledger, refund.get("user_id", "").asString(), orderId, "subscription.reversed", 0,
-                              refund.get("currency", "cny").asString(), "退款后权益已回收");
+                               refund.get("currency", "cny").asString(), "退款后权益已回收");
+            if (order["referral_reward"].get("awarded", false).asBool() &&
+                !order["referral_reward"].get("reversed", false).asBool())
+            {
+                const auto reversed = subscriptionService_.reversePaidReferralReward(
+                    order.get("user_id", "").asString(), orderId, order["referral_reward"]);
+                order["referral_reward"]["reversed"] = reversed;
+                order["referral_reward"]["reversed_at"] = reversed ? nowIso() : "";
+                if (reversed)
+                {
+                    appendLedgerEntry(
+                        ledger,
+                        order["referral_reward"].get("recipient_user_id", "").asString(),
+                        orderId,
+                        "referral.reward.reversed",
+                        -order["referral_reward"].get("amount_cents", 0).asInt(),
+                        order.get("currency", "cny").asString(),
+                        "受邀订单已退款，邀请学习金已撤回");
+                }
+            }
         }
         else
         {
@@ -2898,13 +3307,13 @@ int PaymentService::minimumOrganizationSeats(const std::string &plan) const
 {
     const auto pricing = loadPricingConfig();
     return pricing["catalogs"]["organization"]["plans"][plan].get(
-        "minimum_seats", plan == "ultra" ? 30 : 20).asInt();
+        "minimum_seats", plan == "ultra" ? 30 : 1).asInt();
 }
 
 int PaymentService::customQuoteMinimumSeats() const
 {
     const auto pricing = loadPricingConfig();
-    return pricing["catalogs"]["organization"].get("custom_quote_min_seats", 200).asInt();
+    return pricing["catalogs"]["organization"].get("custom_quote_min_seats", 0).asInt();
 }
 
 std::string PaymentService::makeId(const std::string &prefix)
@@ -3202,6 +3611,8 @@ Json::Value PaymentService::buildWechatNativePayOrder(const Json::Value &order)
     {
         provider["configured"] = false;
         provider["message"] = "WeChat Pay is not configured. Set WECHAT_PAY_APP_ID, WECHAT_PAY_MCH_ID, WECHAT_PAY_CERT_SERIAL_NO, and WECHAT_PAY_PRIVATE_KEY_PATH.";
+        provider["mock_available"] = !isProductionPaymentPolicyEnabled();
+        if (provider["mock_available"].asBool()) provider["method"] = "mock_native";
         return provider;
     }
 

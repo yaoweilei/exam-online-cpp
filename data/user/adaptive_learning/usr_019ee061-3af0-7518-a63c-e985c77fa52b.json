@@ -1,0 +1,3570 @@
+{
+  "domains" : 
+  {
+    "grammar" : 
+    {
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "31"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "32"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "33"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "34"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "43"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "44"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "45"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "48"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "49"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "50"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 4,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 40.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 10,
+        "recent_accuracy" : 20.0,
+        "retention_score" : null,
+        "score" : 32.5
+      }
+    },
+    "listening" : 
+    {
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 2,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 20.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 10,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 12.5
+      }
+    },
+    "reading" : 
+    {
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "57"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "58"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "65"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "66"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "67"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "68"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "70"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "71"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "52"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "53"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 10.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 10,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 6.2999999999999998
+      }
+    },
+    "vocabulary" : 
+    {
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "6"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "7"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "11"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "14"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "15"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "21"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "26"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "27"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-25T00:13:27.506Z",
+          "correct" : false,
+          "day" : "2026-09-25",
+          "exam_id" : "N2_2016_07",
+          "exam_target" : "JLPT N2",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 7,
+        "evidence" : "initial",
+        "historical_accuracy" : 63.600000000000001,
+        "learning_days" : 2,
+        "material_count" : 2,
+        "observation_count" : 11,
+        "recent_accuracy" : 40.0,
+        "retention_score" : 0.0,
+        "score" : 43.799999999999997
+      }
+    }
+  },
+  "knowledge" : 
+  {
+    "grammar.discourse" : 
+    {
+      "domain" : "grammar",
+      "id" : "grammar.discourse",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "48"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "49"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "50"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 33.299999999999997,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 3,
+        "recent_accuracy" : 33.299999999999997,
+        "retention_score" : null,
+        "score" : 33.299999999999997
+      },
+      "title" : "grammar.discourse"
+    },
+    "grammar.form" : 
+    {
+      "domain" : "grammar",
+      "id" : "grammar.form",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "31"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "32"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "33"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "34"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 2,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 50.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 4,
+        "recent_accuracy" : 50.0,
+        "retention_score" : null,
+        "score" : 50.0
+      },
+      "title" : "grammar.form"
+    },
+    "grammar.pattern" : 
+    {
+      "domain" : "grammar",
+      "id" : "grammar.pattern",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "31"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "32"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "33"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "34"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 2,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 50.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 4,
+        "recent_accuracy" : 50.0,
+        "retention_score" : null,
+        "score" : 50.0
+      },
+      "title" : "grammar.pattern"
+    },
+    "grammar.sentence.completion" : 
+    {
+      "domain" : "grammar",
+      "id" : "grammar.sentence.completion",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "43"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "44"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "45"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 33.299999999999997,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 3,
+        "recent_accuracy" : 33.299999999999997,
+        "retention_score" : null,
+        "score" : 33.299999999999997
+      },
+      "title" : "grammar.sentence.completion"
+    },
+    "grammar.word_order" : 
+    {
+      "domain" : "grammar",
+      "id" : "grammar.word_order",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "43"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "44"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "45"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 33.299999999999997,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 3,
+        "recent_accuracy" : 33.299999999999997,
+        "retention_score" : null,
+        "score" : 33.299999999999997
+      },
+      "title" : "grammar.word_order"
+    },
+    "listening.detail" : 
+    {
+      "domain" : "listening",
+      "id" : "listening.detail",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 25.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 4,
+        "recent_accuracy" : 25.0,
+        "retention_score" : null,
+        "score" : 25.0
+      },
+      "title" : "listening.detail"
+    },
+    "listening.integrated" : 
+    {
+      "domain" : "listening",
+      "id" : "listening.integrated",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "listening.integrated"
+    },
+    "listening.intent" : 
+    {
+      "domain" : "listening",
+      "id" : "listening.intent",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "listening.intent"
+    },
+    "listening.main_idea" : 
+    {
+      "domain" : "listening",
+      "id" : "listening.main_idea",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "listening.main_idea"
+    },
+    "listening.response" : 
+    {
+      "domain" : "listening",
+      "id" : "listening.response",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "listening.response"
+    },
+    "listening.task" : 
+    {
+      "domain" : "listening",
+      "id" : "listening.task",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 50.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 50.0,
+        "retention_score" : null,
+        "score" : 50.0
+      },
+      "title" : "listening.task"
+    },
+    "reading.claim" : 
+    {
+      "domain" : "reading",
+      "id" : "reading.claim",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "57"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "58"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "65"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "66"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "67"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "68"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "52"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 14.300000000000001,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 7,
+        "recent_accuracy" : 20.0,
+        "retention_score" : null,
+        "score" : 16.399999999999999
+      },
+      "title" : "reading.claim"
+    },
+    "reading.detail.locate" : 
+    {
+      "domain" : "reading",
+      "id" : "reading.detail.locate",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "57"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "58"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "65"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "66"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "67"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "68"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "70"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "71"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "52"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "53"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 10.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 10,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 6.2999999999999998
+      },
+      "title" : "reading.detail.locate"
+    },
+    "reading.inference" : 
+    {
+      "domain" : "reading",
+      "id" : "reading.inference",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "57"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "58"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "65"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "67"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "68"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "53"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 6,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "reading.inference"
+    },
+    "reading.inference.intent" : 
+    {
+      "domain" : "reading",
+      "id" : "reading.inference.intent",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "67"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "68"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "reading.inference.intent"
+    },
+    "reading.information_retrieval" : 
+    {
+      "domain" : "reading",
+      "id" : "reading.information_retrieval",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "67"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "68"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "70"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "71"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 4,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "reading.information_retrieval"
+    },
+    "reading.integrated" : 
+    {
+      "domain" : "reading",
+      "id" : "reading.integrated",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "65"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "66"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 50.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 50.0,
+        "retention_score" : null,
+        "score" : 50.0
+      },
+      "title" : "reading.integrated"
+    },
+    "reading.structure" : 
+    {
+      "domain" : "reading",
+      "id" : "reading.structure",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "65"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "66"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 50.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 50.0,
+        "retention_score" : null,
+        "score" : 50.0
+      },
+      "title" : "reading.structure"
+    },
+    "vocab.context" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.context",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "14"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "15"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 2,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "vocab.context"
+    },
+    "vocab.kanji.reading" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.kanji.reading",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-25T00:13:27.506Z",
+          "correct" : false,
+          "day" : "2026-09-25",
+          "exam_id" : "N2_2016_07",
+          "exam_target" : "JLPT N2",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "initial",
+        "historical_accuracy" : 33.299999999999997,
+        "learning_days" : 2,
+        "material_count" : 2,
+        "observation_count" : 3,
+        "recent_accuracy" : 33.299999999999997,
+        "retention_score" : 0.0,
+        "score" : 26.699999999999999
+      },
+      "title" : "vocab.kanji.reading"
+    },
+    "vocab.kanji.writing" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.kanji.writing",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "6"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "7"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 2,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "vocab.kanji.writing"
+    },
+    "vocab.synonym" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.synonym",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "21"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "vocab.synonym"
+    },
+    "vocab.word.usage" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word.usage",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "26"
+        },
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "27"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 2,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "vocab.word.usage"
+    },
+    "vocab.word:う" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:う",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "7"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "う"
+    },
+    "vocab.word:けいこ" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:けいこ",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "7"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "けいこ"
+    },
+    "vocab.word:しめっている" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:しめっている",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "6"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "しめっている"
+    },
+    "vocab.word:妙な" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:妙な",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "21"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "妙な"
+    },
+    "vocab.word:才能" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:才能",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "1"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "才能"
+    },
+    "vocab.word:潰して" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:潰して",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "26"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "潰して"
+    },
+    "vocab.word:競って" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:競って",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-25T00:13:27.506Z",
+          "correct" : false,
+          "day" : "2026-09-25",
+          "exam_id" : "N2_2016_07",
+          "exam_target" : "JLPT N2",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "競って"
+    },
+    "vocab.word:粗末" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:粗末",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : false,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "27"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 0,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 0.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 0.0,
+        "retention_score" : null,
+        "score" : 0.0
+      },
+      "title" : "粗末"
+    },
+    "vocab.word:辛い" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word:辛い",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "2"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "辛い"
+    },
+    "vocab.word_formation" : 
+    {
+      "domain" : "vocabulary",
+      "id" : "vocab.word_formation",
+      "observations" : 
+      [
+        {
+          "answered" : true,
+          "at" : "2026-09-20T13:39:54.025Z",
+          "correct" : true,
+          "day" : "2026-09-20",
+          "exam_id" : "N2_DIAGNOSTIC_V1",
+          "question_id" : "11"
+        }
+      ],
+      "summary" : 
+      {
+        "correct_count" : 1,
+        "evidence" : "insufficient",
+        "historical_accuracy" : 100.0,
+        "learning_days" : 1,
+        "material_count" : 1,
+        "observation_count" : 1,
+        "recent_accuracy" : 100.0,
+        "retention_score" : null,
+        "score" : 60.0
+      },
+      "title" : "vocab.word_formation"
+    }
+  },
+  "model_version" : "mastery-v0.2",
+  "tracks" : 
+  {
+    "JLPT N1" : 
+    {
+      "domains" : {},
+      "exam_target" : "JLPT N1",
+      "knowledge" : {},
+      "model_version" : "mastery-v0.2",
+      "updated_at" : "2026-09-23T23:50:39.094Z"
+    },
+    "JLPT N2" : 
+    {
+      "domains" : 
+      {
+        "grammar" : 
+        {
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "31"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "32"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "33"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "34"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "43"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "44"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "45"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "48"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "49"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "50"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 4,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 40.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 10,
+            "recent_accuracy" : 20.0,
+            "retention_score" : null,
+            "score" : 32.5
+          }
+        },
+        "listening" : 
+        {
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 2,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 20.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 10,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 12.5
+          }
+        },
+        "reading" : 
+        {
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "57"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "58"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "65"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "66"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "67"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "68"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "70"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "71"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "52"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "53"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 10.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 10,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 6.2999999999999998
+          }
+        },
+        "vocabulary" : 
+        {
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "6"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "7"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "11"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "14"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "15"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "21"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "26"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "27"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-25T00:13:27.506Z",
+              "correct" : false,
+              "day" : "2026-09-25",
+              "exam_id" : "N2_2016_07",
+              "exam_target" : "JLPT N2",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 7,
+            "evidence" : "initial",
+            "historical_accuracy" : 63.600000000000001,
+            "learning_days" : 2,
+            "material_count" : 2,
+            "observation_count" : 11,
+            "recent_accuracy" : 40.0,
+            "retention_score" : 0.0,
+            "score" : 43.799999999999997
+          }
+        }
+      },
+      "exam_target" : "JLPT N2",
+      "knowledge" : 
+      {
+        "grammar.discourse" : 
+        {
+          "domain" : "grammar",
+          "id" : "grammar.discourse",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "48"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "49"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "50"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 33.299999999999997,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 3,
+            "recent_accuracy" : 33.299999999999997,
+            "retention_score" : null,
+            "score" : 33.299999999999997
+          },
+          "title" : "grammar.discourse"
+        },
+        "grammar.form" : 
+        {
+          "domain" : "grammar",
+          "id" : "grammar.form",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "31"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "32"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "33"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "34"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 2,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 50.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 4,
+            "recent_accuracy" : 50.0,
+            "retention_score" : null,
+            "score" : 50.0
+          },
+          "title" : "grammar.form"
+        },
+        "grammar.pattern" : 
+        {
+          "domain" : "grammar",
+          "id" : "grammar.pattern",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "31"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "32"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "33"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "34"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 2,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 50.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 4,
+            "recent_accuracy" : 50.0,
+            "retention_score" : null,
+            "score" : 50.0
+          },
+          "title" : "grammar.pattern"
+        },
+        "grammar.sentence.completion" : 
+        {
+          "domain" : "grammar",
+          "id" : "grammar.sentence.completion",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "43"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "44"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "45"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 33.299999999999997,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 3,
+            "recent_accuracy" : 33.299999999999997,
+            "retention_score" : null,
+            "score" : 33.299999999999997
+          },
+          "title" : "grammar.sentence.completion"
+        },
+        "grammar.word_order" : 
+        {
+          "domain" : "grammar",
+          "id" : "grammar.word_order",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "43"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "44"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "45"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 33.299999999999997,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 3,
+            "recent_accuracy" : 33.299999999999997,
+            "retention_score" : null,
+            "score" : 33.299999999999997
+          },
+          "title" : "grammar.word_order"
+        },
+        "listening.detail" : 
+        {
+          "domain" : "listening",
+          "id" : "listening.detail",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 25.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 4,
+            "recent_accuracy" : 25.0,
+            "retention_score" : null,
+            "score" : 25.0
+          },
+          "title" : "listening.detail"
+        },
+        "listening.integrated" : 
+        {
+          "domain" : "listening",
+          "id" : "listening.integrated",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "listening.integrated"
+        },
+        "listening.intent" : 
+        {
+          "domain" : "listening",
+          "id" : "listening.intent",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "listening.intent"
+        },
+        "listening.main_idea" : 
+        {
+          "domain" : "listening",
+          "id" : "listening.main_idea",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "listening.main_idea"
+        },
+        "listening.response" : 
+        {
+          "domain" : "listening",
+          "id" : "listening.response",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "listening.response"
+        },
+        "listening.task" : 
+        {
+          "domain" : "listening",
+          "id" : "listening.task",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 50.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 50.0,
+            "retention_score" : null,
+            "score" : 50.0
+          },
+          "title" : "listening.task"
+        },
+        "reading.claim" : 
+        {
+          "domain" : "reading",
+          "id" : "reading.claim",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "57"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "58"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "65"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "66"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "67"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "68"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "52"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 14.300000000000001,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 7,
+            "recent_accuracy" : 20.0,
+            "retention_score" : null,
+            "score" : 16.399999999999999
+          },
+          "title" : "reading.claim"
+        },
+        "reading.detail.locate" : 
+        {
+          "domain" : "reading",
+          "id" : "reading.detail.locate",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "57"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "58"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "65"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "66"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "67"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "68"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "70"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "71"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "52"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "53"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 10.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 10,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 6.2999999999999998
+          },
+          "title" : "reading.detail.locate"
+        },
+        "reading.inference" : 
+        {
+          "domain" : "reading",
+          "id" : "reading.inference",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "57"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "58"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "65"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "67"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "68"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "53"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 6,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "reading.inference"
+        },
+        "reading.inference.intent" : 
+        {
+          "domain" : "reading",
+          "id" : "reading.inference.intent",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "67"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "68"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "reading.inference.intent"
+        },
+        "reading.information_retrieval" : 
+        {
+          "domain" : "reading",
+          "id" : "reading.information_retrieval",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "67"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "68"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "70"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "71"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 4,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "reading.information_retrieval"
+        },
+        "reading.integrated" : 
+        {
+          "domain" : "reading",
+          "id" : "reading.integrated",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "65"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "66"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 50.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 50.0,
+            "retention_score" : null,
+            "score" : 50.0
+          },
+          "title" : "reading.integrated"
+        },
+        "reading.structure" : 
+        {
+          "domain" : "reading",
+          "id" : "reading.structure",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "65"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "66"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 50.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 50.0,
+            "retention_score" : null,
+            "score" : 50.0
+          },
+          "title" : "reading.structure"
+        },
+        "vocab.context" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.context",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "14"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "15"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 2,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "vocab.context"
+        },
+        "vocab.kanji.reading" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.kanji.reading",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-25T00:13:27.506Z",
+              "correct" : false,
+              "day" : "2026-09-25",
+              "exam_id" : "N2_2016_07",
+              "exam_target" : "JLPT N2",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "initial",
+            "historical_accuracy" : 33.299999999999997,
+            "learning_days" : 2,
+            "material_count" : 2,
+            "observation_count" : 3,
+            "recent_accuracy" : 33.299999999999997,
+            "retention_score" : 0.0,
+            "score" : 26.699999999999999
+          },
+          "title" : "vocab.kanji.reading"
+        },
+        "vocab.kanji.writing" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.kanji.writing",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "6"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "7"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 2,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "vocab.kanji.writing"
+        },
+        "vocab.synonym" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.synonym",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "21"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "vocab.synonym"
+        },
+        "vocab.word.usage" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word.usage",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "26"
+            },
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "27"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 2,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "vocab.word.usage"
+        },
+        "vocab.word:う" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:う",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "7"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "う"
+        },
+        "vocab.word:けいこ" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:けいこ",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "7"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "けいこ"
+        },
+        "vocab.word:しめっている" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:しめっている",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "6"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "しめっている"
+        },
+        "vocab.word:妙な" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:妙な",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "21"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "妙な"
+        },
+        "vocab.word:才能" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:才能",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "1"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "才能"
+        },
+        "vocab.word:潰して" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:潰して",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "26"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "潰して"
+        },
+        "vocab.word:競って" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:競って",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-25T00:13:27.506Z",
+              "correct" : false,
+              "day" : "2026-09-25",
+              "exam_id" : "N2_2016_07",
+              "exam_target" : "JLPT N2",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "競って"
+        },
+        "vocab.word:粗末" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:粗末",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : false,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "27"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 0,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 0.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 0.0,
+            "retention_score" : null,
+            "score" : 0.0
+          },
+          "title" : "粗末"
+        },
+        "vocab.word:辛い" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word:辛い",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "2"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "辛い"
+        },
+        "vocab.word_formation" : 
+        {
+          "domain" : "vocabulary",
+          "id" : "vocab.word_formation",
+          "observations" : 
+          [
+            {
+              "answered" : true,
+              "at" : "2026-09-20T13:39:54.025Z",
+              "correct" : true,
+              "day" : "2026-09-20",
+              "exam_id" : "N2_DIAGNOSTIC_V1",
+              "question_id" : "11"
+            }
+          ],
+          "summary" : 
+          {
+            "correct_count" : 1,
+            "evidence" : "insufficient",
+            "historical_accuracy" : 100.0,
+            "learning_days" : 1,
+            "material_count" : 1,
+            "observation_count" : 1,
+            "recent_accuracy" : 100.0,
+            "retention_score" : null,
+            "score" : 60.0
+          },
+          "title" : "vocab.word_formation"
+        }
+      },
+      "model_version" : "mastery-v0.2",
+      "updated_at" : "2026-09-25T00:13:27.506Z"
+    }
+  },
+  "updated_at" : "2026-09-25T00:13:27.506Z",
+  "user_id" : "usr_019ee061-3af0-7518-a63c-e985c77fa52b"
+}

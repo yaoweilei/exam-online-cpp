@@ -6,6 +6,32 @@ const {
 	uniqueLoginId
 } = require('./helpers/session');
 
+test('补充解析仅在开关开启时显示，关闭后保留基础解析', async ({ page }) => {
+	await page.goto('/', { waitUntil: 'domcontentloaded' });
+	await page.waitForFunction(() => Boolean(window.examViewer?.currentExam));
+	await page.evaluate(() => {
+		const viewer = window.examViewer;
+		viewer.examMode = 'practice';
+		viewer.currentExam.exam_info.sections = [{ section_title: '問題1', questions: [{
+			id: 1, question: '测试题目', options: ['一', '二'], correct_answer: 1,
+			explanation: '基础解析测试内容', explanation_expand: '补充解析测试内容'
+		}] }];
+		viewer.currentSectionIndex = 0;
+		viewer.currentQuestionIndex = 0;
+		viewer.showAnswers = true;
+		viewer.showExplanations = false;
+		viewer.questionRenderer.renderCurrentQuestion();
+	});
+	const content = page.locator('#current-question-container');
+	await expect(content).toContainText('基础解析测试内容');
+	await expect(content).not.toContainText('补充解析测试内容');
+	await clickLearningAssist(page, '#toggle-explanations');
+	await expect(content).toContainText('补充解析测试内容');
+	await clickLearningAssist(page, '#toggle-explanations');
+	await expect(content).not.toContainText('补充解析测试内容');
+	await expect(content).toContainText('基础解析测试内容');
+});
+
 async function loadEjuPaper(page, paperId = '2023_02') {
 	await page.goto('/', { waitUntil: 'domcontentloaded' });
 
@@ -96,6 +122,31 @@ test('手机端答题工具栏、题目和底部导航不产生横向溢出', as
 	expect(layout.questionInside).toBeTruthy();
 	expect(layout.navigationInside).toBeTruthy();
 	expect(layout.controlHeights.every((height) => height >= 40)).toBeTruthy();
+});
+
+test('快速连续下一题到整卷末题后进入检查与提交', async ({ page }) => {
+	await loadEjuPaper(page);
+	await page.evaluate(() => {
+		const viewer = window.examViewer;
+		for (let index = 0; index < 500; index += 1) {
+			if (!viewer.navigationManager.calculateNextPosition('next')) break;
+			viewer.navigateToNextQuestion();
+		}
+	});
+	const navigation = page.locator('#question-navigation');
+	await expect(navigation.locator('.question-counter')).toBeVisible();
+	await expect(navigation.locator('.next-btn')).toHaveText('完成练习');
+	await navigation.locator('.next-btn').click();
+	await expect(page.locator('#question-map-overlay')).toBeVisible();
+	await expect(page.locator('[data-question-map-status]')).toContainText('已答');
+	await expect(page.locator('[data-question-map-submit]')).toBeVisible();
+	await page.evaluate(() => {
+		window.__finalQuestionSubmitCount = 0;
+		window.examViewer.submitAnswers = () => { window.__finalQuestionSubmitCount += 1; };
+	});
+	await page.locator('[data-question-map-submit]').click();
+	await expect(page.locator('#question-map-overlay')).toBeHidden();
+	expect(await page.evaluate(() => window.__finalQuestionSubmitCount)).toBe(1);
 });
 
 test('试卷查看器可以通过 Web 选择 EJU 试卷并打开学习辅助面板', async ({ page }) => {
@@ -490,6 +541,31 @@ test('关键写接口拒绝越界请求体并返回真实每日一练', async ({
 	expect(daily.items[0].question_id).toBeTruthy();
 	expect(Array.isArray(daily.completed_question_ids)).toBeTruthy();
 
+	const targetPath = `/api/v1/me/daily-practice?count=50&minutes=20&target=${encodeURIComponent('JLPT N1')}`;
+	const targetResponse = await request.get(targetPath, { headers });
+	expect(targetResponse.ok()).toBeTruthy();
+	const targetPlan = (await targetResponse.json()).data;
+	expect(targetPlan.exam_target).toBe('JLPT N1');
+	expect(targetPlan.daily_minutes).toBe(20);
+	expect(targetPlan.planned_minutes).toBeLessThanOrEqual(20);
+	expect(targetPlan.items.length).toBeGreaterThan(0);
+	expect(targetPlan.items.every((item) => /N1/i.test(item.exam_id))).toBeTruthy();
+	const repeatedTargetPlan = (await (await request.get(targetPath, { headers })).json()).data;
+	expect(repeatedTargetPlan.items).toEqual(targetPlan.items);
+	const alternatePath = `/api/v1/me/daily-practice?count=50&minutes=20&target=${encodeURIComponent('JLPT N2')}`;
+	expect((await request.get(alternatePath, { headers })).ok()).toBeTruthy();
+	const restoredTargetPlan = (await (await request.get(targetPath, { headers })).json()).data;
+	expect(restoredTargetPlan.items).toEqual(targetPlan.items);
+	const materialCounts = new Map();
+	for (const item of targetPlan.items) {
+		if (!item.material_id || Number(item.material_question_count || 0) <= 1) continue;
+		materialCounts.set(item.material_id, (materialCounts.get(item.material_id) || 0) + 1);
+	}
+	for (const item of targetPlan.items) {
+		if (!item.material_id || Number(item.material_question_count || 0) <= 1) continue;
+		expect(materialCounts.get(item.material_id)).toBe(item.material_question_count);
+	}
+
 	const reset = await request.post(`/api/v1/wrong-questions/${encodeURIComponent(user.user_id)}/reset`, {
 		headers,
 		data: { confirmation: '清空错题本' }
@@ -630,6 +706,48 @@ test('练习模式自动保存且不显示统一交卷按钮', async ({ page }) 
 	await page.locator('#current-question-container .option').first().click();
 	await expect(page.locator('#answer-save-status')).toHaveText('已保存', { timeout: 10000 });
 	await expect(page.locator('#submit-exam')).toBeHidden();
+});
+
+test('每完成一题立即保存最新答案', async ({ page }) => {
+	await loadEjuPaper(page);
+	await selectViewerCategory(page, 'reading');
+	await page.evaluate(() => {
+		window.__draftSaveCalls = [];
+		window.examViewer.userId = 'student_immediate_save';
+		window.examViewer._currentExamId ||= '2023_02';
+		window.APIClient.saveDraft = async (_userId, payload) => {
+			window.__draftSaveCalls.push(payload);
+			return { revision: window.__draftSaveCalls.length };
+		};
+	});
+	await page.locator('#current-question-container .option').first().click();
+	await expect.poll(() => page.evaluate(() => window.__draftSaveCalls.length), { timeout: 1000 }).toBe(1);
+	const saved = await page.evaluate(() => window.__draftSaveCalls[0]);
+	expect(saved.answered_count).toBe(1);
+});
+
+test('快速答题后提交会等待最后一次草稿保存', async ({ page }) => {
+	await loadEjuPaper(page);
+	await selectViewerCategory(page, 'reading');
+	await page.evaluate(() => {
+		window.__submissionOrder = [];
+		window.examViewer.userId = 'student_fast_submit';
+		window.examViewer._currentExamId ||= '2023_02';
+		window.APIClient.saveDraft = async () => new Promise((resolve) => {
+			setTimeout(() => {
+				window.__submissionOrder.push('draft');
+				resolve({ revision: 1 });
+			}, 200);
+		});
+		window.APIClient.submitAnswers = async () => {
+			window.__submissionOrder.push('submit');
+			return { total_questions: 1, correct_count: 1, wrong_count: 0, unanswered_count: 0, score: 100, accuracy: 100, completion: 100, results: {} };
+		};
+		window.APIClient.clearDraft = async () => ({});
+	});
+	await page.locator('#current-question-container .option').first().click();
+	await page.evaluate(() => window.examViewer.answerManager.submitAnswers());
+	expect(await page.evaluate(() => window.__submissionOrder)).toEqual(['draft', 'submit']);
 });
 
 test('作答方式选择使用站内确认安全切换', async ({ page }) => {
@@ -908,10 +1026,11 @@ test('学习闭环支持单题收藏并在个人中心查看', async ({ page }) 
 	await expect(page.locator('#app-toast')).toContainText('已收藏当前题');
 
 	await page.locator('#user-menu-trigger, [aria-label*="打开账号菜单"]').first().click();
-	await page.getByRole('menuitem', { name: /^进入学习中心/ }).click();
+	await page.getByRole('menuitem', { name: /^进入学习工作台/ }).click();
 	const learningShell = page.locator('#platform-admin-shell');
 	await expect(learningShell).toBeVisible();
-	await learningShell.getByRole('button', { name: '收藏题', exact: true }).click();
+	await learningShell.getByRole('button', { name: '复习资料', exact: true }).click();
+	await learningShell.locator('.pc-lite-row').filter({ hasText: '收藏题' }).click();
 	await expect(learningShell.locator('.pc-platform-admin-content')).toContainText('收藏');
 	await expect(learningShell.locator('.pc-platform-admin-content')).toContainText('E2E 收藏原因');
 	await expect(learningShell.locator('.pc-platform-admin-content').getByRole('button', { name: '去做题' }).first()).toBeVisible();

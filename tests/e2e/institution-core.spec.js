@@ -141,7 +141,7 @@ async function prepareTeachingDemo(request) {
 
 async function openInstitutionWorkbench(page) {
   await page.locator('#user-menu-trigger').click();
-  await page.getByRole('menuitem', { name: /^进入机构管理/ }).click();
+  await page.getByRole('menuitem', { name: /^进入机构工作台/ }).click();
   await expect(page.locator('#platform-admin-shell')).toBeVisible();
   await page.locator('#platform-admin-shell').getByRole('button', { name: '机构看板', exact: true }).click();
   const workbench = page.locator('#pc-institution-workbench');
@@ -308,7 +308,7 @@ test('机构后台可以维护校区、学习组、课程包和学习组成员',
   await stubNoisyPersonalCenterApis(page);
   await loginWithPassword(page, adminLoginId);
   await page.locator('#user-menu-trigger').click();
-  await page.getByRole('menuitem', { name: /^进入机构管理/ }).click();
+  await page.getByRole('menuitem', { name: /^进入机构工作台/ }).click();
   await expect(page.locator('#platform-admin-shell')).toBeVisible();
   await page.locator('#platform-admin-shell').getByRole('button', { name: '成员管理', exact: true }).click();
   const memberOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
@@ -355,16 +355,19 @@ test('机构后台可以维护校区、学习组、课程包和学习组成员',
   await expect(page.locator('[data-org-learning-list-query]').first()).toHaveValue('EJU');
   await page.locator('[data-dashboard-back]').click();
 
-  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="机构设置"]').click();
+  await page.locator('.pc-role-workbench-card .pc-workbench-action[title="套餐与账单"]').click();
   const settingsOrganizationCard = page.locator('.pc-managed-org-card').filter({ hasText: orgName }).first();
   await expect(settingsOrganizationCard).toBeVisible({ timeout: 20000 });
   await settingsOrganizationCard.locator('summary').click();
-  await expect(page.locator('[data-org-campus-list-form]').first()).toBeVisible({ timeout: 20000 });
-  const subscriptionForm = page.locator('form[data-org-subscription-form]').first();
-  await subscriptionForm.locator('[data-org-seats]').fill('0');
+  const subscriptionForm = page.locator('form[data-org-self-service-order-form]').first();
+  await expect(subscriptionForm).toBeHidden({ timeout: 20000 });
+  await page.locator('[data-org-billing-purchase]').first().locator('summary').click();
+  await expect(subscriptionForm).toBeVisible();
+  await expect(page.locator('form[data-org-subscription-form]')).toHaveCount(0);
+  await subscriptionForm.locator('[data-org-payment-seats]').fill('0');
   await subscriptionForm.locator('button[type="submit"]').click();
-  await expect(subscriptionForm.locator('[data-org-seats]')).toHaveAttribute('aria-invalid', 'true');
-  await expect(subscriptionForm.locator('.pc-field-error')).toContainText('大于 0 的整数');
+  await expect(subscriptionForm.locator('[data-org-payment-seats]')).toHaveAttribute('aria-invalid', 'true');
+  await expect(subscriptionForm.locator('.pc-field-error')).toContainText('最低购买');
   await page.locator('[data-dashboard-back]').click();
 
   await page.locator('.pc-role-workbench-card .pc-workbench-action[title="课程包"]').click();

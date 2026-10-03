@@ -1,6 +1,8 @@
 #include <drogon/HttpAppFramework.h>
 
+#include "application/services/SubscriptionService.h"
 #include "application/services/StudyGoalService.h"
+#include "common/AppException.h"
 #include "transport/RouteUtils.h"
 #include "transport/routes/Routes.h"
 
@@ -40,6 +42,20 @@ void registerStudyGoalRoutes(const AppContext &ctx)
                 const auto session = requireSession(*ctx.authService, req);
                 const auto userId = session.get("user_id", session.get("id", "")).asString();
                 requireFeature(*ctx.featureFlagService, "study_goal", userId);
+                const auto subscription = ctx.subscriptionService
+                                              ? ctx.subscriptionService->currentSubscription(userId)
+                                              : Json::Value(Json::objectValue);
+                const auto effectivePlan = subscription.get(
+                    "effective_plan", subscription.get("plan", "free")).asString();
+                const auto currentGoals = ctx.studyGoalService->list(userId);
+                if (effectivePlan != "ultra" &&
+                    currentGoals.get("items", Json::Value(Json::arrayValue)).size() >= 2)
+                {
+                    throw common::AppException(
+                        "STUDY_GOAL_LIMIT_REACHED",
+                        "当前套餐最多可设置 2 个目标；请先删除一个目标或升级 ULTRA",
+                        drogon::k403Forbidden);
+                }
                 const auto body = parseJsonBody(req);
                 return common::ok(req, ctx.studyGoalService->create(userId, body));
             });

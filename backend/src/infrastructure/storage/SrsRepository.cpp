@@ -72,18 +72,22 @@ Json::Value SrsRepository::listDue(const std::string &userId, const std::string 
 {
     std::shared_lock lock(mutex_);
     auto doc = loadDoc(filePath(userId), userId);
-    Json::Value out(Json::arrayValue);
-    for (const auto &c : doc["cards"])
+    std::vector<Json::Value> dueCards;
+    for (const auto &card : doc["cards"])
     {
-        const auto due = c.get("due_at", "").asString();
-        // ISO8601 字符串可直接字典序比较
-        if (due.empty() || due <= nowIso)
+        const auto due = card.get("due_at", "").asString();
+        if (due.empty() || due <= nowIso) dueCards.push_back(card);
+    }
+    std::stable_sort(dueCards.begin(), dueCards.end(), [](const auto &left, const auto &right) {
+        return left.get("due_at", "").asString() < right.get("due_at", "").asString();
+    });
+    Json::Value out(Json::arrayValue);
+    for (const auto &card : dueCards)
+    {
+        out.append(card);
+        if (limit > 0 && static_cast<int>(out.size()) >= limit)
         {
-            out.append(c);
-            if (limit > 0 && static_cast<int>(out.size()) >= limit)
-            {
-                break;
-            }
+            break;
         }
     }
     return out;

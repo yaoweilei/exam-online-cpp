@@ -238,10 +238,31 @@ Json::Value RedeemService::findCode(const std::string &normalizedCode) const
 
 Json::Value RedeemService::buildWalletView(const std::string &userId, const Json::Value &profile) const
 {
-    Json::Value out(Json::objectValue);
-    Json::Value balance(Json::objectValue);
-    balance["credits"] = profile.get("credits", 0).asInt();
-    balance["updated_at"] = profile.get("credits_updated_at", "").asString();
+	Json::Value out(Json::objectValue);
+	Json::Value balance(Json::objectValue);
+	int earnedLearningCreditCents = 0;
+	const auto awards = profile.get("learning_credit_awards", Json::Value(Json::objectValue));
+	if (awards.isObject())
+	{
+		for (const auto &key : awards.getMemberNames())
+		{
+			const auto &award = awards[key];
+			if (award.get("status", "available").asString() != "revoked")
+			{
+				earnedLearningCreditCents += std::max(0, award.get("amount_cents", 0).asInt());
+			}
+		}
+	}
+	balance["credits"] = profile.get("credits", 0).asInt();
+	balance["learning_credit_cents"] = profile.get("learning_credit_cents", 0).asInt();
+	balance["learningCreditCents"] = balance["learning_credit_cents"].asInt();
+	balance["learning_credit_earned_cents"] = earnedLearningCreditCents;
+	balance["learningCreditEarnedCents"] = earnedLearningCreditCents;
+    balance["learning_credit_debt_cents"] = profile.get("learning_credit_debt_cents", 0).asInt();
+    balance["learningCreditDebtCents"] = balance["learning_credit_debt_cents"].asInt();
+    balance["updated_at"] = profile.get(
+        "learning_credit_updated_at",
+        profile.get("credits_updated_at", "")).asString();
     balance["updatedAt"] = balance["updated_at"].asString();
     out["balance"] = balance;
     out["subscription"] = subscriptionService_.currentSubscription(userId);

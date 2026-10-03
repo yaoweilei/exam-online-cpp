@@ -20,6 +20,8 @@ export class LoginModal {
 		this.api = api;
 		this.store = store;
 		this.modal = document.getElementById('login-modal')!;
+		// Keep the viewport overlay outside the viewer's layout and stacking context.
+		document.body.append(this.modal);
 		this.setupDevelopmentUsers();
 		this.bindEvents();
 		window.addEventListener('resize', () => this.updateLoginScale());

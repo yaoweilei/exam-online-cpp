@@ -58,7 +58,7 @@ class UserService
 
     static Json::Value buildBalance(const Json::Value &profile);
 
-    static Json::Value buildReferralView(const Json::Value &user);
+    Json::Value buildReferralView(const Json::Value &user) const;
 
     Json::Value resolveMembership(const std::string &userId, const Json::Value &user, const Json::Value &profile) const;
 

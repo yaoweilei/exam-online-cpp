@@ -81,7 +81,21 @@ def extract_session_audio(source_dir: Path, session: str) -> Path:
         raise FileNotFoundError(f"No audio files in {source_dir}")
     markers = [f"第{int(session)}回", f"{int(session)}回", "第一回" if session == "01" else "第二回"]
     matched = [path for path in files if any(marker in path.name for marker in markers)]
-    return matched[0] if matched else files[0]
+    if len(matched) == 1:
+        return matched[0]
+    if len(files) == 1:
+        return files[0]
+    raise ValueError(f"Ambiguous audio sources in {source_dir}; choose a session recording explicitly")
+
+
+def individual_track_sources(source_dir: Path) -> dict[int, Path]:
+    """Recognize the first 2021 session's numbered CD tracks."""
+    tracks: dict[int, Path] = {}
+    for source in source_dir.glob("*.wma"):
+        match = re.match(r"^(\d{2}) 曲目 \d+\.wma$", source.name)
+        if match:
+            tracks[int(match.group(1))] = source
+    return tracks if set(tracks) == set(range(1, 38)) else {}
 
 
 def align_question_spans(questions: list[dict[str, Any]], timed_chars: list[TimedChar]) -> list[tuple[dict[str, Any], float, float]]:
@@ -159,6 +173,23 @@ def split_exam_audio(exam_id: str, model_name: str) -> None:
     payload = json.loads(json_path.read_text(encoding="utf-8"))
     source_dir = ROOT / Path(payload["source_files"]["audio_dir"])
     session = str(payload["exam_info"]["session"])
+    individual_tracks = individual_track_sources(source_dir)
+    if individual_tracks:
+        out_dir = ROOT / "data" / "audio" / "eju" / exam_id
+        out_dir.mkdir(parents=True, exist_ok=True)
+        for number, source in sorted(individual_tracks.items()):
+            destination = out_dir / f"track_{number:02d}.mp3"
+            subprocess.run(
+                ["ffmpeg", "-y", "-loglevel", "error", "-i", str(source),
+                 "-codec:a", "libmp3lame", "-q:a", "4", str(destination)],
+                check=True,
+            )
+        for question in iter_audio_questions(payload):
+            track_no = question_track_index(question)
+            question["audio"] = f"/data/audio/eju/{exam_id}/track_{track_no:02d}.mp3"
+        json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"{exam_id}: converted 37 numbered source tracks")
+        return
     source_audio = extract_session_audio(source_dir, session)
 
     model = whisper.load_model(model_name)
@@ -168,6 +199,12 @@ def split_exam_audio(exam_id: str, model_name: str) -> None:
     timed_chars = build_timed_chars(result)
     questions = iter_audio_questions(payload)
     spans = align_question_spans(questions, timed_chars)
+    for question, start, end in spans:
+        if not 20 <= end - start <= 240:
+            raise ValueError(
+                f"Suspicious audio span for {exam_id} Q{question.get('eju_question_no')}: "
+                f"{start:.2f}-{end:.2f}; inspect the source audio before exporting"
+            )
 
     out_dir = ROOT / "data" / "audio" / "eju" / exam_id
     for question, start, end in spans:

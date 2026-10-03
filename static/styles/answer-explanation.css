@@ -57,7 +57,11 @@
 	background-color: var(--vscode-textBlockQuote-background);
 	border-left: 3px solid var(--vscode-textBlockQuote-border);
 	border-radius: 4px;
-	font-size: 14px;
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 1.75;
+	letter-spacing: 0;
+	color: var(--vscode-foreground, #24211f);
 	/* 保留用户输入的换行与多空格（合并超过 1 的空格但保留换行）*/
 	white-space: pre-wrap;
 	word-break: break-word;
@@ -67,9 +71,9 @@
 .answer,
 .answer-item,
 .correct-answer,
-.explanation,
-.explanation-text,
-.explanation .explain-label {
+.question .explanation,
+.question .explanation-text,
+.question .explanation .explain-label {
 	font-family: var(--font-zh);
 }
 

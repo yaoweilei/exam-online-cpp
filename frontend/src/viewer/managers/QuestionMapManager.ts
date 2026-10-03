@@ -34,7 +34,11 @@ interface QuestionMapExamViewer {
 	currentQuestionIndex: number;
 	userAnswers: Record<string, unknown>;
 	showAnswers: boolean;
+	examMode?: string;
+	practiceScope?: { label: string; sectionIndexes: number[] } | null;
+	finishPractice?: () => void;
 	getCategories: () => QuestionMapCategory[];
+	submitAnswers?: () => void;
 	audioManager: {
 		stopAllAudio: () => void;
 	};
@@ -368,6 +372,18 @@ class QuestionMapManager {
 		this.questionMapContent.id = 'question-map-content';
 		mapContent.appendChild(this.questionMapContent);
 
+		const footer = document.createElement('div');
+		footer.className = 'question-map-footer';
+		footer.innerHTML = `<span class="question-map-status" data-question-map-status></span><div class="question-map-actions"><button type="button" class="question-map-close" data-question-map-close-footer>继续检查</button><button type="button" class="question-map-submit" data-question-map-submit>提交试卷</button></div>`;
+		if (this.examViewer.examMode === 'practice' && this.examViewer.practiceScope) footer.querySelector('[data-question-map-submit]')!.textContent = '完成本次练习';
+		footer.querySelector<HTMLButtonElement>('[data-question-map-close-footer]')?.addEventListener('click', () => this.hideQuestionMap());
+		footer.querySelector<HTMLButtonElement>('[data-question-map-submit]')?.addEventListener('click', () => {
+			this.hideQuestionMap();
+			if (this.examViewer.examMode === 'practice' && this.examViewer.practiceScope) this.examViewer.finishPractice?.();
+			else this.examViewer.submitAnswers?.();
+		});
+		mapContent.appendChild(footer);
+
 		this.questionMapContainer.appendChild(mapContent);
 		this.questionMapContainer.addEventListener('click', (event) => {
 			if (event.target === this.questionMapContainer) {
@@ -392,7 +408,8 @@ class QuestionMapManager {
 		}
 
 		const sections = this.examViewer.currentExam.exam_info?.sections || [];
-		const categories = this.examViewer.getCategories();
+		const scope = this.examViewer.examMode === 'practice' ? this.examViewer.practiceScope : null;
+		const categories = this.examViewer.getCategories().map(category => scope ? { ...category, label: scope.label, sectionIndexes: category.sectionIndexes.filter(index => scope.sectionIndexes.includes(index)) } : category);
 
 		console.log('[QuestionMapManager] Rendering question map:', {
 			sectionsCount: sections.length,
@@ -405,6 +422,8 @@ class QuestionMapManager {
 		});
 
 		let html = '';
+		let totalQuestions = 0;
+		let answeredQuestions = 0;
 
 		categories.forEach((category) => {
 			if (category.sectionIndexes.length === 0) {
@@ -435,6 +454,7 @@ class QuestionMapManager {
 					<div class="question-map-section-questions">`;
 
 				section.questions.forEach((question, questionIndex) => {
+					totalQuestions += 1;
 					const key = `${sectionIndex}:${String(question.id ?? questionIndex)}`;
 					const isCurrent =
 						sectionIndex === this.examViewer.currentSectionIndex &&
@@ -460,6 +480,7 @@ class QuestionMapManager {
 
 					let statusClass = 'unanswered';
 					if (isAnswered) {
+						answeredQuestions += 1;
 						statusClass = this.examViewer.showAnswers ? (isCorrect ? 'correct' : 'incorrect') : 'answered';
 					}
 					if (isCurrent) {
@@ -479,6 +500,8 @@ class QuestionMapManager {
 
 		console.log('[QuestionMapManager] Generated HTML length:', html.length);
 		this.questionMapContent.innerHTML = html;
+		const status = this.questionMapContainer?.querySelector<HTMLElement>('[data-question-map-status]');
+		if (status) status.textContent = `已答 ${answeredQuestions} / ${totalQuestions} 题`;
 
 		this.questionMapContent.addEventListener('click', (event) => {
 			const target = event.target as HTMLElement | null;

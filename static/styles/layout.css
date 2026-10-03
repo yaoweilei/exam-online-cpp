@@ -13,7 +13,7 @@
 	margin: 0 auto;
 	/* 居中展示受控列 */
 	/* 右边界标尺：细线，随宽度变化 */
-	border-right: 1px solid var(--vscode-button-background);
+	border-right: none;
 	transition: width .12s ease-out;
 }
 
@@ -28,7 +28,7 @@
 }
 
 #exam-content.limited {
-	border-right: 1px solid var(--vscode-button-background);
+	border-right: none;
 }
 
 

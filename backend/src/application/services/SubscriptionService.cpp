@@ -23,7 +23,8 @@ Json::Value SubscriptionService::currentSubscription(const std::string &userId) 
     if (scopeType == "organization" && !scopeId.empty() && scopeId != userId)
     {
         const auto membership = organizationRepository_.findMembership(userId, scopeId);
-        if (!membership.isNull())
+        if (!membership.isNull() &&
+            infrastructure::storage::OrganizationRepository::membershipUsesPaidSeat(membership))
         {
             return subscriptionForOrganization(scopeId);
         }
@@ -181,7 +182,7 @@ void SubscriptionService::grantPremium(const std::string &userId, const std::str
 
 void SubscriptionService::settleReferralReward(const std::string &userId, const Json::Value &subscription)
 {
-    if (!qualifiesForReferralReward(subscription))
+    if (referralRewardCredits_ <= 0 || !qualifiesForReferralReward(subscription))
     {
         return;
     }
@@ -202,6 +203,94 @@ void SubscriptionService::settleReferralReward(const std::string &userId, const 
     const auto rewardKey = std::string("referral:") + userId + ":subscription.activated";
     profileRepository_.grantCreditsIfAbsent(referrerUserId, rewardKey, rewardCredits, "referral.subscription.activated");
     userRepository_.grantReferralRewardIfPending(userId, "subscription.activated", rewardCredits, referrerUserId);
+}
+
+Json::Value SubscriptionService::settlePaidReferralReward(const std::string &userId,
+                                                          const std::string &orderId,
+                                                          int paidAmountCents,
+                                                          int rewardPercent,
+                                                          int maximumRewardCents,
+                                                          const std::string &currency)
+{
+    Json::Value result(Json::objectValue);
+    result["awarded"] = false;
+    result["amount_cents"] = 0;
+    result["currency"] = currency;
+    if (userId.empty() || orderId.empty() || currency != "cny" || paidAmountCents <= 0 ||
+        rewardPercent <= 0 || maximumRewardCents <= 0)
+    {
+        result["reason"] = "not_eligible";
+        return result;
+    }
+
+    const auto referredUser = userRepository_.findUserById(userId);
+    if (referredUser.isNull() || referredUser.get("referral_reward_status", "none").asString() != "pending")
+    {
+        result["reason"] = "no_pending_referral";
+        return result;
+    }
+    const auto referrerUserId = referredUser.get("referred_by_user_id", "").asString();
+    if (referrerUserId.empty() || referrerUserId == userId)
+    {
+        result["reason"] = "invalid_referrer";
+        return result;
+    }
+
+    const auto rewardCents = std::min(
+        maximumRewardCents,
+        static_cast<int>((static_cast<long long>(paidAmountCents) * rewardPercent + 50) / 100));
+    if (rewardCents <= 0)
+    {
+        result["reason"] = "zero_reward";
+        return result;
+    }
+
+    const auto trigger = std::string("payment:") + orderId;
+    const auto rewardKey = std::string("referral:") + userId + ":" + orderId;
+    const auto profileGranted = profileRepository_.grantLearningCreditIfAbsent(
+        referrerUserId, rewardKey, rewardCents, "referral.first_pro_purchase", currency);
+    const auto stateGranted = userRepository_.grantReferralRewardIfPending(
+        userId, trigger, rewardCents, referrerUserId);
+    if (!profileGranted || !stateGranted)
+    {
+        if (profileGranted)
+        {
+            profileRepository_.revokeLearningCreditIfPresent(
+                referrerUserId, rewardKey, "referral.state_not_granted");
+        }
+        result["reason"] = "already_settled";
+        return result;
+    }
+
+    result["awarded"] = true;
+    result["amount_cents"] = rewardCents;
+    result["reward_percent"] = rewardPercent;
+    result["maximum_reward_cents"] = maximumRewardCents;
+    result["recipient_user_id"] = referrerUserId;
+    result["reward_key"] = rewardKey;
+    result["trigger"] = trigger;
+    return result;
+}
+
+bool SubscriptionService::reversePaidReferralReward(const std::string &userId,
+                                                    const std::string &orderId,
+                                                    const Json::Value &reward)
+{
+    if (!reward.get("awarded", false).asBool())
+    {
+        return false;
+    }
+    const auto recipientUserId = reward.get("recipient_user_id", "").asString();
+    const auto rewardKey = reward.get("reward_key", "").asString();
+    const auto trigger = reward.get("trigger", std::string("payment:") + orderId).asString();
+    if (recipientUserId.empty() || rewardKey.empty())
+    {
+        return false;
+    }
+    const auto profileChanged = profileRepository_.revokeLearningCreditIfPresent(
+        recipientUserId, rewardKey, "referral.purchase_refunded");
+    const auto userChanged = userRepository_.resetReferralRewardAfterReversal(userId, trigger);
+    return profileChanged || userChanged;
 }
 
 Json::Value SubscriptionService::buildSubscription(const std::string &scopeType,

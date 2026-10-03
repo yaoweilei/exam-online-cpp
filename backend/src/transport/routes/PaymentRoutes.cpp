@@ -87,17 +87,105 @@ void registerPaymentRoutes(const AppContext &ctx)
         {Post});
 
     app().registerHandler(
+        "/api/v1/payments/orders",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                int fromYear = 0;
+                int toYear = 0;
+                try { fromYear = std::stoi(req->getParameter("from_year")); } catch (...) {}
+                try { toYear = std::stoi(req->getParameter("to_year")); } catch (...) {}
+                return common::ok(
+                    req,
+                    ctx.paymentService->listUserOrders(
+                        session.get("user_id", "").asString(),
+                        fromYear,
+                        toYear));
+            });
+        },
+        {Get});
+
+    app().registerHandler(
         "/api/v1/payments/quote",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
+                const auto actorId = session.get("user_id", "").asString();
+                const auto isOrganizationQuote = body.get("scope_type", "personal").asString() == "organization";
+                bool organizationAccessAuthorized = false;
+                if (isOrganizationQuote)
+                {
+                    const auto organizationId = requireBoundedString(body, "organization_id", 1, 120);
+                    organizationAccessAuthorized = ctx.organizationService->hasOrganizationPermission(
+                        actorId, session["roles"], organizationId, "organization.billing.manage");
+                    if (!organizationAccessAuthorized)
+                    {
+                        throw common::AppException("FORBIDDEN", "无权查看该机构的套餐报价", k403Forbidden);
+                    }
+                }
                 return common::ok(
                     req,
                     ctx.paymentService->quote(
-                        session.get("user_id", "").asString(),
+                        actorId,
                         session["roles"],
-                        body));
+                        body,
+                        organizationAccessAuthorized));
+            });
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v1/payments/orders/{1}/simulate-success",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string orderId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                return common::ok(
+                    req,
+                    ctx.paymentService->simulateWechatPaymentSuccess(
+                        session.get("user_id", "").asString(),
+                        orderId),
+                    "mock_wechat_payment_succeeded");
+            });
+        },
+        {Post});
+
+    app().registerHandler(
+        "/api/v1/payments/organization-orders",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                const auto actorId = session.get("user_id", "").asString();
+                const auto organizationId = requireBoundedString(body, "organization_id", 1, 120);
+                if (!ctx.organizationService->hasOrganizationPermission(
+                        actorId, session["roles"], organizationId, "organization.billing.manage"))
+                {
+                    throw common::AppException("FORBIDDEN", "无权为该机构创建套餐订单", k403Forbidden);
+                }
+                if (requireBoundedString(body, "confirmation", 1, 30) != "确认购买机构套餐")
+                {
+                    throw common::AppException(
+                        "CONFIRMATION_REQUIRED",
+                        "请输入“确认购买机构套餐”确认此操作",
+                        k422UnprocessableEntity);
+                }
+                requirePasswordReauthentication(*ctx.authService, session, body);
+                const auto order = ctx.paymentService->createOrganizationOrder(actorId, organizationId, body);
+                Json::Value details(Json::objectValue);
+                details["order_id"] = order.get("id", "");
+                details["organization_id"] = organizationId;
+                details["amount_cents"] = order.get("amount_cents", 0);
+                details["seats"] = order.get("seats", 0);
+                ctx.auditLogService->record(
+                    "payment.organization_order.created",
+                    actorId,
+                    "客户创建机构套餐订单",
+                    details);
+                return common::ok(req, order, "organization_payment_order_created");
             });
         },
         {Post});

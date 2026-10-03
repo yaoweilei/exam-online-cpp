@@ -3,10 +3,11 @@
   {
     "organization" : 
     {
-      "custom_quote_min_seats" : 200,
+      "custom_quote_min_seats" : 0,
       "durations" : 
       [
         30,
+        90,
         365
       ],
       "offers" : 
@@ -39,15 +40,19 @@
           "starts_at" : ""
         }
       ],
-      "plans" : 
+      "plans" :
       {
-        "pro" : 
+        "pro" :
         {
-          "minimum_seats" : 20
+          "enabled" : true,
+          "minimum_seats" : 1,
+          "pricing_mode" : "progressive"
         },
-        "ultra" : 
+        "ultra" :
         {
-          "minimum_seats" : 30
+          "enabled" : false,
+          "minimum_seats" : 30,
+          "pricing_mode" : "volume"
         }
       },
       "prices_cents" : 
@@ -57,12 +62,14 @@
           "pro" : 
           {
             "30" : 1500,
-            "365" : 11900
+            "90" : 2990,
+            "365" : 9990
           },
           "ultra" : 
           {
-            "30" : 2900,
-            "365" : 22900
+            "30" : 3900,
+            "90" : 9900,
+            "365" : 29900
           }
         },
         "usd" : 
@@ -70,87 +77,89 @@
           "pro" : 
           {
             "30" : 299,
+            "90" : 799,
             "365" : 1999
           },
           "ultra" : 
           {
-            "30" : 499,
-            "365" : 3799
+            "30" : 699,
+            "90" : 1799,
+            "365" : 4999
           }
         }
       },
       "recommended_duration_days" : 365,
-      "recommended_plan" : "ultra",
+      "recommended_plan" : "pro",
       "seat_tiers" : 
       [
         {
-          "max_seats" : 29,
-          "min_seats" : 20,
+          "max_seats" : 20,
+          "min_seats" : 1,
           "prices_cents" : 
           {
             "cny" : 
             {
               "pro" : 
               {
-                "365" : 11900
+                "365" : 9990
               },
               "ultra" : 
               {
-                "365" : 0
+                "365" : 29900
               }
             }
           }
         },
         {
-          "max_seats" : 49,
-          "min_seats" : 30,
+          "max_seats" : 200,
+          "min_seats" : 21,
           "prices_cents" : 
           {
             "cny" : 
             {
               "pro" : 
               {
-                "365" : 11900
+                "365" : 8990
               },
               "ultra" : 
               {
-                "365" : 22900
+                "365" : 29900
               }
             }
           }
         },
         {
-          "max_seats" : 99,
-          "min_seats" : 50,
+          "max_seats" : 500,
+          "min_seats" : 201,
           "prices_cents" : 
           {
             "cny" : 
             {
               "pro" : 
               {
-                "365" : 10900
+                "365" : 7990
               },
               "ultra" : 
               {
-                "365" : 21900
+                "365" : 29900
               }
             }
           }
         },
         {
-          "max_seats" : 199,
-          "min_seats" : 100,
+          "max_seats" : 100000,
+          "min_seats" : 501,
           "prices_cents" : 
           {
             "cny" : 
             {
               "pro" : 
               {
-                "365" : 9900
+                "365" : 6990
               },
               "ultra" : 
               {
-                "365" : 20900
+                "365" : 29900
               }
             }
           }
@@ -168,7 +177,7 @@
       "offers" : 
       [
         {
-          "discount_percent" : 20,
+          "discount_percent" : 10,
           "enabled" : false,
           "ends_at" : "",
           "id" : "first_purchase",
@@ -193,17 +202,40 @@
           "kind" : "campaign",
           "label" : "个人限时活动",
           "starts_at" : ""
+        },
+        {
+          "discount_percent" : 0,
+          "eligible_plan" : "pro",
+          "enabled" : true,
+          "ends_at" : "",
+          "id" : "referral_reward",
+          "kind" : "referral_reward",
+          "label" : "个人邀请奖励",
+          "maximum_reward_cents" : 2000,
+          "reward_percent" : 20,
+          "starts_at" : ""
         }
       ],
+      "plans" :
+      {
+        "pro" :
+        {
+          "enabled" : true
+        },
+        "ultra" :
+        {
+          "enabled" : false
+        }
+      },
       "prices_cents" : 
       {
         "cny" : 
         {
           "pro" : 
           {
-            "30" : 1900,
-            "365" : 15900,
-            "90" : 4900
+            "30" : 1290,
+            "365" : 9990,
+            "90" : 2990
           },
           "ultra" : 
           {
@@ -246,9 +278,9 @@
     {
       "pro" : 
       {
-        "30" : 1900,
-        "365" : 15900,
-        "90" : 4900
+        "30" : 1290,
+        "365" : 9990,
+        "90" : 2990
       },
       "ultra" : 
       {
@@ -290,6 +322,6 @@
       1
     ]
   },
-  "updated_at" : "2026-09-09T00:50:09.813Z",
-  "version" : 4
+  "updated_at" : "2026-09-12T08:15:52.822Z",
+  "version" : 8
 }

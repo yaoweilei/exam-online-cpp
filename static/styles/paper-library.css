@@ -16,11 +16,7 @@
 .passage-content,
 .question,
 .question-text,
-.options-container,
-.answer,
-.answer-item,
-.explanation,
-.explanation-text {
+.options-container {
 	font-family: var(--font-ja);
 }
 

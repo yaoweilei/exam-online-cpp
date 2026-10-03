@@ -31,6 +31,16 @@ class ProfileRepository
                               int credits,
                               const std::string &reason);
 
+    bool grantLearningCreditIfAbsent(const std::string &userId,
+                                     const std::string &awardKey,
+                                     int amountCents,
+                                     const std::string &reason,
+                                     const std::string &currency = "cny");
+
+    bool revokeLearningCreditIfPresent(const std::string &userId,
+                                       const std::string &awardKey,
+                                       const std::string &reason);
+
     Json::Value recordStudySeconds(const std::string &userId, int deltaSeconds);
 
     // Called on every successful login: updates streak_days / last_active_at.

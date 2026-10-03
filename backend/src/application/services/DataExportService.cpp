@@ -103,6 +103,7 @@ Json::Value DataExportService::exportUserData(const std::string &userId) const
     modules["draft"] = tryReadJson(perUserFile(userRootDir_, "drafts", safeId));
     modules["attempt_timer"] = tryReadJson(perUserFile(userRootDir_, "attempt_timer", safeId));
     modules["srs"] = tryReadJson(perUserFile(userRootDir_, "srs", safeId));
+    modules["adaptive_learning"] = tryReadJson(perUserFile(userRootDir_, "adaptive_learning", safeId));
     modules["bookmark_folders"] = tryReadJson(perUserFile(userRootDir_, "bookmark_folders", safeId));
 
     // 答题历史：data/user/answers/{userId}/*.json

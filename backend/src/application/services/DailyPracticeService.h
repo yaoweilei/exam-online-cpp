@@ -13,6 +13,7 @@
 #include <json/json.h>
 
 #include "application/services/SrsService.h"
+#include "infrastructure/storage/AnswerRepository.h"
 #include "infrastructure/storage/ExamRepository.h"
 #include "infrastructure/storage/WrongQuestionRepository.h"
 
@@ -24,20 +25,34 @@ class DailyPracticeService
     DailyPracticeService(std::filesystem::path userRootDir,
                          infrastructure::storage::WrongQuestionRepository &wrongRepo,
                          SrsService &srsService,
-                         infrastructure::storage::ExamRepository &examRepo);
+                         infrastructure::storage::ExamRepository &examRepo,
+                         infrastructure::storage::AnswerRepository &answerRepo);
 
     // 获取（或当天首次生成）今日清单
-    Json::Value getOrCreateToday(const std::string &userId, int targetCount = 10) const;
+    Json::Value getOrCreateToday(const std::string &userId,
+                                 int targetCount = 10,
+                                 const std::string &examTarget = "",
+                                 int dailyMinutes = 0) const;
 
     // 强制重新生成（不影响历史完成记录）
-    Json::Value regenerate(const std::string &userId, int targetCount = 10) const;
+    Json::Value regenerate(const std::string &userId,
+                           int targetCount = 10,
+                           const std::string &examTarget = "",
+                           int dailyMinutes = 0) const;
 
     // 标记某题完成（写入 completed_question_ids 集合）
-    Json::Value markComplete(const std::string &userId, const std::string &questionId) const;
+    Json::Value markComplete(const std::string &userId,
+                             const std::string &examId,
+                             const std::string &questionId,
+                             const std::string &examTarget = "") const;
 
   private:
-    std::filesystem::path fileFor(const std::string &userId) const;
-    Json::Value buildItems(const std::string &userId, int targetCount) const;
+    std::filesystem::path fileFor(const std::string &userId, const std::string &examTarget = "") const;
+    Json::Value buildItems(const std::string &userId,
+                           int targetCount,
+                           const std::string &examTarget,
+                           int dailyMinutes,
+                           int &plannedMinutes) const;
     static std::string today();          // YYYY-MM-DD
     static std::string sanitize(const std::string &s);
 
@@ -45,5 +60,6 @@ class DailyPracticeService
     infrastructure::storage::WrongQuestionRepository &wrongRepo_;
     SrsService &srsService_;
     infrastructure::storage::ExamRepository &examRepo_;
+    infrastructure::storage::AnswerRepository &answerRepo_;
 };
 }  // namespace application::services

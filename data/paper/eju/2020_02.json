@@ -1629,20 +1629,15 @@
             },
             "questions": [
               {
-                "answer": 3,
+                "answer": null,
                 "audio": "/data/audio/eju/2020_02/track_10.mp3",
-                "correct_answer": 3,
+                "correct_answer": null,
                 "eju_answer_no": 5,
                 "eju_question_no": 5,
                 "has_ans": false,
                 "id": 30,
-                "options": [
-                  "1",
-                  "2",
-                  "3",
-                  "4"
-                ],
-                "question": "試験問題として成立していますが、出版上の都合により本問題の掲載はいたしません。",
+                "options": [],
+                "question": "試験問題として成立していますが、出版上の都合により本問題の掲載はいたしません。解答できないため、次の問題へ進んでください。",
                 "script": [
                   {
                     "end": "00:04.99",
