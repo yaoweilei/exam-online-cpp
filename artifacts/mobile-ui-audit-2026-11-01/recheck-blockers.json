@@ -1,0 +1,6 @@
+[
+  {
+    "id": "student-assignment-detail-populated",
+    "reason": "locator.click: Timeout 9000ms exceeded. Call log:"
+  }
+]

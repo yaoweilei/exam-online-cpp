@@ -6,7 +6,7 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-09-16T15:38:03.078Z",
+  "last_active_at" : "2026-11-06T13:36:45.537Z",
   "last_credit_reason" : "",
   "last_xp_reason" : "study.pomodoro",
   "learning_credit_awards" : 
@@ -26,26 +26,26 @@
   "locale" : "zh-CN",
   "longest_streak" : 8,
   "notification_enabled" : true,
-  "organization_type" : "",
+  "organization_type" : "school",
   "plan" : "free",
   "plan_expires" : "",
   "plan_expires_at" : "",
   "plan_status" : "active",
-  "scope_id" : "usr_019ee39a-8d4b-7d46-a206-233a3f6429f9",
-  "scope_type" : "personal",
+  "scope_id" : "org_019ef25e-18da-72e3-977d-5268ac657b74",
+  "scope_type" : "organization",
   "streak_days" : 1,
   "study_stats" : 
   {
     "awarded_now" : 0,
     "daily_xp_cap" : 2,
-    "date" : "2026-06-30",
+    "date" : "2026-11-06",
     "pomodoro_seconds" : 1500,
-    "today_minutes" : 14,
-    "today_seconds" : 870,
+    "today_minutes" : 17,
+    "today_seconds" : 1020,
     "today_xp_awarded" : 0,
-    "updated_at" : "2026-06-30T03:30:32.486Z"
+    "updated_at" : "2026-11-06T13:36:45.537Z"
   },
   "user_id" : "usr_019ee39a-8d4b-7d46-a206-233a3f6429f9",
-  "xp" : 4,
-  "xp_updated_at" : "2026-06-29T15:40:45.282Z"
+  "xp" : 8,
+  "xp_updated_at" : "2026-11-05T13:09:26.382Z"
 }

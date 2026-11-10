@@ -1,0 +1,2397 @@
+[
+  {
+    "id": "users-filter",
+    "role": "superAdmin",
+    "label": "用户筛选",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "users-filter-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-options",
+              "text": "排序字段创建时间账号顺序降序升序每页数量10 条20 条50 条"
+            }
+          ],
+          "overflow": [],
+          "text": "用户与权限\n\n搜索账号并查看用户状态\n\n用户管理\n角色权限\n临时授权\n排序字段\n创建时间\n账号\n顺序\n降序\n升序\n每页数量\n10 条\n20 条\n50 条\nstudent_chapters_mvxspjmc_0ndop\n学员\ndraft_total_mvxspizh_nln3c\n学员\nspecialty_flow_mvxspi77_8doa2\n学员\nstudent_chapters_mvxspe7x_l1utr\n学员\nstudent_chapters_mvxspakq_5nlx4\n学员\nstudent_chapters_mvxsp7g8_bqeht\n学员\nstudent_chapters_mvxsp059_0uojz\n学员\nstudent_chapters_mvxsow54_j58l8\n学员\nstudent_chapters_mvxsos4c_b402a\n学员\nstudent_chapters_mvxsoojq_3b3ta\n学员\n共 2439 人\n/ 244 页",
+          "headings": [
+            {
+              "text": "用户与权限",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "users-filter-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 840,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-options",
+              "text": "排序字段创建时间账号顺序降序升序每页数量10 条20 条50 条"
+            }
+          ],
+          "overflow": [],
+          "text": "用户与权限\n\n搜索账号并查看用户状态\n\n用户管理\n角色权限\n临时授权\n排序字段\n创建时间\n账号\n顺序\n降序\n升序\n每页数量\n10 条\n20 条\n50 条\nstudent_chapters_mvxspjmc_0ndop\n学员\ndraft_total_mvxspizh_nln3c\n学员\nspecialty_flow_mvxspi77_8doa2\n学员\nstudent_chapters_mvxspe7x_l1utr\n学员\nstudent_chapters_mvxspakq_5nlx4\n学员\nstudent_chapters_mvxsp7g8_bqeht\n学员\nstudent_chapters_mvxsp059_0uojz\n学员\nstudent_chapters_mvxsow54_j58l8\n学员\nstudent_chapters_mvxsos4c_b402a\n学员\nstudent_chapters_mvxsoojq_3b3ta\n学员\n共 2439 人\n/ 244 页",
+          "headings": [
+            {
+              "text": "用户与权限",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "user-detail",
+    "role": "superAdmin",
+    "label": "用户详情",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "user-detail-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "student_chapters_mvxspjmc_0ndop\n\n账号、角色与联系方式\n\nstudent_chapters_mvxspjmc_0ndop\n账号状态\n正常 · student_chapters_mvxspjmc_0ndop\n账号\n角色\n学员\n权限\n临时授权\n查看有效及已到期授权，或新增临时角色\n手机号\n未绑定手机号\n未验证\n邮箱\n未绑定邮箱\n未验证\n机构\n个人用户\n个人\n最近登录\n2026/11/01 20:17\n登录",
+          "headings": [
+            {
+              "text": "student_chapters_mvxspjmc_0ndop",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "user-detail-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "student_chapters_mvxspjmc_0ndop\n\n账号、角色与联系方式\n\nstudent_chapters_mvxspjmc_0ndop\n账号状态\n正常 · student_chapters_mvxspjmc_0ndop\n账号\n角色\n学员\n权限\n临时授权\n查看有效及已到期授权，或新增临时角色\n手机号\n未绑定手机号\n未验证\n邮箱\n未绑定邮箱\n未验证\n机构\n个人用户\n个人\n最近登录\n2026/11/01 20:17\n登录",
+          "headings": [
+            {
+              "text": "student_chapters_mvxspjmc_0ndop",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "organization-detail",
+    "role": "superAdmin",
+    "label": "机构详情",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "organization-detail-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "机构详情\n\n套餐、席位与管理人员\n\n手机布局审查学校 · 日语能力考试与留学课程中心\n套餐\nPRO\n状态\n正常\n有效期\n长期\n成员\n17 人\n付费席位\n13 / 30\n设置\n教职人员\n5 人\n＋ 添加\nassistant_mobile_ui_20261101\n教学管理员\nstudent_mobile_ui_content_20261101\n机构内容管理员\nstudent_mobile_ui_manager_20261101\n机构管理员\nsuperadmin_demo\n机构管理员\nteacher_mobile_ui_20261101\n老师",
+          "headings": [
+            {
+              "text": "机构详情",
+              "size": "18px"
+            },
+            {
+              "text": "教职人员",
+              "size": "15px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "organization-detail-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 772,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "机构详情\n\n套餐、席位与管理人员\n\n手机布局审查学校 · 日语能力考试与留学课程中心\n套餐\nPRO\n状态\n正常\n有效期\n长期\n成员\n17 人\n付费席位\n13 / 30\n设置\n教职人员\n5 人\n＋ 添加\nassistant_mobile_ui_20261101\n教学管理员\nstudent_mobile_ui_content_20261101\n机构内容管理员\nstudent_mobile_ui_manager_20261101\n机构管理员\nsuperadmin_demo\n机构管理员\nteacher_mobile_ui_20261101\n老师",
+          "headings": [
+            {
+              "text": "机构详情",
+              "size": "18px"
+            },
+            {
+              "text": "教职人员",
+              "size": "15px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "organization-settings",
+    "role": "superAdmin",
+    "label": "机构详情设置",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "organization-settings-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1595,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "section.pc-auto-renew-card",
+              "text": "自动续费单独授权，默认关闭；关闭后当前已付周期仍可继续使用。已关闭 续费套餐PRO · 365 天 预计金额开启时确认 下次续费日长期套餐 提醒安排提前 7、3"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-admin-select-menu",
+              "text": "使用中✓试用中已到期已取消"
+            }
+          ],
+          "overflow": [],
+          "text": "机构详情\n\n套餐、席位与管理人员\n\n手机布局审查学校 · 日语能力考试与留学课程中心\n套餐\nPRO\n状态\n正常\n有效期\n长期\n成员\n17 人\n付费席位\n13 / 30\n收起设置\n自动续费\n周期、支付渠道与提醒\n\n单独授权，默认关闭；关闭后当前已付周期仍可继续使用。\n\n已关闭\n续费套餐\nPRO · 365 天\n预计金额\n开启时确认\n下次续费日\n长期套餐\n提醒安排\n提前 7、3、1 天\n续费周期\n年付（365 天）\n支付渠道\n微信支付\n邮件提醒\n开启自动续费\n续费前按当前配置展示下期价格；价格变化不影响本期。扣款失败后保留 7 天宽限期。\n平台人工调整\n套餐、状态与席位\n\n仅用于客服补偿、迁移或异常修复，修改会记录审计。\n\n套餐\nPRO\n状态\n使用中\n使用中\n✓\n试用中\n已到期\n已取消\n到期日期\n席位数\n保存调整\n当前成员 17 人；本调整入口要求席位不少于当前成员总数。到期日期留空表示长期有效。\n审计记录\n最近 3 条\n保存备课方案\nusr_01a19641-3a29-7486-a62b-6b4862ccbc58 · lesson_prep.saved\n2026/11/01 16:37\n保存学员跟进\nusr_01a19641-3d60-7014-acc4-61fa6cabded8 · institution.followup.saved · pending\n2026/11/01 16:37\n保存课次安排\nusr_01a19641-3a29-7486-a62b-6b4862ccbc58 · institution.lesson.saved · scheduled\n2026/11/01 16:37\n移除后保留历史记录，可在「已移除」中恢复。\n移除机构\n教职人员\n5 人\n＋ 添加\nassistant_mobile_ui_20261101\n教学管理员\nstudent_mobile_ui_content_20261101\n机构内容管理员\nstudent_mobile_ui_manager_20261101\n机构管理员\nsuperadmin_demo\n机构管理员\nteacher_mobile_ui_20261101\n老师",
+          "headings": [
+            {
+              "text": "机构详情",
+              "size": "18px"
+            },
+            {
+              "text": "教职人员",
+              "size": "15px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "bottom",
+        "file": "organization-settings-768-bottom.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1595,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "section.pc-auto-renew-card",
+              "text": "自动续费单独授权，默认关闭；关闭后当前已付周期仍可继续使用。已关闭 续费套餐PRO · 365 天 预计金额开启时确认 下次续费日长期套餐 提醒安排提前 7、3"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-admin-select-menu",
+              "text": "使用中✓试用中已到期已取消"
+            }
+          ],
+          "overflow": [],
+          "text": "机构详情\n\n套餐、席位与管理人员\n\n手机布局审查学校 · 日语能力考试与留学课程中心\n套餐\nPRO\n状态\n正常\n有效期\n长期\n成员\n17 人\n付费席位\n13 / 30\n收起设置\n自动续费\n周期、支付渠道与提醒\n\n单独授权，默认关闭；关闭后当前已付周期仍可继续使用。\n\n已关闭\n续费套餐\nPRO · 365 天\n预计金额\n开启时确认\n下次续费日\n长期套餐\n提醒安排\n提前 7、3、1 天\n续费周期\n年付（365 天）\n支付渠道\n微信支付\n邮件提醒\n开启自动续费\n续费前按当前配置展示下期价格；价格变化不影响本期。扣款失败后保留 7 天宽限期。\n平台人工调整\n套餐、状态与席位\n\n仅用于客服补偿、迁移或异常修复，修改会记录审计。\n\n套餐\nPRO\n状态\n使用中\n使用中\n✓\n试用中\n已到期\n已取消\n到期日期\n席位数\n保存调整\n当前成员 17 人；本调整入口要求席位不少于当前成员总数。到期日期留空表示长期有效。\n审计记录\n最近 3 条\n保存备课方案\nusr_01a19641-3a29-7486-a62b-6b4862ccbc58 · lesson_prep.saved\n2026/11/01 16:37\n保存学员跟进\nusr_01a19641-3d60-7014-acc4-61fa6cabded8 · institution.followup.saved · pending\n2026/11/01 16:37\n保存课次安排\nusr_01a19641-3a29-7486-a62b-6b4862ccbc58 · institution.lesson.saved · scheduled\n2026/11/01 16:37\n移除后保留历史记录，可在「已移除」中恢复。\n移除机构\n教职人员\n5 人\n＋ 添加\nassistant_mobile_ui_20261101\n教学管理员\nstudent_mobile_ui_content_20261101\n机构内容管理员\nstudent_mobile_ui_manager_20261101\n机构管理员\nsuperadmin_demo\n机构管理员\nteacher_mobile_ui_20261101\n老师",
+          "headings": [
+            {
+              "text": "机构详情",
+              "size": "18px"
+            },
+            {
+              "text": "教职人员",
+              "size": "15px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "organization-settings-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1595,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "section.pc-auto-renew-card",
+              "text": "自动续费单独授权，默认关闭；关闭后当前已付周期仍可继续使用。已关闭 续费套餐PRO · 365 天 预计金额开启时确认 下次续费日长期套餐 提醒安排提前 7、3"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-admin-select-menu",
+              "text": "使用中✓试用中已到期已取消"
+            }
+          ],
+          "overflow": [],
+          "text": "机构详情\n\n套餐、席位与管理人员\n\n手机布局审查学校 · 日语能力考试与留学课程中心\n套餐\nPRO\n状态\n正常\n有效期\n长期\n成员\n17 人\n付费席位\n13 / 30\n收起设置\n自动续费\n周期、支付渠道与提醒\n\n单独授权，默认关闭；关闭后当前已付周期仍可继续使用。\n\n已关闭\n续费套餐\nPRO · 365 天\n预计金额\n开启时确认\n下次续费日\n长期套餐\n提醒安排\n提前 7、3、1 天\n续费周期\n年付（365 天）\n支付渠道\n微信支付\n邮件提醒\n开启自动续费\n续费前按当前配置展示下期价格；价格变化不影响本期。扣款失败后保留 7 天宽限期。\n平台人工调整\n套餐、状态与席位\n\n仅用于客服补偿、迁移或异常修复，修改会记录审计。\n\n套餐\nPRO\n状态\n使用中\n使用中\n✓\n试用中\n已到期\n已取消\n到期日期\n席位数\n保存调整\n当前成员 17 人；本调整入口要求席位不少于当前成员总数。到期日期留空表示长期有效。\n审计记录\n最近 3 条\n保存备课方案\nusr_01a19641-3a29-7486-a62b-6b4862ccbc58 · lesson_prep.saved\n2026/11/01 16:37\n保存学员跟进\nusr_01a19641-3d60-7014-acc4-61fa6cabded8 · institution.followup.saved · pending\n2026/11/01 16:37\n保存课次安排\nusr_01a19641-3a29-7486-a62b-6b4862ccbc58 · institution.lesson.saved · scheduled\n2026/11/01 16:37\n移除后保留历史记录，可在「已移除」中恢复。\n移除机构\n教职人员\n5 人\n＋ 添加\nassistant_mobile_ui_20261101\n教学管理员\nstudent_mobile_ui_content_20261101\n机构内容管理员\nstudent_mobile_ui_manager_20261101\n机构管理员\nsuperadmin_demo\n机构管理员\nteacher_mobile_ui_20261101\n老师",
+          "headings": [
+            {
+              "text": "机构详情",
+              "size": "18px"
+            },
+            {
+              "text": "教职人员",
+              "size": "15px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "organization-settings-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1595,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "section.pc-auto-renew-card",
+              "text": "自动续费单独授权，默认关闭；关闭后当前已付周期仍可继续使用。已关闭 续费套餐PRO · 365 天 预计金额开启时确认 下次续费日长期套餐 提醒安排提前 7、3"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-admin-select-menu",
+              "text": "使用中✓试用中已到期已取消"
+            }
+          ],
+          "overflow": [],
+          "text": "机构详情\n\n套餐、席位与管理人员\n\n手机布局审查学校 · 日语能力考试与留学课程中心\n套餐\nPRO\n状态\n正常\n有效期\n长期\n成员\n17 人\n付费席位\n13 / 30\n收起设置\n自动续费\n周期、支付渠道与提醒\n\n单独授权，默认关闭；关闭后当前已付周期仍可继续使用。\n\n已关闭\n续费套餐\nPRO · 365 天\n预计金额\n开启时确认\n下次续费日\n长期套餐\n提醒安排\n提前 7、3、1 天\n续费周期\n年付（365 天）\n支付渠道\n微信支付\n邮件提醒\n开启自动续费\n续费前按当前配置展示下期价格；价格变化不影响本期。扣款失败后保留 7 天宽限期。\n平台人工调整\n套餐、状态与席位\n\n仅用于客服补偿、迁移或异常修复，修改会记录审计。\n\n套餐\nPRO\n状态\n使用中\n使用中\n✓\n试用中\n已到期\n已取消\n到期日期\n席位数\n保存调整\n当前成员 17 人；本调整入口要求席位不少于当前成员总数。到期日期留空表示长期有效。\n审计记录\n最近 3 条\n保存备课方案\nusr_01a19641-3a29-7486-a62b-6b4862ccbc58 · lesson_prep.saved\n2026/11/01 16:37\n保存学员跟进\nusr_01a19641-3d60-7014-acc4-61fa6cabded8 · institution.followup.saved · pending\n2026/11/01 16:37\n保存课次安排\nusr_01a19641-3a29-7486-a62b-6b4862ccbc58 · institution.lesson.saved · scheduled\n2026/11/01 16:37\n移除后保留历史记录，可在「已移除」中恢复。\n移除机构\n教职人员\n5 人\n＋ 添加\nassistant_mobile_ui_20261101\n教学管理员\nstudent_mobile_ui_content_20261101\n机构内容管理员\nstudent_mobile_ui_manager_20261101\n机构管理员\nsuperadmin_demo\n机构管理员\nteacher_mobile_ui_20261101\n老师",
+          "headings": [
+            {
+              "text": "机构详情",
+              "size": "18px"
+            },
+            {
+              "text": "教职人员",
+              "size": "15px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "pricing-boundaries",
+    "role": "superAdmin",
+    "label": "个人定价断点补查",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 820,
+        "height": 1180,
+        "position": "top",
+        "file": "pricing-boundaries-820-top.png",
+        "metrics": {
+          "viewport": 820,
+          "height": 1180,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 820,
+          "mainHeight": 1136,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "交易管理\n\n个人订阅、机构席位与优惠规则\n\n订单与支付\n价格与套餐\n套餐定价\n2\n优惠规则\n7\n续费通知\n3\n运行状态\n正常\n个人套餐\n学校 / 教育机构\n个人套餐\n\n日常价用于用户端划线展示；当前售价用于报价和实际支付。日常价不得低于当前售价。\n\n双价格展示\n套餐\t30 天\t90 天\t365 天\nPRO\n主推长期订阅\n\t\n日常价\n¥\n当前售价\n¥\n\t\n日常价\n¥\n当前售价\n¥\n\t\n日常价\n¥\n当前售价\n¥\n\nULTRA暂未开放\nAI 与冲刺能力\n\t\n日常价\n¥\n当前售价\n¥\n\t\n日常价\n¥\n当前售价\n¥\n\t\n日常价\n¥\n当前售价\n¥\n保存当前表单内的全部更改；新报价和新订单立即生效。\n保存更改",
+          "headings": [
+            {
+              "text": "交易管理",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1180,
+        "height": 820,
+        "position": "top",
+        "file": "pricing-boundaries-1180-top.png",
+        "metrics": {
+          "viewport": 1180,
+          "height": 820,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 940,
+          "mainHeight": 776,
+          "sidebarWidth": 240,
+          "nested": [],
+          "overflow": [],
+          "text": "交易管理\n\n个人订阅、机构席位与优惠规则\n\n订单与支付\n价格与套餐\n套餐定价\n2\n优惠规则\n7\n续费通知\n3\n运行状态\n正常\n个人套餐\n学校 / 教育机构\n个人套餐\n\n日常价用于用户端划线展示；当前售价用于报价和实际支付。日常价不得低于当前售价。\n\n双价格展示\n套餐\t30 天\t90 天\t365 天\nPRO\n主推长期订阅\n\t\n日常价\n¥\n当前售价\n¥\n\t\n日常价\n¥\n当前售价\n¥\n\t\n日常价\n¥\n当前售价\n¥\n\nULTRA暂未开放\nAI 与冲刺能力\n\t\n日常价\n¥\n当前售价\n¥\n\t\n日常价\n¥\n当前售价\n¥\n\t\n日常价\n¥\n当前售价\n¥\n保存当前表单内的全部更改；新报价和新订单立即生效。\n保存更改",
+          "headings": [
+            {
+              "text": "交易管理",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "pricing-organization",
+    "role": "superAdmin",
+    "label": "机构定价",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "pricing-organization-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1057,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "交易管理\n\n个人订阅、机构席位与优惠规则\n\n订单与支付\n价格与套餐\n套餐定价\n2\n优惠规则\n7\n续费通知\n3\n运行状态\n正常\n个人套餐\n学校 / 教育机构\n学校 / 教育机构套餐\n\nPRO 支持月付、季付和年付；年付订单统一按下方席位阶梯计价。\n\n机构席位计费\n套餐\t30 天单价\t90 天单价\t最低席位\t年付方式\nPRO\n单校区 / 小型机构\n\t\n¥\n/ 席\n\t\n¥\n/ 席\n\t\n席\n\t累进阶梯\nULTRA暂未开放\n多校区 / 深度分析\n\t\n¥\n/ 席\n\t\n¥\n/ 席\n\t\n席\n\t整单阶梯\n机构年付阶梯价\n\nPRO 按各档实际席位数累进计价；前一档席位不会因人数增加而改价。\n\n累进计价\n有效席位\tPRO 年单价\tULTRA 年单价（暂未开放）\n1～20 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n21～200 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n201～500 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n501 席以上\t\n¥\n/ 席\n\t\n¥\n/ 席\n转定制报价席位数\n席\n填写 0 表示不强制转人工报价。\n默认支付渠道\n微信支付\n用于新建订单和自动续费的默认选项。\n保存当前表单内的全部更改；新报价和新订单立即生效。\n保存更改",
+          "headings": [
+            {
+              "text": "交易管理",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "pricing-organization-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1057,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "交易管理\n\n个人订阅、机构席位与优惠规则\n\n订单与支付\n价格与套餐\n套餐定价\n2\n优惠规则\n7\n续费通知\n3\n运行状态\n正常\n个人套餐\n学校 / 教育机构\n学校 / 教育机构套餐\n\nPRO 支持月付、季付和年付；年付订单统一按下方席位阶梯计价。\n\n机构席位计费\n套餐\t30 天单价\t90 天单价\t最低席位\t年付方式\nPRO\n单校区 / 小型机构\n\t\n¥\n/ 席\n\t\n¥\n/ 席\n\t\n席\n\t累进阶梯\nULTRA暂未开放\n多校区 / 深度分析\n\t\n¥\n/ 席\n\t\n¥\n/ 席\n\t\n席\n\t整单阶梯\n机构年付阶梯价\n\nPRO 按各档实际席位数累进计价；前一档席位不会因人数增加而改价。\n\n累进计价\n有效席位\tPRO 年单价\tULTRA 年单价（暂未开放）\n1～20 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n21～200 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n201～500 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n501 席以上\t\n¥\n/ 席\n\t\n¥\n/ 席\n转定制报价席位数\n席\n填写 0 表示不强制转人工报价。\n默认支付渠道\n微信支付\n用于新建订单和自动续费的默认选项。\n保存当前表单内的全部更改；新报价和新订单立即生效。\n保存更改",
+          "headings": [
+            {
+              "text": "交易管理",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "pricing-organization-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1057,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "交易管理\n\n个人订阅、机构席位与优惠规则\n\n订单与支付\n价格与套餐\n套餐定价\n2\n优惠规则\n7\n续费通知\n3\n运行状态\n正常\n个人套餐\n学校 / 教育机构\n学校 / 教育机构套餐\n\nPRO 支持月付、季付和年付；年付订单统一按下方席位阶梯计价。\n\n机构席位计费\n套餐\t30 天单价\t90 天单价\t最低席位\t年付方式\nPRO\n单校区 / 小型机构\n\t\n¥\n/ 席\n\t\n¥\n/ 席\n\t\n席\n\t累进阶梯\nULTRA暂未开放\n多校区 / 深度分析\n\t\n¥\n/ 席\n\t\n¥\n/ 席\n\t\n席\n\t整单阶梯\n机构年付阶梯价\n\nPRO 按各档实际席位数累进计价；前一档席位不会因人数增加而改价。\n\n累进计价\n有效席位\tPRO 年单价\tULTRA 年单价（暂未开放）\n1～20 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n21～200 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n201～500 席\t\n¥\n/ 席\n\t\n¥\n/ 席\n\n501 席以上\t\n¥\n/ 席\n\t\n¥\n/ 席\n转定制报价席位数\n席\n填写 0 表示不强制转人工报价。\n默认支付渠道\n微信支付\n用于新建订单和自动续费的默认选项。\n保存当前表单内的全部更改；新报价和新订单立即生效。\n保存更改",
+          "headings": [
+            {
+              "text": "交易管理",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "payment-detail",
+    "role": "superAdmin",
+    "label": "平台订单详情",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "payment-detail-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "订单详情\n\n订单状态、资金与权益记录\n\n返回订单与支付\n发起退款\n金额\n¥99.90\n状态\n已支付\n支付方式\n微信支付\n创建时间\n2026/09/17 08:16\n套餐\nPRO · 365 天\n支付时间\n2026/09/17 08:16\n订单号\npay_1789604162362_31d4df9e30306bce\n复制\n购买主体\n个人用户\nusr_01a0acb8-3d12-7aa8-9ffb-47cd6fb6a28f\n查看用户\n本订单退款记录（0）\n本订单尚无退款记录\n本订单资金与权益流水（3）\n支付成功\n支付成功 · 2026-09-17T00:16:03.343Z\n发放权益\n套餐权益已发放 · 2026-09-17T00:16:03.343Z\n创建订单\n创建支付订单 · 2026-09-17T00:16:02.362Z\n技术信息",
+          "headings": [
+            {
+              "text": "订单详情",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "payment-detail-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 944,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "订单详情\n\n订单状态、资金与权益记录\n\n返回订单与支付\n发起退款\n金额\n¥99.90\n状态\n已支付\n支付方式\n微信支付\n创建时间\n2026/09/17 08:16\n套餐\nPRO · 365 天\n支付时间\n2026/09/17 08:16\n订单号\npay_1789604162362_31d4df9e30306bce\n复制\n购买主体\n个人用户\nusr_01a0acb8-3d12-7aa8-9ffb-47cd6fb6a28f\n查看用户\n本订单退款记录（0）\n本订单尚无退款记录\n本订单资金与权益流水（3）\n支付成功\n支付成功 · 2026-09-17T00:16:03.343Z\n发放权益\n套餐权益已发放 · 2026-09-17T00:16:03.343Z\n创建订单\n创建支付订单 · 2026-09-17T00:16:02.362Z\n技术信息",
+          "headings": [
+            {
+              "text": "订单详情",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "payment-detail-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 944,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "订单详情\n\n订单状态、资金与权益记录\n\n返回订单与支付\n发起退款\n金额\n¥99.90\n状态\n已支付\n支付方式\n微信支付\n创建时间\n2026/09/17 08:16\n套餐\nPRO · 365 天\n支付时间\n2026/09/17 08:16\n订单号\npay_1789604162362_31d4df9e30306bce\n复制\n购买主体\n个人用户\nusr_01a0acb8-3d12-7aa8-9ffb-47cd6fb6a28f\n查看用户\n本订单退款记录（0）\n本订单尚无退款记录\n本订单资金与权益流水（3）\n支付成功\n支付成功 · 2026-09-17T00:16:03.343Z\n发放权益\n套餐权益已发放 · 2026-09-17T00:16:03.343Z\n创建订单\n创建支付订单 · 2026-09-17T00:16:02.362Z\n技术信息",
+          "headings": [
+            {
+              "text": "订单详情",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "quality-detail",
+    "role": "superAdmin",
+    "label": "质检详情",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "quality-detail-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1459,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "内容管理\n\n质检、复核、发布与回滚\n\n内容工作流\n反馈处理\n试卷列表\n共 119 份\n发布说明\n全选本页（10）\n批量检查（0）\nJLPT-N2-2025_07\n待解析审核\n查看\n检查\n审核解析\nJLPT-N1-2025_07\n质检未通过\n错误 3\n质检详情：3 个阻断问题、0 个提醒\n阻断\n题干为空\n/exam_info/sections/17/passages/0/questions/0\n复制路径\n阻断\n题干为空\n/exam_info/sections/17/passages/1/questions/0\n复制路径\n阻断\n题干为空\n/exam_info/sections/17/passages/1/questions/1\n复制路径\n查看\n检查\nJLPT-N3-2024_12\n待检查\n查看\n检查\nJLPT-N2-2024_12\n待检查\n查看\n检查\nJLPT-N1-2024_12\n待检查\n查看\n检查\nJLPT-N3-2024_07\n待检查\n查看\n检查\nJLPT-N2-2024_07\n待检查\n查看\n检查\nJLPT-N1-2024_07\n待检查\n查看\n检查\nEJU 日本語 入门测评（40题）\n待检查\n查看\n检查\nEJU-Japanese-2024_01\n待检查\n查看\n检查\n共 119 份试卷 · 每页 10 份\n上一页\n第 1 / 12 页\n下一页",
+          "headings": [
+            {
+              "text": "内容管理",
+              "size": "18px"
+            },
+            {
+              "text": "试卷列表",
+              "size": "16px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "bottom",
+        "file": "quality-detail-768-bottom.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1459,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "内容管理\n\n质检、复核、发布与回滚\n\n内容工作流\n反馈处理\n试卷列表\n共 119 份\n发布说明\n全选本页（10）\n批量检查（0）\nJLPT-N2-2025_07\n待解析审核\n查看\n检查\n审核解析\nJLPT-N1-2025_07\n质检未通过\n错误 3\n质检详情：3 个阻断问题、0 个提醒\n阻断\n题干为空\n/exam_info/sections/17/passages/0/questions/0\n复制路径\n阻断\n题干为空\n/exam_info/sections/17/passages/1/questions/0\n复制路径\n阻断\n题干为空\n/exam_info/sections/17/passages/1/questions/1\n复制路径\n查看\n检查\nJLPT-N3-2024_12\n待检查\n查看\n检查\nJLPT-N2-2024_12\n待检查\n查看\n检查\nJLPT-N1-2024_12\n待检查\n查看\n检查\nJLPT-N3-2024_07\n待检查\n查看\n检查\nJLPT-N2-2024_07\n待检查\n查看\n检查\nJLPT-N1-2024_07\n待检查\n查看\n检查\nEJU 日本語 入门测评（40题）\n待检查\n查看\n检查\nEJU-Japanese-2024_01\n待检查\n查看\n检查\n共 119 份试卷 · 每页 10 份\n上一页\n第 1 / 12 页\n下一页",
+          "headings": [
+            {
+              "text": "内容管理",
+              "size": "18px"
+            },
+            {
+              "text": "试卷列表",
+              "size": "16px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "quality-detail-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1459,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "内容管理\n\n质检、复核、发布与回滚\n\n内容工作流\n反馈处理\n试卷列表\n共 119 份\n发布说明\n全选本页（10）\n批量检查（0）\nJLPT-N2-2025_07\n待解析审核\n查看\n检查\n审核解析\nJLPT-N1-2025_07\n质检未通过\n错误 3\n质检详情：3 个阻断问题、0 个提醒\n阻断\n题干为空\n/exam_info/sections/17/passages/0/questions/0\n复制路径\n阻断\n题干为空\n/exam_info/sections/17/passages/1/questions/0\n复制路径\n阻断\n题干为空\n/exam_info/sections/17/passages/1/questions/1\n复制路径\n查看\n检查\nJLPT-N3-2024_12\n待检查\n查看\n检查\nJLPT-N2-2024_12\n待检查\n查看\n检查\nJLPT-N1-2024_12\n待检查\n查看\n检查\nJLPT-N3-2024_07\n待检查\n查看\n检查\nJLPT-N2-2024_07\n待检查\n查看\n检查\nJLPT-N1-2024_07\n待检查\n查看\n检查\nEJU 日本語 入门测评（40题）\n待检查\n查看\n检查\nEJU-Japanese-2024_01\n待检查\n查看\n检查\n共 119 份试卷 · 每页 10 份\n上一页\n第 1 / 12 页\n下一页",
+          "headings": [
+            {
+              "text": "内容管理",
+              "size": "18px"
+            },
+            {
+              "text": "试卷列表",
+              "size": "16px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "quality-detail-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1459,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "内容管理\n\n质检、复核、发布与回滚\n\n内容工作流\n反馈处理\n试卷列表\n共 119 份\n发布说明\n全选本页（10）\n批量检查（0）\nJLPT-N2-2025_07\n待解析审核\n查看\n检查\n审核解析\nJLPT-N1-2025_07\n质检未通过\n错误 3\n质检详情：3 个阻断问题、0 个提醒\n阻断\n题干为空\n/exam_info/sections/17/passages/0/questions/0\n复制路径\n阻断\n题干为空\n/exam_info/sections/17/passages/1/questions/0\n复制路径\n阻断\n题干为空\n/exam_info/sections/17/passages/1/questions/1\n复制路径\n查看\n检查\nJLPT-N3-2024_12\n待检查\n查看\n检查\nJLPT-N2-2024_12\n待检查\n查看\n检查\nJLPT-N1-2024_12\n待检查\n查看\n检查\nJLPT-N3-2024_07\n待检查\n查看\n检查\nJLPT-N2-2024_07\n待检查\n查看\n检查\nJLPT-N1-2024_07\n待检查\n查看\n检查\nEJU 日本語 入门测评（40题）\n待检查\n查看\n检查\nEJU-Japanese-2024_01\n待检查\n查看\n检查\n共 119 份试卷 · 每页 10 份\n上一页\n第 1 / 12 页\n下一页",
+          "headings": [
+            {
+              "text": "内容管理",
+              "size": "18px"
+            },
+            {
+              "text": "试卷列表",
+              "size": "16px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "audit-detail",
+    "role": "superAdmin",
+    "label": "审计弹窗",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "audit-detail-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-responsive-table-region",
+              "text": "时间 操作者 组织 操作 摘要 详情 2026/11/01 16:37 teacher_mobile_ui_20261101 org_01a19641-64e2"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "操作 全部account.session.revoked更新作业自动催交发送作业催交通知退回作业批改作业创建校区执行内容质量检查更新内容审核创建课程包demo."
+            }
+          ],
+          "overflow": [],
+          "text": "系统设置\n\n高危操作与权限变更记录\n\n功能开关\n审计日志\n\n内容修改、授权、退款和系统变更均记录在这里。\n\n导出 CSV\n共 1639 条；当前显示 10 条\n时间\t操作者\t操作\t详情\n2026/11/01 16:37\tteacher_mobile_ui_20261101\t批改作业\t查看详情\n2026/09/12 16:15\tsuperadmin_demo\tpayment.pricing.updated\t查看详情\n2026/09/09 21:22\tsuperadmin_pricing_perm_mtu4oqwf_jk9wo\tpayment.pricing.updated\t查看详情\n2026/09/09 21:20\tteacher_role_perm_mtu4m4v9_elxx3\t更新作业自动催交\t查看详情\n2026/09/09 21:20\tsuperadmin_role_perm_mtu4m8xz_rutaq\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tassistant_role_perm_mtu4m3gy_xm1ws\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tteacher_role_perm_mtu4m4v9_elxx3\t发送作业催交通知\t查看详情\n2026/09/09 21:20\torgadmin_role_perm_mtu4m6eu_e27fp\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tsuperadmin_pricing_perm_mtu4lzql_edb1s\tpayment.pricing.updated\t查看详情\n2026/09/09 21:20\tsuperadmin_org_flag_cross_mtu4ln98_a8ajz\t修改机构功能开关\t查看详情\n← 上一页\n1-10 / 1639\n下一页 →",
+          "headings": [
+            {
+              "text": "系统设置",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "audit-detail-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 950,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-responsive-table-region",
+              "text": "时间 操作者 组织 操作 摘要 详情 2026/11/01 16:37 teacher_mobile_ui_20261101 org_01a19641-64e2"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "操作 全部account.session.revoked更新作业自动催交发送作业催交通知退回作业批改作业创建校区执行内容质量检查更新内容审核创建课程包demo."
+            }
+          ],
+          "overflow": [],
+          "text": "系统设置\n\n高危操作与权限变更记录\n\n功能开关\n审计日志\n\n内容修改、授权、退款和系统变更均记录在这里。\n\n导出 CSV\n共 1639 条；当前显示 10 条\n时间\t操作者\t操作\t详情\n2026/11/01 16:37\tteacher_mobile_ui_20261101\t批改作业\t查看详情\n2026/09/12 16:15\tsuperadmin_demo\tpayment.pricing.updated\t查看详情\n2026/09/09 21:22\tsuperadmin_pricing_perm_mtu4oqwf_jk9wo\tpayment.pricing.updated\t查看详情\n2026/09/09 21:20\tteacher_role_perm_mtu4m4v9_elxx3\t更新作业自动催交\t查看详情\n2026/09/09 21:20\tsuperadmin_role_perm_mtu4m8xz_rutaq\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tassistant_role_perm_mtu4m3gy_xm1ws\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tteacher_role_perm_mtu4m4v9_elxx3\t发送作业催交通知\t查看详情\n2026/09/09 21:20\torgadmin_role_perm_mtu4m6eu_e27fp\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tsuperadmin_pricing_perm_mtu4lzql_edb1s\tpayment.pricing.updated\t查看详情\n2026/09/09 21:20\tsuperadmin_org_flag_cross_mtu4ln98_a8ajz\t修改机构功能开关\t查看详情\n← 上一页\n1-10 / 1639\n下一页 →",
+          "headings": [
+            {
+              "text": "系统设置",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "audit-detail-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 950,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-responsive-table-region",
+              "text": "时间 操作者 组织 操作 摘要 详情 2026/11/01 16:37 teacher_mobile_ui_20261101 org_01a19641-64e2"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "操作 全部account.session.revoked更新作业自动催交发送作业催交通知退回作业批改作业创建校区执行内容质量检查更新内容审核创建课程包demo."
+            }
+          ],
+          "overflow": [],
+          "text": "系统设置\n\n高危操作与权限变更记录\n\n功能开关\n审计日志\n\n内容修改、授权、退款和系统变更均记录在这里。\n\n导出 CSV\n共 1639 条；当前显示 10 条\n时间\t操作者\t操作\t详情\n2026/11/01 16:37\tteacher_mobile_ui_20261101\t批改作业\t查看详情\n2026/09/12 16:15\tsuperadmin_demo\tpayment.pricing.updated\t查看详情\n2026/09/09 21:22\tsuperadmin_pricing_perm_mtu4oqwf_jk9wo\tpayment.pricing.updated\t查看详情\n2026/09/09 21:20\tteacher_role_perm_mtu4m4v9_elxx3\t更新作业自动催交\t查看详情\n2026/09/09 21:20\tsuperadmin_role_perm_mtu4m8xz_rutaq\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tassistant_role_perm_mtu4m3gy_xm1ws\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tteacher_role_perm_mtu4m4v9_elxx3\t发送作业催交通知\t查看详情\n2026/09/09 21:20\torgadmin_role_perm_mtu4m6eu_e27fp\t发送作业催交通知\t查看详情\n2026/09/09 21:20\tsuperadmin_pricing_perm_mtu4lzql_edb1s\tpayment.pricing.updated\t查看详情\n2026/09/09 21:20\tsuperadmin_org_flag_cross_mtu4ln98_a8ajz\t修改机构功能开关\t查看详情\n← 上一页\n1-10 / 1639\n下一页 →",
+          "headings": [
+            {
+              "text": "系统设置",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "member-editor",
+    "role": "orgAdmin",
+    "label": "机构成员展开",
+    "account": "student_mobile_ui_manager_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "member-editor-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 2056,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "排序字段姓名/账号成员编号状态 排序顺序升序降序 每页数量10 条20 条50 条"
+            }
+          ],
+          "overflow": [],
+          "text": "成员管理\n\n成员、邀请和导入\n\n成员管理\n权限管理\n手机布局审查学校 · 日语能力考试与留学课程中心\n付费内容席位 13/30，剩余 17 席；共 17 名成员。\n学员\n12 人\n教学管理员\n1 人\n老师\n1 人\n机构内容管理员\n1 人\n机构管理员\n2 人\n＋ 添加 / 邀请成员\n正式成员\n12 人\nstudent_mobile_ui_01_20261101\nSTU-000006\n学员\n0 项有效权限\n角色与权限\n0 项基础权限 · 0 项额外权限\n基础角色\n选择管理职责，系统会自动授予对应的基础权限\n已包含 0 项基础权限\n学员\n教学管理员\n老师\n机构内容管理员\n机构管理员\n角色自带权限\n随基础角色自动调整，无需逐项设置\n额外权限\n只显示基础角色尚未包含的权限，可按需追加\n已选择 0 项\n布置作业\n查看/批改提交\n催交作业\n查看成绩册\n查看学员档案\n编辑学员档案\n编辑跟进记录\n学习组管理\n约课管理\n课程包管理\n查看课程包\n备课组卷\n导出讲义\n编辑课后反馈\n续费风险\n机构看板\n成员管理\n套餐/席位管理\n发起退款\n查看审计日志\n权限范围与有效期 · 永久有效\n学号\nSTU-000006\n修改\n暂无待保存修改\n保存成员设置\n移除成员\nstudent_mobile_ui_02_20261101\nSTU-000007\n学员\n0 项有效权限\nstudent_mobile_ui_03_20261101\nSTU-000008\n学员\n0 项有效权限\nstudent_mobile_ui_04_20261101\nSTU-000009\n学员\n0 项有效权限\nstudent_mobile_ui_05_20261101\nSTU-000010\n学员\n0 项有效权限\nstudent_mobile_ui_06_20261101\nSTU-000011\n学员\n0 项有效权限\nstudent_mobile_ui_07_20261101\nSTU-000012\n学员\n0 项有效权限\nstudent_mobile_ui_08_20261101\nSTU-000013\n学员\n0 项有效权限\nstudent_mobile_ui_09_20261101\nSTU-000014\n学员\n0 项有效权限\nstudent_mobile_ui_10_20261101\nSTU-000015\n学员\n0 项有效权限\n待接受邀请 · 0 个\n上一页\n1/2 页\n下一页\n最近成员操作",
+          "headings": [
+            {
+              "text": "成员管理",
+              "size": "18px"
+            },
+            {
+              "text": "角色与权限",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "bottom",
+        "file": "member-editor-768-bottom.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 2056,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "排序字段姓名/账号成员编号状态 排序顺序升序降序 每页数量10 条20 条50 条"
+            }
+          ],
+          "overflow": [],
+          "text": "成员管理\n\n成员、邀请和导入\n\n成员管理\n权限管理\n手机布局审查学校 · 日语能力考试与留学课程中心\n付费内容席位 13/30，剩余 17 席；共 17 名成员。\n学员\n12 人\n教学管理员\n1 人\n老师\n1 人\n机构内容管理员\n1 人\n机构管理员\n2 人\n＋ 添加 / 邀请成员\n正式成员\n12 人\nstudent_mobile_ui_01_20261101\nSTU-000006\n学员\n0 项有效权限\n角色与权限\n0 项基础权限 · 0 项额外权限\n基础角色\n选择管理职责，系统会自动授予对应的基础权限\n已包含 0 项基础权限\n学员\n教学管理员\n老师\n机构内容管理员\n机构管理员\n角色自带权限\n随基础角色自动调整，无需逐项设置\n额外权限\n只显示基础角色尚未包含的权限，可按需追加\n已选择 0 项\n布置作业\n查看/批改提交\n催交作业\n查看成绩册\n查看学员档案\n编辑学员档案\n编辑跟进记录\n学习组管理\n约课管理\n课程包管理\n查看课程包\n备课组卷\n导出讲义\n编辑课后反馈\n续费风险\n机构看板\n成员管理\n套餐/席位管理\n发起退款\n查看审计日志\n权限范围与有效期 · 永久有效\n学号\nSTU-000006\n修改\n暂无待保存修改\n保存成员设置\n移除成员\nstudent_mobile_ui_02_20261101\nSTU-000007\n学员\n0 项有效权限\nstudent_mobile_ui_03_20261101\nSTU-000008\n学员\n0 项有效权限\nstudent_mobile_ui_04_20261101\nSTU-000009\n学员\n0 项有效权限\nstudent_mobile_ui_05_20261101\nSTU-000010\n学员\n0 项有效权限\nstudent_mobile_ui_06_20261101\nSTU-000011\n学员\n0 项有效权限\nstudent_mobile_ui_07_20261101\nSTU-000012\n学员\n0 项有效权限\nstudent_mobile_ui_08_20261101\nSTU-000013\n学员\n0 项有效权限\nstudent_mobile_ui_09_20261101\nSTU-000014\n学员\n0 项有效权限\nstudent_mobile_ui_10_20261101\nSTU-000015\n学员\n0 项有效权限\n待接受邀请 · 0 个\n上一页\n1/2 页\n下一页\n最近成员操作",
+          "headings": [
+            {
+              "text": "成员管理",
+              "size": "18px"
+            },
+            {
+              "text": "角色与权限",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "member-editor-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 2019,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "排序字段姓名/账号成员编号状态 排序顺序升序降序 每页数量10 条20 条50 条"
+            }
+          ],
+          "overflow": [],
+          "text": "成员管理\n\n成员、邀请和导入\n\n成员管理\n权限管理\n手机布局审查学校 · 日语能力考试与留学课程中心\n付费内容席位 13/30，剩余 17 席；共 17 名成员。\n学员\n12 人\n教学管理员\n1 人\n老师\n1 人\n机构内容管理员\n1 人\n机构管理员\n2 人\n＋ 添加 / 邀请成员\n正式成员\n12 人\nstudent_mobile_ui_01_20261101\nSTU-000006\n学员\n0 项有效权限\n角色与权限\n0 项基础权限 · 0 项额外权限\n基础角色\n选择管理职责，系统会自动授予对应的基础权限\n已包含 0 项基础权限\n学员\n教学管理员\n老师\n机构内容管理员\n机构管理员\n角色自带权限\n随基础角色自动调整，无需逐项设置\n额外权限\n只显示基础角色尚未包含的权限，可按需追加\n已选择 0 项\n布置作业\n查看/批改提交\n催交作业\n查看成绩册\n查看学员档案\n编辑学员档案\n编辑跟进记录\n学习组管理\n约课管理\n课程包管理\n查看课程包\n备课组卷\n导出讲义\n编辑课后反馈\n续费风险\n机构看板\n成员管理\n套餐/席位管理\n发起退款\n查看审计日志\n权限范围与有效期 · 永久有效\n学号\nSTU-000006\n修改\n暂无待保存修改\n保存成员设置\n移除成员\nstudent_mobile_ui_02_20261101\nSTU-000007\n学员\n0 项有效权限\nstudent_mobile_ui_03_20261101\nSTU-000008\n学员\n0 项有效权限\nstudent_mobile_ui_04_20261101\nSTU-000009\n学员\n0 项有效权限\nstudent_mobile_ui_05_20261101\nSTU-000010\n学员\n0 项有效权限\nstudent_mobile_ui_06_20261101\nSTU-000011\n学员\n0 项有效权限\nstudent_mobile_ui_07_20261101\nSTU-000012\n学员\n0 项有效权限\nstudent_mobile_ui_08_20261101\nSTU-000013\n学员\n0 项有效权限\nstudent_mobile_ui_09_20261101\nSTU-000014\n学员\n0 项有效权限\nstudent_mobile_ui_10_20261101\nSTU-000015\n学员\n0 项有效权限\n待接受邀请 · 0 个\n上一页\n1/2 页\n下一页\n最近成员操作",
+          "headings": [
+            {
+              "text": "成员管理",
+              "size": "18px"
+            },
+            {
+              "text": "角色与权限",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "member-editor-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 2019,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "排序字段姓名/账号成员编号状态 排序顺序升序降序 每页数量10 条20 条50 条"
+            }
+          ],
+          "overflow": [],
+          "text": "成员管理\n\n成员、邀请和导入\n\n成员管理\n权限管理\n手机布局审查学校 · 日语能力考试与留学课程中心\n付费内容席位 13/30，剩余 17 席；共 17 名成员。\n学员\n12 人\n教学管理员\n1 人\n老师\n1 人\n机构内容管理员\n1 人\n机构管理员\n2 人\n＋ 添加 / 邀请成员\n正式成员\n12 人\nstudent_mobile_ui_01_20261101\nSTU-000006\n学员\n0 项有效权限\n角色与权限\n0 项基础权限 · 0 项额外权限\n基础角色\n选择管理职责，系统会自动授予对应的基础权限\n已包含 0 项基础权限\n学员\n教学管理员\n老师\n机构内容管理员\n机构管理员\n角色自带权限\n随基础角色自动调整，无需逐项设置\n额外权限\n只显示基础角色尚未包含的权限，可按需追加\n已选择 0 项\n布置作业\n查看/批改提交\n催交作业\n查看成绩册\n查看学员档案\n编辑学员档案\n编辑跟进记录\n学习组管理\n约课管理\n课程包管理\n查看课程包\n备课组卷\n导出讲义\n编辑课后反馈\n续费风险\n机构看板\n成员管理\n套餐/席位管理\n发起退款\n查看审计日志\n权限范围与有效期 · 永久有效\n学号\nSTU-000006\n修改\n暂无待保存修改\n保存成员设置\n移除成员\nstudent_mobile_ui_02_20261101\nSTU-000007\n学员\n0 项有效权限\nstudent_mobile_ui_03_20261101\nSTU-000008\n学员\n0 项有效权限\nstudent_mobile_ui_04_20261101\nSTU-000009\n学员\n0 项有效权限\nstudent_mobile_ui_05_20261101\nSTU-000010\n学员\n0 项有效权限\nstudent_mobile_ui_06_20261101\nSTU-000011\n学员\n0 项有效权限\nstudent_mobile_ui_07_20261101\nSTU-000012\n学员\n0 项有效权限\nstudent_mobile_ui_08_20261101\nSTU-000013\n学员\n0 项有效权限\nstudent_mobile_ui_09_20261101\nSTU-000014\n学员\n0 项有效权限\nstudent_mobile_ui_10_20261101\nSTU-000015\n学员\n0 项有效权限\n待接受邀请 · 0 个\n上一页\n1/2 页\n下一页\n最近成员操作",
+          "headings": [
+            {
+              "text": "成员管理",
+              "size": "18px"
+            },
+            {
+              "text": "角色与权限",
+              "size": "14px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "allocation",
+    "role": "orgAdmin",
+    "label": "课时分配展开",
+    "account": "student_mobile_ui_manager_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "allocation-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-package-action",
+              "text": "课时分配课程包模板JLPT 阅读与听力完整课程 · 30 课时 · 30 课时手机审查课时账户 1 · 20 课时手机审查课时账户 2 · 20 课时手机审查课"
+            },
+            {
+              "depth": 2,
+              "element": "section.pc-package-section",
+              "text": "学员课程包剩余 / 总课时状态操作student_mobile_ui_01_20261101手机审查课时账户 120 / 20正常查看收起学习组：未加入学习组已"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "课程包全部课程包JLPT 阅读与听力完整课程 · 30 课时手机审查课时账户 1手机审查课时账户 2手机审查课时账户 3手机审查课时账户 4状态全部状态正常暂停"
+            }
+          ],
+          "overflow": [],
+          "text": "课时管理\n课程包\n课时管理\n学习组\n机构看板\n手机布局审查学校 · 日语能力考试与留学课程中心\n课程包\n课时管理 · 4\n学习组\n课时分配\n课程包模板\nJLPT 阅读与听力完整课程 · 30 课时 · 30 课时\n手机审查课时账户 1 · 20 课时\n手机审查课时账户 2 · 20 课时\n手机审查课时账户 3 · 20 课时\n手机审查课时账户 4 · 20 课时\n状态\n正常\n选择学员\n已选 0 人\n全选当前结果\n清空\nstudent_mobile_ui_01_20261101\nstudent_mobile_ui_02_20261101\nstudent_mobile_ui_03_20261101\nstudent_mobile_ui_04_20261101\nstudent_mobile_ui_05_20261101\nstudent_mobile_ui_06_20261101\nstudent_mobile_ui_07_20261101\nstudent_mobile_ui_08_20261101\nstudent_mobile_ui_09_20261101\nstudent_mobile_ui_10_20261101\nstudent_mobile_ui_11_20261101\nstudent_mobile_ui_12_20261101\n默认显示前 20 人；输入关键词可查找全部 12 名学员。\n确认分配\n学员\n课程包\n剩余 / 总课时\n状态\n操作\nstudent_mobile_ui_01_20261101\n手机审查课时账户 1\n20 / 20\n正常\n查看\nstudent_mobile_ui_02_20261101\n手机审查课时账户 2\n15 / 20\n正常\n查看\nstudent_mobile_ui_03_20261101\n手机审查课时账户 3\n10 / 20\n正常\n查看\nstudent_mobile_ui_04_20261101\n手机审查课时账户 4\n5 / 20\n正常\n查看\n第 1/1 页\n上一页\n下一页",
+          "headings": [
+            {
+              "text": "课时管理",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "allocation-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-package-action",
+              "text": "课时分配课程包模板JLPT 阅读与听力完整课程 · 30 课时 · 30 课时手机审查课时账户 1 · 20 课时手机审查课时账户 2 · 20 课时手机审查课"
+            },
+            {
+              "depth": 2,
+              "element": "section.pc-package-section",
+              "text": "学员课程包剩余 / 总课时状态操作student_mobile_ui_01_20261101手机审查课时账户 120 / 20正常查看收起学习组：未加入学习组已"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "课程包全部课程包JLPT 阅读与听力完整课程 · 30 课时手机审查课时账户 1手机审查课时账户 2手机审查课时账户 3手机审查课时账户 4状态全部状态正常暂停"
+            }
+          ],
+          "overflow": [],
+          "text": "课时管理\n课程包\n课时管理\n学习组\n机构看板\n手机布局审查学校 · 日语能力考试与留学课程中心\n课程包\n课时管理 · 4\n学习组\n课时分配\n课程包模板\nJLPT 阅读与听力完整课程 · 30 课时 · 30 课时\n手机审查课时账户 1 · 20 课时\n手机审查课时账户 2 · 20 课时\n手机审查课时账户 3 · 20 课时\n手机审查课时账户 4 · 20 课时\n状态\n正常\n选择学员\n已选 0 人\n全选当前结果\n清空\nstudent_mobile_ui_01_20261101\nstudent_mobile_ui_02_20261101\nstudent_mobile_ui_03_20261101\nstudent_mobile_ui_04_20261101\nstudent_mobile_ui_05_20261101\nstudent_mobile_ui_06_20261101\nstudent_mobile_ui_07_20261101\nstudent_mobile_ui_08_20261101\nstudent_mobile_ui_09_20261101\nstudent_mobile_ui_10_20261101\nstudent_mobile_ui_11_20261101\nstudent_mobile_ui_12_20261101\n默认显示前 20 人；输入关键词可查找全部 12 名学员。\n确认分配\n学员\n课程包\n剩余 / 总课时\n状态\n操作\nstudent_mobile_ui_01_20261101\n手机审查课时账户 1\n20 / 20\n正常\n查看\nstudent_mobile_ui_02_20261101\n手机审查课时账户 2\n15 / 20\n正常\n查看\nstudent_mobile_ui_03_20261101\n手机审查课时账户 3\n10 / 20\n正常\n查看\nstudent_mobile_ui_04_20261101\n手机审查课时账户 4\n5 / 20\n正常\n查看\n第 1/1 页\n上一页\n下一页",
+          "headings": [
+            {
+              "text": "课时管理",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "billing-purchase",
+    "role": "orgAdmin",
+    "label": "机构购买报价",
+    "account": "student_mobile_ui_manager_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "billing-purchase-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "套餐与账单\n\n购买、续费和席位\n\n套餐与账单\n机构设置\n审计日志\n手机布局审查学校 · 日语能力考试与留学课程中心\n当前权益\n当前套餐\nPRO\n套餐状态\n使用中\n付费内容席位\n13 / 30\n到期日期\n长期有效\n续费或增加席位\n选择总席位与周期，确认报价后支付\n套餐\n机构 PRO\n当前开放套餐\n购买后的总席位\n计费周期\n年付 · 365 天（推荐）\n支付方式\n微信支付\n当前密码\nPRO · 30 席 · 年付累进价\n20 席×¥99.9 ＋ 10 席×¥89.9 · 合计 ¥2897 · 折合 ¥241.42/月\n席位数表示付款后的总容量，不是本次新增数量。学员和可查看试卷内容的老师占席；纯管理、教务角色不占席。\n确认报价并支付\n自动续费设置",
+          "headings": [
+            {
+              "text": "套餐与账单",
+              "size": "18px"
+            },
+            {
+              "text": "当前权益",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "billing-purchase-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "套餐与账单\n\n购买、续费和席位\n\n套餐与账单\n机构设置\n审计日志\n手机布局审查学校 · 日语能力考试与留学课程中心\n当前权益\n当前套餐\nPRO\n套餐状态\n使用中\n付费内容席位\n13 / 30\n到期日期\n长期有效\n续费或增加席位\n选择总席位与周期，确认报价后支付\n套餐\n机构 PRO\n当前开放套餐\n购买后的总席位\n计费周期\n年付 · 365 天（推荐）\n支付方式\n微信支付\n当前密码\nPRO · 30 席 · 年付累进价\n20 席×¥99.9 ＋ 10 席×¥89.9 · 合计 ¥2897 · 折合 ¥241.42/月\n席位数表示付款后的总容量，不是本次新增数量。学员和可查看试卷内容的老师占席；纯管理、教务角色不占席。\n确认报价并支付\n自动续费设置",
+          "headings": [
+            {
+              "text": "套餐与账单",
+              "size": "18px"
+            },
+            {
+              "text": "当前权益",
+              "size": "14px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "campus-edit",
+    "role": "orgAdmin",
+    "label": "校区编辑",
+    "account": "student_mobile_ui_manager_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "campus-edit-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-org-invite-item",
+              "text": "手机审查校区 · 日本语教学楼正常编辑长地址与长文本布局检查，不是真实联系地址"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "排序名称状态顺序升序降序每页数量10 条20 条50 条"
+            }
+          ],
+          "overflow": [],
+          "text": "机构设置\n\n校区和机构审计\n\n套餐与账单\n机构设置\n审计日志\n手机布局审查学校 · 日语能力考试与留学课程中心\n校区管理\n1 个校区\n＋ 新建\n新建或编辑校区\n校区名称\n状态\n正常\n已停用\n地址/备注\n保存校区\n手机审查校区 · 日本语教学楼正常\n编辑\n长地址与长文本布局检查，不是真实联系地址\n上一页\n第 1 / 1 页\n下一页",
+          "headings": [
+            {
+              "text": "机构设置",
+              "size": "18px"
+            },
+            {
+              "text": "校区管理",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "campus-edit-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-org-invite-item",
+              "text": "手机审查校区 · 日本语教学楼正常编辑长地址与长文本布局检查，不是真实联系地址"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "text": "排序名称状态顺序升序降序每页数量10 条20 条50 条"
+            }
+          ],
+          "overflow": [],
+          "text": "机构设置\n\n校区和机构审计\n\n套餐与账单\n机构设置\n审计日志\n手机布局审查学校 · 日语能力考试与留学课程中心\n校区管理\n1 个校区\n＋ 新建\n新建或编辑校区\n校区名称\n状态\n正常\n已停用\n地址/备注\n保存校区\n手机审查校区 · 日本语教学楼正常\n编辑\n长地址与长文本布局检查，不是真实联系地址\n上一页\n第 1 / 1 页\n下一页",
+          "headings": [
+            {
+              "text": "机构设置",
+              "size": "18px"
+            },
+            {
+              "text": "校区管理",
+              "size": "14px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "dashboard-open",
+    "role": "orgAdmin",
+    "label": "机构看板全部展开",
+    "account": "student_mobile_ui_manager_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "dashboard-open-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 3991,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-plan-card",
+              "text": "机构 PRO¥15/席/月 单校区、小型培训机构和小型团队 年付 ¥99.9/席 · 折合 ¥8.33/席/月 最低 1 席 · 完整教学闭环 · 1 个主管理"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-plan-card.is-recommended",
+              "text": "机构 ULTRA · 推荐¥39/席/月 多校区、中型机构及深度分析需求 年付 ¥299/席 · 折合 ¥24.92/席/月 最低 30 席 · 跨校区分析 ·"
+            }
+          ],
+          "overflow": [],
+          "text": "机构看板\n\n趋势和风险\n\n课程包\n课时管理\n学习组\n机构看板\n教学履约与跟进\n开始日期\n结束日期\n查看看板\n已完成 / 已排课\n0 / 2\n出勤率\n—\n待结算\n1\n待确认请假\n0\n\n按授课开始日期统计，出勤率仅使用已记录考勤。未结算课次不推断出勤；待跟进包含所选结束日期前到期的未完成安排。\n\n全部班级\nJLPT N3 阅读与听力提高班 · 周末学习组\n全部课次\n已完成\n已结束待结算\n有请假记录\n已取消\n手机布局检查 · 待结算课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/10/30 15:00 · 待上课 · 待结算\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n手机布局检查 · 阅读与听力课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/11/02 15:00 · 待上课\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n待跟进（1）\nstudent_mobile_ui_01_20261101\n负责人：assistant_mobile_ui_20261101 · 下次：2026/11/02 16:37\n学员档案\n学习概况与机构能力\n机构工作台已经接入学习组、作业、成绩册、席位、学员档案和备课工具。\n当前机构套餐\n机构 PRO\n学习组 / 学员 / 作业\n1 / 12 / 3\n席位\n13 / 30 已用\n可用席位\n17 · 成员 17\n平均作业得分\n75.8%\n当前套餐功能\n核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。\n核心教学\n学习组管理\n布置作业\n自动批改\n成绩册\n学员档案\n高级管理\n机构看板\n老师教学看板\n续费风险（未开通）\n批量导入\n备课组卷\n导出讲义\n多老师协作\n审计日志\n多校区（未开通）\n专属成功支持（未开通）\n当前锁定：续费风险\n作业完成\n手机布局检查 · 待批改阅读作业\n1/12 · 66.7% 提交催交\n手机布局检查 · 未提交听力作业\n0/12 提交催交\n手机布局检查 · 已批改专项练习\n1/12 · 85.0% 提交催交\n续费风险\n当前套餐未开通续费风险。\n老师教学概览\nassistant_mobile_ui_20261101\n1 组 · 3 作业\nteacher_mobile_ui_20261101\n1 组 · 3 作业\n学习组平均分趋势\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业\n66.7% · 1/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 未提交听力作业\n暂无 · 0/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 已批改专项练习\n85.0% · 1/12\n学员排名\n1. student_mobile_ui_01_20261101\n66.7% · 1 次\n2. student_mobile_ui_02_20261101\n66.7% · 1 次\n3. student_mobile_ui_03_20261101\n暂无 · 0 次\n4. student_mobile_ui_04_20261101\n暂无 · 0 次\n5. student_mobile_ui_05_20261101\n暂无 · 0 次\n各题型弱项\n词汇\n33.3% · 错 2/6\n机构套餐价格\n价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500、501 席以上累进计价。\n机构 PRO\n¥15/席/月\n单校区、小型培训机构和小型团队\n年付 ¥99.9/席 · 折合 ¥8.33/席/月\n最低 1 席 · 完整教学闭环 · 1 个主管理员 · 可增管理账号 · 基础统计与标准导出\n机构 ULTRA · 推荐\n¥39/席/月\n多校区、中型机构及深度分析需求\n年付 ¥299/席 · 折合 ¥24.92/席/月\n最低 30 席 · 跨校区分析 · 风险预警与自动报告 · 1 个主管理员 · 可增管理账号\nJLPT N3 阅读与听力提高班 · 周末学习组\n创建学习组\n添加学员\n布置作业\n打开成绩册\n批量导入预览\n备课组卷\n自动批改来自学生提交答案后的统计结果；成绩册会自动聚合提交状态、正确率和平均分。\n老师/学员日程\n手机布局检查 · 待结算课程\n2026/10/30 15:00 - 2026/10/30 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 - 2026/11/02 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 - 2026/11/04 16:00 · japanese\n课程包预警\n学员 · JLPT 阅读与听力完整课程 · 30 课时\n30/30 次 · 状态正常\nstudent_mobile_ui_01_20261101 · 手机审查课时账户 1\n20/20 次 · 状态正常\nstudent_mobile_ui_02_20261101 · 手机审查课时账户 2\n15/20 次 · 状态正常\nstudent_mobile_ui_03_20261101 · 手机审查课时账户 3\n10/20 次 · 状态正常\nstudent_mobile_ui_04_20261101 · 手机审查课时账户 4\n5/20 次 · 状态正常\n学生学习关系\nstudent_mobile_ui_01_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_07_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_02_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_05_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_03_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_08_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_04_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_06_20261101\n1 个学习关系 · 0 个课程包\n已保存备课方案\n手机布局检查 · 阅读备课方案\nN3_2010_07 · 3 题",
+          "headings": [
+            {
+              "text": "机构看板",
+              "size": "18px"
+            },
+            {
+              "text": "教学履约与跟进",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "bottom",
+        "file": "dashboard-open-768-bottom.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 3991,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-plan-card",
+              "text": "机构 PRO¥15/席/月 单校区、小型培训机构和小型团队 年付 ¥99.9/席 · 折合 ¥8.33/席/月 最低 1 席 · 完整教学闭环 · 1 个主管理"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-plan-card.is-recommended",
+              "text": "机构 ULTRA · 推荐¥39/席/月 多校区、中型机构及深度分析需求 年付 ¥299/席 · 折合 ¥24.92/席/月 最低 30 席 · 跨校区分析 ·"
+            }
+          ],
+          "overflow": [],
+          "text": "机构看板\n\n趋势和风险\n\n课程包\n课时管理\n学习组\n机构看板\n教学履约与跟进\n开始日期\n结束日期\n查看看板\n已完成 / 已排课\n0 / 2\n出勤率\n—\n待结算\n1\n待确认请假\n0\n\n按授课开始日期统计，出勤率仅使用已记录考勤。未结算课次不推断出勤；待跟进包含所选结束日期前到期的未完成安排。\n\n全部班级\nJLPT N3 阅读与听力提高班 · 周末学习组\n全部课次\n已完成\n已结束待结算\n有请假记录\n已取消\n手机布局检查 · 待结算课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/10/30 15:00 · 待上课 · 待结算\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n手机布局检查 · 阅读与听力课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/11/02 15:00 · 待上课\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n待跟进（1）\nstudent_mobile_ui_01_20261101\n负责人：assistant_mobile_ui_20261101 · 下次：2026/11/02 16:37\n学员档案\n学习概况与机构能力\n机构工作台已经接入学习组、作业、成绩册、席位、学员档案和备课工具。\n当前机构套餐\n机构 PRO\n学习组 / 学员 / 作业\n1 / 12 / 3\n席位\n13 / 30 已用\n可用席位\n17 · 成员 17\n平均作业得分\n75.8%\n当前套餐功能\n核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。\n核心教学\n学习组管理\n布置作业\n自动批改\n成绩册\n学员档案\n高级管理\n机构看板\n老师教学看板\n续费风险（未开通）\n批量导入\n备课组卷\n导出讲义\n多老师协作\n审计日志\n多校区（未开通）\n专属成功支持（未开通）\n当前锁定：续费风险\n作业完成\n手机布局检查 · 待批改阅读作业\n1/12 · 66.7% 提交催交\n手机布局检查 · 未提交听力作业\n0/12 提交催交\n手机布局检查 · 已批改专项练习\n1/12 · 85.0% 提交催交\n续费风险\n当前套餐未开通续费风险。\n老师教学概览\nassistant_mobile_ui_20261101\n1 组 · 3 作业\nteacher_mobile_ui_20261101\n1 组 · 3 作业\n学习组平均分趋势\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业\n66.7% · 1/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 未提交听力作业\n暂无 · 0/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 已批改专项练习\n85.0% · 1/12\n学员排名\n1. student_mobile_ui_01_20261101\n66.7% · 1 次\n2. student_mobile_ui_02_20261101\n66.7% · 1 次\n3. student_mobile_ui_03_20261101\n暂无 · 0 次\n4. student_mobile_ui_04_20261101\n暂无 · 0 次\n5. student_mobile_ui_05_20261101\n暂无 · 0 次\n各题型弱项\n词汇\n33.3% · 错 2/6\n机构套餐价格\n价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500、501 席以上累进计价。\n机构 PRO\n¥15/席/月\n单校区、小型培训机构和小型团队\n年付 ¥99.9/席 · 折合 ¥8.33/席/月\n最低 1 席 · 完整教学闭环 · 1 个主管理员 · 可增管理账号 · 基础统计与标准导出\n机构 ULTRA · 推荐\n¥39/席/月\n多校区、中型机构及深度分析需求\n年付 ¥299/席 · 折合 ¥24.92/席/月\n最低 30 席 · 跨校区分析 · 风险预警与自动报告 · 1 个主管理员 · 可增管理账号\nJLPT N3 阅读与听力提高班 · 周末学习组\n创建学习组\n添加学员\n布置作业\n打开成绩册\n批量导入预览\n备课组卷\n自动批改来自学生提交答案后的统计结果；成绩册会自动聚合提交状态、正确率和平均分。\n老师/学员日程\n手机布局检查 · 待结算课程\n2026/10/30 15:00 - 2026/10/30 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 - 2026/11/02 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 - 2026/11/04 16:00 · japanese\n课程包预警\n学员 · JLPT 阅读与听力完整课程 · 30 课时\n30/30 次 · 状态正常\nstudent_mobile_ui_01_20261101 · 手机审查课时账户 1\n20/20 次 · 状态正常\nstudent_mobile_ui_02_20261101 · 手机审查课时账户 2\n15/20 次 · 状态正常\nstudent_mobile_ui_03_20261101 · 手机审查课时账户 3\n10/20 次 · 状态正常\nstudent_mobile_ui_04_20261101 · 手机审查课时账户 4\n5/20 次 · 状态正常\n学生学习关系\nstudent_mobile_ui_01_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_07_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_02_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_05_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_03_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_08_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_04_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_06_20261101\n1 个学习关系 · 0 个课程包\n已保存备课方案\n手机布局检查 · 阅读备课方案\nN3_2010_07 · 3 题",
+          "headings": [
+            {
+              "text": "机构看板",
+              "size": "18px"
+            },
+            {
+              "text": "教学履约与跟进",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "dashboard-open-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 3512,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-plan-card",
+              "text": "机构 PRO¥15/席/月 单校区、小型培训机构和小型团队 年付 ¥99.9/席 · 折合 ¥8.33/席/月 最低 1 席 · 完整教学闭环 · 1 个主管理"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-plan-card.is-recommended",
+              "text": "机构 ULTRA · 推荐¥39/席/月 多校区、中型机构及深度分析需求 年付 ¥299/席 · 折合 ¥24.92/席/月 最低 30 席 · 跨校区分析 ·"
+            }
+          ],
+          "overflow": [],
+          "text": "机构看板\n\n趋势和风险\n\n课程包\n课时管理\n学习组\n机构看板\n教学履约与跟进\n开始日期\n结束日期\n查看看板\n已完成 / 已排课\n0 / 2\n出勤率\n—\n待结算\n1\n待确认请假\n0\n\n按授课开始日期统计，出勤率仅使用已记录考勤。未结算课次不推断出勤；待跟进包含所选结束日期前到期的未完成安排。\n\n全部班级\nJLPT N3 阅读与听力提高班 · 周末学习组\n全部课次\n已完成\n已结束待结算\n有请假记录\n已取消\n手机布局检查 · 待结算课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/10/30 15:00 · 待上课 · 待结算\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n手机布局检查 · 阅读与听力课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/11/02 15:00 · 待上课\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n待跟进（1）\nstudent_mobile_ui_01_20261101\n负责人：assistant_mobile_ui_20261101 · 下次：2026/11/02 16:37\n学员档案\n学习概况与机构能力\n机构工作台已经接入学习组、作业、成绩册、席位、学员档案和备课工具。\n当前机构套餐\n机构 PRO\n学习组 / 学员 / 作业\n1 / 12 / 3\n席位\n13 / 30 已用\n可用席位\n17 · 成员 17\n平均作业得分\n75.8%\n当前套餐功能\n核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。\n核心教学\n学习组管理\n布置作业\n自动批改\n成绩册\n学员档案\n高级管理\n机构看板\n老师教学看板\n续费风险（未开通）\n批量导入\n备课组卷\n导出讲义\n多老师协作\n审计日志\n多校区（未开通）\n专属成功支持（未开通）\n当前锁定：续费风险\n作业完成\n手机布局检查 · 待批改阅读作业\n1/12 · 66.7% 提交催交\n手机布局检查 · 未提交听力作业\n0/12 提交催交\n手机布局检查 · 已批改专项练习\n1/12 · 85.0% 提交催交\n续费风险\n当前套餐未开通续费风险。\n老师教学概览\nassistant_mobile_ui_20261101\n1 组 · 3 作业\nteacher_mobile_ui_20261101\n1 组 · 3 作业\n学习组平均分趋势\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业\n66.7% · 1/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 未提交听力作业\n暂无 · 0/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 已批改专项练习\n85.0% · 1/12\n学员排名\n1. student_mobile_ui_01_20261101\n66.7% · 1 次\n2. student_mobile_ui_02_20261101\n66.7% · 1 次\n3. student_mobile_ui_03_20261101\n暂无 · 0 次\n4. student_mobile_ui_04_20261101\n暂无 · 0 次\n5. student_mobile_ui_05_20261101\n暂无 · 0 次\n各题型弱项\n词汇\n33.3% · 错 2/6\n机构套餐价格\n价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500、501 席以上累进计价。\n机构 PRO\n¥15/席/月\n单校区、小型培训机构和小型团队\n年付 ¥99.9/席 · 折合 ¥8.33/席/月\n最低 1 席 · 完整教学闭环 · 1 个主管理员 · 可增管理账号 · 基础统计与标准导出\n机构 ULTRA · 推荐\n¥39/席/月\n多校区、中型机构及深度分析需求\n年付 ¥299/席 · 折合 ¥24.92/席/月\n最低 30 席 · 跨校区分析 · 风险预警与自动报告 · 1 个主管理员 · 可增管理账号\nJLPT N3 阅读与听力提高班 · 周末学习组\n创建学习组\n添加学员\n布置作业\n打开成绩册\n批量导入预览\n备课组卷\n自动批改来自学生提交答案后的统计结果；成绩册会自动聚合提交状态、正确率和平均分。\n老师/学员日程\n手机布局检查 · 待结算课程\n2026/10/30 15:00 - 2026/10/30 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 - 2026/11/02 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 - 2026/11/04 16:00 · japanese\n课程包预警\n学员 · JLPT 阅读与听力完整课程 · 30 课时\n30/30 次 · 状态正常\nstudent_mobile_ui_01_20261101 · 手机审查课时账户 1\n20/20 次 · 状态正常\nstudent_mobile_ui_02_20261101 · 手机审查课时账户 2\n15/20 次 · 状态正常\nstudent_mobile_ui_03_20261101 · 手机审查课时账户 3\n10/20 次 · 状态正常\nstudent_mobile_ui_04_20261101 · 手机审查课时账户 4\n5/20 次 · 状态正常\n学生学习关系\nstudent_mobile_ui_01_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_07_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_02_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_05_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_03_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_08_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_04_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_06_20261101\n1 个学习关系 · 0 个课程包\n已保存备课方案\n手机布局检查 · 阅读备课方案\nN3_2010_07 · 3 题",
+          "headings": [
+            {
+              "text": "机构看板",
+              "size": "18px"
+            },
+            {
+              "text": "教学履约与跟进",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "dashboard-open-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 3512,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-plan-card",
+              "text": "机构 PRO¥15/席/月 单校区、小型培训机构和小型团队 年付 ¥99.9/席 · 折合 ¥8.33/席/月 最低 1 席 · 完整教学闭环 · 1 个主管理"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-plan-card.is-recommended",
+              "text": "机构 ULTRA · 推荐¥39/席/月 多校区、中型机构及深度分析需求 年付 ¥299/席 · 折合 ¥24.92/席/月 最低 30 席 · 跨校区分析 ·"
+            }
+          ],
+          "overflow": [],
+          "text": "机构看板\n\n趋势和风险\n\n课程包\n课时管理\n学习组\n机构看板\n教学履约与跟进\n开始日期\n结束日期\n查看看板\n已完成 / 已排课\n0 / 2\n出勤率\n—\n待结算\n1\n待确认请假\n0\n\n按授课开始日期统计，出勤率仅使用已记录考勤。未结算课次不推断出勤；待跟进包含所选结束日期前到期的未完成安排。\n\n全部班级\nJLPT N3 阅读与听力提高班 · 周末学习组\n全部课次\n已完成\n已结束待结算\n有请假记录\n已取消\n手机布局检查 · 待结算课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/10/30 15:00 · 待上课 · 待结算\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n手机布局检查 · 阅读与听力课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/11/02 15:00 · 待上课\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n待跟进（1）\nstudent_mobile_ui_01_20261101\n负责人：assistant_mobile_ui_20261101 · 下次：2026/11/02 16:37\n学员档案\n学习概况与机构能力\n机构工作台已经接入学习组、作业、成绩册、席位、学员档案和备课工具。\n当前机构套餐\n机构 PRO\n学习组 / 学员 / 作业\n1 / 12 / 3\n席位\n13 / 30 已用\n可用席位\n17 · 成员 17\n平均作业得分\n75.8%\n当前套餐功能\n核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。\n核心教学\n学习组管理\n布置作业\n自动批改\n成绩册\n学员档案\n高级管理\n机构看板\n老师教学看板\n续费风险（未开通）\n批量导入\n备课组卷\n导出讲义\n多老师协作\n审计日志\n多校区（未开通）\n专属成功支持（未开通）\n当前锁定：续费风险\n作业完成\n手机布局检查 · 待批改阅读作业\n1/12 · 66.7% 提交催交\n手机布局检查 · 未提交听力作业\n0/12 提交催交\n手机布局检查 · 已批改专项练习\n1/12 · 85.0% 提交催交\n续费风险\n当前套餐未开通续费风险。\n老师教学概览\nassistant_mobile_ui_20261101\n1 组 · 3 作业\nteacher_mobile_ui_20261101\n1 组 · 3 作业\n学习组平均分趋势\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业\n66.7% · 1/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 未提交听力作业\n暂无 · 0/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 已批改专项练习\n85.0% · 1/12\n学员排名\n1. student_mobile_ui_01_20261101\n66.7% · 1 次\n2. student_mobile_ui_02_20261101\n66.7% · 1 次\n3. student_mobile_ui_03_20261101\n暂无 · 0 次\n4. student_mobile_ui_04_20261101\n暂无 · 0 次\n5. student_mobile_ui_05_20261101\n暂无 · 0 次\n各题型弱项\n词汇\n33.3% · 错 2/6\n机构套餐价格\n价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500、501 席以上累进计价。\n机构 PRO\n¥15/席/月\n单校区、小型培训机构和小型团队\n年付 ¥99.9/席 · 折合 ¥8.33/席/月\n最低 1 席 · 完整教学闭环 · 1 个主管理员 · 可增管理账号 · 基础统计与标准导出\n机构 ULTRA · 推荐\n¥39/席/月\n多校区、中型机构及深度分析需求\n年付 ¥299/席 · 折合 ¥24.92/席/月\n最低 30 席 · 跨校区分析 · 风险预警与自动报告 · 1 个主管理员 · 可增管理账号\nJLPT N3 阅读与听力提高班 · 周末学习组\n创建学习组\n添加学员\n布置作业\n打开成绩册\n批量导入预览\n备课组卷\n自动批改来自学生提交答案后的统计结果；成绩册会自动聚合提交状态、正确率和平均分。\n老师/学员日程\n手机布局检查 · 待结算课程\n2026/10/30 15:00 - 2026/10/30 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 - 2026/11/02 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 - 2026/11/04 16:00 · japanese\n课程包预警\n学员 · JLPT 阅读与听力完整课程 · 30 课时\n30/30 次 · 状态正常\nstudent_mobile_ui_01_20261101 · 手机审查课时账户 1\n20/20 次 · 状态正常\nstudent_mobile_ui_02_20261101 · 手机审查课时账户 2\n15/20 次 · 状态正常\nstudent_mobile_ui_03_20261101 · 手机审查课时账户 3\n10/20 次 · 状态正常\nstudent_mobile_ui_04_20261101 · 手机审查课时账户 4\n5/20 次 · 状态正常\n学生学习关系\nstudent_mobile_ui_01_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_07_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_02_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_05_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_03_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_08_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_04_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_06_20261101\n1 个学习关系 · 0 个课程包\n已保存备课方案\n手机布局检查 · 阅读备课方案\nN3_2010_07 · 3 题",
+          "headings": [
+            {
+              "text": "机构看板",
+              "size": "18px"
+            },
+            {
+              "text": "教学履约与跟进",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "assignment-create",
+    "role": "teacher",
+    "label": "布置作业",
+    "account": "teacher_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "assignment-create-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-teaching-preview",
+              "text": "选择试卷后预览题目"
+            }
+          ],
+          "overflow": [],
+          "text": "布置作业\n刷新\n复制本班上次作业\n沿用标题和题目；截止时间、定向名单与提交记录不复制。\n学习组\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局审查学校 · 日语能力考试与留学课程中心\n试卷\n请选择试卷\nJLPT-N2-2025_07\nJLPT-N1-2025_07\nJLPT-N3-2024_12\nJLPT-N2-2024_12\nJLPT-N1-2024_12\nJLPT-N3-2024_07\nJLPT-N2-2024_07\nJLPT-N1-2024_07\nEJU 日本語 入门测评（40题）\nEJU-Japanese-2024_01\nJLPT-N3-2023_12\nJLPT-N2-2023_12\nJLPT-N1-2023_12\nJLPT-N3-2023_07\nJLPT-N2-2023_07\nJLPT-N1-2023_07\nEJU-Japanese-2023_02\nEJU-Japanese-2023_01\nJLPT-N3-2022_12\nJLPT-N2-2022_12\nJLPT-N1-2022_12\nJLPT-N3-2022_07\nJLPT-N2-2022_07\nJLPT-N1-2022_07\nEJU-Japanese-2022_02\nEJU-Japanese-2022_01\nJLPT-N3-2021_12\nJLPT-N2-2021_12\nJLPT-N1-2021_12\nJLPT-N3-2021_07\nJLPT-N2-2021_07\nJLPT-N1-2021_07\nEJU-Japanese-2021_02\nEJU-Japanese-2021_01\nJLPT-N3-2020_12\nJLPT-N2-2020_12\nJLPT-N1-2020_12\nEJU-Japanese-2020_02\nJLPT-N3-2019_12\nJLPT-N2-2019_12\nJLPT-N1-2019_12\nJLPT-N3-2019_07\nJLPT-N2-2019_07\nJLPT-N1-2019_07\nEJU-Japanese-2019_01\nJLPT-N3-2018_12\nJLPT-N2-2018_12\nJLPT-N1-2018_12\nJLPT-N3-2018_07\nJLPT-N2-2018_07\nJLPT-N1-2018_07\nEJU-Japanese-2018_02\nEJU-Japanese-2018_01\nJLPT-N3-2017_12\nJLPT-N2-2017_12\nJLPT-N1-2017_12\nJLPT-N3-2017_07\nJLPT-N2-2017_07\nJLPT-N1-2017_07\nEJU-Japanese-2017_02\nEJU-Japanese-2017_01\nJLPT-N3-2016_12\nJLPT-N2-2016_12\nJLPT-N1-2016_12\nJLPT-N3-2016_07\nJLPT-N2-2016_07\nJLPT-N1-2016_07\nEJU-Japanese-2016_02\nEJU-Japanese-2016_01\nJLPT-N3-2015_12\nJLPT-N2-2015_12\nJLPT-N1-2015_12\nJLPT-N3-2015_07\nJLPT-N2-2015_07\nJLPT-N1-2015_07\nEJU-Japanese-2015_02\nEJU-Japanese-2015_01\nJLPT-N3-2014_12\nJLPT-N2-2014_12\nJLPT-N1-2014_12\nJLPT-N3-2014_07\nJLPT-N2-2014_07\nJLPT-N1-2014_07\nEJU-Japanese-2014_02\nEJU-Japanese-2014_01\nJLPT-N3-2013_12\nJLPT-N2-2013_12\nJLPT-N1-2013_12\nJLPT-N3-2013_07\nJLPT-N2-2013_07\nJLPT-N1-2013_07\nEJU-Japanese-2013_02\nEJU-Japanese-2013_01\nJLPT-N3-2012_12\nJLPT-N2-2012_12\nJLPT-N1-2012_12\nJLPT-N3-2012_07\nJLPT-N2-2012_07\nJLPT-N1-2012_07\nEJU-Japanese-2012_02\nEJU-Japanese-2012_01\nJLPT-N3-2011_12\nJLPT-N2-2011_12\nJLPT-N1-2011_12\nJLPT-N3-2011_07\nJLPT-N2-2011_07\nJLPT-N1-2011_07\nEJU-Japanese-2011_02\nEJU-Japanese-2011_01\nJLPT-N2-2010_12\nJLPT-N1-2010_12\nJLPT-N3-2010_07\nJLPT-N2-2010_07\nJLPT-N1-2010_07\nEJU-Japanese-2010_02\nEJU-Japanese-2010_01\nJLPT N3 入门测评（40题）\nJLPT N2 å…¥é—¨è¯Šæ–­ï¼ˆ40é¢˜ï¼‰\nJLPT N1 入门测评（40题）\n作业标题\n截止时间（可选）\n题目范围（默认整卷）\n选择试卷后预览题目\n\n布置作业",
+          "headings": [
+            {
+              "text": "布置作业",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "assignment-create-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-teaching-preview",
+              "text": "选择试卷后预览题目"
+            }
+          ],
+          "overflow": [],
+          "text": "布置作业\n刷新\n复制本班上次作业\n沿用标题和题目；截止时间、定向名单与提交记录不复制。\n学习组\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局审查学校 · 日语能力考试与留学课程中心\n试卷\n请选择试卷\nJLPT-N2-2025_07\nJLPT-N1-2025_07\nJLPT-N3-2024_12\nJLPT-N2-2024_12\nJLPT-N1-2024_12\nJLPT-N3-2024_07\nJLPT-N2-2024_07\nJLPT-N1-2024_07\nEJU 日本語 入门测评（40题）\nEJU-Japanese-2024_01\nJLPT-N3-2023_12\nJLPT-N2-2023_12\nJLPT-N1-2023_12\nJLPT-N3-2023_07\nJLPT-N2-2023_07\nJLPT-N1-2023_07\nEJU-Japanese-2023_02\nEJU-Japanese-2023_01\nJLPT-N3-2022_12\nJLPT-N2-2022_12\nJLPT-N1-2022_12\nJLPT-N3-2022_07\nJLPT-N2-2022_07\nJLPT-N1-2022_07\nEJU-Japanese-2022_02\nEJU-Japanese-2022_01\nJLPT-N3-2021_12\nJLPT-N2-2021_12\nJLPT-N1-2021_12\nJLPT-N3-2021_07\nJLPT-N2-2021_07\nJLPT-N1-2021_07\nEJU-Japanese-2021_02\nEJU-Japanese-2021_01\nJLPT-N3-2020_12\nJLPT-N2-2020_12\nJLPT-N1-2020_12\nEJU-Japanese-2020_02\nJLPT-N3-2019_12\nJLPT-N2-2019_12\nJLPT-N1-2019_12\nJLPT-N3-2019_07\nJLPT-N2-2019_07\nJLPT-N1-2019_07\nEJU-Japanese-2019_01\nJLPT-N3-2018_12\nJLPT-N2-2018_12\nJLPT-N1-2018_12\nJLPT-N3-2018_07\nJLPT-N2-2018_07\nJLPT-N1-2018_07\nEJU-Japanese-2018_02\nEJU-Japanese-2018_01\nJLPT-N3-2017_12\nJLPT-N2-2017_12\nJLPT-N1-2017_12\nJLPT-N3-2017_07\nJLPT-N2-2017_07\nJLPT-N1-2017_07\nEJU-Japanese-2017_02\nEJU-Japanese-2017_01\nJLPT-N3-2016_12\nJLPT-N2-2016_12\nJLPT-N1-2016_12\nJLPT-N3-2016_07\nJLPT-N2-2016_07\nJLPT-N1-2016_07\nEJU-Japanese-2016_02\nEJU-Japanese-2016_01\nJLPT-N3-2015_12\nJLPT-N2-2015_12\nJLPT-N1-2015_12\nJLPT-N3-2015_07\nJLPT-N2-2015_07\nJLPT-N1-2015_07\nEJU-Japanese-2015_02\nEJU-Japanese-2015_01\nJLPT-N3-2014_12\nJLPT-N2-2014_12\nJLPT-N1-2014_12\nJLPT-N3-2014_07\nJLPT-N2-2014_07\nJLPT-N1-2014_07\nEJU-Japanese-2014_02\nEJU-Japanese-2014_01\nJLPT-N3-2013_12\nJLPT-N2-2013_12\nJLPT-N1-2013_12\nJLPT-N3-2013_07\nJLPT-N2-2013_07\nJLPT-N1-2013_07\nEJU-Japanese-2013_02\nEJU-Japanese-2013_01\nJLPT-N3-2012_12\nJLPT-N2-2012_12\nJLPT-N1-2012_12\nJLPT-N3-2012_07\nJLPT-N2-2012_07\nJLPT-N1-2012_07\nEJU-Japanese-2012_02\nEJU-Japanese-2012_01\nJLPT-N3-2011_12\nJLPT-N2-2011_12\nJLPT-N1-2011_12\nJLPT-N3-2011_07\nJLPT-N2-2011_07\nJLPT-N1-2011_07\nEJU-Japanese-2011_02\nEJU-Japanese-2011_01\nJLPT-N2-2010_12\nJLPT-N1-2010_12\nJLPT-N3-2010_07\nJLPT-N2-2010_07\nJLPT-N1-2010_07\nEJU-Japanese-2010_02\nEJU-Japanese-2010_01\nJLPT N3 入门测评（40题）\nJLPT N2 å…¥é—¨è¯Šæ–­ï¼ˆ40é¢˜ï¼‰\nJLPT N1 入门测评（40题）\n作业标题\n截止时间（可选）\n题目范围（默认整卷）\n选择试卷后预览题目\n\n布置作业",
+          "headings": [
+            {
+              "text": "布置作业",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "prep-form",
+    "role": "teacher",
+    "label": "备课表单",
+    "account": "teacher_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "prep-form-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-teaching-preview",
+              "text": "选择试卷后预览题目"
+            }
+          ],
+          "overflow": [],
+          "text": "新建备课\n刷新\n学习组\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局审查学校 · 日语能力考试与留学课程中心\n试卷\n请选择试卷\nJLPT-N2-2025_07\nJLPT-N1-2025_07\nJLPT-N3-2024_12\nJLPT-N2-2024_12\nJLPT-N1-2024_12\nJLPT-N3-2024_07\nJLPT-N2-2024_07\nJLPT-N1-2024_07\nEJU 日本語 入门测评（40题）\nEJU-Japanese-2024_01\nJLPT-N3-2023_12\nJLPT-N2-2023_12\nJLPT-N1-2023_12\nJLPT-N3-2023_07\nJLPT-N2-2023_07\nJLPT-N1-2023_07\nEJU-Japanese-2023_02\nEJU-Japanese-2023_01\nJLPT-N3-2022_12\nJLPT-N2-2022_12\nJLPT-N1-2022_12\nJLPT-N3-2022_07\nJLPT-N2-2022_07\nJLPT-N1-2022_07\nEJU-Japanese-2022_02\nEJU-Japanese-2022_01\nJLPT-N3-2021_12\nJLPT-N2-2021_12\nJLPT-N1-2021_12\nJLPT-N3-2021_07\nJLPT-N2-2021_07\nJLPT-N1-2021_07\nEJU-Japanese-2021_02\nEJU-Japanese-2021_01\nJLPT-N3-2020_12\nJLPT-N2-2020_12\nJLPT-N1-2020_12\nEJU-Japanese-2020_02\nJLPT-N3-2019_12\nJLPT-N2-2019_12\nJLPT-N1-2019_12\nJLPT-N3-2019_07\nJLPT-N2-2019_07\nJLPT-N1-2019_07\nEJU-Japanese-2019_01\nJLPT-N3-2018_12\nJLPT-N2-2018_12\nJLPT-N1-2018_12\nJLPT-N3-2018_07\nJLPT-N2-2018_07\nJLPT-N1-2018_07\nEJU-Japanese-2018_02\nEJU-Japanese-2018_01\nJLPT-N3-2017_12\nJLPT-N2-2017_12\nJLPT-N1-2017_12\nJLPT-N3-2017_07\nJLPT-N2-2017_07\nJLPT-N1-2017_07\nEJU-Japanese-2017_02\nEJU-Japanese-2017_01\nJLPT-N3-2016_12\nJLPT-N2-2016_12\nJLPT-N1-2016_12\nJLPT-N3-2016_07\nJLPT-N2-2016_07\nJLPT-N1-2016_07\nEJU-Japanese-2016_02\nEJU-Japanese-2016_01\nJLPT-N3-2015_12\nJLPT-N2-2015_12\nJLPT-N1-2015_12\nJLPT-N3-2015_07\nJLPT-N2-2015_07\nJLPT-N1-2015_07\nEJU-Japanese-2015_02\nEJU-Japanese-2015_01\nJLPT-N3-2014_12\nJLPT-N2-2014_12\nJLPT-N1-2014_12\nJLPT-N3-2014_07\nJLPT-N2-2014_07\nJLPT-N1-2014_07\nEJU-Japanese-2014_02\nEJU-Japanese-2014_01\nJLPT-N3-2013_12\nJLPT-N2-2013_12\nJLPT-N1-2013_12\nJLPT-N3-2013_07\nJLPT-N2-2013_07\nJLPT-N1-2013_07\nEJU-Japanese-2013_02\nEJU-Japanese-2013_01\nJLPT-N3-2012_12\nJLPT-N2-2012_12\nJLPT-N1-2012_12\nJLPT-N3-2012_07\nJLPT-N2-2012_07\nJLPT-N1-2012_07\nEJU-Japanese-2012_02\nEJU-Japanese-2012_01\nJLPT-N3-2011_12\nJLPT-N2-2011_12\nJLPT-N1-2011_12\nJLPT-N3-2011_07\nJLPT-N2-2011_07\nJLPT-N1-2011_07\nEJU-Japanese-2011_02\nEJU-Japanese-2011_01\nJLPT-N2-2010_12\nJLPT-N1-2010_12\nJLPT-N3-2010_07\nJLPT-N2-2010_07\nJLPT-N1-2010_07\nEJU-Japanese-2010_02\nEJU-Japanese-2010_01\nJLPT N3 入门测评（40题）\nJLPT N2 å…¥é—¨è¯Šæ–­ï¼ˆ40é¢˜ï¼‰\nJLPT N1 入门测评（40题）\n方案标题\n考点关键词（可选）\n题目范围（默认整卷）\n选择试卷后预览题目\n\n保存备课方案",
+          "headings": [
+            {
+              "text": "新建备课",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "prep-form-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-teaching-preview",
+              "text": "选择试卷后预览题目"
+            }
+          ],
+          "overflow": [],
+          "text": "新建备课\n刷新\n学习组\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局审查学校 · 日语能力考试与留学课程中心\n试卷\n请选择试卷\nJLPT-N2-2025_07\nJLPT-N1-2025_07\nJLPT-N3-2024_12\nJLPT-N2-2024_12\nJLPT-N1-2024_12\nJLPT-N3-2024_07\nJLPT-N2-2024_07\nJLPT-N1-2024_07\nEJU 日本語 入门测评（40题）\nEJU-Japanese-2024_01\nJLPT-N3-2023_12\nJLPT-N2-2023_12\nJLPT-N1-2023_12\nJLPT-N3-2023_07\nJLPT-N2-2023_07\nJLPT-N1-2023_07\nEJU-Japanese-2023_02\nEJU-Japanese-2023_01\nJLPT-N3-2022_12\nJLPT-N2-2022_12\nJLPT-N1-2022_12\nJLPT-N3-2022_07\nJLPT-N2-2022_07\nJLPT-N1-2022_07\nEJU-Japanese-2022_02\nEJU-Japanese-2022_01\nJLPT-N3-2021_12\nJLPT-N2-2021_12\nJLPT-N1-2021_12\nJLPT-N3-2021_07\nJLPT-N2-2021_07\nJLPT-N1-2021_07\nEJU-Japanese-2021_02\nEJU-Japanese-2021_01\nJLPT-N3-2020_12\nJLPT-N2-2020_12\nJLPT-N1-2020_12\nEJU-Japanese-2020_02\nJLPT-N3-2019_12\nJLPT-N2-2019_12\nJLPT-N1-2019_12\nJLPT-N3-2019_07\nJLPT-N2-2019_07\nJLPT-N1-2019_07\nEJU-Japanese-2019_01\nJLPT-N3-2018_12\nJLPT-N2-2018_12\nJLPT-N1-2018_12\nJLPT-N3-2018_07\nJLPT-N2-2018_07\nJLPT-N1-2018_07\nEJU-Japanese-2018_02\nEJU-Japanese-2018_01\nJLPT-N3-2017_12\nJLPT-N2-2017_12\nJLPT-N1-2017_12\nJLPT-N3-2017_07\nJLPT-N2-2017_07\nJLPT-N1-2017_07\nEJU-Japanese-2017_02\nEJU-Japanese-2017_01\nJLPT-N3-2016_12\nJLPT-N2-2016_12\nJLPT-N1-2016_12\nJLPT-N3-2016_07\nJLPT-N2-2016_07\nJLPT-N1-2016_07\nEJU-Japanese-2016_02\nEJU-Japanese-2016_01\nJLPT-N3-2015_12\nJLPT-N2-2015_12\nJLPT-N1-2015_12\nJLPT-N3-2015_07\nJLPT-N2-2015_07\nJLPT-N1-2015_07\nEJU-Japanese-2015_02\nEJU-Japanese-2015_01\nJLPT-N3-2014_12\nJLPT-N2-2014_12\nJLPT-N1-2014_12\nJLPT-N3-2014_07\nJLPT-N2-2014_07\nJLPT-N1-2014_07\nEJU-Japanese-2014_02\nEJU-Japanese-2014_01\nJLPT-N3-2013_12\nJLPT-N2-2013_12\nJLPT-N1-2013_12\nJLPT-N3-2013_07\nJLPT-N2-2013_07\nJLPT-N1-2013_07\nEJU-Japanese-2013_02\nEJU-Japanese-2013_01\nJLPT-N3-2012_12\nJLPT-N2-2012_12\nJLPT-N1-2012_12\nJLPT-N3-2012_07\nJLPT-N2-2012_07\nJLPT-N1-2012_07\nEJU-Japanese-2012_02\nEJU-Japanese-2012_01\nJLPT-N3-2011_12\nJLPT-N2-2011_12\nJLPT-N1-2011_12\nJLPT-N3-2011_07\nJLPT-N2-2011_07\nJLPT-N1-2011_07\nEJU-Japanese-2011_02\nEJU-Japanese-2011_01\nJLPT-N2-2010_12\nJLPT-N1-2010_12\nJLPT-N3-2010_07\nJLPT-N2-2010_07\nJLPT-N1-2010_07\nEJU-Japanese-2010_02\nEJU-Japanese-2010_01\nJLPT N3 入门测评（40题）\nJLPT N2 å…¥é—¨è¯Šæ–­ï¼ˆ40é¢˜ï¼‰\nJLPT N1 入门测评（40题）\n方案标题\n考点关键词（可选）\n题目范围（默认整卷）\n选择试卷后预览题目\n\n保存备课方案",
+          "headings": [
+            {
+              "text": "新建备课",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "grading",
+    "role": "teacher",
+    "label": "作业批改",
+    "account": "teacher_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "grading-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1681,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "手机布局检查 · 待批改阅读作业\n刷新\n\n· 截止 2026/12/01 18:00\n\n待批改 1 人 · 未交 11 人 · 待重做 0 人\n选择学员\nstudent_mobile_ui_01_20261101 · 待批改\nstudent_mobile_ui_02_20261101 · 未提交\nstudent_mobile_ui_03_20261101 · 未提交\nstudent_mobile_ui_04_20261101 · 未提交\nstudent_mobile_ui_05_20261101 · 未提交\nstudent_mobile_ui_06_20261101 · 未提交\nstudent_mobile_ui_07_20261101 · 未提交\nstudent_mobile_ui_08_20261101 · 未提交\nstudent_mobile_ui_09_20261101 · 未提交\nstudent_mobile_ui_10_20261101 · 未提交\nstudent_mobile_ui_11_20261101 · 未提交\nstudent_mobile_ui_12_20261101 · 未提交\n我的常用评语\nstudent_mobile_ui_01_20261101\n已提交\n提交状态\n已提交 · 第 1 次\n成绩\n自动 66.7%\n错题分布\n2 对 / 1 错 / 0 未答\n提交时间\n2026/11/01 16:37\n评语\n人工成绩（0-100，可留空）\n批改历史（0）\n退回重做\n保存批改\n保存并下一份\nstudent_mobile_ui_02_20261101\n尚未提交\nstudent_mobile_ui_03_20261101\n尚未提交\nstudent_mobile_ui_04_20261101\n尚未提交\nstudent_mobile_ui_05_20261101\n尚未提交\nstudent_mobile_ui_06_20261101\n尚未提交\nstudent_mobile_ui_07_20261101\n尚未提交\nstudent_mobile_ui_08_20261101\n尚未提交\nstudent_mobile_ui_09_20261101\n尚未提交\nstudent_mobile_ui_10_20261101\n尚未提交\nstudent_mobile_ui_11_20261101\n尚未提交\nstudent_mobile_ui_12_20261101\n尚未提交\n提交与提醒",
+          "headings": [
+            {
+              "text": "手机布局检查 · 待批改阅读作业",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "bottom",
+        "file": "grading-768-bottom.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1681,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "手机布局检查 · 待批改阅读作业\n刷新\n\n· 截止 2026/12/01 18:00\n\n待批改 1 人 · 未交 11 人 · 待重做 0 人\n选择学员\nstudent_mobile_ui_01_20261101 · 待批改\nstudent_mobile_ui_02_20261101 · 未提交\nstudent_mobile_ui_03_20261101 · 未提交\nstudent_mobile_ui_04_20261101 · 未提交\nstudent_mobile_ui_05_20261101 · 未提交\nstudent_mobile_ui_06_20261101 · 未提交\nstudent_mobile_ui_07_20261101 · 未提交\nstudent_mobile_ui_08_20261101 · 未提交\nstudent_mobile_ui_09_20261101 · 未提交\nstudent_mobile_ui_10_20261101 · 未提交\nstudent_mobile_ui_11_20261101 · 未提交\nstudent_mobile_ui_12_20261101 · 未提交\n我的常用评语\nstudent_mobile_ui_01_20261101\n已提交\n提交状态\n已提交 · 第 1 次\n成绩\n自动 66.7%\n错题分布\n2 对 / 1 错 / 0 未答\n提交时间\n2026/11/01 16:37\n评语\n人工成绩（0-100，可留空）\n批改历史（0）\n退回重做\n保存批改\n保存并下一份\nstudent_mobile_ui_02_20261101\n尚未提交\nstudent_mobile_ui_03_20261101\n尚未提交\nstudent_mobile_ui_04_20261101\n尚未提交\nstudent_mobile_ui_05_20261101\n尚未提交\nstudent_mobile_ui_06_20261101\n尚未提交\nstudent_mobile_ui_07_20261101\n尚未提交\nstudent_mobile_ui_08_20261101\n尚未提交\nstudent_mobile_ui_09_20261101\n尚未提交\nstudent_mobile_ui_10_20261101\n尚未提交\nstudent_mobile_ui_11_20261101\n尚未提交\nstudent_mobile_ui_12_20261101\n尚未提交\n提交与提醒",
+          "headings": [
+            {
+              "text": "手机布局检查 · 待批改阅读作业",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "grading-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1681,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "手机布局检查 · 待批改阅读作业\n刷新\n\n· 截止 2026/12/01 18:00\n\n待批改 1 人 · 未交 11 人 · 待重做 0 人\n选择学员\nstudent_mobile_ui_01_20261101 · 待批改\nstudent_mobile_ui_02_20261101 · 未提交\nstudent_mobile_ui_03_20261101 · 未提交\nstudent_mobile_ui_04_20261101 · 未提交\nstudent_mobile_ui_05_20261101 · 未提交\nstudent_mobile_ui_06_20261101 · 未提交\nstudent_mobile_ui_07_20261101 · 未提交\nstudent_mobile_ui_08_20261101 · 未提交\nstudent_mobile_ui_09_20261101 · 未提交\nstudent_mobile_ui_10_20261101 · 未提交\nstudent_mobile_ui_11_20261101 · 未提交\nstudent_mobile_ui_12_20261101 · 未提交\n我的常用评语\nstudent_mobile_ui_01_20261101\n已提交\n提交状态\n已提交 · 第 1 次\n成绩\n自动 66.7%\n错题分布\n2 对 / 1 错 / 0 未答\n提交时间\n2026/11/01 16:37\n评语\n人工成绩（0-100，可留空）\n批改历史（0）\n退回重做\n保存批改\n保存并下一份\nstudent_mobile_ui_02_20261101\n尚未提交\nstudent_mobile_ui_03_20261101\n尚未提交\nstudent_mobile_ui_04_20261101\n尚未提交\nstudent_mobile_ui_05_20261101\n尚未提交\nstudent_mobile_ui_06_20261101\n尚未提交\nstudent_mobile_ui_07_20261101\n尚未提交\nstudent_mobile_ui_08_20261101\n尚未提交\nstudent_mobile_ui_09_20261101\n尚未提交\nstudent_mobile_ui_10_20261101\n尚未提交\nstudent_mobile_ui_11_20261101\n尚未提交\nstudent_mobile_ui_12_20261101\n尚未提交\n提交与提醒",
+          "headings": [
+            {
+              "text": "手机布局检查 · 待批改阅读作业",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "grading-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1681,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "手机布局检查 · 待批改阅读作业\n刷新\n\n· 截止 2026/12/01 18:00\n\n待批改 1 人 · 未交 11 人 · 待重做 0 人\n选择学员\nstudent_mobile_ui_01_20261101 · 待批改\nstudent_mobile_ui_02_20261101 · 未提交\nstudent_mobile_ui_03_20261101 · 未提交\nstudent_mobile_ui_04_20261101 · 未提交\nstudent_mobile_ui_05_20261101 · 未提交\nstudent_mobile_ui_06_20261101 · 未提交\nstudent_mobile_ui_07_20261101 · 未提交\nstudent_mobile_ui_08_20261101 · 未提交\nstudent_mobile_ui_09_20261101 · 未提交\nstudent_mobile_ui_10_20261101 · 未提交\nstudent_mobile_ui_11_20261101 · 未提交\nstudent_mobile_ui_12_20261101 · 未提交\n我的常用评语\nstudent_mobile_ui_01_20261101\n已提交\n提交状态\n已提交 · 第 1 次\n成绩\n自动 66.7%\n错题分布\n2 对 / 1 错 / 0 未答\n提交时间\n2026/11/01 16:37\n评语\n人工成绩（0-100，可留空）\n批改历史（0）\n退回重做\n保存批改\n保存并下一份\nstudent_mobile_ui_02_20261101\n尚未提交\nstudent_mobile_ui_03_20261101\n尚未提交\nstudent_mobile_ui_04_20261101\n尚未提交\nstudent_mobile_ui_05_20261101\n尚未提交\nstudent_mobile_ui_06_20261101\n尚未提交\nstudent_mobile_ui_07_20261101\n尚未提交\nstudent_mobile_ui_08_20261101\n尚未提交\nstudent_mobile_ui_09_20261101\n尚未提交\nstudent_mobile_ui_10_20261101\n尚未提交\nstudent_mobile_ui_11_20261101\n尚未提交\nstudent_mobile_ui_12_20261101\n尚未提交\n提交与提醒",
+          "headings": [
+            {
+              "text": "手机布局检查 · 待批改阅读作业",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "attendance",
+    "role": "teacher",
+    "label": "出勤结算",
+    "account": "teacher_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "attendance-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1311,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n确认出勤与课时\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n课后反馈（学员可见）\n\n出勤默认扣 1 次，缺席、请假和待补课默认不扣。请逐人确认；保存后生成课时明细。\n\nstudent_mobile_ui_01_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_02_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_03_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_04_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_05_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_06_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_07_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_08_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_09_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_10_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_11_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_12_20261101\n出勤 · 扣 0 次\n完成并结算课时\n取消编辑\n原有单次排课设置",
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "18px"
+            },
+            {
+              "text": "确认出勤与课时",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "bottom",
+        "file": "attendance-768-bottom.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1311,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n确认出勤与课时\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n课后反馈（学员可见）\n\n出勤默认扣 1 次，缺席、请假和待补课默认不扣。请逐人确认；保存后生成课时明细。\n\nstudent_mobile_ui_01_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_02_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_03_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_04_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_05_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_06_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_07_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_08_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_09_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_10_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_11_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_12_20261101\n出勤 · 扣 0 次\n完成并结算课时\n取消编辑\n原有单次排课设置",
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "18px"
+            },
+            {
+              "text": "确认出勤与课时",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "attendance-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1311,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n确认出勤与课时\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n课后反馈（学员可见）\n\n出勤默认扣 1 次，缺席、请假和待补课默认不扣。请逐人确认；保存后生成课时明细。\n\nstudent_mobile_ui_01_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_02_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_03_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_04_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_05_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_06_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_07_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_08_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_09_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_10_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_11_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_12_20261101\n出勤 · 扣 0 次\n完成并结算课时\n取消编辑\n原有单次排课设置",
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "18px"
+            },
+            {
+              "text": "确认出勤与课时",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "attendance-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1311,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n确认出勤与课时\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n课后反馈（学员可见）\n\n出勤默认扣 1 次，缺席、请假和待补课默认不扣。请逐人确认；保存后生成课时明细。\n\nstudent_mobile_ui_01_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_02_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_03_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_04_20261101\n出勤 · 扣 1 次\nstudent_mobile_ui_05_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_06_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_07_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_08_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_09_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_10_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_11_20261101\n出勤 · 扣 0 次\nstudent_mobile_ui_12_20261101\n出勤 · 扣 0 次\n完成并结算课时\n取消编辑\n原有单次排课设置",
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "18px"
+            },
+            {
+              "text": "确认出勤与课时",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-profile",
+    "role": "teacher",
+    "label": "学生档案",
+    "account": "teacher_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "student-profile-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学员档案 · student_mobile_ui_01_20261101\n刷新\n基本资料\n1 个学习组 · 1 个课时账户\n学习表现\n作业\n跟进\n课时与班级\n学习进步与样本比较\n开始日期\n结束日期\n考试目标\nJLPT-N3\n题型\n全部题型\n词汇\n查看进步\n前期 · 2026-08-05 — 2026-09-18\n—\n0 题 · 0 次独立作答\n本期 · 2026-09-19 — 2026-11-02\n66.7%\n3 题 · 1 次独立作答\n正确率变化\n样本不足\n共 3 题；时区 Asia/Shanghai\n\n仅比较所选考试目标和题型的独立作答正确率；按时间中点分为前后两段。样本少于每段 20 题时仅作初步参考，试卷难度差异仍会影响结果。\n\n当前样本较少，变化仅供初步参考。\n\n每日作答明细 · 1 天\n历次学习与补充记录",
+          "headings": [
+            {
+              "text": "学员档案 · student_mobile_ui_01_20261101",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "student-profile-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学员档案 · student_mobile_ui_01_20261101\n刷新\n基本资料\n1 个学习组 · 1 个课时账户\n学习表现\n作业\n跟进\n课时与班级\n学习进步与样本比较\n开始日期\n结束日期\n考试目标\nJLPT-N3\n题型\n全部题型\n词汇\n查看进步\n前期 · 2026-08-05 — 2026-09-18\n—\n0 题 · 0 次独立作答\n本期 · 2026-09-19 — 2026-11-02\n66.7%\n3 题 · 1 次独立作答\n正确率变化\n样本不足\n共 3 题；时区 Asia/Shanghai\n\n仅比较所选考试目标和题型的独立作答正确率；按时间中点分为前后两段。样本少于每段 20 题时仅作初步参考，试卷难度差异仍会影响结果。\n\n当前样本较少，变化仅供初步参考。\n\n每日作答明细 · 1 天\n历次学习与补充记录",
+          "headings": [
+            {
+              "text": "学员档案 · student_mobile_ui_01_20261101",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "followup",
+    "role": "assistant",
+    "label": "学员跟进",
+    "account": "assistant_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "followup-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学员跟进\n\n联系记录与备注\n\n安排跟进\n\nstudent_mobile_ui_01_20261101\n\n负责人\nsuperadmin_demo\nteacher_mobile_ui_20261101\nassistant_mobile_ui_20261101\nstudent_mobile_ui_manager_20261101\n状态\n待跟进\n已联系\n已完成\n下次跟进时间\n跟进内容\n处理结果（完成时必填）\n保存跟进\n取消编辑",
+          "headings": [
+            {
+              "text": "学员跟进",
+              "size": "18px"
+            },
+            {
+              "text": "安排跟进",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "followup-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学员跟进\n\n联系记录与备注\n\n安排跟进\n\nstudent_mobile_ui_01_20261101\n\n负责人\nsuperadmin_demo\nteacher_mobile_ui_20261101\nassistant_mobile_ui_20261101\nstudent_mobile_ui_manager_20261101\n状态\n待跟进\n已联系\n已完成\n下次跟进时间\n跟进内容\n处理结果（完成时必填）\n保存跟进\n取消编辑",
+          "headings": [
+            {
+              "text": "学员跟进",
+              "size": "18px"
+            },
+            {
+              "text": "安排跟进",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "paid-order",
+    "role": "student",
+    "label": "个人订单展开",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "paid-order-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 995,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-order-detail-grid",
+              "text": "套餐内容PRO · 365 天 支付方式微信支付 日常价¥145.00 优惠金额-¥45.10 实付金额¥99.90 有效期2028/09/15 自动续费未开启"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-order-timeline",
+              "text": "订单进度创建订单2026/09/16 08:20支付成功2026/09/16 08:20套餐权益已生效2026/09/16 08:20"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-order-record-detail",
+              "text": "套餐内容PRO · 365 天 支付方式微信支付 日常价¥145.00 优惠金额-¥45.10 实付金额¥99.90 有效期2028/09/15 自动续费未开启"
+            }
+          ],
+          "overflow": [],
+          "text": "套餐与订单\n\n订阅、续费和支付记录\n\n续费 PRO\n\n当前套餐：PRO · 使用中 · 684 天后到期\n\n长期备考套餐：完整题库与解析、薄弱项分析、个性化推荐和标准导出。\n\n30 天\n¥12.9（¥0.43/天）\n日常价 ¥15（省 ¥2.1）\n90 天\n¥29.9（¥0.33/天）\n日常价 ¥40（省 ¥10.1）\n365 天推荐\n¥99.9（¥0.27/天）\n日常价 ¥145（省 ¥45.1）\n支付方式\n微信支付\n支付宝\nStripe（海外卡/国际支付）\n到期自动续费\n渠道签约暂未开放，请到期前手动续费。\n邮件提醒\n接收到期、调价和扣款结果通知。\n365 天 PRO\n微信支付 · 预计到期 2029-09-15\n¥99.9 · 续费 PRO\nULTRA · 暂未开放\n高阶学习能力正在准备中，开放后可在此升级。\n2026~至今订单\n3 笔\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/16 08:20\n¥99.90\n已支付\n套餐内容\nPRO · 365 天\n支付方式\n微信支付\n日常价\n¥145.00\n优惠金额\n-¥45.10\n实付金额\n¥99.90\n有效期\n2028/09/15\n自动续费\n未开启\n邮件提醒\n已开启\n订单号\npay_1789518023028_f1502e0c3d388a94\n复制\n订单进度\n创建订单\n2026/09/16 08:20\n支付成功\n2026/09/16 08:20\n套餐权益已生效\n2026/09/16 08:20\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/16 08:19\n¥99.90\n已支付\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/15 23:48\n¥99.90\n待支付",
+          "headings": [
+            {
+              "text": "套餐与订单",
+              "size": "18px"
+            },
+            {
+              "text": "续费 PRO",
+              "size": "14px"
+            },
+            {
+              "text": "订单进度",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "paid-order-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 995,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-order-detail-grid",
+              "text": "套餐内容PRO · 365 天 支付方式微信支付 日常价¥145.00 优惠金额-¥45.10 实付金额¥99.90 有效期2028/09/15 自动续费未开启"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-order-record-detail",
+              "text": "套餐内容PRO · 365 天 支付方式微信支付 日常价¥145.00 优惠金额-¥45.10 实付金额¥99.90 有效期2028/09/15 自动续费未开启"
+            }
+          ],
+          "overflow": [],
+          "text": "套餐与订单\n\n订阅、续费和支付记录\n\n续费 PRO\n\n当前套餐：PRO · 使用中 · 684 天后到期\n\n长期备考套餐：完整题库与解析、薄弱项分析、个性化推荐和标准导出。\n\n30 天\n¥12.9（¥0.43/天）\n日常价 ¥15（省 ¥2.1）\n90 天\n¥29.9（¥0.33/天）\n日常价 ¥40（省 ¥10.1）\n365 天推荐\n¥99.9（¥0.27/天）\n日常价 ¥145（省 ¥45.1）\n支付方式\n微信支付\n支付宝\nStripe（海外卡/国际支付）\n到期自动续费\n渠道签约暂未开放，请到期前手动续费。\n邮件提醒\n接收到期、调价和扣款结果通知。\n365 天 PRO\n微信支付 · 预计到期 2029-09-15\n¥99.9 · 续费 PRO\nULTRA · 暂未开放\n高阶学习能力正在准备中，开放后可在此升级。\n2026~至今订单\n3 笔\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/16 08:20\n¥99.90\n已支付\n套餐内容\nPRO · 365 天\n支付方式\n微信支付\n日常价\n¥145.00\n优惠金额\n-¥45.10\n实付金额\n¥99.90\n有效期\n2028/09/15\n自动续费\n未开启\n邮件提醒\n已开启\n订单号\npay_1789518023028_f1502e0c3d388a94\n复制\n订单进度\n创建订单\n2026/09/16 08:20\n支付成功\n2026/09/16 08:20\n套餐权益已生效\n2026/09/16 08:20\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/16 08:19\n¥99.90\n已支付\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/15 23:48\n¥99.90\n待支付",
+          "headings": [
+            {
+              "text": "套餐与订单",
+              "size": "18px"
+            },
+            {
+              "text": "续费 PRO",
+              "size": "14px"
+            },
+            {
+              "text": "订单进度",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "paid-order-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 995,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-order-detail-grid",
+              "text": "套餐内容PRO · 365 天 支付方式微信支付 日常价¥145.00 优惠金额-¥45.10 实付金额¥99.90 有效期2028/09/15 自动续费未开启"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-order-record-detail",
+              "text": "套餐内容PRO · 365 天 支付方式微信支付 日常价¥145.00 优惠金额-¥45.10 实付金额¥99.90 有效期2028/09/15 自动续费未开启"
+            }
+          ],
+          "overflow": [],
+          "text": "套餐与订单\n\n订阅、续费和支付记录\n\n续费 PRO\n\n当前套餐：PRO · 使用中 · 684 天后到期\n\n长期备考套餐：完整题库与解析、薄弱项分析、个性化推荐和标准导出。\n\n30 天\n¥12.9（¥0.43/天）\n日常价 ¥15（省 ¥2.1）\n90 天\n¥29.9（¥0.33/天）\n日常价 ¥40（省 ¥10.1）\n365 天推荐\n¥99.9（¥0.27/天）\n日常价 ¥145（省 ¥45.1）\n支付方式\n微信支付\n支付宝\nStripe（海外卡/国际支付）\n到期自动续费\n渠道签约暂未开放，请到期前手动续费。\n邮件提醒\n接收到期、调价和扣款结果通知。\n365 天 PRO\n微信支付 · 预计到期 2029-09-15\n¥99.9 · 续费 PRO\nULTRA · 暂未开放\n高阶学习能力正在准备中，开放后可在此升级。\n2026~至今订单\n3 笔\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/16 08:20\n¥99.90\n已支付\n套餐内容\nPRO · 365 天\n支付方式\n微信支付\n日常价\n¥145.00\n优惠金额\n-¥45.10\n实付金额\n¥99.90\n有效期\n2028/09/15\n自动续费\n未开启\n邮件提醒\n已开启\n订单号\npay_1789518023028_f1502e0c3d388a94\n复制\n订单进度\n创建订单\n2026/09/16 08:20\n支付成功\n2026/09/16 08:20\n套餐权益已生效\n2026/09/16 08:20\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/16 08:19\n¥99.90\n已支付\nPRO 年度套餐\n微信支付 · 365 天 · 2026/09/15 23:48\n¥99.90\n待支付",
+          "headings": [
+            {
+              "text": "套餐与订单",
+              "size": "18px"
+            },
+            {
+              "text": "续费 PRO",
+              "size": "14px"
+            },
+            {
+              "text": "订单进度",
+              "size": "14px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "goal-editor",
+    "role": "student",
+    "label": "学习目标",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "goal-editor-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1075,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 59 天 · 每天 20 分钟\n调整\n其他目标 · 0 个\n修改 JLPT N2 目标\n保存后，此目标将作为当前学习目标；系统按它的每日时间安排后续学习，不叠加其他目标的时间。\n目标考试\nJLPT N1\nJLPT N2\nJLPT N3\nEJU 日本語\nJLPT N2\n考试日期 （自动填入；可手选）\n2026 年 12 月 31 日\n每天可投入时间\n10 分钟\n15 分钟\n20 分钟\n30 分钟\n45 分钟\n60 分钟\n2 小时\n3 小时\n取消\n保存目标\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\n平板阅读复查\n进行中 · 已做0/1题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期34条\n错题与收藏\n待订正0\n收藏2\n学习报告",
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "24px"
+            },
+            {
+              "text": "修改 JLPT N2 目标",
+              "size": "16px"
+            },
+            {
+              "text": "系统学习",
+              "size": "14px"
+            },
+            {
+              "text": "我的课程",
+              "size": "14px"
+            },
+            {
+              "text": "自由练习",
+              "size": "14px"
+            },
+            {
+              "text": "最近练习",
+              "size": "14px"
+            },
+            {
+              "text": "学习档案",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "goal-editor-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1075,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 59 天 · 每天 20 分钟\n调整\n其他目标 · 0 个\n修改 JLPT N2 目标\n保存后，此目标将作为当前学习目标；系统按它的每日时间安排后续学习，不叠加其他目标的时间。\n目标考试\nJLPT N1\nJLPT N2\nJLPT N3\nEJU 日本語\nJLPT N2\n考试日期 （自动填入；可手选）\n2026 年 12 月 31 日\n每天可投入时间\n10 分钟\n15 分钟\n20 分钟\n30 分钟\n45 分钟\n60 分钟\n2 小时\n3 小时\n取消\n保存目标\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\n平板阅读复查\n进行中 · 已做0/1题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期34条\n错题与收藏\n待订正0\n收藏2\n学习报告",
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "24px"
+            },
+            {
+              "text": "修改 JLPT N2 目标",
+              "size": "16px"
+            },
+            {
+              "text": "系统学习",
+              "size": "14px"
+            },
+            {
+              "text": "我的课程",
+              "size": "14px"
+            },
+            {
+              "text": "自由练习",
+              "size": "14px"
+            },
+            {
+              "text": "最近练习",
+              "size": "14px"
+            },
+            {
+              "text": "学习档案",
+              "size": "14px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "goal-editor-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 1075,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 59 天 · 每天 20 分钟\n调整\n其他目标 · 0 个\n修改 JLPT N2 目标\n保存后，此目标将作为当前学习目标；系统按它的每日时间安排后续学习，不叠加其他目标的时间。\n目标考试\nJLPT N1\nJLPT N2\nJLPT N3\nEJU 日本語\nJLPT N2\n考试日期 （自动填入；可手选）\n2026 年 12 月 31 日\n每天可投入时间\n10 分钟\n15 分钟\n20 分钟\n30 分钟\n45 分钟\n60 分钟\n2 小时\n3 小时\n取消\n保存目标\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\n平板阅读复查\n进行中 · 已做0/1题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期34条\n错题与收藏\n待订正0\n收藏2\n学习报告",
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "24px"
+            },
+            {
+              "text": "修改 JLPT N2 目标",
+              "size": "16px"
+            },
+            {
+              "text": "系统学习",
+              "size": "14px"
+            },
+            {
+              "text": "我的课程",
+              "size": "14px"
+            },
+            {
+              "text": "自由练习",
+              "size": "14px"
+            },
+            {
+              "text": "最近练习",
+              "size": "14px"
+            },
+            {
+              "text": "学习档案",
+              "size": "14px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "profile",
+    "role": "student",
+    "label": "账号资料",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "profile-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "个人资料\n\n维护头像、昵称和联系方式\n\n基础资料\n昵称\n保存\n未设置时会先按登录账号显示，你也可以改成自己的名字。\n当前昵称\nstudent_demo\n登录账号\nstudent_demo\n成员编号\nMEM-000670\n邮箱\n未绑定\n最近登录\n2026/11/01 20:48\n联系方式与验证0 / 2 已验证\n头像选择 头像由 DiceBear 生成 — dicebear.com\n身份与套餐\n学员\n当前空间\n知识就是力量\n当前套餐\nFREE · 使用中\n到期时间\n长期",
+          "headings": [
+            {
+              "text": "个人资料",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "profile-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "个人资料\n\n维护头像、昵称和联系方式\n\n基础资料\n昵称\n保存\n未设置时会先按登录账号显示，你也可以改成自己的名字。\n当前昵称\nstudent_demo\n登录账号\nstudent_demo\n成员编号\nMEM-000670\n邮箱\n未绑定\n最近登录\n2026/11/01 20:48\n联系方式与验证0 / 2 已验证\n头像选择 头像由 DiceBear 生成 — dicebear.com\n身份与套餐\n学员\n当前空间\n知识就是力量\n当前套餐\nFREE · 使用中\n到期时间\n长期",
+          "headings": [
+            {
+              "text": "个人资料",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "security",
+    "role": "student",
+    "label": "账号安全",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "security-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "账号安全\n\n管理登录方式和账号安全\n\n未绑定手机号\n🔒\n修改密码\n请先退出并使用验证码登录\n去设置 ›\n📱\n更换手机号\n未验证\n去更换 ›\n💬\n微信登录\n绑定后可使用微信快捷登录本账号\n已绑定 · student_demo ›\n🖥️\n登录设备\n查看有效会话并退出其他设备\n管理 ›\n⌫\n注销账号\n停用账号并退出当前登录\n谨慎操作 ›\n账户数据\n个人资料与联系人\n维护头像、邮箱和手机号\n管理\n数据导出\n完整导出个人资料、学习记录和收藏数据\nPRO 解锁\n多端同步\n查看设备并同步学习进度、收藏和设置\n管理\nGoogle 绑定\n当前未绑定 Google 账号\n未绑定",
+          "headings": [
+            {
+              "text": "账号安全",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "security-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 950,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "账号安全\n\n管理登录方式和账号安全\n\n未绑定手机号\n🔒\n修改密码\n请先退出并使用验证码登录\n去设置 ›\n📱\n更换手机号\n未验证\n去更换 ›\n💬\n微信登录\n绑定后可使用微信快捷登录本账号\n已绑定 · student_demo ›\n🖥️\n登录设备\n查看有效会话并退出其他设备\n管理 ›\n⌫\n注销账号\n停用账号并退出当前登录\n谨慎操作 ›\n账户数据\n个人资料与联系人\n维护头像、邮箱和手机号\n管理\n数据导出\n完整导出个人资料、学习记录和收藏数据\nPRO 解锁\n多端同步\n查看设备并同步学习进度、收藏和设置\n管理\nGoogle 绑定\n当前未绑定 Google 账号\n未绑定",
+          "headings": [
+            {
+              "text": "账号安全",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "security-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 950,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "账号安全\n\n管理登录方式和账号安全\n\n未绑定手机号\n🔒\n修改密码\n请先退出并使用验证码登录\n去设置 ›\n📱\n更换手机号\n未验证\n去更换 ›\n💬\n微信登录\n绑定后可使用微信快捷登录本账号\n已绑定 · student_demo ›\n🖥️\n登录设备\n查看有效会话并退出其他设备\n管理 ›\n⌫\n注销账号\n停用账号并退出当前登录\n谨慎操作 ›\n账户数据\n个人资料与联系人\n维护头像、邮箱和手机号\n管理\n数据导出\n完整导出个人资料、学习记录和收藏数据\nPRO 解锁\n多端同步\n查看设备并同步学习进度、收藏和设置\n管理\nGoogle 绑定\n当前未绑定 Google 账号\n未绑定",
+          "headings": [
+            {
+              "text": "账号安全",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "coupons-open",
+    "role": "student",
+    "label": "兑换和记录展开",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "coupons-open-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "优惠与邀请\n\n邀请奖励、学习金和兑换记录\n\n邀请好友\n分享推荐链接，好友完成个人 PRO 首购后获得学习金。\n推荐链接\nhttp://127.0.0.1:8124/?ref=STUDEN79\n复制链接\n我的优惠\n学习金\n成功邀请 0 人；奖励到账后可在这里查看，退款后相应金额会撤回\n当前可用 ¥0.00\n累计获得 ¥0.00\n暂时还没有已到账的邀请奖励\n兑换码\n兑换套餐、学习积分或其他权益\n100 积分\n兑换码\n确认兑换\n兑换结果将记录在当前账号，已使用过的兑换码不能重复兑换。\n兑换记录\n查看积分码、套餐码和权益码的兑换结果\n1 条\n新用户学习积分包\nWELCOME-100 · 积分券\n已到账 100 学习积分\n2026/06/22 23:35",
+          "headings": [
+            {
+              "text": "优惠与邀请",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "coupons-open-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "优惠与邀请\n\n邀请奖励、学习金和兑换记录\n\n邀请好友\n分享推荐链接，好友完成个人 PRO 首购后获得学习金。\n推荐链接\nhttp://127.0.0.1:8124/?ref=STUDEN79\n复制链接\n我的优惠\n学习金\n成功邀请 0 人；奖励到账后可在这里查看，退款后相应金额会撤回\n当前可用 ¥0.00\n累计获得 ¥0.00\n暂时还没有已到账的邀请奖励\n兑换码\n兑换套餐、学习积分或其他权益\n100 积分\n兑换码\n确认兑换\n兑换结果将记录在当前账号，已使用过的兑换码不能重复兑换。\n兑换记录\n查看积分码、套餐码和权益码的兑换结果\n1 条\n新用户学习积分包\nWELCOME-100 · 积分券\n已到账 100 学习积分\n2026/06/22 23:35",
+          "headings": [
+            {
+              "text": "优惠与邀请",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "messages",
+    "role": "student",
+    "label": "消息中心",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "messages-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 980,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "消息中心\n\n所有身份共用的消息收件箱\n\n全部\n未读 (2)\n刷新\n全部已读\n反馈处理结果\n未读\n\n你的反馈已处理，可再次查看题目内容。\n\n教学消息 · 2026/06/27 14:40 · 内容反馈\n标为已读\n反馈处理结果\n未读\n\n你的反馈已处理，可再次查看题目内容。\n\n教学消息 · 2026/06/25 22:57 · 内容反馈\n标为已读",
+          "headings": [
+            {
+              "text": "消息中心",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "messages-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 994,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "消息中心\n\n所有身份共用的消息收件箱\n\n全部\n未读 (2)\n刷新\n全部已读\n反馈处理结果\n未读\n\n你的反馈已处理，可再次查看题目内容。\n\n教学消息 · 2026/06/27 14:40 · 内容反馈\n标为已读\n反馈处理结果\n未读\n\n你的反馈已处理，可再次查看题目内容。\n\n教学消息 · 2026/06/25 22:57 · 内容反馈\n标为已读",
+          "headings": [
+            {
+              "text": "消息中心",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  }
+]

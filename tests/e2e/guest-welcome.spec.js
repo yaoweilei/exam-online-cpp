@@ -1,5 +1,57 @@
 const { test, expect } = require('@playwright/test');
 
+test('手机在没有原生 randomUUID 时仍可打开首页', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    Object.defineProperty(window.crypto, 'randomUUID', { value: undefined });
+  });
+  await page.goto('/');
+  await expect(page.locator('#guest-welcome .gw-account-trigger')).toBeVisible();
+  await page.locator('#guest-welcome .gw-account-trigger').click();
+  await expect(page.locator('#login-modal')).toBeVisible();
+});
+
+test('访客首页刷新和滚动后保持全宽顶栏', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 500 });
+  await page.goto('/');
+  const topbar = page.locator('#learning-topbar');
+  const root = page.locator('#guest-welcome');
+  const login = root.locator('.gw-account-trigger');
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await expect(topbar.locator('.ls-mobile-toggle')).toBeVisible();
+    await expect(login).toBeVisible();
+    const bar = await topbar.boundingBox();
+    const menu = await page.locator('.ls-menu').boundingBox();
+    const content = await root.boundingBox();
+    const paper = await root.locator('.gw-content').boundingBox();
+    const account = await login.boundingBox();
+    expect(bar.y).toBe(0);
+    expect(bar.height).toBe(44);
+    expect(bar.x).toBe(0);
+    expect(bar.width).toBeGreaterThanOrEqual(1580);
+    expect(Math.abs(paper.x + paper.width - account.x - account.width)).toBeLessThanOrEqual(16);
+    expect(menu.y).toBeGreaterThanOrEqual(bar.y + bar.height);
+    expect(content.y).toBeGreaterThanOrEqual(bar.y + bar.height);
+    await root.evaluate((element) => { element.scrollTop = 300; });
+    expect((await topbar.boundingBox()).y).toBe(bar.y);
+    if (attempt === 0) await page.reload();
+  }
+
+  await topbar.locator('.ls-mobile-toggle').click();
+  await expect(page.locator('.ls-menu')).toBeHidden();
+  await expect(topbar).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(topbar.locator('.ls-mobile-toggle')).toBeVisible();
+  await expect(login).toBeVisible();
+  const mobilePaper = await root.locator('.gw-content').boundingBox();
+  const mobileAccount = await login.boundingBox();
+  expect((await topbar.boundingBox()).height).toBe(44);
+  expect(Math.abs(mobilePaper.x + mobilePaper.width - mobileAccount.x - mobileAccount.width)).toBeLessThanOrEqual(16);
+  await login.click();
+  await expect(page.locator('#login-modal')).toBeVisible();
+});
+
 test('试卷按年份分组，较早年份可展开且保持试卷与题型选择', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/');
@@ -73,6 +125,69 @@ test('手机选择EJU后收起导航，在内容栏选择题型和试卷', async
   await expect(menu).toBeHidden();
 });
 
+test('窄屏游客菜单点击外侧即可收起', async ({ page }) => {
+  for (const width of [740, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    const toggle = page.locator('.ls-mobile-toggle');
+    await toggle.click();
+    const icon = await toggle.locator('.ls-mobile-toggle-mark').evaluate(element => ({
+      topWidth: getComputedStyle(element, '::before').width,
+      middle: getComputedStyle(element, '::before').boxShadow,
+      bottomWidth: getComputedStyle(element, '::after').width,
+    }));
+    expect(icon.topWidth).toBe('20px');
+    expect(icon.middle).not.toBe('none');
+    expect(icon.bottomWidth).toBe('20px');
+    await expect(page.locator('.ls-menu')).toBeVisible();
+    await expect(page.locator('.ls-backdrop')).toBeVisible();
+    await page.locator('.ls-backdrop').click({ position: { x: width - 12, y: 200 } });
+    await expect(page.locator('.ls-menu')).toBeHidden();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  }
+});
+
+test('游客侧栏可收起并在首页与试卷页重新展开', async ({ page }) => {
+  for (const width of [1600, 820]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const collapse = page.locator('.ls-menu footer .ls-collapse');
+    const reopen = page.locator('.ls-mobile-toggle');
+    await expect(collapse).toBeVisible();
+    await expect(collapse).toContainText('收起');
+    await collapse.click();
+    await expect(page.locator('.ls-menu')).toBeHidden();
+    await expect(page.locator('#guest-welcome')).toHaveJSProperty('offsetLeft', Math.max(0, (width - 994) / 2));
+    await expect(reopen).toBeVisible();
+    await expect(reopen).toHaveAttribute('aria-label', '展开功能菜单');
+    const icon = await reopen.locator('.ls-mobile-toggle-mark').evaluate(element => ({
+      width: element.getBoundingClientRect().width,
+      topWidth: getComputedStyle(element, '::before').width,
+      middle: getComputedStyle(element, '::before').boxShadow,
+      bottomWidth: getComputedStyle(element, '::after').width,
+    }));
+    expect(icon.width).toBe(20);
+    expect(icon.topWidth).toBe('20px');
+    expect(icon.middle).not.toBe('none');
+    expect(icon.bottomWidth).toBe('20px');
+    await reopen.click();
+    await expect(page.locator('.ls-menu')).toBeVisible();
+    await expect(page.locator('#guest-welcome')).toHaveJSProperty('offsetLeft', Math.max(0, (width - 240 - 994) / 2) + 240);
+  }
+  const home = page.locator('#guest-welcome');
+  await home.locator('[data-gw="jlpt"]').click();
+  await home.locator('[data-target="JLPT N3"]').click();
+  await home.locator('[data-gw="browse"]:visible').last().click();
+  await home.locator('[data-gw="paper"]').first().click();
+  await page.locator('#guest-welcome .practice-start-btn').click();
+  await expect(home).toBeHidden();
+  await page.locator('.ls-menu footer .ls-collapse').click();
+  await expect(page.locator('#exam-content')).toHaveCSS('margin-left', '0px');
+  await page.locator('.ls-mobile-toggle').click();
+  await expect(page.locator('.ls-menu')).toBeVisible();
+  await expect(page.locator('#exam-content')).toHaveCSS('margin-left', '240px');
+});
+
 test('登录遮罩覆盖导航和正文，关闭后恢复原页面操作', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/');
@@ -84,8 +199,8 @@ test('登录遮罩覆盖导航和正文，关闭后恢复原页面操作', async
   expect(desktopAccount.width).toBe(28);
   expect(desktopAccount.y).toBe(10);
   expect(1600 - desktopAccount.x - desktopAccount.width).toBe(10);
-  const desktopHome = await page.locator('.ls-guest-rail [data-ls-guest-action="home"]').boundingBox();
-  expect(desktopAccount.y + desktopAccount.height / 2).toBe(desktopHome.y + desktopHome.height / 2);
+  await expect(page.locator('.ls-rail')).toBeHidden();
+  expect((await page.locator('.ls-menu').boundingBox()).x).toBe(0);
   await root.locator('[data-gw="login"]').click();
   const modal = page.locator('#login-modal');
   await expect(modal).toBeVisible();
@@ -97,7 +212,17 @@ test('登录遮罩覆盖导航和正文，关闭后恢复原页面操作', async
   await page.mouse.click(28, 36);
   await expect(modal).toBeHidden();
   await expect(root.locator('h1')).toHaveText('把日语一点点学会');
-  await page.locator('.ls-guest-rail [data-ls-guest-action="experience"]').click();
+  await page.locator('.ls-menu [data-ls-guest-action="experience"]').click();
+  await expect(root.locator('.gw-passage')).toBeVisible();
+  await page.locator('.ls-menu [data-ls-guest-action="home"]').click();
+  await expect(root.locator('.gw-goals')).toBeVisible();
+  await expect(root.locator('.gw-passage')).toHaveCount(0);
+  await page.locator('.ls-menu [data-ls-guest-action="experience"]').click();
+  await expect(root.locator('.gw-passage')).toBeVisible();
+  await page.setViewportSize({ width: 820, height: 1180 });
+  await expect(page.locator('.ls-menu')).toHaveCSS('border-radius', '0px');
+  await expect(page.locator('.ls-menu')).toHaveCSS('top', '0px');
+  await page.locator('.ls-menu [data-ls-guest-action="experience"]').click();
   await expect(root.locator('.gw-passage')).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   const mobileAccount = await guestAccount.boundingBox();
@@ -155,7 +280,7 @@ test('游客首页、体验作答、刷新恢复及登录后单题保存', async
   await expect(root).toBeHidden();
   await expect(page.locator('body')).not.toHaveClass(/ls-guest-navigation/);
   await page.setViewportSize({ width: 1600, height: 900 });
-  await expect(page.locator('.ls-rail [data-ls-group="study"]')).toBeVisible();
+  await expect(page.locator('.ls-menu > [data-ls-group="study"]')).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('japanese.guest-experience.v1'))).toBeNull();
 });
 
@@ -233,20 +358,62 @@ test('游客导航与正文宽度、背景统一，手机菜单可进入体验',
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/');
   const root = page.locator('#guest-welcome');
-  await expect(page.locator('.ls-guest-rail button')).toHaveCount(3);
-  const rail = page.locator('.ls-guest-rail');
+  await expect(page.locator('.ls-rail')).toBeHidden();
   const menu = page.locator('.ls-menu');
-  await expect(rail.locator('[data-ls-guest-action="home"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(rail.locator('[data-ls-guest-action="home"]')).toHaveAttribute('aria-current', 'page');
-  await expect(rail.locator('[data-ls-guest-action="home"]')).toHaveCSS('background-color', 'rgb(226, 228, 231)');
-  const railIcons = await rail.locator('button').all();
-  const firstIcon = await railIcons[0].boundingBox();
-  const secondIcon = await railIcons[1].boundingBox();
-  expect(secondIcon.y - firstIcon.y).toBe(52);
+  expect((await menu.boundingBox()).x).toBe((1600 - 240 - 994) / 2);
+  for (const width of [2915, 1600, 1180, 820, 768]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.evaluate(() => {
+      const menu = document.querySelector('.ls-menu').getBoundingClientRect();
+      const content = document.querySelector('#guest-welcome').getBoundingClientRect();
+      const menuStyle = getComputedStyle(document.querySelector('.ls-menu'));
+      return { menuWidth: menu.width, menuRight: menu.right, menuBottom: menu.bottom, contentLeft: content.left, contentTop: content.top, contentRight: content.right, contentBottom: content.bottom,
+        menuLeftBorder: menuStyle.borderLeftWidth, menuTopBorder: menuStyle.borderTopWidth, menuBottomBorder: menuStyle.borderBottomWidth,
+        pageWidth: document.documentElement.scrollWidth };
+    });
+    expect(geometry.menuWidth).toBe(240);
+    expect(geometry.contentLeft).toBe(geometry.menuRight);
+    expect(geometry.contentTop).toBe(44);
+    expect(geometry.contentRight).toBe(width - Math.max(0, (width - 240 - 994) / 2));
+    expect(geometry.contentRight - geometry.contentLeft).toBeLessThanOrEqual(994);
+    expect(geometry.menuLeftBorder).toBe('0px');
+    expect(geometry.menuTopBorder).toBe('0px');
+    expect(geometry.menuBottomBorder).toBe('0px');
+    expect(geometry.menuBottom).toBe(900);
+    expect(geometry.contentBottom).toBe(900);
+    expect(geometry.pageWidth).toBeLessThanOrEqual(width + 1);
+  }
+  await page.setViewportSize({ width: 1600, height: 900 });
   await expect(menu.locator('[data-ls-guest-action="home"]')).toHaveAttribute('aria-current', 'page');
+  const desktopTheme = await menu.locator('.ls-theme-trigger').boundingBox();
+  const desktopCollapse = await menu.locator('footer .ls-collapse').boundingBox();
+  expect(desktopTheme.y + desktopTheme.height).toBeLessThanOrEqual(desktopCollapse.y);
+  expect(900 - desktopCollapse.y - desktopCollapse.height).toBeLessThanOrEqual(20);
+  await expect(menu.locator('.ls-guest-root > .ls-guest-root-row [data-ls-guest-action="home"]')).toHaveText('首页');
+  await expect(menu.locator('.ls-guest-home-links > [data-ls-guest-action="experience"]')).toHaveText('N3 短篇阅读体验');
+  await expect(menu.locator('.ls-guest-home-links > .ls-guest-exams > [data-ls-guest-toggle="exams"]')).toHaveText('选择考试');
+  await expect(menu.locator('.ls-guest-children > [data-ls-guest-action="jlpt"]')).toHaveText('JLPT');
+  await expect(menu.locator('.ls-guest-children > [data-ls-guest-action="eju"]')).toHaveText('EJU');
+  await expect(menu.locator('[data-ls-panel="guest"] > h2')).toHaveCount(0);
+  const homeGroup = menu.locator('[data-ls-guest-toggle="home"]');
+  await homeGroup.click();
+  await expect(homeGroup).toHaveAttribute('aria-expanded', 'false');
+  await expect(menu.locator('[data-ls-guest-action="experience"]')).toBeHidden();
+  await homeGroup.click();
+  await expect(menu.locator('[data-ls-guest-action="experience"]')).toBeVisible();
+  const examGroup = menu.locator('[data-ls-guest-toggle="exams"]');
+  await expect(examGroup).toHaveAttribute('aria-expanded', 'true');
+  expect(await examGroup.evaluate(element => Number(getComputedStyle(element, '::after').transform.match(/matrix\(([^,]+)/)?.[1]))).toBeLessThan(0);
+  await examGroup.click();
+  await expect(menu.locator('[data-ls-guest-action="jlpt"]')).toBeHidden();
+  await expect(examGroup).toHaveAttribute('aria-expanded', 'false');
+  expect(await examGroup.evaluate(element => Number(getComputedStyle(element, '::after').transform.match(/matrix\(([^,]+)/)?.[1]))).toBeGreaterThan(0);
+  await examGroup.click();
+  await expect(menu.locator('[data-ls-guest-action="jlpt"]')).toBeVisible();
+  await expect(menu.locator('[data-ls-guest-action="home"]')).toHaveCSS('border-left-width', '0px');
   expect(await root.evaluate(element => element.querySelector('.gw-experience').compareDocumentPosition(element.querySelector('.gw-goals')) & Node.DOCUMENT_POSITION_FOLLOWING)).toBeTruthy();
   await expect(root.locator('.gw-experience')).toContainText('无需登录');
-  await expect(page.locator('.ls-rail [data-ls-group="study"]')).toBeHidden();
+  await expect(page.locator('.ls-menu > [data-ls-group="study"]')).toBeHidden();
   const layout = await root.locator('.gw-content').evaluate(element => {
     const style = getComputedStyle(element);
     return { textWidth: element.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
@@ -254,12 +421,9 @@ test('游客导航与正文宽度、背景统一，手机菜单可进入体验',
   });
   expect(layout.textWidth).toBe(754);
   expect(layout.background).toBe('rgb(255, 255, 255)');
-  expect(layout.surround).toBe('rgb(241, 242, 244)');
+  expect(layout.surround).toBe(layout.background);
   await page.locator('.ls-menu [data-ls-guest-action="eju"]').click();
   await expect(root.locator('[data-gw="eju"]')).toHaveAttribute('aria-expanded', 'true');
-  await expect(rail.locator('[data-ls-guest-action="exams"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(rail.locator('[data-ls-guest-action="exams"]')).toHaveAttribute('aria-current', 'page');
-  await expect(rail.locator('[data-ls-guest-action="home"]')).not.toHaveAttribute('aria-current', 'page');
   await expect(menu.locator('[data-ls-guest-action="eju"]')).toHaveAttribute('aria-current', 'page');
   await root.locator('[data-gw="jlpt"]').click();
   await root.locator('[data-target="JLPT N2"]').click();
@@ -272,16 +436,15 @@ test('游客导航与正文宽度、背景统一，手机菜单可进入体验',
   await expect(page.locator('.ls-menu')).toBeHidden();
   await page.locator('.ls-mobile-toggle').click();
   await expect(page.locator('.ls-menu')).toBeVisible();
+  const mobileTheme = await menu.locator('.ls-theme-trigger').boundingBox();
+  expect(844 - mobileTheme.y - mobileTheme.height).toBeLessThanOrEqual(20);
   await page.locator('.ls-menu [data-ls-guest-action="experience"]').click();
   await expect(page.locator('.ls-menu')).toBeHidden();
   await expect(root.locator('.gw-passage')).toBeVisible();
-  await expect(rail.locator('[data-ls-guest-action="experience"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(rail.locator('[data-ls-guest-action="experience"]')).toHaveAttribute('aria-current', 'page');
   await expect(menu.locator('[data-ls-guest-action="experience"]')).toHaveAttribute('aria-current', 'page');
   await root.locator('[data-gw="home"]:visible').click();
   await expect(root.locator('h1')).toHaveText('把日语一点点学会');
-  await expect(rail.locator('[data-ls-guest-action="home"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(rail.locator('[data-ls-guest-action="home"]')).toHaveAttribute('aria-current', 'page');
+  await expect(menu.locator('[data-ls-guest-action="home"]')).toHaveAttribute('aria-current', 'page');
   await expect(root.locator('[data-gw="jlpt"]')).toHaveAttribute('aria-expanded', 'false');
   await expect(root.locator('[data-gw="login"]')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();

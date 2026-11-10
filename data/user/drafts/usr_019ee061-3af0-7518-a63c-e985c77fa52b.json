@@ -1,17 +1,21 @@
 {
-  "answered_count" : 1,
+  "answered_count" : 5,
   "answers" : 
   {
-    "0:4" : 4
+    "4:31" : 4,
+    "4:32" : 2,
+    "4:33" : 2,
+    "4:34" : 1,
+    "4:35" : 4
   },
-  "attempt_id" : "attempt-1790522492724-09582b3c6a506",
+  "attempt_id" : "attempt-bf4bb008-c231-442b-b271-df9e585f37ad",
   "attempt_status" : "draft",
-  "exam_id" : "N1_2025_07",
-  "last_question_index" : 3,
-  "last_section_index" : 0,
-  "revision" : 4,
-  "started_at" : "2026-09-27T15:22:52.423Z",
-  "total_questions" : 1,
-  "updated_at" : "2026-09-27T15:22:59.215Z",
+  "exam_id" : "N3_2010_07",
+  "last_question_index" : 4,
+  "last_section_index" : 4,
+  "revision" : 1,
+  "started_at" : "2026-10-18T11:28:18.560Z",
+  "total_questions" : 102,
+  "updated_at" : "2026-10-18T11:28:18.560Z",
   "user_id" : "usr_019ee061-3af0-7518-a63c-e985c77fa52b"
 }

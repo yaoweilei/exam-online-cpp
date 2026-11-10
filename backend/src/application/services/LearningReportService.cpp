@@ -64,7 +64,7 @@ Json::Value LearningReportService::generate(const std::string &userId, const std
 
     // ---- 答题数据聚合 ----
     int exams = 0;
-    long long questions = 0, correct = 0, wrong = 0, unanswered = 0;
+    long long totalQuestions = 0, correct = 0, wrong = 0, unanswered = 0;
     Json::Value papers(Json::arrayValue);
     const auto answers = answerRepo_.listUserAnswers(userId);
     for (const auto &doc : answers)
@@ -77,7 +77,7 @@ Json::Value LearningReportService::generate(const std::string &userId, const std
         const long long cc = stats.get("correct_count", 0).asInt64();
         const long long wc = stats.get("wrong_count", 0).asInt64();
         const long long uc = stats.get("unanswered_count", 0).asInt64();
-        questions += tq;
+        totalQuestions += tq;
         correct += cc;
         wrong += wc;
         unanswered += uc;
@@ -86,9 +86,12 @@ Json::Value LearningReportService::generate(const std::string &userId, const std
         paper["exam_id"] = doc.get("exam_id", "");
         paper["saved_at"] = savedAt;
         paper["total_questions"] = static_cast<Json::Int64>(tq);
+        paper["answered_count"] = static_cast<Json::Int64>(cc + wc);
         paper["correct_count"] = static_cast<Json::Int64>(cc);
         paper["wrong_count"] = static_cast<Json::Int64>(wc);
-        paper["accuracy"] = stats.get("accuracy", 0).asDouble();
+        paper["accuracy"] = (cc + wc) > 0
+            ? Json::Value(static_cast<double>(cc) * 100.0 / static_cast<double>(cc + wc))
+            : Json::Value(Json::nullValue);
         papers.append(paper);
     }
     // 按 saved_at 倒序，最多保留 20 条
@@ -102,11 +105,15 @@ Json::Value LearningReportService::generate(const std::string &userId, const std
 
     Json::Value answersBlock(Json::objectValue);
     answersBlock["exams"] = exams;
-    answersBlock["questions"] = static_cast<Json::Int64>(questions);
+    const auto answered = correct + wrong;
+    answersBlock["questions"] = static_cast<Json::Int64>(answered);
+    answersBlock["total_questions"] = static_cast<Json::Int64>(totalQuestions);
     answersBlock["correct"] = static_cast<Json::Int64>(correct);
     answersBlock["wrong"] = static_cast<Json::Int64>(wrong);
     answersBlock["unanswered"] = static_cast<Json::Int64>(unanswered);
-    answersBlock["accuracy"] = questions > 0 ? static_cast<double>(correct) / static_cast<double>(questions) : 0.0;
+    answersBlock["accuracy"] = answered > 0
+        ? Json::Value(static_cast<double>(correct) * 100.0 / static_cast<double>(answered))
+        : Json::Value(Json::nullValue);
     answersBlock["papers"] = papers;
 
     // ---- 错题统计 ----

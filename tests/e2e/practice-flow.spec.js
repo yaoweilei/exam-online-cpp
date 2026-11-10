@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { openTaskDetails } = require('./helpers/task-navigation');
 
 async function enterPractice(page, family, domain, paperId) {
   await page.setViewportSize({ width: 1600, height: 900 });
@@ -20,47 +21,54 @@ async function enterPractice(page, family, domain, paperId) {
   await expect(home).toBeHidden();
 }
 
-test('中间栏隐藏时刻度进入最左侧图标栏', async ({ page }) => {
+test('游客练习移除刻度与占位，各宽度保留底栏翻题和题目列表', async ({ page }, testInfo) => {
   await enterPractice(page, 'jlpt', '词汇 / 语法');
-  const measure = () => page.evaluate(() => {
-    const paper = document.querySelector('#current-question-container').getBoundingClientRect();
-    const scrubber = document.querySelector('#practice-scrubber').getBoundingClientRect();
-    const rail = document.querySelector('.ls-rail').getBoundingClientRect();
-    const tick = document.querySelector('.practice-scrubber-tick').getBoundingClientRect();
-    const icon = [...document.querySelectorAll('.ls-rail button svg')].find(svg => svg.getBoundingClientRect().width > 0).getBoundingClientRect();
-    return { gap: paper.left - scrubber.right, paperLeft: paper.left, scrubberLeft: scrubber.left, railRight: rail.right, tickLeft: tick.left, iconLeft: icon.left };
-  });
+  await expect(page.locator('.ls-rail')).toBeHidden();
   for (const width of [1600, 1201, 1200, 1000, 820, 768]) {
     await page.setViewportSize({ width, height: 900 });
-    const position = await measure();
-    expect(position.gap).toBeGreaterThanOrEqual(1);
-    expect(position.gap).toBeLessThanOrEqual(3);
-    expect(position.scrubberLeft).toBeGreaterThanOrEqual(position.railRight);
+    const menu = await page.locator('.ls-menu').boundingBox();
+    const paper = await page.locator('#exam-content').boundingBox();
+    expect(menu.x).toBe(Math.max(0, (width - 240 - 994) / 2));
+    expect(menu.width).toBe(240);
+    expect(paper.x).toBe(menu.x + menu.width);
+    expect(paper.width).toBeLessThanOrEqual(994);
+    await expect.poll(() => page.evaluate(() => {
+      const content = document.querySelector('#current-question-container .question-content').getBoundingClientRect();
+      const bar = document.querySelector('.task-nav').getBoundingClientRect();
+      return Math.max(Math.abs(content.left - bar.left), Math.abs(content.right - bar.right));
+    })).toBeLessThanOrEqual(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
+    await expect(page.locator('#practice-scrubber')).toHaveCount(0);
   }
   for (const width of [767, 701]) {
     await page.setViewportSize({ width, height: 900 });
-    const position = await measure();
-    expect(position.railRight).toBe(36);
-    expect(position.scrubberLeft).toBe(0);
-    expect(Math.abs(position.tickLeft - position.iconLeft)).toBeLessThanOrEqual(1);
-    expect(position.paperLeft).toBeGreaterThanOrEqual(position.railRight + 8);
+    await expect(page.locator('.ls-menu')).toBeHidden();
+    await expect(page.locator('.ls-mobile-toggle')).toBeVisible();
+    await expect(page.locator('#practice-scrubber')).toHaveCount(0);
   }
   for (const width of [768, 701, 700, 600, 520, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    expect(await page.locator('#current-question-container').evaluate(paper => paper.getBoundingClientRect().top)).toBe(4);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await expect(page.locator('.task-nav')).toBeVisible();
   }
   await page.setViewportSize({ width: 1600, height: 900 });
-  await page.locator('.ls-collapse').click();
-  const collapsed = await measure();
-  expect(collapsed.railRight).toBe(36);
-  expect(collapsed.scrubberLeft).toBe(0);
-  expect(Math.abs(collapsed.tickLeft - collapsed.iconLeft)).toBeLessThanOrEqual(1);
-  const track = await page.locator('.practice-scrubber-track').boundingBox();
-  await page.mouse.move(track.x + track.width / 2, track.y + track.height / 2);
-  await expect(page.locator('.practice-scrubber-preview')).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('body')).not.toHaveClass(/practice-scrubber-active/);
+  expect((await page.locator('#exam-content').boundingBox()).x).toBe(0);
+  const nav = page.locator('.task-nav');
+  await nav.locator('.next-btn').click();
+  await expect(nav.locator('.question-counter')).toHaveText(/^2 \/ /);
+  await nav.locator('.prev-btn').click();
+  await expect(nav.locator('.question-counter')).toHaveText(/^1 \/ /);
+  await nav.locator('.question-counter').click();
+  await expect(page.locator('#question-map-overlay')).toBeVisible();
+  await page.locator('#question-map-content .question-map-item').nth(1).click();
+  await expect(page.locator('#question-map-overlay')).toBeHidden();
+  await expect(nav.locator('.question-counter')).toHaveText(/^2 \/ /);
+  await page.screenshot({ path: testInfo.outputPath('guest-practice-without-left-ticks.png') });
 });
 
-test('iPad 竖屏默认显示三栏，仍可手动收起中间栏', async ({ page }) => {
+test('iPad 竖屏默认显示两栏，窄屏改用抽屉', async ({ page }) => {
   await enterPractice(page, 'jlpt', '词汇 / 语法');
   for (const width of [768, 820, 1024, 1180]) {
     await page.setViewportSize({ width, height: 1180 });
@@ -69,22 +77,20 @@ test('iPad 竖屏默认显示三栏，仍可手动收起中间栏', async ({ pag
       const menu = document.querySelector('.ls-menu').getBoundingClientRect();
       const paper = document.querySelector('#current-question-container').getBoundingClientRect();
       const options = [...document.querySelectorAll('#current-question-container .option')].map(option => option.getBoundingClientRect());
-      return { railRight: rail.right, menuLeft: menu.left, menuRight: menu.right, menuWidth: menu.width, paperLeft: paper.left,
+      return { railWidth: rail.width, menuLeft: menu.left, menuRight: menu.right, menuWidth: menu.width, paperLeft: paper.left,
         overflow: document.documentElement.scrollWidth > innerWidth + 1,
         optionsFit: options.every(option => option.right <= innerWidth + 1) };
     });
-    expect(layout.railRight).toBe(36);
-    expect(layout.menuLeft).toBe(36);
-    expect(layout.menuWidth).toBeGreaterThanOrEqual(176);
-    expect(layout.menuWidth).toBeLessThanOrEqual(216);
-    expect(layout.paperLeft).toBeGreaterThan(layout.menuRight);
+    expect(layout.railWidth).toBe(0);
+    expect(layout.menuLeft).toBe(0);
+    expect(layout.menuWidth).toBe(240);
+    expect(layout.paperLeft).toBeGreaterThanOrEqual(layout.menuRight);
     expect(layout.overflow).toBeFalsy();
     expect(layout.optionsFit).toBeTruthy();
   }
-  await page.setViewportSize({ width: 820, height: 1180 });
-  await page.locator('.ls-collapse').click();
+  await page.setViewportSize({ width: 767, height: 1180 });
   await expect(page.locator('.ls-menu')).toBeHidden();
-  await page.locator('.ls-collapse').click();
+  await page.locator('.ls-mobile-toggle').click();
   await expect(page.locator('.ls-menu')).toBeVisible();
 });
 
@@ -148,6 +154,7 @@ test('JLPT 长句选项逐行显示，短词仍横排且复盘标记不压住文
 test('题组结果先暂存，登录后转存到账号并可重试失败的保存', async ({ page }) => {
   await enterPractice(page, 'jlpt', '词汇 / 语法');
   await page.locator('#current-question-container .option').first().click();
+  await openTaskDetails(page);
   await page.locator('.end-practice-btn').click();
   await expect(page.locator('#exam-result-modal')).toBeVisible();
   await expect(page.locator('.practice-result-rate strong')).toBeVisible();
@@ -179,6 +186,7 @@ test('题组结果先暂存，登录后转存到账号并可重试失败的保�
   expect(Object.keys(calls[0].answers)).toHaveLength(1);
   await page.locator('[data-practice-action="retry"]').click();
   await page.locator('#current-question-container .option').nth(1).click();
+  await openTaskDetails(page);
   await page.locator('.end-practice-btn').click();
   await expect(page.locator('[data-practice-save-status]')).toContainText('已保存到账号');
   expect(await page.evaluate(() => window.__practiceRecordCalls.length)).toBe(3);
@@ -188,6 +196,7 @@ test('题组结果先暂存，登录后转存到账号并可重试失败的保�
 test('练习结果可从右上角关闭且保留临时记录', async ({ page }) => {
   await enterPractice(page, 'jlpt', '词汇 / 语法');
   await page.locator('#current-question-container .option').first().click();
+  await openTaskDetails(page);
   await page.locator('.end-practice-btn').click();
   const modal = page.locator('#exam-result-modal');
   const close = modal.getByRole('button', { name: '关闭练习结果' });
@@ -202,6 +211,7 @@ test('访客 JLPT 和 EJU 各可完成一次，临时记录位于考试选择之
   await enterPractice(page, 'jlpt', '词汇 / 语法');
   expect(await page.evaluate(() => window.GuestTrialQuota.guestTrialStatus('jlpt').remaining)).toBe(1);
   await page.locator('#current-question-container .option').first().click();
+  await openTaskDetails(page);
   await page.locator('.end-practice-btn').click();
   await expect(page.locator('[data-practice-save-status]')).toContainText('暂存在此浏览器');
   expect(await page.evaluate(() => window.GuestTrialQuota.guestTrialStatus('jlpt').remaining)).toBe(0);
@@ -223,6 +233,7 @@ test('访客 JLPT 和 EJU 各可完成一次，临时记录位于考试选择之
 
   await enterPractice(page, 'eju', '听读解');
   await page.locator('#current-question-container .option').first().click();
+  await openTaskDetails(page);
   await page.locator('.end-practice-btn').click();
   expect(await page.evaluate(() => window.GuestTrialQuota.guestTrialStatus('eju').remaining)).toBe(0);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('japanese.pending-practice-results.v1') || '[]').length)).toBe(2);
@@ -252,6 +263,21 @@ test('2024 EJU 读解 1 按正文段落显示而非扫描行距', async ({ page 
   await expect(passage).not.toContainText('日本語一7');
   await expect(passage).not.toContainText('1. ミルクオリゴ糖を餌にできるのは');
   await expect(page.locator('#current-question-container')).toContainText('筆者は、ミルクオリゴ糖と細菌の関係について、どのように述べていますか。');
+});
+
+test('2024 EJU 记述题显示两个完整主题且不混入 OCR 页眉和注音', async ({ page }) => {
+  await enterPractice(page, 'eju', '记述', '2024_01');
+  const passage = page.locator('#current-question-container .passage-content');
+  await expect(passage).toHaveCount(1);
+  await expect(passage).toContainText('以下の二つのテーマのうち、どちらか一つを選んで400～500字程度で書いてください');
+  await expect(passage.locator('.passage-paragraph:not(.passage-paragraph-blank)')).toHaveCount(8);
+  await expect(passage).toContainText('1.');
+  await expect(passage).toContainText('2.');
+  await expect(passage).toContainText('時刻に関係なく活動ができることには、どのようなよい点と問題点がありますか。');
+  await expect(passage).toContainText('商品の評価や感想を読んだり書いたりすることには、どのようなよい点と問題点がありますか。');
+  await expect(passage).not.toContainText('日本語一3');
+  await expect(passage).not.toContainText('かのう');
+  await expect(passage).not.toContainText('しょうひんひょうか');
 });
 
 test('2024 EJU 读解公告、多问题及图文题没有重复 OCR 题干', async ({ page }) => {
@@ -320,6 +346,61 @@ test('2024 EJU 听读解显示原图、简洁题干和可核对的选项', async
   await expect(container.locator('.option')).toHaveCount(0);
 });
 
+test('2024 EJU 听解只把正解表信息标为答案核对', async ({ page }) => {
+  await enterPractice(page, 'eju', '听解', '2024_01');
+  await page.evaluate(() => {
+    const viewer = window.examViewer;
+    const sectionIndex = viewer.currentExam.exam_info.sections.findIndex(section => section.section_type === 'listening');
+    const questionIndex = viewer.currentExam.exam_info.sections[sectionIndex].questions.findIndex(question => question.eju_answer_no === 17);
+    viewer.jumpToQuestion(sectionIndex, questionIndex, false);
+    viewer.showAnswers = true;
+    viewer.showExplanations = true;
+    viewer.renderExam();
+  });
+  const container = page.locator('#current-question-container');
+  await expect(container.locator('.explanation')).toHaveCount(1);
+  await expect(container.locator('.explanation')).toContainText('【答案核对】');
+  await expect(container.locator('.explanation')).toContainText('听解17番的正确选项是第1项');
+  await expect(container.locator('.explanation')).toContainText('尚无这道题的听力原文和逐题解析');
+  await expect(container.locator('.explanation.answer-extras')).toHaveCount(0);
+});
+
+test('2024 EJU 读解与听读解不把正解表和通用技巧冒充逐题解析', async ({ page }) => {
+  const showNote = async (domain, questionId) => {
+    await enterPractice(page, 'eju', domain, '2024_01');
+    await page.evaluate(id => {
+      const viewer = window.examViewer;
+      const sectionType = viewer.currentExam.exam_info.sections[viewer.currentSectionIndex].section_type;
+      const sectionIndex = viewer.currentExam.exam_info.sections.findIndex(section => section.section_type === sectionType);
+      const questionIndex = viewer.currentExam.exam_info.sections[sectionIndex].questions.findIndex(question => Number(question.id) === id);
+      viewer.jumpToQuestion(sectionIndex, questionIndex, false);
+      viewer.showAnswers = true;
+      viewer.showExplanations = true;
+      viewer.renderExam();
+    }, questionId);
+    return page.locator('#current-question-container');
+  };
+
+  const reading = await showNote('读解', 2);
+  await expect(reading.locator('.explanation')).toContainText('【答案核对】');
+  await expect(reading.locator('.explanation')).toContainText('尚无按原文逐项核对的解析');
+  await expect(reading.locator('.explanation.answer-extras')).toHaveCount(0);
+
+  const listeningReading = await showNote('听读解', 26);
+  await expect(listeningReading.locator('.explanation')).toContainText('【答案核对】');
+  await expect(listeningReading.locator('.explanation')).toContainText('尚无完整听力原文和逐题解析');
+  await expect(listeningReading.locator('.explanation.answer-extras')).toHaveCount(0);
+
+  await page.evaluate(() => {
+    const viewer = window.examViewer;
+    const sectionIndex = viewer.currentExam.exam_info.sections.findIndex(section => section.section_type === 'listening_reading');
+    const questionIndex = viewer.currentExam.exam_info.sections[sectionIndex].questions.findIndex(question => question.eju_answer_no === 10);
+    viewer.jumpToQuestion(sectionIndex, questionIndex, false);
+    viewer.renderExam();
+  });
+  await expect(listeningReading.locator('.explanation')).toContainText('【资料说明】');
+});
+
 test('其他年份 EJU 听读解使用对应图片与分题音频', async ({ page }) => {
   for (const sample of [
     { paper: '2018_01', question: 26, image: 'listening_reading_q01_material.jpg', audio: 'track_06.mp3', options: 4 },
@@ -351,52 +432,34 @@ test('听读解在本题型结束，检查、结果、复盘及重练形成闭�
     window.APIClient.savePracticeGroup = async payload => ({ submission_id: payload.submission_id });
     window.UserContextManager.getInstance().setUserContext({ id: 'student_eju_practice', guest: false });
   });
-  await expect(page.locator('.check-btn')).toBeDisabled();
+  await expect(page.locator('.check-btn')).toBeEnabled();
+  await page.locator('.check-btn').click();
+  await expect(page.locator('#app-toast')).toContainText('请先选择答案');
   const info = await page.evaluate(() => {
     const v = window.examViewer;
     const questions = v.getPracticeQuestions();
     const outside = v.currentExam.exam_info.sections.findIndex((_, i) => !v.practiceScope.sectionIndexes.includes(i));
     const outsideQuestion = v.currentExam.exam_info.sections[outside].questions[0];
     v.answerManager.setAnswerComposite(outside, String(outsideQuestion.id), 1);
-    return { total: questions.length, firstAnswer: questions[0].question.correct_answer, second: questions[1], outside, outsideId: String(outsideQuestion.id) };
+    return { total: questions.length, firstAnswer: questions[0].question.correct_answer, second: questions[1], last: questions.at(-1), outside, outsideId: String(outsideQuestion.id) };
   });
   await page.locator(`.option[data-option-index="${info.firstAnswer}"]`).first().click();
-  await expect(page.locator('.question-counter')).toContainText(`已答1/${info.total}`);
+  await expect(page.locator('.task-progress')).toHaveText(`已答 1/${info.total} 题`);
   await page.locator('.check-btn').click();
   await expect(page.locator('.option.correct-option')).toBeVisible();
   await page.locator('.next-btn').click();
   await expect(page.locator('.option.correct-option')).toHaveCount(0);
   const wrong = Number(info.second.question.correct_answer) === 1 ? 2 : 1;
   await page.locator(`.option[data-option-index="${wrong}"]`).first().click();
-  const scrubber = page.locator('#practice-scrubber');
-  await expect(scrubber.locator('.practice-scrubber-tick')).toHaveCount(info.total);
-  await expect.poll(async () => scrubber.locator('.practice-scrubber-tick').evaluateAll(ticks =>
-    ticks.slice(0, 3).map(tick => Number(getComputedStyle(tick).opacity))
-  )).toEqual([0.95, 1, 0.42]);
-  await expect.poll(async () => scrubber.locator('.practice-scrubber-tick').evaluateAll(ticks =>
-    ticks.slice(0, 5).map(tick => Math.round(parseFloat(getComputedStyle(tick).width)))
-  )).toEqual([6, 6, 6, 6, 6]);
+  await expect(page.locator('#practice-scrubber')).toHaveCount(0);
   await expect(page.locator('#open-question-map')).toBeHidden();
   await expect(page.locator('.ls-menu .exam-mode-field')).toBeHidden();
-  const track = await scrubber.locator('.practice-scrubber-track').boundingBox();
-  await page.mouse.move(track.x + track.width / 2, track.y + track.height - 3);
-  await expect(scrubber.locator('.practice-scrubber-preview')).toBeVisible();
-  await expect(scrubber.locator('.practice-scrubber-preview')).toContainText(`第 ${info.total} 题`);
-  await expect.poll(async () => scrubber.locator('.practice-scrubber-tick').evaluateAll(ticks =>
-    ticks.slice(-4).map(tick => Math.round(parseFloat(getComputedStyle(tick).width)))
-  )).toEqual([10, 14, 20, 26]);
-  const tickLefts = await scrubber.locator('.practice-scrubber-tick').evaluateAll(ticks =>
-    ticks.slice(-4).map(tick => tick.getBoundingClientRect().left)
-  );
-  expect(new Set(tickLefts).size).toBe(1);
-  await expect(scrubber).toHaveAttribute('aria-valuenow', '2');
-  await page.mouse.move(track.x + track.width + 70, track.y + track.height - 3);
-  await expect.poll(async () => scrubber.locator('.practice-scrubber-tick').evaluateAll(ticks =>
-    ticks.map(tick => Math.round(parseFloat(getComputedStyle(tick).width)))
-  )).toEqual(Array(info.total).fill(6));
-  await page.mouse.click(track.x + track.width / 2, track.y + track.height - 3);
-  await expect(scrubber).toHaveAttribute('aria-valuenow', String(info.total));
-  await expect(page.locator('.next-btn')).toHaveText('完成听读解');
+  await openTaskDetails(page);
+  await page.locator('#question-navigation .question-counter').click();
+  await expect(page.locator('#question-map-content .question-map-item')).toHaveCount(info.total);
+  await page.locator(`#question-map-content .question-map-item[data-section="${info.last.sectionIndex}"][data-question="${info.last.questionIndex}"]`).click();
+  await expect(page.locator('#question-map-overlay')).toBeHidden();
+  await expect(page.locator('.next-btn')).toHaveText('完成练习');
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#exam-result-modal')).toBeVisible();
   await expect(page.locator('#exam-result-title')).toHaveText('听读解练习结果');
@@ -425,11 +488,71 @@ test('听读解在本题型结束，检查、结果、复盘及重练形成闭�
   await page.locator('[data-practice-action="retry"]').click();
   await expect(page.locator('.question-counter')).toContainText(`已答0/${info.total}`);
   expect(await page.evaluate(data => window.examViewer.answerManager.getAnswerComposite(data.outside, data.outsideId), info)).toBe(1);
+  await openTaskDetails(page);
   await page.locator('.end-practice-btn').click();
   await page.locator('[data-practice-action="choose"]').click();
   await page.locator('.practice-category-choices button').filter({ hasText: /^读解$/ }).click();
   await page.locator('#exam-result-panel .practice-start-btn').click();
   expect(await page.evaluate(() => window.examViewer.practiceScope.sectionIndexes.every(i => window.examViewer.currentExam.exam_info.sections[i].section_type === 'reading'))).toBeTruthy();
+});
+
+test('游客长选项题号不重叠，检查答案和长解析可完整滚动到底栏上方', async ({ page }, testInfo) => {
+  await enterPractice(page, 'jlpt', '词汇 / 语法');
+  await page.evaluate(() => {
+    const viewer = window.examViewer;
+    viewer.loadExamData({ family: 'jlpt', exam_info: { exam_level: 'N3', sections: [{
+      section_type: 'vocabulary', section_name: '問題5 - 言葉の使い方', section_title: '問題5 次の言葉の使い方として最もよいものを選びなさい。',
+      questions: [31, 32, 33, 34, 35].map(id => ({ id, question: '<u>知識</u>（ちしき）', correct_answer: 3,
+        options: ['いつ財布を落としたか知識がありません', 'はさみがどこにあるか知識があります', 'パーティーには私の知識のある人も多数来ている', 'その仕事は医学の知識がないとできない'],
+        explanation: '正しい使い方を確認しましょう。知識は学習や経験によって得られた内容を表します。'.repeat(40)
+      }))
+    }] } });
+    viewer.setPracticeScope('词汇 / 语法', [0], true);
+    viewer.jumpToQuestion(0, 0);
+  });
+  const check = page.locator('#task-check-answer .check-btn');
+  for (const width of [390, 360, 320, 820]) {
+    await page.setViewportSize({ width, height: 780 });
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(() => page.evaluate(() => {
+      const check = document.querySelector('#task-check-answer .check-btn').getBoundingClientRect();
+      const bar = document.querySelector('.task-nav').getBoundingClientRect();
+      const options = [...document.querySelectorAll('.option')].at(-1).getBoundingClientRect();
+      return check.bottom <= bar.top - 12 && options.bottom < check.top;
+    })).toBe(true);
+    expect(await page.evaluate(() => {
+      const text = document.querySelector('.question-text');
+      const number = text.querySelector('.question-number-inline').getBoundingClientRect();
+      return text.getBoundingClientRect().left + parseFloat(getComputedStyle(text).paddingLeft) >= number.right + 4;
+    })).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  }
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.screenshot({ path: testInfo.outputPath('guest-check-above-task-bar.png') });
+  await page.locator('.option[data-option-index="3"]').click();
+  await check.click();
+  await expect(check).toHaveText('回答正确');
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect.poll(() => page.evaluate(() => {
+    const explanation = document.querySelector('.explanation').getBoundingClientRect();
+    const bar = document.querySelector('.task-nav').getBoundingClientRect();
+    return explanation.bottom <= bar.top - 12;
+  })).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath('guest-explanation-above-task-bar.png') });
+});
+
+test('缺少标准答案时检查按钮说明原因而不误判', async ({ page }) => {
+  await enterPractice(page, 'eju', '听读解');
+  await page.evaluate(() => {
+    const viewer = window.examViewer;
+    viewer.currentExam.exam_info.sections[viewer.currentSectionIndex].questions[viewer.currentQuestionIndex].correct_answer = null;
+    viewer.renderExam();
+  });
+  await page.locator('.option[data-option-index]').first().click();
+  await page.locator('.check-btn').click();
+  await expect(page.locator('#app-toast')).toContainText('本题暂无可核对的标准答案');
+  await expect(page.locator('.check-btn')).toHaveText('检查答案');
 });
 
 test('JLPT阅读可提前结束，手机结果不溢出', async ({ page }) => {
@@ -438,13 +561,12 @@ test('JLPT阅读可提前结束，手机结果不溢出', async ({ page }) => {
   await expect(page.locator('.question-nav .end-practice-btn')).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   const contentBox = await page.locator('#exam-content').boundingBox();
-  const scrubberBox = await page.locator('#practice-scrubber').boundingBox();
-  expect(contentBox.x).toBe(24);
-  expect(scrubberBox.width).toBe(24);
-  expect(scrubberBox.x + scrubberBox.width).toBeLessThanOrEqual(contentBox.x);
+  expect(contentBox.x).toBe(0);
+  await expect(page.locator('#practice-scrubber')).toHaveCount(0);
   const nextBox = await page.locator('.next-btn').boundingBox();
   const endBox = await page.locator('.end-practice-btn').boundingBox();
-  expect(endBox.y).toBe(nextBox.y);
+  expect(Math.abs(endBox.y - nextBox.y)).toBeLessThan(2);
+  await expect(page.locator('#task-session-panel')).toBeHidden();
   await page.locator('.end-practice-btn').click();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator('#exam-result-title')).toHaveText('阅读练习结果');
@@ -502,7 +624,7 @@ test('默认只选問題1，勾选题组后开始且不能跳到未选范围', a
   await expect(page.locator('.ls-paper-picker summary')).toBeHidden();
   await expect(page.locator('.ls-category-heading')).toBeHidden();
   await expect(page.locator('#ls-exam-controls')).toBeHidden();
-  await expect(page.locator('#practice-scrubber')).toBeVisible();
+  await expect(page.locator('#practice-scrubber')).toHaveCount(0);
   expect(await page.evaluate(() => {
     const v = window.examViewer;
     const before = v.currentSectionIndex;
@@ -516,6 +638,7 @@ test('默认只选問題1，勾选题组后开始且不能跳到未选范围', a
   });
   await page.locator('.next-btn').click();
   expect(await page.evaluate(() => window.examViewer.currentSectionIndex)).toBe(2);
+  await openTaskDetails(page);
   await page.locator('.end-practice-btn').click();
   await page.locator('.practice-result-more summary').click();
   await page.locator('[data-practice-action="reselect"]').click();

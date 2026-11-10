@@ -7,9 +7,9 @@ DraftService::DraftService(infrastructure::storage::DraftRepository &repository)
 {
 }
 
-Json::Value DraftService::get(const std::string &userId) const
+Json::Value DraftService::get(const std::string &userId, const std::string &examId) const
 {
-    return repository_.load(userId);
+    return repository_.load(userId, examId);
 }
 
 Json::Value DraftService::save(const std::string &userId, const Json::Value &patch)
@@ -17,9 +17,11 @@ Json::Value DraftService::save(const std::string &userId, const Json::Value &pat
     return repository_.save(userId, patch);
 }
 
-bool DraftService::clear(const std::string &userId)
+Json::Value DraftService::list(const std::string &userId) const { return repository_.list(userId); }
+
+bool DraftService::clear(const std::string &userId, const std::string &examId, const std::string &attemptId)
 {
-    return repository_.clear(userId);
+    return repository_.clear(userId, examId, attemptId);
 }
 
 void DraftService::markSubmitted(const std::string &userId,

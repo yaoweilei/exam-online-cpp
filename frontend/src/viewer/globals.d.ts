@@ -9,6 +9,7 @@ interface ApiEnvelope<T> {
 }
 
 interface LegacyApiClientShape {
+	saveSpecialtySession(payload: unknown): Promise<unknown>;
 	request<T = unknown>(path: string, options?: RequestInit): Promise<T>;
 	login(username: string, password: string): Promise<unknown>;
 	register(username: string, password: string, email?: string | null, referralCode?: string): Promise<unknown>;
@@ -40,6 +41,7 @@ interface LegacyApiClientShape {
 	getRecommendations(userId: string, limit?: number): Promise<unknown>;
 	getUser(userId: string): Promise<unknown>;
 	searchUsers(token: string, query: string, limit?: number): Promise<unknown[]>;
+	listUsers(token: string, options: { q: string; page: number; page_size: number; sort?: string; order?: string }): Promise<unknown>;
 	getUsersByRole(roleId: string): Promise<unknown[]>;
 	getUserPermissions(userId: string): Promise<unknown>;
 	getAllRoles(): Promise<unknown>;
@@ -62,6 +64,7 @@ interface LegacyApiClientShape {
 	getSubscription(scopeId: string, options?: { scopeType?: 'personal' | 'organization' }): Promise<unknown>;
 	getMe(token: string): Promise<unknown>;
 	getMeContext(token: string): Promise<unknown>;
+	selectOrganization(token: string, organizationId: string): Promise<unknown>;
 	bindWechat(token: string, code: string): Promise<unknown>;
 	deleteAccount(token: string, confirmation: string, phone: string, phoneCode: string, reason?: string): Promise<unknown>;
 	claimReferralCode(token: string, referralCode: string): Promise<unknown>;
@@ -71,6 +74,7 @@ interface LegacyApiClientShape {
 	getOrganizations(token: string, options?: Record<string, string | number>): Promise<unknown>;
 	getOrganization(organizationId: string, token: string): Promise<unknown>;
 	createOrganization(token: string, payload: unknown): Promise<unknown>;
+	setOrganizationArchived(organizationId: string, archived: boolean, token: string, reauthPassword: string): Promise<unknown>;
 	getOrganizationMembers(organizationId: string, token: string, options?: Record<string, string | number>): Promise<unknown>;
 	saveOrganizationMember(organizationId: string, token: string, payload: unknown, reauthPassword: string): Promise<unknown>;
 	removeOrganizationMember(organizationId: string, userId: string, token: string, reauthPassword: string): Promise<unknown>;
@@ -95,6 +99,8 @@ interface LegacyApiClientShape {
 	getAutoRenewal(token: string, scopeType?: 'personal' | 'organization', organizationId?: string): Promise<unknown>;
 	updateAutoRenewal(token: string, payload: unknown): Promise<unknown>;
 	getPaymentNotifications(token: string, unreadOnly?: boolean, page?: number, pageSize?: number): Promise<unknown>;
+	getMessageReads(): Promise<unknown>;
+	markMessagesRead(ids: string[]): Promise<unknown>;
 	markPaymentNotificationRead(token: string, notificationId: string): Promise<unknown>;
 	markAllPaymentNotificationsRead(token: string): Promise<unknown>;
 	getRenewalOperations(token: string): Promise<unknown>;
@@ -143,7 +149,7 @@ interface LegacyApiClientShape {
 	submitWrongQuestionCorrection(
 		userId: string,
 		questionId: string,
-		payload: { exam_id: string; actual_question_id: string; section_index: number; answer: unknown; exam_target?: string }
+		payload: { exam_id: string; actual_question_id: string; section_index: number; answer: unknown; exam_target?: string; submission_id?: string }
 	): Promise<unknown>;
 	resetWrongQuestions(userId: string, confirmation: string): Promise<unknown>;
 	// 学习连续天数 / 每日目标（业务功能 2）
@@ -151,13 +157,17 @@ interface LegacyApiClientShape {
 	getStreakHeatmap(userId: string, days?: number): Promise<unknown>;
 	updateStreakDailyGoal(userId: string, dailyQuestions: number): Promise<unknown>;
 	// 续考草稿（业务功能 4）
-	getDraft(userId: string): Promise<unknown>;
+	getDraft(userId: string, examId?: string): Promise<unknown>;
+	listPracticeDrafts?(userId: string): Promise<unknown>;
+	savePracticeDraft?(userId: string, payload: unknown): Promise<unknown>;
+	clearPracticeDraft?(userId: string, id: string): Promise<unknown>;
 	saveDraft(userId: string, payload: Record<string, unknown>): Promise<unknown>;
-	clearDraft(userId: string): Promise<unknown>;
+	clearDraft(userId: string, examId?: string, attemptId?: string): Promise<unknown>;
 	// 答题计时（业务功能 3）
 	getExamTimer(userId: string): Promise<unknown>;
 	startExamTimer(userId: string, payload: Record<string, unknown>): Promise<unknown>;
 	tickExamTimer(userId: string, payload: Record<string, unknown>): Promise<unknown>;
+	recordStudySeconds(userId: string, deltaSeconds: number): Promise<unknown>;
 	finishExamTimer(userId: string): Promise<unknown>;
 	// 功能开关（横切基础设施）
 	getFeatureFlagRegistry(): Promise<unknown>;
@@ -175,7 +185,7 @@ interface LegacyApiClientShape {
 	listLearningGroupAssignments(organizationId: string, learningGroupId: string): Promise<unknown>;
 	listMyAssignments(): Promise<unknown>;
 	getAssignment(assignmentId: string): Promise<unknown>;
-	submitAssignment(assignmentId: string, answers: Record<string, unknown>): Promise<unknown>;
+	submitAssignment(assignmentId: string, answers: Record<string, unknown>, submissionId?: string): Promise<unknown>;
 	getAssignmentSubmissions(assignmentId: string): Promise<unknown>;
 	reviewAssignmentSubmission(assignmentId: string, studentId: string, payload: Record<string, unknown>): Promise<unknown>;
 	remindAssignment(assignmentId: string, payload: Record<string, unknown>): Promise<unknown>;
@@ -212,12 +222,13 @@ interface LegacyApiClientShape {
 		orgId?: string;
 		actorId?: string;
 		action?: string;
+		scope?: 'content';
 		since?: string;
 		until?: string;
 		limit?: number;
 		offset?: number;
 	}): Promise<unknown>;
-	listAuditLogActions(orgId?: string): Promise<unknown>;
+	listAuditLogActions(orgId?: string, scope?: 'content'): Promise<unknown>;
 	// 每日一练（业务功能 16）
 	getDailyPractice(count?: number, dailyMinutes?: number, examTarget?: string): Promise<unknown>;
 	regenerateDailyPractice(count?: number, dailyMinutes?: number, examTarget?: string): Promise<unknown>;

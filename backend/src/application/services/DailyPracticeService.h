@@ -9,10 +9,12 @@
 
 #include <filesystem>
 #include <string>
+#include <mutex>
 
 #include <json/json.h>
 
 #include "application/services/SrsService.h"
+#include "application/services/AdaptiveLearningService.h"
 #include "infrastructure/storage/AnswerRepository.h"
 #include "infrastructure/storage/ExamRepository.h"
 #include "infrastructure/storage/WrongQuestionRepository.h"
@@ -52,7 +54,11 @@ class DailyPracticeService
                            int targetCount,
                            const std::string &examTarget,
                            int dailyMinutes,
-                           int &plannedMinutes) const;
+                           int &plannedMinutes,
+                           const Json::Value &previous) const;
+    Json::Value buildPlan(const std::string &userId, int targetCount, const std::string &examTarget, int dailyMinutes, const Json::Value &previous) const;
+    std::string diagnosticVersion(const std::string &userId, const std::string &examTarget) const;
+    std::string reviewVersion(const std::string &userId) const;
     static std::string today();          // YYYY-MM-DD
     static std::string sanitize(const std::string &s);
 
@@ -61,5 +67,7 @@ class DailyPracticeService
     SrsService &srsService_;
     infrastructure::storage::ExamRepository &examRepo_;
     infrastructure::storage::AnswerRepository &answerRepo_;
+    AdaptiveLearningService adaptive_;
+    mutable std::recursive_mutex mutex_;
 };
 }  // namespace application::services

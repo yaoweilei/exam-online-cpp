@@ -1,0 +1,14 @@
+[
+  {
+    "role": "orgAdmin",
+    "id": "orgAdmin-org-course-accounts-filter",
+    "label": "orgAdmin · org-course-accounts 筛选",
+    "reason": "locator.click: Timeout 9000ms exceeded. Call log: \u001b[2m  - waiting for locator('#platform-admin-shell').locator('.pc-floating-search-filters > summary').first()\u001b[22m"
+  },
+  {
+    "role": "orgAdmin",
+    "id": "orgAdmin-org-groups-filter",
+    "label": "orgAdmin · org-groups 筛选",
+    "reason": "locator.click: Timeout 9000ms exceeded. Call log: \u001b[2m  - waiting for locator('#platform-admin-shell').locator('.pc-floating-search-filters > summary').first()\u001b[22m"
+  }
+]

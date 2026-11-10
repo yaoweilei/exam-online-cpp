@@ -24,7 +24,8 @@ class AnswerService
                      const std::string &examId,
                      const Json::Value &answers,
                      const Json::Value &statistics,
-                     const std::string &submissionId = "");
+                     const std::string &submissionId = "",
+                     const std::string &attemptId = "");
 
     Json::Value load(const std::string &userId, const std::string &examId) const;
 

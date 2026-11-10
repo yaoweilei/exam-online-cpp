@@ -60,16 +60,17 @@ Json::Value FeedbackService::submit(const Json::Value &payload)
     const auto questionId = payload.get("question_id", "").asString();
     auto category = payload.get("category", "other").asString();
     auto description = payload.get("description", "").asString();
+    const bool accountSupport = category == "account" || category == "payment";
 
     if (userId.empty())
     {
         throw common::AppException("VALIDATION_ERROR", "缺少 user_id", drogon::k422UnprocessableEntity);
     }
-    if (paperId.empty())
+    if (!accountSupport && paperId.empty())
     {
         throw common::AppException("VALIDATION_ERROR", "缺少 paper_id", drogon::k422UnprocessableEntity);
     }
-    if (questionId.empty())
+    if (!accountSupport && questionId.empty())
     {
         throw common::AppException("VALIDATION_ERROR", "缺少 question_id", drogon::k422UnprocessableEntity);
     }
@@ -84,14 +85,16 @@ Json::Value FeedbackService::submit(const Json::Value &payload)
 
     Json::Value entry(Json::objectValue);
     entry["user_id"] = userId;
-    entry["exam_id"] = examId;
-    entry["paper_id"] = paperId;
-    entry["question_id"] = questionId;
+    entry["exam_id"] = accountSupport ? "" : examId;
+    entry["paper_id"] = accountSupport ? "" : paperId;
+    entry["question_id"] = accountSupport ? "" : questionId;
     entry["category"] = category;
     entry["description"] = description;
     entry["status"] = "open";
     entry["admin_note"] = "";
-    return repository_.append(paperId, entry);
+    for (const auto *field : {"submitted_version_id", "submitted_fingerprint"})
+        if (payload[field].isString()) entry[field] = payload[field];
+    return repository_.append(accountSupport ? "_support" : paperId, entry);
 }
 
 Json::Value FeedbackService::list(const std::string &paperId, const std::string &status) const
@@ -117,6 +120,8 @@ Json::Value FeedbackService::update(const std::string &paperId,
                                        drogon::k422UnprocessableEntity);
         }
     }
+    if (patch.isMember("public_reply") && (!patch["public_reply"].isString() || patch["public_reply"].asString().size() > 2000))
+        throw common::AppException("VALIDATION_ERROR", "给反馈者的回复应为 2000 字节以内的文字", drogon::k422UnprocessableEntity);
     const bool ok = repository_.update(paperId, feedbackId, patch);
     Json::Value out(Json::objectValue);
     out["updated"] = ok;

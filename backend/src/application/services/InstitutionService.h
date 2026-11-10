@@ -35,7 +35,27 @@ class InstitutionService
                                        const std::string &learningGroupId) const;
     Json::Value studentProfile(const std::string &viewerUserId,
                                const Json::Value &roles,
-                               const std::string &studentId) const;
+                               const std::string &studentId, const std::string &orgId = "") const;
+    Json::Value followups(const std::string &userId, const Json::Value &roles, const std::string &orgId) const;
+    Json::Value saveFollowup(const std::string &userId, const Json::Value &roles, const std::string &orgId, const Json::Value &payload);
+    Json::Value lessons(const std::string &userId, const Json::Value &roles, const std::string &orgId, const std::string &groupId) const;
+    Json::Value saveLesson(const std::string &userId, const Json::Value &roles, const std::string &orgId, const std::string &groupId, const Json::Value &payload);
+    Json::Value saveLessonBatch(const std::string &userId, const Json::Value &roles, const std::string &orgId, const std::string &groupId, const Json::Value &payload, bool commit);
+    Json::Value changeTeachingRelationship(const std::string &userId, const Json::Value &roles, const std::string &orgId, const std::string &groupId, const Json::Value &payload, bool commit);
+    Json::Value correctLessonSettlement(const std::string &userId, const Json::Value &roles, const std::string &orgId,
+                                       const std::string &groupId, const std::string &lessonId, const Json::Value &payload, bool commit);
+    Json::Value myCourses(const std::string &userId) const;
+    Json::Value learningProgress(const std::string &viewerId, const Json::Value &roles, const std::string &studentId,
+                                const std::string &orgId, const Json::Value &filters) const;
+    Json::Value operationalDashboard(const std::string &userId, const Json::Value &roles, const std::string &orgId,
+                                     const Json::Value &filters) const;
+    Json::Value setupContext(const std::string &userId, const Json::Value &roles, const std::string &orgId) const;
+    Json::Value setupCohort(const std::string &userId, const Json::Value &roles, const std::string &orgId, const Json::Value &payload);
+    Json::Value reviewComments(const std::string &userId, const Json::Value &roles, const std::string &orgId) const;
+    Json::Value saveReviewComment(const std::string &userId, const Json::Value &roles, const std::string &orgId, const Json::Value &payload);
+    Json::Value weaknessQuestions(const std::string &userId, const Json::Value &roles, const std::string &studentId,
+                                  const std::string &orgId, const Json::Value &filters) const;
+    Json::Value requestLessonLeave(const std::string &userId, const std::string &orgId, const std::string &lessonId, const std::string &reason);
     Json::Value lessonPrep(const std::string &userId,
                            const Json::Value &roles,
                            const Json::Value &payload) const;
@@ -51,8 +71,10 @@ class InstitutionService
                                   const std::string &rawText) const;
 
   private:
+    Json::Value applyLesson(const std::string &userId, const std::string &orgId, const std::string &groupId, Json::Value &organization, const Json::Value &payload);
     bool canManageInstitution(const Json::Value &roles) const;
     bool canTeach(const Json::Value &roles) const;
+    bool canAccessTeaching(const std::string &userId, const Json::Value &roles, const std::string &orgId) const;
     bool canViewStudent(const std::string &viewerUserId,
                         const Json::Value &roles,
                         const std::string &studentId) const;
@@ -66,7 +88,8 @@ class InstitutionService
     Json::Value buildAssignmentProgress(const Json::Value &learningGroup, const Json::Value &assignment) const;
     Json::Value summarizeStudentAnswers(const std::string &studentId) const;
     Json::Value buildWeaknessSummary(const std::vector<Json::Value> &answers) const;
-    Json::Value renewalRisk(const std::string &studentId, const std::vector<Json::Value> &answers) const;
+    Json::Value renewalRisk(const std::string &studentId, const std::vector<Json::Value> &answers, const std::string &orgId = "") const;
+    bool canFollowStudent(const std::string &userId, const Json::Value &roles, const std::string &orgId, const std::string &studentId) const;
     Json::Value buildCoursePackageSummary(const Json::Value &organizations,
                                           const Json::Value &visibleLearningGroups,
                                           const std::string &viewerUserId,

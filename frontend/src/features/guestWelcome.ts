@@ -92,6 +92,11 @@ export function initGuestWelcome(api: ApiClient, store: AppStore, login: () => v
 		} catch { frame('<h1>暂时无法打开这次练习</h1><p>原试卷可能已更新，请稍后重试。</p><button data-gw="home">返回首页</button>', true); }
 	}
 	function goHome(): void { expandedFamily = ''; home(); }
+	function experienceIntro(): void {
+		selectionRequest++;
+		const quota = guestTrialStatus('experience');
+		frame(`<section class="gw-intro"><h1>N3 短篇阅读体验</h1><p class="gw-description">先试一道真题，体验作答和解析，约 2 分钟。</p></section><section class="gw-experience"><div><h2>准备好就开始</h2><p>无需登录；完成后可以查看解析，登录后可保存学习记录。</p></div><button data-gw="${quota.remaining || attempt?.checked ? 'experience' : 'login'}" class="gw-primary">${quota.remaining ? (attempt ? '继续体验' : '开始体验') : (attempt?.checked ? '查看最近体验' : '登录后继续')}</button></section>`, true, 'experience-intro');
+	}
 	function levels(): void { expandedFamily = 'jlpt'; home(); }
 	function target(value: string): void { expandedFamily = value.startsWith('EJU') ? 'eju' : 'jlpt'; selectedLevel = value.startsWith('JLPT') ? value.slice(-2) : selectedLevel; home(); }
 	async function experience(next = false): Promise<void> {
@@ -190,6 +195,7 @@ export function initGuestWelcome(api: ApiClient, store: AppStore, login: () => v
 		const action = button.dataset.gw;
 		if (action && selectPractice(action, button.dataset)) return;
 		if (action === 'home') goHome();
+		if (action === 'experience-intro') experienceIntro();
 		if (action === 'login') login();
 		if (action === 'review-practice') void reviewPractice(button.dataset.id || '');
 		if (action === 'review-experience') {
@@ -213,6 +219,7 @@ export function initGuestWelcome(api: ApiClient, store: AppStore, login: () => v
 		if (!store.getState().user.guest) return;
 		const action = event.detail.action;
 		if (action === 'home') goHome();
+		else if (action === 'experience-intro') experienceIntro();
 		else if (action === 'experience') void experience();
 		else if (action === 'login') login();
 		else {

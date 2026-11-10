@@ -1,0 +1,9 @@
+{
+  "responses": [
+    {
+      "url": "/api/v1/admin/users",
+      "status": 200
+    }
+  ],
+  "errors": []
+}

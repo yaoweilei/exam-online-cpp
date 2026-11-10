@@ -258,10 +258,10 @@ int main()
     infrastructure::storage::BookmarkFolderRepository bookmarkFolderRepo(cfg.dataUserDir);
     application::services::BookmarkFolderService bookmarkFolderService(bookmarkFolderRepo);
     // 用户数据导出 Service（业务功能 10）
-    application::services::DataExportService dataExportService(cfg.dataUserDir, cfg.dataSystemDir);
+    application::services::DataExportService dataExportService(cfg.dataUserDir, cfg.dataSystemDir, answerRepo, attemptTimerRepo);
     // 管理员统计 Service（业务功能 11）
     application::services::AdminStatisticsService adminStatisticsService(
-        cfg.dataUserDir, cfg.dataSystemDir, cfg.dataPaperDir);
+        cfg.dataUserDir, cfg.dataSystemDir, cfg.dataPaperDir, userRepo, organizationRepo);
     // 社区讨论 Repository + Service（业务功能 12）
     infrastructure::storage::CommunityRepository communityRepo(cfg.dataUserDir);
     application::services::CommunityService communityService(communityRepo);

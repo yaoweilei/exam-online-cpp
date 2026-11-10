@@ -1,5 +1,25 @@
 const { expect } = require('@playwright/test');
 
+const practiceDraftMocks = new WeakSet();
+async function stubPracticeDraftSync(page) {
+  if (practiceDraftMocks.has(page)) return;
+  practiceDraftMocks.add(page);
+  const drafts = new Map();
+  await page.route('**/api/v1/practice-drafts/**', async route => {
+    const request = route.request(), pathname = new URL(request.url()).pathname;
+    const user = pathname.split('/')[4], session = pathname.split('/')[5];
+    let data;
+    if (request.method() === 'POST') {
+      const payload = request.postDataJSON(), id = payload.session_draft.submission;
+      const key = `${user}/${id}`, previous = drafts.get(key);
+      data = { exam_id: id, session_draft: payload.session_draft, revision: (previous?.revision || 0) + 1 };
+      drafts.set(key, data);
+    } else if (request.method() === 'DELETE') { drafts.delete(`${user}/${decodeURIComponent(session)}`); data = { cleared: true }; }
+    else data = { items: [...drafts.entries()].filter(([key]) => key.startsWith(`${user}/`)).map(([, draft]) => draft) };
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ code: 'OK', data }) });
+  });
+}
+
 function uniqueLoginId(prefix) {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -37,7 +57,7 @@ async function readStoredSession(page) {
 }
 
 async function expectGuestEntry(page) {
-  const loginEntry = page.locator('#user-menu-trigger, [aria-label="登录账号"], [title="登录账号"], #login-entry-btn').first();
+  const loginEntry = page.locator('#user-menu-trigger:visible, [aria-label="登录账号"]:visible, [title="登录账号"]:visible, #login-entry-btn:visible').first();
   await expect(loginEntry).toBeVisible({ timeout: 20000 });
   await expect(loginEntry).toHaveAttribute('aria-label', /登录账号/);
   return loginEntry;
@@ -46,39 +66,29 @@ async function expectGuestEntry(page) {
 async function loginWithPassword(page, loginId) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await clearBrowserSession(page);
-  await page.evaluate(async (id) => {
-    const unwrap = async (response) => {
-      if (!response.ok) {
-        throw new Error(`request failed: ${response.status}`);
-      }
-      const payload = await response.json();
-      if (payload.code && payload.code !== 'OK') {
-        throw new Error(payload.message || payload.code);
-      }
-      return payload.data ?? payload;
-    };
-
-    const session = await unwrap(await fetch('/api/v1/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: id, password: '' })
-    }));
-    const context = await unwrap(await fetch('/api/v1/me/context'));
-    const user = {
-      ...context.user,
-      guest: false,
-      token: '',
-      profile: context.profile,
-      membership: context.membership,
-      permissions: context.permissions,
-      session_expires_at: context.session?.expires_at || '',
-      subscription: context.subscription
-    };
+  // Authenticate outside the page so workspace initialization/navigation cannot
+  // cancel the login request. page.request shares this browser context's cookies.
+  await loginApi(page.request, loginId);
+  const response = await page.request.get('/api/v1/me/context');
+  expect(response.ok()).toBe(true);
+  const context = (await response.json()).data;
+  const user = {
+    ...context.user,
+    guest: false,
+    token: '',
+    profile: context.profile,
+    membership: context.membership,
+    permissions: context.permissions,
+    session_expires_at: context.session?.expires_at || '',
+    subscription: context.subscription
+  };
+  await page.evaluate(user => {
     localStorage.setItem('exam_v2_user', JSON.stringify(user));
     localStorage.removeItem('exam_v2_token');
-  }, loginId);
+  }, user);
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('#user-menu-trigger, [aria-label*="打开个人中心"], [aria-label*="打开账号菜单"]').first()).toHaveAttribute('aria-label', /打开(个人中心|账号菜单)/);
+  await expect(page.locator('#user-menu-trigger, [aria-label*="打开个人中心"], [aria-label*="打开账号菜单"], [data-platform-admin-account-menu]').first()).toHaveAttribute('aria-label', /打开(个人中心|账号菜单)|账号菜单/);
+  await expect.poll(() => page.evaluate(() => window.getUserContext?.().username)).toBe(loginId);
 }
 
 async function openPersonalCenter(page) {
@@ -142,5 +152,6 @@ module.exports = {
   openPersonalCenter,
   readStoredSession,
   stubNoisyPersonalCenterApis,
-  uniqueLoginId
+  uniqueLoginId,
+  stubPracticeDraftSync
 };

@@ -1,0 +1,75 @@
+[
+  {
+    "role": "superAdmin",
+    "account": "superadmin_demo",
+    "menuEntries": [
+      "个人资料",
+      "账号安全"
+    ],
+    "profileAndSecurityReturn": "passed",
+    "browserErrors": []
+  },
+  {
+    "role": "student",
+    "account": "student_demo",
+    "menuEntries": [
+      "个人资料",
+      "账号安全",
+      "套餐与订单",
+      "优惠与邀请",
+      "帮助与反馈"
+    ],
+    "profileAndSecurityReturn": "passed",
+    "browserErrors": []
+  },
+  {
+    "role": "teacher",
+    "account": "teacher_mobile_ui_20261101",
+    "menuEntries": [
+      "个人资料",
+      "账号安全"
+    ],
+    "profileAndSecurityReturn": "passed",
+    "browserErrors": []
+  },
+  {
+    "role": "assistant",
+    "account": "assistant_mobile_ui_20261101",
+    "menuEntries": [
+      "个人资料",
+      "账号安全"
+    ],
+    "profileAndSecurityReturn": "passed",
+    "browserErrors": []
+  },
+  {
+    "role": "orgAdmin",
+    "account": "student_mobile_ui_manager_20261101",
+    "menuEntries": [
+      "个人资料",
+      "账号安全"
+    ],
+    "profileAndSecurityReturn": "passed",
+    "browserErrors": []
+  },
+  {
+    "role": "orgContentAdmin",
+    "account": "student_mobile_ui_content_20261101",
+    "menuEntries": [
+      "个人资料",
+      "账号安全"
+    ],
+    "profileAndSecurityReturn": "passed",
+    "browserErrors": []
+  },
+  {
+    "role": "contentAdmin",
+    "account": "contentadmin_demo",
+    "menuEntries": [
+      "个人资料",
+      "账号安全"
+    ],
+    "profileAndSecurityReturn": "passed",
+    "browserErrors": []
+  }
+]

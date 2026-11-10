@@ -127,7 +127,7 @@ body {
 	display: none !important;
 }
 
-/* 用时和头像收在右侧；保存结果只作为短暂反馈，不永久挤占工具栏。 */
+/* 计时详情收在图标中；保存结果只作为短暂反馈，不永久挤占工具栏。 */
 #exam-library-panel.has-exam-timer #exam-timer-slot {
 	margin-left: auto;
 }
@@ -141,19 +141,58 @@ body {
 }
 
 #exam-timer-slot #exam-timer-bar {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
+	position: relative;
+	display: block;
+	width: 28px;
+	height: 28px;
 	min-height: 28px;
-	margin-top: 0;
-	padding: 3px 9px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--vscode-foreground, #303236);
+}
+
+#exam-timer-bar > summary {
+	display: grid;
+	place-items: center;
+	width: 28px;
+	height: 28px;
+	list-style: none;
+	border-radius: 8px;
+	opacity: .58;
+	cursor: pointer;
+}
+
+#exam-timer-bar > summary::-webkit-details-marker { display: none; }
+#exam-timer-bar > summary:hover, #exam-timer-bar[open] > summary { background: var(--product-surface-muted); opacity: 1; }
+#exam-timer-bar > summary:focus-visible { outline: 2px solid var(--vscode-focusBorder, #007acc); outline-offset: 2px; opacity: 1; }
+#exam-timer-bar > summary svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#exam-timer-bar.is-expired > summary { color: var(--vscode-errorForeground, #c53030); opacity: 1; }
+
+#exam-timer-bar .exam-timer-popover {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	z-index: 100;
+	display: grid;
+	gap: 3px;
+	min-width: 154px;
+	padding: 10px 12px;
 	border: 1px solid var(--product-border);
-	border-radius: 999px;
-	background: var(--product-surface-muted);
+	border-radius: 10px;
+	background: var(--product-surface, #fff);
+	box-shadow: 0 8px 24px #0002;
+	color: var(--vscode-foreground, #303236);
 	font-size: 12px;
-	font-weight: 600;
+	line-height: 1.5;
 	white-space: nowrap;
 }
+
+#exam-timer-bar .exam-timer-popover strong { font-size: 14px; }
+#exam-timer-bar .exam-timer-popover span:empty { display: none; }
+#exam-timer-bar:not([open]) .exam-timer-popover { display: none; }
+#exam-timer-bar.is-expired .exam-timer-popover strong { color: var(--vscode-errorForeground, #c53030); }
 
 #exam-controls.toolbar-grid {
 	grid-template-columns: 100px 100px 100px 112px 40px minmax(0, 1fr) 40px;
@@ -953,8 +992,7 @@ body {
 
 	#exam-timer-slot #exam-timer-bar {
 		min-height: 28px;
-		padding: 2px 6px;
-		font-size: 11px;
+		padding: 0;
 	}
 
 	#user-menu-trigger {

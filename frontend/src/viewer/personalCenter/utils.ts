@@ -16,6 +16,14 @@ export function asRecord(value: unknown): Record<string, unknown> | null {
 	return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
+export function isWorkspaceSessionError(error: unknown): boolean {
+	return asRecord(error)?.status === 401;
+}
+
+export function renderWorkspaceSessionError(): string {
+	return '<div class="pc-admin-note"><p role="alert">登录已失效，请重新登录后继续。</p><button class="pc-inline-ghost" type="button" data-platform-admin-switch-account>重新登录</button></div>';
+}
+
 export function readString(value: unknown): string | undefined {
 	return typeof value === 'string' && value.trim() ? value : undefined;
 }

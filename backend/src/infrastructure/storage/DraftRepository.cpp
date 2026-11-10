@@ -25,21 +25,70 @@ DraftRepository::DraftRepository(std::filesystem::path userRootDir)
     std::filesystem::create_directories(draftDir_);
 }
 
-Json::Value DraftRepository::load(const std::string &userId) const
+std::filesystem::path DraftRepository::paperPath(const std::string &userId, const std::string &examId) const
 {
-    const auto path = draftDir_ / (userId + ".json");
-    std::shared_lock lock(mutex_);
-    if (!std::filesystem::exists(path))
-    {
-        return Json::Value(Json::nullValue);  // 没有草稿
+    // Hex encoding preserves distinct IDs without allowing path separators.
+    static constexpr char hex[] = "0123456789abcdef";
+    std::string key;
+    for (const unsigned char c : examId) { key += hex[c >> 4]; key += hex[c & 15]; }
+    return draftDir_ / "_papers" / userId / (key + ".json");
+}
+
+Json::Value DraftRepository::loadUnlocked(const std::string &userId, const std::string &examId) const
+{
+    Json::Value latest(Json::nullValue);
+    const auto legacy = draftDir_ / (userId + ".json");
+    if (std::filesystem::exists(legacy)) latest = readJsonFile(legacy);
+    if (!examId.empty()) {
+        const auto path = paperPath(userId, examId);
+        if (std::filesystem::exists(path)) return readJsonFile(path);
+        return latest.get("exam_id", "").asString() == examId ? latest : Json::Value(Json::nullValue);
     }
-    return readJsonFile(path);
+    const auto dir = draftDir_ / "_papers" / userId;
+    if (std::filesystem::exists(dir)) for (const auto &entry : std::filesystem::directory_iterator(dir)) {
+        if (!entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        const auto doc = readJsonFile(entry.path());
+        if (latest.isNull() || doc.get("updated_at", "").asString() > latest.get("updated_at", "").asString()) latest = doc;
+    }
+    return latest;
+}
+
+Json::Value DraftRepository::load(const std::string &userId, const std::string &examId) const
+{
+    std::shared_lock lock(mutex_);
+    return loadUnlocked(userId, examId);
+}
+
+Json::Value DraftRepository::list(const std::string &userId) const
+{
+    std::shared_lock lock(mutex_);
+    Json::Value items(Json::arrayValue);
+    const auto dir = draftDir_ / "_papers" / userId;
+    if (std::filesystem::exists(dir)) for (const auto &entry : std::filesystem::directory_iterator(dir)) {
+        if (!entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        try { items.append(readJsonFile(entry.path())); } catch (...) { }
+    }
+    return items;
 }
 
 Json::Value DraftRepository::save(const std::string &userId, const Json::Value &patch)
 {
-    const auto path = draftDir_ / (userId + ".json");
     std::unique_lock lock(mutex_);
+    const auto newExamId = patch.get("exam_id", "").asString();
+    const auto path = paperPath(userId, newExamId);
+    const auto legacy = draftDir_ / (userId + ".json");
+    // Archive the previous single-file draft before updating the latest mirror.
+    if (std::filesystem::exists(legacy)) {
+        const auto old = readJsonFile(legacy);
+        const auto oldExamId = old.get("exam_id", "").asString();
+        if (!oldExamId.empty()) {
+            const auto archived = paperPath(userId, oldExamId);
+            if (!std::filesystem::exists(archived)) {
+                std::filesystem::create_directories(archived.parent_path());
+                writeJsonFileAtomic(archived, old);
+            }
+        }
+    }
 
     const auto attemptId = patch.get("attempt_id", "").asString();
     if (!attemptId.empty())
@@ -52,18 +101,12 @@ Json::Value DraftRepository::save(const std::string &userId, const Json::Value &
     }
 
     // 读取旧草稿（若 exam_id 不同，则视为新会话，重置 started_at）
-    Json::Value doc;
-    const bool exists = std::filesystem::exists(path);
-    if (exists)
-    {
-        doc = readJsonFile(path);
-    }
+    Json::Value doc = loadUnlocked(userId, newExamId);
     if (!doc.isObject())
     {
         doc = Json::Value(Json::objectValue);
     }
 
-    const auto newExamId = patch.get("exam_id", "").asString();
     const auto oldExamId = doc.get("exam_id", "").asString();
     const bool isNewSession = newExamId != oldExamId;
     const int currentRevision = isNewSession ? 0 : doc.get("revision", 0).asInt();
@@ -71,6 +114,7 @@ Json::Value DraftRepository::save(const std::string &userId, const Json::Value &
     if (!isNewSession && patch.isMember("base_revision") && !forceOverwrite
         && patch["base_revision"].asInt() != currentRevision)
     {
+        if (patch.isMember("session_draft") && patch["session_draft"] == doc["session_draft"]) return doc;
         throw common::AppException("DRAFT_CONFLICT",
                                    "草稿已在其他设备更新，请选择保留版本",
                                    drogon::k409Conflict);
@@ -78,6 +122,7 @@ Json::Value DraftRepository::save(const std::string &userId, const Json::Value &
 
     doc["user_id"] = userId;
     doc["attempt_status"] = "draft";
+    for (const auto *field : {"exam_mode", "session_draft"}) if (patch.isMember(field)) doc[field] = patch[field];
     if (!attemptId.empty()) doc["attempt_id"] = attemptId;
     if (!newExamId.empty())
     {
@@ -117,20 +162,23 @@ Json::Value DraftRepository::save(const std::string &userId, const Json::Value &
     doc["updated_at"] = now;
     doc["revision"] = currentRevision + 1;
 
+    std::filesystem::create_directories(path.parent_path());
     writeJsonFileAtomic(path, doc);
+    writeJsonFileAtomic(legacy, doc);
     return doc;
 }
 
-bool DraftRepository::clear(const std::string &userId)
+bool DraftRepository::clear(const std::string &userId, const std::string &examId, const std::string &attemptId)
 {
-    const auto path = draftDir_ / (userId + ".json");
     std::unique_lock lock(mutex_);
-    if (!std::filesystem::exists(path))
-    {
-        return false;
-    }
+    const auto draft = loadUnlocked(userId, examId);
+    if (!draft.isObject() || (!attemptId.empty() && draft.get("attempt_id", "").asString() != attemptId)) return false;
+    const auto id = draft.get("exam_id", "").asString();
+    const auto path = paperPath(userId, id);
     std::error_code ec;
     std::filesystem::remove(path, ec);
+    const auto legacy = draftDir_ / (userId + ".json");
+    if (std::filesystem::exists(legacy) && readJsonFile(legacy).get("exam_id", "").asString() == id) std::filesystem::remove(legacy, ec);
     return !ec;
 }
 

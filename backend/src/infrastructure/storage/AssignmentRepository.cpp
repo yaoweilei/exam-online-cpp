@@ -6,6 +6,8 @@
 #include "JsonIo.h"
 #include "common/IdGenerator.h"
 #include "common/TimeUtils.h"
+#include "common/AppException.h"
+#include <drogon/HttpTypes.h>
 
 namespace infrastructure::storage
 {
@@ -127,6 +129,31 @@ Json::Value AssignmentRepository::submit(const std::string &assignmentId,
         }
 		Json::Value entry = submission;
 		const auto previous = a["submissions"].get(studentId, Json::Value(Json::objectValue));
+		const auto receipt = submission.get("submission_id", "").asString();
+		if (!receipt.empty() && previous.get("submission_id", "").asString() == receipt)
+		{
+			if (previous["answers"] != submission["answers"])
+				throw common::AppException("SUBMISSION_CONFLICT", "本次作业已提交，请重新进入查看最新状态", drogon::k409Conflict);
+			return previous;
+		}
+		if (previous.isMember("submitted_at") && previous.get("review_status", previous.get("status", "")).asString() != "returned")
+		{
+			// Older clients have no receipt. An identical retry is safe, but may
+			// never replace a submitted answer or increment the attempt count.
+			if (receipt.empty() && previous["answers"] == submission["answers"])
+			{
+				auto replay = previous;
+				if (replay.get("submission_id", "").asString().empty())
+				{
+					replay["submission_id"] = common::generateOpaqueId("asgsub_");
+					a["submissions"][studentId] = replay;
+					saveDoc(doc);
+				}
+				return replay;
+			}
+			throw common::AppException("ASSIGNMENT_SUBMITTED", "作业已提交，老师退回后才可重新作答", drogon::k409Conflict);
+		}
+		entry["submission_id"] = receipt.empty() ? common::generateOpaqueId("asgsub_") : receipt;
 		entry["student_id"] = studentId;
         entry["submitted_at"] = common::nowIso8601();
         entry["updated_at"] = entry["submitted_at"].asString();

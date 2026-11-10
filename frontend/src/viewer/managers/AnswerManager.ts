@@ -66,6 +66,10 @@ interface PracticeRecord {
 const PENDING_PRACTICE_KEY = 'japanese.pending-practice-results.v1';
 
 interface AnswerManagerExamViewer {
+	getLearningSessionKind?: () => string;
+	specialtyPractice?: unknown;
+	canAnswerSpecialtyQuestion?: () => boolean;
+	persistSpecialtyDraft?: () => void;
 	currentSectionIndex: number;
 	currentQuestionIndex: number;
 	userId?: string;
@@ -79,6 +83,7 @@ interface AnswerManagerExamViewer {
 	practiceScope?: { label: string; sectionIndexes: number[] } | null;
 	savedPracticeMode?: 'review' | 'retest' | null;
 	renderQuestionNavigation?: () => void;
+	updateTaskNavigationProgress?: () => void;
 	choosePracticeCategory?: () => void;
 	reselectPracticeGroups?: () => void;
 	choosePracticePaper?: () => void;
@@ -108,6 +113,7 @@ class AnswerManager {
 	private draftSaveQueuedForceOverwrite = false;
 	private draftRetryCount = 0;
 	private draftRevision = 0;
+	private draftGeneration = 0;
 	private submissionInFlight: Promise<void> | null = null;
 	private submissionId = '';
 	private attemptId = this.createAttemptId();
@@ -134,6 +140,14 @@ class AnswerManager {
 		if (this.examViewer.savedPracticeMode) return;
 		if (!this.examViewer.isSubmitted && Object.values(this.examViewer.userAnswers).some(answer => answer !== null && answer !== undefined && answer !== '')) this.scheduleDraftSave();
 	}
+	async flushCurrentDraft(): Promise<void> {
+		this.saveCurrentDraft();
+		const deadline = Date.now() + 3000;
+		while (this.draftSaveTimer !== null || this.draftSaveInFlight || this.draftSaveQueued) {
+			if (Date.now() > deadline) throw new Error('答案仍在保存，请稍后再切换题目');
+			await new Promise(resolve => window.setTimeout(resolve, 25));
+		}
+	}
 
 	prepareNewPracticeAttempt(): void {
 		this.currentPracticeRecord = null;
@@ -147,9 +161,13 @@ class AnswerManager {
 	 * - 仅有 _currentExamId 时保存
 	 */
 	private scheduleDraftSave(fromRetry = false, forceOverwrite = false): void {
+		if (this.examViewer.specialtyPractice) return;
 		if (this.examViewer.savedPracticeMode) return;
 		const userId = this.examViewer.userId;
 		const examId = this.examViewer._currentExamId;
+		const generation = this.draftGeneration;
+		const isCurrent = () => this.examViewer.userId === userId && this.examViewer._currentExamId === examId
+			&& this.draftGeneration === generation && !this.examViewer.specialtyPractice && !this.examViewer.savedPracticeMode && !this.examViewer.isSubmitted;
 		if (!userId || userId === 'guest' || !examId) {
 			this.examViewer.setAnswerSaveStatus?.('idle', '已在本机作答');
 			return;
@@ -178,6 +196,7 @@ class AnswerManager {
 			this.draftSaveTimer = null;
 			this.draftSaveInFlight = (async () => {
 			try {
+				if (!isCurrent()) return;
 				const allAnswers = this.examViewer.userAnswers || {};
 				// 仅保留已作答的（非 null/undefined），减少体积
 				const answers: Record<string, unknown> = {};
@@ -189,7 +208,9 @@ class AnswerManager {
 						answered += 1;
 					}
 				}
-				const total = Object.keys(allAnswers).length;
+				if (!answered) return;
+				const sections = this.examViewer.currentExam?.exam_info?.sections || [];
+				const total = sections.reduce((count, section) => count + (section.questions?.length || 0), 0);
 				this.examViewer.setAnswerSaveStatus?.('saving', '正在保存…');
 				const saved = await api.saveDraft(userId, {
 					exam_id: examId,
@@ -203,10 +224,12 @@ class AnswerManager {
 					force_overwrite: forceOverwrite,
 					attempt_id: this.attemptId
 				}) as { revision?: number } | null;
+				if (!isCurrent()) return;
 				this.draftRevision = Number(saved?.revision || this.draftRevision + 1);
 				this.draftRetryCount = 0;
 				this.examViewer.setAnswerSaveStatus?.('saved', '已保存');
 			} catch (error) {
+				if (!isCurrent()) return;
 				if (this.errorCode(error) === 'ATTEMPT_SUBMITTED') {
 					this.draftSaveQueued = false;
 					this.handleAlreadySubmitted();
@@ -214,8 +237,8 @@ class AnswerManager {
 				}
 				if (this.isDraftConflict(error)) {
 					this.draftSaveQueued = false;
-					this.examViewer.setAnswerSaveStatus?.('failed', '发现其他设备的新草稿');
-					void this.resolveDraftConflict(userId);
+					this.examViewer.setAnswerSaveStatus?.('saving', '正在同步最新草稿…');
+					void this.resolveDraftConflict(userId, examId, generation);
 					return;
 				}
 				if (this.examViewer._currentExamId === examId && this.draftRetryCount < 3) {
@@ -267,39 +290,62 @@ class AnswerManager {
 		panel.querySelector('[data-submitted-close]')?.addEventListener('click', () => this.closeResultPanel());
 	}
 
-	private async resolveDraftConflict(userId: string): Promise<void> {
+	private async resolveDraftConflict(userId: string, examId: string, generation: number): Promise<void> {
+		const isCurrent = () => this.examViewer.userId === userId && this.examViewer._currentExamId === examId
+			&& this.draftGeneration === generation && !this.examViewer.specialtyPractice && !this.examViewer.savedPracticeMode && !this.examViewer.isSubmitted;
 		try {
-			const remote = await window.APIClient?.getDraft(userId) as Record<string, unknown> | null;
-			if (!remote) return;
+			const remote = await window.APIClient?.getDraft(userId, examId) as Record<string, unknown> | null;
+			if (!isCurrent()) return;
+			if (!remote || remote.exam_id !== examId) {
+				this.examViewer.setAnswerSaveStatus?.('failed', '云端草稿所属试卷已变化，当前答案保留在本页');
+				return;
+			}
 			const modal = document.getElementById('exam-result-modal');
 			const panel = document.getElementById('exam-result-panel');
 			if (!modal || !panel) return;
 			const remoteCount = Number(remote.answered_count || 0);
-			const localCount = Object.values(this.examViewer.userAnswers).filter((value) => value !== null && value !== undefined && value !== '').length;
-			const remoteAnswers = remote.answers && typeof remote.answers === 'object' && !Array.isArray(remote.answers) ? remote.answers as Record<string, unknown> : {};
-			const merge = this.buildDraftMerge(this.examViewer.userAnswers, remoteAnswers);
+			const localAnswers = this.normalizeDraftAnswers(this.examViewer.userAnswers);
+			const localCount = Object.keys(localAnswers).length;
+			const remoteAnswers = this.normalizeDraftAnswers(remote.answers && typeof remote.answers === 'object' && !Array.isArray(remote.answers) ? remote.answers as Record<string, unknown> : {});
+			const merge = this.buildDraftMerge(localAnswers, remoteAnswers);
+			if (!merge.conflicts.length) {
+				this.setDraftRevision(remote.revision);
+				if (!localCount) {
+					this.setAttemptId(remote.attempt_id);
+					this.examViewer.applyDraftSnapshot?.(remote);
+				} else {
+					const needsSave = Object.entries(merge.answers).some(([key, value]) => JSON.stringify(value) !== JSON.stringify(remoteAnswers[key]));
+					this.examViewer.userAnswers = { ...merge.answers };
+					this.examViewer.renderExam();
+					if (needsSave) this.scheduleDraftSave();
+					else this.examViewer.setAnswerSaveStatus?.('saved', '已同步最新草稿');
+				}
+				return;
+			}
 			const conflictRows = merge.conflicts.map((item, index) => `
 				<fieldset class="draft-conflict-row"><legend>题目 ${this.escapeHtml(item.key)}</legend>
 					<label><input type="radio" name="draft-conflict-${index}" value="local" checked> 本机：${this.escapeHtml(this.answerLabel(item.local))}</label>
 					<label><input type="radio" name="draft-conflict-${index}" value="remote"> 云端：${this.escapeHtml(this.answerLabel(item.remote))}</label>
 				</fieldset>`).join('');
 			panel.innerHTML = `
-				<div class="exam-result-error draft-conflict"><span aria-hidden="true">↔</span><h2 id="exam-result-title">发现其他设备的答题进度</h2><p>云端已答 ${remoteCount} 题，本机已答 ${localCount} 题。${merge.conflicts.length ? `有 ${merge.conflicts.length} 题答案不同，请逐题选择。` : '双方答案没有冲突，可以安全合并。'}</p></div>
+				<div class="exam-result-error draft-conflict"><span aria-hidden="true">↔</span><h2 id="exam-result-title">发现另一份答题进度</h2><p>云端已答 ${remoteCount} 题，本机已答 ${localCount} 题。有 ${merge.conflicts.length} 题答案不同，请选择要保留的答案。</p></div>
 				${conflictRows ? `<div class="draft-conflict-list">${conflictRows}</div>` : ''}
 				<div class="exam-result-actions"><button type="button" class="result-primary" data-draft-choice="merge">${merge.conflicts.length ? '按选择合并' : '合并双方答案'}</button><button type="button" data-draft-choice="remote">只用云端</button><button type="button" data-draft-choice="local">只用本机</button></div>`;
 			this.openResultPanel('[data-draft-choice="merge"]');
 			panel.querySelector('[data-draft-choice="merge"]')?.addEventListener('click', () => {
+				if (!isCurrent()) { this.closeResultPanel(); return; }
 				merge.conflicts.forEach((item, index) => {
 					const selected = panel.querySelector<HTMLInputElement>(`input[name="draft-conflict-${index}"]:checked`)?.value;
 					merge.answers[item.key] = selected === 'remote' ? item.remote : item.local;
 				});
-				this.examViewer.userAnswers = { ...this.examViewer.userAnswers, ...merge.answers };
+				this.examViewer.userAnswers = { ...merge.answers };
 				this.setDraftRevision(remote.revision);
 				this.closeResultPanel();
 				this.examViewer.renderExam();
 				this.scheduleDraftSave(false, true);
 			});
 			panel.querySelector('[data-draft-choice="remote"]')?.addEventListener('click', () => {
+				if (!isCurrent()) { this.closeResultPanel(); return; }
 				this.setDraftRevision(remote.revision);
 				this.setAttemptId(remote.attempt_id);
 				this.examViewer.userAnswers = {};
@@ -307,15 +353,32 @@ class AnswerManager {
 				this.closeResultPanel();
 			});
 			panel.querySelector('[data-draft-choice="local"]')?.addEventListener('click', () => {
+				if (!isCurrent()) { this.closeResultPanel(); return; }
+				this.examViewer.userAnswers = { ...localAnswers };
 				this.setDraftRevision(remote.revision);
 				this.closeResultPanel();
 				this.scheduleDraftSave(false, true);
 			});
 		} catch {
-			this.examViewer.setAnswerSaveStatus?.('failed', '草稿冲突处理失败，请刷新页面');
+			if (isCurrent()) this.examViewer.setAnswerSaveStatus?.('failed', '草稿冲突处理失败，请刷新页面');
 		}
 	}
 
+	private normalizeDraftAnswers(answers: Record<string, unknown>): Record<string, unknown> {
+		const normalized: Record<string, unknown> = {};
+		const answered = (value: unknown) => Array.isArray(value) ? value.length > 0 : value !== null && value !== undefined && value !== '';
+		// Old drafts use question IDs; new drafts use section:question keys.
+		// Compare both representations as the same question, with explicit section keys taking priority.
+		for (const [key, value] of Object.entries(answers)) if (key.includes(':') && answered(value)) normalized[key] = value;
+		for (const [key, value] of Object.entries(answers)) {
+			if (key.includes(':') || !answered(value)) continue;
+			const sections = (this.examViewer.currentExam?.exam_info?.sections || []).flatMap((section, index) => section.questions?.some(question => String(question.id) === key) ? [index] : []);
+			for (const target of sections.length ? sections.map(index => `${index}:${key}`) : [key]) {
+				if (!Object.prototype.hasOwnProperty.call(normalized, target)) normalized[target] = value;
+			}
+		}
+		return normalized;
+	}
 	private buildDraftMerge(local: Record<string, unknown>, remote: Record<string, unknown>): {
 		answers: Record<string, unknown>;
 		conflicts: Array<{ key: string; local: unknown; remote: unknown }>;
@@ -348,6 +411,7 @@ class AnswerManager {
 	 */
 	selectOption(questionId: string, optionIndex: number): void {
 		if (this.examViewer.isSubmitted) return;
+		if (this.examViewer.canAnswerSpecialtyQuestion?.() === false) return;
 		try {
 			this.setAnswerComposite(this.examViewer.currentSectionIndex, questionId, optionIndex);
 		} catch {
@@ -381,12 +445,26 @@ class AnswerManager {
 		if (wasChecked) this.examViewer.renderExam();
 		// 业务功能 4：每次答题变更后触发草稿节流保存
 		if (!this.examViewer.wrongCorrectionContext) this.scheduleDraftSave();
+		this.examViewer.persistSpecialtyDraft?.();
+		this.examViewer.updateTaskNavigationProgress?.();
 	}
 
 	/**
 	 * 初始化用户答案
 	 */
+	beginDraftSession(): void {
+		this.draftGeneration++;
+		this.draftRevision = 0;
+		this.attemptId = this.createAttemptId();
+		this.submissionId = '';
+		if (this.draftSaveTimer !== null) { window.clearTimeout(this.draftSaveTimer); this.draftSaveTimer = null; }
+		this.draftSaveQueued = false;
+		this.draftSaveQueuedForceOverwrite = false;
+		this.draftRetryCount = 0;
+	}
+
 	initializeUserAnswers(): void {
+		this.beginDraftSession();
 		this.examViewer.userAnswers = {};
 		const sections = this.examViewer.currentExam?.exam_info?.sections;
 		if (!sections) {
@@ -729,7 +807,7 @@ class AnswerManager {
 			}
 			if (this.examViewer.userId && this.examViewer.userId !== 'guest' && typeof window.APIClient?.clearDraft === 'function') {
 				try {
-					await window.APIClient.clearDraft(this.examViewer.userId);
+					await window.APIClient.clearDraft(this.examViewer.userId, examId, this.attemptId);
 				} catch {
 					// The scored answer is already persisted; stale-draft cleanup can be retried later.
 				}
@@ -777,12 +855,13 @@ class AnswerManager {
 		const score = this.safeNumber(result.score);
 		const accuracy = this.safeNumber(result.accuracy);
 		const completion = this.safeNumber(result.completion);
+		const diagnostic = this.examViewer.getLearningSessionKind?.() === 'diagnostic';
 		panel.innerHTML = `
 			<div class="exam-result-heading">
 				<div class="exam-result-score" style="--result-progress:${Math.max(0, Math.min(100, score)) * 3.6}deg">
 					<strong>${this.formatNumber(score)}</strong><span>分</span>
 				</div>
-				<div><p class="exam-result-kicker">本次答题结果</p><h2 id="exam-result-title">试卷已提交</h2><p>正确率 ${this.formatNumber(accuracy)}% · 完成度 ${this.formatNumber(completion)}%</p></div>
+				<div><p class="exam-result-kicker">${diagnostic ? '入门诊断结果' : '本次答题结果'}</p><h2 id="exam-result-title">${diagnostic ? '诊断已完成' : '试卷已提交'}</h2><p>正确率 ${this.formatNumber(accuracy)}% · 完成度 ${this.formatNumber(completion)}%</p></div>
 			</div>
 			<div class="exam-result-stats" aria-label="答题统计">
 				<div><strong>${this.safeInteger(result.total_questions)}</strong><span>总题数</span></div>
@@ -791,15 +870,16 @@ class AnswerManager {
 				<div class="is-unanswered"><strong>${this.safeInteger(result.unanswered_count)}</strong><span>未答</span></div>
 			</div>
 			<div class="exam-result-actions">
-				<button type="button" class="result-primary" data-result-action="explanations">查看解析</button>
+				${diagnostic ? '<button type="button" class="result-primary" data-result-action="learning-plan">查看学习安排</button>' : ''}
+				<button type="button" ${diagnostic ? '' : 'class="result-primary"'} data-result-action="explanations">查看解析</button>
 				<button type="button" data-result-action="wrong" ${this.getReviewTargets(result).length ? '' : 'disabled'}>只看错题</button>
-				<button type="button" data-result-action="history">交卷历史</button>
-				<button type="button" data-result-action="retry">再做一次</button>
+				<button type="button" data-result-action="history">${diagnostic ? '诊断记录' : '交卷历史'}</button>
+				<button type="button" data-result-action="retry">${diagnostic ? '重新诊断' : '再做一次'}</button>
 			</div>
 			<button type="button" class="exam-result-close" data-result-action="close" aria-label="关闭结果">×</button>
 		`;
 		this.bindResultActions(panel, result);
-		this.openResultPanel('[data-result-action="explanations"]');
+		this.openResultPanel(diagnostic ? '[data-result-action="learning-plan"]' : '[data-result-action="explanations"]');
 	}
 
 	private showSubmissionError(): void {
@@ -819,6 +899,10 @@ class AnswerManager {
 	}
 
 	private bindResultActions(panel: HTMLElement, result: ScoreResult): void {
+		panel.querySelector('[data-result-action="learning-plan"]')?.addEventListener('click', () => {
+			this.closeResultPanel();
+			(window as Window & { navigateLearningWorkspace?: (intent: string) => void }).navigateLearningWorkspace?.('openRoleContent:student-today');
+		});
 		panel.querySelector('[data-result-action="close"]')?.addEventListener('click', () => this.closeResultPanel());
 		panel.querySelector('[data-result-action="explanations"]')?.addEventListener('click', () => {
 			this.examViewer.showAnswers = true;

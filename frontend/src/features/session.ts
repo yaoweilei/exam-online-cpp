@@ -78,6 +78,8 @@ export function buildCurrentUser(context: MeContext, token: string): CurrentUser
 		token: '',
 		profile: context.profile,
 		membership: context.membership,
+		memberships: context.memberships,
+		organizations: context.organizations?.map(({ organization_id, name, status }) => ({ organization_id, name, status })),
 		permissions: context.permissions,
 		session_expires_at: context.session.expires_at ?? '',
 		session_authentication_method: context.session.authentication_method ?? '',

@@ -93,8 +93,10 @@ size_t countAnswerPapers(const std::filesystem::path &dir)
 
 AdminStatisticsService::AdminStatisticsService(std::filesystem::path userRootDir,
                                               std::filesystem::path systemDir,
-                                              std::filesystem::path paperDir)
-    : userRootDir_(std::move(userRootDir)),
+                                              std::filesystem::path paperDir,
+                                              infrastructure::storage::UserRepository &users,
+                                              infrastructure::storage::OrganizationRepository &organizations)
+    : users_(users), organizations_(organizations), userRootDir_(std::move(userRootDir)),
       systemDir_(std::move(systemDir)),
       paperDir_(std::move(paperDir))
 {
@@ -109,23 +111,13 @@ Json::Value AdminStatisticsService::overview() const
     Json::Value usersBlock(Json::objectValue);
     std::unordered_map<std::string, size_t> roleCounts;
     size_t totalUsers = 0;
-    const auto usersJson = safeRead(userRootDir_ / "users.json");
-    if (usersJson.isObject() && usersJson["users"].isArray())
+    const auto usersJson = users_.users();
+    for (const auto &id : usersJson.getMemberNames())
     {
-        for (const auto &u : usersJson["users"])
-        {
-            ++totalUsers;
-            if (u.isMember("roleIds") && u["roleIds"].isArray())
-            {
-                for (const auto &r : u["roleIds"])
-                {
-                    if (r.isString())
-                    {
-                        roleCounts[r.asString()]++;
-                    }
-                }
-            }
-        }
+        const auto &user = usersJson[id];
+        ++totalUsers;
+        for (const auto &role : user["roles"])
+            if (role.isString()) ++roleCounts[role.asString()];
     }
     usersBlock["total"] = static_cast<Json::UInt64>(totalUsers);
     Json::Value byRole(Json::objectValue);
@@ -138,13 +130,7 @@ Json::Value AdminStatisticsService::overview() const
 
     // ------ 组织：总数 ------
     Json::Value orgBlock(Json::objectValue);
-    size_t orgCount = 0;
-    const auto orgJson = safeRead(userRootDir_ / "organizations.json");
-    if (orgJson.isObject())
-    {
-        orgCount = orgJson.getMemberNames().size();
-    }
-    orgBlock["total"] = static_cast<Json::UInt64>(orgCount);
+    orgBlock["total"] = static_cast<Json::UInt64>(organizations_.organizationCount());
     out["organizations"] = orgBlock;
 
     // ------ 内容：试卷文件数（递归 paperDir 下 *.json） ------

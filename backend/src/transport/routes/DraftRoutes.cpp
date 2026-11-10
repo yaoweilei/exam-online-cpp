@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <string>
+#include <unordered_set>
 
 #include <drogon/HttpAppFramework.h>
 
@@ -12,6 +13,36 @@ namespace transport::routes
 {
 namespace
 {
+Json::Value normalizeDraftProgress(const AppContext &ctx, Json::Value draft)
+{
+    const auto examId = draft.get("exam_id", "").asString();
+    if (examId.empty()) return draft;
+    try {
+        const auto exam = ctx.examService->getExam(examId);
+        int total = 0, answered = 0;
+        const auto &answers = draft["answers"];
+        int sectionIndex = 0;
+        for (const auto &section : exam["exam_info"]["sections"]) {
+            std::unordered_set<std::string> seen;
+            const auto count = [&](const Json::Value &questions) {
+                for (const auto &question : questions) {
+                    const auto id = question.get("id", "").asString();
+                    if (id.empty() || !seen.insert(id).second) continue;
+                    ++total;
+                    const auto key = std::to_string(sectionIndex) + ":" + id;
+                    const auto &answer = answers.isMember(key) ? answers[key] : answers[id];
+                    if (!answer.isNull() && (!answer.isString() || !answer.asString().empty()) && (!answer.isArray() || !answer.empty())) ++answered;
+                }
+            };
+            count(section["questions"]);
+            for (const auto &passage : section["passages"]) count(passage["questions"]);
+            ++sectionIndex;
+        }
+        draft["total_questions"] = total;
+        if (answers.isObject()) draft["answered_count"] = answered;
+    } catch (...) { }
+    return draft;
+}
 Json::Value recentItemFromDraft(const std::string &userId, const Json::Value &draft, const std::string &status)
 {
     Json::Value item(Json::objectValue);
@@ -37,6 +68,51 @@ Json::Value recentItemFromDraft(const std::string &userId, const Json::Value &dr
 // ---------------------------------------------------------------------------
 void registerDraftRoutes(const AppContext &ctx)
 {
+    app().registerHandler("/api/v1/practice-drafts/{1}",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
+                requireFeature(*ctx.featureFlagService, "resume_draft", userId);
+                Json::Value out(Json::objectValue);
+                out["items"] = ctx.draftService->list(userId + "__practice");
+                return common::ok(req, out);
+            });
+        }, {Get});
+    app().registerHandler("/api/v1/practice-drafts/{1}",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
+                requireFeature(*ctx.featureFlagService, "resume_draft", userId);
+                const auto &draft = body["session_draft"];
+                const auto id = requireBoundedString(draft, "submission", 1, 100);
+                const auto &questions = draft["session"]["questions"];
+                if (!questions.isArray() || questions.empty() || questions.size() > 1000 || !draft["answers"].isArray() || !draft["outcomes"].isArray() || !draft["revealed"].isArray())
+                    throw common::AppException("VALIDATION_ERROR", "Invalid practice draft", k422UnprocessableEntity);
+                for (const auto &question : questions) {
+                    requireBoundedString(question, "examId", 1, 200);
+                    requireBoundedString(question, "questionId", 1, 200);
+                }
+                auto patch = body;
+                patch["exam_id"] = id;
+                patch["attempt_id"] = id;
+                return common::ok(req, ctx.draftService->save(userId + "__practice", patch));
+            });
+        }, {Post});
+    app().registerHandler("/api/v1/practice-drafts/{1}/{2}",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string userId, std::string id) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireDataOwnerOrAdmin(session, userId);
+                requireFeature(*ctx.featureFlagService, "resume_draft", userId);
+                ctx.draftService->markSubmitted(userId + "__practice", id, id);
+                Json::Value out(Json::objectValue);
+                out["cleared"] = ctx.draftService->clear(userId + "__practice", id, id);
+                return common::ok(req, out);
+            });
+        }, {Delete});
     app().registerHandler(
         "/api/v1/drafts/{1}",
         [ctx](const HttpRequestPtr &req,
@@ -46,7 +122,7 @@ void registerDraftRoutes(const AppContext &ctx)
                 const auto session = requireSession(*ctx.authService, req);
                 requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "resume_draft", userId);
-                return common::ok(req, ctx.draftService->get(userId));
+                return common::ok(req, normalizeDraftProgress(ctx, ctx.draftService->get(userId, req->getParameter("exam_id"))));
             });
         },
         {Get});
@@ -63,7 +139,7 @@ void registerDraftRoutes(const AppContext &ctx)
                 requireFeature(*ctx.featureFlagService, "resume_draft", userId);
                 // 必须带 exam_id
                 requireString(body, "exam_id");
-                auto saved = ctx.draftService->save(userId, body);
+                auto saved = ctx.draftService->save(userId, normalizeDraftProgress(ctx, body));
                 if (ctx.recentLearningRepository != nullptr)
                 {
                     ctx.recentLearningRepository->upsert(userId, recentItemFromDraft(userId, saved, "draft"));
@@ -83,7 +159,7 @@ void registerDraftRoutes(const AppContext &ctx)
                 requireDataOwnerOrAdmin(session, userId);
                 requireFeature(*ctx.featureFlagService, "resume_draft", userId);
                 Json::Value out(Json::objectValue);
-                out["cleared"] = ctx.draftService->clear(userId);
+                out["cleared"] = ctx.draftService->clear(userId, req->getParameter("exam_id"), req->getParameter("attempt_id"));
                 return common::ok(req, out);
             });
         },
@@ -103,13 +179,15 @@ void registerDraftRoutes(const AppContext &ctx)
                     const auto currentDraft = ctx.draftService->get(userId);
                     if (currentDraft.isObject() && !currentDraft.get("exam_id", "").asString().empty())
                     {
-                        ctx.recentLearningRepository->upsert(userId, recentItemFromDraft(userId, currentDraft, "draft"));
+                        const auto recent = ctx.recentLearningRepository->list(userId, 10);
+                        bool alreadyRecorded = false;
+                        for (const auto &item : recent["items"]) if (item.get("exam_id", "").asString() == currentDraft.get("exam_id", "").asString() && item.get("status", "").asString() == "draft") { alreadyRecorded = true; break; }
+                        if (!alreadyRecorded) ctx.recentLearningRepository->upsert(userId, recentItemFromDraft(userId, currentDraft, "draft"));
                     }
                 }
-                return common::ok(req,
-                    ctx.recentLearningRepository != nullptr
-                        ? ctx.recentLearningRepository->list(userId, limit)
-                        : Json::Value(Json::objectValue));
+                auto data = ctx.recentLearningRepository != nullptr ? ctx.recentLearningRepository->list(userId, limit) : Json::Value(Json::objectValue);
+                for (auto &item : data["items"]) if (item.get("status", "").asString() == "draft") item = normalizeDraftProgress(ctx, item);
+                return common::ok(req, data);
             });
         },
         {Get});

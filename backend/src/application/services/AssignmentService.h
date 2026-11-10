@@ -33,7 +33,8 @@ class AssignmentService
     Json::Value submitAssignment(const std::string &assignmentId,
                                  const std::string &studentId,
                                  const Json::Value &answers,
-                                 const Json::Value &score);
+                                 const Json::Value &score,
+                                 const std::string &submissionId = "");
 
 	Json::Value assignmentSubmissions(const std::string &assignmentId) const;
 

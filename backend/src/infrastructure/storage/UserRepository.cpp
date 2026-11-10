@@ -289,20 +289,10 @@ Json::Value UserRepository::findUserByLoginId(const std::string &loginId) const
 Json::Value UserRepository::findUserById(const std::string &userId) const
 {
     std::shared_lock lock(mutex_);
-    auto usersJson = readUsersUnlocked();
-    Json::Value result(Json::nullValue);
-    forEachUserValue(usersJson, [&result, &userId](const Json::Value &entry) {
-        if (!result.isNull())
-        {
-            return;
-        }
-        const auto user = normalizeUser(entry);
-        if (user.get("id", "").asString() == userId)
-        {
-            result = user;
-        }
-    });
-    return result;
+    // Users are stored by canonical ID. Point reads avoid copying and
+    // normalizing every other account for each authentication/profile lookup.
+    const auto user=sqliteStore_.get("users",userId);
+    return user.isNull()?Json::Value(Json::nullValue):normalizeUser(user);
 }
 
 Json::Value UserRepository::usersByRole(const std::string &roleId) const
@@ -1334,7 +1324,7 @@ Json::Value UserRepository::defaultRolesMap()
     roles["student"]["permissions"].append("learning_record.view.self");
 
     roles["assistant"]["id"] = "assistant";
-    roles["assistant"]["name"] = "教学管理员";
+    roles["assistant"]["name"] = "教务管理员";
     roles["assistant"]["description"] = "负责作业流转、催交、成绩汇总和学员跟进；默认不查看试卷、答案或解析，也不占付费席位。";
     roles["assistant"]["allow_organization_override"] = true;
     roles["assistant"]["permissions"] = Json::arrayValue;
@@ -1346,7 +1336,7 @@ Json::Value UserRepository::defaultRolesMap()
     roles["assistant"]["permissions"].append("course_package.view");
 
     roles["teacher"]["id"] = "teacher";
-    roles["teacher"]["name"] = "老师";
+    roles["teacher"]["name"] = "教师";
     roles["teacher"]["description"] = "负责学习组教学、作业、批改、课后反馈和备课；加入机构后占用付费内容席位。";
     roles["teacher"]["allow_organization_override"] = true;
     roles["teacher"]["permissions"] = Json::arrayValue;
@@ -1396,7 +1386,7 @@ Json::Value UserRepository::defaultRolesMap()
     roles["contentAdmin"]["permissions"].append("content.audit.view");
 
     roles["superAdmin"]["id"] = "superAdmin";
-    roles["superAdmin"]["name"] = "平台超级管理员";
+    roles["superAdmin"]["name"] = "超级管理员";
     roles["superAdmin"]["description"] = "平台最高权限，仅用于平台运营和技术管理。";
     roles["superAdmin"]["allow_organization_override"] = false;
     roles["superAdmin"]["permissions"] = Json::arrayValue;
@@ -1583,7 +1573,13 @@ Json::Value UserRepository::mergeRoleDefinition(const Json::Value &baseline, con
 {
     Json::Value merged = baseline.isObject() ? baseline : Json::Value(Json::objectValue);
     merged["id"] = roleId;
-    merged["name"] = incoming.get("name", merged.get("name", roleId).asString()).asString();
+    const auto defaultName = merged.get("name", roleId).asString();
+    const auto name = incoming.get("name", defaultName).asString();
+    const bool legacyName = (roleId == "teacher" && name == "老师") ||
+                            (roleId == "assistant" && name == "教学管理员") ||
+                            (roleId == "superAdmin" && (name == "平台超级管理员" || name == "平台管理员")) ||
+                            (roleId == "contentAdmin" && (name == "内容主编" || name == "内容管理" || name == "平台内容管理员"));
+    merged["name"] = legacyName ? defaultName : name;
     merged["description"] = incoming.get("description", merged.get("description", "").asString()).asString();
     merged["allow_organization_override"] = incoming.get(
         "allow_organization_override", merged.get("allow_organization_override", false)).asBool();

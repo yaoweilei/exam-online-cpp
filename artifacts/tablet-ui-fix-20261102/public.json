@@ -1,0 +1,348 @@
+[
+  {
+    "id": "exam-text",
+    "role": "exam",
+    "label": "文本题",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "exam-text-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 767,
+          "mainHeight": 1000,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习",
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "exam-text-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 993,
+          "mainHeight": 744,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习",
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-reading",
+    "role": "exam",
+    "label": "阅读题",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "exam-reading-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 767,
+          "mainHeight": 1000,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "本题来源：JLPT N3 · 2010年7月真题\n\n問題4 つぎの（1）から（4）の文章を読んで、質問に答えなさい。答えは、1 • 2 • 3 • 4 から最もよいものを一つえらびなさい。\n展开\n（1）\n朝日市は、市民全員が力を合わせて美しい町を作り、気持ちのいい生活が送れるように新しい規則を作った。その規則では、次の三つのことを禁止している。①ゴミ箱などの決められた場所以外にゴミを捨てること、②歩きながらタバコを吸うこと、③指定の場所以外に自転車をとめることである。守らなかった場合は、お金を払わされることもあるそうだ。\n59.\nこの規則について、正しいものはどれか。🐛 报错收藏本题\n1.\n自分の家以外では、ゴミを捨ててはならない\n2.\n道を歩きながら、タバコを吸ってはいけない\n3.\n自転車は、決められた場所以外走ってはいけない\n4.\n規則を守らない人は、全員お金を払わなければならない\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习",
+          "headings": [
+            {
+              "text": "問題4 つぎの（1）から（4）の文章を読んで、質問に答えなさい。答えは、1 • 2 • 3 • 4 から最もよいものを一つえらびなさい。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "exam-reading-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 993,
+          "mainHeight": 836,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "本题来源：JLPT N3 · 2010年7月真题\n\n問題4 つぎの（1）から（4）の文章を読んで、質問に答えなさい。答えは、1 • 2 • 3 • 4 から最もよいものを一つえらびなさい。\n展开\n（1）\n朝日市は、市民全員が力を合わせて美しい町を作り、気持ちのいい生活が送れるように新しい規則を作った。その規則では、次の三つのことを禁止している。①ゴミ箱などの決められた場所以外にゴミを捨てること、②歩きながらタバコを吸うこと、③指定の場所以外に自転車をとめることである。守らなかった場合は、お金を払わされることもあるそうだ。\n59.\nこの規則について、正しいものはどれか。🐛 报错收藏本题\n1.\n自分の家以外では、ゴミを捨ててはならない\n2.\n道を歩きながら、タバコを吸ってはいけない\n3.\n自転車は、決められた場所以外走ってはいけない\n4.\n規則を守らない人は、全員お金を払わなければならない\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习",
+          "headings": [
+            {
+              "text": "問題4 つぎの（1）から（4）の文章を読んで、質問に答えなさい。答えは、1 • 2 • 3 • 4 から最もよいものを一つえらびなさい。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-listening",
+    "role": "exam",
+    "label": "听力题",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "exam-listening-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 767,
+          "mainHeight": 1025,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "本题来源：JLPT N3 · 2010年7月真题\n\n問題1 では、まず質問を聞いてください。それから話を聞いて、問題用紙の１から４の中から、最もよいものを一つ選んでください。\n展开\n放大图片\n1.\n白で首回りがあいているセーター\n2.\n黒で首回りがあいているセーター\n3.\n白で首回りがつまっているセーター\n4.\n黒で首回りがつまっているセーター\n0:00 / 0:00\n0.5x\n0.75x\n1x\n1.25x\n1.5x\n2x\n循环\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习",
+          "headings": [
+            {
+              "text": "問題1 では、まず質問を聞いてください。それから話を聞いて、問題用紙の１から４の中から、最もよいものを一つ選んでください。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "exam-listening-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 993,
+          "mainHeight": 989,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "本题来源：JLPT N3 · 2010年7月真题\n\n問題1 では、まず質問を聞いてください。それから話を聞いて、問題用紙の１から４の中から、最もよいものを一つ選んでください。\n展开\n放大图片\n1.\n白で首回りがあいているセーター\n2.\n黒で首回りがあいているセーター\n3.\n白で首回りがつまっているセーター\n4.\n黒で首回りがつまっているセーター\n0:00 / 0:00\n0.5x\n0.75x\n1x\n1.25x\n1.5x\n2x\n循环\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习",
+          "headings": [
+            {
+              "text": "問題1 では、まず質問を聞いてください。それから話を聞いて、問題用紙の１から４の中から、最もよいものを一つ選んでください。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "bottom",
+        "file": "exam-listening-1024-bottom.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 993,
+          "mainHeight": 989,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "本题来源：JLPT N3 · 2010年7月真题\n\n問題1 では、まず質問を聞いてください。それから話を聞いて、問題用紙の１から４の中から、最もよいものを一つ選んでください。\n展开\n放大图片\n1.\n白で首回りがあいているセーター\n2.\n黒で首回りがあいているセーター\n3.\n白で首回りがつまっているセーター\n4.\n黒で首回りがつまっているセーター\n0:00 / 0:00\n0.5x\n0.75x\n1x\n1.25x\n1.5x\n2x\n循环\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习",
+          "headings": [
+            {
+              "text": "問題1 では、まず質問を聞いてください。それから話を聞いて、問題用紙の１から４の中から、最もよいものを一つ選んでください。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "welcome",
+    "role": "public",
+    "label": "游客首页",
+    "account": "游客",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "welcome-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 528,
+          "mainHeight": 944,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "問題1 _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\n余暇の楽しみ方は色々ある。🐛 报错收藏本题\n1.ようか\n2.よか\n3.よが\n4.ようが\n检查答案\n1 / 44\n上一题\n下一题",
+          "headings": [
+            {
+              "text": "問題1  _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "welcome-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 784,
+          "mainHeight": 724,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "問題1 _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\n余暇の楽しみ方は色々ある。🐛 报错收藏本题\n1.ようか\n2.よか\n3.よが\n4.ようが\n检查答案\n1 / 44\n上一题\n下一题",
+          "headings": [
+            {
+              "text": "問題1  _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "18px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "login-phone",
+    "role": "public",
+    "label": "验证码登录",
+    "account": "游客",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "login-phone-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1024,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "×\n試\n+86 ▾\n发送验证码\n我已阅读并同意\n《用户协议》\n和\n《隐私政策》\n密码登录\nG\n测试账号\n学员 student_demo\n老师 teacher_demo\n教学运营 assistant_demo\n机构管理员 orgadmin_demo\n内容管理员 contentadmin_demo\n超级管理员 superadmin_demo",
+          "headings": []
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "login-phone-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 1024,
+          "mainHeight": 768,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "×\n試\n+86 ▾\n发送验证码\n我已阅读并同意\n《用户协议》\n和\n《隐私政策》\n密码登录\nG\n测试账号\n学员 student_demo\n老师 teacher_demo\n教学运营 assistant_demo\n机构管理员 orgadmin_demo\n内容管理员 contentadmin_demo\n超级管理员 superadmin_demo",
+          "headings": []
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "login-password",
+    "role": "public",
+    "label": "密码登录",
+    "account": "游客",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "login-password-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 768,
+          "mainHeight": 1024,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "‹\n返回\n密码登录\n忘记密码？\n登录",
+          "headings": []
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "login-password-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 1024,
+          "mainHeight": 768,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "‹\n返回\n密码登录\n忘记密码？\n登录",
+          "headings": []
+        }
+      }
+    ],
+    "errors": []
+  }
+]

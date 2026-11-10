@@ -1,0 +1,1563 @@
+/* All management roles use the learner's adjacent menu + paper layout. */
+#platform-admin-shell:not([data-learning-role="student"]) {
+  --workspace-bg: #fff; --workspace-surface: #fff; --workspace-muted-surface: #f7f7f5;
+  --workspace-section: #fffbf7; --workspace-text: #26221f; --workspace-muted: #78716c;
+  --workspace-border: #ebe7e2; --workspace-accent: #ae450e; --workspace-selected: #fff3e9;
+  --workspace-selected-border: #efd0b9; --workspace-sidebar: 240px;
+  --workspace-paper: calc(var(--learning-text-max-width, 754px) + 240px);
+  --workspace-inset: max(0px, calc((100vw - var(--workspace-sidebar) - var(--workspace-paper)) / 2));
+  --workspace-surround: #f1f2f4;
+  color: var(--workspace-text); font-family: var(--font-zh); color-scheme: light;
+}
+body:not(.light-theme) #platform-admin-shell:not([data-learning-role="student"]) {
+  --workspace-bg: #000; --workspace-surface: #1c1c1e; --workspace-muted-surface: #2c2c2e;
+  --workspace-section: #1c1c1e; --workspace-text: #f5f5f7; --workspace-muted: #a1a1a8;
+  --workspace-border: #38383a; --workspace-accent: #ff9f62; --workspace-selected: #35251d;
+  --workspace-selected-border: #77513b; --workspace-surround: #101012; color-scheme: dark;
+}
+#platform-admin-shell:not([data-learning-role="student"]).pc-platform-admin-open {
+  inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: none;
+  margin: 0; border: 0; border-radius: 0; box-shadow: none; background: var(--workspace-surround);
+  display: grid; grid-template-columns: var(--workspace-inset) var(--workspace-sidebar) minmax(0, 1fr) var(--workspace-inset); grid-template-rows: 44px minmax(0, 1fr);
+}
+#platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-topbar {
+  grid-column: 1 / -1; grid-row: 1; position: relative; inset: auto;
+  min-height: 44px; height: 44px; padding: 2px calc(var(--workspace-inset) + 7px); background: var(--workspace-bg); border-bottom: 1px solid var(--workspace-border);
+  color: var(--workspace-text); gap: 8px;
+}
+#platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-topbar .pc-topbar-back { left: max(calc(var(--workspace-inset) + var(--workspace-sidebar) + 8px), calc(var(--workspace-inset) + 55px)); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-trigger { background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-account { margin-left: auto; }
+#platform-admin-shell > .pc-platform-topbar .pc-workspace-home { display: inline-flex; position: static; align-items: center; justify-content: center; flex: 0 0 38px; width: 38px; height: 38px; padding: 0; border: 1px solid var(--workspace-border, var(--ls-border, #ebe7e2)); border-radius: 12px; background: var(--workspace-bg, var(--ls-surface, #fff)); color: var(--workspace-text, var(--ls-text, #26221f)); cursor: pointer; }
+#platform-admin-shell > .pc-platform-topbar .pc-workspace-home svg { width: 18px; height: 18px; }
+#platform-admin-shell > .pc-platform-topbar .pc-workspace-home:hover { background: var(--workspace-muted-surface, var(--ls-selected, #fff3e9)); }
+#platform-admin-shell > .pc-platform-topbar .pc-workspace-home:focus-visible { outline: 2px solid var(--workspace-accent, #ae450e); outline-offset: 2px; }
+#platform-admin-shell > .pc-platform-topbar .pc-topbar-back { position: static; }
+#platform-admin-shell > .pc-platform-topbar .pc-workspace-navigation { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+#platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-topbar .pc-workspace-navigation { position: absolute; left: max(calc(var(--workspace-inset) + var(--workspace-sidebar) + 8px), calc(var(--workspace-inset) + 55px)); top: 2px; height: 38px; }
+@media (max-width: 1099px) {
+  #platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-topbar .pc-workspace-navigation { position: static; }
+}
+#platform-admin-shell.pc-platform-admin-mobile-preview > .pc-platform-topbar .pc-workspace-navigation { position: static; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-window-actions,
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-page-heading,
+#platform-admin-shell:not([data-learning-role="student"]) .pc-subpage-head,
+#platform-admin-shell[data-learning-role="teacher"] .pc-lite-list-card > .pc-my-content-head { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-sidebar {
+  grid-column: 2; grid-row: 2; position: relative; inset: auto; display: flex; flex-direction: column;
+  min-width: 0; min-height: 0; width: auto; padding: 18px 8px 14px;
+  background: var(--ls-surface, var(--workspace-bg)); border-inline: 1px solid var(--ls-border, var(--workspace-border)); color: var(--ls-text, var(--workspace-text));
+}
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-brand { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-workspace {
+  grid-column: 3; grid-row: 2; min-width: 0; min-height: 0; width: 100%; max-width: none;
+  background: var(--workspace-bg); background-image: none;
+}
+#platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-workspace::after { background: linear-gradient(to bottom, transparent, var(--workspace-bg) 90%); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-admin-content { padding: 12px 28px 32px; color: var(--workspace-text); font-size: 14px; line-height: 1.6; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-admin-content > * { max-width: var(--learning-text-max-width, 754px); width: 100%; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-admin-content > * + * { margin-top: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading { position: relative; padding: 0; margin-bottom: 16px; min-height: 38px; display: flex; flex-direction: column; justify-content: center; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading:has(.pc-teacher-refresh) { padding-right: 80px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading .pc-teacher-refresh { position: absolute; right: 0; top: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading h1 { margin: 0; font-size: 26px; line-height: 1.4; color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading p { margin-top: 6px; color: var(--workspace-muted); font-size: 14px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-dashboard, .pc-platform-overview-grid, .pc-platform-stats) { gap: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-card, .pc-platform-stat, .pc-platform-overview-panel) {
+  padding: 20px; border: 1px solid var(--workspace-border); border-radius: 18px;
+  box-shadow: none; color: var(--workspace-text); background: var(--workspace-surface);
+}
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-stats .pc-platform-stat { background: var(--workspace-section); padding: 18px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-service-header, .pc-my-content-head, h2, h3, .pc-platform-panel-head strong) { color: var(--workspace-text); font-size: 18px; line-height: 1.5; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-admin-note, .pc-org-field > span, .pc-info-row > span, .pc-lite-row em, .pc-platform-stat em, .pc-platform-task em, .pc-platform-panel-head span) { color: var(--workspace-muted); font-size: 14px; line-height: 1.6; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-info-row strong, .pc-lite-row strong, .pc-platform-task strong, .pc-platform-stat span) { color: var(--workspace-text); font-size: 15px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-info-row, .pc-lite-row, .pc-platform-task) { padding-block: 14px; gap: 12px; border-color: var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-info-row, .pc-lite-row) > span { min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-lite-row b { color: var(--workspace-accent); background: var(--workspace-selected); border-radius: 10px; padding: 4px 10px; white-space: normal; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-profile-input, .pc-org-batch-input, select, textarea, input:not([type="checkbox"]):not([type="radio"])) {
+  background: var(--workspace-surface); color: var(--workspace-text); border-color: var(--workspace-border); font: inherit;
+}
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-inline-btn, .pc-inline-ghost) { font: inherit; min-height: 42px; border-radius: 12px; padding: 9px 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-inline-btn { background: var(--workspace-selected); color: var(--workspace-accent); border: 1px solid var(--workspace-selected-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-inline-ghost { background: var(--workspace-surface); color: var(--workspace-text); border-color: var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(button, input, select, textarea):focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 3px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(button:disabled, input:disabled, select:disabled) { opacity: .55; cursor: default; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-item,
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-toggle { display: flex; align-items: center; gap: 8px; width: 100%; color: var(--ls-text, var(--workspace-text)); background: transparent; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 8px; font: 400 14px/1.4 var(--font-zh); cursor: pointer; text-align: left; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-toggle::after { content: ''; box-sizing: border-box; width: 8px; height: 8px; margin: 0 4px 0 auto; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; color: var(--workspace-muted); transform: rotate(45deg); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-toggle[aria-expanded="true"]::after { transform: rotate(225deg); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-sidebar nav { display: block; min-width: 0; overflow-x: hidden; overflow-y: auto; scrollbar-gutter: auto; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-sidebar nav > .pc-platform-nav-label {
+ margin-block: 12px 2px; padding: 0 12px; color: var(--workspace-muted); font-size: 12px; font-weight: 400; letter-spacing: normal;
+}
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-group { display: flex; flex-direction: column; margin: 6px 0 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-single { margin-top: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-item { flex-direction: row; justify-content: flex-start; height: auto; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-item span { display: initial; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-children { display: none; flex-direction: column; gap: 2px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-group[data-expanded="true"] > .pc-platform-nav-children { display: flex; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-children .pc-platform-nav-item { padding-left: 30px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-icon { display: inline-flex; width: 19px; height: 19px; flex: 0 0 19px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-group.has-active > .pc-platform-nav-toggle { background: transparent; color: var(--workspace-muted); border-left-color: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-item.active { background: var(--ls-selected, var(--workspace-selected)); color: var(--ls-selected-text, var(--workspace-accent)); border-left: 3px solid var(--ls-accent, var(--workspace-accent)); box-shadow: none; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-platform-nav-item:hover, .pc-platform-nav-toggle:hover, .pc-lite-row.service-item:hover) { background: var(--workspace-muted-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-platform-account-menu, .pc-platform-account-menu button, .pc-platform-nav-trigger, .pc-platform-back-button, .pc-platform-admin-user) { background: var(--workspace-bg); color: var(--workspace-text); border-color: var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-account-menu button:hover { background: var(--workspace-selected); color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-account-menu [data-role-workbench].active { background: var(--workspace-selected); color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-sidebar-footer { display: block; border: 0; padding-top: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .ls-theme-trigger { display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 9px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--ls-muted, var(--workspace-muted)); width: 100%; justify-content: flex-start; font: 13px/1.4 var(--font-zh); }
+#platform-admin-shell:not([data-learning-role="student"]) .ls-theme-trigger svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-task b { background: var(--workspace-muted-surface); color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) .ls-theme-trigger::after { content: '显示主题'; margin-left: 0; font-size: 13px; }
+#platform-admin-shell:not([data-learning-role="student"]) .ls-theme-menu { left: 0; bottom: 44px; z-index: 30; background: var(--workspace-surface); color: var(--workspace-text); border-color: var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .ls-theme-menu button { display: flex; justify-content: space-between; width: 100%; padding: 9px 12px; color: var(--workspace-text); border-radius: 8px; background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .ls-theme-menu button span { visibility: hidden; }
+#platform-admin-shell:not([data-learning-role="student"]) .ls-theme-menu button[aria-checked="true"] { background: var(--workspace-selected); color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) .ls-theme-menu button[aria-checked="true"] span { visibility: visible; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teaching-form .pc-org-form-grid { gap: 20px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teaching-form [hidden] { display: none !important; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-form-actions { margin-top: 16px; flex-wrap: wrap; gap: 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teaching-preview { margin: 20px 0; padding: 16px 20px; border-radius: 12px; background: var(--workspace-section); border: 1px solid var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teaching-preview ol { padding-left: 22px; margin-bottom: 0; max-height: 340px; overflow: auto; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teaching-preview li { padding: 6px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teaching-preview li span { color: var(--workspace-muted); margin-right: 6px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teaching-error { color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teaching-actions { margin-bottom: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-teacher-org-filter, .pc-teacher-org-switch) { margin-top: 0; margin-bottom: 16px; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teacher-org-filter { display: flex; align-items: center; gap: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teacher-org-filter select { flex: 0 1 420px; width: min(420px, 100%); min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-teacher-org-switch summary { cursor: pointer; padding: 0; line-height: 24px; }
+#platform-admin-shell:not([data-learning-role="student"]).pc-platform-sidebar-collapsed { --workspace-sidebar: 0px; grid-template-columns: var(--workspace-inset) var(--workspace-sidebar) minmax(0, 1fr) var(--workspace-inset); }
+@media (max-width: 1099px) {
+  #platform-admin-shell:not([data-learning-role="student"]) { --workspace-sidebar: 0px; }
+  #platform-admin-shell:not([data-learning-role="student"]).pc-platform-admin-open { grid-template-columns: var(--workspace-inset) 0 minmax(0,1fr) var(--workspace-inset); }
+  #platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-topbar .pc-topbar-back { position: static; }
+  #platform-admin-shell:not([data-learning-role="student"]) > .pc-platform-sidebar { display: none; position: absolute; grid-area: 1 / 1 / -1 / -1; inset: 44px auto 0 0; width: min(240px,calc(100vw - 48px)); z-index: 11; }
+  #platform-admin-shell:not([data-learning-role="student"]).pc-platform-mobile-menu-open > .pc-platform-sidebar { display: flex; }
+  #platform-admin-shell:not([data-learning-role="student"]).pc-platform-mobile-menu-open > .pc-platform-nav-backdrop { display: block; position: absolute; inset: 44px 0 0; z-index: 10; border: 0; background: rgb(0 0 0 / .3); }
+}
+@media (max-width: 600px) {
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-admin-content { padding: 8px 16px 20px; }
+  #platform-admin-shell:not([data-learning-role="student"]) :is(.pc-card, .pc-platform-stat, .pc-platform-overview-panel) { padding: 16px; }
+  #platform-admin-shell:not([data-learning-role="student"]) :is(.pc-org-form-grid, .pc-platform-overview-grid) { grid-template-columns: minmax(0,1fr); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading h1 { font-size: 23px; }
+}
+
+/* Overviews favor readable counts and actionable work over large empty panels. */
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-overview-grid { align-items: start; gap: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-overview-grid .pc-platform-stats { grid-template-columns: repeat(var(--overview-stat-count, 4), minmax(0, 1fr)); gap: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-overview-grid :is(.pc-platform-stat, .pc-platform-overview-panel) { padding: 16px; border-radius: 14px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-stats .pc-platform-stat { gap: 5px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-stat span { font-size: 13px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-stat strong { font-size: 24px; line-height: 1.25; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-stat em { font-size: 12px; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-stat strong.is-loading { font-size: 13px; font-weight: 400; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-overview-grid .pc-platform-task { padding-block: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-overview-single-panel .pc-platform-tasks { grid-column: 1 / -1; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-overview-empty, .pc-overview-status) { margin: 0; padding: 16px 0; color: var(--workspace-muted); line-height: 1.7; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-overview-empty > strong { color: var(--workspace-text); font-size: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-overview-empty p { margin: 6px 0 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-overview-empty > button { margin-top: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-org-switch { color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-org-switch > summary { display: flex; align-items: center; gap: 12px; cursor: pointer; min-height: 32px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-org-switch > summary span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-org-switch > summary small { flex: 0 0 auto; color: var(--workspace-accent); font-size: 13px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-org-switch > .pc-card { margin-top: 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-group[data-expanded="true"] > .pc-platform-nav-toggle { background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-group > .pc-platform-nav-toggle:hover { background: var(--workspace-muted-surface); }
+
+/* Use the learner's full-width home row and inset primary entries. */
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-single { margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-single > .pc-platform-nav-item { box-sizing: border-box; flex: 0 0 auto; width: calc(100% - 20px); min-height: 44px; margin: 4px 0 0 20px; padding: 8px 10px; border-left: 3px solid transparent; border-right: 3px solid transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-single > .pc-platform-nav-item.active { border-left-color: var(--ls-accent, var(--workspace-accent)); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-single:not(:first-child) > .pc-platform-nav-item:hover { background: var(--ls-selected, var(--workspace-selected)); color: var(--ls-selected-text, var(--workspace-accent)); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-single:first-child > .pc-platform-nav-item { width: 100%; min-height: 38px; margin: 0 0 4px; padding: 9px 10px; gap: 10px; border: 0; font: 400 14px var(--font-zh); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-single:first-child > .pc-platform-nav-item.active { border-left: 3px solid var(--ls-accent, var(--workspace-accent)); padding-left: 7px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-icon { stroke-width: 1.8; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-single:first-child .pc-platform-nav-icon { width: 18px; height: 18px; flex-basis: 18px; stroke-width: 1.5; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-children .pc-platform-nav-item { padding-left: 26px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-group:not(.has-active) > .pc-platform-nav-toggle { background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-nav-item.active:hover { background: var(--ls-selected, var(--workspace-selected)); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading h1 { font-size: 25px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory { padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-search-row { display: flex; align-items: center; gap: 8px; margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-search-field { flex: 1; min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-profile-input { width: 100%; min-height: 42px; height: 42px; padding: 9px 12px; border-radius: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-search-row > button { flex: 0 0 auto; min-width: 64px; }
+/* The mobile search dock belongs only to the user directory. Its natural
+   position after the results reserves space for the final record. */
+@media (max-width: 900px) {
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory { display: flex; flex-direction: column; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory > .pc-user-results { order: 0; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory > [data-platform-user-search-form] { order: 1; position: sticky; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 8; flex: 0 0 auto; margin: 18px 0 0; padding: 7px; border: 1px solid var(--workspace-border); border-radius: 28px; background: var(--workspace-surface); background: color-mix(in srgb, var(--workspace-surface) 94%, transparent); backdrop-filter: blur(12px); box-shadow: 0 4px 18px #00000018; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory [data-platform-user-search-form] .pc-admin-list-search-row { flex-wrap: nowrap; gap: 6px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory [data-platform-user-search-form] .pc-admin-list-search-field { flex: 1 1 0; min-width: 0; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory [data-platform-user-search-form] input { width: 100%; min-width: 0; height: 44px; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 22px; background: transparent; font-size: 16px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory [data-platform-user-search-form] button { min-width: 48px; min-height: 44px; padding: 8px 10px; border-radius: 22px; font-size: 13px; }
+}
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory [hidden] { display: none !important; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-results { margin-top: 18px; border: 1px solid var(--workspace-border); border-radius: 16px; background: var(--workspace-surface); overflow: visible; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-list-heading { padding: 14px 16px; border-bottom: 1px solid var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-list-heading h2 { margin: 0; font-size: 15px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table-wrap { min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; font-size: 13px; color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table :is(th, td) { padding: 8px 10px; border: 0; border-bottom: 1px solid var(--workspace-border); overflow-wrap: anywhere; vertical-align: middle; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th { background: var(--workspace-muted-surface); color: var(--workspace-muted); font-weight: 500; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th:first-child { width: 46%; padding-left: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th:nth-child(2) { width: 16%; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th:nth-child(3) { width: 10%; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th:last-child { width: 54px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table td:first-child { padding-left: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table td > small { display: block; color: var(--workspace-muted); font-size: 12px; line-height: 1.4; margin-top: 2px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-table tbody tr:hover { background: var(--workspace-muted-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-name, .pc-user-detail) { border: 0; background: transparent; color: var(--workspace-accent); font: inherit; line-height: 1.4; cursor: pointer; text-align: left; padding: 2px 0; min-height: 24px; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-name { font-weight: 600; color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-name, .pc-user-detail):hover { text-decoration: underline; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-status { color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-status.is-active { color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-pagination { display: flex; justify-content: space-between; padding: 12px 16px; margin: 0; gap: 12px; flex-wrap: wrap; }
+#platform-admin-shell .pc-user-directory .pc-admin-list-pagination,
+#platform-admin-shell .pc-platform-payment-list-card > .pc-platform-payment-pagination { position: relative; }
+#platform-admin-shell .pc-user-directory .pc-admin-list-pagination::before,
+#platform-admin-shell .pc-platform-payment-list-card > .pc-platform-payment-pagination::before { content: ''; position: absolute; top: 0; left: 14px; right: 14px; height: 1px; background: var(--workspace-border); pointer-events: none; }
+#platform-admin-shell .pc-platform-payment-list-card > .pc-platform-payment-pagination { padding: 8px 14px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-total-prefix { display: inline; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-directory, .pc-platform-org-directory) .pc-admin-list-page-stepper { width: auto; height: 44px; gap: 4px; overflow: visible; border-radius: 0; background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-directory, .pc-platform-org-directory) .pc-admin-list-page-arrow { width: 40px; min-width: 40px; height: 44px; border-radius: 8px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-directory, .pc-platform-org-directory) .pc-admin-list-page-arrow:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: -2px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-directory, .pc-platform-org-directory) .pc-admin-list-page-jump { flex: 0 1 auto; gap: 6px; padding: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-directory, .pc-platform-org-directory) .pc-admin-list-page-jump-label { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-directory, .pc-platform-org-directory) .pc-admin-list-page-jump input { width: 32px; height: 32px; padding: 0 2px; border: 1px solid var(--workspace-border); border-radius: 8px; background: var(--workspace-surface); color: var(--workspace-text); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-directory, .pc-platform-org-directory) .pc-admin-list-page-jump input:focus { border-color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-admin-list-page-status, .pc-admin-list-page-jump-label, .pc-admin-list-page-jump em) { color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-admin-list-page-stepper, .pc-admin-list-page-size > summary) { background: var(--workspace-muted-surface); color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-admin-list-page-size-chevron { stroke: currentColor; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-admin-list-page-size-menu { background: var(--workspace-surface); border-color: var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-admin-list-page-size-option, .pc-admin-list-page-size-option b, .pc-admin-list-page-arrow) { color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-admin-list-page-size > summary:hover, .pc-admin-list-page-size-option:hover, .pc-admin-list-page-size-option:focus-visible, .pc-admin-list-page-arrow:hover:not(:disabled)) { background: var(--workspace-muted-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-admin-list-page-size-option.active { background: var(--workspace-selected); color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-audit-page { grid-template-columns: minmax(0, 1fr); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-audit-page > * { min-width: 0; max-width: 100%; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-audit-body .pc-responsive-table-region { width: 100%; box-sizing: border-box; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-empty { padding: 30px 16px; text-align: center; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-empty p { margin: 8px 0 14px; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-loading { padding: 0 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-skeleton { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 24px; padding: 21px 0; border-bottom: 1px solid var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-skeleton:last-child { border-bottom: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-skeleton i { height: 16px; border-radius: 5px; background: var(--workspace-muted-surface); }
+.pc-visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-section-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; min-width: 0; padding: 0; border-bottom: 1px solid var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-section-tab { flex: 0 1 auto; min-width: 0; min-height: 42px; padding: 8px 2px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--workspace-muted); font: inherit; cursor: pointer; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-section-tab.active { border-bottom-color: var(--workspace-accent); color: var(--workspace-accent); font-weight: 600; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-section-tab:hover { color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]):is(.pc-platform-users-active, .pc-platform-roles-active) .pc-platform-admin-content > .pc-workspace-section-tabs + .pc-dashboard { margin-top: 0; }
+@media (max-width: 600px) {
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-last-active { display: none; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-table :is(th, td) { padding: 10px 6px; }
+  #platform-admin-shell:not([data-learning-role="student"]) :is(.pc-user-name, .pc-user-detail) { min-height: 32px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th:first-child { width: 50%; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th:nth-child(2) { width: 23%; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th:nth-child(3) { width: 14%; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-table th:last-child { width: 42px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-search-row { flex-wrap: wrap; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-search-field { flex-basis: 0; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-pagination { padding-inline: 10px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory[data-user-fit-page="true"] .pc-admin-list-pagination {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px;
+    flex-wrap: initial;
+  }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory[data-user-fit-page="true"] .pc-admin-list-page-status {
+    min-width: 0;
+    white-space: nowrap;
+  }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory[data-user-fit-page="true"] .pc-admin-list-page-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-self: end;
+    width: auto;
+    min-width: 0;
+    gap: 4px;
+  }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory[data-user-fit-page="true"] .pc-admin-list-page-size,
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory[data-user-fit-page="true"] .pc-admin-list-page-stepper {
+    width: auto;
+    min-width: 0;
+  }
+}
+@media (max-width: 600px) {
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-overview-grid .pc-platform-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Keep the learner visual language, with compact tools above business records. */
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-platform-org-directory-tools, .pc-content-workflow-filters) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; margin: 0 0 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory-tools .pc-admin-list-search-row { display: flex; gap: 8px; margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory-tools .pc-admin-list-search-field { flex: 1; min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-platform-org-directory-tools, .pc-content-workflow-filters) .pc-profile-input { width: 100%; min-width: 0; height: 42px; min-height: 42px; padding: 8px 12px; border-radius: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-platform-org-directory-tools, .pc-content-workflow-filters) button { min-width: 64px; min-height: 42px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory-tools .pc-platform-org-create-panel { margin: 0; padding: 0; border: 0; background: transparent; border-radius: 0; box-shadow: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory-tools .pc-platform-org-create-panel > summary { min-height: 42px; box-sizing: border-box; padding: 10px 14px; border: 1px solid var(--workspace-selected-border); border-radius: 12px; background: var(--workspace-selected); color: var(--workspace-accent); font-size: 14px; gap: 16px; cursor: pointer; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-create-panel:not([open]) > summary b { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory-tools:has(.pc-platform-org-create-panel[open]) { grid-template-columns: minmax(0, 1fr); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-create-panel[open] > summary { width: fit-content; margin-left: auto; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-create-panel[open] > summary b { font-size: 12px; color: inherit; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-create-panel[open] > summary b::after { content: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-create-panel > .pc-platform-org-create-form { margin: 10px 0 0; padding: 16px; border: 1px solid var(--workspace-border); border-radius: 16px; background: var(--workspace-surface); gap: 12px; }
+#platform-admin-shell .pc-workspace-page-heading:has(> .pc-org-create-toggle) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 12px;
+}
+#platform-admin-shell .pc-workspace-page-heading:has(> .pc-org-create-toggle) h1 { grid-area: 1 / 1; padding-right: 0; }
+#platform-admin-shell .pc-workspace-page-heading:has(> .pc-org-create-toggle) p { grid-column: 1 / -1; margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading > .pc-org-create-toggle {
+  position: relative;
+  inset-block-start: 8px;
+  grid-area: 1 / 2;
+  min-width: 76px;
+  min-height: 32px;
+  height: 32px;
+  padding: 4px 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--workspace-border);
+  border-radius: 999px;
+  background: var(--workspace-surface);
+  color: var(--workspace-accent);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 22px;
+  white-space: nowrap;
+}
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workspace-page-heading > .pc-org-create-toggle[aria-expanded="true"] { background: var(--workspace-selected); border-color: var(--workspace-selected-border); }
+#platform-admin-shell .pc-workspace-page-heading > .pc-org-create-toggle:hover { background: var(--workspace-muted-surface); }
+#platform-admin-shell .pc-workspace-page-heading > .pc-org-create-toggle:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 2px; }
+#platform-admin-shell .pc-platform-org-create-panel.pc-org-create-inline > summary { display: none; }
+#platform-admin-shell .pc-platform-org-directory-tools:has(> .pc-org-create-inline:not([open])) { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory-tools:has(> .pc-org-create-inline[open]) { display: block; margin: 0 0 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory-tools > .pc-org-create-inline[open] { width: 100%; justify-self: stretch; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-create-inline > .pc-platform-org-create-form { margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-results { padding: 0; overflow: hidden; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table-wrap { width: 100%; overflow-x: auto; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table { width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 13px; color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table :is(th, td) { padding: 12px 8px; border: 0; border-bottom: 1px solid var(--workspace-border); overflow-wrap: anywhere; vertical-align: middle; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table th { background: var(--workspace-muted-surface); color: var(--workspace-muted); font-weight: 500; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table th:first-child { width: 33%; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table th:nth-child(6) { width: 14%; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table th:last-child { width: 42px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table th small { font-size: 11px; font-weight: 400; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table tbody tr:hover { background: var(--workspace-muted-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-empty { padding: 28px 16px; text-align: center; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-results .pc-admin-list-pagination { margin: 0; padding: 12px 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory .pc-admin-list-pagination { position: relative; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 8px 14px; }
+#platform-admin-shell .pc-platform-org-directory .pc-admin-list-pagination::before { content: ''; position: absolute; top: 0; left: 14px; right: 14px; height: 1px; background: var(--workspace-border); pointer-events: none; }
+#platform-admin-shell .pc-platform-org-directory .pc-admin-list-total-prefix { display: inline; }
+#platform-admin-shell .pc-org-directory-list > [role="listitem"] { position: relative; }
+#platform-admin-shell .pc-grouped-list.pc-org-directory-list > [role="listitem"] + [role="listitem"] { border-top: 0; }
+#platform-admin-shell .pc-org-directory-list > [role="listitem"]:not(:last-child)::after { content: ''; position: absolute; bottom: 0; left: 14px; right: 14px; height: 1px; background: var(--workspace-border); pointer-events: none; }
+#platform-admin-shell .pc-org-directory-list :is(.pc-grouped-description, .pc-grouped-meta) { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+#platform-admin-shell .pc-org-directory-list .pc-grouped-entry .pc-grouped-copy { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 3px 8px; }
+#platform-admin-shell .pc-org-directory-list .pc-grouped-title { grid-column: 1; grid-row: 1; }
+#platform-admin-shell .pc-org-directory-list .pc-grouped-description { grid-column: 1 / -1; grid-row: 2; min-width: 0; justify-self: stretch; text-align: left; }
+#platform-admin-shell .pc-org-directory-list .pc-grouped-status { grid-column: 2; grid-row: 1; max-width: 126px; padding: 1px 6px; border-radius: 6px; background: var(--workspace-selected); color: var(--workspace-accent); font-size: 11px; line-height: 1.6; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-filters { grid-template-columns: minmax(0, 1fr) 145px auto; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-card { padding: 0 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-toolbar { padding: 14px 0; gap: 10px; border-bottom: 1px solid var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-batch-actions { justify-content: space-between; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-batch-actions button { min-height: 32px; padding: 5px 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-lite-row.pc-content-workflow-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 12px; padding: 14px 0; align-items: center; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-main { min-width: 0; gap: 4px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-main > strong { font-size: 14px; line-height: 1.5; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-actions { grid-column: auto; width: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-actions button { width: auto; min-width: 48px; min-height: 34px; padding: 6px 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-versions { display: block; margin-top: 4px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-versions > summary { cursor: pointer; color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-content-workflow-select-all, .pc-content-workflow-inspection) { color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-batch-actions button:disabled { color: var(--workspace-muted); background: var(--workspace-muted-surface); border-color: var(--workspace-border); opacity: .65; }
+body:not(.light-theme) #platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-state { background: var(--workspace-muted-surface); border-color: var(--workspace-border); color: var(--workspace-muted); }
+body:not(.light-theme) #platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-state.is-warning { background: #453328; border-color: #936748; color: #ffba87; }
+body:not(.light-theme) #platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-state.is-success { background: #243c30; border-color: #426b51; color: #a4ddb6; }
+body:not(.light-theme) #platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-state.is-danger { background: #472e2e; border-color: #8d5151; color: #ffb4ad; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-version { display: flex; justify-content: space-between; white-space: normal; margin-top: 6px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workflow-empty { padding: 30px 0; text-align: center; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workflow-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 0; color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workflow-pagination > div { display: flex; align-items: center; gap: 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-workflow-pagination button { min-height: 36px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-overview { padding: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-tab { display: flex; flex: 0 1 auto; align-items: center; justify-content: center; gap: 10px; min-height: 38px; padding: 8px 12px; border-radius: 10px; font-size: 13px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-tab strong { font-size: 13px; line-height: inherit; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-tab.active { background: var(--workspace-selected); border-color: var(--workspace-selected-border); color: var(--workspace-accent); box-shadow: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-search > .pc-profile-input:first-child { grid-column: auto; width: 100%; min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-search-actions { grid-column: auto; display: flex; gap: 8px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-search-actions > select { width: 140px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-search-actions > button { min-width: 64px; padding-inline: 14px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-advanced { padding: 8px 0 0; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-advanced > summary { color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-list-card { padding: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-row { padding: 12px 0; }
+@media (max-width: 600px) {
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-directory-tools { grid-template-columns: minmax(0, 1fr); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-create-panel { justify-self: end; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-org-create-panel[open] { justify-self: stretch; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-org-directory-table { min-width: 640px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-filters { grid-template-columns: minmax(0, 1fr) auto; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-filters > input { grid-column: 1 / -1; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-lite-row.pc-content-workflow-row { grid-template-columns: 20px minmax(0, 1fr); align-items: start; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-actions { grid-column: 2; justify-content: flex-start; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-search { grid-template-columns: minmax(0, 1fr); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-search-actions { flex-wrap: wrap; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-platform-payment-search-actions > select { flex: 1; width: auto; }
+
+  /* Transaction records use the same compact grouped-list language as the rest of the workspace. */
+  #platform-admin-shell.pc-platform-payments-active .pc-dashboard.pc-subpage { gap: 10px; }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-overview { order: 1; }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--workspace-border);
+    border-radius: 14px;
+    background: var(--workspace-surface);
+  }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-tab {
+    min-height: 44px;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-tab:nth-child(odd) { border-right: 1px solid var(--workspace-border); }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-tab:nth-child(n + 3) { border-top: 1px solid var(--workspace-border); }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-tab.active { background: var(--workspace-selected); }
+  #platform-admin-shell.pc-platform-payments-active .pc-floating-search-row {
+    position: sticky;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    order: 99;
+    min-height: 52px;
+    margin: 12px 0;
+    border-radius: 30px;
+    background: color-mix(in srgb, var(--workspace-surface) 96%, transparent);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 6px 24px #0000000d;
+  }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-list-card {
+    order: 3;
+    padding: 0;
+    margin-bottom: 64px;
+    overflow: hidden;
+    border-radius: 14px;
+  }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-list-head {
+    min-height: 54px;
+    box-sizing: border-box;
+    padding: 8px 14px;
+  }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-list {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-row.pc-grouped-payment-record { border-bottom: 1px solid var(--workspace-border); }
+  #platform-admin-shell.pc-platform-payments-active .pc-platform-payment-row.pc-grouped-payment-record:last-child { border-bottom: 0; }
+  #platform-admin-shell.pc-platform-payments-active .pc-grouped-payment-record .pc-grouped-entry {
+    min-height: 68px;
+    padding: 8px 14px;
+  }
+  #platform-admin-shell.pc-platform-payments-active .pc-grouped-payment-record .pc-grouped-copy { gap: 2px; }
+  #platform-admin-shell.pc-platform-payments-active .pc-grouped-payment-record :is(.pc-grouped-description, .pc-grouped-meta) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #platform-admin-shell.pc-platform-payments-active .pc-grouped-payment-record .pc-grouped-meta { font-size: 11px; }
+}
+
+/* Role homes: one scope strip, current work, and complete in-page navigation. */
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-overview-grid.pc-role-home { display: flex; flex-direction: column; gap: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home > * { width: 100%; min-width: 0; box-sizing: border-box; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-stats { display: grid; grid-template-columns: repeat(var(--overview-stat-count, 4), minmax(0, 1fr)); gap: 0; padding: 8px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-stats .pc-platform-stat { display: flex; flex-direction: row; align-items: baseline; justify-content: flex-start; flex-wrap: wrap; gap: 4px 8px; min-height: 40px; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; box-shadow: none; text-align: left; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-stat:hover { background: var(--workspace-muted-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-stat span { font-size: 13px; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-stat strong { font-size: 18px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-stat em { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-overview-panel { padding: 14px 16px; margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-tasks:has(.pc-platform-task) { border-left: 3px solid var(--workspace-accent); background: var(--workspace-section); }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home .pc-platform-overview-panel.pc-platform-tasks:has(.pc-platform-task) { border: 1px solid var(--workspace-border); background: var(--workspace-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-panel-head { margin-bottom: 6px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-panel-head strong { font-size: 17px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-task { padding: 10px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-task strong { font-size: 14px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-task em { font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-overview-empty { padding: 8px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-overview-empty > strong { font-size: 14px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-home-functions, .pc-home-course, .pc-home-packages) { border: 1px solid var(--workspace-border); border-radius: 14px; padding: 14px 16px; background: var(--workspace-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-course { background: var(--workspace-section); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-section-head h2 { margin: 0; font-size: 17px; }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-home-section-head > button, .pc-home-message) { display: flex; align-items: center; gap: 6px; padding: 4px 0; min-height: 32px; font: inherit; font-size: 12px; border: 0; background: transparent; color: var(--workspace-accent); cursor: pointer; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 8px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function { margin: 0; min-width: 0; border: 1px solid transparent; border-radius: 12px; background: var(--workspace-muted-surface); color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-home-function > summary, .pc-home-function-direct) { display: flex; align-items: center; gap: 10px; padding: 13px 12px; min-height: 50px; box-sizing: border-box; cursor: pointer; list-style: none; font: inherit; text-align: left; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function > summary::-webkit-details-marker { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function strong { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function-icon { width: 18px; height: 18px; flex: 0 0 18px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function :is(.pc-home-chevron, summary > span:last-child),
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function-direct > span:last-child { color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function[open] { border-color: var(--workspace-selected-border); background: var(--workspace-selected); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function[open] .pc-home-chevron { transform: rotate(180deg); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 0 8px 8px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function-links button { display: flex; justify-content: space-between; align-items: center; gap: 4px; padding: 9px 8px; min-height: 38px; border: 0; border-radius: 8px; background: var(--workspace-surface); color: var(--workspace-text); text-align: left; font: inherit; font-size: 13px; cursor: pointer; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-function-links button span { color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-home-function-direct:hover, .pc-home-function-links button:hover) { background: var(--workspace-selected); color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) :is(.pc-home-next-course, .pc-home-next-course > span:first-child) { display: flex; min-width: 0; gap: 8px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-next-course { justify-content: space-between; align-items: center; width: 100%; padding: 4px 0; border: 0; background: transparent; color: var(--workspace-text); text-align: left; font: inherit; cursor: pointer; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-next-course > span:first-child { flex-direction: column; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-next-course strong { font-size: 15px; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-next-course small { font-size: 12px; color: var(--workspace-muted); overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-course > p { font-size: 13px; margin: 4px 0; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-footer { display: flex; justify-content: flex-end; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-search { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-search input { flex: 1; width: 100%; min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-editor > summary { min-height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--workspace-accent); cursor: pointer; font-size: 13px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-editor form { padding: 12px; border-radius: 12px; background: var(--workspace-muted-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--workspace-border); font-size: 13px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-row > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-row small { color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-row > span { font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-account { position: relative; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-platform-account-menu { position: absolute; top: calc(100% + 6px); right: 0; width: min(240px, calc(100vw - 24px)); max-height: calc(100dvh - 60px); overflow-y: auto; box-sizing: border-box; }
+@media (max-width: 600px) {
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-platform-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-home-function-grid { grid-template-columns: minmax(0, 1fr); }
+  #platform-admin-shell:not([data-learning-role="student"]) :is(.pc-home-functions, .pc-home-course, .pc-home-packages, .pc-role-home .pc-platform-overview-panel) { padding: 12px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-editor .pc-org-form-grid { grid-template-columns: minmax(0, 1fr); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-row { gap: 8px; }
+}
+
+/* Read-only counts on the single course-package workspace. */
+#platform-admin-shell[data-learning-role="orgContentAdmin"] div.pc-platform-stat { cursor: default; }
+#platform-admin-shell[data-learning-role="orgContentAdmin"] div.pc-platform-stat:hover { background: transparent; }
+
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-editor > summary h2 { margin: 0; font-size: 17px; color: var(--workspace-text); }
+#platform-admin-shell .pc-home-package-summary { margin: 0 0 8px; color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell[data-learning-role="orgContentAdmin"] .pc-role-home .pc-platform-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+#platform-admin-shell:not([data-learning-role="student"]) .pc-home-package-filter { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin: 4px 0; color: var(--workspace-muted); font-size: 12px; }
+/* Content workspace: compact reading and consistent list tools. */
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-platform-task { padding: 10px 0; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-platform-tasks .pc-platform-panel-head { margin-bottom: 2px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-list-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 8px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-list-heading h2 { margin: 0; font-size: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-list-heading > span { color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-help { margin-left: auto; font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-help summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; color: var(--workspace-accent); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-help[open] { flex-basis: 100%; margin-left: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-help p { margin: 4px 0 8px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card { padding: 14px 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-platform-feedback-toolbar { display: block; margin: 0; padding: 0 0 8px; border: 0; border-bottom: 1px solid var(--workspace-border); border-radius: 0; background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-platform-feedback-search-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-profile-input { width: 100%; min-width: 0; height: 40px; min-height: 40px; padding: 8px 12px; border-radius: 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-platform-feedback-search-row button { min-height: 40px; padding: 8px 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-extra-filters { margin: 6px 0 0; min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-extra-filters > summary { cursor: pointer; color: var(--workspace-muted); font-size: 12px; padding: 5px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-extra-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 8px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-extra-fields label { min-width: 0; display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-feedback-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; padding: 14px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-feedback-main { min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-feedback-row-heading { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-feedback-row-heading strong { font-size: 14px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-feedback-main p { margin: 5px 0; font-size: 13px; line-height: 1.6; color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-feedback-main small { font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-feedback-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: flex-end; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-feedback-actions button { min-height: 34px; padding: 6px 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-platform-feedback-pagination { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 0 0; margin-top: 4px; color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-empty { padding: 18px 0; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-empty p { margin: 5px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-card { padding: 14px 16px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-card .pc-content-workflow-filters { margin-bottom: 6px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-toolbar { padding: 8px 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-row { border-color: var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-workflow-select-all input { width: 16px; height: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page { padding: 14px 16px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); gap: 10px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page .pc-audit-page-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page .pc-audit-page-head p { font-size: 12px; color: var(--workspace-muted); margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page .pc-audit-filters { display: block; padding: 0; border: 0; background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-search { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; align-items: end; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page label { display: flex; flex-direction: column; min-width: 0; font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page :is(input, select) { width: 100%; min-width: 0; height: 40px; padding: 8px 10px; color: var(--workspace-text); background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 10px; box-sizing: border-box; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page :is(.pc-audit-primary, .pc-audit-secondary) { min-height: 36px; height: auto; padding: 7px 10px; color: var(--workspace-text); background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 10px; font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page .pc-audit-primary { color: var(--workspace-accent); background: var(--workspace-selected); border-color: var(--workspace-selected-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page :is(.pc-audit-summary, .pc-audit-pagination) { color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page :is(table, th, td) { color: var(--workspace-text); border-color: var(--workspace-border); background: var(--workspace-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page th { color: var(--workspace-muted); background: var(--workspace-muted-surface); }
+@media (max-width: 600px) {
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-extra-fields { grid-template-columns: minmax(0, 1fr); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-feedback-card .pc-feedback-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-search { grid-template-columns: minmax(0, 1fr); }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page .pc-audit-filter-actions { justify-content: flex-end; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page .pc-audit-page-head { align-items: flex-start; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page .pc-audit-page-head p { max-width: 65%; }
+}
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-search > .pc-audit-filter-actions { grid-column: auto; display: flex; align-items: center; justify-content: flex-end; margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-page .pc-audit-body { min-height: 0; height: auto; max-height: none; overflow: visible; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell .pc-audit-pagination[hidden] { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-record { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-record > div { min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-record strong { font-size: 14px; color: var(--workspace-text); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-record p { margin: 4px 0; color: var(--workspace-text); font-size: 13px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-record small { color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-content-log-record > button { min-height: 34px; padding: 6px 10px; }
+/* A single compact overview keeps the inline work area near the page heading. */
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: center; gap: 16px; padding: 10px 14px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-platform-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-platform-stat { min-height: 38px; padding: 6px; gap: 6px; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-platform-tasks { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px 14px; padding: 0 0 0 14px; margin: 0; border: 0; border-left: 1px solid var(--workspace-border); border-radius: 0; background: transparent; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-platform-task { width: auto; min-width: 0; display: inline-flex; align-items: baseline; justify-content: flex-start; gap: 6px; padding: 7px 0; margin: 0; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-platform-task strong { font-size: 12px; font-weight: 400; color: var(--workspace-muted); white-space: nowrap; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-platform-task b { min-width: 0; width: auto; min-height: 0; padding: 0; border: 0; border-radius: 0; color: var(--workspace-accent); font-size: 17px; line-height: 1.4; background: transparent; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip :is(.pc-platform-task em, .pc-overview-empty p) { display: none; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-overview-empty { padding: 6px 0; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-overview-empty strong { font-size: 12px; font-weight: 400; color: var(--workspace-muted); }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-overview-status { margin: 0; font-size: 12px; }
+@media (max-width: 760px) {
+  #platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 8px 12px; }
+  #platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip .pc-platform-tasks { justify-content: flex-start; padding: 5px 0 0; border-left: 0; border-top: 1px solid var(--workspace-border); gap: 4px 16px; }
+}
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-role-home .pc-content-overview-strip > :is(.pc-platform-stats, .pc-platform-tasks) { grid-column: auto; }
+
+/* Task layouts share the learner workspace palette and readable control sizes. */
+#platform-admin-shell .pc-workspace-page-heading { min-width: 0; color: var(--workspace-text); }
+#platform-admin-shell .pc-workspace-page-heading h1 { overflow-wrap: anywhere; }
+#platform-admin-shell .pc-audit-compact-filters { display: block; }
+#platform-admin-shell .pc-audit-basic-filters { display: flex; align-items: flex-end; gap: 12px; }
+#platform-admin-shell .pc-audit-basic-filters > label { flex: 1; min-width: 0; }
+#platform-admin-shell .pc-audit-basic-filters .pc-audit-filter-actions { margin: 0; }
+#platform-admin-shell .pc-audit-body { height: auto; min-height: 0; max-height: none; overflow: visible; }
+#platform-admin-shell .pc-platform-reminder-head { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-top: 12px; border-top: 1px solid var(--workspace-border); padding-top: 10px; }
+#platform-admin-shell .pc-platform-reminder-head h3 { margin: 0; font-size: 15px; }
+#platform-admin-shell .pc-platform-reminder-head span { font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell [data-product-panel="platform-operations"] { margin-top: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell .pc-platform-reminder-settings { margin: 6px 0; }
+#platform-admin-shell .pc-platform-reminder-settings summary { font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell [data-product-panel="platform-operations"] .pc-platform-reminder-head { justify-content: space-between; margin-top: 8px; padding-top: 12px; gap: 8px; }
+#platform-admin-shell [data-product-panel="platform-operations"],
+#platform-admin-shell [data-product-panel="platform-operations"] * { box-sizing: border-box; }
+#platform-admin-shell [data-product-panel="platform-operations"] h3 { font-size: 15px; line-height: 1.4; }
+#platform-admin-shell .pc-platform-reminder-head h3 small { margin-left: 6px; color: var(--workspace-muted); font-size: 12px; font-weight: 400; }
+#platform-admin-shell .pc-platform-reminder-filter { display: flex; align-items: center; gap: 8px; min-width: 0; }
+#platform-admin-shell .pc-reminder-filter-label { font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell .pc-platform-reminder-filter select { width: auto; max-width: 220px; min-height: 36px; padding: 6px 28px 6px 10px; border: 1px solid var(--workspace-border); border-radius: 8px; color: var(--workspace-text); background-color: var(--workspace-surface); font: 13px/1.4 var(--font-zh, sans-serif); }
+#platform-admin-shell [data-product-panel="platform-operations"] .pc-flow-row { gap: 12px; padding: 12px 0; align-items: center; }
+#platform-admin-shell [data-product-panel="platform-operations"] .pc-flow-row > div { flex: 1; min-width: 0; }
+#platform-admin-shell [data-product-panel="platform-operations"] .pc-flow-row strong { font-size: 14px; line-height: 1.55; font-weight: 600; overflow-wrap: anywhere; }
+#platform-admin-shell [data-product-panel="platform-operations"] .pc-flow-row small { font-size: 12px; overflow-wrap: anywhere; }
+#platform-admin-shell [data-product-panel="platform-operations"] .pc-inline-ghost { font-size: 13px; min-height: 36px; flex-shrink: 0; }
+#platform-admin-shell [data-product-panel="platform-operations"] .pc-platform-reminder-settings { margin: 10px 0 0; padding-top: 6px; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell [data-product-panel="platform-operations"] .pc-platform-reminder-settings > summary::after { box-sizing: border-box; margin-right: 4px; }
+#platform-admin-shell [data-product-panel="platform-operations"] > .pc-platform-reminder-disclosure { margin: 10px 0 0; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell [data-product-panel="platform-operations"] > .pc-platform-reminder-disclosure > summary { padding: 10px 4px 10px 0; min-height: 44px; font-size: 14px; }
+#platform-admin-shell .pc-platform-reminder-disclosure > summary:not(.pc-home-settings-row) > span { font-size: 12px; color: var(--workspace-muted); font-weight: 400; }
+#platform-admin-shell .pc-platform-reminder-body .pc-platform-reminder-head { margin-top: 0; padding-top: 4px; border-top: 0; }
+@media (max-width: 600px) {
+  #platform-admin-shell .pc-platform-reminder-filter select { max-width: 180px; }
+  #platform-admin-shell [data-product-panel="platform-operations"] .pc-flow-row { align-items: start; }
+  #platform-admin-shell [data-product-panel="platform-operations"] .pc-flow-row > div { flex-basis: calc(100% - 90px); }
+}
+#platform-admin-shell .pc-price-plan-toggle { display: none; }
+#platform-admin-shell:is([data-learning-role], .pc-platform-admin-open) :is(.pc-inline-btn, .pc-audit-primary) { color: var(--workspace-accent); background: var(--workspace-selected); border: 1px solid var(--workspace-selected-border); border-radius: 12px; }
+#platform-admin-shell:is([data-learning-role], .pc-platform-admin-open) :is(.pc-inline-ghost, .pc-audit-secondary, .pc-audit-detail-button) { color: var(--workspace-text); background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 12px; }
+#platform-admin-shell:is([data-learning-role], .pc-platform-admin-open) :is(.pc-inline-btn, .pc-inline-ghost, .pc-audit-primary, .pc-audit-secondary, .pc-audit-detail-button) { min-height: 36px; padding: 7px 12px; font: inherit; cursor: pointer; }
+#platform-admin-shell :is(button, summary, input, select, textarea):focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 2px; }
+#platform-admin-shell :is(button, input, select):disabled { opacity: .55; cursor: default; }
+#platform-admin-shell .pc-content-extra-filters > summary { min-height: 40px; display: flex; align-items: center; justify-content: space-between; gap: 10px; list-style: none; cursor: pointer; }
+#platform-admin-shell .pc-content-extra-filters > summary::-webkit-details-marker { display: none; }
+#platform-admin-shell .pc-content-extra-filters > summary::after, #platform-admin-shell .pc-disclosure-chevron { content: ''; display: inline-block; width: 8px; height: 8px; flex: 0 0 8px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); }
+#platform-admin-shell .pc-content-extra-filters[open] > summary::after, #platform-admin-shell [aria-expanded="true"] > .pc-disclosure-chevron { transform: rotate(225deg); }
+@media (max-width: 600px) {
+  #platform-admin-shell .pc-audit-basic-filters { gap: 8px; }
+  #platform-admin-shell .pc-audit-page-head { align-items: flex-start; }
+  #platform-admin-shell .pc-audit-page-head p { margin: 0; }
+  #platform-admin-shell .pc-audit-body .pc-responsive-table-region,
+  #platform-admin-shell .pc-org-directory-table-wrap,
+  #platform-admin-shell [data-pricing-form] .pc-responsive-table-region { overflow: visible; border: 0; outline-offset: 3px; }
+  #platform-admin-shell:not([data-learning-role="student"]) :is(.pc-audit-table, .pc-org-directory-table, .pc-pricing-table) { display: block; min-width: 0; width: 100%; table-layout: auto; border: 0; }
+  #platform-admin-shell :is(.pc-audit-table, .pc-org-directory-table, .pc-pricing-table) :is(colgroup, thead) { display: none; }
+  #platform-admin-shell :is(.pc-audit-table, .pc-org-directory-table, .pc-pricing-table) tbody { display: block; width: 100%; }
+  #platform-admin-shell :is(.pc-audit-table, .pc-org-directory-table, .pc-pricing-table) tr { display: block; width: 100%; margin: 10px 0; padding: 10px 12px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); box-sizing: border-box; }
+  #platform-admin-shell :is(.pc-audit-table, .pc-org-directory-table, .pc-pricing-table) :is(td, th) { display: block; width: auto; min-width: 0; max-width: none; height: auto; padding: 6px 0; border: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; }
+  #platform-admin-shell :is(.pc-audit-table, .pc-org-directory-table, .pc-pricing-table) td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 3px; color: var(--workspace-muted); font-size: 12px; }
+  #platform-admin-shell .pc-org-directory-table td[data-label="机构名称"]::before,
+  #platform-admin-shell .pc-org-directory-table td[data-label="操作"]::before,
+  #platform-admin-shell .pc-audit-table .pc-audit-cell-detail::before { display: none; }
+  #platform-admin-shell .pc-org-directory-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+  #platform-admin-shell .pc-org-directory-table td:is(:first-child, :last-child) { grid-column: 1 / -1; }
+  #platform-admin-shell .pc-org-directory-table td:last-child { justify-self: end; }
+  #platform-admin-shell .pc-audit-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+  #platform-admin-shell .pc-audit-table td:is(.pc-audit-cell-action, .pc-audit-cell-summary, .pc-audit-cell-org, .pc-audit-cell-detail) { grid-column: 1 / -1; }
+  #platform-admin-shell .pc-audit-table .pc-audit-cell-detail { justify-self: end; }
+  #platform-admin-shell .pc-price-plan-name { display: none; }
+  #platform-admin-shell .pc-price-plan-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 8px 0; border: 0; background: transparent; color: var(--workspace-text); font: inherit; font-weight: 700; text-align: left; }
+  #platform-admin-shell .pc-price-plan-row:not(.is-expanded) td { display: none; }
+  #platform-admin-shell .pc-pricing-table .pc-pricing-price-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  #platform-admin-shell .pc-pricing-table :is(input, .pc-pricing-money-field, .pc-pricing-suffix-field) { width: 100%; min-width: 0; box-sizing: border-box; }
+  #platform-admin-shell :is(.pc-content-log-record, .pc-platform-reminder-head) { align-items: start; }
+  #platform-admin-shell .pc-content-log-record { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  #platform-admin-shell .pc-content-log-record > button { justify-self: end; }
+  #platform-admin-shell .pc-product-queue-tabs { gap: 6px; }
+}
+
+#platform-admin-shell :is(.pc-product-comments, .pc-progress-daily, .pc-org-member-audit, .pc-workspace-org-switch) > summary,
+#platform-admin-shell :is(.pc-product-panel, .pc-institution-flow) > details > summary { min-height: 40px; padding-block: 6px; display: flex; align-items: center; gap: 10px; list-style: none; cursor: pointer; box-sizing: border-box; }
+#platform-admin-shell :is(.pc-product-comments, .pc-progress-daily, .pc-org-member-audit, .pc-workspace-org-switch) > summary::-webkit-details-marker,
+#platform-admin-shell :is(.pc-product-panel, .pc-institution-flow) > details > summary::-webkit-details-marker { display: none; }
+#platform-admin-shell :is(.pc-product-comments, .pc-progress-daily, .pc-org-member-audit) > summary::after,
+#platform-admin-shell :is(.pc-product-panel, .pc-institution-flow) > details > summary::after { content: ''; display: block; width: 8px; height: 8px; flex: 0 0 8px; margin-left: auto; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); }
+#platform-admin-shell :is(.pc-product-comments, .pc-progress-daily, .pc-org-member-audit)[open] > summary::after,
+#platform-admin-shell :is(.pc-product-panel, .pc-institution-flow) > details[open] > summary::after { transform: rotate(225deg); }
+#audit-detail-modal button { color: inherit; min-width: 36px; min-height: 36px; border-radius: 10px; }
+#audit-detail-modal button:focus-visible { outline: 2px solid var(--ls-accent, #c45017); outline-offset: 2px; }
+#platform-admin-shell .pc-audit-object { display: block; font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-pricing-section-head > .pc-tag { flex: 0 0 auto; white-space: nowrap; }
+#platform-admin-shell[data-learning-role="student"] .pc-workspace-page-heading { padding: 0; margin: 0 0 16px; }
+#platform-admin-shell[data-learning-role="student"] .pc-workspace-page-heading h1 { margin: 0; font-size: 25px; line-height: 1.4; }
+#platform-admin-shell[data-learning-role="student"] .pc-workspace-page-heading p { margin: 6px 0 0; color: var(--workspace-muted); font-size: 13px; line-height: 1.6; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home .pc-platform-overview-panel.pc-platform-tasks > .pc-platform-task { display: inline-flex; align-items: center; vertical-align: top; width: calc(50% - 8px); min-height: 42px; margin-right: 8px; padding: 7px 0; gap: 8px; border: 0; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home .pc-platform-overview-panel.pc-platform-tasks > .pc-platform-task em { display: none; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home .pc-platform-overview-panel.pc-platform-tasks > .pc-platform-task strong { font-size: 13px; }
+@media (max-width: 600px) {
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-pricing-section-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-pricing-section-tab { min-width: 0; min-height: 40px; padding: 6px 10px; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-audit-table .pc-audit-cell-action { order: -1; }
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-audit-table .pc-audit-cell-detail::before,
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-audit-table .pc-audit-cell-action::before,
+  #platform-admin-shell:not([data-learning-role="student"]) .pc-audit-table .pc-audit-cell-summary.is-redundant { display: none; }
+}
+
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-results { margin-top: 0; border-radius: 12px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-table :is(th, td) { padding-block: 4px; line-height: 1.4; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-table th { height: 34px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-name { display: block; width: 100%; max-width: 100%; min-width: 0; min-height: 36px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-table td > small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-detail { display: inline-flex; align-items: center; min-height: 36px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-admin-list-pagination { padding-block: 8px; gap: 8px; }
+@media (max-width: 900px) {
+ #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory > .pc-user-results { margin-top: 0; }
+ #platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory > [data-platform-user-search-form] { margin-top: 12px; }
+}
+
+
+@media (max-width: 900px) {
+ #platform-admin-shell .pc-user-results:has(tbody tr:nth-child(10)):not(:has(tbody tr:nth-child(11))) .pc-user-table-wrap { flex: 1 0 auto; display: flex; }
+ #platform-admin-shell .pc-user-results:has(tbody tr:nth-child(10)):not(:has(tbody tr:nth-child(11))) .pc-user-table-wrap > table { flex: 1; }
+}
+
+/* iOS-inspired search control, scoped to the user directory. */
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory > .pc-user-search-pill { padding: 6px 8px; border: 1px solid var(--workspace-border); border-radius: 28px; background: var(--workspace-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory > .pc-user-search-pill { position: relative; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-search-pill .pc-admin-list-search-row { display: flex; flex-wrap: nowrap; gap: 2px; align-items: center; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-search-pill .pc-admin-list-search-field { flex: 1 1 0; min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-search-pill input { border: 0; box-shadow: none; background: transparent; border-radius: 0; min-width: 0; height: 44px; padding: 6px 2px; font-size: 16px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-search-pill button.pc-user-search-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 40px; min-width: 40px; width: 40px; height: 44px; min-height: 44px; padding: 8px; border: 0; border-radius: 22px; background: transparent; color: var(--workspace-muted); cursor: pointer; }
+#platform-admin-shell .pc-user-search-icon svg { width: 22px; height: 22px; flex-shrink: 0; }
+#platform-admin-shell .pc-user-search-icon[aria-pressed="true"] { color: var(--workspace-accent) !important; background: var(--workspace-selected) !important; }
+#platform-admin-shell .pc-user-search-pill .pc-user-voice-status { margin: 4px 8px 6px; font-size: 12px; line-height: 1.5; color: var(--workspace-muted); overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+ #platform-admin-shell .pc-user-directory > .pc-user-search-pill { background: color-mix(in srgb, var(--workspace-surface) 94%, transparent); }
+}
+
+#platform-admin-shell .pc-user-search-pill input::-webkit-search-cancel-button,
+#platform-admin-shell .pc-user-search-pill input::-webkit-search-decoration { -webkit-appearance: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-search-pill input:is(:focus, :focus-visible) { outline: none; border: 0; box-shadow: none; background: transparent; }
+
+/* Quiet secondary metadata and a disclosure accessory only in the user list. */
+#platform-admin-shell .pc-user-directory .pc-user-role { display: inline-flex; align-items: baseline; max-width: 100%; gap: 4px; color: var(--workspace-muted); font-weight: 400; }
+#platform-admin-shell .pc-user-directory .pc-user-role > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#platform-admin-shell .pc-user-directory .pc-user-role small { flex-shrink: 0; font-size: 11px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-status { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; color: var(--workspace-muted); font-size: 12px; font-weight: 400; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-status.is-pending { color: var(--workspace-accent); }
+#platform-admin-shell .pc-user-directory .pc-user-status svg { width: 12px; height: 12px; flex: 0 0 12px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-table td:last-child { padding: 0; text-align: right; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-table th:last-child { width: 44px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-table th:nth-child(3) { width: 64px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory .pc-user-detail { justify-content: center; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; color: var(--workspace-muted); }
+#platform-admin-shell .pc-user-directory .pc-user-detail svg { width: 16px; height: 16px; }
+#platform-admin-shell .pc-user-directory .pc-user-detail:hover { color: var(--workspace-text); text-decoration: none; }
+
+/* Single-accessory user rows: metadata stays subordinate to the account. */
+#platform-admin-shell .pc-user-directory .pc-user-list { list-style: none; padding: 0; margin: 0; min-width: 0; }
+#platform-admin-shell .pc-user-directory .pc-user-list > li { position: relative; min-width: 0; border-bottom: 0; }
+#platform-admin-shell .pc-user-directory .pc-user-list > li:not(:last-child)::after {
+ content: ''; position: absolute; left: 14px; right: 14px; bottom: 0; height: 1px;
+ background: var(--workspace-border); pointer-events: none;
+}
+#platform-admin-shell .pc-user-directory .pc-user-entry { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 9px 14px; box-sizing: border-box; border: 0; background: transparent; color: var(--workspace-text); text-align: left; font: inherit; cursor: pointer; }
+#platform-admin-shell .pc-user-directory .pc-user-entry:hover { background: var(--workspace-muted-surface); }
+#platform-admin-shell .pc-user-directory .pc-user-entry:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: -2px; }
+#platform-admin-shell .pc-user-entry-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+#platform-admin-shell .pc-user-entry-heading { display: flex; min-width: 0; align-items: center; gap: 8px; }
+#platform-admin-shell .pc-user-entry-name { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 600; line-height: 1.4; }
+#platform-admin-shell .pc-user-entry-heading .pc-user-status { flex-shrink: 0; }
+#platform-admin-shell .pc-user-entry-meta { display: flex; min-width: 0; align-items: baseline; font-size: 12px; line-height: 1.4; color: var(--workspace-muted); }
+#platform-admin-shell .pc-user-entry-meta .pc-user-role { flex-shrink: 0; max-width: 65%; }
+#platform-admin-shell .pc-user-entry-account { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#platform-admin-shell .pc-user-entry-arrow { width: 16px; height: 16px; flex: 0 0 16px; color: var(--workspace-muted); }
+@media (max-width: 900px) {
+ #platform-admin-shell .pc-user-directory .pc-user-results:has(.pc-user-list > li:nth-child(10)):not(:has(.pc-user-list > li:nth-child(11))) > .pc-user-list { flex: 1; display: flex; flex-direction: column; }
+ #platform-admin-shell .pc-user-directory .pc-user-results:has(.pc-user-list > li:nth-child(10)):not(:has(.pc-user-list > li:nth-child(11))) > .pc-user-list > li { flex: 1; display: flex; }
+}
+
+/* A quiet overlay indicator for the user directory; no permanent track. */
+#platform-admin-shell .pc-platform-overlay-scrollbar.is-compact { width: 12px; right: 0; background: transparent; opacity: 0; transition: opacity .18s ease; }
+#platform-admin-shell .pc-platform-overlay-scrollbar.is-compact.is-active { opacity: 1; }
+#platform-admin-shell .pc-platform-overlay-scrollbar.is-compact .pc-platform-overlay-scrollbar-thumb { width: 3px; right: 3px; border-radius: 4px; background: color-mix(in srgb, var(--workspace-muted) 45%, transparent); }
+#platform-admin-shell .pc-platform-overlay-scrollbar.is-compact .pc-platform-overlay-scrollbar-thumb:hover,
+#platform-admin-shell .pc-platform-overlay-scrollbar.is-compact .pc-platform-overlay-scrollbar-thumb.dragging { background: var(--workspace-muted); }
+
+/* Shared grouped records, for every role. Editing and approval controls remain independent. */
+.pc-floating-search-owner { display: flex; flex-direction: column; min-width: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory { display: flex; flex-direction: column; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory > .pc-user-results { order: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-user-directory > .pc-user-search-pill { order: 1; position: sticky; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 8; flex-shrink: 0; margin-top: 12px; box-shadow: 0 6px 24px #0000000d; }
+#platform-admin-shell .pc-floating-search-owner > .pc-floating-search { display: contents; }
+#platform-admin-shell .pc-floating-search-row { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 8; display: flex; flex-wrap: nowrap; align-items: center; flex-shrink: 0; order: 99; width: 100%; min-height: 52px; box-sizing: border-box; gap: 4px; margin: 12px 0; padding: 4px 8px; border: 1px solid var(--workspace-border, #ebe7e2); border-radius: 30px; background: color-mix(in srgb, var(--workspace-surface, #fff) 96%, transparent); backdrop-filter: blur(16px); box-shadow: 0 6px 24px #0000000d; }
+#platform-admin-shell .pc-floating-search-row > input.pc-profile-input,
+#platform-admin-shell .pc-floating-search-row > input { flex: 1 1 0; width: 0; min-width: 0; max-width: none; margin: 0; height: 44px; padding: 6px 2px; border: 0; border-radius: 0; box-shadow: none; background: transparent; color: var(--workspace-text, #26221f); font: inherit; font-size: 16px; }
+#platform-admin-shell .pc-floating-search-row > input:is(:focus, :focus-visible) { outline: none; border: 0; box-shadow: none; background: transparent; }
+#platform-admin-shell .pc-floating-search-row input::-webkit-search-cancel-button { -webkit-appearance: none; }
+#platform-admin-shell .pc-floating-search-row :is(.pc-floating-search-submit, .pc-floating-search-clear),
+#platform-admin-shell .pc-floating-search-filters > summary { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 40px; width: 40px; min-width: 40px; height: 44px; min-height: 44px; margin: 0; padding: 8px; border: 0; border-radius: 22px; background: transparent; color: var(--workspace-muted, #78716c); cursor: pointer; list-style: none; }
+#platform-admin-shell .pc-floating-search-row svg { width: 22px; height: 22px; flex: 0 0 22px; }
+#platform-admin-shell .pc-floating-search-row [hidden] { display: none !important; }
+#platform-admin-shell .pc-floating-search-filters { position: static; flex: 0 0 40px; padding: 0; margin: 0; border: 0; }
+#platform-admin-shell .pc-floating-search-filters > summary::-webkit-details-marker { display: none; }
+#platform-admin-shell .pc-floating-search-filters > summary::after { content: none; }
+#platform-admin-shell .pc-floating-search-filters[open] > summary { color: var(--workspace-accent); background: var(--workspace-muted-surface); }
+#platform-admin-shell .pc-floating-search-options { position: absolute; bottom: calc(100% + 8px); left: 0; right: 0; max-height: min(55dvh, 420px); overflow: auto; box-sizing: border-box; padding: 14px; border: 1px solid var(--workspace-border); border-radius: 16px; background: var(--workspace-surface); box-shadow: 0 6px 24px #00000014; font-size: 13px; }
+#platform-admin-shell .pc-floating-search-options :is(input, select, textarea) { max-width: 100%; box-sizing: border-box; }
+#platform-admin-shell .pc-floating-search-options label { min-width: 0; }
+#platform-admin-shell .pc-floating-search > .pc-floating-search-pagination { order: 98; flex-shrink: 0; margin-top: 8px; }
+#platform-admin-shell .pc-floating-search-options :is(.pc-platform-payment-search-actions, .pc-learning-filter-fields, .pc-package-filter-fields) { display: flex; flex-wrap: wrap; gap: 8px; }
+#platform-admin-shell .pc-floating-search-options > :is(label, select) { display: block; width: 100%; margin-block: 6px; }
+#platform-admin-shell .pc-platform-org-directory .pc-floating-search-options { display: grid; gap: 12px; }
+#platform-admin-shell .pc-platform-org-directory .pc-floating-search-options > .pc-org-field { display: grid; gap: 6px; margin: 0; }
+#platform-admin-shell .pc-platform-org-directory .pc-floating-search-options select { width: 100%; min-width: 0; height: 44px; }
+#platform-admin-shell [data-platform-payment-search-form] .pc-floating-search-options { display: grid; gap: 12px; }
+#platform-admin-shell [data-platform-payment-search-form] .pc-floating-search-options > .pc-org-field { display: grid; gap: 6px; margin: 0; }
+#platform-admin-shell [data-platform-payment-search-form] .pc-floating-search-options .pc-profile-input { width: 100%; min-width: 0; height: 44px; box-sizing: border-box; }
+#platform-admin-shell [data-platform-payment-search-form] .pc-floating-search-options .pc-platform-payment-search-actions { margin: 0; }
+#platform-admin-shell [data-platform-payment-search-form] .pc-floating-search-options .pc-platform-payment-search-actions > select { flex: 1 1 100%; width: 100%; }
+#platform-admin-shell .pc-floating-search-row :is(button, summary):focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: -2px; }
+#platform-admin-shell[data-learning-role="student"] { --workspace-surface: var(--ls-surface, #fff); --workspace-muted-surface: var(--ls-muted-surface, #f7f7f5); --workspace-text: var(--ls-text, #26221f); --workspace-muted: var(--ls-muted, #78716c); --workspace-border: var(--ls-border, #ebe7e2); --workspace-accent: var(--ls-accent, #ae450e); }
+#platform-admin-shell .pc-card.pc-grouped-card { padding: 0; overflow: hidden; }
+#platform-admin-shell .pc-platform-admin-content .pc-card.pc-grouped-card { padding: 0; }
+#platform-admin-shell .pc-grouped-heading { margin: 0; padding: 10px 14px; font-size: 14px; border-bottom: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-grouped-list { display: block; margin: 0; padding: 0; min-width: 0; }
+#platform-admin-shell .pc-grouped-list > [role="listitem"] + [role="listitem"] { border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-lite-row.pc-grouped-entry { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; margin: 0; box-sizing: border-box; border: 0; border-radius: 0; background: transparent; color: var(--workspace-text); text-align: left; font: inherit; cursor: default; }
+#platform-admin-shell button.pc-grouped-entry { cursor: pointer; }
+#platform-admin-shell button.pc-grouped-entry:hover { background: var(--workspace-muted-surface); }
+#platform-admin-shell button.pc-grouped-entry:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: -2px; }
+#platform-admin-shell .pc-grouped-entry .pc-grouped-copy { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 3px; }
+#platform-admin-shell .pc-grouped-entry .pc-grouped-title { display: block; color: var(--workspace-text); font-size: 14px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-grouped-entry :is(.pc-grouped-description, .pc-grouped-meta) { display: block; font-size: 12px; font-weight: 400; line-height: 1.45; color: var(--workspace-muted); overflow-wrap: anywhere; }
+#platform-admin-shell .pc-grouped-arrow { width: 16px; height: 16px; flex: 0 0 16px; color: var(--workspace-muted); }
+#platform-admin-shell .pc-org-directory-results:has(.pc-org-directory-list) { padding: 0; overflow: hidden; }
+#platform-admin-shell .pc-platform-payment-list > .pc-grouped-entry + .pc-grouped-entry { border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-platform-payment-list:has(> .pc-grouped-entry) { padding: 0; border: 1px solid var(--workspace-border); border-radius: 14px; overflow: hidden; }
+#platform-admin-shell .pc-platform-payment-list:has(> .pc-grouped-payment-record) { padding: 0; border: 1px solid var(--workspace-border); border-radius: 14px; overflow: hidden; }
+#platform-admin-shell .pc-platform-payment-row.pc-grouped-payment-record { display: block; padding: 0; }
+#platform-admin-shell .pc-grouped-action-list { border: 1px solid var(--workspace-border); border-radius: 14px; overflow: hidden; }
+#platform-admin-shell .pc-grouped-action-list > .pc-grouped-entry + .pc-grouped-entry { border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-home-package-row.pc-grouped-package-record { display: block; padding: 0; }
+#platform-admin-shell .pc-lite-row.pc-grouped-entry .pc-grouped-copy .pc-grouped-title { font-size: 14px; color: var(--workspace-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#platform-admin-shell .pc-info-list:has(> button.pc-info-row-button) { border: 1px solid var(--workspace-border); border-radius: 14px; overflow: hidden; gap: 0; }
+#platform-admin-shell button.pc-info-row-button { position: relative; display: flex; flex-direction: column; align-items: stretch; text-align: left; min-height: 56px; padding: 10px 38px 10px 14px; gap: 3px; background: transparent; border-radius: 0; }
+#platform-admin-shell button.pc-info-row-button > span { font-size: 14px; font-weight: 600; color: var(--workspace-text); }
+#platform-admin-shell button.pc-info-row-button > strong { font-size: 12px; font-weight: 400; color: var(--workspace-muted); text-align: left; }
+#platform-admin-shell button.pc-info-row-button::after { content: ''; position: absolute; right: 17px; top: calc(50% - 4px); width: 7px; height: 7px; border-top: 1.5px solid var(--workspace-muted); border-right: 1.5px solid var(--workspace-muted); transform: rotate(45deg); }
+#platform-admin-shell button.pc-info-row-button:hover { background: var(--workspace-muted-surface); }
+#platform-admin-shell .pc-favorite-folder-row { min-height: 56px; padding: 10px 14px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-favorite-folder-row > b { background: transparent; color: var(--workspace-muted); font-size: 12px; font-weight: 400; }
+
+/* Expandable members keep permission editors inside a quiet, single grouped list. */
+#platform-admin-shell .pc-org-unified-member-list { display: block; gap: 0; border: 1px solid var(--workspace-border); border-radius: 14px; overflow: hidden; }
+#platform-admin-shell .pc-org-unified-member-list > .pc-org-member-editor { margin: 0; border: 0; border-radius: 0; background: var(--workspace-surface); }
+#platform-admin-shell .pc-org-unified-member-list > .pc-org-member-editor + .pc-org-member-editor { border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-org-member-editor > .pc-org-member-summary { position: relative; min-height: 56px; padding: 10px 38px 10px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; list-style: none; }
+#platform-admin-shell .pc-org-member-summary::-webkit-details-marker { display: none; }
+#platform-admin-shell .pc-org-member-editor > .pc-org-member-summary::after { content: ''; position: absolute; right: 17px; top: calc(50% - 4px); width: 7px; height: 7px; border-right: 1.5px solid var(--workspace-muted); border-top: 1.5px solid var(--workspace-muted); transform: rotate(45deg); }
+#platform-admin-shell .pc-org-member-editor[open] > .pc-org-member-summary::after { transform: rotate(135deg); }
+#platform-admin-shell .pc-org-member-summary .pc-org-member-meta strong { font-size: 14px; }
+#platform-admin-shell .pc-org-member-summary :is(.pc-org-member-meta span, .pc-org-member-role-summary) { font-size: 12px; line-height: 1.45; color: var(--workspace-muted); }
+#platform-admin-shell .pc-org-member-editor > form { padding: 0 14px 14px; }
+
+/* Multi-action records use the same density without masking action labels or statuses. */
+#platform-admin-shell :is(.pc-feedback-row, .pc-content-workflow-row, .pc-flow-row, .pc-message-center-row, .pc-platform-payment-row) { min-width: 0; gap: 10px; padding-block: 10px; border-color: var(--workspace-border); }
+#platform-admin-shell :is(.pc-feedback-row, .pc-content-workflow-row, .pc-flow-row, .pc-message-center-row, .pc-platform-payment-row) :is(.pc-inline-btn, .pc-inline-ghost) { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+#platform-admin-shell :is(.pc-feedback-row-heading, .pc-content-workflow-main, .pc-message-center-row-title) strong { font-size: 14px; line-height: 1.4; }
+#platform-admin-shell .pc-message-center-list { padding: 0 14px; border: 1px solid var(--workspace-border); border-radius: 14px; overflow: hidden; }
+@media (max-width: 600px) {
+ #platform-admin-shell :is(.pc-feedback-row, .pc-flow-row, .pc-message-center-row, .pc-platform-payment-row) { flex-wrap: wrap; }
+ #platform-admin-shell :is(.pc-feedback-actions, .pc-flow-actions, .pc-message-center-row-actions, .pc-platform-payment-row-actions) { max-width: 100%; flex-wrap: wrap; }
+ #platform-admin-shell .pc-org-member-summary .pc-org-member-role-summary { text-align: left; }
+}
+
+/* Learning history has ten compact two-line rows per page; actions remain on the whole row. */
+#platform-admin-shell .pc-recent-learning-list .pc-grouped-entry { min-height: 48px; padding: 7px 12px; }
+#platform-admin-shell .pc-recent-learning-list .pc-grouped-copy { gap: 2px; }
+#platform-admin-shell .pc-recent-learning-list .pc-grouped-description { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+#platform-admin-shell .pc-recent-learning-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; min-height: 44px; box-sizing: border-box; border-top: 1px solid var(--workspace-border); color: var(--workspace-muted); font-size: 12px; flex-shrink: 0; }
+#platform-admin-shell .pc-recent-learning-pagination > div { display: flex; align-items: center; gap: 8px; }
+#platform-admin-shell .pc-recent-learning-pagination button { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; padding: 8px; border: 0; border-radius: 12px; background: transparent; color: var(--workspace-text); cursor: pointer; }
+#platform-admin-shell .pc-recent-learning-pagination button:disabled { opacity: .35; cursor: default; }
+#platform-admin-shell .pc-recent-learning-pagination button:first-child svg { transform: rotate(180deg); }
+#platform-admin-shell .pc-recent-learning-pagination button:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: -2px; }
+#platform-admin-shell:has(.pc-recent-learning-list) .pc-subpage-head { display: none; }
+@media (min-height: 700px) {
+ body.learning-shell-active #platform-admin-shell[data-learning-role="student"]:has([data-recent-fit="true"]) .pc-platform-admin-content { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 0; padding: 10px 16px 12px; }
+ #platform-admin-shell:has([data-recent-fit="true"]) .pc-workspace-page-heading { flex-shrink: 0; margin-bottom: 10px; }
+ #platform-admin-shell[data-learning-role="student"]:has([data-recent-fit="true"]) .pc-workspace-page-heading h1 { font-size: 22px; line-height: 1.3; }
+ #platform-admin-shell[data-learning-role="student"]:has([data-recent-fit="true"]) .pc-workspace-page-heading p { margin-top: 3px; font-size: 12px; line-height: 1.4; }
+ #platform-admin-shell:has([data-recent-fit="true"]) .pc-platform-admin-content > .pc-dashboard { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; margin-top: 0; margin-bottom: 0; }
+ #platform-admin-shell .pc-card.pc-recent-learning-list[data-recent-fit="true"] { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; margin: 0; }
+ #platform-admin-shell .pc-recent-learning-list[data-recent-fit="true"] > .pc-grouped-list { display: grid; grid-template-rows: repeat(var(--recent-row-count), minmax(44px, 1fr)); flex: 1 1 0; min-height: 0; }
+ #platform-admin-shell .pc-recent-learning-list[data-recent-fit="true"] .pc-grouped-entry { min-height: 44px; height: 100%; padding-block: 4px; }
+}
+/* Compact role templates: one selector, a quiet permission list and explicit edit mode. */
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-layout { display: flex; flex-direction: column; gap: 10px; }
+#platform-admin-shell .pc-platform-role-picker { display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); }
+#platform-admin-shell .pc-platform-role-picker > span { flex-shrink: 0; font-size: 13px; color: var(--workspace-muted); }
+#platform-admin-shell .pc-platform-role-picker select.pc-profile-input { flex: 1; min-width: 0; width: 0; min-height: 36px; height: 36px; padding: 4px 24px 4px 6px; border: 0; background-color: transparent; font-size: 14px; font-weight: 600; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-editor.pc-role-editor-compact { width: 100%; min-width: 0; box-sizing: border-box; padding: 12px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); overflow: visible; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-editor-head { display: flex; gap: 8px; padding: 0 0 8px; margin: 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-editor-head .pc-my-content-head,
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-editor-head > .pc-tag:not(.muted) { display: none; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-section-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; padding: 8px 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-section-head > div { flex: 1; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-section-head > div > span { display: none; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-section-head em { font-size: 12px; }
+#platform-admin-shell .pc-role-editor-compact .pc-role-edit-button { min-height: 36px; padding: 6px 8px; border: 0; border-radius: 10px; background: transparent; color: var(--workspace-accent); cursor: pointer; font-size: 13px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-current { margin: 0; padding: 0; border: 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chips { display: flex; flex-direction: column; gap: 0; margin: 0; border: 1px solid var(--workspace-border); border-radius: 12px; overflow: hidden; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; box-sizing: border-box; padding: 8px 10px; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip + .pc-platform-permission-chip { border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip strong { font-size: 13px; font-weight: 500; }
+#platform-admin-shell .pc-role-editor-compact :is(.pc-platform-permission-chip, .pc-platform-permission-option) small { display: none; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip.is-added { background: var(--workspace-selected); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip.is-removed { background: var(--workspace-muted-surface); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-adjust { margin: 0; padding: 0; border: 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-adjust > summary { display: none; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-adjust:not([open]) { display: none; }
+#platform-admin-shell .pc-role-editor-compact.is-editing [data-role-permission-summary],
+#platform-admin-shell .pc-role-editor-compact.is-editing [data-role-permission-removals] { display: none; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-options { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-option { min-height: 40px; margin: 0; padding: 8px; border: 0; border-bottom: 1px solid var(--workspace-border); border-radius: 0; background: transparent; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-option strong { font-size: 13px; font-weight: 400; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced { margin-top: 10px; padding: 0; border: 0; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced > summary { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; gap: 10px; list-style: none; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced > summary b { display: none; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced > summary::after { content: ''; flex: 0 0 7px; width: 7px; height: 7px; border-right: 1.5px solid var(--workspace-muted); border-bottom: 1.5px solid var(--workspace-muted); transform: rotate(45deg); margin-right: 5px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced[open] > summary::after { transform: rotate(225deg); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-policy { margin-top: 10px; padding: 10px 0; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-policy strong { font-size: 13px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-policy small { font-size: 12px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-save { display: none; }
+#platform-admin-shell .pc-role-editor-compact[data-pc-dirty="true"] .pc-platform-role-save,
+#platform-admin-shell .pc-role-editor-compact[data-role-preview="true"] .pc-platform-role-save { display: grid; position: sticky; bottom: 8px; z-index: 9; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 10px; margin-top: 10px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); box-shadow: 0 4px 16px #00000012; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-save .pc-org-form-actions { display: flex; gap: 6px; flex-wrap: wrap; width: auto; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-save button { min-height: 36px; padding: 6px 10px; width: auto; font-size: 13px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-save-note { font-size: 12px; }
+@media (max-width: 600px) {
+ #platform-admin-shell .pc-role-editor-compact[data-pc-dirty="true"] .pc-platform-role-save,
+ #platform-admin-shell .pc-role-editor-compact[data-role-preview="true"] .pc-platform-role-save { grid-template-columns: minmax(0, 1fr); }
+ #platform-admin-shell .pc-role-editor-compact .pc-platform-role-save .pc-org-form-actions { justify-content: flex-end; }
+}
+/* The two Users & Permissions tabs share the same type scale and header rhythm. */
+@media (max-width: 900px) {
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-role-picker { padding-block: 6px; }
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-role-editor.pc-role-editor-compact { padding: 10px 12px; }
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-role-editor-head { padding-bottom: 0; }
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-role-section-head { padding-block: 6px; }
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-role-policy { margin-top: 6px; padding-block: 6px; }
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-role-advanced { margin-top: 6px; }
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel { margin-top: 8px; }
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel > summary { padding: 10px 12px; }
+ #platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel:not([open]) > summary small { display: none; }
+}
+#platform-admin-shell .pc-platform-admin-content { scrollbar-width: none; -ms-overflow-style: none; }
+#platform-admin-shell .pc-platform-admin-content::-webkit-scrollbar { width: 0; height: 0; display: none; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip strong { font-weight: 600; }
+/* Lighter role settings: no outer frame around the permission group. */
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-layout { gap: 12px; }
+#platform-admin-shell .pc-platform-role-picker { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 12px; padding: 10px 12px; }
+#platform-admin-shell .pc-platform-role-picker select.pc-profile-input { width: 100%; font-weight: 600; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-editor.pc-role-editor-compact { padding: 0; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-editor-head { margin: 0; padding: 0; min-height: 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-section-head { padding: 6px 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-section-head [data-role-current-title] { font-size: 14px; font-weight: 600; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chips { margin: 0; background: var(--workspace-surface); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip { min-height: 40px; padding: 9px 12px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip:not(.is-removed) strong { color: var(--workspace-text); text-decoration: none; font-size: 14px; font-weight: 400; line-height: 1.4; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-policy { order: 1; margin: 12px 0 0; padding: 12px; border: 1px solid var(--workspace-border); border-radius: 12px; background: var(--workspace-surface); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-policy label { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; gap: 12px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-policy label > span { flex: 1; min-width: 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-policy strong { font-size: 13px; font-weight: 500; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-policy small { margin-top: 3px; font-size: 11px; line-height: 1.5; }
+#platform-admin-shell .pc-role-editor-compact input[data-role-org-override] { -webkit-appearance: none; appearance: none; position: relative; flex: 0 0 38px; width: 38px; height: 24px; min-width: 38px; min-height: 24px; box-sizing: border-box; padding: 0; margin: 8px 0; border: 0; border-radius: 14px; background: color-mix(in srgb, var(--workspace-muted) 35%, var(--workspace-surface)); cursor: pointer; transition: background .15s; }
+#platform-admin-shell .pc-role-editor-compact input[data-role-org-override]::before { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0002; transition: transform .15s; }
+#platform-admin-shell .pc-role-editor-compact input[data-role-org-override]:checked { background: var(--workspace-accent); }
+#platform-admin-shell .pc-role-editor-compact input[data-role-org-override]:checked::before { transform: translateX(14px); }
+#platform-admin-shell .pc-role-editor-compact input[data-role-org-override]:disabled { opacity: .45; cursor: default; }
+#platform-admin-shell .pc-role-editor-compact input[data-role-org-override]:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 3px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced { order: 2; margin-top: 10px; border-top: 0; border-bottom: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced > summary { padding: 10px 2px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced > summary strong { font-size: 13px; font-weight: 500; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-advanced > summary small { display: none; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel { padding: 0; margin-top: 0; border: 0; border-bottom: 1px solid var(--workspace-border); border-radius: 0; background: transparent; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel > summary { display: flex; align-items: center; justify-content: space-between; padding: 12px 2px; min-height: 44px; box-sizing: border-box; list-style: none; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel > summary strong { font-size: 13px; font-weight: 500; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel > summary :is(small,b) { display: none; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel > summary::-webkit-details-marker { display: none; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel > summary::after { content: ''; width: 7px; height: 7px; margin-right: 5px; border-right: 1.5px solid var(--workspace-muted); border-bottom: 1.5px solid var(--workspace-muted); transform: rotate(-45deg); }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel[open] > summary::after { transform: rotate(45deg); }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-permission-chip { text-decoration: none; }
+
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-editor-head .pc-role-description { margin: 0 0 8px; color: var(--workspace-muted); font-size: 12px; line-height: 1.6; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-editor-head code[hidden] { display: none; }
+/* One outer selector boundary, and a deliberate permission-heading accessory. */
+#platform-admin-shell .pc-platform-role-picker select.pc-profile-input,
+#platform-admin-shell .pc-platform-role-picker select.pc-profile-input:is(:focus, :focus-visible) { border: 0; outline: none; outline-offset: 0; box-shadow: none; background-color: transparent; }
+#platform-admin-shell .pc-platform-role-picker:has(select:focus-visible) { outline: 1px solid var(--workspace-muted); outline-offset: 2px; }
+#platform-admin-shell .pc-role-editor-compact .pc-platform-role-section-head .pc-role-heading-copy { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+#platform-admin-shell .pc-role-editor-compact .pc-role-heading-copy > em { display: inline-flex; align-items: center; min-height: 20px; margin: 0; padding: 1px 6px; border-radius: 6px; background: var(--workspace-muted-surface); color: var(--workspace-muted); font-size: 11px; font-style: normal; font-weight: 400; line-height: 1.4; }
+#platform-admin-shell .pc-role-editor-compact .pc-role-edit-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; gap: 5px; min-width: 62px; min-height: 36px; box-sizing: border-box; padding: 6px 10px; border: 1px solid var(--workspace-selected-border); border-radius: 18px; background: var(--workspace-selected); color: var(--workspace-accent); font-size: 12px; font-weight: 500; line-height: 1.4; }
+#platform-admin-shell .pc-role-editor-compact .pc-role-edit-button > span { margin: 0; color: inherit; font: inherit; line-height: inherit; }
+#platform-admin-shell .pc-role-editor-compact .pc-role-edit-button svg { width: 14px; height: 14px; flex: 0 0 14px; }
+#platform-admin-shell .pc-role-editor-compact .pc-role-edit-button:hover { border-color: var(--workspace-accent); }
+#platform-admin-shell .pc-role-editor-compact .pc-role-edit-button:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 2px; }
+/* Shared UI typography and a coherent role-settings hierarchy. */
+#platform-admin-shell:not([data-learning-role="student"]):is(.pc-platform-users-active, .pc-platform-roles-active) {
+ --workspace-ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+ --font-zh: var(--workspace-ui-font);
+ font-family: var(--workspace-ui-font);
+ -webkit-font-smoothing: antialiased;
+}
+#platform-admin-shell.pc-platform-roles-active :is(select, button, input, textarea, summary) { font-family: var(--workspace-ui-font); }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-picker { min-height: 48px; padding: 6px 12px; border-color: var(--workspace-border); border-radius: 12px; background: var(--workspace-muted-surface); }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-picker > span { font-size: 12px; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-picker select.pc-profile-input { height: 36px; min-height: 36px; font-size: 14px; font-weight: 600; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-layout { gap: 10px; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-role-editor-head { padding: 0; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-role-description { max-width: 58ch; margin: 0 0 10px; font-size: 12px; line-height: 1.65; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-role-section-head { box-sizing: border-box; min-height: 36px; padding: 0; margin: 0 0 4px; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-heading-copy { gap: 6px; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-heading-copy > em { padding: 0; min-height: 0; background: transparent; font-size: 12px; font-weight: 400; line-height: 21px; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-role-edit-button { min-height: 32px; border-radius: 8px; padding: 5px 9px; border-color: var(--workspace-border); background: var(--workspace-surface); font-weight: 500; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-edit-button[aria-expanded="true"] { background: var(--workspace-selected); border-color: var(--workspace-selected-border); }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-permission-chips { border-radius: 12px; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-permission-chip { position: relative; padding: 10px 14px; min-height: 42px; border-top: 0; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-permission-chip + .pc-platform-permission-chip::before { content: ''; position: absolute; top: 0; left: 14px; right: 14px; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-permission-chip:not(.is-removed) strong { font-family: var(--workspace-ui-font); font-size: 13px; line-height: 1.5; color: var(--workspace-text); font-weight: 400; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-permission-chip:not(.is-added):not(.is-removed)::after { content: ''; flex: 0 0 5px; width: 5px; height: 9px; margin: 0 4px 3px 8px; border-right: 1.5px solid var(--workspace-muted); border-bottom: 1.5px solid var(--workspace-muted); transform: rotate(45deg); opacity: .65; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-role-policy { padding: 10px 12px; margin-top: 12px; border: 0; border-radius: 12px; background: var(--workspace-muted-surface); }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-policy small { max-width: 44ch; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-role-advanced,
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel { border: 0; border-radius: 10px; background: var(--workspace-muted-surface); margin-top: 8px; }
+#platform-admin-shell.pc-platform-roles-active .pc-role-editor-compact .pc-platform-role-advanced > summary,
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel > summary { min-height: 42px; padding: 10px 12px; box-sizing: border-box; }
+#platform-admin-shell.pc-platform-roles-active :is(.pc-platform-role-advanced, .pc-platform-access-panel) > summary strong { font-weight: 400; font-size: 13px; }
+#platform-admin-shell.pc-platform-roles-active .pc-platform-role-advanced[open] > label,
+#platform-admin-shell.pc-platform-roles-active .pc-platform-access-panel[open] > form { padding: 0 12px 12px; }
+#platform-admin-shell:not([data-learning-role="student"]).pc-platform-roles-active .pc-platform-role-picker select.pc-profile-input { background: transparent; border: 0; box-shadow: none; }
+#platform-admin-shell.pc-platform-roles-active .pc-dashboard:has(> .pc-platform-role-layout) { display: flex; flex-direction: column; gap: 8px; }
+#platform-admin-shell.pc-platform-roles-active .pc-dashboard > :is(.pc-platform-role-layout, .pc-platform-access-panel) { margin-top: 0; margin-bottom: 0; }
+/* Independent temporary access workspace; no role-template editor inside this panel. */
+#platform-admin-shell .pc-temporary-access { gap: 10px; min-width: 0; }
+#platform-admin-shell .pc-access-user, #platform-admin-shell .pc-access-list-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+#platform-admin-shell .pc-access-user { padding: 12px; background: var(--workspace-muted-surface); border-radius: 12px; }
+#platform-admin-shell .pc-access-user > div { min-width: 0; }
+#platform-admin-shell .pc-access-user strong { font-size: 14px; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-access-user small { display: block; font-size: 12px; color: var(--workspace-muted); overflow-wrap: anywhere; }
+#platform-admin-shell .pc-access-list-head strong { font-size: 14px; }
+#platform-admin-shell .pc-access-records { border: 1px solid var(--workspace-border); border-radius: 12px; overflow: hidden; }
+#platform-admin-shell .pc-access-records article { display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-height: 44px; }
+#platform-admin-shell .pc-access-records article + article { border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-access-records article > div { flex: 1; min-width: 0; }
+#platform-admin-shell .pc-access-records strong { font-size: 13px; font-weight: 500; }
+#platform-admin-shell .pc-access-records small { display: block; font-size: 12px; color: var(--workspace-muted); overflow-wrap: anywhere; }
+#platform-admin-shell .pc-access-records article > span { font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell .pc-access-candidate { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 100%; min-height: 52px; padding: 10px 32px 10px 12px; border: 0; border-bottom: 1px solid var(--workspace-border); background: transparent; color: var(--workspace-text); text-align: left; cursor: pointer; }
+#platform-admin-shell .pc-access-candidate strong { font-size: 14px; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-access-candidate small { font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell .pc-access-candidate > span { position: absolute; right: 12px; top: 14px; color: var(--workspace-muted); }
+#platform-admin-shell .pc-access-editor, #platform-admin-shell .pc-access-preview { margin: 0; padding: 12px; border: 1px solid var(--workspace-border); border-radius: 12px; background: var(--workspace-muted-surface); }
+#platform-admin-shell .pc-access-editor h3 { margin: 0 0 10px; font-size: 14px; }
+#platform-admin-shell .pc-access-editor .pc-org-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+#platform-admin-shell .pc-access-editor :is(input,select) { width: 100%; min-width: 0; box-sizing: border-box; }
+#platform-admin-shell .pc-access-preview { font-size: 13px; line-height: 1.6; }
+#platform-admin-shell .pc-temporary-access .pc-inline-ghost, #platform-admin-shell .pc-temporary-access .pc-inline-btn { min-height: 36px; padding: 6px 10px; font-size: 12px; }
+#platform-admin-shell .pc-access-records > p { margin: 12px; }
+@media(max-width:600px) {
+ #platform-admin-shell .pc-access-editor .pc-org-form-grid { grid-template-columns: minmax(0,1fr); }
+ #platform-admin-shell .pc-access-records article { flex-wrap: wrap; }
+}
+/* Access actions share one rhythm; refresh belongs to the selected-user context. */
+#platform-admin-shell .pc-access-user > div:first-child { flex: 1; }
+#platform-admin-shell .pc-access-user-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
+#platform-admin-shell .pc-access-user-actions .pc-inline-ghost { min-height: 36px; padding: 6px 8px; border-color: transparent; background: transparent; }
+#platform-admin-shell .pc-access-list-head { min-height: 40px; padding: 0 2px; }
+#platform-admin-shell .pc-access-list-head > .pc-inline-btn { margin: 0; min-height: 36px; }
+#platform-admin-shell .pc-access-editor > .pc-org-form-actions { justify-content: flex-end; gap: 8px; margin-top: 12px; }
+#platform-admin-shell .pc-access-expiry-control { position: relative; display: block; width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid var(--workspace-border); border-radius: 12px; background: var(--workspace-surface); }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-access-expiry-control input.pc-profile-input { width: 100%; height: 44px; min-height: 44px; padding: 8px 44px 8px 12px; margin: 0; box-sizing: border-box; border: 0; border-radius: 12px; background: transparent; font-size: 14px; box-shadow: none; }
+#platform-admin-shell .pc-access-expiry-control input:is(:focus,:focus-visible) { outline: none; box-shadow: none; }
+#platform-admin-shell .pc-access-expiry-control:focus-within { border-color: var(--workspace-muted); }
+#platform-admin-shell .pc-access-expiry-control input::-webkit-calendar-picker-indicator { display: none; }
+#platform-admin-shell .pc-access-expiry-control > button { position: absolute; top: 50%; right: 3px; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 36px; min-width: 36px; height: 36px; min-height: 36px; padding: 8px; border: 0; border-radius: 9px; background: transparent; color: var(--workspace-muted); cursor: pointer; }
+#platform-admin-shell .pc-access-expiry-control > button svg { width: 18px; height: 18px; }
+#platform-admin-shell .pc-access-expiry-control > button:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: -2px; }
+#platform-admin-shell .pc-access-expiry-fallback { display: grid; grid-template-columns: minmax(0,1fr) minmax(100px,.65fr); gap: 8px; }
+@media(max-width:600px) {
+ #platform-admin-shell .pc-access-user { align-items: flex-start; }
+ #platform-admin-shell .pc-access-user-actions { flex-wrap: wrap; justify-content: flex-end; max-width: 150px; gap: 4px 8px; }
+ #platform-admin-shell:not([data-learning-role="student"]) .pc-access-expiry-control input.pc-profile-input { font-size: 16px; }
+}
+
+/* Workspace home: captions outside inset lists, with one direct target per row. */
+#platform-admin-shell[data-learning-role] .pc-home-functions.pc-home-settings {
+ padding: 0; border: 0; border-radius: 0; background: transparent;
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+#platform-admin-shell[data-learning-role] .pc-home-settings > .pc-home-section-head { margin-bottom: 12px; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-groups { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 18px 16px; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-group { min-width: 0; }
+#platform-admin-shell[data-learning-role="contentAdmin"] .pc-home-settings-group:only-child { grid-column: 1 / -1; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-group > h3 { margin: 0 0 6px; padding: 0 14px; color: var(--workspace-muted); font-size: 12px; line-height: 1.5; font-weight: 400; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-list { --home-row-inset: 14px; --home-row-icon: 28px; --home-row-gap: 10px; overflow: hidden; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); }
+#platform-admin-shell[data-learning-role] .pc-home-settings-row {
+ position: relative; display: flex; align-items: center; gap: var(--home-row-gap); width: 100%; min-height: 48px; box-sizing: border-box;
+ margin: 0; padding: 9px var(--home-row-inset); border: 0; border-radius: 0; background: transparent; color: var(--workspace-text);
+ font: inherit; font-size: 14px; line-height: 1.5; text-align: left; cursor: pointer; box-shadow: none;
+}
+#platform-admin-shell[data-learning-role] .pc-home-settings-row + .pc-home-settings-row::before { content: ""; position: absolute; top: 0; inset-inline-start: calc(var(--home-row-inset) + var(--home-row-icon) + var(--home-row-gap)); inset-inline-end: var(--home-row-inset); height: 1px; background: var(--workspace-border); }
+#platform-admin-shell[data-learning-role] .pc-home-settings-icon { display: flex; align-items: center; justify-content: center; width: var(--home-row-icon); height: var(--home-row-icon); flex: 0 0 var(--home-row-icon); border-radius: 8px; background: var(--workspace-selected); color: var(--workspace-accent); }
+#platform-admin-shell[data-learning-role] .pc-home-settings-icon > svg { width: 19px; height: 19px; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-label { flex: 1; min-width: 0; font-weight: 400; overflow-wrap: anywhere; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-value {
+ color: var(--workspace-muted); font-size: 13px; font-weight: 400; white-space: nowrap;
+}
+#platform-admin-shell[data-learning-role] .pc-home-settings-note {
+ display: block; color: var(--workspace-muted); font-size: 12px;
+}
+#platform-admin-shell #student-learning-home .pc-selfstudy-steps > :where(li:not(.pc-selfstudy-draft-row)) > button { display: flex; gap: 8px; padding: 6px 4px; }
+#platform-admin-shell #student-learning-home .pc-selfstudy-steps .pc-selfstudy-task-copy { flex: 1; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-row .pc-grouped-arrow { width: 14px; height: 14px; flex: 0 0 14px; color: var(--workspace-muted); opacity: .75; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-list [data-product-panel="platform-operations"] > .pc-platform-reminder-disclosure {
+ margin: 0; border: 0;
+}
+#platform-admin-shell[data-learning-role] .pc-home-settings-list .pc-platform-reminder-disclosure > summary {
+ min-height: 48px; padding: 9px var(--home-row-inset); list-style: none;
+}
+#platform-admin-shell[data-learning-role] .pc-home-settings-list .pc-platform-reminder-disclosure > summary::before {
+ content: ""; position: absolute; top: 0; height: 1px; background: var(--workspace-border);
+ inset-inline: calc(var(--home-row-inset) + var(--home-row-icon) + var(--home-row-gap)) var(--home-row-inset);
+}
+#platform-admin-shell[data-learning-role] .pc-home-settings-list .pc-platform-reminder-disclosure > summary::after,
+#platform-admin-shell[data-learning-role] .pc-home-settings-list .pc-platform-reminder-disclosure > summary::-webkit-details-marker { display: none; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-list .pc-platform-reminder-disclosure[open] > summary .pc-grouped-arrow { transform: rotate(90deg); }
+#platform-admin-shell[data-learning-role] .pc-home-settings-list .pc-platform-reminder-body {
+ padding: 0 var(--home-row-inset) 12px;
+}
+#platform-admin-shell[data-learning-role] .pc-home-settings-list > [data-product-panel="platform-operations"] { margin: 0; }
+#platform-admin-shell[data-learning-role] .pc-home-settings-list [data-product-panel="platform-operations"] > p { margin: 8px var(--home-row-inset); }
+@media (hover:hover) {
+ #platform-admin-shell[data-learning-role] .pc-home-settings-row:hover { background: var(--workspace-muted-surface); }
+}
+#platform-admin-shell[data-learning-role] .pc-home-settings-row:active { background: var(--workspace-selected); }
+#platform-admin-shell[data-learning-role] .pc-home-settings-row:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: -3px; }
+@media(max-width:600px) {
+ #platform-admin-shell[data-learning-role] .pc-home-settings-groups { grid-template-columns: minmax(0,1fr); gap: 16px; }
+}
+/* Platform overview shares the inset-list hierarchy of its management links. */
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home {
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home > .pc-platform-stats {
+ border: 0; border-radius: 14px; padding: 8px; background: var(--workspace-muted-surface);
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home > .pc-platform-stats .pc-platform-stat {
+ flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 12px;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home > .pc-platform-stats .pc-platform-stat span { font-size: 12px; font-weight: 400; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home > .pc-platform-stats .pc-platform-stat strong { font-size: 22px; line-height: 1.3; font-weight: 600; color: var(--workspace-text); }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home .pc-platform-overview-panel.pc-platform-tasks.pc-home-pending,
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home .pc-platform-overview-panel.pc-platform-tasks.pc-home-pending:has(.pc-platform-task) {
+ padding: 0; border: 0; background: transparent; box-shadow: none;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending > h2 { margin: 0 0 6px; padding: 0 14px; font-size: 12px; font-weight: 400; color: var(--workspace-muted); }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list { border: 1px solid var(--workspace-border); border-radius: 14px; overflow: hidden; background: var(--workspace-surface); }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > .pc-platform-task {
+ position: relative; display: flex; align-items: center; width: 100%; min-height: 48px; box-sizing: border-box;
+ margin: 0; padding: 10px 14px; gap: 10px; border: 0; border-radius: 0; background: transparent; text-align: left; font: inherit;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > .pc-platform-task + .pc-platform-task::before { content: ''; position: absolute; top: 0; left: 14px; right: 14px; height: 1px; background: var(--workspace-border); }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > .pc-platform-task > span { flex: 1; min-width: 0; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > .pc-platform-task strong { color: var(--workspace-text); font-size: 14px; font-weight: 400; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > .pc-platform-task em { display: none; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > .pc-platform-task b { min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--workspace-muted); font-size: 13px; font-weight: 400; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > .pc-platform-task.is-danger b { color: var(--workspace-accent); }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list .pc-grouped-arrow { width: 14px; height: 14px; flex-basis: 14px; opacity: .75; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > :is(.pc-overview-status,.pc-overview-empty) { margin: 0; padding: 12px 14px; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list [data-product-panel="platform-operations"] { padding: 0 14px; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list .pc-platform-reminder-disclosure { margin: 0; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list .pc-platform-reminder-disclosure > summary { display: flex; align-items: center; gap: 10px; padding: 10px 0; min-height: 48px; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list .pc-platform-reminder-disclosure > summary strong { flex: 1; font-size: 14px; font-weight: 400; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list .pc-platform-reminder-disclosure > summary > span { margin-left: auto; font-size: 13px; }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list .pc-platform-reminder-disclosure > summary::after { margin: 0 3px 0 4px; width: 7px; height: 7px; flex: 0 0 7px; color: var(--workspace-muted); }
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list .pc-platform-reminder-body { padding-bottom: 12px; }
+@media(hover:hover) {
+ #platform-admin-shell[data-learning-role="superAdmin"] .pc-home-pending-list > .pc-platform-task:hover { background: var(--workspace-muted-surface); }
+}
+
+/* Platform home: iOS-like grouped summary, expressed with the admin style tokens. */
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-role-home {
+ gap: var(--ui-space-block, 4px);
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card {
+ grid-column: 1 / -1; display: grid; min-width: 0; overflow: hidden;
+ padding: 0; border: 1px solid var(--workspace-border); border-radius: var(--ui-surface-radius, 8px);
+ background: var(--workspace-surface); box-shadow: none;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card > .pc-platform-stats {
+ position: relative; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ui-space-block, 4px);
+ padding: 7px 8px 9px; border: 0; border-radius: 0; background: transparent;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card > .pc-platform-stats .pc-platform-stat {
+ flex-direction: column; align-items: flex-start; gap: 0; min-height: 54px; padding: var(--ui-surface-padding, 6px);
+ border: 0; border-radius: var(--ui-surface-radius, 8px); background: transparent;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card > .pc-platform-stats .pc-platform-stat span {
+ color: var(--workspace-muted); font-size: 12px; line-height: 18px; font-weight: 400;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card > .pc-platform-stats .pc-platform-stat strong {
+ color: var(--workspace-text); font-size: 22px; line-height: 28px; font-weight: 700;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card > .pc-home-pending {
+ margin: 0; padding: 0; border: 0; border-top: 1px solid var(--workspace-border); border-radius: 0; background: transparent; box-shadow: none;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card > .pc-home-pending > h2 {
+ display: none;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card .pc-home-pending-list {
+ border: 0; border-radius: 0; background: transparent;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card .pc-home-pending-list > .pc-platform-task {
+ min-height: 46px; padding: 8px 12px;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card .pc-home-pending-list > .pc-platform-task + .pc-platform-task::before {
+ left: 12px; right: 12px;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card .pc-home-pending-list [data-product-panel="platform-operations"] {
+ margin: 0; padding: 0 12px;
+}
+#platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card .pc-home-pending-list .pc-platform-reminder-disclosure > summary {
+ min-height: 46px; padding: 8px 0;
+}
+@media (hover:hover) {
+ #platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card .pc-platform-stat:hover { background: var(--workspace-muted-surface); }
+}
+@media (max-width: 720px) {
+ #platform-admin-shell[data-learning-role="superAdmin"] .pc-platform-summary-card > .pc-platform-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Organization details: compact read-first groups, with editing opened on demand. */
+#platform-admin-shell:not([data-learning-role="student"]) .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] { padding: 0; border: 0; border-radius: 0; background: transparent; gap: var(--ui-space-block, 4px); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] > .pc-managed-org-summary { position: relative; display: block; margin: 0 0 var(--ui-space-block, 4px); padding: 14px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] > .pc-managed-org-summary > .pc-org-overview { padding-right: 76px; min-height: 32px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-name { font-size: 18px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; margin: 10px 0 0; padding: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-meta > .pc-org-metric { grid-column: auto; display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 8px 0; border: 0; border-bottom: 1px solid var(--workspace-border); border-radius: 0; background: transparent; box-shadow: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-meta > .pc-org-metric:last-child { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; border-bottom: 0; padding-bottom: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-metric span { font-size: 12px; line-height: 1.5; color: var(--workspace-muted); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-metric strong { font-size: 14px; line-height: 1.5; font-weight: 600; }
+#platform-admin-shell .pc-managed-org-detail-card[data-managed-org-mode="platform"] > .pc-managed-org-summary :is(.pc-org-name, .pc-org-metric strong) {
+  color: var(--workspace-text);
+}
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] > .pc-managed-org-body { display: block; margin: 0; padding: 0; border: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-simple-workspace { display: flex; flex-direction: column; gap: var(--ui-space-block, 4px); margin: 0; padding: 0; border: 0; background: transparent; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-managers { position: relative; padding: 12px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-managers > .pc-org-subsection-head { position: relative; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; min-height: 30px; margin: 0 0 8px; padding: 0 76px 0 0; text-align: left; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-managers > .pc-org-subsection-head::after { content: ''; position: absolute; left: 2px; right: 2px; bottom: -4px; height: 1px; background: var(--workspace-border); pointer-events: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-subsection-head h4 { margin: 0; font-size: 15px; line-height: 1.5; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-subsection-head > span { font-size: 12px; color: var(--workspace-muted); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-managers .pc-org-unified-member-list { border: 0; border-radius: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-editor > .pc-org-member-summary { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 3px; min-height: 56px; padding: 9px 30px 9px 2px; box-sizing: border-box; text-align: left; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-editor > .pc-org-member-summary::after { right: 5px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-unified-member-list > .pc-org-member-editor { position: relative; margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: var(--workspace-surface); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-unified-member-list > .pc-org-member-editor:not(:last-child)::after { content: ''; position: absolute; left: 2px; right: 2px; bottom: 0; height: 1px; background: var(--workspace-border); pointer-events: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-summary:hover { background: var(--workspace-muted-surface); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-summary:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: -2px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-summary .pc-org-member-meta > strong { display: block; width: 100%; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; font-weight: 600; line-height: 1.4; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-summary :is(.pc-org-member-meta > span, .pc-org-member-role-summary > em) { display: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-summary .pc-org-member-role-summary > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--workspace-muted); font-size: 12px; font-weight: 400; line-height: 1.4; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-summary .pc-org-member-meta { align-items: flex-start; text-align: left; gap: 2px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-member-summary .pc-org-member-role-summary { flex-direction: row; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; min-width: 0; text-align: left; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure { margin: 0; padding: 0; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 10px; align-items: center; gap: 10px; min-height: 52px; padding: 10px 14px; box-sizing: border-box; cursor: pointer; list-style: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure > summary::-webkit-details-marker { display: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure > summary > span { font-size: 14px; font-weight: 600; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure > summary > :is(small, em) { font-size: 12px; font-style: normal; color: var(--workspace-muted); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure > summary::after { content: ''; width: 6px; height: 6px; border-right: 1.5px solid var(--workspace-muted); border-bottom: 1.5px solid var(--workspace-muted); transform: rotate(45deg); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure[open] > summary::after { transform: rotate(225deg); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure-body { padding: 0 14px 14px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-add-manager { margin: 0; border: 0; border-radius: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-add-manager > summary { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; justify-content: center; gap: 0; min-height: 30px; height: 30px; padding: 3px 10px; border: 1px solid var(--workspace-selected-border); border-radius: 8px; background: var(--workspace-selected); color: var(--workspace-accent); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-add-manager > summary > span { font-size: 13px; font-weight: 500; line-height: 22px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-add-manager > summary::after { display: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-add-manager > summary:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 2px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-add-manager:not([open]) .pc-org-add-cancel-label,
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-add-manager[open] .pc-org-add-label { display: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-add-manager .pc-org-detail-disclosure-body { padding: 4px 0 12px; margin-bottom: 8px; border-bottom: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-manager-config-section { margin: 0; padding: 0; border: 0; background: transparent; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-manager-config-section > .pc-org-subsection-head { display: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] :is(.pc-org-detail-renewal, .pc-org-detail-disclosure-body > .pc-admin-note) { font-size: 12px; line-height: 1.6; color: var(--workspace-muted); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-renewal { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--workspace-border); border-radius: 14px; background: var(--workspace-surface); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-renewal strong { color: var(--workspace-text); font-size: 14px; font-weight: 600; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-subscription-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure-body .pc-org-field { min-width: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-disclosure-body :is(input, select) { min-width: 0; max-width: 100%; box-sizing: border-box; height: 40px; min-height: 40px; font-size: 13px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-subscription-save { grid-column: 1 / -1; justify-self: end; width: auto; min-height: 36px; height: 36px; padding: 6px 12px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-admin-note { font-size: 12px; line-height: 1.6; }
+
+/* Settings belong to the overview; pagination and search belong only to staff. */
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-settings { border: 0; border-radius: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-settings > summary { position: absolute; top: 14px; right: 14px; display: flex; justify-content: center; min-height: 32px; height: 32px; padding: 4px 10px; border: 1px solid var(--workspace-border); border-radius: 8px; color: var(--workspace-text); background: var(--workspace-surface); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-settings > summary > span { font-size: 12px; font-weight: 500; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-settings > summary::after { display: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-settings:not([open]) .pc-org-settings-close-label,
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-settings[open] .pc-org-settings-label { display: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-settings-body { display: grid; gap: 0; margin-top: 12px; padding-top: 0; border-top: 1px solid var(--workspace-border); }
+/* The overview is the only frame; settings use inset separators, without nested cards. */
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-settings-body > :is(.pc-org-detail-disclosure, .pc-org-detail-renewal) { margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-settings-body > :is(.pc-org-detail-disclosure, .pc-org-detail-renewal) + * { border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-settings-body > .pc-org-detail-disclosure > summary { min-height: 44px; padding: 10px 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-settings-body .pc-org-detail-disclosure-body { padding: 0 0 12px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-settings-body > .pc-org-detail-renewal { padding: 12px 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-settings-body :is(.pc-org-audit-section, .pc-org-audit-list, .pc-org-audit-feed) { margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-settings-body .pc-org-audit-feed-row { padding: 8px 0; gap: 4px 12px; border-color: var(--workspace-border); }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-staff-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: var(--ui-space-block, 4px) 2px 0; padding-top: 8px; border-top: 1px solid var(--workspace-border); color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-staff-pagination > div { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-staff-pagination button { flex: none; width: auto; min-height: 32px; height: 32px; margin: 0; padding: 4px 8px; border: 1px solid var(--workspace-border); border-radius: 8px; background: var(--workspace-surface); color: var(--workspace-text); font-size: 12px; cursor: pointer; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-staff-pagination button:disabled { color: var(--workspace-muted); opacity: .45; cursor: default; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-detail-settings > summary:focus-visible,
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-staff-pagination button:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 2px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-simple-workspace .pc-floating-search-row { margin: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-simple-workspace .pc-floating-search-options { display: grid; gap: 12px; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-simple-workspace .pc-floating-search-options > .pc-org-field { display: grid; gap: 6px; margin: 0; }
+#platform-admin-shell .pc-managed-org-card.pc-managed-org-detail-card[data-managed-org-mode="platform"] .pc-org-simple-workspace .pc-floating-search-options select { width: 100%; min-width: 0; height: 44px; }
+
+/* Expanded staff records share the flat sections used by organization settings. */
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact > form { display: flex; flex-direction: column; gap: 12px; width: 100%; box-sizing: border-box; margin: 0; padding: 10px 2px 12px; border: 0; border-top: 1px solid var(--workspace-border); border-radius: 0; background: transparent; box-shadow: none; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact form > .pc-org-subsection-head { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 12px; min-height: 0; margin: 0; padding: 0; text-align: left; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-subsection-head h4 { font-size: 14px; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-member-account { display: flex; align-items: baseline; gap: 12px; min-width: 0; font-size: 12px; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-member-account span { color: var(--workspace-muted); }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-member-account strong { min-width: 0; overflow-wrap: anywhere; font-weight: 500; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-member-setting-block { margin: 0; padding: 0; gap: 6px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-member-setting-block + .pc-org-member-setting-block { padding-top: 10px; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-member-role-settings .pc-org-member-setting-head :is(strong, em) { display: none; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-role-toggle-group { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-member-role-settings > .pc-role-toggle-group { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 12px; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-permission-group { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 12px; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-role-toggle { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 32px; margin: 0; padding: 6px 0; box-sizing: border-box; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-role-toggle > input { flex: 0 0 16px; width: 16px; height: 16px; min-height: 16px; margin: 0; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-role-toggle > span { min-width: 0; font-size: 13px; font-weight: 400; line-height: 1.5; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-permission-toggle.is-inherited > em { display: none; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact :is(.pc-org-member-number-editor, .pc-org-member-save-row, .pc-org-member-remove-row) { margin: 0; padding-top: 10px; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact :is(.pc-org-member-save-row, .pc-org-member-remove-row) { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact .pc-org-member-save-row > span { flex: 1 1 140px; min-width: 0; font-size: 12px; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact :is([data-org-member-save], [data-org-member-remove]) { flex: none; width: auto; min-height: 32px; height: 32px; padding: 4px 10px; border-radius: 8px; font-size: 12px; }
+#platform-admin-shell .pc-managed-org-detail-card .pc-org-member-compact [data-org-member-remove] { background: transparent; }
+#platform-admin-shell .pc-org-lifecycle-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; padding: 12px 0 0; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell .pc-org-lifecycle-actions > span { flex: 1 1 160px; font-size: 12px; line-height: 1.5; color: var(--workspace-muted); }
+#platform-admin-shell .pc-org-lifecycle-actions > button { flex: none; width: auto; height: 32px; min-height: 32px; padding: 4px 10px; border-radius: 8px; background: transparent; font-size: 12px; }
+#platform-admin-shell .pc-org-archived-view { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+#platform-admin-shell .pc-org-archived-view p { margin: 0; color: var(--workspace-muted); font-size: 12px; line-height: 1.6; }
+
+/* Keep teaching overviews aligned with its page heading and grouped links. */
+#platform-admin-shell[data-learning-role="teacher"] .pc-workspace-page-heading:has(.pc-teacher-refresh) {
+ display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
+ gap: 4px 12px; min-height: 0; margin-bottom: 16px; padding: 0;
+}
+#platform-admin-shell[data-learning-role="teacher"] .pc-workspace-page-heading > .pc-teacher-refresh {
+ position: static; grid-column: 2; grid-row: 1; min-height: 36px; padding: 4px 10px;
+}
+#platform-admin-shell[data-learning-role="teacher"] .pc-workspace-page-heading > p {
+ grid-column: 1 / -1; margin: 0;
+}
+#platform-admin-shell:is([data-learning-role="teacher"], [data-learning-role="assistant"]) .pc-role-home:is([data-role-overview="teacher"], [data-role-overview="assistant"]) {
+ margin-inline: 0; width: auto; gap: 16px;
+}
+#platform-admin-shell:is([data-learning-role="teacher"], [data-learning-role="assistant"]) .pc-role-home .pc-institution-overview-strip .pc-overview-empty {
+ display: grid; gap: 4px; padding: 8px 0 4px;
+}
+#platform-admin-shell:is([data-learning-role="teacher"], [data-learning-role="assistant"]) .pc-role-home .pc-institution-overview-strip .pc-overview-empty p {
+ display: block; margin: 0; color: var(--workspace-muted); font-size: 13px;
+}
+
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-role-home[data-role-overview="orgAdmin"] {
+ margin-inline: 0; width: auto; gap: 16px;
+}
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-workflow-onboarding {
+ display: grid; gap: 0; padding: 12px 14px 4px; background: var(--workspace-surface);
+}
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-workflow-onboarding h2 { margin-bottom: 8px; }
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-workflow-onboarding > button {
+ display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 0;
+ border: 0; border-top: 1px solid var(--workspace-border); border-radius: 0; background: transparent;
+}
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-workflow-onboarding > button span { flex: 1; min-width: 0; }
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-workflow-onboarding > button small { color: var(--workspace-muted); white-space: nowrap; }
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-workflow-onboarding > button small.is-complete { color: var(--workspace-accent); }
+
+/* Overview values share fixed label columns and numeric baselines. */
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-role-home .pc-platform-stats .pc-platform-stat {
+ display: grid; grid-template-columns: 5em minmax(0, 1fr); align-items: baseline;
+ gap: 8px; font-style: normal;
+}
+#platform-admin-shell[data-learning-role="orgAdmin"] .pc-role-home .pc-platform-stats .pc-platform-stat strong {
+ font-style: normal; font-variant-numeric: tabular-nums; line-height: 1.4;
+}
+.pc-customer-audit-details { margin: 0; }
+.pc-customer-audit-details > div {
+ display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px;
+ padding: 12px 0; border-bottom: 1px solid var(--ls-border, #e5e6e7);
+}
+.pc-customer-audit-details > div:last-child { border-bottom: 0; }
+.pc-customer-audit-details dt { color: var(--ls-muted, #85888c); }
+.pc-customer-audit-details dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Member and role pages share compact role selectors and flat permission sections. */
+#platform-admin-shell.pc-platform-admin-open :is(.pc-member-role-section, .pc-role-default-section) :is(.pc-member-role-tabs, .pc-role-permission-sidebar) {
+ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 8px 0 16px;
+}
+#platform-admin-shell.pc-platform-admin-open :is(.pc-member-role-section, .pc-role-default-section) :is(.pc-member-role-tabs, .pc-role-permission-sidebar) .pc-role-permission-tab {
+ display: flex; align-items: center; justify-content: space-between; gap: 8px;
+ width: 100%; min-width: 0; min-height: 44px; padding: 8px 10px;
+ border: 1px solid var(--workspace-border); border-radius: 8px;
+ background: var(--workspace-surface); color: var(--workspace-text); box-shadow: none;
+}
+#platform-admin-shell.pc-platform-admin-open :is(.pc-member-role-section, .pc-role-default-section) :is(.pc-member-role-tabs, .pc-role-permission-sidebar) .pc-role-permission-tab:last-child:nth-child(odd) { grid-column: 1 / -1; }
+#platform-admin-shell.pc-platform-admin-open :is(.pc-member-role-section, .pc-role-default-section) :is(.pc-member-role-tabs, .pc-role-permission-sidebar) .pc-role-permission-tab.is-active {
+ background: var(--workspace-selected); border-color: var(--workspace-accent); box-shadow: none;
+}
+#platform-admin-shell.pc-platform-admin-open :is(.pc-member-role-section, .pc-role-default-section) :is(.pc-member-role-tabs, .pc-role-permission-sidebar) .pc-role-permission-tab strong { font-size: 13px; font-weight: 500; color: inherit; }
+#platform-admin-shell.pc-platform-admin-open :is(.pc-member-role-section, .pc-role-default-section) :is(.pc-member-role-tabs, .pc-role-permission-sidebar) .pc-role-permission-tab em {
+ position: static; padding: 0; background: transparent; border: 0; font-size: 12px; line-height: 1.5; font-style: normal; white-space: nowrap; color: var(--workspace-muted);
+}
+#platform-admin-shell.pc-platform-admin-open .pc-member-filter-label { margin-top: 12px; color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-member-invite > summary { min-height: 44px; margin-bottom: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-member-list-heading { padding-block: 8px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-default-section > .pc-admin-note { margin: 0 0 12px; line-height: 1.7; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-title { align-items: flex-start; gap: 8px; padding-bottom: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-title em { white-space: nowrap; font-size: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-block { margin: 0; padding: 14px 0; border-top: 1px solid var(--workspace-border); }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-block h5 { margin: 0 0 10px; font-size: 14px; color: var(--workspace-text); }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-block h6 { margin: 10px 0 6px; font-size: 12px; color: var(--workspace-muted); font-weight: 400; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-adjust { border-top: 1px solid var(--workspace-border); padding-top: 8px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-adjust > summary { padding: 10px 0; cursor: pointer; font-weight: 500; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-adjust-grid { gap: 16px; margin-top: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-editor { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 8px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-editor label { display: grid; gap: 6px; min-width: 0; color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-editor :is(select, button) { width: 100%; min-width: 0; height: auto; min-height: 44px; margin: 0; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-editor button { padding-inline: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-permission-editor button:disabled { opacity: .45; cursor: default; }
+
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section { display: block; }
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-member-invite { margin: 8px 0; padding: 0; }
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-member-invite > summary { margin: 0; padding-block: 8px; }
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-member-list-section { margin-top: 8px; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-default-section .pc-role-permission-empty { font-size: 13px; }
+
+/* Align member names, role captions and disclosure arrows with the list heading. */
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-unified-member-list > .pc-org-member-editor {
+ padding: 0; margin: 0;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-unified-member-list {
+ border: 0; border-radius: 0;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-member-editor > .pc-org-member-summary {
+ display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; align-items: start;
+ justify-items: stretch; gap: 3px; min-height: 64px; box-sizing: border-box;
+ margin: 0; padding: 12px 28px 12px 0;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-member-summary::after {
+ right: 6px; top: 50%; margin-top: -4px;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-member-meta { min-width: 0; width: 100%; }
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-member-meta > strong {
+ display: block; font-size: 14px; line-height: 1.5; font-weight: 600; overflow-wrap: anywhere;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-member-role-summary {
+ display: block; min-width: 0; text-align: left;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-member-role-summary > span {
+ display: block; color: var(--workspace-muted); font-size: 12px; line-height: 1.5; font-weight: 400;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-member-role-section .pc-org-member-summary :is(.pc-org-member-meta > span, .pc-org-member-role-summary > em) { display: none; }
+
+/* Teaching and institution overview cards use the same inset rows as home links. */
+#platform-admin-shell.pc-platform-admin-open .pc-role-home :is(.pc-workspace-summary, .pc-workspace-pending) {
+ display: grid; gap: 6px; margin: 0; padding: 0;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home :is(.pc-workspace-summary, .pc-workspace-pending) > h2 {
+ margin: 0; padding-inline: 14px; font-size: 12px; line-height: 1.5; font-weight: 400; color: var(--workspace-muted);
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-summary .pc-platform-stats,
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-pending-list {
+ display: block; padding: 0; border: 1px solid var(--workspace-border); border-radius: 14px;
+ overflow: hidden; background: var(--workspace-surface);
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-summary .pc-platform-stat {
+ position: relative; display: grid; grid-template-columns: minmax(0, 1fr) max-content 14px;
+ align-items: center; gap: 12px; width: 100%; min-height: 48px; margin: 0; padding: 12px 14px;
+ border: 0; border-radius: 0; box-sizing: border-box; text-align: left; font-style: normal;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-summary .pc-platform-stat > span {
+ color: var(--workspace-text); font-size: 14px; line-height: 1.5;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-summary .pc-platform-stat > strong {
+ color: var(--workspace-muted); font-size: 14px; font-weight: 400; line-height: 1.5;
+ font-style: normal; font-variant-numeric: tabular-nums; text-align: right;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home :is(.pc-workspace-summary, .pc-workspace-pending) .pc-grouped-arrow {
+ width: 14px; height: 14px; color: var(--workspace-muted); opacity: .75; flex: none;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-summary-note {
+ margin: 0; padding-inline: 14px; color: var(--workspace-muted); font-size: 12px; line-height: 1.6;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-pending-list .pc-platform-task {
+ position: relative; display: flex; align-items: center; gap: 12px; width: 100%;
+ min-height: 48px; margin: 0; padding: 12px 14px; box-sizing: border-box; border: 0; background: transparent;
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-pending-list .pc-platform-task > span { flex: 1; min-width: 0; }
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-pending-list .pc-platform-task b {
+ width: auto; min-width: 0; padding: 0; background: transparent; color: var(--workspace-accent);
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-summary .pc-platform-stat + .pc-platform-stat::before,
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-pending-list .pc-platform-task + .pc-platform-task::before {
+ content: ''; position: absolute; top: 0; left: 14px; right: 14px; height: 1px; background: var(--workspace-border);
+}
+#platform-admin-shell.pc-platform-admin-open .pc-role-home .pc-workspace-pending-list > :is(.pc-workspace-pending-empty, .pc-overview-status) {
+ margin: 0; padding: 14px; color: var(--workspace-muted); font-size: 14px;
+}

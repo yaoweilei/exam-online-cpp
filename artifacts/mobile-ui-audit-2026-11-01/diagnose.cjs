@@ -1,0 +1,21 @@
+const { chromium } = require('@playwright/test');
+const fs = require('node:fs');
+const path = require('node:path');
+const audit = require('./capture.cjs');
+const { navigateWorkspace } = require('../../tests/e2e/helpers/workspace-navigation');
+(async () => {
+  const browser = await chromium.launch({ channel: 'msedge', headless: true }); audit.setBrowser(browser);
+  const state = await audit.enter('superAdmin'); state.role = 'superAdmin';
+  const responses = [];
+  state.page.on('response', async response => { if (response.url().includes('/admin/users')) responses.push({ url: new URL(response.url()).pathname, status: response.status() }); });
+  await navigateWorkspace(state.shell, 'users', true); await audit.settle(state.page);
+  await new Promise(resolve => setTimeout(resolve, 6000));
+  console.log('INITIAL', JSON.stringify({ responses, text: await state.shell.locator('main').innerText(), errors: state.errors }));
+  await audit.capture(state, 'superAdmin-users-waited', '用户管理·等待 6 秒复核', { widths: [390] });
+  await navigateWorkspace(state.shell, 'organizations', true); await audit.settle(state.page);
+  await navigateWorkspace(state.shell, 'users', true); await audit.settle(state.page);
+  console.log('REOPEN', JSON.stringify({ responses, text: (await state.shell.locator('main').innerText()).slice(0, 500), errors: state.errors }));
+  await audit.capture(state, 'superAdmin-users-reopened', '用户管理·重新进入复核', { widths: [390] });
+  fs.writeFileSync(path.join(__dirname, 'loading-diagnosis.json'), JSON.stringify({ responses, errors: state.errors }, null, 2));
+  await browser.close();
+})().catch(error => { console.error(error.stack); process.exit(1); });

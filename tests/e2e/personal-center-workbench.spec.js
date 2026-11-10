@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { clearBrowserSession, expectGuestEntry, loginApi, openPersonalCenter, stubNoisyPersonalCenterApis, uniqueLoginId } = require('./helpers/session');
+const { clearBrowserSession, expectGuestEntry, loginApi, loginWithPassword, openPersonalCenter, stubNoisyPersonalCenterApis, uniqueLoginId } = require('./helpers/session');
 
 async function loginWithDevUser(page, loginId, apiFixtures = {}, options = {}) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
@@ -27,7 +27,15 @@ async function openPlatformAdminPage(page, name = '总览') {
 		await page.getByRole('menuitem', { name: /进入(?:管理后台|平台管理|管理)/ }).click();
   }
   await expect(shell).toBeVisible();
-  await shell.getByRole('button', { name, exact: true }).click();
+  const destination = shell.locator('.pc-platform-sidebar').getByRole('button', { name, exact: true, includeHidden: true });
+  if (await destination.isVisible()) await destination.click();
+  else await destination.evaluate((element) => element.click());
+}
+
+async function clickPlatformNav(shell, groupName, pageName) {
+  const group = shell.getByRole('button', { name: groupName, exact: true });
+  if (await group.isVisible() && await group.getAttribute('aria-expanded') === 'false') await group.click();
+  await shell.getByRole('button', { name: pageName, exact: true }).click();
 }
 
 async function openRefundFromPaidOrder(page) {
@@ -54,6 +62,43 @@ test('旧学员首页入口已删除并统一进入学习工作台', async ({ pa
   await expect(shell.getByRole('button', { name: '我的作业', exact: true })).toBeVisible();
   await expect(page.locator('#personal-center.pc-open')).toHaveCount(0);
   await expect(page.locator('.pc-my-content-card, .pc-my-account-card, .pc-student-content-group')).toHaveCount(0);
+});
+
+test('管理后台子页的返回按钮固定在顶部栏，滚动后显示紧凑标题', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 400 });
+  await loginWithPassword(page, 'superadmin_demo');
+  await page.evaluate(() => window.openPersonalCenter?.());
+  const shell = page.locator('#platform-admin-shell');
+  const back = shell.locator('[data-workspace-back]');
+  const main = shell.locator('main');
+  const title = main.locator('.pc-workspace-page-heading h1');
+  const header = shell.locator(':scope > .pc-platform-topbar');
+  const compactTitle = header.locator('.pc-workspace-compact-title');
+  await expect(title).toHaveText('平台总览');
+  await expect(back).toHaveCount(0);
+  await main.locator('[data-platform-admin-page="users"]').first().click();
+  await expect(title).toHaveText('用户管理');
+  await expect(main.locator('[data-workspace-back]')).toHaveCount(0);
+  await expect(header.locator('[data-workspace-back]')).toBeVisible();
+  await expect(back).toHaveAttribute('aria-label', '返回总览');
+  await expect(back).toHaveCSS('width', '44px');
+  await expect(compactTitle).toBeHidden();
+  await back.focus();
+  const initialPosition = await back.boundingBox();
+  await main.evaluate(element => { element.scrollTop = 180; });
+  await expect(compactTitle).toBeVisible();
+  await expect(compactTitle).toHaveText('用户管理');
+  await expect(header.locator('[data-workspace-back]')).toBeFocused();
+  await expect(back).toHaveCount(1);
+  expect(await back.boundingBox()).toEqual(initialPosition);
+  await main.evaluate(element => { element.scrollTop = 0; });
+  await expect(header.locator('[data-workspace-back]')).toBeFocused();
+  await expect(compactTitle).toBeHidden();
+  await main.evaluate(element => { element.scrollTop = 180; });
+  await header.locator('[data-workspace-back]').click();
+  await expect(title).toHaveText('平台总览');
+  await expect(back).toHaveCount(0);
+  await expect(compactTitle).toBeHidden();
 });
 
 test('套餐页面直接展示购买表单且不会等待支付配置接口返回', async ({ page }) => {
@@ -247,8 +292,8 @@ test('所有角色共用账号菜单、资料安全页和响应式工作台外�
 	test.setTimeout(180000);
 	const cases = [
 		{ loginId: 'student_demo', entry: '进入学习工作台', workspace: '学习工作台', brand: '学员', shell: true, nav: '我的作业', groups: ['学习安排', '复习与分析', '账户'] },
-		{ loginId: 'teacher_demo', entry: '进入教学工作台', workspace: '教学工作台', brand: '老师', shell: true, nav: '我的学生', groups: ['学员管理', '教学任务', '教学内容', '消息'] },
-		{ loginId: 'assistant_demo', entry: '进入教学管理工作台', workspace: '教学管理工作台', brand: '教学管理员', shell: true, nav: '催交作业', groups: ['学员运营', '教务支持', '消息'] },
+		{ loginId: 'teacher_demo', entry: '进入教学工作台', workspace: '教学工作台', brand: '教师', shell: true, nav: '我的学生', groups: ['学员管理', '教学任务', '教学内容', '消息'] },
+		{ loginId: 'assistant_demo', entry: '进入教学管理工作台', workspace: '教学管理工作台', brand: '教务管理员', shell: true, nav: '催交作业', groups: ['学员运营', '教务支持', '消息'] },
 		{ loginId: 'orgadmin_demo', entry: '进入机构工作台', workspace: '机构工作台', brand: '机构管理', shell: true, nav: '成员管理', groups: ['成员与权限', '教学运营', '机构管理', '消息'] },
 		{ loginId: 'contentadmin_demo', entry: '进入内容工作台', workspace: '内容工作台', brand: '内容管理', shell: true, nav: '内容反馈', groups: ['内容处理', '记录', '消息'] }
 	];
@@ -263,7 +308,8 @@ test('所有角色共用账号菜单、资料安全页和响应式工作台外�
 		await expect(menu).toContainText(item.loginId);
 		await expect(menu.getByRole('menuitem', { name: /^个人资料/ })).toBeVisible();
 		await expect(menu.getByRole('menuitem', { name: /^账号安全/ })).toBeVisible();
-		await expect(menu.getByRole('menuitem', { name: /^消息中心/ })).toBeVisible();
+		await expect(menu.getByRole('menuitem', { name: /^消息中心/ })).toHaveCount(0);
+		await expect(page.locator('[data-global-messages]:visible')).toHaveCount(1);
 		await expect(menu.getByRole('menuitem', { name: item.entry })).toBeVisible();
 
 		await menu.getByRole('menuitem', { name: /^个人资料/ }).click();
@@ -304,10 +350,10 @@ test('所有角色共用账号菜单、资料安全页和响应式工作台外�
 		await expect(shell.locator('.pc-role-admin-welcome')).toHaveCount(0);
 		await expect(shell.locator('.pc-platform-nav-label')).toHaveText(item.groups);
 		await expect(shell.getByRole('button', { name: item.nav, exact: true })).toBeVisible();
-		await expect(shell.getByRole('button', { name: '消息中心', exact: true })).toBeVisible();
-		await shell.getByRole('button', { name: '消息中心', exact: true }).click();
+		await expect(shell.locator('[data-global-messages]')).toBeVisible();
+		await shell.locator('[data-global-messages]').click();
 		await expect(shell.locator('.pc-platform-topbar')).toContainText('消息中心');
-		await expect(shell.locator('[data-message-center-category]')).toHaveCount(4);
+		await expect(shell.locator('[data-message-center-category]')).toHaveCount(2);
 		await shell.getByRole('button', { name: item.nav, exact: true }).click();
 		await expect(shell.locator('.pc-platform-topbar')).toContainText(item.nav);
 		await expect(shell.locator('.pc-platform-admin-content')).toBeVisible();
@@ -364,16 +410,16 @@ test('超级管理员及机构内容身份可以进入共用消息中心', async
 	const shell = page.locator('#platform-admin-shell');
 	await expect(shell).toBeVisible();
 	await shell.locator('[data-platform-admin-account-menu]').click();
-	await shell.getByRole('menuitem', { name: '消息中心', exact: true }).click();
+	await shell.locator('[data-global-messages]').click();
 	await expect(shell.locator('.pc-platform-topbar')).toContainText('消息中心');
-	await expect(shell.locator('[data-message-center-category]')).toHaveCount(4);
-	await expect(shell.getByRole('button', { name: '消息中心', exact: true })).toBeVisible();
+	await expect(shell.locator('[data-message-center-category]')).toHaveCount(2);
+	await expect(shell.locator('[data-global-messages]')).toBeVisible();
 
 	const identity = shell.locator('[data-role-workbench-switch]');
 	await identity.selectOption({ label: '机构内容管理' });
 	await expect(shell.locator('.pc-platform-brand')).toContainText('机构内容管理');
-	await expect(shell.getByRole('button', { name: '消息中心', exact: true })).toBeVisible();
-	await shell.getByRole('button', { name: '消息中心', exact: true }).click();
+	await expect(shell.locator('[data-global-messages]')).toBeVisible();
+	await shell.locator('[data-global-messages]').click();
 	await expect(shell.locator('.pc-platform-topbar')).toContainText('消息中心');
 });
 
@@ -389,7 +435,7 @@ test('多角色账号可以切换工作台并记住当前身份', async ({ page 
 	await expect(shell).toBeVisible();
 	const identitySelect = shell.getByLabel('切换当前身份');
 	await expect(identitySelect).toBeVisible();
-	await expect(identitySelect.locator('option')).toHaveText(['学员', '教学管理员']);
+	await expect(identitySelect.locator('option')).toHaveText(['学员', '教务管理员']);
 
 	await identitySelect.selectOption('assistant');
 	await expect(shell.locator('.pc-platform-topbar')).toContainText('教学管理工作台');
@@ -411,6 +457,99 @@ test('多角色账号可以切换工作台并记住当前身份', async ({ page 
 	await expect(shell.locator('.pc-platform-nav-label').first()).toBeHidden();
 	await expect(shell.getByRole('button', { name: '我的作业', exact: true })).toBeVisible();
 	await expect(shell.getByLabel('切换当前身份')).toBeHidden();
+});
+
+test('超级管理员切换学员身份时同步使用学员导航', async ({ page }) => {
+	await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+	await expect(page.locator('body')).toHaveClass(/ls-student-navigation/);
+	await expect(page.locator('.ls-rail')).toBeHidden();
+	await expect(page.locator('.ls-menu')).toHaveCSS('width', '240px');
+	expect(await page.locator('[data-ls-group="practice"]').evaluate(button => button.nextElementSibling?.getAttribute('data-ls-panel'))).toBe('practice');
+	await page.evaluate(() => window.openPersonalCenter());
+	const shell = page.locator('#platform-admin-shell');
+	const selector = shell.getByLabel('切换当前身份');
+	await selector.selectOption('student');
+	await expect(shell).toHaveAttribute('data-learning-role', 'student');
+	await expect(page.locator('body')).toHaveClass(/ls-student-navigation/);
+	await expect(page.locator('.ls-rail')).toBeHidden();
+	await expect(page.locator('.ls-menu > [data-ls-group]')).toHaveCount(3);
+	await expect(page.locator('.ls-menu')).toHaveCSS('width', '240px');
+	const studentLayout = await page.evaluate(() => {
+		const header = document.querySelector('#platform-admin-shell > .pc-platform-topbar').getBoundingClientRect();
+		const workspace = document.querySelector('#platform-admin-shell > .pc-platform-workspace').getBoundingClientRect();
+		const menu = document.querySelector('.ls-menu').getBoundingClientRect();
+		return { headerLeft: header.left, headerRight: header.right, headerBottom: header.bottom,
+			workspaceLeft: workspace.left, workspaceTop: workspace.top, menuTop: menu.top };
+	});
+	expect(studentLayout.headerLeft).toBe(0);
+	expect(studentLayout.headerRight).toBe(page.viewportSize().width);
+	expect(studentLayout.headerBottom).toBe(44);
+	expect(studentLayout.workspaceLeft).toBe(240);
+	expect(studentLayout.workspaceTop).toBe(44);
+	expect(studentLayout.menuTop).toBe(44);
+	await shell.locator('[data-platform-admin-nav-trigger]').click();
+	await expect(page.locator('.ls-menu')).toBeHidden();
+	await expect(shell).toHaveJSProperty('offsetTop', 0);
+	await expect(shell.locator('.pc-platform-topbar')).toHaveJSProperty('offsetTop', 0);
+	await shell.locator('[data-platform-admin-nav-trigger]').click();
+	await expect(page.locator('.ls-menu')).toBeVisible();
+	await page.setViewportSize({ width: 1100, height: 900 });
+	await expect(page.locator('.ls-menu')).toHaveCSS('width', '240px');
+	await page.evaluate(() => window.closeLearningWorkspace?.());
+	await expect(shell).toBeHidden();
+	await expect(page.locator('body')).toHaveClass(/ls-student-navigation/);
+	await expect(page.locator('.ls-rail')).toBeHidden();
+	await expect(page.locator('.ls-menu')).toHaveCSS('width', '240px');
+	const rapidPracticeClicks = await page.evaluate(() => {
+		const button = document.querySelector('[data-ls-group="practice"]');
+		const originalClose = window.closeLearningWorkspace;
+		let redundantCloses = 0;
+		window.closeLearningWorkspace = () => { redundantCloses += 1; originalClose?.(); };
+		const expanded = [];
+		for (let i = 0; i < 6; i += 1) {
+			button.click();
+			expanded.push(button.getAttribute('aria-expanded'));
+		}
+		return { expanded, redundantCloses };
+	});
+	expect(rapidPracticeClicks.expanded).toEqual(['false', 'true', 'false', 'true', 'false', 'true']);
+	expect(rapidPracticeClicks.redundantCloses).toBe(0);
+	await page.reload();
+	await expect(page.locator('body')).toHaveClass(/ls-student-navigation/);
+	await expect(page.locator('.ls-rail')).toBeHidden();
+	await page.evaluate(() => window.openPersonalCenter());
+	await selector.evaluate((control) => {
+		control.value = 'superAdmin';
+		control.dispatchEvent(new Event('input', { bubbles: true }));
+	});
+	await expect(shell).toHaveAttribute('data-learning-role', 'superAdmin');
+	await expect(page.locator('body')).toHaveClass(/ls-student-navigation/);
+	await expect(page.locator('.ls-rail')).toBeHidden();
+});
+
+test('从账号菜单进入学员工作台显示学习总览且顶栏头像靠右', async ({ page }) => {
+	await page.setViewportSize({ width: 1600, height: 900 });
+	await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+	await page.evaluate(() => window.openPersonalCenter());
+	const shell = page.locator('#platform-admin-shell');
+	await shell.getByLabel('切换当前身份').selectOption('student');
+	await shell.locator('[data-platform-admin-close]').click();
+	await page.locator('#user-menu-trigger').click();
+	await page.getByRole('menuitem', { name: /进入学习工作台/ }).click();
+	await expect(shell).toHaveAttribute('data-learning-role', 'student');
+	await expect(shell.locator('.pc-learning-overview-intro h1')).toHaveText('学习总览');
+	await expect(shell.locator('.pc-goal-summary')).toBeVisible();
+	await expect(shell.locator('.pc-learning-focus')).toBeVisible();
+	await expect(shell.locator('.pc-today-section')).toBeVisible();
+	const alignment = await shell.evaluate((element) => {
+		const account = element.querySelector('.pc-platform-account').getBoundingClientRect();
+		const close = element.querySelector('.pc-platform-close').getBoundingClientRect();
+		const workspace = element.querySelector('.pc-platform-workspace').getBoundingClientRect();
+		const paperRight = workspace.left + (workspace.width + Math.min(workspace.width, 994)) / 2;
+		return { accountLeft: account.left, closeRight: close.right, accountRight: account.right, paperRight };
+	});
+	expect(alignment.accountLeft).toBeGreaterThan(alignment.closeRight);
+	expect(Math.abs(alignment.accountRight - alignment.paperRight)).toBeLessThanOrEqual(16);
 });
 
 test('超级管理员可切换全部七个工作台并恢复上次身份', async ({ page }, testInfo) => {
@@ -449,7 +588,6 @@ test('超级管理员可切换全部七个工作台并恢复上次身份', async
 		['teacher', '教学工作台', '我的学生'],
 		['assistant', '教学管理工作台', '催交作业'],
 		['orgAdmin', '机构工作台', '成员管理'],
-		['orgContentAdmin', '机构内容工作台', '课程包'],
 		['contentAdmin', '内容工作台', '内容反馈'],
 		['superAdmin', '平台总览', '用户管理']
 	]) {
@@ -485,7 +623,7 @@ test('超级管理员可切换全部七个工作台并恢复上次身份', async
 		await expect(shell.locator('h1')).toHaveText('平台总览');
 		await expect(shell.locator('[data-platform-admin-account-menu]')).toBeFocused();
 		await shell.locator('[data-platform-admin-account-menu]').click();
-		await shell.getByRole('menuitemradio', { name: '切换到教学管理员', exact: true }).click();
+		await shell.getByRole('menuitemradio', { name: '切换到教务管理员', exact: true }).click();
 		await expect(shell.locator('h1')).toHaveText('教学管理工作台');
 		expect(await shell.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
 	}
@@ -542,81 +680,6 @@ test('我的作业进入真实列表而不是只滚动首页横幅', async ({ pa
   await expect(page.locator('#pc-assignments-banner')).toHaveCount(0);
 });
 
-test('多端同步使用统一确认、按钮忙碌态和可访问表格', async ({ page }) => {
-  await loginWithDevUser(page, 'student_demo');
-
-  let stateRequests = 0;
-  let pushRequests = 0;
-  const ok = (data) => ({ code: 'OK', message: 'ok', data, request_id: 'sync_e2e', ts: new Date().toISOString() });
-  await page.route('**/api/v1/me/sync/state', async (route) => {
-    stateRequests += 1;
-    if (stateRequests > 1) await new Promise((resolve) => setTimeout(resolve, 250));
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json; charset=utf-8',
-      body: JSON.stringify(ok({
-        server_time: '2026-07-18T12:00:00.000Z',
-        modules: { progress: { exists: true, modified_at: '2026-07-18T11:00:00.000Z', size: 12 } }
-      }))
-    });
-  });
-  await page.route('**/api/v1/me/sync/push', async (route) => {
-    pushRequests += 1;
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json; charset=utf-8',
-      body: JSON.stringify(ok({ status: 'conflict', written: {}, conflicts: { progress: { reason: 'newer_remote' } } }))
-    });
-  });
-
-  await page.evaluate(() => {
-    const manager = window.UserContextManager?.getInstance?.();
-    const userId = manager?.getUserContext?.()?.id || 'usr_demo_student_001';
-    localStorage.setItem(`sync.snapshot.${userId}.progress`, JSON.stringify({
-      modified_at: '2026-07-18T10:00:00.000Z',
-      content: { completed: 3 }
-    }));
-  });
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.locator('[data-dashboard-page="account-core"]').click();
-  const syncEntry = page.locator('[data-intent="openSyncDevices"]');
-  await expect(syncEntry).toContainText('多端同步');
-  await syncEntry.click();
-  const modal = page.locator('#sync-devices-modal');
-  await expect(modal).toBeVisible();
-  const dialog = modal.locator('[role="dialog"]');
-  await expect(dialog).toHaveAttribute('aria-modal', 'true');
-  expect(await dialog.evaluate((element) => {
-    const box = element.getBoundingClientRect();
-    return box.left >= 0 && box.right <= window.innerWidth;
-  })).toBeTruthy();
-  const tableRegion = modal.locator('.pc-responsive-table-region');
-  await expect(tableRegion).toHaveAttribute('role', 'region');
-  await expect(tableRegion).toHaveAttribute('tabindex', '0');
-  expect(await tableRegion.evaluate((element) => element.scrollWidth > element.clientWidth)).toBeTruthy();
-
-  const refreshButton = modal.locator('#sd-refresh');
-  await refreshButton.click();
-  await expect(refreshButton).toBeDisabled();
-  await expect(refreshButton).toHaveAttribute('aria-busy', 'true');
-  await expect(refreshButton).toBeEnabled();
-
-  const pushButton = modal.locator('#sd-push');
-  await pushButton.click();
-  await expect(pushButton).toBeDisabled();
-  await expect(page.locator('.pc-confirm-dialog')).toContainText('同步冲突');
-  await page.keyboard.press('Escape');
-  await expect(page.locator('.pc-confirm-dialog')).toHaveCount(0);
-  await expect(modal).toBeVisible();
-  await expect(pushButton).toBeEnabled();
-  await expect(pushButton).toBeFocused();
-  expect(pushRequests).toBe(1);
-  await page.keyboard.press('Escape');
-  await expect(modal).toBeHidden();
-  await expect(syncEntry).toBeFocused();
-});
-
 test('学习报告支持移动端对话框、周期忙碌态和 FREE 月报升级提示', async ({ page }) => {
   await loginWithDevUser(page, 'student_demo');
 
@@ -632,7 +695,10 @@ test('学习报告支持移动端对话框、周期忙碌态和 FREE 月报升�
         code: 'OK', message: 'ok',
         data: {
           period, since: '2026-07-01',
-          answers: { exams: 2, questions: 20, accuracy: 0.8, wrong: 4, papers: [] },
+          answers: { exams: 2, questions: 20, accuracy: 80, wrong: 4, papers: [
+            { exam_id: 'partial', saved_at: '2026-07-01', correct_count: 1, wrong_count: 0, answered_count: 1, total_questions: 8, accuracy: 100 },
+            { exam_id: 'unanswered', saved_at: '2026-07-01', correct_count: 0, wrong_count: 0, answered_count: 0, total_questions: 8, accuracy: null }
+          ] },
           wrong_questions: { added_in_period: 4 }, srs: { due: 3 }, streak: { current: 5, best: 8 }
         }
       })
@@ -654,6 +720,9 @@ test('学习报告支持移动端对话框、周期忙碌态和 FREE 月报升�
     return box.left >= 0 && box.right <= window.innerWidth;
   })).toBeTruthy();
   await expect(modal).toContainText('80.0%');
+  await expect(modal).toContainText('正确/已答');
+  await expect(modal).toContainText('100.0%');
+  await expect(modal).not.toContainText('10000.0%');
 
   const week = modal.locator('#lr-week');
   await week.click();
@@ -1180,20 +1249,20 @@ test('平台角色模板单次保存并自动校验，临时授权仍需预览�
   await openPlatformAdminPage(page, '角色权限');
   const templateForm = page.locator('[data-platform-role-template-form][data-role-id="teacher"]');
   await expect(templateForm).toBeVisible({ timeout: 20000 });
-  const contentAdminRole = page.locator('[data-platform-role-select="contentAdmin"]');
-  await expect(contentAdminRole).toContainText('平台角色');
-  await contentAdminRole.click();
+  const rolePicker = page.getByLabel('选择角色模板');
+  await expect(rolePicker.locator('option[value=contentAdmin]')).toHaveCount(1);
+  await rolePicker.selectOption('contentAdmin');
   const contentAdminForm = page.locator('[data-platform-role-template-form][data-role-id="contentAdmin"]');
   await expect(contentAdminForm.locator('.pc-platform-role-policy')).toContainText('平台级角色');
   await expect(contentAdminForm.locator('.pc-platform-role-policy')).toContainText('不进入机构管理人员角色');
   await expect(contentAdminForm.locator('[data-role-org-override]')).toBeDisabled();
-  await page.locator('[data-platform-role-select="teacher"]').click();
+  await rolePicker.selectOption('teacher');
   await expect(templateForm).toBeVisible();
   const permissions = templateForm.locator('[data-role-permissions]');
 	await expect(templateForm.locator('button[type="submit"]')).toBeDisabled();
 	await templateForm.locator('[data-role-advanced-editor] > summary').click();
   await permissions.fill('');
-	await expect(templateForm.locator('button[type="submit"]')).toHaveText('保存修改');
+	await expect(templateForm.locator('button[type="submit"]')).toHaveText('检查并保存');
 	await expect(templateForm.locator('[data-role-save-note]')).toContainText('未保存修改');
   await templateForm.locator('button[type="submit"]').click();
   await expect(permissions).toHaveAttribute('aria-invalid', 'true');
@@ -1222,10 +1291,10 @@ test('平台角色模板单次保存并自动校验，临时授权仍需预览�
   expect(templateUpdateCalls).toBe(0);
 	await saveDialog.getByRole('button', { name: '取消' }).click();
 	await expect(templateForm.locator('button[type="submit"]')).toBeEnabled();
-	await expect(templateForm.locator('button[type="submit"]')).toHaveText('保存修改');
+	await expect(templateForm.locator('button[type="submit"]')).toHaveText('检查并保存');
 
   await permissions.fill('assignment.review\nassignment.create\ngradebook.view');
-	await expect(templateForm.locator('button[type="submit"]')).toHaveText('保存修改');
+	await expect(templateForm.locator('button[type="submit"]')).toHaveText('检查并保存');
   await templateForm.locator('button[type="submit"]').click();
   await expect.poll(() => templatePreviewCalls).toBe(2);
   expect(templateUpdateCalls).toBe(0);
@@ -1233,30 +1302,24 @@ test('平台角色模板单次保存并自动校验，临时授权仍需预览�
 	await page.getByRole('alertdialog').getByRole('button', { name: '确认保存' }).click();
   await expect.poll(() => templateUpdateCalls).toBe(1);
 
-  const accessForm = page.locator('[data-platform-user-access-form]');
-	await page.locator('.pc-platform-access-panel > summary').click();
-  await accessForm.locator('[data-platform-access-user-id]').fill('usr_access_e2e');
-  await accessForm.locator('[data-platform-access-role]').selectOption('assistant');
-  await accessForm.locator('[data-platform-access-expiry]').fill('2027-07-19T12:00');
-  let accessSubmit = accessForm.locator('button[type="submit"]');
-  await accessSubmit.click();
-  await accessSubmit.evaluate((button) => button.click());
-  await expect.poll(() => accessPreviewCalls).toBe(1);
-  await expect(page.locator('[data-platform-access-diff]')).toBeVisible();
-  expect(accessUpdateCalls).toBe(0);
-  accessSubmit = accessForm.locator('button[type="submit"]');
-  await accessSubmit.click();
-  await expect.poll(() => accessUpdateCalls).toBe(1);
-
-	await page.setViewportSize({ width: 390, height: 844 });
-	await expect(page.locator('.pc-platform-role-selector')).toBeVisible();
-	const mobileLayout = await page.locator('.pc-platform-admin-content').evaluate((element) => ({
-		clientWidth: element.clientWidth,
-		scrollWidth: element.scrollWidth,
-		selectorDirection: getComputedStyle(element.querySelector('.pc-platform-role-selector')).flexDirection
-	}));
-	expect(mobileLayout.selectorDirection).toBe('row');
-	expect(mobileLayout.scrollWidth).toBeLessThanOrEqual(mobileLayout.clientWidth + 1);
+  await expect(page.locator('[data-platform-user-access-form]')).toHaveCount(0);
+  await page.route('**/api/v1/users/search?**', route=>route.fulfill({json:ok([{id:'usr_access_e2e',username:'access_member',display_name:'临时授权验证用户'}])}));
+  await openPlatformAdminPage(page, '临时授权');
+  await page.getByRole('textbox',{name:'搜索授权用户',exact:true}).fill('access_member');
+  await page.getByRole('button',{name:'搜索授权用户',exact:true}).click();
+  await page.locator('[data-temp-user]').click();
+  await page.getByRole('button',{name:'新增授权',exact:true}).click();
+  await page.locator('[name=expiry]').fill('2099-07-19T12:00');
+  await page.getByRole('button',{name:'预览授权',exact:true}).click();
+  await expect.poll(()=>accessPreviewCalls).toBe(1);expect(accessUpdateCalls).toBe(0);
+  await expect(page.locator('.pc-access-preview')).toBeVisible();
+  await page.getByRole('button',{name:'确认授权',exact:true}).click();
+  await expect(page.getByRole('alertdialog')).toBeVisible();
+  await page.getByRole('alertdialog').getByRole('button',{name:'确认变更',exact:true}).click();
+  await expect.poll(()=>accessUpdateCalls).toBe(1);
+  await page.setViewportSize({width:390,height:844});
+  const mobileLayout=await page.locator('.pc-platform-admin-content').evaluate(el=>({clientWidth:el.clientWidth,scrollWidth:el.scrollWidth}));
+  expect(mobileLayout.scrollWidth).toBeLessThanOrEqual(mobileLayout.clientWidth+1);
 });
 
 test('内容发布与回滚使用确认、顺序门禁和行内错误', async ({ page }) => {
@@ -1544,7 +1607,7 @@ test('我的账户四个子页面都有返回和业务数据', async ({ page }) 
   await page.locator('[data-dashboard-page="account-core"]').click();
   await expect(page.locator('.pc-subpage')).toContainText('账户');
   await expect(page.locator('.pc-subpage')).toContainText('修改密码');
-  await expect(page.locator('.pc-subpage')).toContainText('数据导出');
+  await expect(page.locator('.pc-subpage')).not.toContainText('数据导出');
   await page.locator('[data-dashboard-back]').click();
   await expect(page.locator('.pc-my-account-card')).toContainText('我的账户');
 
@@ -1622,19 +1685,46 @@ test('账户相关子页列表保持左对齐', async ({ page }) => {
   expect(phoneAlign).toBe('left');
 });
 
+test('功能开关分四组展示，搜索和筛选只保留匹配的分组', async ({ page }, info) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+  await openPlatformAdminPage(page, '功能开关');
+  const groups = page.locator('[data-platform-flag-group]');
+  const rows = groups.locator('[data-platform-system-flag-row]');
+  await expect(groups.locator('h2 > span:first-child')).toHaveText(['学习功能', '内容与互动', '数据与管理', '系统能力']);
+  await expect(rows.first().locator('svg.pc-grouped-arrow')).toBeVisible();
+  const search = page.getByRole('searchbox', { name: '搜索功能名称、说明或代码' });
+  await search.fill('audio_enhancement');
+  await expect(groups.filter({ visible: true })).toHaveCount(1);
+  await expect(rows.filter({ visible: true })).toHaveCount(1);
+  await expect(page.locator('[data-platform-system-flag-row="audio_enhancement"]')).toBeVisible();
+  await search.fill('zzz_no_such_flag');
+  await expect(page.getByText('没有符合条件的功能。')).toBeVisible();
+  await page.getByRole('button', { name: '清除搜索' }).click();
+  await expect(groups.filter({ visible: true })).toHaveCount(4);
+  await page.locator('summary[aria-label="搜索筛选"]').click();
+  await page.getByLabel('筛选功能').selectOption('disabled');
+  await expect(rows.filter({ visible: true }).first()).toBeVisible();
+  expect(await rows.filter({ visible: true }).evaluateAll(items => items.every(item => item.dataset.platformFlagEnabled === 'false'))).toBe(true);
+  await page.getByLabel('筛选功能').selectOption('all');
+  await page.locator('summary[aria-label="搜索筛选"]').click();
+  await page.evaluate(() => document.body.classList.remove('light-theme'));
+  await expect(groups.first().locator('.pc-settings-surface')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('flag-groups-mobile-dark.png') });
+});
+
 test('窄面板中的系统功能开关不会把标题挤成竖排', async ({ page }) => {
   await page.setViewportSize({ width: 842, height: 900 });
   await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
 
-	await openPlatformAdminPage(page, '功能开关');
-	await page.locator('[data-platform-flag-group="management"] > summary').click();
+  await page.locator('[data-role-overview="superAdmin"] [data-platform-admin-page="flags"]').click();
   const flagRow = page.locator('[data-platform-system-flag-row="admin_dashboard"]');
   await expect(flagRow).toContainText('管理员仪表盘', { timeout: 20000 });
 
   const layout = await flagRow.evaluate((row) => {
-    const content = row.querySelector(':scope > .pc-platform-flag-copy');
+    const content = row.querySelector(':scope > .pc-grouped-copy');
     const title = content?.querySelector('strong');
-		const actions = row.querySelector(':scope > .pc-platform-flag-edit');
+		const actions = row.querySelector(':scope > .pc-platform-flag-value');
 		const panel = document.querySelector('#platform-admin-shell .pc-platform-workspace');
     const contentBox = content?.getBoundingClientRect();
     const titleBox = title?.getBoundingClientRect();
@@ -1669,37 +1759,52 @@ test('平台功能开关按钮在后台上方显示高风险确认', async ({ pa
 	await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
 	await openPlatformAdminPage(page, '功能开关');
 	const shell = page.locator('#platform-admin-shell');
-	await shell.locator('[data-platform-flag-group="learning"] > summary').click();
 	const flagRow = shell.locator('[data-platform-system-flag-row]').first();
 	await expect(flagRow).toBeVisible({ timeout: 20000 });
 
-	await flagRow.locator('[data-platform-system-flag-edit]').click();
-	const editor = page.locator('.pc-platform-flag-editor-overlay');
+	await flagRow.click();
+	const editor = page.locator('[data-platform-flag-editor]');
 	await expect(editor).toBeVisible();
 	await expect(editor.getByText('功能状态', { exact: true })).toBeVisible();
 	await expect(editor.getByText('管理方式', { exact: true })).toBeVisible();
 	await editor.getByRole('button', { name: '保存设置', exact: true }).click();
 	const riskModal = page.locator('#risk-modal');
 	await expect(riskModal).toBeVisible();
-	await expect(riskModal.locator('#risk-input')).toBeFocused();
+	const confirmation = riskModal.getByRole('textbox');
+	const confirm = riskModal.getByRole('button', { name: '确认', exact: true });
+	const cancel = riskModal.getByRole('button', { name: '取消', exact: true });
+	await expect(confirmation).toBeFocused();
+	await expect(confirm).toBeDisabled();
+	await confirmation.fill('WRONG');
+	await confirmation.press('Enter');
+	await expect(riskModal).toBeVisible();
+	await expect(confirm).toBeDisabled();
+	await confirmation.fill((await riskModal.locator('#risk-word').textContent()).trim());
+	await expect(confirm).toBeEnabled();
+	await confirmation.press('Tab');
+	await expect(cancel).toBeFocused();
+	await cancel.press('Tab');
+	await expect(confirm).toBeFocused();
+	await confirm.press('Tab');
+	await expect(confirmation).toBeFocused();
 	const layers = await page.evaluate(() => ({
 		shell: Number.parseInt(window.getComputedStyle(document.querySelector('#platform-admin-shell')).zIndex || '0', 10),
 		risk: Number.parseInt(window.getComputedStyle(document.querySelector('#risk-modal')).zIndex || '0', 10)
 	}));
 	expect(layers.risk).toBeGreaterThan(layers.shell);
-	await riskModal.getByRole('button', { name: '取消', exact: true }).click();
+	await cancel.click();
 	await expect(riskModal).toBeHidden();
 
-	await flagRow.locator('[data-platform-system-flag-edit]').click();
+	await expect(editor).toBeVisible();
 	const defaultButton = editor.locator('[data-platform-flag-use-default]');
 	if (await defaultButton.count()) {
 		await defaultButton.click();
 		await expect(riskModal).toBeVisible();
 		await page.keyboard.press('Escape');
 		await expect(riskModal).toBeHidden();
-	} else {
-		await editor.locator('[data-platform-flag-editor-close]').first().click();
 	}
+	await page.getByRole('button', { name: '返回功能开关' }).click();
+	await expect(flagRow).toBeFocused();
 });
 
 test('教学与管理角色显示对应简约工作台入口', async ({ page }) => {
@@ -1772,8 +1877,9 @@ test('订单与支付页面使用统一的紧凑间距和控件尺寸', async ({
 		const searchActions = search?.querySelector('.pc-platform-payment-search-actions');
 		const searchButton = search?.querySelector('button[type="submit"]');
 		const advanced = overview.querySelector('.pc-platform-payment-advanced');
+		const firstTabBox = tabItems[0]?.getBoundingClientRect();
 		const thirdTabBox = tabItems[2]?.getBoundingClientRect();
-		const fourthTabBox = tabItems[3]?.getBoundingClientRect();
+		const searchBox = search?.getBoundingClientRect();
 		const searchInputBox = searchInput?.getBoundingClientRect();
 		const searchActionsBox = searchActions?.getBoundingClientRect();
 		return {
@@ -1790,10 +1896,12 @@ test('订单与支付页面使用统一的紧凑间距和控件尺寸', async ({
 			searchButtonHeight: searchButton ? getComputedStyle(searchButton).height : '',
 			searchButtonWidth: searchButton ? searchButton.getBoundingClientRect().width : 0,
 			advancedMarginTop: advanced ? getComputedStyle(advanced).marginTop : '',
+			tabsWrap: (thirdTabBox?.top || 0) > (firstTabBox?.top || 0),
 			alignmentDeltas: [
-				Math.abs((thirdTabBox?.right || 0) - (searchInputBox?.right || 0)),
-				Math.abs((fourthTabBox?.left || 0) - (searchActionsBox?.left || 0)),
-				Math.abs((fourthTabBox?.right || 0) - (searchActionsBox?.right || 0))
+				Math.abs((searchBox?.left || 0) - (searchInputBox?.left || 0)),
+				Math.abs((searchBox?.right || 0) - (searchInputBox?.right || 0)),
+				Math.abs((searchBox?.left || 0) - (searchActionsBox?.left || 0)),
+				Math.abs((searchBox?.right || 0) - (searchActionsBox?.right || 0))
 			]
 		};
 	});
@@ -1810,7 +1918,8 @@ test('订单与支付页面使用统一的紧凑间距和控件尺寸', async ({
 		searchGap: '4px',
 		searchMarginTop: '0px',
 		searchButtonHeight: '44px',
-		advancedMarginTop: '0px'
+		advancedMarginTop: '0px',
+		tabsWrap: true
 	});
 	expect(searchButtonWidth).toBeGreaterThanOrEqual(96);
 	expect(alignmentDeltas.every((delta) => delta <= 1)).toBeTruthy();
@@ -1846,36 +1955,8 @@ test('功能开关和审计日志页面使用统一的系统管理式样', async
 	const shell = page.locator('#platform-admin-shell');
 	const flagsCard = shell.locator('.pc-platform-flags-card');
 	await expect(flagsCard.locator('[data-platform-flag-group]').first()).toBeVisible({ timeout: 20000 });
-	const flagStyle = await flagsCard.evaluate((card) => {
-		const shellElement = document.querySelector('#platform-admin-shell');
-		const pageTitle = shellElement?.querySelector('.pc-platform-topbar h1');
-		const toolbar = card.querySelector('.pc-platform-flag-toolbar');
-		const input = toolbar?.querySelector('.pc-profile-input');
-		const groups = card.querySelector('.pc-platform-flag-groups');
-		const summary = groups?.querySelector('.pc-platform-flag-group > summary');
-		return {
-			activeClass: shellElement?.classList.contains('pc-platform-flags-active') || false,
-			titleFontSize: pageTitle ? getComputedStyle(pageTitle).fontSize : '',
-			cardGap: getComputedStyle(card).gap,
-			cardPadding: getComputedStyle(card).padding,
-			toolbarGap: toolbar ? getComputedStyle(toolbar).gap : '',
-			inputMinHeight: input ? getComputedStyle(input).minHeight : '',
-			groupsGap: groups ? getComputedStyle(groups).gap : '',
-			summaryMinHeight: summary ? getComputedStyle(summary).minHeight : '',
-			summaryPadding: summary ? getComputedStyle(summary).padding : ''
-		};
-	});
-	expect(flagStyle).toEqual({
-		activeClass: true,
-		titleFontSize: '18px',
-		cardGap: '4px',
-		cardPadding: '6px',
-		toolbarGap: '4px',
-		inputMinHeight: '44px',
-		groupsGap: '4px',
-		summaryMinHeight: '44px',
-		summaryPadding: '8px 10px'
-	});
+	await expect(flagsCard.locator('[data-platform-flag-group] > .pc-settings-surface')).toHaveCount(4);
+	await expect(flagsCard.locator('[data-platform-flag-group] > .pc-settings-caption')).toHaveCount(4);
 
 	await openPlatformAdminPage(page, '审计日志');
 	const auditPage = shell.locator('[data-audit-log-surface="embedded"]');
@@ -1923,13 +2004,106 @@ test('功能开关和审计日志页面使用统一的系统管理式样', async
 	});
 });
 
+test('平台总览使用分组管理入口，手机与桌面可直接进入用户管理', async ({ page }, info) => {
+	await page.setViewportSize({ width: 1440, height: 1000 });
+	await loginWithPassword(page, 'superadmin_demo');
+	await page.evaluate(() => window.openPersonalCenter());
+	const shell = page.locator('#platform-admin-shell');
+	const summary = shell.getByRole('region', { name: '平台总览', exact: true });
+	const users = shell.locator('[data-role-overview="superAdmin"] [data-platform-admin-page="users"]');
+	for (const width of [1440, 390]) {
+		await page.setViewportSize({ width, height: 844 });
+		await expect(shell.locator('main h1')).toHaveText('平台总览');
+		await expect(shell.locator('.pc-topbar-back')).toHaveCount(0);
+		await expect(summary.locator('.pc-workspace-overview-icon svg')).toBeVisible();
+		await expect(summary.getByRole('heading', { level: 1 })).toHaveText('平台总览');
+		await expect(summary.locator('header p')).toBeVisible();
+		await expect(summary).toHaveCSS('border-radius', '22px');
+		await expect(users).toHaveCount(1);
+		await expect(users.locator('.pc-home-settings-value')).toHaveText(/^\d+ 人$/);
+		await expect(shell.locator('main')).toHaveCSS('padding-left', width === 390 ? '16px' : '28px');
+		expect(await summary.evaluate(element => element.scrollWidth - element.clientWidth)).toBeLessThanOrEqual(1);
+		await summary.screenshot({ path: info.outputPath(`platform-overview-${width}.png`) });
+		await users.click();
+		await expect(shell.locator('main h1')).toHaveText('用户管理');
+		await shell.locator('.pc-topbar-back').click();
+		await expect(summary).toBeVisible();
+	}
+	const main = shell.locator('main');
+	const overview = main.locator('[data-role-overview="superAdmin"]');
+	await main.evaluate(element => { element.scrollTop = element.scrollHeight; });
+	const [viewport, content] = await Promise.all([main.boundingBox(), overview.boundingBox()]);
+	expect(viewport.y + viewport.height - content.y - content.height).toBeGreaterThanOrEqual(19);
+});
+
+test('工作台总览和子页在顶部及底部回弹，遵循减少动态效果', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 680 });
+	await page.emulateMedia({ reducedMotion: 'no-preference' });
+	await loginWithPassword(page, 'superadmin_demo');
+	await page.evaluate(() => window.openPersonalCenter());
+	await page.waitForLoadState('networkidle');
+	const shell = page.locator('#platform-admin-shell');
+	const main = shell.locator('main');
+	const overview = main.locator('[data-role-overview="superAdmin"]');
+	await expect(overview).toBeVisible();
+	const touch = await page.context().newCDPSession(page);
+	await touch.send('Emulation.setTouchEmulationEnabled', { enabled: true });
+	const dispatch = (type, y) => touch.send('Input.dispatchTouchEvent', {
+		type, touchPoints: y === undefined ? [] : [{ x: 180, y }]
+	});
+	const readBottom = () => main.evaluate(element => {
+		const overview = element.querySelector('[data-role-overview]');
+		return {
+			remaining: element.scrollHeight - element.clientHeight - element.scrollTop,
+			gap: element.parentElement.getBoundingClientRect().bottom - overview.getBoundingClientRect().bottom
+		};
+	});
+	await main.evaluate(element => { element.scrollTop = element.scrollHeight; });
+	const restingGap = (await readBottom()).gap;
+	await main.evaluate(element => { element.scrollTop -= 70; });
+	await dispatch('touchStart', 585);
+	for (const y of [560, 525, 485, 445, 405, 365, 325]) await dispatch('touchMove', y);
+	await expect.poll(async () => (await readBottom()).gap).toBeGreaterThan(restingGap + 10);
+	expect(Math.abs((await readBottom()).remaining)).toBeLessThanOrEqual(1);
+	await dispatch('touchEnd');
+	await expect(main).toHaveCSS('top', '0px');
+	expect(Math.abs((await readBottom()).gap - restingGap)).toBeLessThanOrEqual(1);
+
+	await page.mouse.move(180, 480);
+	await page.mouse.wheel(0, 120);
+	await expect(main).not.toHaveCSS('top', '0px');
+	await expect(main).toHaveCSS('top', '0px');
+
+	await main.locator('[data-role-home-functions=superAdmin] [data-platform-admin-page=users]').click();
+	await expect(main.getByRole('heading', { name: '用户管理', exact: true })).toBeVisible();
+	await page.waitForLoadState('networkidle');
+	const header = shell.locator('.pc-platform-topbar');
+	const headerPosition = await header.boundingBox();
+	const scrollRange = () => main.evaluate(element => element.scrollHeight - element.clientHeight);
+	const initialRange = await scrollRange();
+	await dispatch('touchStart', 230);
+	for (const y of [260, 310, 370]) await dispatch('touchMove', y);
+	await expect.poll(() => main.evaluate(element => parseFloat(getComputedStyle(element).top))).toBeGreaterThan(10);
+	expect(await header.boundingBox()).toEqual(headerPosition);
+	expect(await scrollRange()).toBe(initialRange);
+	await dispatch('touchEnd');
+	await expect(main).toHaveCSS('top', '0px');
+
+	await page.emulateMedia({ reducedMotion: 'reduce' });
+	await dispatch('touchStart', 230);
+	await dispatch('touchMove', 340);
+	await expect(main).toHaveCSS('top', '0px');
+	await dispatch('touchEnd');
+	await touch.detach();
+});
+
 test('平台后台全部一级页面遵循统一式样且窄屏不产生页面级溢出', async ({ page }) => {
 	test.setTimeout(120000);
 	await page.setViewportSize({ width: 1440, height: 1100 });
 	await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
 	const shell = page.locator('#platform-admin-shell');
 	const pages = [
-		{ name: '总览', title: '平台总览', surface: '.pc-platform-stat' },
+		{ name: '总览', title: '平台总览', surface: '.pc-home-settings-groups' },
 		{ name: '用户管理', title: '用户管理', surface: '.pc-lite-list-card:has([data-platform-user-search-form])' },
 		{ name: '角色权限', title: '角色权限', surface: '.pc-platform-role-selector' },
 		{ name: '机构管理', title: '机构管理', surface: '.pc-managed-org-toolbar' },
@@ -2023,6 +2197,10 @@ test('超级管理员使用独立全屏后台并连接真实管理页面', async
   await expect(shell.locator('.pc-platform-sidebar')).toContainText('内容');
   await expect(shell.locator('.pc-platform-sidebar')).toContainText('交易');
   await expect(shell.locator('.pc-platform-sidebar')).toContainText('系统');
+  const platformSummary = shell.locator('.pc-platform-summary-card');
+  await expect(platformSummary).toBeVisible();
+  await expect(platformSummary.locator('.pc-platform-stats')).toBeVisible();
+  await expect(platformSummary.locator('.pc-home-pending')).toBeVisible();
   await expect(shell.locator('.pc-platform-stat')).toHaveCount(4);
 	await expect(shell.locator('.pc-platform-admin-avatar .pc-avatar-image')).toBeVisible();
 	const visualStyle = await shell.evaluate((element) => {
@@ -2035,11 +2213,11 @@ test('超级管理员使用独立全屏后台并连接真实管理页面', async
 			cardRadius: card ? Number.parseFloat(window.getComputedStyle(card).borderRadius) : 0
 		};
 	});
-	expect(visualStyle.sidebarBackground).toBe('rgb(255, 255, 255)');
-	expect(visualStyle.contentBackground).toBe('rgb(248, 246, 243)');
+	expect(visualStyle.sidebarBackground).toBe('rgb(250, 250, 250)');
+	expect(visualStyle.contentBackground).toBe('rgba(0, 0, 0, 0)');
 	expect(visualStyle.cardRadius).toBe(8);
 
-  await shell.getByRole('button', { name: '用户管理', exact: true }).click();
+  await clickPlatformNav(shell, '用户权限', '用户管理');
   await expect(shell.locator('[data-platform-user-search-form]')).toBeVisible();
 	const firstUser = shell.locator('.pc-lite-list button.pc-lite-row').first();
 	await expect(firstUser).toBeVisible({ timeout: 20000 });
@@ -2049,16 +2227,16 @@ test('超级管理员使用独立全屏后台并连接真实管理页面', async
 	await shell.getByRole('button', { name: '返回用户列表', exact: true }).click();
 	await expect(shell.locator('[data-platform-user-search-form]')).toBeVisible();
 	await expect(shell.getByRole('button', { name: '返回用户列表', exact: true })).toHaveCount(0);
-  await shell.getByRole('button', { name: '机构管理', exact: true }).click();
+  await clickPlatformNav(shell, '机构', '机构管理');
   await expect(shell.locator('[data-managed-org-list-form]')).toBeVisible({ timeout: 20000 });
-	await shell.getByRole('button', { name: '订单与支付', exact: true }).click();
+	await clickPlatformNav(shell, '交易', '订单与支付');
 	await expect(shell.locator('[data-platform-payment-tab="orders"]')).toBeVisible({ timeout: 20000 });
 	await expect(shell.getByRole('button', { name: '价格配置', exact: true })).toHaveCount(0);
 	await expect(shell.getByRole('button', { name: '创建机构订单', exact: true })).toHaveCount(0);
 	await expect(shell.getByRole('button', { name: '发起退款', exact: true })).toHaveCount(0);
-	await shell.getByRole('button', { name: '价格与套餐', exact: true }).click();
+	await clickPlatformNav(shell, '交易', '价格与套餐');
 	await expect(shell.locator('[data-pricing-form]')).toBeVisible({ timeout: 20000 });
-	await shell.getByRole('button', { name: '订单与支付', exact: true }).click();
+	await clickPlatformNav(shell, '交易', '订单与支付');
 	await expect(shell.locator('[data-platform-payment-tab="orders"]')).toBeVisible({ timeout: 20000 });
 
   await shell.getByRole('button', { name: '个人资料', exact: true }).first().click();
@@ -2066,7 +2244,7 @@ test('超级管理员使用独立全屏后台并连接真实管理页面', async
   await expect(page.locator('#personal-center')).toHaveClass(/pc-open/);
 });
 
-test('平台审计日志直接嵌入后台且详情显示在后台之上', async ({ page }) => {
+test('平台审计日志和审计详情在后台独立展示', async ({ page }) => {
 	await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
 	await openPlatformAdminPage(page, '审计日志');
 	const shell = page.locator('#platform-admin-shell');
@@ -2093,15 +2271,8 @@ test('平台审计日志直接嵌入后台且详情显示在后台之上', async
 	const firstDetail = auditPage.locator('button[data-audit-detail]').first();
 	if (await firstDetail.count()) {
 		await firstDetail.click();
-		const detailModal = page.locator('#audit-detail-modal');
-		await expect(detailModal).toBeVisible();
-		const layers = await page.evaluate(() => ({
-			shell: Number.parseInt(window.getComputedStyle(document.querySelector('#platform-admin-shell')).zIndex || '0', 10),
-			detail: Number.parseInt(window.getComputedStyle(document.querySelector('#audit-detail-modal')).zIndex || '0', 10)
-		}));
-		expect(layers.detail).toBeGreaterThan(layers.shell);
-		await page.keyboard.press('Escape');
-		await expect(detailModal).toBeHidden();
+		await expect(shell.getByRole('heading', { name: '审计记录详情' })).toBeVisible();
+		await shell.getByRole('button', { name: '返回审计日志' }).click();
 		await expect(auditPage).toBeVisible();
 	}
 });
@@ -2146,6 +2317,184 @@ test('平台管理各一级页面均在当前后台内正常打开', async ({ pa
 	}
 });
 
+test('管理角色展开后的侧栏与学员菜单同为 240px', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+  await openPlatformAdminPage(page);
+  const shell = page.locator('#platform-admin-shell');
+  const sidebar = shell.locator('.pc-platform-sidebar');
+  await expect(sidebar).toBeVisible();
+  expect(Math.round((await sidebar.boundingBox()).width)).toBe(240);
+  const content = await shell.locator('.pc-platform-admin-content').boundingBox();
+  const sidebarBox = await sidebar.boundingBox();
+  expect(content.x).toBeGreaterThanOrEqual(sidebarBox.x + sidebarBox.width);
+});
+
+test('各管理身份的侧栏使用可展开分组和缩进子菜单', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+  await openPlatformAdminPage(page);
+  const shell = page.locator('#platform-admin-shell');
+  const usersGroup = shell.getByRole('button', { name: '用户权限', exact: true });
+  await expect(usersGroup).toHaveAttribute('aria-expanded', 'false');
+  await usersGroup.click();
+  await expect(usersGroup).toHaveAttribute('aria-expanded', 'true');
+  await expect(shell.getByRole('button', { name: '用户管理', exact: true })).toBeVisible();
+  await usersGroup.click();
+  await expect(shell.getByRole('button', { name: '用户管理', exact: true })).toBeHidden();
+  await page.setViewportSize({ width: 820, height: 900 });
+  await expect(shell.getByRole('button', { name: '用户管理', exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  await shell.getByLabel('切换当前身份').selectOption('teacher');
+  await expect(shell).toHaveAttribute('data-learning-role', 'teacher');
+  const teachingGroup = shell.getByRole('button', { name: '教学任务', exact: true });
+  await teachingGroup.click();
+  await expect(teachingGroup).toHaveAttribute('aria-expanded', 'true');
+  await expect(shell.locator('[data-pc-nav-group][data-expanded="true"] .pc-platform-nav-children .pc-platform-nav-item').first()).toBeVisible();
+  for (const role of ['assistant', 'orgAdmin', 'contentAdmin']) {
+    const selector = shell.getByLabel('切换当前身份');
+    if (!await selector.locator(`option[value="${role}"]`).count()) continue;
+    await selector.selectOption(role);
+    await expect(shell).toHaveAttribute('data-learning-role', role);
+    await expect(shell.locator(':scope > .pc-platform-topbar .pc-topbar-back')).toBeVisible();
+    await expect(shell.locator('.pc-platform-admin-content [data-workspace-back], .pc-platform-admin-content [data-platform-admin-detail-back]')).toHaveCount(0);
+    const group = shell.locator('[data-pc-nav-toggle]').first();
+    await expect(group).toBeVisible();
+    if (await group.getAttribute('aria-expanded') === 'false') await group.click();
+    await expect(shell.locator('[data-pc-nav-group][data-expanded="true"] .pc-platform-nav-children .pc-platform-nav-item').first()).toBeVisible();
+  }
+});
+
+test('各管理身份展开菜单时保留其他菜单的展开状态', async ({ page }) => {
+  await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+  await openPlatformAdminPage(page);
+  const shell = page.locator('#platform-admin-shell');
+  let checkedRoles = 0;
+  for (const role of ['superAdmin', 'teacher', 'assistant', 'orgAdmin', 'contentAdmin']) {
+    const selector = shell.getByLabel('切换当前身份');
+    if (role !== 'superAdmin' && !await selector.locator(`option[value="${role}"]`).count()) continue;
+    if (role !== 'superAdmin') await selector.selectOption(role);
+    const groups = shell.locator('[data-pc-nav-group]');
+    if (await groups.count() < 2) continue;
+    const keys = await groups.evaluateAll(items => items.slice(0, 2).map(item => item.getAttribute('data-pc-nav-group')));
+    for (const key of keys) {
+      const group = shell.locator(`[data-pc-nav-group="${key}"]`);
+      if (await group.getAttribute('data-expanded') !== 'true') await group.locator('[data-pc-nav-toggle]').click();
+    }
+    for (const key of keys) await expect(shell.locator(`[data-pc-nav-group="${key}"]`)).toHaveAttribute('data-expanded', 'true');
+    await shell.locator(`[data-pc-nav-group="${keys[1]}"] .pc-platform-nav-item`).first().click();
+    for (const key of keys) await expect(shell.locator(`[data-pc-nav-group="${key}"]`)).toHaveAttribute('data-expanded', 'true');
+    await shell.locator(`[data-pc-nav-group="${keys[0]}"] [data-pc-nav-toggle]`).click();
+    await expect(shell.locator(`[data-pc-nav-group="${keys[0]}"]`)).toHaveAttribute('data-expanded', 'false');
+    await expect(shell.locator(`[data-pc-nav-group="${keys[1]}"]`)).toHaveAttribute('data-expanded', 'true');
+    checkedRoles += 1;
+  }
+  expect(checkedRoles).toBeGreaterThanOrEqual(4);
+});
+
+test('各工作台身份的内容与学员使用同一纸面宽度', async ({ page }) => {
+  await page.setViewportSize({ width: 1800, height: 900 });
+  await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+  await openPlatformAdminPage(page);
+  const shell = page.locator('#platform-admin-shell');
+
+  for (const role of ['superAdmin', 'teacher', 'assistant', 'orgAdmin', 'contentAdmin', 'student']) {
+    const selector = shell.getByLabel('切换当前身份');
+    if (role !== 'superAdmin' && !await selector.locator(`option[value="${role}"]`).count()) continue;
+    if (role !== 'superAdmin') await selector.selectOption(role);
+    await expect(shell).toHaveAttribute('data-learning-role', role);
+    await expect(shell.locator(':scope > .pc-platform-topbar .pc-topbar-back')).toBeVisible();
+    await expect(shell.locator('.pc-platform-admin-content [data-workspace-back], .pc-platform-admin-content [data-platform-admin-detail-back]')).toHaveCount(0);
+    const shellBox = await shell.boundingBox();
+    const barBox = await shell.locator(':scope > .pc-platform-topbar').boundingBox();
+    expect(Math.abs(barBox.x - shellBox.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(barBox.width - shellBox.width)).toBeLessThanOrEqual(1);
+    expect(barBox.height).toBe(44);
+    const avatarInsets = await shell.evaluate((element) => {
+      const header = element.querySelector('.pc-platform-topbar').getBoundingClientRect();
+      const workspace = element.querySelector('.pc-platform-workspace').getBoundingClientRect();
+      const avatar = element.querySelector('.pc-platform-admin-user > span').getBoundingClientRect();
+      const paperRight = workspace.x + (workspace.width + Math.min(workspace.width, 994)) / 2;
+      return { size: avatar.width, top: avatar.top - header.top, right: paperRight - avatar.right };
+    });
+    expect(avatarInsets.size).toBe(28);
+    expect(Math.abs(avatarInsets.top - 8)).toBeLessThanOrEqual(1);
+    expect(Math.abs(avatarInsets.right - 8)).toBeLessThanOrEqual(1);
+    expect(Math.abs(avatarInsets.top - avatarInsets.right)).toBeLessThanOrEqual(2);
+    if (['teacher', 'assistant', 'orgAdmin'].includes(role)) {
+      const organizationControls = await shell.locator('.pc-organization-workspace-toolbar').evaluate((toolbar) => ({
+        searchTop: toolbar.querySelector('form').getBoundingClientRect().top,
+        selectorTop: toolbar.querySelector('label').getBoundingClientRect().top,
+      }));
+      expect(organizationControls.selectorTop).toBeGreaterThan(organizationControls.searchTop);
+    }
+    const layouts = await shell.locator('.pc-platform-admin-content').evaluate((content) => {
+      const contentBox = content.getBoundingClientRect();
+      return Array.from(content.children, (child) => {
+        const childBox = child.getBoundingClientRect();
+        return { width: childBox.width, leftGap: childBox.left - contentBox.left, rightGap: contentBox.right - childBox.right };
+      });
+    });
+    expect(layouts.length).toBeGreaterThan(0);
+    for (const layout of layouts) {
+      expect(layout.width).toBeLessThanOrEqual(754);
+      expect(Math.abs(layout.leftGap - layout.rightGap)).toBeLessThanOrEqual(1);
+    }
+    if (role === 'teacher') {
+      await page.setViewportSize({ width: 390, height: 844 });
+      const mobileContent = shell.locator('.pc-platform-admin-content');
+      expect(await mobileContent.evaluate((content) => content.scrollWidth - content.clientWidth)).toBeLessThanOrEqual(1);
+      await page.setViewportSize({ width: 1800, height: 900 });
+    }
+  }
+});
+
+test('各管理身份使用全宽常驻顶栏且菜单可收放', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
+  await openPlatformAdminPage(page);
+  const shell = page.locator('#platform-admin-shell');
+  const topbar = shell.locator('.pc-platform-topbar');
+  const trigger = topbar.getByRole('button', { name: '切换导航菜单' });
+
+  for (const role of ['superAdmin', 'teacher']) {
+    if (role === 'teacher') await shell.getByLabel('切换当前身份').selectOption('teacher');
+    await expect(shell).toHaveAttribute('data-learning-role', role);
+    const shellBox = await shell.boundingBox();
+    const barBox = await topbar.boundingBox();
+    expect(Math.abs(barBox.x - shellBox.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(barBox.width - shellBox.width)).toBeLessThanOrEqual(1);
+    await expect(shell.locator('.pc-workspace-page-heading h1')).toBeVisible();
+
+    await shell.locator('.pc-platform-admin-content').evaluate((content) => {
+      const spacer = document.createElement('div');
+      spacer.style.height = '1500px';
+      content.appendChild(spacer);
+      content.scrollTop = 500;
+    });
+    expect((await topbar.boundingBox()).y).toBeCloseTo(barBox.y, 0);
+    await trigger.click();
+    await expect(shell.locator('.pc-platform-sidebar')).toBeHidden();
+    await trigger.click();
+    await expect(shell.locator('.pc-platform-sidebar')).toBeVisible();
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(shell.locator('.pc-platform-sidebar')).toBeHidden();
+  await trigger.click();
+  await expect(shell.locator('.pc-platform-sidebar')).toBeVisible();
+  await shell.locator('[data-platform-admin-nav-backdrop]').click({ position: { x: 380, y: 200 } });
+  await expect(shell.locator('.pc-platform-sidebar')).toBeHidden();
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await topbar.getByRole('button', { name: '切换到手机预览' }).click();
+  await expect(shell).toHaveClass(/pc-platform-admin-mobile-preview/);
+  await expect(shell.locator('.pc-platform-sidebar')).toBeHidden();
+  await trigger.click();
+  await expect(shell.locator('.pc-platform-sidebar')).toBeVisible();
+});
+
 test('平台后台在 PC、Pad 和手机端自适应并可切换全屏', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await loginWithDevUser(page, 'superadmin_demo', {}, { skipPersonalCenter: true });
@@ -2173,8 +2522,7 @@ test('平台后台在 PC、Pad 和手机端自适应并可切换全屏', async (
 	expect(layout.y).toBeLessThanOrEqual(5);
 	expect(layout.width).toBeGreaterThanOrEqual(1430);
 	expect(layout.height).toBeGreaterThanOrEqual(990);
-	expect(layout.sidebarWidth).toBeGreaterThanOrEqual(186);
-	expect(layout.sidebarWidth).toBeLessThanOrEqual(190);
+	expect(layout.sidebarWidth).toBe(240);
 
   await shell.getByRole('button', { name: '展开全屏', exact: true }).click();
   await expect(shell).toHaveClass(/pc-platform-admin-expanded/);
@@ -2449,21 +2797,20 @@ test('平台管理入口支持功能开关、退款和反馈处理闭环', async
   await loginWithDevUser(page, 'superadmin_demo', {}, { skipApiStubs: true, skipPersonalCenter: true });
 
 	await openPlatformAdminPage(page, '功能开关');
-	await page.locator('[data-platform-flag-group="learning"] > summary').click();
   const flagRow = page.locator('[data-platform-system-flag-row="wrong_question_tags"]');
   await expect(flagRow).toContainText('错题归因维度', { timeout: 20000 });
-	const startedFromDefault = await flagRow.getByText('系统默认', { exact: true }).isVisible();
-	const originalStatus = (await flagRow.locator('.pc-platform-flag-chip').first().textContent() || '').trim();
-	await flagRow.locator('[data-platform-system-flag-edit]').click();
-	const editor = page.locator('.pc-platform-flag-editor-overlay');
+	const originalStatus = (await flagRow.locator('.pc-platform-flag-value').textContent() || '').trim();
+	await flagRow.click();
+	const editor = page.locator('[data-platform-flag-editor]');
+	const startedFromDefault = await editor.getByText('系统默认', { exact: true }).isVisible();
 	const originalEnabled = await editor.locator('input[name="flag-enabled"][value="true"]').isChecked();
 	await editor.locator(`input[name="flag-enabled"][value="${originalEnabled ? 'false' : 'true'}"]`).check();
 	await editor.getByRole('button', { name: '保存设置', exact: true }).click();
   await page.locator('#risk-input').fill('WRONG_QUESTION_TAGS');
   await page.locator('#risk-ok').click();
-	await expect(flagRow.locator('.pc-platform-flag-chip').first()).not.toHaveText(originalStatus);
-	await expect(flagRow).toContainText('平台设置');
-	await flagRow.locator('[data-platform-system-flag-edit]').click();
+	await expect(flagRow.locator('.pc-platform-flag-value')).not.toHaveText(originalStatus);
+	await flagRow.click();
+	await expect(editor.getByText('平台设置', { exact: true })).toBeVisible();
   if (startedFromDefault) {
 		await editor.locator('[data-platform-flag-use-default]').click();
   } else {
@@ -2472,22 +2819,18 @@ test('平台管理入口支持功能开关、退款和反馈处理闭环', async
   }
   await page.locator('#risk-input').fill('WRONG_QUESTION_TAGS');
   await page.locator('#risk-ok').click();
-	await expect(flagRow.locator('.pc-platform-flag-chip').first()).toHaveText(originalStatus);
-	if (startedFromDefault) await expect(flagRow).toContainText('系统默认');
+	await expect(flagRow.locator('.pc-platform-flag-value')).toHaveText(originalStatus);
+	if (startedFromDefault) {
+		await flagRow.click();
+		await expect(editor.getByText('系统默认', { exact: true })).toBeVisible();
+		await page.getByRole('button', { name: '返回功能开关' }).click();
+	}
 	await openPlatformAdminPage(page, '价格与套餐');
   await expect(page.locator('.pc-subpage')).toContainText('设置套餐售价、优惠与续费策略');
 	await expect(page.locator('[data-pricing-section-tab]')).toHaveCount(4);
 	await expect(page.locator('[data-pricing-section-tab="plans"]')).toHaveAttribute('aria-pressed', 'true');
-	const pricingTabStyle = await page.locator('[data-pricing-section-tab="plans"]').evaluate((tab) => {
-		const style = getComputedStyle(tab);
-		return { background: style.backgroundColor, border: style.borderTopColor, color: style.color, shadow: style.boxShadow };
-	});
-	expect(pricingTabStyle).toEqual({
-		background: 'rgb(255, 247, 241)',
-		border: 'rgb(255, 122, 47)',
-		color: 'rgb(31, 25, 20)',
-		shadow: 'rgb(255, 122, 47) 3px 0px 0px 0px inset'
-	});
+	await expect(page.locator('[data-pricing-section-tab="plans"] .pc-admin-section-check')).toBeVisible();
+	await expect(page.locator('[data-pricing-section-tab="offers"] .pc-admin-section-check')).toBeHidden();
 	await expect(page.locator('[data-pricing-section-panel="plans"]').first()).toBeVisible();
 	await expect(page.locator('[data-pricing-section-panel="offers"]')).toBeHidden();
 	const personalProMonthlyPrice = page.locator('[data-price-scope="personal"][data-price-plan="pro"][data-price-days="30"]');
@@ -2612,14 +2955,12 @@ test('平台管理入口支持功能开关、退款和反馈处理闭环', async
 	await expect(auditPage).toContainText('修改反馈状态', { timeout: 20000 });
 	const detailEntry = auditPage.locator('button[data-audit-detail]').first();
 	await detailEntry.click();
-  const detailModal = page.locator('#audit-detail-modal');
-  await expect(detailModal).toBeVisible();
-  await expect(detailModal.locator('[role="dialog"]')).toHaveAttribute('aria-labelledby', 'ald-title');
-  await expect(detailModal.locator('#ald-close')).toBeFocused();
-  await expect(detailModal).toContainText(/记录 ID|audit_/);
-  await expect(detailModal).toContainText('结构化详情');
-	await page.keyboard.press('Escape');
-	await expect(detailModal).toBeHidden();
+  const detail = page.locator('.pc-platform-audit-detail');
+  await expect(detail).toBeVisible();
+  await expect(detail.getByText('记录 ID', { exact: true })).toBeHidden();
+  await detail.getByText('技术详情', { exact: true }).click();
+  await expect(detail.getByText('记录 ID', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '返回审计日志' }).click();
 	await expect(detailEntry).toBeFocused();
 	await expect(auditPage).toBeVisible();
 	await openPlatformAdminPage(page, '反馈处理');
@@ -2642,7 +2983,8 @@ test('机构管理首屏只加载分页摘要并在独立详情页按需加载�
     if (url.pathname.startsWith('/api/v1/organizations')) organizationRequests.push(url);
   });
 
-	await openPlatformAdminPage(page, '机构管理');
+	await openPlatformAdminPage(page);
+	await clickPlatformNav(page.locator('#platform-admin-shell'), '机构', '机构管理');
   await expect(page.locator('[data-managed-org-list-form]')).toBeVisible({ timeout: 20000 });
   await expect(page.locator('.pc-managed-org-card').first()).toBeVisible({ timeout: 20000 });
   expect(organizationRequests.some((url) => url.pathname === '/api/v1/organizations' && url.searchParams.get('summary') === '1' && url.searchParams.get('page_size') === '20')).toBeTruthy();
@@ -2676,7 +3018,7 @@ test('机构管理首屏只加载分页摘要并在独立详情页按需加载�
 	await expect(planSelect.locator(':scope > summary')).toBeVisible();
 	await planSelect.locator(':scope > summary').click();
 	const planOptions = planSelect.locator('[data-admin-select-option]');
-	await expect(planOptions).toHaveCount(3);
+	await expect(planOptions).toHaveCount(2);
 	for (const option of await planOptions.all()) {
 		await expect(option).toBeVisible();
 		expect(await option.evaluate((element) => {
@@ -2808,9 +3150,8 @@ test('机构管理首屏只加载分页摘要并在独立详情页按需加载�
 	await expect(firstMemberEditor.locator('form[data-org-member-form]')).toContainText('角色与权限');
 	await expect(firstMemberEditor.locator('[data-org-role-permission-count]')).toContainText(/已包含 \d+ 项基础权限/);
 	await expect(firstMemberEditor.locator('[data-org-role][value="student"]')).toHaveCount(0);
-	await expect(firstMemberEditor.locator('[data-org-role]')).toHaveCount(4);
-	await expect(firstMemberEditor.locator('[data-org-role][value="orgContentAdmin"]')).toHaveCount(1);
-	await expect(firstMemberEditor.locator('.pc-role-toggle', { hasText: '机构内容管理员' })).toBeVisible();
+	await expect(firstMemberEditor.locator('[data-org-role]')).toHaveCount(3);
+	await expect(firstMemberEditor.locator('[data-org-role][value="orgContentAdmin"]')).toHaveCount(0);
 	await expect(firstMemberEditor).not.toContainText('职责模板');
 	await expect(firstMemberEditor.locator('[data-org-template-option]')).toHaveCount(0);
 	await expect(firstMemberEditor.locator('[data-org-role-permission-list] input:disabled').first()).toBeChecked();

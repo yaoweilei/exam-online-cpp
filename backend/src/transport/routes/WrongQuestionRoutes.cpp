@@ -147,6 +147,7 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
                 requireFeature(*ctx.featureFlagService, "wrong_questions", userId);
                 const auto examId = requireBoundedString(body, "exam_id", 1, 200);
                 const auto actualQuestionId = requireBoundedString(body, "actual_question_id", 1, 200);
+                const auto submissionId = body.isMember("submission_id") ? requireBoundedString(body, "submission_id", 1, 100) : std::string{};
                 const int sectionIndex = readBoundedIntField(body, "section_index", 0, 0, 1000);
                 if (!body.isMember("answer") || body["answer"].isNull())
                 {
@@ -168,30 +169,33 @@ void registerWrongQuestionRoutes(const AppContext &ctx)
                 const auto correctAnswer = result.get("correct_answer", "").asString();
                 const auto userAnswer = result.get("user_answer", "").asString();
                 const auto updated = ctx.wrongQuestionService->recordCorrection(
-                    userId, examId, questionId, correctAnswer, userAnswer, correct);
+                    userId, examId, questionId, correctAnswer, userAnswer, correct, submissionId);
                 if (!updated.isObject())
                 {
                     throw common::AppException("WRONG_QUESTION_NOT_FOUND", "该题已不在待订正列表中", drogon::k404NotFound);
                 }
 
-                if (correct && ctx.dailyPracticeService != nullptr)
+                const bool replay = updated.get("idempotent_replay", false).asBool();
+                const bool savedCorrect = updated.get("correction_correct", correct).asBool();
+                if (!replay && ctx.streakService != nullptr)
+                {
+                    try { ctx.streakService->recordActivity(userId, 1, savedCorrect ? 1 : 0); } catch (...) { }
+                }
+                // Completion is idempotent and may need retrying after a partial failure.
+                if (savedCorrect && ctx.dailyPracticeService != nullptr)
                 {
                     auto target = body.get("exam_target", "").asString();
                     if (target.size() > 40) target.resize(40);
                     ctx.dailyPracticeService->markComplete(userId, examId, questionId, target);
                 }
-                if (ctx.streakService != nullptr)
-                {
-                    try { ctx.streakService->recordActivity(userId, 1, correct ? 1 : 0); } catch (...) { }
-                }
-
                 Json::Value out(Json::objectValue);
-                out["correct"] = correct;
-                out["correct_answer"] = correctAnswer;
-                out["user_answer"] = userAnswer;
+                out["correct"] = savedCorrect;
+                out["correct_answer"] = updated.get("correct_answer", correctAnswer);
+                out["user_answer"] = updated.get("last_user_answer", userAnswer);
                 out["correct_streak"] = updated.get("correct_streak", 0);
                 out["mastered"] = updated.get("mastered", false);
-                out["completed_today"] = correct;
+                out["completed_today"] = savedCorrect;
+                out["idempotent_replay"] = replay;
                 return common::ok(req, out);
             });
         },

@@ -1,0 +1,1409 @@
+[
+  {
+    "id": "student-goal",
+    "role": "student",
+    "label": "学习目标 · 编辑",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-goal-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 1161,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "修改 JLPT N2 目标",
+              "size": "16px",
+              "selector": "h3#sg-editor-title"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px",
+              "selector": "h3"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n其他目标 · 0 个\n修改 JLPT N2 目标\n保存后，此目标将作为当前学习目标；系统按它的每日时间安排后续学习，不叠加其他目标的时间。\n目标考试\nJLPT N1\nJLPT N2\nJLPT N3\nEJU 日本語\nJLPT N2\n考试日期 （自动填入；可手选）\n2026 年 12 月 31 日\n每天可投入时间\n10 分钟\n15 分钟\n20 分钟\n30 分钟\n45 分钟\n60 分钟\n2 小时\n3 小时\n取消\n保存目标\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告"
+        }
+      },
+      {
+        "width": 390,
+        "position": "bottom",
+        "file": "student-goal-390-bottom.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 1161,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "修改 JLPT N2 目标",
+              "size": "16px",
+              "selector": "h3#sg-editor-title"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px",
+              "selector": "h3"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n其他目标 · 0 个\n修改 JLPT N2 目标\n保存后，此目标将作为当前学习目标；系统按它的每日时间安排后续学习，不叠加其他目标的时间。\n目标考试\nJLPT N1\nJLPT N2\nJLPT N3\nEJU 日本語\nJLPT N2\n考试日期 （自动填入；可手选）\n2026 年 12 月 31 日\n每天可投入时间\n10 分钟\n15 分钟\n20 分钟\n30 分钟\n45 分钟\n60 分钟\n2 小时\n3 小时\n取消\n保存目标\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-goal-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 1195,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "修改 JLPT N2 目标",
+              "size": "16px",
+              "selector": "h3#sg-editor-title"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px",
+              "selector": "h3"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n其他目标 · 0 个\n修改 JLPT N2 目标\n保存后，此目标将作为当前学习目标；系统按它的每日时间安排后续学习，不叠加其他目标的时间。\n目标考试\nJLPT N1\nJLPT N2\nJLPT N3\nEJU 日本語\nJLPT N2\n考试日期 （自动填入；可手选）\n2026 年 12 月 31 日\n每天可投入时间\n10 分钟\n15 分钟\n20 分钟\n30 分钟\n45 分钟\n60 分钟\n2 小时\n3 小时\n取消\n保存目标\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-free",
+    "role": "student",
+    "label": "自由练习",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-free-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "自由练习",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            }
+          ],
+          "text": "自由练习\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-free-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "自由练习",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            }
+          ],
+          "text": "自由练习\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-archive",
+    "role": "student",
+    "label": "学习档案",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-archive-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习档案",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习档案\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告\nJLPT N3 · 2024年12月真题\n正在进行 · 已答5/101题\n继续练习 →\n×"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-archive-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习档案",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习档案\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告\nJLPT N3 · 2024年12月真题\n正在进行 · 已答5/101题\n继续练习 →\n×"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-recent",
+    "role": "student",
+    "label": "学习记录",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-recent-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习记录",
+              "size": "22px",
+              "selector": "h1"
+            }
+          ],
+          "text": "学习记录\n\n查看进度，继续练习或复盘结果。\n\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 · 其他等级 · JLPT N3 · 10/13 23:22\nJLPT N3 · 2024年7月真题 · 词汇 / 语法\n已结束 · 答对5题 · 其他等级 · JLPT N3 · 10/06 15:12\nJLPT N2 · 2025年7月真题 · 阅读\n已结束 · 答对0题 · 10/02 22:45\nEJU-Japanese-2024_01 · 听读解\n已结束 · 答对1题 · 其他等级 · EJU 日本語 · 10/02 20:25\nJLPT N3 · 2024年12月真题 · 词汇 / 语法\n已结束 · 答对4题 · 其他等级 · JLPT N3 · 10/01 22:40\nJLPT N3 · 2024年7月真题\n进行中 · 已答5/101题 · 其他等级 · JLPT N3 · 10/01 22:39\nJLPT N3 · 短篇阅读体验\n已结束 · 答对1题 · 其他等级 · JLPT N3 · 10/01 22:32\nJLPT N2 · 2024年12月真题\n进行中 · 已答2/101题 · 07/28 11:48\nJLPT N1 · 2024年12月真题\n进行中 · 已答3/95题 · 其他等级 · JLPT N1 · 06/24 20:44\n共 9 条\n1 / 1 页"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-recent-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "继续练习：JLPT N3 · 2024年12月真题，进行中 · 已答5/101题 · 其他等级 · JLPT N3 · 10/13"
+            },
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "查看结果：JLPT N3 · 2024年7月真题 · 词汇 / 语法，已结束 · 答对5题 · 其他等级 · JLPT N3 · "
+            },
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "查看结果：JLPT N2 · 2025年7月真题 · 阅读，已结束 · 答对0题 · 10/02 22:45"
+            },
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "查看结果：EJU-Japanese-2024_01 · 听读解，已结束 · 答对1题 · 其他等级 · EJU 日本語 · 10/"
+            },
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "查看结果：JLPT N3 · 2024年12月真题 · 词汇 / 语法，已结束 · 答对4题 · 其他等级 · JLPT N3 ·"
+            },
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "继续练习：JLPT N3 · 2024年7月真题，进行中 · 已答5/101题 · 其他等级 · JLPT N3 · 10/01 "
+            },
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "查看结果：JLPT N3 · 短篇阅读体验，已结束 · 答对1题 · 其他等级 · JLPT N3 · 10/01 22:32"
+            },
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "继续练习：JLPT N2 · 2024年12月真题，进行中 · 已答2/101题 · 07/28 11:48"
+            },
+            {
+              "element": "button.pc-lite-row.service-item.pc-grouped-entry",
+              "x": 17,
+              "width": 359,
+              "scrollParent": "",
+              "text": "继续练习：JLPT N1 · 2024年12月真题，进行中 · 已答3/95题 · 其他等级 · JLPT N1 · 06/24 "
+            }
+          ],
+          "headings": [
+            {
+              "text": "学习记录",
+              "size": "22px",
+              "selector": "h1"
+            }
+          ],
+          "text": "学习记录\n\n查看进度，继续练习或复盘结果。\n\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 · 其他等级 · JLPT N3 · 10/13 23:22\nJLPT N3 · 2024年7月真题 · 词汇 / 语法\n已结束 · 答对5题 · 其他等级 · JLPT N3 · 10/06 15:12\nJLPT N2 · 2025年7月真题 · 阅读\n已结束 · 答对0题 · 10/02 22:45\nEJU-Japanese-2024_01 · 听读解\n已结束 · 答对1题 · 其他等级 · EJU 日本語 · 10/02 20:25\nJLPT N3 · 2024年12月真题 · 词汇 / 语法\n已结束 · 答对4题 · 其他等级 · JLPT N3 · 10/01 22:40\nJLPT N3 · 2024年7月真题\n进行中 · 已答5/101题 · 其他等级 · JLPT N3 · 10/01 22:39\nJLPT N3 · 短篇阅读体验\n已结束 · 答对1题 · 其他等级 · JLPT N3 · 10/01 22:32\nJLPT N2 · 2024年12月真题\n进行中 · 已答2/101题 · 07/28 11:48\nJLPT N1 · 2024年12月真题\n进行中 · 已答3/95题 · 其他等级 · JLPT N1 · 06/24 20:44\n共 9 条\n1 / 1 页"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-wrong",
+    "role": "student",
+    "label": "错题本",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-wrong-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "错题本",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "错题本\n\n按今天的计划学习、完成作业并及时复盘。\n\n共 0 题 · 待掌握 0 · 已掌握 0\n状态 \n未掌握\n已掌握\n全部\n排序 \n最近错答\n错次最多\n刷新\n清空错题本\n暂无错题，继续加油！"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-wrong-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "错题本",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "错题本\n\n按今天的计划学习、完成作业并及时复盘。\n\n共 0 题 · 待掌握 0 · 已掌握 0\n状态 \n未掌握\n已掌握\n全部\n排序 \n最近错答\n错次最多\n刷新\n清空错题本\n暂无错题，继续加油！"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-favorites",
+    "role": "student",
+    "label": "收藏资料",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-favorites-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习工作台",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "学习工作台\n\n按今天的计划学习、完成作业并及时复盘。\n\n收藏清单\n新建清单\n清单：听力1\n1 道收藏题，点击进入整理\n1题\n清单：作文1\n1 道收藏题，点击进入整理\n1题\n全部收藏题\n收藏题：作文1 · 第 36 题\n2023_02 第 36 题，1111\n去做题\n删除\n收藏题：听力1 · 第 29 题\n2023_02 第 29 题，先生が、統計学の授業で、バイアスについて話しています。 この先生が最後に挙げる例はどのバイアスにあてはまりますか。\n去做题\n删除"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-favorites-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习工作台",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "学习工作台\n\n按今天的计划学习、完成作业并及时复盘。\n\n收藏清单\n新建清单\n清单：听力1\n1 道收藏题，点击进入整理\n1题\n清单：作文1\n1 道收藏题，点击进入整理\n1题\n全部收藏题\n收藏题：作文1 · 第 36 题\n2023_02 第 36 题，1111\n去做题\n删除\n收藏题：听力1 · 第 29 题\n2023_02 第 29 题，先生が、統計学の授業で、バイアスについて話しています。 この先生が最後に挙げる例はどのバイアスにあてはまりますか。\n去做题\n删除"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-vocabulary",
+    "role": "student",
+    "label": "生词本",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-vocabulary-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "生词本",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "生词本\n\n按今天的计划学习、完成作业并及时复盘。\n\n共 0 个生词\n刷新\n生词本是空的，做题时划选词语点「加入生词本」即可"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-vocabulary-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "生词本",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "生词本\n\n按今天的计划学习、完成作业并及时复盘。\n\n共 0 个生词\n刷新\n生词本是空的，做题时划选词语点「加入生词本」即可"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-courses",
+    "role": "student",
+    "label": "我的课程",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-courses-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "我的课程",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "课时账户",
+              "size": "15px",
+              "selector": "h3"
+            }
+          ],
+          "text": "我的课程\n\n上课安排、老师反馈与课时明细\n\n待上课程\n历史课程与反馈\n刷新\n\n暂无待上课程。\n\n我的班级与老师\n\n老师分班后会显示在这里。\n\n课时账户\n文综20\nE2E 机构管理回归 mqq1hl81_d1f9v · 剩余 20/20 次 · 长期有效\n正常\n文综30课时\nE2E 机构管理回归 mqq1hl81_d1f9v · 剩余 30/30 次 · 长期有效\n正常\n扣课明细（0）"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-courses-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "我的课程",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "课时账户",
+              "size": "15px",
+              "selector": "h3"
+            }
+          ],
+          "text": "我的课程\n\n上课安排、老师反馈与课时明细\n\n待上课程\n历史课程与反馈\n刷新\n\n暂无待上课程。\n\n我的班级与老师\n\n老师分班后会显示在这里。\n\n课时账户\n文综20\nE2E 机构管理回归 mqq1hl81_d1f9v · 剩余 20/20 次 · 长期有效\n正常\n文综30课时\nE2E 机构管理回归 mqq1hl81_d1f9v · 剩余 30/30 次 · 长期有效\n正常\n扣课明细（0）"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-progress",
+    "role": "student",
+    "label": "学习进步",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-progress-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习进步",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "学习进步",
+              "size": "17px",
+              "selector": "h2"
+            }
+          ],
+          "text": "学习进步\n\n按相同考试目标和题型比较独立作答\n\n学习进步\n开始日期\n结束日期\n考试目标\nJLPT-N2\nJLPT-N3\n其他考试\n题型\n全部题型\n未分类\n读解\n查看进步\n前期 · 2026-08-04 — 2026-09-17\n—\n0 题 · 0 次独立作答\n本期 · 2026-09-18 — 2026-11-01\n0.0%\n2 题 · 1 次独立作答\n正确率变化\n样本不足\n共 2 题；时区 Asia/Shanghai\n\n仅比较所选考试目标和题型的独立作答正确率；按时间中点分为前后两段。样本少于每段 20 题时仅作初步参考，试卷难度差异仍会影响结果。\n\n当前样本较少，变化仅供初步参考。\n\n每日作答明细 · 1 天"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-progress-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习进步",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "学习进步",
+              "size": "17px",
+              "selector": "h2"
+            }
+          ],
+          "text": "学习进步\n\n按相同考试目标和题型比较独立作答\n\n学习进步\n开始日期\n结束日期\n考试目标\nJLPT-N2\nJLPT-N3\n其他考试\n题型\n全部题型\n未分类\n读解\n查看进步\n前期 · 2026-08-04 — 2026-09-17\n—\n0 题 · 0 次独立作答\n本期 · 2026-09-18 — 2026-11-01\n0.0%\n2 题 · 1 次独立作答\n正确率变化\n样本不足\n共 2 题；时区 Asia/Shanghai\n\n仅比较所选考试目标和题型的独立作答正确率；按时间中点分为前后两段。样本少于每段 20 题时仅作初步参考，试卷难度差异仍会影响结果。\n\n当前样本较少，变化仅供初步参考。\n\n每日作答明细 · 1 天"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-messages",
+    "role": "student",
+    "label": "消息中心",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-messages-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "消息中心",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "消息中心\n\n所有身份共用的消息收件箱\n\n全部\n未读 (2)\n刷新\n全部已读\n反馈处理结果\n未读\n\n你的反馈已处理，可再次查看题目内容。\n\n教学消息 · 2026/06/27 14:40 · 内容反馈\n标为已读\n反馈处理结果\n未读\n\n你的反馈已处理，可再次查看题目内容。\n\n教学消息 · 2026/06/25 22:57 · 内容反馈\n标为已读"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-messages-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "消息中心",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "消息中心\n\n所有身份共用的消息收件箱\n\n全部\n未读 (2)\n刷新\n全部已读\n反馈处理结果\n未读\n\n你的反馈已处理，可再次查看题目内容。\n\n教学消息 · 2026/06/27 14:40 · 内容反馈\n标为已读\n反馈处理结果\n未读\n\n你的反馈已处理，可再次查看题目内容。\n\n教学消息 · 2026/06/25 22:57 · 内容反馈\n标为已读"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-feedback-form",
+    "role": "student",
+    "label": "问题反馈表单",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-feedback-form-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "form.pc-org-add-form",
+              "parents": [
+                "div.pc-card.pc-lite-list-card"
+              ],
+              "text": "类型题目内容答案解析支付订单账号登录 试卷 ID 题号 说明解析表达不够清楚，希望内容管理员复核。 提交反馈 提交后写入反馈接口；管理员和内容管理员会"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "问题反馈",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "问题反馈\n\n提交题目、解析、支付或账号问题\n\n问题反馈\n类型\n题目内容\n答案解析\n支付订单\n账号登录\n试卷 ID\n题号\n说明\n提交反馈\n提交后写入反馈接口；管理员和内容管理员会在“反馈处理/解析审核”中看到。"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-feedback-form-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "form.pc-org-add-form",
+              "parents": [
+                "div.pc-card.pc-lite-list-card"
+              ],
+              "text": "类型题目内容答案解析支付订单账号登录 试卷 ID 题号 说明解析表达不够清楚，希望内容管理员复核。 提交反馈 提交后写入反馈接口；管理员和内容管理员会"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "问题反馈",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "问题反馈\n\n提交题目、解析、支付或账号问题\n\n问题反馈\n类型\n题目内容\n答案解析\n支付订单\n账号登录\n试卷 ID\n题号\n说明\n提交反馈\n提交后写入反馈接口；管理员和内容管理员会在“反馈处理/解析审核”中看到。"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-customer-service",
+    "role": "student",
+    "label": "客服",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-customer-service-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "客服",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "客服\n\n客服联系方式和服务时间\n\n客服\n在线客服\n工作日 10:00-19:00；可先提交问题反馈，由客服统一处理\n可用\n账号与支付问题\n换绑、注销、订单和退款问题可通过反馈入口提交\n反馈"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-customer-service-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "客服",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "客服\n\n客服联系方式和服务时间\n\n客服\n在线客服\n工作日 10:00-19:00；可先提交问题反馈，由客服统一处理\n可用\n账号与支付问题\n换绑、注销、订单和退款问题可通过反馈入口提交\n反馈"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-agreement",
+    "role": "student",
+    "label": "用户协议",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-agreement-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "用户协议",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "用户协议\n\n账号、学习内容和付费权益的使用规则\n\n用户协议\n账号规则\n禁止共享、出租或售卖账号。\n账号\n内容规则\n题目、解析、音频和图片仅限授权范围内使用。\n内容\n付费规则\n套餐、席位、兑换码和卡券按页面标注的有效期生效。\n付费"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-agreement-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "用户协议",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "用户协议\n\n账号、学习内容和付费权益的使用规则\n\n用户协议\n账号规则\n禁止共享、出租或售卖账号。\n账号\n内容规则\n题目、解析、音频和图片仅限授权范围内使用。\n内容\n付费规则\n套餐、席位、兑换码和卡券按页面标注的有效期生效。\n付费"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-privacy",
+    "role": "student",
+    "label": "隐私政策",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-privacy-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "隐私政策",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "隐私政策\n\n个人数据收集、使用、导出和注销说明\n\n隐私政策\n收集范围\n账号信息、学习记录、作答记录、收藏、错题和支付权益状态。\n数据\n使用目的\n用于登录识别、学习同步、统计报告和权益判断。\n使用\n数据导出\n可以在账户页导出个人资料和学习记录。\n导出"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-privacy-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "隐私政策",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "隐私政策\n\n个人数据收集、使用、导出和注销说明\n\n隐私政策\n收集范围\n账号信息、学习记录、作答记录、收藏、错题和支付权益状态。\n数据\n使用目的\n用于登录识别、学习同步、统计报告和权益判断。\n使用\n数据导出\n可以在账户页导出个人资料和学习记录。\n导出"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-coupons-expanded",
+    "role": "student",
+    "label": "优惠与邀请 · 兑换与记录展开",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-coupons-expanded-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 806,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-referral-lines",
+              "parents": [
+                "div.pc-card.pc-info-card.pc-referral-card"
+              ],
+              "text": "推荐链接http://127.0.0.1:8124/?ref=STUDEN79复制链接"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "优惠与邀请",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "优惠与邀请\n\n邀请奖励、学习金和兑换记录\n\n邀请好友\n分享推荐链接，好友完成个人 PRO 首购后获得学习金。\n推荐链接\nhttp://127.0.0.1:8124/?ref=STUDEN79\n复制链接\n我的优惠\n学习金\n成功邀请 0 人；奖励到账后可在这里查看，退款后相应金额会撤回\n当前可用 ¥0.00\n累计获得 ¥0.00\n暂时还没有已到账的邀请奖励\n兑换码\n兑换套餐、学习积分或其他权益\n100 积分\n兑换码\n确认兑换\n兑换结果将记录在当前账号，已使用过的兑换码不能重复兑换。\n兑换记录\n查看积分码、套餐码和权益码的兑换结果\n1 条\n新用户学习积分包\nWELCOME-100 · 积分券\n已到账 100 学习积分\n2026/06/22 23:35"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-coupons-expanded-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 842,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-referral-lines",
+              "parents": [
+                "div.pc-card.pc-info-card.pc-referral-card"
+              ],
+              "text": "推荐链接http://127.0.0.1:8124/?ref=STUDEN79复制链接"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "优惠与邀请",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "优惠与邀请\n\n邀请奖励、学习金和兑换记录\n\n邀请好友\n分享推荐链接，好友完成个人 PRO 首购后获得学习金。\n推荐链接\nhttp://127.0.0.1:8124/?ref=STUDEN79\n复制链接\n我的优惠\n学习金\n成功邀请 0 人；奖励到账后可在这里查看，退款后相应金额会撤回\n当前可用 ¥0.00\n累计获得 ¥0.00\n暂时还没有已到账的邀请奖励\n兑换码\n兑换套餐、学习积分或其他权益\n100 积分\n兑换码\n确认兑换\n兑换结果将记录在当前账号，已使用过的兑换码不能重复兑换。\n兑换记录\n查看积分码、套餐码和权益码的兑换结果\n1 条\n新用户学习积分包\nWELCOME-100 · 积分券\n已到账 100 学习积分\n2026/06/22 23:35"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-orders-expanded",
+    "role": "student",
+    "label": "套餐与订单 · 订单展开",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-orders-expanded-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 1428,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-order-detail-grid",
+              "parents": [
+                "div.pc-order-record-detail",
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "套餐内容ULTRA · 365 天 支付方式微信支付 日常价¥299.00 优惠金额无额外优惠 实付金额¥299.00 有效期支付后生效 自动续费未开"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-order-timeline",
+              "parents": [
+                "div.pc-order-record-detail",
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "订单进度创建订单2026/06/22 22:54"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-order-preview.pc-recharge-preview",
+              "parents": [
+                "section.pc-card.pc-account-purchase-card"
+              ],
+              "text": "365 天 PRO微信支付 · 预计到期 2027-11-01"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-order-record-detail",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "套餐内容ULTRA · 365 天 支付方式微信支付 日常价¥299.00 优惠金额无额外优惠 实付金额¥299.00 有效期支付后生效 自动续费未开"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "套餐与订单",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "开通 PRO",
+              "size": "16px",
+              "selector": "h4"
+            },
+            {
+              "text": "订单进度",
+              "size": "14px",
+              "selector": "h4"
+            }
+          ],
+          "text": "套餐与订单\n\n订阅、续费和支付记录\n\n开通 PRO\n\n当前套餐：FREE · 使用中 · 长期有效\n\n长期备考套餐：完整题库与解析、薄弱项分析、个性化推荐和标准导出。\n\n30 天\n¥12.9（¥0.43/天）\n日常价 ¥15（省 ¥2.1）\n90 天\n¥29.9（¥0.33/天）\n日常价 ¥40（省 ¥10.1）\n365 天推荐\n¥99.9（¥0.27/天）\n日常价 ¥145（省 ¥45.1）\n支付方式\n微信支付\n支付宝\nStripe（海外卡/国际支付）\n到期自动续费\n渠道签约暂未开放，请到期前手动续费。\n邮件提醒\n接收到期、调价和扣款结果通知。\n365 天 PRO\n微信支付 · 预计到期 2027-11-01\n¥99.9 · 开通 PRO\nULTRA · 暂未开放\n高阶学习能力正在准备中，开放后可在此升级。\n2026~至今订单\n1 笔\nULTRA 年度套餐\n微信支付 · 365 天 · 2026/06/22 22:54\n¥299.00\n待支付\n套餐内容\nULTRA · 365 天\n支付方式\n微信支付\n日常价\n¥299.00\n优惠金额\n无额外优惠\n实付金额\n¥299.00\n有效期\n支付后生效\n自动续费\n未开启\n邮件提醒\n已开启\n订单号\npay_1782140085133_f959e2b012199fd3\n复制\n订单进度\n创建订单\n2026/06/22 22:54"
+        }
+      },
+      {
+        "width": 390,
+        "position": "bottom",
+        "file": "student-orders-expanded-390-bottom.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 1428,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-order-detail-grid",
+              "parents": [
+                "div.pc-order-record-detail",
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "套餐内容ULTRA · 365 天 支付方式微信支付 日常价¥299.00 优惠金额无额外优惠 实付金额¥299.00 有效期支付后生效 自动续费未开"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-order-timeline",
+              "parents": [
+                "div.pc-order-record-detail",
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "订单进度创建订单2026/06/22 22:54"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-order-preview.pc-recharge-preview",
+              "parents": [
+                "section.pc-card.pc-account-purchase-card"
+              ],
+              "text": "365 天 PRO微信支付 · 预计到期 2027-11-01"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-order-record-detail",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "套餐内容ULTRA · 365 天 支付方式微信支付 日常价¥299.00 优惠金额无额外优惠 实付金额¥299.00 有效期支付后生效 自动续费未开"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "套餐与订单",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "开通 PRO",
+              "size": "16px",
+              "selector": "h4"
+            },
+            {
+              "text": "订单进度",
+              "size": "14px",
+              "selector": "h4"
+            }
+          ],
+          "text": "套餐与订单\n\n订阅、续费和支付记录\n\n开通 PRO\n\n当前套餐：FREE · 使用中 · 长期有效\n\n长期备考套餐：完整题库与解析、薄弱项分析、个性化推荐和标准导出。\n\n30 天\n¥12.9（¥0.43/天）\n日常价 ¥15（省 ¥2.1）\n90 天\n¥29.9（¥0.33/天）\n日常价 ¥40（省 ¥10.1）\n365 天推荐\n¥99.9（¥0.27/天）\n日常价 ¥145（省 ¥45.1）\n支付方式\n微信支付\n支付宝\nStripe（海外卡/国际支付）\n到期自动续费\n渠道签约暂未开放，请到期前手动续费。\n邮件提醒\n接收到期、调价和扣款结果通知。\n365 天 PRO\n微信支付 · 预计到期 2027-11-01\n¥99.9 · 开通 PRO\nULTRA · 暂未开放\n高阶学习能力正在准备中，开放后可在此升级。\n2026~至今订单\n1 笔\nULTRA 年度套餐\n微信支付 · 365 天 · 2026/06/22 22:54\n¥299.00\n待支付\n套餐内容\nULTRA · 365 天\n支付方式\n微信支付\n日常价\n¥299.00\n优惠金额\n无额外优惠\n实付金额\n¥299.00\n有效期\n支付后生效\n自动续费\n未开启\n邮件提醒\n已开启\n订单号\npay_1782140085133_f959e2b012199fd3\n复制\n订单进度\n创建订单\n2026/06/22 22:54"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-orders-expanded-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 1428,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-order-detail-grid",
+              "parents": [
+                "div.pc-order-record-detail",
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "套餐内容ULTRA · 365 天 支付方式微信支付 日常价¥299.00 优惠金额无额外优惠 实付金额¥299.00 有效期支付后生效 自动续费未开"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-order-timeline",
+              "parents": [
+                "div.pc-order-record-detail",
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "订单进度创建订单2026/06/22 22:54"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-pricing-order-preview.pc-recharge-preview",
+              "parents": [
+                "section.pc-card.pc-account-purchase-card"
+              ],
+              "text": "365 天 PRO微信支付 · 预计到期 2027-11-01"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-order-record-detail",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-account-order-history"
+              ],
+              "text": "套餐内容ULTRA · 365 天 支付方式微信支付 日常价¥299.00 优惠金额无额外优惠 实付金额¥299.00 有效期支付后生效 自动续费未开"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "套餐与订单",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "开通 PRO",
+              "size": "16px",
+              "selector": "h4"
+            },
+            {
+              "text": "订单进度",
+              "size": "14px",
+              "selector": "h4"
+            }
+          ],
+          "text": "套餐与订单\n\n订阅、续费和支付记录\n\n开通 PRO\n\n当前套餐：FREE · 使用中 · 长期有效\n\n长期备考套餐：完整题库与解析、薄弱项分析、个性化推荐和标准导出。\n\n30 天\n¥12.9（¥0.43/天）\n日常价 ¥15（省 ¥2.1）\n90 天\n¥29.9（¥0.33/天）\n日常价 ¥40（省 ¥10.1）\n365 天推荐\n¥99.9（¥0.27/天）\n日常价 ¥145（省 ¥45.1）\n支付方式\n微信支付\n支付宝\nStripe（海外卡/国际支付）\n到期自动续费\n渠道签约暂未开放，请到期前手动续费。\n邮件提醒\n接收到期、调价和扣款结果通知。\n365 天 PRO\n微信支付 · 预计到期 2027-11-01\n¥99.9 · 开通 PRO\nULTRA · 暂未开放\n高阶学习能力正在准备中，开放后可在此升级。\n2026~至今订单\n1 笔\nULTRA 年度套餐\n微信支付 · 365 天 · 2026/06/22 22:54\n¥299.00\n待支付\n套餐内容\nULTRA · 365 天\n支付方式\n微信支付\n日常价\n¥299.00\n优惠金额\n无额外优惠\n实付金额\n¥299.00\n有效期\n支付后生效\n自动续费\n未开启\n邮件提醒\n已开启\n订单号\npay_1782140085133_f959e2b012199fd3\n复制\n订单进度\n创建订单\n2026/06/22 22:54"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "account-profile",
+    "role": "student",
+    "label": "个人资料",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "account-profile-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 884,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-verify-row-card",
+              "parents": [
+                "details.pc-card.pc-profile-contacts"
+              ],
+              "text": "邮箱未绑定邮箱未绑定绑定"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-verify-row-card",
+              "parents": [
+                "details.pc-card.pc-profile-contacts"
+              ],
+              "text": "手机号未绑定手机号未绑定绑定"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1  _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "2\n問題1 _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\n余暇の楽しみ方は色々ある。🐛 报错收藏本题\n1.ようか\n2.よか\n3.よが\n4.ようが\n检查答案\n1 / 44\n上一题\n下一题\n返回工作台\n×\n个人资料\n维护头像、昵称和联系方式。\n基础资料\n昵称\n保存\n未设置时会先按登录账号显示，你也可以改成自己的名字。\n当前昵称\nstudent_demo\n登录账号\nstudent_demo\n成员编号\nMEM-000670\n邮箱\n未绑定\n最近登录\n2026-11-01T08:49:26.992Z\n联系方式与验证\n0 / 2 已验证\n头像选择 头像由 DiceBear 生成 — dicebear.com\nAdventurer\nAdventurer N\nAvataaars\nAvataaars N\nBig Ears\nBig Ears N\nBig Smile\nBottts\nBottts N\nCroodles\nCroodles N\nDylan\nFun Emoji\nLorelei\nLorelei N\nMicah\nMini Avs\nNotionists\nNotionists N\nOpen Peeps\nPersonas\nPixel Art\nThumbs\nToon Head\n🎲 随机 ✏️ 定制 💾 应用\n身份与套餐\n学员\n当前空间\n知识就是力量\n当前套餐\nFREE / active\n到期时间\n长期\n退出登录"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "account-profile-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 861,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div.pc-verify-row-card",
+              "parents": [
+                "details.pc-card.pc-profile-contacts"
+              ],
+              "text": "邮箱未绑定邮箱未绑定绑定"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-verify-row-card",
+              "parents": [
+                "details.pc-card.pc-profile-contacts"
+              ],
+              "text": "手机号未绑定手机号未绑定绑定"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1  _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "2\n問題1 _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\n余暇の楽しみ方は色々ある。🐛 报错收藏本题\n1.ようか\n2.よか\n3.よが\n4.ようが\n检查答案\n1 / 44\n上一题\n下一题\n返回工作台\n×\n个人资料\n维护头像、昵称和联系方式。\n基础资料\n昵称\n保存\n未设置时会先按登录账号显示，你也可以改成自己的名字。\n当前昵称\nstudent_demo\n登录账号\nstudent_demo\n成员编号\nMEM-000670\n邮箱\n未绑定\n最近登录\n2026-11-01T08:49:26.992Z\n联系方式与验证\n0 / 2 已验证\n头像选择 头像由 DiceBear 生成 — dicebear.com\nAdventurer\nAdventurer N\nAvataaars\nAvataaars N\nBig Ears\nBig Ears N\nBig Smile\nBottts\nBottts N\nCroodles\nCroodles N\nDylan\nFun Emoji\nLorelei\nLorelei N\nMicah\nMini Avs\nNotionists\nNotionists N\nOpen Peeps\nPersonas\nPixel Art\nThumbs\nToon Head\n🎲 随机 ✏️ 定制 💾 应用\n身份与套餐\n学员\n当前空间\n知识就是力量\n当前套餐\nFREE / active\n到期时间\n长期\n退出登录"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "account-security",
+    "role": "student",
+    "label": "账号安全",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "account-security-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 884,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1  _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "2\n問題1 _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\n余暇の楽しみ方は色々ある。🐛 报错收藏本题\n1.ようか\n2.よか\n3.よが\n4.ようが\n检查答案\n1 / 44\n上一题\n下一题\n返回工作台\n×\n账号安全\n管理手机号、密码、第三方绑定和注销账号。\n未绑定手机号\n🔒\n修改密码\n请先退出并使用验证码登录\n去设置 ›\n📱\n更换手机号\n未验证\n去更换 ›\n💬\n微信登录\n绑定后可使用微信快捷登录本账号\n已绑定 · student_demo ›\n🖥️\n登录设备\n查看有效会话并退出其他设备\n管理 ›\n⌫\n注销账号\n停用账号并退出当前登录\n谨慎操作 ›\n账户数据\n个人资料与联系人\n维护头像、邮箱和手机号\n管理\n数据导出\n完整导出个人资料、学习记录和收藏数据\nPRO 解锁\n多端同步\n查看设备并同步学习进度、收藏和设置\n管理\nGoogle 绑定\n当前未绑定 Google 账号\n未绑定\n退出登录"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "account-security-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 861,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1  _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "2\n問題1 _____の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\n余暇の楽しみ方は色々ある。🐛 报错收藏本题\n1.ようか\n2.よか\n3.よが\n4.ようが\n检查答案\n1 / 44\n上一题\n下一题\n返回工作台\n×\n账号安全\n管理手机号、密码、第三方绑定和注销账号。\n未绑定手机号\n🔒\n修改密码\n请先退出并使用验证码登录\n去设置 ›\n📱\n更换手机号\n未验证\n去更换 ›\n💬\n微信登录\n绑定后可使用微信快捷登录本账号\n已绑定 · student_demo ›\n🖥️\n登录设备\n查看有效会话并退出其他设备\n管理 ›\n⌫\n注销账号\n停用账号并退出当前登录\n谨慎操作 ›\n账户数据\n个人资料与联系人\n维护头像、邮箱和手机号\n管理\n数据导出\n完整导出个人资料、学习记录和收藏数据\nPRO 解锁\n多端同步\n查看设备并同步学习进度、收藏和设置\n管理\nGoogle 绑定\n当前未绑定 Google 账号\n未绑定\n退出登录"
+        }
+      }
+    ],
+    "errors": []
+  }
+]

@@ -9,6 +9,7 @@ using namespace drogon;
 
 namespace transport::routes
 {
+void registerAdminOperationsRoutes(const AppContext &ctx);
 // ---------------------------------------------------------------------------
 // 业务功能 11：管理员统计 路由
 //   GET /api/v1/admin/statistics/overview    →  全站聚合
@@ -18,6 +19,7 @@ namespace transport::routes
 
 void registerAdminStatisticsRoutes(const AppContext &ctx)
 {
+    registerAdminOperationsRoutes(ctx);
     app().registerHandler(
         "/api/v1/admin/statistics/overview",
         [ctx](const HttpRequestPtr &req,

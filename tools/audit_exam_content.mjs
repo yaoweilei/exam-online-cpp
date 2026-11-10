@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { cancellationEvidence } from './lib/paper_metadata.mjs';
 
 const root = process.cwd();
 const strictTimestamps = process.argv.includes('--strict-timestamps');
@@ -93,6 +94,7 @@ const report = {
 	jlptFiles: 0,
 	ejuQuestions: 0,
 	jlptQuestions: 0,
+	jlptNotHeldFiles: 0,
 	ejuListeningQuestions: 0,
 	ejuListeningWithAudio: 0,
 	ejuListeningWithScript: 0,
@@ -147,9 +149,8 @@ function auditEju() {
 					if (!String(question?.explanation || '').trim()) {
 						issue('EJU_MISSING_EXPLANATION', `${label}: missing explanation`);
 					}
-					if (!String(question?.explanation_expand || '').trim()) {
-						issue('EJU_MISSING_EXPLANATION_EXPAND', `${label}: missing explanation_expand`);
-					}
+					// Supplemental notes are optional; requiring them encouraged generic
+					// filler even when a sound core explanation already exists.
 				}
 
 				if (Array.isArray(question?.options) && question.options.some((option) => !String(option || '').trim())) {
@@ -221,14 +222,17 @@ function auditJlpt() {
 			continue;
 		}
 		const sections = doc?.exam_info?.sections;
+		const cancelled = cancellationEvidence(doc);
 		if (!Array.isArray(sections)) {
 			issue('JLPT_NO_SECTIONS', `${examId}: missing exam_info.sections`);
 			continue;
 		}
 		if (sections.length === 0) {
-			warning('JLPT_EMPTY_SECTIONS', `${examId}: empty template or unavailable exam`);
+			if (cancelled) report.jlptNotHeldFiles += 1;
+			else warning('JLPT_EMPTY_SECTIONS', `${examId}: empty template awaiting content`);
 			continue;
 		}
+		if (cancelled && sections.some(section => collectQuestions(section).length > 0)) issue('JLPT_CANCELLATION_CONFLICT', `${examId}: questions coexist with ${cancelled}`);
 		for (const section of sections) {
 			for (const { question } of collectQuestions(section)) {
 				report.jlptQuestions += 1;
@@ -275,6 +279,7 @@ const summary = {
 	ejuImageRefs: report.ejuImageRefs,
 	jlptFiles: report.jlptFiles,
 	jlptQuestions: report.jlptQuestions,
+	jlptNotHeldFiles: report.jlptNotHeldFiles,
 	issues: report.issues.length,
 	warnings: report.warnings.length,
 	issuesByCode: countByCode(report.issues),

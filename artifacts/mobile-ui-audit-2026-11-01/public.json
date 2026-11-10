@@ -1,0 +1,624 @@
+[
+  {
+    "id": "exam-question-map",
+    "role": "exam",
+    "label": "答题卡 · 展开",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "exam-question-map-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px",
+              "selector": "h3"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "exam-question-map-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px",
+              "selector": "h3"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-assist",
+    "role": "exam",
+    "label": "练习 · 辅助工具与解析",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "exam-assist-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px",
+              "selector": "h3"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "exam-assist-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "21px",
+              "selector": "h1"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px",
+              "selector": "h3"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px",
+              "selector": "h3"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px",
+              "selector": "h4"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px",
+              "selector": "h3"
+            }
+          ],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\n最近练习\n更多记录\nJLPT N3 · 2024年12月真题\n进行中 · 已答5/101题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期9条\n错题与收藏\n待订正0\n收藏2\n学习报告"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "public-welcome",
+    "role": "public",
+    "label": "游客首页",
+    "account": "未登录",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "public-welcome-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "把日语一点点学会",
+              "size": "18px",
+              "selector": "h1"
+            },
+            {
+              "text": "先试一道 N3 短篇阅读",
+              "size": "16px",
+              "selector": "h2"
+            },
+            {
+              "text": "选择考试",
+              "size": "16px",
+              "selector": "h2.gw-exams-heading"
+            }
+          ],
+          "text": "把日语一点点学会\n\n真题练习、详细解析，按自己的节奏学习。访客可体验 N3 单题、JLPT、EJU 各 1 次；登录后可继续练习。\n\n先试一道 N3 短篇阅读\n\n无需登录，体验作答和解析，约 2 分钟。\n\n开始体验\n选择考试\nJLPT\n日本语能力考试 · N3 / N2 / N1 · 可体验 1 次\nEJU\n日本留学考试 · 日本语 · 可体验 1 次"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "public-welcome-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "把日语一点点学会",
+              "size": "18px",
+              "selector": "h1"
+            },
+            {
+              "text": "先试一道 N3 短篇阅读",
+              "size": "16px",
+              "selector": "h2"
+            },
+            {
+              "text": "选择考试",
+              "size": "16px",
+              "selector": "h2.gw-exams-heading"
+            }
+          ],
+          "text": "把日语一点点学会\n\n真题练习、详细解析，按自己的节奏学习。访客可体验 N3 单题、JLPT、EJU 各 1 次；登录后可继续练习。\n\n先试一道 N3 短篇阅读\n\n无需登录，体验作答和解析，约 2 分钟。\n\n开始体验\n选择考试\nJLPT\n日本语能力考试 · N3 / N2 / N1 · 可体验 1 次\nEJU\n日本留学考试 · 日本语 · 可体验 1 次"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "public-login",
+    "role": "public",
+    "label": "登录 · 默认方式",
+    "account": "未登录",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "public-login-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "把日语一点点学会",
+              "size": "18px",
+              "selector": "h1"
+            },
+            {
+              "text": "先试一道 N3 短篇阅读",
+              "size": "16px",
+              "selector": "h2"
+            },
+            {
+              "text": "选择考试",
+              "size": "16px",
+              "selector": "h2.gw-exams-heading"
+            }
+          ],
+          "text": "把日语一点点学会\n\n真题练习、详细解析，按自己的节奏学习。访客可体验 N3 单题、JLPT、EJU 各 1 次；登录后可继续练习。\n\n先试一道 N3 短篇阅读\n\n无需登录，体验作答和解析，约 2 分钟。\n\n开始体验\n选择考试\nJLPT\n日本语能力考试 · N3 / N2 / N1 · 可体验 1 次\nEJU\n日本留学考试 · 日本语 · 可体验 1 次"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "public-login-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "把日语一点点学会",
+              "size": "18px",
+              "selector": "h1"
+            },
+            {
+              "text": "先试一道 N3 短篇阅读",
+              "size": "16px",
+              "selector": "h2"
+            },
+            {
+              "text": "选择考试",
+              "size": "16px",
+              "selector": "h2.gw-exams-heading"
+            }
+          ],
+          "text": "把日语一点点学会\n\n真题练习、详细解析，按自己的节奏学习。访客可体验 N3 单题、JLPT、EJU 各 1 次；登录后可继续练习。\n\n先试一道 N3 短篇阅读\n\n无需登录，体验作答和解析，约 2 分钟。\n\n开始体验\n选择考试\nJLPT\n日本语能力考试 · N3 / N2 / N1 · 可体验 1 次\nEJU\n日本留学考试 · 日本语 · 可体验 1 次"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "public-login-password",
+    "role": "public",
+    "label": "登录 · 密码登录",
+    "account": "未登录",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "public-login-password-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "把日语一点点学会",
+              "size": "18px",
+              "selector": "h1"
+            },
+            {
+              "text": "先试一道 N3 短篇阅读",
+              "size": "16px",
+              "selector": "h2"
+            },
+            {
+              "text": "选择考试",
+              "size": "16px",
+              "selector": "h2.gw-exams-heading"
+            }
+          ],
+          "text": "把日语一点点学会\n\n真题练习、详细解析，按自己的节奏学习。访客可体验 N3 单题、JLPT、EJU 各 1 次；登录后可继续练习。\n\n先试一道 N3 短篇阅读\n\n无需登录，体验作答和解析，约 2 分钟。\n\n开始体验\n选择考试\nJLPT\n日本语能力考试 · N3 / N2 / N1 · 可体验 1 次\nEJU\n日本留学考试 · 日本语 · 可体验 1 次"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "public-login-password-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "把日语一点点学会",
+              "size": "18px",
+              "selector": "h1"
+            },
+            {
+              "text": "先试一道 N3 短篇阅读",
+              "size": "16px",
+              "selector": "h2"
+            },
+            {
+              "text": "选择考试",
+              "size": "16px",
+              "selector": "h2.gw-exams-heading"
+            }
+          ],
+          "text": "把日语一点点学会\n\n真题练习、详细解析，按自己的节奏学习。访客可体验 N3 单题、JLPT、EJU 各 1 次；登录后可继续练习。\n\n先试一道 N3 短篇阅读\n\n无需登录，体验作答和解析，约 2 分钟。\n\n开始体验\n选择考试\nJLPT\n日本语能力考试 · N3 / N2 / N1 · 可体验 1 次\nEJU\n日本留学考试 · 日本语 · 可体验 1 次"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "public-login-code",
+    "role": "public",
+    "label": "登录 · 验证码登录",
+    "account": "未登录",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "public-login-code-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "把日语一点点学会",
+              "size": "18px",
+              "selector": "h1"
+            },
+            {
+              "text": "先试一道 N3 短篇阅读",
+              "size": "16px",
+              "selector": "h2"
+            },
+            {
+              "text": "选择考试",
+              "size": "16px",
+              "selector": "h2.gw-exams-heading"
+            }
+          ],
+          "text": "把日语一点点学会\n\n真题练习、详细解析，按自己的节奏学习。访客可体验 N3 单题、JLPT、EJU 各 1 次；登录后可继续练习。\n\n先试一道 N3 短篇阅读\n\n无需登录，体验作答和解析，约 2 分钟。\n\n开始体验\n选择考试\nJLPT\n日本语能力考试 · N3 / N2 / N1 · 可体验 1 次\nEJU\n日本留学考试 · 日本语 · 可体验 1 次"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "public-login-code-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "把日语一点点学会",
+              "size": "18px",
+              "selector": "h1"
+            },
+            {
+              "text": "先试一道 N3 短篇阅读",
+              "size": "16px",
+              "selector": "h2"
+            },
+            {
+              "text": "选择考试",
+              "size": "16px",
+              "selector": "h2.gw-exams-heading"
+            }
+          ],
+          "text": "把日语一点点学会\n\n真题练习、详细解析，按自己的节奏学习。访客可体验 N3 单题、JLPT、EJU 各 1 次；登录后可继续练习。\n\n先试一道 N3 短篇阅读\n\n无需登录，体验作答和解析，约 2 分钟。\n\n开始体验\n选择考试\nJLPT\n日本语能力考试 · N3 / N2 / N1 · 可体验 1 次\nEJU\n日本留学考试 · 日本语 · 可体验 1 次"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-practice-text",
+    "role": "exam",
+    "label": "专项练习 · 文本题",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "exam-practice-text-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 905,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "2\n进度已同步云端\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 2\n上一题\n下一题"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "exam-practice-text-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 861,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 2\n上一题\n下一题"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-task-details",
+    "role": "exam",
+    "label": "任务详情 · 展开",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "exam-task-details-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 905,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div#task-session-panel.task-session-panel",
+              "parents": [
+                "div.question-nav.task-nav.specialty-nav"
+              ],
+              "text": "手机布局检查专项练习已答 0/2 题收起"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 2\n上一题\n下一题\n手机布局检查\n专项练习\n已答 0/2 题\n收起"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "exam-task-details-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 861,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "div#task-session-panel.task-session-panel",
+              "parents": [
+                "div.question-nav.task-nav.specialty-nav"
+              ],
+              "text": "手机布局检查专项练习已答 0/2 题收起"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 2\n上一题\n下一题\n手机布局检查\n专项练习\n已答 0/2 题\n收起"
+        }
+      }
+    ],
+    "errors": []
+  }
+]

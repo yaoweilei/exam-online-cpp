@@ -36,6 +36,11 @@ export class ApiClient {
 		return this.request(`/users/by-role/${roleId}`);
 	}
 
+	listUsers(token: string, options: { q: string; page: number; page_size: number; sort?: string; order?: string }): Promise<unknown> {
+		const params = new URLSearchParams({ token, q: options.q, page: String(options.page), page_size: String(options.page_size), sort: options.sort || 'created_at', order: options.order || 'desc' });
+		return this.request(`/admin/users?${params.toString()}`);
+	}
+
 	getUserPermissions(userId: string): Promise<unknown> {
 		return this.request(`/users/${userId}/permissions`);
 	}
@@ -174,6 +179,10 @@ export class ApiClient {
 		return this.request(`/me?token=${encodeURIComponent(token)}`);
 	}
 
+	selectOrganization(token: string, organizationId: string): Promise<unknown> {
+		return this.request('/me/organization', { method: 'PUT', body: JSON.stringify({ token, organization_id: organizationId }) });
+	}
+
 	getMeContext(token: string): Promise<unknown> {
 		return this.request(`/me/context?token=${encodeURIComponent(token)}`);
 	}
@@ -212,6 +221,13 @@ export class ApiClient {
 		return this.request('/organizations', {
 			method: 'POST',
 			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	setOrganizationArchived(organizationId: string, archived: boolean, token: string, reauthPassword: string): Promise<unknown> {
+		return this.request(`/organizations/${encodeURIComponent(organizationId)}${archived ? '' : '/restore'}`, {
+			method: archived ? 'DELETE' : 'POST',
+			body: JSON.stringify({ token, reauth_password: reauthPassword, confirmation: archived ? '确认移除机构' : '确认恢复机构' })
 		});
 	}
 
@@ -589,7 +605,7 @@ export class ApiClient {
 	submitWrongQuestionCorrection(
 		userId: string,
 		questionId: string,
-		payload: { exam_id: string; actual_question_id: string; section_index: number; answer: unknown; exam_target?: string }
+		payload: { exam_id: string; actual_question_id: string; section_index: number; answer: unknown; exam_target?: string; submission_id?: string }
 	): Promise<unknown> {
 		return this.request(
 			`/wrong-questions/${encodeURIComponent(userId)}/${encodeURIComponent(questionId)}/correction`,
@@ -628,9 +644,12 @@ export class ApiClient {
 	// 续考草稿 API（业务功能 4）
 	// ---------------------------------------------------------------------
 
-	getDraft(userId: string): Promise<unknown> {
-		return this.request(`/drafts/${encodeURIComponent(userId)}`);
+	getDraft(userId: string, examId?: string): Promise<unknown> {
+		return this.request(`/drafts/${encodeURIComponent(userId)}${examId ? `?exam_id=${encodeURIComponent(examId)}` : ''}`);
 	}
+	listPracticeDrafts(userId: string): Promise<unknown> { return this.request(`/practice-drafts/${encodeURIComponent(userId)}`); }
+	savePracticeDraft(userId: string, payload: unknown): Promise<unknown> { return this.request(`/practice-drafts/${encodeURIComponent(userId)}`, { method: 'POST', body: JSON.stringify(payload) }); }
+	clearPracticeDraft(userId: string, id: string): Promise<unknown> { return this.request(`/practice-drafts/${encodeURIComponent(userId)}/${encodeURIComponent(id)}`, { method: 'DELETE' }); }
 
 	saveDraft(userId: string, payload: Record<string, unknown>): Promise<unknown> {
 		return this.request(`/drafts/${encodeURIComponent(userId)}`, {
@@ -639,8 +658,11 @@ export class ApiClient {
 		});
 	}
 
-	clearDraft(userId: string): Promise<unknown> {
-		return this.request(`/drafts/${encodeURIComponent(userId)}`, { method: 'DELETE' });
+	clearDraft(userId: string, examId?: string, attemptId?: string): Promise<unknown> {
+		const query = new URLSearchParams();
+		if (examId) query.set('exam_id', examId);
+		if (attemptId) query.set('attempt_id', attemptId);
+		return this.request(`/drafts/${encodeURIComponent(userId)}?${query}`, { method: 'DELETE' });
 	}
 
 	// ---------------------------------------------------------------------

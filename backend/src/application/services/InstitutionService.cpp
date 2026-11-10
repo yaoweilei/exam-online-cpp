@@ -1,4 +1,6 @@
 #include "InstitutionService.h"
+#include "InstitutionAccess.h"
+#include "AssignmentScope.h"
 
 #include <algorithm>
 #include <chrono>
@@ -94,7 +96,7 @@ Json::Value InstitutionService::plans() const
 
 Json::Value InstitutionService::dashboard(const std::string &userId, const Json::Value &roles, const std::string &orgId) const
 {
-    if (!canTeach(roles))
+    if (!canAccessTeaching(userId, roles, orgId))
     {
         throw common::AppException("FORBIDDEN", "需要教师或机构管理员权限", drogon::k403Forbidden);
     }
@@ -178,7 +180,7 @@ Json::Value InstitutionService::dashboard(const std::string &userId, const Json:
         ranking.append(rank);
         if (featureEnabledForOrg(orgId, "renewal_risk"))
         {
-            risks.append(renewalRisk(studentId, answers));
+            risks.append(renewalRisk(studentId, answers, orgId));
         }
     }
     Json::Value skillWeaknesses(Json::arrayValue);
@@ -208,7 +210,7 @@ Json::Value InstitutionService::dashboard(const std::string &userId, const Json:
 
 Json::Value InstitutionService::teachingWorkbench(const std::string &userId, const Json::Value &roles, const std::string &orgId) const
 {
-    if (!canTeach(roles))
+    if (!canAccessTeaching(userId, roles, orgId))
     {
         throw common::AppException("FORBIDDEN", "需要教师、助教或机构管理员权限", drogon::k403Forbidden);
     }
@@ -219,8 +221,25 @@ Json::Value InstitutionService::teachingWorkbench(const std::string &userId, con
 
     Json::Value out(Json::objectValue);
     out["organizations"] = organizations;
+    for (auto &org : out["organizations"])
+        for (const auto *privateField : {"followups", "lessons", "lesson_ledger", "course_notifications", "review_comments"}) org.removeMember(privateField);
     out["learning_groups"] = learningGroups;
     out["schedule"] = buildScheduleSummary(learningGroups, userId, roles);
+    Json::Value schedule(Json::arrayValue);
+    for (const auto &group : learningGroups)
+    {
+        const auto groupId = group.get("learning_group_id", "").asString(), organizationId = group.get("organization_id", "").asString();
+        bool hasLessons = false;
+        for (const auto &org : organizations) if (org.get("organization_id", "").asString() == organizationId)
+            for (const auto &lesson : org.get("lessons", Json::Value(Json::arrayValue))) if (lesson.get("group_id", "").asString() == groupId)
+            {
+                hasLessons = true; auto row = lesson; row.removeMember("attendance");
+                row["learning_group_id"] = groupId; row["name"] = lesson["title"]; row["subject"] = group["subject"];
+                row["type"] = group["type"]; schedule.append(row);
+            }
+        if (!hasLessons) for (const auto &row : out["schedule"]) if (row.get("learning_group_id", "").asString() == groupId) schedule.append(row);
+    }
+    out["schedule"] = schedule;
     out["course_packages"] = coursePackages;
     out["student_relationships"] = buildStudentRelationshipSummary(learningGroups, coursePackages);
     out["lesson_prep_plans"] = visibleLessonPrepPlans(userId, roles, organizations);
@@ -246,7 +265,7 @@ Json::Value InstitutionService::learningGroupGradebook(const std::string &userId
     {
         throw common::AppException("NOT_FOUND", "学习组不存在或无权查看", drogon::k404NotFound);
     }
-    if (!canManageInstitution(roles) &&
+    if (!canManageInstitution(institutionRolesForOrganization(organizationRepository_, userId, roles, organizationId)) &&
         !learningGroupHasUserRole(learningGroup, userId, {"teacher", "assistant"}))
     {
         throw common::AppException("FORBIDDEN", "无权查看该学习组成绩册", drogon::k403Forbidden);
@@ -275,7 +294,7 @@ Json::Value InstitutionService::learningGroupGradebook(const std::string &userId
 
 Json::Value InstitutionService::studentProfile(const std::string &viewerUserId,
                                                const Json::Value &roles,
-                                               const std::string &studentId) const
+                                               const std::string &studentId, const std::string &requestedOrgId) const
 {
     if (!canViewStudent(viewerUserId, roles, studentId))
     {
@@ -289,8 +308,24 @@ Json::Value InstitutionService::studentProfile(const std::string &viewerUserId,
     out["wrong_trend"] = buildStudentWrongTrend(answers);
     out["writing_history"] = buildWritingHistory(answers);
     out["listening_weaknesses"] = buildListeningWeaknesses(answers);
-    out["renewal_risk"] = renewalRisk(studentId, answers);
-    out["teacher_notes"] = profileRepository_.loadProfile(studentId).get("teacher_notes", Json::Value(Json::arrayValue));
+    auto orgId = requestedOrgId;
+    if (!orgId.empty() && !canFollowStudent(viewerUserId, roles, orgId, studentId))
+        throw common::AppException("FORBIDDEN", "无权查看这个机构的学员备注", drogon::k403Forbidden);
+    if (orgId.empty())
+        for (const auto &org : organizationRepository_.listOrganizationsForUser(viewerUserId))
+            if (canFollowStudent(viewerUserId, roles, org["organization_id"].asString(), studentId)) { orgId = org["organization_id"].asString(); break; }
+    out["renewal_risk"] = renewalRisk(studentId, answers, orgId);
+    out["teacher_notes"] = Json::arrayValue;
+    const auto legacyNotes = profileRepository_.loadProfile(studentId).get("teacher_notes", Json::Value(Json::arrayValue));
+    for (const auto &note : legacyNotes)
+        if (note.get("created_by", "").asString() == viewerUserId ||
+            (!orgId.empty() && note.get("organization_id", "").asString() == orgId)) out["teacher_notes"].append(note);
+    if (!orgId.empty())
+    {
+        const auto organization = organizationRepository_.findOrganization(orgId);
+        for (const auto &note : organization.get("followups", Json::Value(Json::arrayValue)))
+            if (note.get("student_id", "").asString() == studentId) out["teacher_notes"].append(note);
+    }
     out["recommended_homework"] = Json::arrayValue;
     for (const auto &weakness : out["weaknesses"])
     {
@@ -306,11 +341,9 @@ Json::Value InstitutionService::lessonPrep(const std::string &userId,
                                            const Json::Value &roles,
                                            const Json::Value &payload) const
 {
-    if (!canTeach(roles))
-    {
-        throw common::AppException("FORBIDDEN", "需要教师或机构管理员权限", drogon::k403Forbidden);
-    }
     const auto orgId = payload.get("org_id", "").asString();
+    if (!canAccessTeaching(userId, roles, orgId))
+        throw common::AppException("FORBIDDEN", "无权在该机构备课", drogon::k403Forbidden);
     requireInstitutionFeature(orgId, "lesson_prep", "当前机构套餐未开通备课组卷");
     return buildLessonPrepView(userId, payload);
 }
@@ -319,10 +352,8 @@ Json::Value InstitutionService::listLessonPrepPlans(const std::string &userId,
                                                     const Json::Value &roles,
                                                     const std::string &orgId) const
 {
-    if (!canTeach(roles))
-    {
-        throw common::AppException("FORBIDDEN", "需要教师、助教或机构管理员权限", drogon::k403Forbidden);
-    }
+    if (!canAccessTeaching(userId, roles, orgId))
+        throw common::AppException("FORBIDDEN", "无权查看该机构备课方案", drogon::k403Forbidden);
     return visibleLessonPrepPlans(userId, roles, visibleOrganizations(userId, roles, orgId));
 }
 
@@ -330,11 +361,9 @@ Json::Value InstitutionService::saveLessonPrepPlan(const std::string &userId,
                                                    const Json::Value &roles,
                                                    const Json::Value &payload)
 {
-    if (!canTeach(roles))
-    {
-        throw common::AppException("FORBIDDEN", "需要教师、助教或机构管理员权限", drogon::k403Forbidden);
-    }
     const auto orgId = payload.get("org_id", "").asString();
+    if (!canAccessTeaching(userId, roles, orgId))
+        throw common::AppException("FORBIDDEN", "无权在该机构保存备课方案", drogon::k403Forbidden);
     if (orgId.empty())
     {
         throw common::AppException("VALIDATION_ERROR", "org_id 不能为空", drogon::k422UnprocessableEntity);
@@ -360,20 +389,61 @@ Json::Value InstitutionService::saveLessonPrepPlan(const std::string &userId,
     {
         throw common::AppException("NOT_FOUND", "机构不存在", drogon::k404NotFound);
     }
-    auto plan = buildLessonPrepView(userId, payload);
     const auto planId = payload.get("lesson_prep_id", payload.get("id", "")).asString().empty()
                             ? common::generateOpaqueId("prep_")
                             : payload.get("lesson_prep_id", payload.get("id", "")).asString();
     const auto now = common::nowIso8601();
+    Json::Value previousPlan;
+    for (const auto &previous : organization["lesson_prep_plans"])
+    {
+        if (previous.get("lesson_prep_id", "").asString() != planId) continue;
+        if (!canManageInstitution(institutionRolesForOrganization(organizationRepository_, userId, roles, orgId)) && previous.get("created_by", "").asString() != userId)
+            throw common::AppException("FORBIDDEN", "只能编辑自己的备课方案", drogon::k403Forbidden);
+        previousPlan = previous;
+    }
+    Json::Value effective = previousPlan.isObject() ? previousPlan : Json::Value(Json::objectValue);
+    for (const auto &field : payload.getMemberNames()) effective[field] = payload[field];
+    if (payload.isMember("preserve_question_scope") && !payload["preserve_question_scope"].isBool())
+        throw common::AppException("VALIDATION_ERROR", "保留原题目范围选项必须为布尔值", drogon::k422UnprocessableEntity);
+    const auto groupId = effective.get("learning_group_id", "").asString();
+    if (!groupId.empty())
+    {
+        bool assigned = false;
+        for (const auto &group : visibleLearningGroups(userId, roles, orgId))
+            if (group.get("learning_group_id", "").asString() == groupId) assigned = true;
+        if (!assigned) throw common::AppException("FORBIDDEN", "只能为自己参与的学习组备课", drogon::k403Forbidden);
+    }
+    bool sameScope = previousPlan.isObject();
+    for (const auto *field : {"exam_id", "focus_keyword", "focus_type", "question_start", "question_end"})
+        if (payload.isMember(field) && payload[field] != previousPlan.get(field, (std::string(field).find("question_") == 0 ? Json::Value(0) : Json::Value("")))) sameScope = false;
+    const bool preserveScope = previousPlan.isObject() && effective.get("exam_id", "") == previousPlan.get("exam_id", "") &&
+        (payload.isMember("preserve_question_scope") ? payload["preserve_question_scope"].asBool() : sameScope && !payload.isMember("question_ids"));
+    if (preserveScope)
+    {
+        const auto keys = resolveLessonPrepQuestionKeys(examRepository_.getExamById(effective["exam_id"].asString()), previousPlan);
+        if (keys.size() > 500) throw common::AppException("VALIDATION_ERROR", "原方案题目超过 500 题，请重新选择范围", drogon::k422UnprocessableEntity);
+        effective["question_ids"] = keys;
+        effective["limit"] = keys.size();
+        // Saved identities, rather than a fresh keyword search, define this edit.
+        effective["focus_keyword"] = "";
+        effective["focus_type"] = "";
+    }
+    else if (!payload.isMember("question_ids")) effective.removeMember("question_ids");
+    auto plan = buildLessonPrepView(userId, effective);
+    if (previousPlan.isObject())
+    {
+        plan["created_at"] = previousPlan.get("created_at", now);
+        plan["created_by"] = previousPlan.get("created_by", userId);
+    }
     plan["lesson_prep_id"] = planId;
     plan["id"] = planId;
     plan["org_id"] = orgId;
     plan["organization_id"] = orgId;
-    plan["title"] = payload.get("title", payload.get("name", "课堂备课方案")).asString();
-    plan["focus_keyword"] = payload.get("focus_keyword", payload.get("focus_type", "")).asString();
-    plan["learning_group_id"] = payload.get("learning_group_id", "").asString();
+    plan["title"] = payload.get("title", payload.get("name", previousPlan.get("title", "课堂备课方案"))).asString();
+    plan["focus_keyword"] = payload.get("focus_keyword", payload.get("focus_type", previousPlan.get("focus_keyword", ""))).asString();
+    plan["learning_group_id"] = effective.get("learning_group_id", "").asString();
     plan["updated_at"] = now;
-    plan["created_at"] = payload.get("created_at", now).asString();
+    if (!plan.isMember("created_at")) plan["created_at"] = now;
 
     organization = upsertLessonPrepPlan(organization, plan);
     organization = appendOrganizationAuditEntry(
@@ -404,6 +474,10 @@ Json::Value InstitutionService::buildLessonPrepView(const std::string &userId, c
     out["projection_mode"] = payload.get("projection_mode", false).asBool();
     out["print_layout"] = payload.get("print_layout", "A4").asString();
     out["question_set"] = buildQuestionSet(payload);
+    out["question_ids"] = Json::Value(Json::arrayValue);
+    for (const auto &question : out["question_set"]) out["question_ids"].append(question["question_id"]);
+    out["question_start"] = payload.get("question_start", 0);
+    out["question_end"] = payload.get("question_end", 0);
     out["export_handouts_enabled"] = featureEnabledForOrg(orgId, "export_handouts");
     out["export_hints"] = Json::arrayValue;
     out["export_hints"].append("可在前端按 hide_answers 生成讲义版或答案版");
@@ -415,15 +489,13 @@ Json::Value InstitutionService::buildLessonPrepView(const std::string &userId, c
     return out;
 }
 
-Json::Value InstitutionService::bulkImportPreview(const std::string & /*userId*/,
+Json::Value InstitutionService::bulkImportPreview(const std::string &userId,
                                                   const Json::Value &roles,
                                                   const std::string &orgId,
                                                   const std::string &rawText) const
 {
-    if (!canManageInstitution(roles))
-    {
-        throw common::AppException("FORBIDDEN", "需要机构管理员权限", drogon::k403Forbidden);
-    }
+    if (!canManageInstitution(institutionRolesForOrganization(organizationRepository_, userId, roles, orgId)))
+        throw common::AppException("FORBIDDEN", "需要该机构管理员权限", drogon::k403Forbidden);
     requireInstitutionFeature(orgId, "bulk_import", "当前机构套餐未开通批量导入");
     Json::Value out(Json::objectValue);
     out["org_id"] = orgId;
@@ -458,6 +530,16 @@ Json::Value InstitutionService::bulkImportPreview(const std::string & /*userId*/
     return out;
 }
 
+bool InstitutionService::canAccessTeaching(const std::string &userId, const Json::Value &roles, const std::string &orgId) const
+{
+    if (stringArrayContains(roles, "superAdmin")) return true;
+    if (!orgId.empty()) return canTeach(institutionRolesForOrganization(organizationRepository_, userId, roles, orgId));
+    if (canTeach(roles)) return true;
+    for (const auto &membership : organizationRepository_.listMembershipsForUser(userId))
+        if (canTeach(institutionRolesForOrganization(organizationRepository_, userId, roles, membership.get("scope_id", "").asString()))) return true;
+    return false;
+}
+
 bool InstitutionService::canManageInstitution(const Json::Value &roles) const
 {
     return stringArrayContains(roles, "orgAdmin") || stringArrayContains(roles, "superAdmin");
@@ -472,14 +554,25 @@ bool InstitutionService::canViewStudent(const std::string &viewerUserId,
                                         const Json::Value &roles,
                                         const std::string &studentId) const
 {
-    if (viewerUserId == studentId || canManageInstitution(roles))
+    if (viewerUserId == studentId || stringArrayContains(roles, "superAdmin"))
     {
         return true;
+    }
+    for (const auto &membership : organizationRepository_.listMembershipsForUser(viewerUserId))
+    {
+        const auto orgId = membership.get("scope_id", "").asString();
+        if (canManageInstitution(institutionRolesForOrganization(organizationRepository_, viewerUserId, roles, orgId)))
+        {
+            const auto studentMembership = activeInstitutionMembership(organizationRepository_, studentId, orgId);
+            if (!studentMembership.isNull() && stringArrayContains(studentMembership["roles"], "student")) return true;
+        }
     }
     const auto groups = visibleLearningGroups(viewerUserId, roles, "");
     for (const auto &group : groups)
     {
-        if (learningGroupHasUserRole(group, viewerUserId, {"teacher", "assistant"}) &&
+        const auto orgId = group.get("organization_id", "").asString();
+        if ((canManageInstitution(institutionRolesForOrganization(organizationRepository_, viewerUserId, roles, orgId)) ||
+             learningGroupHasUserRole(group, viewerUserId, {"teacher", "assistant"})) &&
             learningGroupHasUserRole(group, studentId, {"student"}))
         {
             return true;
@@ -574,7 +667,8 @@ Json::Value InstitutionService::visibleLearningGroups(const std::string &userId,
         }
         for (auto group : organization.get("learning_groups", Json::Value(Json::arrayValue)))
         {
-            if (!canManageInstitution(roles) && !learningGroupHasUserRole(group, userId, {"student", "teacher", "assistant"}))
+            const auto scopedRoles = institutionRolesForOrganization(organizationRepository_, userId, roles, organizationId);
+            if (!canTeach(scopedRoles) || (!canManageInstitution(scopedRoles) && !learningGroupHasUserRole(group, userId, {"teacher", "assistant"})))
             {
                 continue;
             }
@@ -600,7 +694,8 @@ Json::Value InstitutionService::visibleOrganizations(const std::string &userId, 
         {
             continue;
         }
-        out.append(organization);
+        if (canTeach(institutionRolesForOrganization(organizationRepository_, userId, roles, organizationId)))
+            out.append(organization);
     }
     return out;
 }
@@ -630,21 +725,20 @@ Json::Value InstitutionService::buildAssignmentProgress(const Json::Value &learn
     int studentCount = 0;
 	int submitted = 0;
 	int pendingReview = 0;
+	int returned = 0;
     double scoreSum = 0.0;
     int scoreCount = 0;
     Json::Value rows(Json::arrayValue);
     const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
     for (const auto &studentId : learningGroupStudentIds(learningGroup))
     {
-        if (studentId.empty())
+        if (studentId.empty() || !assignmentTargetsStudent(assignment, studentId))
         {
             continue;
         }
         ++studentCount;
         const auto submission = submissions.get(studentId, Json::Value(Json::objectValue));
-        const auto answer = submission.isObject() && submission.isMember("score")
-                                ? submission["score"]
-                                : answerRepository_.loadAnswer(studentId, examId);
+        const auto answer = submission.get("score", Json::Value(Json::objectValue));
         Json::Value row(Json::objectValue);
         row["student"] = buildMemberView(studentId);
         row["submitted"] = submission.isObject() && submission.isMember("submitted_at");
@@ -657,8 +751,9 @@ Json::Value InstitutionService::buildAssignmentProgress(const Json::Value &learn
 		{
 			++submitted;
 			if (row["review_status"].asString().empty() || row["review_status"].asString() == "submitted") ++pendingReview;
+			if (row["review_status"].asString() == "returned") ++returned;
         }
-        if (row["score"].asDouble() >= 0)
+        if (row["submitted"].asBool() && row["score"].asDouble() >= 0)
         {
             scoreSum += row["score"].asDouble();
             ++scoreCount;
@@ -668,6 +763,7 @@ Json::Value InstitutionService::buildAssignmentProgress(const Json::Value &learn
     out["student_count"] = studentCount;
 	out["submitted_count"] = submitted;
 	out["pending_review_count"] = pendingReview;
+	out["returned_count"] = returned;
     out["missing_count"] = studentCount - submitted;
     out["completion_rate"] = studentCount == 0 ? 0.0 : static_cast<double>(submitted) / studentCount;
     out["average_score"] = scoreCount == 0 ? -1.0 : scoreSum / scoreCount;
@@ -759,7 +855,7 @@ Json::Value InstitutionService::buildWeaknessSummary(const std::vector<Json::Val
     return out;
 }
 
-Json::Value InstitutionService::renewalRisk(const std::string &studentId, const std::vector<Json::Value> &answers) const
+Json::Value InstitutionService::renewalRisk(const std::string &studentId, const std::vector<Json::Value> &answers, const std::string &orgId) const
 {
     const auto profile = profileRepository_.loadProfile(studentId);
     std::string latest;
@@ -767,29 +863,63 @@ Json::Value InstitutionService::renewalRisk(const std::string &studentId, const 
     {
         latest = std::max(latest, answerSavedAt(answer));
     }
-    const auto inactiveDays = latest.empty() ? 999 : daysSince(latest);
+    const auto membership = orgId.empty() ? Json::Value(Json::nullValue) : organizationRepository_.findMembership(studentId, orgId);
+    const auto user = userRepository_.findUserById(studentId);
+    const auto joinedAt = membership.get("joined_at", user.get("created_at", common::nowIso8601())).asString();
+    std::string firstCourseAt;
+    if (!orgId.empty())
+    {
+        const auto organization = organizationRepository_.findOrganization(orgId);
+        for (const auto &group : organization["learning_groups"])
+        {
+            if (!learningGroupHasUserRole(group, studentId, {"student"})) continue;
+            bool hasLessons = false;
+            for (const auto &lesson : organization["lessons"])
+            {
+                if (lesson.get("group_id", "") != group["learning_group_id"]) continue;
+                hasLessons = true;
+                const auto status = lesson.get("status", "scheduled").asString();
+                if (status == "cancelled" || status == "no_show" || status == "archived" ||
+                    (lesson["student_ids"].isArray() && !stringArrayContains(lesson["student_ids"], studentId))) continue;
+                const auto start = lesson.get("starts_at", "").asString();
+                if (!start.empty() && (firstCourseAt.empty() || start < firstCourseAt)) firstCourseAt = start;
+            }
+            const auto start = group.get("starts_at", "").asString(), status = group.get("status", "active").asString();
+            if (!hasLessons && status != "cancelled" && status != "archived" && !start.empty() &&
+                (firstCourseAt.empty() || start < firstCourseAt)) firstCourseAt = start;
+        }
+    }
+    const bool awaitingSchedule = !orgId.empty() && firstCourseAt.empty();
+    const bool awaitingCourse = !firstCourseAt.empty() && firstCourseAt > common::nowIso8601();
+    const auto observationStart = std::max(joinedAt, firstCourseAt);
+    const auto activityBase = std::max(latest, observationStart);
+    const auto inactiveDays = std::max(0, daysSince(activityBase));
+    const bool observing = awaitingSchedule || awaitingCourse ||
+        (daysSince(observationStart) < 14 && (latest.empty() || latest < observationStart));
     const auto expiresAt = profile.get("plan_expires_at", "").asString();
     Json::Value out(Json::objectValue);
     out["student"] = buildMemberView(studentId);
     out["inactive_days"] = inactiveDays;
+    out["category"] = "learning_inactive";
+    out["observing"] = observing;
+    out["first_course_at"] = firstCourseAt;
+    out["observation_started_at"] = observationStart;
+    out["observation_stage"] = !observing ? "active" : awaitingSchedule ? "awaiting_schedule" : awaitingCourse ? "awaiting_course" : "observing";
+    out["membership_expiring"] = !expiresAt.empty() && daysSince(expiresAt) >= -7;
     out["plan_expires_at"] = expiresAt;
     out["level"] = "low";
-    out["reason"] = "学习活跃正常";
-    if (inactiveDays >= 14)
+    out["reason"] = observing ? awaitingSchedule ? "尚未安排首课，暂不判定学习中断" : awaitingCourse ? "首课尚未开始，暂不判定学习中断" : "开课观察期，尚无练习记录" : "学习活跃正常";
+    if (!observing && inactiveDays >= 14)
     {
         out["level"] = "high";
         out["reason"] = "超过 14 天没有练习记录";
     }
-    else if (inactiveDays >= 7)
+    else if (!observing && inactiveDays >= 7)
     {
         out["level"] = "medium";
         out["reason"] = "超过 7 天没有练习记录";
     }
-    if (!expiresAt.empty() && daysSince(expiresAt) >= -7)
-    {
-        out["level"] = out["level"].asString() == "high" ? "high" : "medium";
-        out["reason"] = "套餐临近到期或已到期";
-    }
+    // A personal membership expiry is informational, separate from institution course renewal.
     return out;
 }
 
@@ -811,7 +941,7 @@ Json::Value InstitutionService::buildCoursePackageSummary(const Json::Value &org
         for (const auto &coursePackage : organization.get("course_packages", Json::Value(Json::arrayValue)))
         {
             const auto studentId = coursePackage.get("student_id", "").asString();
-            if (!canManageInstitution(roles) && viewerUserId != studentId && !visibleStudents.contains(studentId))
+            if (!canManageInstitution(institutionRolesForOrganization(organizationRepository_, viewerUserId, roles, organizationId)) && viewerUserId != studentId && !visibleStudents.contains(studentId))
             {
                 continue;
             }
@@ -851,8 +981,8 @@ Json::Value InstitutionService::buildScheduleSummary(const Json::Value &visibleL
     std::vector<Json::Value> items;
     for (const auto &group : visibleLearningGroups)
     {
-        if (!canManageInstitution(roles) &&
-            !learningGroupHasUserRole(group, viewerUserId, {"teacher", "assistant", "student"}))
+        if (!canManageInstitution(institutionRolesForOrganization(organizationRepository_, viewerUserId, roles, group.get("organization_id", "").asString())) &&
+            !learningGroupHasUserRole(group, viewerUserId, {"teacher", "assistant"}))
         {
             continue;
         }
@@ -969,12 +1099,21 @@ Json::Value InstitutionService::visibleLessonPrepPlans(const std::string &userId
         const auto organizationId = organization.get("organization_id", organization.get("scope_id", "")).asString();
         for (auto plan : organization.get("lesson_prep_plans", Json::Value(Json::arrayValue)))
         {
-            if (!canManageInstitution(roles) && plan.get("created_by", "").asString() != userId)
+            if (!canManageInstitution(institutionRolesForOrganization(organizationRepository_, userId, roles, organizationId)) && plan.get("created_by", "").asString() != userId)
             {
                 continue;
             }
             plan["organization_id"] = organizationId;
             plan["organization_name"] = organization.get("name", organizationId).asString();
+            try
+            {
+                plan["question_ids"] = resolveLessonPrepQuestionKeys(examRepository_.getExamById(plan.get("exam_id", "").asString()), plan);
+            }
+            catch (const common::AppException &error)
+            {
+                plan["question_ids"] = Json::Value(Json::arrayValue);
+                plan["scope_error"] = error.message();
+            }
             out.append(plan);
         }
     }
@@ -1186,6 +1325,8 @@ Json::Value InstitutionService::buildListeningWeaknesses(const std::vector<Json:
         for (const auto &key : results.getMemberNames())
         {
             const auto row = results[key];
+            const auto status = row.get("status", "").asString();
+            if (status != "correct" && status != "wrong") continue;
             const auto skill = classifyAnswerRow(answer, row, key);
             if (skill != "听解" && skill != "读听解")
             {
@@ -1223,23 +1364,33 @@ Json::Value InstitutionService::buildQuestionSet(const Json::Value &payload) con
 {
     Json::Value out(Json::arrayValue);
     const auto examId = payload.get("exam_id", "").asString();
-    const auto limit = std::max(1, payload.get("limit", 20).asInt());
+    const auto limit = std::clamp(payload.get("limit", 20).asInt(), 1, 500);
     auto focus = payload.get("focus_keyword", payload.get("focus_type", "")).asString();
     std::transform(focus.begin(), focus.end(), focus.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     if (!examId.empty())
     {
         const auto exam = examRepository_.getExamById(examId);
         const auto sections = exam["exam_info"]["sections"];
+        const auto keys = resolveAssignmentQuestionKeys(exam, payload);
+        std::set<std::string> selected;
+        for (const auto &key : keys) selected.insert(key.asString());
         int added = 0;
-        for (const auto &section : sections)
+        for (Json::ArrayIndex si = 0; si < sections.size(); ++si)
         {
-            for (const auto &q : section["questions"])
+            const auto section = sections[si];
+            auto questions = section.get("questions", Json::Value(Json::arrayValue));
+            if (questions.empty()) for (const auto &passage : section["passages"])
+                for (auto q : passage["questions"]) { q["_prep_passage"] = passage.get("passage", ""); questions.append(q); }
+            for (const auto &q : questions)
             {
+                const auto id = q.get("id", q.get("question_id", "")).asString();
+                const auto key = std::to_string(si) + ":" + id;
+                if (!selected.contains(key)) continue;
                 if (added >= limit)
                 {
                     break;
                 }
-                auto haystack = section.get("name", section.get("type", "")).asString() + " " +
+                auto haystack = section.get("section_name", section.get("name", section.get("type", ""))).asString() + " " +
                                 section.get("section_type", "").asString() + " " +
                                 q.get("type", section.get("type", "")).asString() + " " +
                                 q.get("id", q.get("question_id", "")).asString();
@@ -1250,8 +1401,13 @@ Json::Value InstitutionService::buildQuestionSet(const Json::Value &payload) con
                 }
                 Json::Value item(Json::objectValue);
                 item["exam_id"] = examId;
-                item["section"] = section.get("name", section.get("type", "")).asString();
-                item["question_id"] = q.get("id", q.get("question_id", "")).asString();
+                item["section"] = section.get("section_name", section.get("name", section.get("type", ""))).asString();
+                item["question_id"] = key;
+                item["local_question_id"] = id;
+                item["section_index"] = si;
+                item["question"] = q.get("question", q.get("text", ""));
+                item["options"] = q.get("options", Json::Value(Json::arrayValue));
+                item["passage"] = q.get("_prep_passage", "");
                 item["question_number"] = q.get("question_number", q.get("number", "")).asString();
                 item["type"] = q.get("type", section.get("type", "")).asString();
                 out.append(item);
@@ -1259,6 +1415,7 @@ Json::Value InstitutionService::buildQuestionSet(const Json::Value &payload) con
             }
         }
     }
+    if (out.empty()) throw common::AppException("VALIDATION_ERROR", "没有匹配题目，请调整范围或考点关键词", drogon::k422UnprocessableEntity);
     return out;
 }
 
@@ -1514,6 +1671,7 @@ int InstitutionService::readTotalCount(const Json::Value &answer)
     {
         return stats["total_count"].asInt();
     }
+    if (stats.isMember("total_questions")) return stats["total_questions"].asInt();
     return -1;
 }
 

@@ -1,0 +1,205 @@
+[
+  {
+    "tag": "BUTTON",
+    "text": "×\n\t\t\t\t\t‹返回",
+    "id": "",
+    "attrs": [
+      [
+        "data-login-close",
+        ""
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "手机号验证码登录",
+    "id": "",
+    "attrs": [
+      [
+        "data-login-phone-back",
+        ""
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "+86 ▾",
+    "id": "",
+    "attrs": []
+  },
+  {
+    "tag": "INPUT",
+    "text": "",
+    "id": "login-phone",
+    "attrs": []
+  },
+  {
+    "tag": "BUTTON",
+    "text": "发送验证码",
+    "id": "login-btn-send-code",
+    "attrs": []
+  },
+  {
+    "tag": "INPUT",
+    "text": "",
+    "id": "login-phone-code",
+    "attrs": []
+  },
+  {
+    "tag": "BUTTON",
+    "text": "登录",
+    "id": "login-btn-phone-verify",
+    "attrs": []
+  },
+  {
+    "tag": "INPUT",
+    "text": "",
+    "id": "login-password-phone",
+    "attrs": []
+  },
+  {
+    "tag": "INPUT",
+    "text": "",
+    "id": "login-password",
+    "attrs": []
+  },
+  {
+    "tag": "BUTTON",
+    "text": "",
+    "id": "login-password-toggle",
+    "attrs": []
+  },
+  {
+    "tag": "BUTTON",
+    "text": "忘记密码？",
+    "id": "",
+    "attrs": [
+      [
+        "data-login-phone-back",
+        ""
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "登录",
+    "id": "login-btn-password",
+    "attrs": []
+  },
+  {
+    "tag": "INPUT",
+    "text": "",
+    "id": "login-agreement",
+    "attrs": []
+  },
+  {
+    "tag": "BUTTON",
+    "text": "验证码登录",
+    "id": "",
+    "attrs": [
+      [
+        "data-mode",
+        "phone"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "密码登录",
+    "id": "",
+    "attrs": [
+      [
+        "data-mode",
+        "password"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "",
+    "id": "",
+    "attrs": [
+      [
+        "data-mode",
+        "wechat"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "G",
+    "id": "",
+    "attrs": [
+      [
+        "data-oauth",
+        "google"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "学员 student_demo",
+    "id": "",
+    "attrs": [
+      [
+        "data-dev-login",
+        "student_demo"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "老师 teacher_demo",
+    "id": "",
+    "attrs": [
+      [
+        "data-dev-login",
+        "teacher_demo"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "教学运营 assistant_demo",
+    "id": "",
+    "attrs": [
+      [
+        "data-dev-login",
+        "assistant_demo"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "机构管理员 orgadmin_demo",
+    "id": "",
+    "attrs": [
+      [
+        "data-dev-login",
+        "orgadmin_demo"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "内容管理员 contentadmin_demo",
+    "id": "",
+    "attrs": [
+      [
+        "data-dev-login",
+        "contentadmin_demo"
+      ]
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "text": "超级管理员 superadmin_demo",
+    "id": "",
+    "attrs": [
+      [
+        "data-dev-login",
+        "superadmin_demo"
+      ]
+    ]
+  }
+]

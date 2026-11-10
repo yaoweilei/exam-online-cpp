@@ -58,7 +58,8 @@ test('个人账户可以在页内兑换并查看兑换记录和订单详情', as
   await learningCreditSection.locator('summary').click();
   await expect(learningCreditSection).toHaveAttribute('open', '');
   await expect(learningCreditSection.locator('.pc-learning-credit-records')).toBeVisible();
-  await expect(page.locator('.pc-benefit-card')).toContainText('我的优惠');
+  await expect(page.locator('.pc-benefit-card')).not.toContainText('我的优惠');
+  await expect(page.locator('.pc-benefits-page > .pc-card')).toHaveCount(4);
   await expect(page.locator('.pc-benefit-card')).toContainText('当前可用');
   await expect(page.locator('.pc-benefit-card')).toContainText('累计获得');
   await expect(page.locator('.pc-benefit-card')).not.toContainText('列表来自钱包接口');

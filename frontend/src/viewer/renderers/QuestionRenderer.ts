@@ -25,10 +25,86 @@ interface RendererExamViewer {
 	answerManager: RendererAnyRecord;
 }
 export class QuestionRenderer {
+	private readonly expandedSectionInstructions = new Set<string>();
 	private readonly examViewer: RendererExamViewer;
+	private questionMenu: { root: HTMLElement; trigger: HTMLButtonElement; panel: HTMLElement } | null = null;
+	private readonly bookmarkedQuestions = new Map<string, Set<string>>();
+	private readonly bookmarkReads = new Map<string, { at: number; request: Promise<void> }>();
 	constructor(examViewer: RendererExamViewer) {
 		this.examViewer = examViewer;
 		window.addEventListener('resize', () => this.updatePaperHeight());
+		document.addEventListener('pointerdown', event => { if (this.questionMenu && !this.questionMenu.root.contains(event.target as Node)) this.closeQuestionMenu(); });
+	}
+	private closeQuestionMenu(restoreFocus = false): void {
+		if (!this.questionMenu) return;
+		const { trigger, panel } = this.questionMenu;
+		panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); this.questionMenu = null;
+		if (restoreFocus && trigger.isConnected) trigger.focus();
+	}
+	private syncBookmarkStars(owner: string): void {
+		const keys = this.bookmarkedQuestions.get(owner);
+		document.querySelectorAll<HTMLButtonElement>('.specialty-bookmark-star').forEach(button => {
+			if (button.dataset.bookmarkOwner !== owner) return;
+			const saved = !!keys?.has(button.dataset.bookmarkKey || '');
+			button.classList.toggle('is-bookmarked', saved);
+			button.setAttribute('aria-pressed', String(saved));
+			button.setAttribute('aria-label', saved ? '已收藏当前题' : '收藏本题');
+			button.title = saved ? '已收藏当前题，点击添加分类或备注' : '收藏当前题并添加复习原因';
+		});
+	}
+	private async loadBookmarkStars(owner: string): Promise<void> {
+		if (!owner || owner === 'guest' || !window.APIClient?.getBookmarks) return;
+		let read = this.bookmarkReads.get(owner);
+		if (!read || Date.now() - read.at > 30000) {
+			const previous = new Set(this.bookmarkedQuestions.get(owner));
+			const request = window.APIClient.getBookmarks(owner).then(data => {
+				const rows = (data as { questions?: RendererAnyRecord[] })?.questions || [];
+				const keys = new Set(rows.map(row => `${row.exam_id}:${row.question_id}`));
+				for (const key of this.bookmarkedQuestions.get(owner) || []) if (!previous.has(key)) keys.add(key);
+				this.bookmarkedQuestions.set(owner, keys);
+			}).catch(() => { this.bookmarkReads.delete(owner); });
+			read = { at: Date.now(), request }; this.bookmarkReads.set(owner, read);
+		}
+		await read.request;
+		this.syncBookmarkStars(owner);
+	}
+	private compactQuestionTools(tools: HTMLElement, sectionIndex: number, questionIndex: number, question: RendererAnyRecord): void {
+		const bookmark = tools.querySelector<HTMLButtonElement>('.question-bookmark-btn');
+		if (bookmark) {
+			bookmark.type = 'button'; bookmark.classList.add('specialty-bookmark-star');
+			bookmark.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg>';
+			bookmark.dataset.bookmarkOwner = String(this.examViewer.userId || 'guest');
+			bookmark.dataset.bookmarkKey = `${this.getViewerExamId()}:${question.id}`;
+			bookmark.setAttribute('aria-label', '收藏本题'); bookmark.setAttribute('aria-pressed', 'false');
+			tools.prepend(bookmark);
+			void this.loadBookmarkStars(bookmark.dataset.bookmarkOwner);
+		}
+		const items = Array.from(tools.querySelectorAll<HTMLButtonElement>('.feedback-btn, .edit-btn'));
+		if (!items.length) return;
+		const root = document.createElement('div'); root.className = 'specialty-more';
+		const trigger = document.createElement('button'); trigger.type = 'button'; trigger.className = 'specialty-more-toggle';
+		trigger.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>';
+		trigger.title = '更多题目操作'; trigger.setAttribute('aria-label', '更多题目操作'); trigger.setAttribute('aria-haspopup', 'menu'); trigger.setAttribute('aria-expanded', 'false');
+		const panel = document.createElement('div'); panel.className = 'specialty-more-menu'; panel.hidden = true; panel.id = `question-more-${sectionIndex}-${questionIndex}`; panel.setAttribute('role', 'menu'); panel.setAttribute('aria-label', '更多题目操作'); trigger.setAttribute('aria-controls', panel.id);
+		for (const item of items) {
+			const original = item.onclick;
+			item.textContent = item.classList.contains('edit-btn') ? '编辑' : '报错';
+			item.type = 'button'; item.setAttribute('role', 'menuitem'); item.tabIndex = -1;
+			item.onclick = event => { this.closeQuestionMenu(true); original?.call(item, event); };
+			panel.append(item);
+		}
+		const open = () => { this.closeQuestionMenu(); panel.hidden = false; trigger.setAttribute('aria-expanded', 'true'); this.questionMenu = { root, trigger, panel }; items[0].focus(); };
+		trigger.onclick = () => { if (panel.hidden) open(); else this.closeQuestionMenu(true); };
+		root.addEventListener('keydown', event => {
+			if (event.key === 'Escape' && !panel.hidden) { event.preventDefault(); event.stopPropagation(); this.closeQuestionMenu(true); }
+			else if (event.key === 'Tab') this.closeQuestionMenu();
+			else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+				event.preventDefault(); event.stopPropagation();
+				if (panel.hidden) { open(); if (event.key === 'ArrowUp' || event.key === 'End') items[items.length - 1].focus(); }
+				else { const index = items.indexOf(document.activeElement as HTMLButtonElement); items[event.key === 'Home' ? 0 : event.key === 'End' ? items.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus(); }
+			}
+		});
+		root.append(trigger, panel); tools.append(root);
 	}
 
 	private updatePaperHeight(): void {
@@ -42,6 +118,7 @@ export class QuestionRenderer {
 	 * 渲染当前题目
 	 */
 	renderCurrentQuestion() {
+		this.closeQuestionMenu();
 		const container = document.getElementById("current-question-container");
 		if (!container || !this.examViewer.currentExam) {
 			return;
@@ -87,12 +164,15 @@ export class QuestionRenderer {
 		const sectionInfo = document.createElement("div");
 		sectionInfo.className = "section-info";
 		const sectionTitle = currentSection.section_title || '';
+		const instructionKey = `${this.getViewerExamId()}:${this.examViewer.currentSectionIndex}`;
+		const instructionExpanded = this.expandedSectionInstructions.has(instructionKey);
+		sectionInfo.hidden = !sectionTitle;
 		const sectionHeading = document.createElement('h3');
 		const sectionInstructionToggle = document.createElement('button');
 		sectionInstructionToggle.type = 'button';
 		sectionInstructionToggle.className = 'section-instruction-toggle';
-		sectionInstructionToggle.setAttribute('aria-expanded', 'false');
-		sectionInstructionToggle.title = '展开题型说明';
+		sectionInstructionToggle.setAttribute('aria-expanded', String(instructionExpanded));
+		sectionInstructionToggle.title = instructionExpanded ? '收起题型说明' : '展开题型说明';
 
 		const sectionInstructionText = document.createElement('span');
 		sectionInstructionText.className = 'section-instruction-text';
@@ -101,11 +181,12 @@ export class QuestionRenderer {
 		const sectionInstructionAction = document.createElement('span');
 		sectionInstructionAction.className = 'section-instruction-action';
 		sectionInstructionAction.setAttribute('aria-hidden', 'true');
-		sectionInstructionAction.textContent = '展开';
+		sectionInstructionAction.textContent = instructionExpanded ? '收起' : '展开';
 
 		sectionInstructionToggle.append(sectionInstructionText, sectionInstructionAction);
 		sectionInstructionToggle.addEventListener('click', () => {
 			const expanded = sectionInstructionToggle.getAttribute('aria-expanded') === 'true';
+			if (expanded) this.expandedSectionInstructions.delete(instructionKey); else this.expandedSectionInstructions.add(instructionKey);
 			sectionInstructionToggle.setAttribute('aria-expanded', String(!expanded));
 			sectionInstructionToggle.title = expanded ? '展开题型说明' : '收起题型说明';
 			sectionInstructionAction.textContent = expanded ? '展开' : '收起';
@@ -221,9 +302,9 @@ export class QuestionRenderer {
 			img.alt = passage.alt_text || "";
 			
 			// 从localStorage读取保存的图片尺寸
-			const savedWidth = localStorage.getItem('exam-image-width');
-			if (savedWidth) {
-				wrapper.style.width = savedWidth + 'px';
+			const savedWidth = Number(localStorage.getItem('exam-image-width'));
+			if (Number.isFinite(savedWidth) && savedWidth > 0) {
+				wrapper.style.width = Math.max(200, Math.min(1200, savedWidth)) + 'px';
 			}
 			
 			// 创建右下角拖拽手柄
@@ -236,7 +317,41 @@ export class QuestionRenderer {
 			wrapper.appendChild(img);
 			wrapper.appendChild(resizeHandle);
 			contentElement.appendChild(wrapper);
+			const zoom = DOMUtils.createElementWithClass('button', 'exam-image-zoom-trigger', '放大图片');
+			zoom.type = 'button';
+			zoom.setAttribute('aria-haspopup', 'dialog');
+			zoom.addEventListener('click', () => this.showImageDetail(img, zoom));
+			contentElement.appendChild(zoom);
 		}
+	}
+
+	private showImageDetail(image: HTMLImageElement, trigger: HTMLButtonElement): void {
+		const dialog = document.createElement('dialog');
+		dialog.className = 'exam-image-detail';
+		dialog.setAttribute('aria-label', '题目图片详情');
+		const toolbar = DOMUtils.createElementWithClass('div', 'exam-image-detail-toolbar');
+		const hint = DOMUtils.createElementWithClass('span', '', '可滚动查看图片细节');
+		const close = DOMUtils.createElementWithClass('button', 'exam-image-detail-close', '关闭');
+		close.type = 'button';
+		close.addEventListener('click', () => dialog.close());
+		toolbar.append(hint, close);
+		const viewport = DOMUtils.createElementWithClass('div', 'exam-image-detail-viewport');
+		const detail = document.createElement('img');
+		detail.src = image.src;
+		detail.alt = image.alt || '题目图片';
+		detail.style.width = Math.min(1600, Math.max(800, image.naturalWidth)) + 'px';
+		viewport.appendChild(detail);
+		dialog.append(toolbar, viewport);
+		dialog.addEventListener('close', () => {
+			dialog.remove();
+			if (trigger.isConnected) trigger.focus({ preventScroll: true });
+		}, { once: true });
+		dialog.addEventListener('click', event => {
+			const box = dialog.getBoundingClientRect();
+			if (event.target === dialog && (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom)) dialog.close();
+		});
+		document.body.appendChild(dialog);
+		dialog.showModal();
 	}
 
 	/**
@@ -263,7 +378,8 @@ export class QuestionRenderer {
 			if (!isResizing) return;
 			
 			const deltaX = e.clientX - startX;
-			const newWidth = Math.max(200, Math.min(1200, startWidth + deltaX));
+			const availableWidth = wrapper.parentElement?.clientWidth || 1200;
+			const newWidth = Math.max(Math.min(200, availableWidth), Math.min(1200, availableWidth, startWidth + deltaX));
 			
 			wrapper.style.width = newWidth + 'px';
 		};
@@ -300,29 +416,44 @@ export class QuestionRenderer {
 
 		if (showQuestionText) {
 			const questionText = DOMUtils.createElementWithClass("div", "question-text");
+			const specialty = this.examViewer.getSpecialtySessionInfo?.();
+			const compactTools = specialty || this.examViewer.wrongCorrectionContext;
 			const questionBody = this.renderInlineTranslationAssist(
 				this.buildTextScopeKey(question, 'question'),
 				this.formatQuestionText(question)
 			);
 			const questionPrefix = this.getQuestionNumberPrefix(question);
-			const questionTextWithNumber = questionPrefix
-				? `<span class="question-number-inline">${questionPrefix}</span>${questionBody}`
-				: questionBody;
+			const numberLabel = specialty ? `${this.examViewer.specialtyPractice.index + 1}.` : questionPrefix.trimEnd();
+			if (numberLabel) {
+				// Keep a small gap after boxed numbers, including three-digit question IDs.
+				questionText.style.setProperty('--question-number-gutter', `${Math.max(1.75, numberLabel.length * 0.55 + 0.3)}em`);
+			}
+			const questionTextWithNumber = specialty
+				? `<span class="specialty-question-number">${numberLabel}</span><div class="specialty-question-body">${questionBody}</div>`
+				: questionPrefix ? `<span class="question-number-inline">${numberLabel}</span>${questionBody}` : questionBody;
 			DOMUtils.safeSetInnerHTML(questionText, questionTextWithNumber, "createQuestionElement-text");
+			const tools = compactTools ? document.createElement('div') : questionText;
+			if (compactTools) {
+				questionText.classList.add('specialty-question-text');
+				tools.className = 'specialty-question-tools'; tools.setAttribute('role', 'group'); tools.setAttribute('aria-label', '题目工具');
+			}
 
 			if (this.isAdmin()) {
-				questionText.appendChild(this.createEditButton('question', question));
+				tools.appendChild(this.createEditButton('question', question));
 			}
 
 			if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('question_feedback', true)) {
-				questionText.appendChild(this.createFeedbackButton(question));
+				tools.appendChild(this.createFeedbackButton(question));
 			}
 
 			if (typeof window.isFeatureEnabled !== 'function' || window.isFeatureEnabled('bookmark_folders', true)) {
-				questionText.appendChild(this.createQuestionBookmarkButton(question, sectionIndex, questionIndex));
+				tools.appendChild(this.createQuestionBookmarkButton(question, sectionIndex, questionIndex));
 			}
 
-			questionDiv.appendChild(questionText);
+			if (compactTools) {
+				this.compactQuestionTools(tools, sectionIndex, questionIndex, question);
+				const row = document.createElement('div'); row.className = 'specialty-question-row'; row.append(questionText, tools); questionDiv.append(row);
+			} else questionDiv.appendChild(questionText);
 		} else if (this.isAdmin()) {
 			const adminToolbar = DOMUtils.createElementWithClass("div", "question-admin-toolbar");
 			adminToolbar.style.cssText = "display:flex;justify-content:flex-start;gap:6px;margin:8px 0;";
@@ -369,27 +500,15 @@ export class QuestionRenderer {
 			optionsContainer.appendChild(this.examViewer.audioManager.createAudioPlayerElement(question));
 		}
 
-		// 听力文本：
-		//  - 显示答案模式（复盘）下直接展示完整 transcript
-		//  - 否则进入「三段式练习」流程：盲听 → 看原文 → 再盲听，由 AudioManager 控制显隐
-		if (question.script) {
-			if ((this.examViewer.showAnswers || this.examViewer.isCurrentPracticeQuestionChecked?.())) {
-				optionsContainer.appendChild(this.examViewer.audioManager.createScriptElement(question));
-			} else if (question.audio) {
-				optionsContainer.appendChild(this.examViewer.audioManager.createPracticeStageElement(question));
-				const scriptEl = this.examViewer.audioManager.createScriptElement(question);
-				// 默认隐藏，由阶段切换控制
-				scriptEl.classList.add('script-stage-hidden');
-				scriptEl.dataset.stageWrap = String(question.id);
-				optionsContainer.appendChild(scriptEl);
+		// 听力文本在作答时隐藏，核对答案后显示。
+		if (question.script && (this.examViewer.showAnswers || this.examViewer.isCurrentPracticeQuestionChecked?.())) {
+			optionsContainer.appendChild(this.examViewer.audioManager.createScriptElement(question));
+			if (this.isAdmin()) {
+				const scriptToolbar = DOMUtils.createElementWithClass("div", "script-toolbar");
+				scriptToolbar.style.cssText = "display:flex;justify-content:flex-end;margin-top:6px;";
+				scriptToolbar.appendChild(this.createEditButton('script', question));
+				optionsContainer.appendChild(scriptToolbar);
 			}
-		}
-
-		if (this.isAdmin() && (question.audio || question.script)) {
-			const scriptToolbar = DOMUtils.createElementWithClass("div", "script-toolbar");
-			scriptToolbar.style.cssText = "display:flex;justify-content:flex-end;margin-top:6px;";
-			scriptToolbar.appendChild(this.createEditButton('script', question));
-			optionsContainer.appendChild(scriptToolbar);
 		}
 
 		return optionsContainer;
@@ -429,7 +548,10 @@ export class QuestionRenderer {
 			? formattedOption
 			: this.renderInlineTranslationAssist(
 				this.buildTextScopeKey(question, `option${optionIndex + 1}`),
-				formattedOption
+				formattedOption,
+				0,
+				0,
+				longOption
 			);
 
 		// 将文本元素添加到选项容器中
@@ -944,6 +1066,8 @@ export class QuestionRenderer {
 			bookmarkSubmit.textContent = '保存中…';
 			try {
 				await api.addQuestionBookmark(userId, payload);
+				const keys = this.bookmarkedQuestions.get(userId) || new Set<string>();
+				keys.add(`${examId}:${question.id}`); this.bookmarkedQuestions.set(userId, keys); this.syncBookmarkStars(userId);
 				close();
 				showAppToast('已收藏当前题', 'success');
 			} catch (err) {
@@ -1450,7 +1574,7 @@ export class QuestionRenderer {
 	 */
 	formatExplanationText(text: string) {
 		// 按行分割
-		const lines = text.split('\n');
+		const lines = text.replace(/\\r\\n|\\n|\\r/g, '\n').replace(/\r\n?/g, '\n').replace(/(【[^】]+】)[ \t]*(?=[^\n])/g, '$1\n').split('\n');
 		const formattedLines = lines.map(line => {
 			const trimmedLine = line.trim();
 			// 匹配只包含【】的行（如"【题目解析】"、"【解析要点】"等）
@@ -1713,20 +1837,24 @@ export class QuestionRenderer {
 		return plain.length > 0 && !/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(plain);
 	}
 
-	private renderInlineTranslationAssist(scopeKey: string, sourceHtml: string, pIdx: number = 0, sIdx: number = 0): string {
-		const showKana = Boolean(this.examViewer.showReadingKana);
-		const showZh = Boolean(this.examViewer.showReadingZh);
+	private renderInlineTranslationAssist(scopeKey: string, sourceHtml: string, pIdx: number = 0, sIdx: number = 0, stripOptionNumber = false): string {
+		const allowed = this.examViewer.canUseReadingAssists?.() !== false;
+		const showKana = allowed && Boolean(this.examViewer.showReadingKana);
+		const showZh = allowed && Boolean(this.examViewer.showReadingZh);
 		if (!showKana && !showZh) {
 			return sourceHtml;
 		}
 
 		const examId = this.getViewerExamId();
+		const optionNumberPattern = /^\s*[1-4１-４]\s*[.．、)）]\s*/;
 		const source = showKana ? this.buildRubyForScope(examId, scopeKey, pIdx, sIdx, sourceHtml) || sourceHtml : sourceHtml;
+		const displaySource = stripOptionNumber ? source.replace(optionNumberPattern, '') : source;
 		const zh = showZh ? this.buildZhForScope(examId, scopeKey, pIdx, sIdx) : '';
-		if (!zh) {
-			return source;
+		const displayZh = stripOptionNumber ? zh.replace(optionNumberPattern, '') : zh;
+		if (!displayZh) {
+			return displaySource;
 		}
-		return `<span class="text-assist-wrap"><span class="text-assist-source">${source}</span><span class="sentence-zh">${zh}</span></span>`;
+		return `<span class="text-assist-wrap"><span class="text-assist-source">${displaySource}</span><span class="sentence-zh">${displayZh}</span></span>`;
 	}
 
 	private buildRubyForScope(examId: string, scopeKey: string, pIdx: number, sIdx: number, formattedText: string): string {
@@ -1820,8 +1948,9 @@ export class QuestionRenderer {
 	private buildSentenceWrappedHtml(rawText: string, targetWords: string[] | null, passageKey: string): string {
 		if (!rawText) return "";
 		const examId = (this.examViewer as { _currentExamId?: string | null })._currentExamId || '';
-		const showKana = Boolean(this.examViewer.showReadingKana);
-		const showZh = Boolean(this.examViewer.showReadingZh);
+		const allowed = this.examViewer.canUseReadingAssists?.() !== false;
+		const showKana = allowed && Boolean(this.examViewer.showReadingKana);
+		const showZh = allowed && Boolean(this.examViewer.showReadingZh);
 		const showTranslationChip = this.shouldShowTranslationChips();
 		const formatSentence = (s: string): string => {
 			if (!s) return "";
@@ -1905,6 +2034,7 @@ export class QuestionRenderer {
 	}
 
 	private shouldShowTranslationChips(): boolean {
+		if (this.examViewer.canUseReadingAssists?.() === false) return false;
 		const w = window as Window & { __TRANSLATION_EDIT_MODE__?: boolean };
 		if (w.__TRANSLATION_EDIT_MODE__ === true) {
 			return true;

@@ -1,0 +1,77 @@
+[
+  {
+    "text": "打开工作台导航",
+    "id": "",
+    "classes": "ls-mobile-toggle"
+  },
+  {
+    "text": "返回学习首页",
+    "id": "",
+    "classes": "ls-topbar-home"
+  },
+  {
+    "text": "打开考试设置",
+    "id": "exam-settings-toggle",
+    "classes": "btn-secondary exam-settings-toggle"
+  },
+  {
+    "text": "消息中心，2 条未读",
+    "id": "learning-message-trigger",
+    "classes": "pc-global-messages"
+  },
+  {
+    "text": "打开账号菜单",
+    "id": "user-menu-trigger",
+    "classes": "pc-trigger authenticated pc-superadmin-trigger"
+  },
+  {
+    "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+    "id": "",
+    "classes": "section-instruction-toggle"
+  },
+  {
+    "text": "🐛 报错",
+    "id": "",
+    "classes": "feedback-btn"
+  },
+  {
+    "text": "收藏本题",
+    "id": "",
+    "classes": "question-bookmark-btn"
+  },
+  {
+    "text": "确认并查看解析",
+    "id": "",
+    "classes": "specialty-confirm-answer"
+  },
+  {
+    "text": "收起练习详情",
+    "id": "",
+    "classes": "nav-btn task-details-toggle"
+  },
+  {
+    "text": "结束练习",
+    "id": "",
+    "classes": "nav-btn exit-specialty-btn"
+  },
+  {
+    "text": "第1题，共2题，点击跳转题目",
+    "id": "",
+    "classes": "question-counter"
+  },
+  {
+    "text": "上一题",
+    "id": "",
+    "classes": "nav-btn prev-btn"
+  },
+  {
+    "text": "下一题",
+    "id": "",
+    "classes": "nav-btn next-btn"
+  },
+  {
+    "text": "收起练习详情",
+    "id": "",
+    "classes": "nav-btn task-panel-close"
+  }
+]

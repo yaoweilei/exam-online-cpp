@@ -15,13 +15,14 @@
 .audio-controls {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	flex-wrap: nowrap;
+	gap: 6px;
 	margin: 0;
 }
 
 .audio-btn {
-	width: 40px;
-	height: 40px;
+	width: 28px;
+	height: 28px;
 	padding: 0;
 	background-color: var(--vscode-button-background);
 	color: transparent;
@@ -48,7 +49,7 @@
 	width: 0;
 	height: 0;
 	border-style: solid;
-	border-width: 8px 0 8px 14px;
+	border-width: 5px 0 5px 9px;
 	border-color: transparent transparent transparent var(--vscode-button-foreground);
 	margin-left: 2px;
 }
@@ -56,15 +57,17 @@
 /* 暂停图标（两个竖条） */
 .audio-btn[data-playing="true"]::before {
 	border: none;
-	width: 3px;
-	height: 14px;
+	width: 2px;
+	height: 10px;
 	background-color: var(--vscode-button-foreground);
-	margin-left: -7px;
-	box-shadow: 7px 0 0 var(--vscode-button-foreground);
+	margin-left: -5px;
+	box-shadow: 5px 0 0 var(--vscode-button-foreground);
 }
 
 .audio-progress {
-	flex: 1;
+	flex: 1 1 32px;
+	min-width: 32px;
+	margin-left: 6px;
 	height: 2px;
 	background: linear-gradient(to right, var(--vscode-button-background), var(--vscode-button-hoverBackground));
 	border-radius: 1px;
@@ -112,16 +115,30 @@
 	font-size: 12px;
 	color: var(--vscode-descriptionForeground);
 	white-space: nowrap;
-	min-width: 80px;
+	min-width: 0;
 	text-align: right;
+}
+
+.audio-enhance {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: 6px;
+	color: var(--vscode-descriptionForeground);
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+	.audio-controls { gap: 4px; }
+	.audio-progress { min-width: 24px; }
 }
 
 .script-container {
 	/* 展示完整脚本，不使用滚动条限制高度 */
-	border: 1px solid var(--vscode-input-border);
-	border-radius: 4px;
-	padding: 10px;
-	background-color: var(--vscode-input-background);
+	border: 0;
+	padding: 0;
+	background: transparent;
 }
 
 .audio-time.is-error {
@@ -131,12 +148,9 @@
 
 /* 听力脚本行基础样式 */
 .script-line {
-	display: grid;
-	grid-template-columns: auto 1fr;
-	column-gap: 1em;
-	align-items: start;
+	display: block;
 	margin: 0;
-	padding: 4px 2px;
+	padding: 12px 0;
 	border-bottom: 1px solid var(--vscode-input-border);
 	cursor: pointer;
 	line-height: 1.8;
@@ -150,6 +164,7 @@
 	color: var(--vscode-textLink-foreground);
 	text-align: left;
 	white-space: nowrap;
+	margin-right: .35em;
 }
 
 .script-line .speaker::after {
@@ -158,18 +173,25 @@
 
 .script-line .script-text {
 	display: block;
-	word-wrap: break-word;
+	overflow-wrap: anywhere;
 	color: inherit;
 	/* 听力脚本使用 MS Gothic */
 	font-family: var(--font-ja);
 }
 
-/* 无说话人（旁白 / 场景描述）：单列布局，文本占满 */
+.script-line .text-assist-wrap,
+.script-line .text-assist-source {
+	display: block;
+	margin-bottom: 0;
+}
+
+.script-line .sentence-zh {
+	margin-bottom: 0;
+}
+
+/* 旁白与有说话人的台词使用相同的行样式。 */
 .script-line.no-speaker {
-	grid-template-columns: 1fr;
-	background-color: var(--vscode-editor-background);
-	color: var(--vscode-foreground);
-	padding: 8px 4px;
+	background: transparent;
 }
 
 .script-line.no-speaker .script-text {
@@ -216,60 +238,5 @@
 .script-line,
 .speaker {
 	font-size: var(--exam-font-size);
-}
-
-/* ============================================================ */
-/* 三段式听力练习模式（盲听 → 看原文 → 再盲听 → 完成）          */
-/* ============================================================ */
-.listening-practice-bar {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px;
-	margin: 8px 0 4px;
-	padding: 6px 8px;
-	border: 1px dashed var(--vscode-input-border);
-	border-radius: 4px;
-	background: color-mix(in srgb, var(--vscode-input-background) 80%, transparent);
-	font-size: 12px;
-}
-
-.listening-practice-label {
-	color: var(--vscode-descriptionForeground);
-	font-weight: 600;
-	margin-right: 4px;
-}
-
-.listening-stage-btn {
-	padding: 3px 10px;
-	font-size: 12px;
-	border: 1px solid var(--vscode-input-border);
-	background: transparent;
-	color: var(--vscode-foreground);
-	border-radius: 3px;
-	cursor: pointer;
-	transition: all 0.15s;
-}
-
-.listening-stage-btn:hover {
-	background: var(--vscode-list-hoverBackground);
-}
-
-.listening-stage-btn.is-active {
-	background: var(--vscode-button-background);
-	color: var(--vscode-button-foreground);
-	border-color: var(--vscode-button-background);
-}
-
-.listening-practice-tip {
-	margin-left: auto;
-	color: var(--vscode-descriptionForeground);
-	font-size: 11px;
-	font-style: italic;
-}
-
-/* 三段式：盲听阶段隐藏 transcript */
-.script-container.script-stage-hidden {
-	display: none;
 }
 

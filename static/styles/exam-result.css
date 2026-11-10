@@ -29,6 +29,29 @@
 
 .exam-result-modal[hidden] { display: none; }
 
+.specialty-result-topic { margin: 0 32px 6px 0; color: var(--vscode-descriptionForeground, #706963); font-size: 13px; }
+.specialty-result h2 { margin: 0 0 8px; font-size: 25px; line-height: 1.3; }
+.specialty-result-volume { margin: 0; color: var(--vscode-descriptionForeground, #706963); font-size: 13px; }
+.specialty-result-overview { display: grid; grid-template-columns: 1fr 1.4fr; gap: 24px; align-items: center; margin: 24px 0 14px; }
+.specialty-result-rate { display: grid; gap: 6px; }
+.specialty-result-rate > span { color: var(--vscode-descriptionForeground, #706963); font-size: 13px; }
+.specialty-result-rate > strong { font-size: 48px; line-height: 1.1; font-weight: 700; }
+.specialty-result-rate > small { font-size: 12px; color: var(--vscode-descriptionForeground, #706963); }
+.specialty-result-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border-left: 1px solid var(--vscode-dropdown-border, #e9e3de); padding-left: 24px; }
+.specialty-result-counts > div { display: grid; gap: 10px; }
+.specialty-result-counts span { font-size: 12px; color: var(--vscode-descriptionForeground, #706963); white-space: nowrap; }
+.specialty-result-counts strong { font-size: 28px; line-height: 1.2; }
+.specialty-result-counts strong small { margin-left: 4px; font-size: 12px; font-weight: 400; color: var(--vscode-descriptionForeground, #706963); }
+.specialty-result-counts .is-correct > strong { color: #23724b; }
+.specialty-result-counts .is-wrong > strong { color: #b34c20; }
+.specialty-result-note { margin: 0 0 20px; font-size: 12px; color: var(--vscode-descriptionForeground, #706963); }
+.specialty-result-save { margin: 0 0 12px; color: var(--vscode-descriptionForeground, #706963); font-size: 12px; }
+@media (max-width: 600px) {
+  .specialty-result-overview { grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+  .specialty-result-counts { border-left: 0; border-top: 1px solid var(--vscode-dropdown-border, #e9e3de); padding: 16px 0 0; }
+  .specialty-result-rate > strong { font-size: 42px; }
+}
+
 .exam-result-panel {
 	position: relative;
 	width: min(620px, 100%);

@@ -4,7 +4,7 @@
     "allow_organization_override" : true,
     "description" : "负责作业流转、催交、成绩汇总和学员跟进；默认不查看试卷、答案或解析，也不占付费席位。",
     "id" : "assistant",
-    "name" : "教学管理员",
+    "name" : "教务管理员",
     "permissions" : 
     [
       "assignment.review",
@@ -95,7 +95,7 @@
     "allow_organization_override" : false,
     "description" : "平台最高权限，仅用于平台运营和技术管理。",
     "id" : "superAdmin",
-    "name" : "平台超级管理员",
+    "name" : "超级管理员",
     "permissions" : 
     [
       "*"
@@ -106,7 +106,7 @@
     "allow_organization_override" : true,
     "description" : "负责学习组教学、作业、批改、课后反馈和备课；加入机构后占用付费内容席位。",
     "id" : "teacher",
-    "name" : "老师",
+    "name" : "教师",
     "permissions" : 
     [
       "assignment.create",

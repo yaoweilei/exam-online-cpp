@@ -1,3 +1,7 @@
+// Smoke assertions must run in MinSizeRel and Release configurations too.
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include <cassert>
 #include <chrono>
 #include <cstdlib>
@@ -6,6 +10,7 @@
 #include <functional>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <vector>
@@ -16,11 +21,14 @@
 
 #include "application/services/ContactChangeChallengeService.h"
 #include "application/services/AdaptiveLearningService.h"
+#include "application/services/DailyPracticeService.h"
 #include "application/services/DraftService.h"
 #include "application/services/EmailVerificationService.h"
 #include "application/services/FeatureFlagService.h"
 #include "application/services/AnswerService.h"
 #include "application/services/AssignmentService.h"
+#include "application/services/AssignmentScope.h"
+#include "application/services/BackupStatus.h"
 #include "application/services/AuthService.h"
 #include "application/services/AuditLogService.h"
 #include "application/services/OrganizationService.h"
@@ -889,6 +897,113 @@ void testUserSearchUsesProfileIndex()
     assert(updatedName[0].get("id", "").asString() == userId);
 }
 
+void testInstitutionWorkflowRejectsStaleOrganizationSave()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::OrganizationRepository repository(tempDir.path());
+    Json::Value initial(Json::objectValue);
+    initial["organization_id"] = "org_workflow_revision";
+    initial["name"] = "Initial";
+    repository.upsertOrganization(initial);
+    const auto stale = repository.findOrganization("org_workflow_revision");
+    repository.updateOrganization("org_workflow_revision", [](Json::Value &organization) {
+        organization["lessons"][0]["status"] = "completed";
+        organization["lesson_ledger"][0]["change"] = -1;
+    });
+    bool rejected = false;
+    try { repository.upsertOrganization(stale); }
+    catch (const common::AppException &) { rejected = true; }
+    if (!rejected) throw std::runtime_error("Stale organization save overwrote a completed lesson");
+    auto latest = repository.findOrganization("org_workflow_revision");
+    latest["name"] = "Updated management settings";
+    repository.upsertOrganization(latest);
+    if (repository.findOrganization("org_workflow_revision")["lesson_ledger"][0]["change"].asInt() != -1)
+        throw std::runtime_error("Management save lost the lesson ledger");
+    try {
+        repository.updateOrganization("org_workflow_revision", [](Json::Value &organization) {
+            organization["lesson_ledger"][0]["change"] = -9;
+            throw std::runtime_error("Cancel transaction");
+        });
+    } catch (const std::runtime_error &) {}
+    if (repository.findOrganization("org_workflow_revision")["lesson_ledger"][0]["change"].asInt() != -1)
+        throw std::runtime_error("Failed workflow update was partially persisted");
+}
+
+void testOrganizationArchivePreservesDataAndBlocksAccess()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::UserRepository users(tempDir.path());
+    infrastructure::storage::ProfileRepository profiles(tempDir.path());
+    infrastructure::storage::OrganizationRepository organizations(tempDir.path());
+    application::services::SubscriptionService subscriptions(profiles, organizations, users, 0);
+    RecordingSmsService sms;
+    RecordingEmailService email;
+    application::services::OrganizationService service(organizations, users, subscriptions, sms, email, "http://localhost");
+    application::services::PaymentService payments(tempDir.path(), subscriptions, &users, &email);
+    const auto admin = users.createDevelopmentUser("superadmin_archive_smoke");
+    const auto student = users.createUser("archive_student", "secret", "archive@example.com");
+    const auto adminId = admin["id"].asString(), studentId = student["id"].asString();
+    Json::Value payload(Json::objectValue);
+    payload["name"] = "Archive test"; payload["organization_type"] = "school"; payload["seats"] = 30;
+    const auto organization = service.createOrganization(adminId, payload);
+    const auto id = organization["organization_id"].asString();
+    Json::Value member(Json::objectValue);
+    member["user_id"] = studentId; member["roles"] = Json::arrayValue; member["roles"].append("student");
+    service.upsertMember(adminId, id, member);
+    Json::Value group(Json::objectValue); group["name"] = "Preserved class";
+    service.upsertLearningGroup(adminId, id, group);
+    const auto stale = organizations.findOrganization(id);
+    const auto originalMembers = organizations.listMembershipsForScope(id);
+    const auto membershipData = [](Json::Value members) {
+        for (auto &value : members) value.removeMember("_storage_key");
+        return members;
+    };
+    expectAppException("FORBIDDEN", [&] { service.setOrganizationArchived(studentId, id, true); });
+    const auto archive = [&] { return service.setOrganizationArchived(adminId, id, true); };
+    payments.archiveOrganization(id, archive);
+    assert(organizations.findOrganization(id).isNull());
+    assert(organizations.organizationCount() == 0);
+    assert(organizations.findMembership(studentId, id).isNull());
+    assert(organizations.listMembershipsForUser(studentId).empty());
+    assert(!service.canAccessOrganization(studentId, student["roles"], id));
+    assert(service.effectiveOrganizationPermissions(adminId, admin["roles"], id).empty());
+    expectAppException("ORGANIZATION_ARCHIVED", [&] { organizations.upsertOrganization(stale); });
+    expectAppException("ORGANIZATION_ARCHIVED", [&] { organizations.upsertMembership(originalMembers[0]); });
+    expectAppException("ORGANIZATION_NOT_FOUND", [&] { subscriptions.subscriptionForOrganization(id); });
+    assert(service.listOrganizationSummaries(adminId, true, id, 1, 10)["total"].asInt() == 0);
+    Json::Value filters(Json::objectValue); filters["visibility"] = "archived";
+    assert(service.listOrganizationSummaries(adminId, true, id, 1, 10, filters)["total"].asInt() == 1);
+    {
+        infrastructure::storage::OrganizationRepository reopened(tempDir.path());
+        assert(reopened.findOrganization(id).isNull());
+        assert(membershipData(reopened.listMembershipsForScope(id)) == membershipData(originalMembers));
+        assert(reopened.findOrganization(id, true)["learning_groups"].size() == 1);
+    }
+    service.setOrganizationArchived(adminId, id, false);
+    assert(organizations.listMembershipsForScope(id) == originalMembers);
+    assert(service.listLearningGroups(id).size() == 1);
+    assert(service.canAccessOrganization(studentId, student["roles"], id));
+    const auto restored = organizations.findOrganization(id);
+    assert(restored["audit_logs"][0]["action"].asString() == "organization.restored");
+    Json::Value patch(Json::objectValue); patch["plan"] = "pro"; patch["status"] = "active";
+    subscriptions.updateOrganizationSubscription(id, patch);
+    expectAppException("ORGANIZATION_BILLING_ACTIVE", [&] { payments.archiveOrganization(id, archive); });
+    patch["plan"] = "free"; subscriptions.updateOrganizationSubscription(id, patch);
+    infrastructure::storage::SqliteJsonStore billing(tempDir.path() / "payments" / "payments.sqlite3");
+    Json::Value order(Json::objectValue);
+    order["id"] = "archive_order"; order["scope_type"] = "organization"; order["scope_id"] = id; order["status"] = "pending";
+    billing.upsert("payment_orders", "archive_order", order);
+    expectAppException("ORGANIZATION_BILLING_PENDING", [&] { payments.archiveOrganization(id, archive); });
+    order["status"] = "paid"; billing.upsert("payment_orders", "archive_order", order);
+    Json::Value refund(Json::objectValue); refund["id"] = "archive_refund"; refund["order_id"] = "archive_order"; refund["status"] = "requires_manual_review";
+    billing.upsert("payment_refunds", "archive_refund", refund);
+    expectAppException("ORGANIZATION_BILLING_PENDING", [&] { payments.archiveOrganization(id, archive); });
+    refund["status"] = "succeeded"; billing.upsert("payment_refunds", "archive_refund", refund);
+    payments.archiveOrganization(id, archive);
+    assert(billing.get("payment_orders", "archive_order")["status"].asString() == "paid");
+    assert(organizations.listMembershipsForScope(id) == originalMembers);
+}
+
 void testOrganizationMemberPermissionOverrides()
 {
     ScopedTempDir tempDir;
@@ -952,6 +1067,28 @@ void testOrganizationMemberPermissionOverrides()
     const auto organization = organizationService.createOrganization(ownerId, createOrg);
     const auto organizationId = organization.get("organization_id", "").asString();
     assert(!organizationId.empty());
+    const auto initialSummary = organizationService.listOrganizationSummaries(ownerId, true, organizationId, 1, 20);
+    assert(initialSummary["items"].size() == 1);
+    assert(initialSummary["items"][0]["member_count"].asInt() == 1);
+    assert(initialSummary["items"][0]["billable_member_count"].asInt() == 0);
+    Json::Value directoryFilters(Json::objectValue);
+    directoryFilters["members"] = "0";
+    assert(organizationService.listOrganizationSummaries(ownerId, true, organizationId, 1, 10, directoryFilters)["total"].asInt() == 0);
+    directoryFilters["members"] = "1-10";
+    directoryFilters["plan"] = "free";
+    assert(organizationService.listOrganizationSummaries(ownerId, true, organizationId, 1, 10, directoryFilters)["total"].asInt() == 1);
+    directoryFilters["plan"] = "pro";
+    assert(organizationService.listOrganizationSummaries(ownerId, true, organizationId, 1, 10, directoryFilters)["total"].asInt() == 0);
+    directoryFilters.removeMember("plan");
+    directoryFilters["status"] = "suspended";
+    assert(organizationService.listOrganizationSummaries(ownerId, true, organizationId, 1, 10, directoryFilters)["total"].asInt() == 0);
+    directoryFilters.removeMember("status");
+    assert(organizationService.listOrganizationSummaries(teacherId, false, organizationId, 1, 10, directoryFilters)["total"].asInt() == 0);
+    directoryFilters["sort"] = "member_count";
+    directoryFilters["order"] = "desc";
+    const auto sortedOrganizations = organizationService.listOrganizationSummaries(ownerId, true, "", 1, 100, directoryFilters);
+    for (Json::ArrayIndex i = 1; i < sortedOrganizations["items"].size(); ++i)
+        assert(sortedOrganizations["items"][i - 1]["member_count"].asInt() >= sortedOrganizations["items"][i]["member_count"].asInt());
     const auto containsPermission = [](const Json::Value &permissions, const std::string &expected) {
         for (const auto &permission : permissions)
         {
@@ -1007,6 +1144,9 @@ void testOrganizationMemberPermissionOverrides()
     memberPayload["permission_templates"] = templates;
     memberPayload["permission_overrides"] = overrides;
     const auto member = organizationService.upsertMember(ownerId, organizationId, memberPayload);
+    const auto memberSummary = organizationService.listOrganizationSummaries(ownerId, true, organizationId, 1, 20);
+    assert(memberSummary["items"][0]["member_count"].asInt() == 2);
+    assert(memberSummary["items"][0]["billable_member_count"].asInt() == 1);
     assert(member["permission_templates"].isArray());
     assert(member["permission_templates"].empty());
     assert(member["permission_overrides"].isArray());
@@ -1020,6 +1160,13 @@ void testOrganizationMemberPermissionOverrides()
     Json::Value organizationContentAdminPayload(Json::objectValue);
     organizationContentAdminPayload["user_id"] = organizationContentAdminId;
     organizationContentAdminPayload["roles"] = organizationContentAdminRoles;
+    expectAppException("VALIDATION_ERROR", [&]() {
+        organizationService.upsertMember(ownerId, organizationId, organizationContentAdminPayload);
+    });
+    Json::Value legacyMembership = organizationContentAdminPayload;
+    legacyMembership["scope_type"] = "organization";
+    legacyMembership["scope_id"] = organizationId;
+    organizationRepository.upsertMembership(legacyMembership);
     const auto organizationContentMember = organizationService.upsertMember(
         ownerId, organizationId, organizationContentAdminPayload);
     assert(organizationContentMember["roles"].size() == 1);
@@ -1280,7 +1427,22 @@ void testAutomaticAssignmentRemindersAreTargetedAndIdempotent()
     answers["1"] = 1;
     Json::Value score(Json::objectValue);
     score["score"] = 100;
-    assignmentService.submitAssignment(assignmentId, "student-submitted", answers, score);
+    const auto submitted = assignmentService.submitAssignment(assignmentId, "student-submitted", answers, score, "receipt-smoke-1");
+    const auto replay = assignmentService.submitAssignment(assignmentId, "student-submitted", answers, score, "receipt-smoke-1");
+    assert(submitted["attempt_no"].asInt() == 1 && replay["attempt_no"].asInt() == 1);
+    auto changedAnswers = answers;
+    changedAnswers["1"] = 2;
+    expectAppException("SUBMISSION_CONFLICT", [&]() {
+        assignmentService.submitAssignment(assignmentId, "student-submitted", changedAnswers, score, "receipt-smoke-1");
+    });
+    expectAppException("ASSIGNMENT_SUBMITTED", [&]() {
+        assignmentService.submitAssignment(assignmentId, "student-submitted", answers, score, "receipt-smoke-2");
+    });
+    expectAppException("ASSIGNMENT_SUBMITTED", [&]() {
+        assignmentService.submitAssignment(assignmentId, "student-submitted", changedAnswers, score);
+    });
+    const auto legacyReplay = assignmentService.submitAssignment(assignmentId, "student-submitted", answers, score);
+    assert(legacyReplay["attempt_no"].asInt() == 1 && legacyReplay["submission_id"] == submitted["submission_id"]);
 
     const auto firstRun = assignmentService.runAutomaticReminderJobs("2026-07-31T13:00:00Z");
     assert(firstRun.get("reminders_created", 0).asInt() == 1);
@@ -1301,6 +1463,26 @@ void testAutomaticAssignmentRemindersAreTargetedAndIdempotent()
     assert(submittedStudentView["own_reminders"].empty());
     assert(!submittedStudentView["own_submission"].isNull());
 
+    Json::Value review(Json::objectValue);
+    review["action"] = "returned";
+    review["comment"] = "请重做";
+    assignmentService.reviewSubmission(assignmentId, "student-submitted", "teacher-smoke", review);
+    Json::Value manual(Json::objectValue);
+    manual["message"] = "请完成重做";
+    manual["idempotency_key"] = "manual-returned-smoke";
+    const auto reminder = assignmentService.remindAssignment(assignmentId, "teacher-smoke", manual);
+    assert(reminder["target_student_ids"].size() == 2);
+    const auto afterReturn = assignmentService.runAutomaticReminderJobs("2026-07-31T13:30:00Z");
+    assert(afterReturn["targets"].asInt() == 2 && afterReturn["reminders_created"].asInt() == 1);
+    assert(assignmentService.runAutomaticReminderJobs("2026-07-31T13:31:00Z")["reminders_created"].asInt() == 0);
+    const auto redo = assignmentService.submitAssignment(assignmentId, "student-submitted", changedAnswers, score);
+    assert(redo["attempt_no"].asInt() == 2 && !redo["submission_id"].asString().empty());
+    assert(assignmentService.submitAssignment(assignmentId, "student-submitted", changedAnswers, score)["attempt_no"].asInt() == 2);
+    manual["idempotency_key"] = "manual-after-resubmit";
+    manual["student_ids"].append("student-submitted");
+    manual["student_ids"].append("student-missing");
+    assert(assignmentService.remindAssignment(assignmentId, "teacher-smoke", manual)["target_student_ids"].size() == 1);
+
     Json::Value disabledPayload = payload;
     disabledPayload["title"] = "关闭自动催交的作业";
     disabledPayload["auto_reminder_enabled"] = false;
@@ -1311,6 +1493,19 @@ void testAutomaticAssignmentRemindersAreTargetedAndIdempotent()
         disabledPayload);
     const auto disabledRun = assignmentService.runAutomaticReminderJobs("2026-07-31T14:00:00Z");
     assert(disabledRun.get("reminders_created", 0).asInt() == 0);
+
+    Json::Value targetedPayload = payload;
+    targetedPayload["title"] = "只分配给一位学员的错题作业";
+    targetedPayload["target_student_ids"].append("student-missing");
+    const auto targeted = assignmentService.createAssignment("org-reminder-smoke", "group-reminder-smoke", "teacher-smoke", targetedPayload);
+    const auto targetedId = targeted["assignment_id"].asString();
+    const auto targetedRun = assignmentService.runAutomaticReminderJobs("2026-07-31T14:05:00Z");
+    assert(targetedRun["reminders_created"].asInt() == 1 && targetedRun["targets"].asInt() == 1);
+    const auto targetedStored = assignmentService.getAssignment(targetedId);
+    assert(targetedStored["reminders"][0]["target_student_ids"].size() == 1);
+    assert(targetedStored["reminders"][0]["target_student_ids"][0].asString() == "student-missing");
+    expectAppException("FORBIDDEN", [&]() { assignmentService.getAssignmentForStudent(targetedId, "student-submitted"); });
+    expectAppException("FORBIDDEN", [&]() { assignmentService.submitAssignment(targetedId, "student-submitted", answers, score); });
 
     Json::Value invalidPayload = payload;
     invalidPayload["auto_reminder_hours_before"] = Json::Value(Json::arrayValue);
@@ -1367,9 +1562,11 @@ void testDraftRevisionConflictAndForcedOverwrite()
     Json::Value initial(Json::objectValue);
     initial["exam_id"] = "exam-a";
     initial["attempt_id"] = "attempt-a";
+    initial["exam_mode"] = "mock";
     initial["answers"]["0:1"] = 1;
     const auto first = service.save("student-a", initial);
     assert(first.get("revision", 0).asInt() == 1);
+    assert(first.get("exam_mode", "").asString() == "mock");
 
     Json::Value stale = initial;
     stale["base_revision"] = 0;
@@ -1387,6 +1584,25 @@ void testDraftRevisionConflictAndForcedOverwrite()
     try { service.save("student-a", forced); }
     catch (const common::AppException &error) { sawSubmitted = error.code() == "ATTEMPT_SUBMITTED"; }
     assert(sawSubmitted);
+
+    Json::Value other = initial;
+    other["exam_id"] = "exam-b";
+    other["attempt_id"] = "attempt-b";
+    other["answers"]["0:1"] = 2;
+    service.save("student-a", other);
+    assert(service.get("student-a", "exam-a")["answers"]["0:1"].asInt() == 1);
+    assert(service.get("student-a", "exam-b")["answers"]["0:1"].asInt() == 2);
+    assert(!service.clear("student-a", "exam-b", "attempt-a"));
+    assert(service.clear("student-a", "exam-a", "attempt-a"));
+    assert(service.get("student-a", "exam-a").isNull());
+    assert(service.get("student-a")["exam_id"].asString() == "exam-b");
+
+    // A legacy draft must survive saving and submitting another paper.
+    const auto legacyPath = tempDir.path() / "drafts" / "legacy-user.json";
+    infrastructure::storage::writeJsonFileAtomic(legacyPath, initial);
+    service.save("legacy-user", other);
+    service.clear("legacy-user", "exam-b", "attempt-b");
+    assert(service.get("legacy-user", "exam-a")["answers"]["0:1"].asInt() == 1);
 }
 
 void testExpiredSectionsPersistInTimerSnapshot()
@@ -1419,6 +1635,67 @@ void testAnswerSubmissionIdempotencyAndHistory()
     assert(!first.get("idempotent_replay", true).asBool());
     assert(replay.get("idempotent_replay", false).asBool());
     assert(repository.listAttempts("student-a", "exam-a").size() == 1);
+    const auto attempt = repository.saveAnswer("student-a", "exam-b", answers, statistics, "page-one", "shared-attempt");
+    answers["0:1"] = 4;
+    const auto otherPage = repository.saveAnswer("student-a", "exam-b", answers, statistics, "page-two", "shared-attempt");
+    assert(!attempt["idempotent_replay"].asBool());
+    assert(otherPage["idempotent_replay"].asBool());
+    assert(otherPage["answers"]["0:1"].asInt() == 1);
+    assert(repository.listAttempts("student-a", "exam-b").size() == 1);
+    assert(!repository.saveAnswer("student-a", "exam-b", answers, statistics, "retry-new", "new-attempt")["idempotent_replay"].asBool());
+}
+
+void testDailyPracticeKeepsCompletedReviewsAndUsesWeakDomains()
+{
+    ScopedTempDir tempDir;
+    infrastructure::storage::ExamRepository exams(tempDir.path() / "paper");
+    infrastructure::storage::AnswerRepository answers(tempDir.path());
+    infrastructure::storage::WrongQuestionRepository wrong(tempDir.path());
+    infrastructure::storage::SrsRepository cards(tempDir.path());
+    application::services::SrsService srs(cards);
+    application::services::AdaptiveLearningService adaptive(tempDir.path());
+    application::services::DailyPracticeService daily(tempDir.path(), wrong, srs, exams, answers);
+    Json::Value paper(Json::objectValue);
+    paper["family"] = "jlpt";
+    paper["access_level"] = "free";
+    paper["exam_info"]["exam_level"] = "N3";
+    paper["exam_info"]["family"] = "jlpt";
+    for (int index = 0; index < 2; ++index) {
+        Json::Value section(Json::objectValue);
+        section["section_type"] = index ? "listening" : "vocabulary";
+        section["section_id"] = index ? "3.01" : "1.01";
+        for (int id = 1; id <= 8; ++id) {
+            Json::Value question(Json::objectValue);
+            question["id"] = id; question["question"] = "test"; question["correct_answer"] = 1;
+            question["options"].append("right"); question["options"].append("wrong");
+            section["questions"].append(question);
+        }
+        paper["exam_info"]["sections"].append(section);
+    }
+    exams.saveExam("N3_2020_07", paper);
+    Json::Value snapshot = paper["exam_info"]["sections"][1]["questions"][0];
+    snapshot["section_index"] = 1;
+    cards.upsertCard("review-student", "N3_2020_07", "1:1", "listening", snapshot, "2000-01-01T00:00:00Z");
+    wrong.recordWrong("review-student", "N3_2020_07", "0:1", "1", "2", "1.01", "vocabulary", paper["exam_info"]["sections"][0]["questions"][0]);
+    auto plan = daily.getOrCreateToday("review-student", 50, "JLPT N3", 20);
+    bool foundDue = false, foundWrong = false;
+    for (const auto &item : plan["items"]) {
+        foundDue |= item["source"].asString() == "srs_due" && item["section_index"].asInt() == 1 && item["question_id"].asString() == "1";
+        foundWrong |= item["source"].asString() == "wrong_question" && item["section_index"].asInt() == 0 && item["question_id"].asString() == "1";
+    }
+    assert(foundDue && foundWrong);
+    daily.markComplete("review-student", "N3_2020_07", "1:1", "JLPT N3");
+    plan = daily.getOrCreateToday("review-student", 50, "JLPT N3", 30);
+    assert(plan["completed_question_ids"].size() == 1);
+    assert(plan["completed_question_ids"][0].asString() == "N3_2020_07\x1f" "1:1");
+    assert(daily.regenerate("review-student", 50, "JLPT N3", 20)["completed_question_ids"].size() == 1);
+    Json::Value score(Json::objectValue), row(Json::objectValue);
+    row["question_id"] = "1"; row["section_index"] = 1; row["status"] = "wrong";
+    score["results"]["1:1"] = row;
+    adaptive.recordSubmission("weak-student", "N3_DIAGNOSTIC_V1", paper, score);
+    const auto focused = daily.getOrCreateToday("weak-student", 50, "JLPT N3", 20);
+    assert(!focused["items"].empty());
+    assert(focused["items"][0]["section_type"].asString() == "listening");
 }
 
 void testAuditLogsRotateAndRemainQueryable()
@@ -1565,11 +1842,138 @@ void testWrongQuestionCorrectionRequiresTwoConsecutiveCorrectAnswers()
 
     const auto otherExam = repository.recordCorrection("student-correction", "N2_2022_07", "2", "1", "1", true);
     assert(otherExam.isNull());
+
+    repository.recordWrong("student-correction", "N2_2016_07", "3", "1", "2", "1.01", "vocabulary", snapshot);
+    const auto once = repository.recordCorrection("student-correction", "N2_2016_07", "3", "1", "1", true, 2, "one-answer");
+    const auto replay = repository.recordCorrection("student-correction", "N2_2016_07", "3", "1", "1", true, 2, "one-answer");
+    assert(once["correct_streak"].asInt() == 1);
+    assert(replay["correct_streak"].asInt() == 1);
+    assert(replay["idempotent_replay"].asBool());
+    assert(!replay["mastered"].asBool());
+    bool rejected = false;
+    try { repository.recordCorrection("student-correction", "N2_2016_07", "3", "1", "2", false, 2, "one-answer"); }
+    catch (const common::AppException &) { rejected = true; }
+    assert(rejected);
+    const auto independent = repository.recordCorrection("student-correction", "N2_2016_07", "3", "1", "1", true, 2, "next-answer");
+    assert(independent["correct_streak"].asInt() == 2);
+    assert(independent["mastered"].asBool());
+    const auto original = repository.recordCorrection("student-correction", "N2_2016_07", "3", "1", "1", true, 2, "one-answer");
+    assert(original["correct_streak"].asInt() == 1);
 }
 }  // namespace
 
+void testUserIdLookupPreservesCurrentAccessAndLegacyKeys()
+{
+    ScopedTempDir temp;
+    Json::Value users(Json::objectValue);
+    for (int i=0;i<2500;++i) {
+        auto &user=users["legacy_storage_"+std::to_string(i)];
+        user["id"]="canonical_"+std::to_string(i); user["username"]="lookup_"+std::to_string(i);
+        user["status"]="active"; user["roles"]=Json::arrayValue; user["roles"].append("student");
+    }
+    infrastructure::storage::writeJsonFileAtomic(temp.path()/"users.json",users);
+    infrastructure::storage::UserRepository repository(temp.path());
+    assert(repository.findUserById("canonical_2499")["username"].asString()=="lookup_2499");
+    assert(repository.findUserById("legacy_storage_2499").isNull());
+    assert(repository.findUserById("missing").isNull());
+    Json::Value access; access["roles"]=Json::arrayValue; access["roles"].append("teacher");
+    repository.updatePlatformAccess("canonical_2499",access);
+    assert(repository.findUserById("canonical_2499")["roles"][0].asString()=="teacher");
+    repository.deactivateUser("canonical_2499","lookup test");
+    assert(repository.findUserById("canonical_2499")["status"].asString()!="active");
+}
+
 int main()
 {
+    {
+        using application::services::readBackupStatus;
+        using application::services::backupUtcTime;
+        ScopedTempDir dir;
+        const auto file=dir.path()/"backup-status.json", data=dir.path()/"data";
+        std::filesystem::create_directories(data);
+        const auto now=*backupUtcTime("2026-10-28T10:00:00Z");
+        assert(readBackupStatus({},data,now)["state"]=="not_configured");
+        assert(readBackupStatus(file,data,now)["state"]=="missing");
+        Json::Value status(Json::objectValue);
+        status["schema_version"]=1; status["data_root"]=data.string(); status["state"]="succeeded";
+        status["last_successful_at"]="2026-10-28T09:00:00.1234567+00:00";
+        status["last_successful_backup_created_at"]="2026-10-28T08:00:00Z";
+        status["finished_at"]=status["last_successful_at"];
+        const auto check=[&]() { infrastructure::storage::writeJsonFileAtomic(file,status); return readBackupStatus(file,data,now); };
+        assert(check()["ready"].asBool());
+        status["state"]="failed"; status["error"]="PRIVATE disk path and provider secret";
+        auto failed=check(); assert(failed["state"]=="failed" && !failed["ready"].asBool());
+        assert(failed.toStyledString().find("PRIVATE")==std::string::npos);
+        assert(failed.toStyledString().find(data.string())==std::string::npos);
+        status["state"]="running"; status["started_at"]="2026-10-28T09:30:00Z"; assert(check()["ready"].asBool());
+        status["started_at"]="2026-10-28T07:30:00Z"; assert(check()["state"]=="stalled");
+        status["state"]="succeeded"; status["last_successful_backup_created_at"]="2026-10-24T08:00:00Z";
+        assert(check()["state"]=="stale"); // Fresh verification cannot make an old snapshot fresh.
+        status["last_successful_backup_created_at"]="2026-10-24T08:00:00Z";
+        status["state"]="succeeded"; status["last_successful_at"]="2026-10-24T09:00:00Z";
+        status["finished_at"]=status["last_successful_at"]; assert(check()["state"]=="stale");
+        status["last_successful_at"]="2026-10-29T09:00:00Z"; assert(check()["state"]=="invalid");
+        status["last_successful_at"]="2026-02-30T09:00:00Z"; assert(check()["state"]=="unverified");
+        status["data_root"]=dir.path().string(); assert(check()["state"]=="wrong_source");
+        std::ofstream(file)<<"{"; assert(readBackupStatus(file,data,now)["state"]=="invalid");
+    }
+    {
+        ScopedTempDir tempDir;
+        infrastructure::storage::ProfileRepository repository(tempDir.path());
+        Json::Value first(Json::arrayValue), second(Json::arrayValue);
+        first.append("reminder:first"); second.append("reminder:second");
+        if (!repository.messageReads("student-a").empty()) throw std::runtime_error("New inbox must not contain read receipts");
+        const auto receipt = repository.markMessagesRead("student-a", first);
+        repository.markMessagesRead("student-a", second);
+        if (repository.markMessagesRead("student-a", first)["reminder:first"] != receipt["reminder:first"])
+            throw std::runtime_error("Acknowledgement must preserve its original timestamp");
+        infrastructure::storage::ProfileRepository reopened(tempDir.path());
+        if (reopened.messageReads("student-a").size() != 2) throw std::runtime_error("Read receipts must merge and persist");
+        if (!reopened.messageReads("student-b").empty()) throw std::runtime_error("Read receipts must be scoped to their owner");
+    }
+    {
+        Json::Value exam(Json::objectValue), assignment(Json::objectValue);
+        for (int section = 0; section < 2; ++section)
+            for (int question = 1; question <= 3; ++question)
+                exam["exam_info"]["sections"][section]["questions"][question - 1]["id"] = std::to_string(question);
+        assignment["question_start"] = 1;
+        assignment["question_end"] = 3;
+        const auto keys = application::services::resolveAssignmentQuestionKeys(exam, assignment);
+        assert(keys.size() == 3 && keys[0].asString() == "0:1" && keys[2].asString() == "0:3");
+        assignment["question_ids"].append("1:2");
+        const auto explicitKeys = application::services::resolveAssignmentQuestionKeys(exam, assignment);
+        assert(explicitKeys.size() == 1 && explicitKeys[0].asString() == "1:2");
+        for (const auto &bad : {"2", "9:99"}) {
+            assignment["question_ids"] = Json::Value(Json::arrayValue);
+            assignment["question_ids"].append(bad);
+            bool rejected = false;
+            try { application::services::resolveAssignmentQuestionKeys(exam, assignment); }
+            catch (const common::AppException &) { rejected = true; }
+            assert(rejected);
+        }
+        assignment["question_ids"] = Json::Value(Json::arrayValue);
+        assignment["question_start"] = 99;
+        bool rejected = false;
+        try { application::services::resolveAssignmentQuestionKeys(exam, assignment); }
+        catch (const common::AppException &) { rejected = true; }
+        assert(rejected);
+        Json::Value prep(Json::objectValue);
+        for (const auto &id : {"0:1", "1:2"}) { Json::Value item(Json::objectValue); item["question_id"] = id; prep["question_set"].append(item); }
+        const auto prepKeys = application::services::resolveLessonPrepQuestionKeys(exam, prep);
+        assert(prepKeys.size() == 2 && prepKeys[1].asString() == "1:2");
+        prep["question_set"] = Json::Value(Json::arrayValue);
+        for (const auto &id : {"1", "2", "3", "1"}) { Json::Value item(Json::objectValue); item["question_id"] = id; prep["question_set"].append(item); }
+        const auto oldKeys = application::services::resolveLessonPrepQuestionKeys(exam, prep);
+        assert(oldKeys.size() == 4 && oldKeys[3].asString() == "1:1");
+        for (auto &section : exam["exam_info"]["sections"]) {
+            section["passages"][0]["questions"] = section["questions"];
+            section.removeMember("questions");
+        }
+        assert(application::services::resolveLessonPrepQuestionKeys(exam, prep) == oldKeys);
+        prep["question_set"][0]["question_id"] = "999";
+        expectAppException("VALIDATION_ERROR", [&]() { application::services::resolveLessonPrepQuestionKeys(exam, prep); });
+    }
+    testUserIdLookupPreservesCurrentAccessAndLegacyKeys();
     testProductionConfigurationFailsClosed();
     testRequestIdsRemainUnique();
     testReferralRewardSettlesOnActivePaidSubscription();
@@ -1587,11 +1991,14 @@ int main()
     testAuthenticationRateLimitsAndResetAttemptCap();
     testUserSearchUsesProfileIndex();
     testOrganizationMemberPermissionOverrides();
+    testOrganizationArchivePreservesDataAndBlocksAccess();
+    testInstitutionWorkflowRejectsStaleOrganizationSave();
     testOrganizationLearningModel();
     testAutomaticAssignmentRemindersAreTargetedAndIdempotent();
     testCompositeAnswerKeysAreScoredPerSection();
     testDraftRevisionConflictAndForcedOverwrite();
     testAnswerSubmissionIdempotencyAndHistory();
+    testDailyPracticeKeepsCompletedReviewsAndUsesWeakDomains();
     testExpiredSectionsPersistInTimerSnapshot();
     testAuditLogsRotateAndRemainQueryable();
     testOrganizationFeatureFlagsRejectUnsupportedOverrides();

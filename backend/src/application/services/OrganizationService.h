@@ -37,11 +37,13 @@ class OrganizationService
     Json::Value listOrganizationsForUser(const std::string &userId, bool includeAll = false) const;
 
     Json::Value listOrganizationSummaries(const std::string &userId, bool includeAll,
-                                          const std::string &query, int page, int pageSize) const;
+                                          const std::string &query, int page, int pageSize,
+                                          const Json::Value &filters = Json::Value(Json::objectValue)) const;
 
     Json::Value getOrganization(const std::string &organizationId) const;
 
     Json::Value createOrganization(const std::string &actorUserId, const Json::Value &payload);
+    Json::Value setOrganizationArchived(const std::string &actorUserId, const std::string &organizationId, bool archived);
 
     Json::Value listMembers(const std::string &organizationId) const;
 
@@ -54,6 +56,7 @@ class OrganizationService
     Json::Value listPendingInvitationsForUser(const std::string &actorUserId) const;
 
     Json::Value upsertMember(const std::string &actorUserId, const std::string &organizationId, const Json::Value &payload);
+    Json::Value importStudents(const std::string &actorUserId, const std::string &organizationId, const std::string &text, bool commit);
 
     void removeMember(const std::string &actorUserId, const std::string &organizationId, const std::string &userId);
 
@@ -146,7 +149,7 @@ class OrganizationService
 
     static bool hasRole(const Json::Value &roles, const std::string &expected);
 
-    static Json::Value normalizeMemberRoles(const Json::Value &inputRoles);
+    static Json::Value normalizeMemberRoles(const Json::Value &inputRoles, bool preserveRetiredRole = false);
 
     static Json::Value normalizePermissionTemplates(const Json::Value &inputTemplates, const Json::Value &roles);
 

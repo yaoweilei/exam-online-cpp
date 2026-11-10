@@ -15,13 +15,14 @@ class DraftService
     explicit DraftService(infrastructure::storage::DraftRepository &repository);
 
     // 拉取草稿；不存在返回 Json::nullValue
-    Json::Value get(const std::string &userId) const;
+    Json::Value get(const std::string &userId, const std::string &examId = "") const;
+    Json::Value list(const std::string &userId) const;
 
     // 保存草稿；patch 至少包含 exam_id
     Json::Value save(const std::string &userId, const Json::Value &patch);
 
     // 删除草稿
-    bool clear(const std::string &userId);
+    bool clear(const std::string &userId, const std::string &examId = "", const std::string &attemptId = "");
 
     void markSubmitted(const std::string &userId, const std::string &examId, const std::string &attemptId);
 

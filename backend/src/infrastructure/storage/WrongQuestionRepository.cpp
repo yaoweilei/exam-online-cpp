@@ -1,7 +1,9 @@
 #include "WrongQuestionRepository.h"
 
 #include "JsonIo.h"
+#include "common/AppException.h"
 #include "common/TimeUtils.h"
+#include <drogon/HttpTypes.h>
 
 namespace infrastructure::storage
 {
@@ -317,7 +319,8 @@ Json::Value WrongQuestionRepository::recordCorrection(const std::string &userId,
                                                        const std::string &correctAnswer,
                                                        const std::string &userAnswer,
                                                        bool correct,
-                                                       int autoMasterThreshold)
+                                                       int autoMasterThreshold,
+                                                       const std::string &submissionId)
 {
     if (userId.empty() || examId.empty() || questionId.empty())
     {
@@ -332,6 +335,18 @@ Json::Value WrongQuestionRepository::recordCorrection(const std::string &userId,
     }
 
     auto doc = readJsonFile(path);
+    // Store the receipt in the same atomic write as the streak update. A lost
+    // response or a concurrent retry must not count as another independent answer.
+    if (!submissionId.empty() && doc["correction_submissions"].isMember(submissionId))
+    {
+        const auto &receipt = doc["correction_submissions"][submissionId];
+        if (receipt["exam_id"].asString() != examId || receipt["question_id"].asString() != questionId ||
+            receipt["user_answer"].asString() != userAnswer)
+            throw common::AppException("SUBMISSION_CONFLICT", "本次订正已提交，请重新打开题目后再作答", drogon::k409Conflict);
+        auto replay = receipt["result"];
+        replay["idempotent_replay"] = true;
+        return replay;
+    }
     if (!doc["items"].isArray())
     {
         return Json::Value();
@@ -378,7 +393,17 @@ Json::Value WrongQuestionRepository::recordCorrection(const std::string &userId,
     }
 
     doc["updated_at"] = now;
-    const auto updated = item;
+    auto updated = item;
+    updated["correction_correct"] = correct;
+    if (!submissionId.empty())
+    {
+        auto &receipt = doc["correction_submissions"][submissionId];
+        receipt["exam_id"] = examId;
+        receipt["question_id"] = questionId;
+        receipt["user_answer"] = userAnswer;
+        receipt["result"] = updated;
+        receipt["result"].removeMember("question_snapshot");
+    }
     writeJsonFileAtomic(path, doc);
     return updated;
 }

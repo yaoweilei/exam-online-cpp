@@ -1,0 +1,15 @@
+const {chromium}=require('@playwright/test');const fs=require('node:fs');const path=require('node:path');const {pathToFileURL}=require('node:url');const c=require('./capture.cjs');
+let browser;
+(async()=>{
+ browser=await chromium.launch({channel:'msedge',headless:true});c.setBrowser(browser);
+ const page=await browser.newPage();await page.goto(pathToFileURL(path.join(__dirname,'index.html')).href);await page.locator('#role').selectOption('orgAdmin');await page.locator('#width').selectOption('768');
+ const gallery=await page.evaluate(()=>({total:document.querySelectorAll('article').length,shown:[...document.querySelectorAll('article')].filter(e=>!e.hidden).length,wrongRole:[...document.querySelectorAll('article')].some(e=>!e.hidden&&e.dataset.role!=='orgAdmin'),wrongWidth:[...document.querySelectorAll('figure')].some(e=>!e.hidden&&e.dataset.width!=='768')}));
+ const firstImage=page.locator('article:not([hidden]) figure:not([hidden]) img').first();await firstImage.scrollIntoViewIfNeeded();await firstImage.evaluate(e=>e.decode());if(gallery.total!==82||gallery.wrongRole||gallery.wrongWidth||!gallery.shown)throw Error(JSON.stringify(gallery));console.log('gallery passed');await page.close();
+ const s=await c.enter('student','student_demo');await require('../../tests/e2e/helpers/workspace-navigation').navigateWorkspace(s.shell,'openChapterPath');await c.audit.settle(s.page);await s.page.setViewportSize({width:768,height:1024});
+ const targets=await s.page.locator('.cp-stat-number').evaluateAll(es=>es.slice(0,3).map(e=>({text:e.textContent,height:e.getBoundingClientRect().height,width:e.getBoundingClientRect().width})));
+ const paper=require('../../data/paper/jlpt/n3/N3_2010_07.json'),si=paper.exam_info.sections.findIndex(x=>x.section_type==='reading'),sec=paper.exam_info.sections[si],qi=String((sec.questions||sec.passages.flatMap(p=>p.questions))[0].id);
+ await s.page.evaluate(async({si,qi})=>{await window.examViewer.startSpecialtyPractice('平板阅读复查',[{examId:'N3_2010_07',questionId:qi,sectionIndex:si}],false);window.closeLearningWorkspace();window.dispatchEvent(new CustomEvent('specialtyPracticeOpened'));},{si,qi});await s.page.setViewportSize({width:1024,height:768});await c.audit.settle(s.page);
+ const reading=await s.page.evaluate(()=>{const nodes=[...document.querySelectorAll('*')].filter(e=>e.clientHeight>100&&e.scrollHeight>e.clientHeight+10&&['auto','scroll'].includes(getComputedStyle(e).overflowY));const result=nodes.map(e=>({id:e.id,class:e.className,height:e.clientHeight,scrollHeight:e.scrollHeight}));nodes.forEach(e=>e.scrollTop=e.scrollHeight);window.scrollTo(0,document.body.scrollHeight);return result;});
+ await s.page.waitForTimeout(150);await s.page.screenshot({path:path.join(__dirname,'screenshots/exam-reading-1024-scroll-end.png')});
+ fs.writeFileSync(path.join(__dirname,'verification.json'),JSON.stringify({gallery,chapterTargets:targets,readingScrollRegions:reading},null,2));console.log(JSON.stringify({gallery,chapterTargets:targets,readingScrollRegions:reading}));await s.context.close();await browser.close();
+})().catch(e=>{console.error(e.stack);browser?.close();process.exitCode=1;});

@@ -32,12 +32,40 @@ Json::Value buildOrganizationUserSearchView(const Json::Value &user)
 void registerUserRoutes(const AppContext &ctx)
 {
     app().registerHandler(
+        "/api/v1/admin/users",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                requireRole(session, {"superAdmin"}, "需要超级管理员权限");
+                const auto query = req->getParameter("q");
+                if (query.size() > 256) throw common::AppException("VALIDATION_ERROR", "搜索关键词过长", k422UnprocessableEntity);
+                const auto requestedSort = req->getParameter("sort");
+                const auto sort = requestedSort == "username" ? "username" : "created_at";
+                const auto order = req->getParameter("order") == "asc" ? "asc" : "desc";
+                return common::ok(req, ctx.userService->listUsers(query,
+                    readBoundedIntParameter(req, "page", 1, 1, 1000000),
+                    readBoundedIntParameter(req, "page_size", 10, 1, 50), sort, order));
+            });
+        }, {Get});
+
+    app().registerHandler(
         "/api/v1/users/search",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
-                requireRole(session, {"orgAdmin", "superAdmin"},
-                            "You do not have permission to search users");
+                bool canSearch = hasAnyRole(session["roles"], {"orgAdmin", "superAdmin"});
+                if (!canSearch)
+                {
+                    const auto actorId = session.get("user_id", "").asString();
+                    const auto context = ctx.userService->context(actorId);
+                    for (const auto &membership : context["memberships"])
+                    {
+                        if (membership.get("status", "active").asString() == "active" &&
+                            ctx.organizationService->canManageOrganization(actorId, session["roles"], membership.get("scope_id", "").asString()))
+                        { canSearch = true; break; }
+                    }
+                }
+                if (!canSearch) throw common::AppException("FORBIDDEN", "You do not have permission to search users", k403Forbidden);
 
                 const auto query = req->getParameter("q");
                 if (query.empty())

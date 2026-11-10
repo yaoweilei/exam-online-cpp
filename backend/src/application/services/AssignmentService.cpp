@@ -1,4 +1,5 @@
 #include "AssignmentService.h"
+#include "AssignmentScope.h"
 
 #include <chrono>
 #include <ctime>
@@ -8,6 +9,7 @@
 #include <sstream>
 
 #include <drogon/HttpTypes.h>
+#include <drogon/utils/Utilities.h>
 
 #include "common/AppException.h"
 #include "common/TimeUtils.h"
@@ -16,6 +18,14 @@ namespace application::services
 {
 namespace
 {
+bool needsAssignmentSubmission(const Json::Value &submissions, const std::string &studentId)
+{
+    const auto submission = submissions.get(studentId, Json::Value(Json::objectValue));
+    return submission.get("submitted_at", "").asString().empty() ||
+           submission.get("review_status", "").asString() == "returned" ||
+           submission.get("status", "").asString() == "returned";
+}
+
 Json::Value findLearningGroup(const Json::Value &groups, const std::string &learningGroupId)
 {
     if (!groups.isArray() || learningGroupId.empty())
@@ -184,6 +194,16 @@ Json::Value AssignmentService::createAssignment(const std::string &organizationI
     }
     entry["question_start"] = payload.get("question_start", 0).asInt();
     entry["question_end"] = payload.get("question_end", 0).asInt();
+    if (payload.isMember("target_student_ids"))
+    {
+        if (!payload["target_student_ids"].isArray() || payload["target_student_ids"].empty() || payload["target_student_ids"].size() > 200)
+            throw common::AppException("VALIDATION_ERROR", "请选择有效的目标学员", drogon::k422UnprocessableEntity);
+        const auto students = studentIdsForLearningGroup(group); std::set<std::string> selected;
+        for (const auto &id : payload["target_student_ids"])
+            if (!id.isString() || std::find(students.begin(), students.end(), id.asString()) == students.end() || !selected.insert(id.asString()).second)
+                throw common::AppException("VALIDATION_ERROR", "目标学员不属于该学习组或重复", drogon::k422UnprocessableEntity);
+        entry["target_student_ids"] = payload["target_student_ids"];
+    }
     entry["submissions"] = Json::Value(Json::objectValue);
     entry["reminders"] = Json::Value(Json::arrayValue);
     return assignmentRepository_.create(entry);
@@ -226,6 +246,7 @@ Json::Value AssignmentService::listMyAssignments(const std::string &userId, cons
         const auto learningGroupId = assignmentLearningGroupId(assignment);
         if (!isLearningGroupStaff(organizationId, learningGroupId, userId) && !hasRole(roles, "orgAdmin") && !hasRole(roles, "superAdmin"))
         {
+            if (!assignmentTargetsStudent(assignment, userId)) continue;
             assignment = sanitizeAssignmentForStudent(assignment, userId);
         }
         safeItems.append(assignment);
@@ -254,7 +275,8 @@ Json::Value AssignmentService::getAssignmentForStudent(const std::string &assign
 Json::Value AssignmentService::submitAssignment(const std::string &assignmentId,
                                                 const std::string &studentId,
                                                 const Json::Value &answers,
-                                                const Json::Value &score)
+                                                const Json::Value &score,
+                                                const std::string &submissionId)
 {
     const auto assignment = getAssignment(assignmentId);
     const auto organizationId = assignment.get("organization_id", "").asString();
@@ -271,7 +293,7 @@ Json::Value AssignmentService::submitAssignment(const std::string &assignmentId,
             break;
         }
     }
-    if (!isStudent)
+    if (!isStudent || !assignmentTargetsStudent(assignment, studentId))
     {
         throw common::AppException("FORBIDDEN", "只有学习组学员可以提交该作业", drogon::k403Forbidden);
     }
@@ -280,6 +302,7 @@ Json::Value AssignmentService::submitAssignment(const std::string &assignmentId,
     submission["answers"] = answers;
     submission["score"] = score;
     submission["status"] = "submitted";
+    if (!submissionId.empty()) submission["submission_id"] = submissionId;
     return assignmentRepository_.submit(assignmentId, studentId, submission);
 }
 
@@ -289,6 +312,12 @@ Json::Value AssignmentService::assignmentSubmissions(const std::string &assignme
     const auto assignment = getAssignment(assignmentId);
     out["assignment"] = assignment;
     out["learning_group"] = getLearningGroup(assignment.get("organization_id", "").asString(), assignmentLearningGroupId(assignment));
+    if (assignment["target_student_ids"].isArray()) {
+        Json::Value enrollments(Json::arrayValue);
+        for (const auto &entry : out["learning_group"]["enrollments"])
+            if (entry.get("role", "student").asString() != "student" || assignmentTargetsStudent(assignment, entry.get("user_id", "").asString())) enrollments.append(entry);
+        out["learning_group"]["enrollments"] = enrollments;
+    }
     out["submissions"] = assignmentRepository_.listSubmissions(assignmentId);
 	return out;
 }
@@ -298,7 +327,13 @@ Json::Value AssignmentService::reviewSubmission(const std::string &assignmentId,
 	                                              const std::string &reviewedBy,
 	                                              const Json::Value &payload)
 {
-	getAssignment(assignmentId);
+	const auto assignment=getAssignment(assignmentId);
+	if (payload.get("action", "reviewed").asString()=="returned") {
+		const auto group=getLearningGroup(assignment.get("organization_id", "").asString(),assignmentLearningGroupId(assignment));
+		const auto currentStudents=studentIdsForLearningGroup(group);
+		if (std::find(currentStudents.begin(),currentStudents.end(),studentId)==currentStudents.end())
+			throw common::AppException("HANDOFF_REQUIRED","学员已经离班，可以补充批改评语，但不能退回重做；请先由管理员恢复班级关系",drogon::k409Conflict);
+	}
 	Json::Value review(Json::objectValue);
 	review["action"] = payload.get("action", "reviewed").asString();
 	review["comment"] = payload.get("comment", "").asString();
@@ -328,15 +363,17 @@ Json::Value AssignmentService::remindAssignment(const std::string &assignmentId,
         reminder["hours_before"] = payload["hours_before"].asInt();
     }
     reminder["target_student_ids"] = Json::Value(Json::arrayValue);
-    const auto validStudents = studentIdsForLearningGroup(group);
+    auto validStudents = studentIdsForLearningGroup(group);
+    std::erase_if(validStudents, [&](const auto &id) { return !assignmentTargetsStudent(assignment, id); });
     const std::set<std::string> validStudentSet(validStudents.begin(), validStudents.end());
+    const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
     if (payload.isMember("student_ids") && payload["student_ids"].isArray())
     {
         std::set<std::string> targets;
         for (const auto &studentIdValue : payload["student_ids"])
         {
             const auto studentId = studentIdValue.asString();
-            if (validStudentSet.count(studentId) > 0)
+            if (validStudentSet.count(studentId) > 0 && needsAssignmentSubmission(submissions, studentId))
             {
                 targets.insert(studentId);
             }
@@ -348,10 +385,9 @@ Json::Value AssignmentService::remindAssignment(const std::string &assignmentId,
     }
     else
     {
-        const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
         for (const auto &studentId : validStudents)
         {
-            if (!submissions.isMember(studentId))
+            if (needsAssignmentSubmission(submissions, studentId))
             {
                 reminder["target_student_ids"].append(studentId);
             }
@@ -411,11 +447,15 @@ Json::Value AssignmentService::runAutomaticReminderJobs(const std::string &nowIs
                 assignmentLearningGroupId(assignment));
             const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
             Json::Value missingStudentIds(Json::arrayValue);
+            Json::Value returnedAttempts(Json::objectValue);
             for (const auto &studentId : studentIdsForLearningGroup(group))
             {
-                if (!submissions.isMember(studentId))
+                if (assignmentTargetsStudent(assignment, studentId) && needsAssignmentSubmission(submissions, studentId))
                 {
                     missingStudentIds.append(studentId);
+                    const auto submission = submissions.get(studentId, Json::Value(Json::objectValue));
+                    if (!submission.get("submitted_at", "").asString().empty())
+                        returnedAttempts[studentId] = submission.get("attempt_no", 0);
                 }
             }
             if (missingStudentIds.empty())
@@ -438,6 +478,8 @@ Json::Value AssignmentService::runAutomaticReminderJobs(const std::string &nowIs
                 payload["idempotency_key"] = "auto:" +
                                              assignment.get("assignment_id", "").asString() + ":" +
                                              dueAt + ":" + std::to_string(hoursBefore);
+                if (!returnedAttempts.empty())
+                    payload["idempotency_key"] = payload["idempotency_key"].asString() + ":redo:" + drogon::utils::getMd5(returnedAttempts.toStyledString());
                 payload["student_ids"] = missingStudentIds;
                 payload["source"] = "automatic";
                 payload["hours_before"] = hoursBefore;
@@ -639,6 +681,8 @@ std::string AssignmentService::assignmentLearningGroupId(const Json::Value &assi
 
 Json::Value AssignmentService::sanitizeAssignmentForStudent(Json::Value assignment, const std::string &userId)
 {
+    if (!assignmentTargetsStudent(assignment, userId)) throw common::AppException("FORBIDDEN", "这份作业没有分配给当前学员", drogon::k403Forbidden);
+    assignment.removeMember("target_student_ids");
     const auto submissions = assignment.get("submissions", Json::Value(Json::objectValue));
     assignment["own_submission"] = submissions.get(userId, Json::Value(Json::nullValue));
     Json::Value ownReminders(Json::arrayValue);

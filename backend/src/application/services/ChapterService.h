@@ -1,8 +1,8 @@
 #pragma once
 
 // 章节式学习路径（功能 #18）：
-//   - 优先按 question/section 上的 skill_tags 聚合成"技能路径"
-//   - 若没有 skill_tags，则回退到 family + level + section_id/section_name 的章节聚合
+//   - 按 family + level + section_type + section_name 聚合历届题目
+//   - 保留题库原始题型名称，skill_tags 不作为专项练习分类
 //   - 对给定用户，统计各章节累计答题/答对数，以评估进度
 //   - 不做"难度编排"，只做「按章节串联所有历届题目」的路径聚合
 //
@@ -43,6 +43,7 @@ class ChapterService
     {
         std::string examId;
         std::string questionId;
+		int sectionIndex = 0;
         std::string stem;
     };
     struct Chapter

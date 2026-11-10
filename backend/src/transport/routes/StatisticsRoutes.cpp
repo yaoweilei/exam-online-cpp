@@ -72,6 +72,23 @@ void requireUserEntitlement(const AppContext &ctx,
 void registerStatisticsRoutes(const AppContext &ctx)
 {
     app().registerHandler(
+        "/api/v1/statistics/{1}/study-time",
+        [ctx](const HttpRequestPtr &req,
+              std::function<void(const HttpResponsePtr &)> &&callback,
+              std::string userId) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto body = parseJsonBody(req);
+                const auto session = requireSession(*ctx.authService, req, &body);
+                requireDataOwnerOrAdmin(session, userId);
+                const int seconds = body.get("delta_seconds", 0).asInt();
+                if (seconds < 1 || seconds > 30)
+                    throw common::AppException("VALIDATION_ERROR", "delta_seconds must be between 1 and 30", drogon::k422UnprocessableEntity);
+                return common::ok(req, ctx.statisticsService->recordStudySeconds(userId, seconds));
+            });
+        },
+        {Post});
+
+    app().registerHandler(
         "/api/v1/statistics/{1}",
         [ctx](const HttpRequestPtr &req,
               std::function<void(const HttpResponsePtr &)> &&callback,

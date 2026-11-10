@@ -1,0 +1,65 @@
+/* Security settings use compact rows with an aligned trailing action. */
+:is(#platform-admin-shell, #personal-center) .pc-security-page {
+  --security-border: var(--workspace-border, var(--ls-border, #ebe6e1));
+  --security-text: var(--workspace-text, var(--ls-text, #26221f));
+  --security-muted: var(--workspace-muted, var(--ls-muted, #81776f));
+  --security-surface: var(--workspace-surface, var(--ls-surface, #fff));
+  display: grid; min-width: 0;
+  color: var(--security-text); font-size: 14px; line-height: 20px;
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-card { background: transparent; }
+:is(#platform-admin-shell.pc-platform-admin-open, #personal-center.pc-open) .pc-security-page h2.pc-settings-caption { font-size: 12px; line-height: 18px; }
+:is(#platform-admin-shell.pc-platform-admin-open, #personal-center.pc-open) .pc-security-page p.pc-settings-note { font-size: 11px; line-height: 16px; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-list { gap: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-row {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center;
+  position: relative;
+  gap: 10px; min-height: 54px; width: 100%; margin: 0; padding: 8px 0;
+  border: 0; border-radius: 0;
+  background: transparent; color: inherit; text-align: left; box-shadow: none;
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-row:not(:first-child)::before {
+  content: ''; position: absolute; inset: 0 0 auto 38px; height: 1px; background: var(--security-border);
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-row:hover { background: var(--workspace-muted-surface, #f7f7f5); }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  color: var(--workspace-accent, #ae450e);
+  background: color-mix(in srgb, currentColor 10%, var(--security-surface));
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-icon svg { width: 18px; height: 18px; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-main { min-width: 0; gap: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-main strong {
+  font-size: 13px; line-height: 18px; font-weight: 500; color: inherit;
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-main em {
+  font-size: 10px; line-height: 14px; font-weight: 400;
+  color: color-mix(in srgb, var(--security-muted) 94%, var(--security-surface));
+  overflow-wrap: anywhere;
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-row:is(:hover, :focus-visible) .pc-account-main em { color: var(--security-muted); }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-status {
+  display: flex; grid-column: 3; grid-row: 1; align-items: center; justify-self: end;
+  gap: 4px; max-width: none; white-space: nowrap; font-size: 12px; line-height: 18px; color: var(--security-muted);
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-status svg { width: 14px; height: 14px; flex: 0 0 14px; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-row[aria-expanded="true"] .pc-account-status svg { transform: rotate(90deg); }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-row.is-danger :is(.pc-account-main strong, .pc-account-icon) { color: var(--workspace-danger, #ba3328); }
+body:not(.light-theme) :is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-row.is-danger :is(.pc-account-main strong, .pc-account-icon) { color: #ff8177; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page :is(.pc-account-editor, .pc-verify-row-card, .pc-verify-step) {
+  margin: 0; padding: 8px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-editor { border-top: 1px solid var(--security-border); gap: 8px; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-editor :is(.pc-profile-input, .pc-org-batch-input) { min-width: 0; min-height: 44px; box-sizing: border-box; border-radius: 14px; font-size: 14px; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-editor :is(.pc-inline-btn, .pc-inline-ghost, .pc-inline-danger) { min-height: 44px; font-size: 14px; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-admin-note { color: var(--security-muted); font-size: 12px; line-height: 18px; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-session-list { gap: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-session-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 8px 0; border: 0; border-top: 1px solid var(--security-border);
+  border-radius: 0; background: transparent;
+}
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-session-row:first-child { border-top: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-session-main :is(span, em) { color: var(--security-muted); }
+:is(#platform-admin-shell, #personal-center) .pc-security-page .pc-account-session-row > button { width: auto; }
+:is(#platform-admin-shell, #personal-center) .pc-security-page :is(button, summary):focus-visible { outline: 2px solid var(--workspace-accent, #ae450e); outline-offset: -2px; }

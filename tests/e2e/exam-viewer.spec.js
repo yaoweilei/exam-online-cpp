@@ -1,4 +1,5 @@
 const { test, expect, request: requestFactory } = require('@playwright/test');
+const { openTaskDetails } = require('./helpers/task-navigation');
 const {
 	loginApi,
 	loginWithPassword,
@@ -34,17 +35,31 @@ test('补充解析仅在开关开启时显示，关闭后保留基础解析', as
 
 async function loadEjuPaper(page, paperId = '2023_02') {
 	await page.goto('/', { waitUntil: 'domcontentloaded' });
+	await page.waitForFunction(() => Boolean(window.examViewer?.currentExam));
+	const home = page.locator('#guest-welcome');
+	await page.waitForLoadState('networkidle');
+	if (await home.isVisible()) {
+		await home.locator('[data-gw="eju"]').click();
+		await home.locator('[data-gw="browse"]:visible').last().click();
+		const paper = home.locator(`[data-gw="paper"][data-exam="${paperId}"]`);
+		if (!await paper.isVisible()) await home.locator('.gw-earlier-years summary').click();
+		await paper.click();
+		await expect(home.locator('[data-practice-section]').first()).toBeVisible();
+		for (const checkbox of await home.locator('[data-practice-section]').all()) await checkbox.check();
+		await home.locator('.practice-start-btn').click();
+		await expect(home).toBeHidden();
+		await page.waitForFunction(id => window.examViewer?.currentExam?.exam_info?.title === `EJU-Japanese-${id}`, paperId);
+		return;
+	}
 
 	const familySelect = page.locator('#exam-family-select');
 	const paperSelect = page.locator('#exam-paper-select');
 	const settingsToggle = page.locator('#exam-settings-toggle');
-	let openedSettings = false;
 
 	await expect(familySelect).toContainText('EJU', { timeout: 20000 });
 	if (!await familySelect.isVisible()) {
 		if (await settingsToggle.isVisible()) {
 			await settingsToggle.click();
-			openedSettings = true;
 		} else {
 			const paperToggle = page.locator('#mobile-paper-toggle');
 			await expect(paperToggle).toBeVisible();
@@ -60,7 +75,6 @@ async function loadEjuPaper(page, paperId = '2023_02') {
 		return viewer?.currentExam?.exam_info?.title === expectedTitle
 			&& Boolean(viewer?.currentExam?.exam_info?.sections?.length);
 	}, `EJU-Japanese-${paperId}`);
-	if (openedSettings && await settingsToggle.getAttribute('aria-expanded') === 'true') await settingsToggle.click();
 }
 
 async function selectViewerCategory(page, categoryId) {
@@ -167,7 +181,8 @@ test('试卷查看器可以通过 Web 选择 EJU 试卷并打开学习辅助面�
   await clickLearningAssist(page, '#toggle-reading-zh');
   await expect(questionContainer).not.toContainText('加载失败');
 
-	await page.locator('#open-question-map').click();
+	await openTaskDetails(page);
+	await page.locator('#question-navigation .question-counter').click();
 	await expect(page.locator('#question-map-overlay')).toBeVisible();
 	await expect(page.locator('#question-map-content .question-map-item').first()).toBeVisible();
 });
@@ -175,7 +190,8 @@ test('试卷查看器可以通过 Web 选择 EJU 试卷并打开学习辅助面�
 test('EJU 答题卡不显示 Section 小题分组文案', async ({ page }) => {
 	await loadEjuPaper(page);
 
-	await page.locator('#open-question-map').click();
+	await openTaskDetails(page);
+	await page.locator('#question-navigation .question-counter').click();
 	const mapContent = page.locator('#question-map-content');
 	await expect(page.locator('#question-map-overlay')).toBeVisible();
 	await expect(mapContent.locator('.question-map-item').first()).toBeVisible();
@@ -267,7 +283,7 @@ test('EJU 听力核心支持播放、暂停、transcript 阶段显示和逐句�
 	const questionContainer = page.locator('#current-question-container');
 	await expect(questionContainer.locator('.audio-player')).toBeVisible();
 	await expect(questionContainer.locator('.audio-btn')).toHaveAttribute('data-playing', 'false');
-	await expect(questionContainer.locator('.script-container')).toHaveClass(/script-stage-hidden/);
+	await expect(questionContainer.locator('.script-container')).toHaveCount(0);
 
 	await questionContainer.locator('.audio-btn').click();
 	await expect(questionContainer.locator('.audio-btn')).toHaveAttribute('data-playing', 'true');
@@ -284,8 +300,11 @@ test('EJU 听力核心支持播放、暂停、transcript 阶段显示和逐句�
 		return await page.evaluate(() => window.__mockAudioInstances?.[0]?.paused);
 	}).toBe(true);
 
-	await questionContainer.locator('.listening-stage-btn[data-stage="reveal"]').click();
-	await expect(questionContainer.locator('.script-container')).not.toHaveClass(/script-stage-hidden/);
+	await page.evaluate(() => {
+		window.examViewer.showAnswers = true;
+		window.examViewer.questionRenderer.renderCurrentQuestion();
+	});
+	await expect(questionContainer.locator('.script-container')).toBeVisible();
 
 	const firstTimedLine = questionContainer.locator(`.script-line[data-question-id="${timedQuestion.questionId}"][data-start="${timedQuestion.lineStart}"]`).first();
 	await expect(firstTimedLine).toBeVisible();
@@ -346,7 +365,8 @@ test('试卷学习核心流程可以作答、跳题、提交并记录进度', as
 	}, firstQuestion);
 	expect(compositeAnswer).toBe(optionIndex);
 
-	await page.locator('#open-question-map').click();
+	await openTaskDetails(page);
+	await page.locator('#question-navigation .question-counter').click();
 	const mapContent = page.locator('#question-map-content');
 	await expect(page.locator('#question-map-overlay')).toBeVisible();
 	await expect(mapContent.locator('.question-map-item.current')).toHaveClass(/answered/);
@@ -357,7 +377,6 @@ test('试卷学习核心流程可以作答、跳题、提交并记录进度', as
 	await expect.poll(async () => {
 		return await page.evaluate(() => window.examViewer.currentQuestionIndex);
 	}).toBe(1);
-	await page.locator('#question-map-overlay [aria-label="关闭"]').click();
 	await expect(page.locator('#question-map-overlay')).toBeHidden();
 
 	const submitResponsePromise = page.waitForResponse((response) =>
@@ -456,6 +475,57 @@ test('数字查询参数非法时返回可读校验错误而不是服务异常',
 		{ headers }
 	);
 	expect(valid.ok()).toBeTruthy();
+});
+
+test('学习报告按已答题计算正确率，未答题不稀释结果', async ({ request }) => {
+	const user = await loginApi(request, uniqueLoginId('student_report_accuracy'));
+	const headers = { Authorization: `Bearer ${user.token}` };
+	const submit = await request.post('/api/v1/answers/submit', {
+		headers,
+		data: {
+			user_id: user.user_id,
+			exam_id: 'N3_2010_07',
+			exam_mode: 'practice',
+			answers: { '0:1': 1 },
+			submission_id: uniqueLoginId('report_attempt')
+		}
+	});
+	expect(submit.ok()).toBeTruthy();
+	const response = await request.get('/api/v1/me/learning-report?period=week', { headers });
+	expect(response.ok()).toBeTruthy();
+	const { answers } = (await response.json()).data;
+	expect(answers.questions).toBe(1);
+	expect(answers.total_questions).toBeGreaterThan(1);
+	expect(answers.correct).toBe(1);
+	expect(answers.accuracy).toBe(100);
+	expect(answers.papers[0].answered_count).toBe(1);
+	expect(answers.papers[0].accuracy).toBe(100);
+});
+
+test('学习报告正确率只显示一次百分比换算', async ({ page }) => {
+	await loginWithPassword(page, uniqueLoginId('student_report_display'));
+	await page.route('**/api/v1/me/learning-report?period=*', async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json; charset=utf-8',
+			body: JSON.stringify({ code: 'OK', data: {
+				period: 'week', since: '2026-10-01',
+				answers: { exams: 2, questions: 1, correct: 1, wrong: 0, accuracy: 100, papers: [
+					{ exam_id: 'partial', saved_at: '2026-10-01', correct_count: 1, wrong_count: 0, answered_count: 1, total_questions: 8, accuracy: 100 },
+					{ exam_id: 'unanswered', saved_at: '2026-10-01', correct_count: 0, wrong_count: 0, answered_count: 0, total_questions: 8, accuracy: null }
+				] },
+				wrong_questions: {}, srs: {}, streak: {}
+			} })
+		});
+	});
+	await page.evaluate(() => window.navigateLearningWorkspace('openLearningReport'));
+	const modal = page.locator('#learning-report-modal');
+	await expect(modal).toBeVisible();
+	await expect(modal).toContainText('正确/已答');
+	await expect(modal).toContainText('100.0%');
+	await expect(modal).not.toContainText('10000.0%');
+	await expect(modal.locator('tbody tr').first()).toContainText('1 / 1');
+	await expect(modal.locator('tbody tr').last()).toContainText('—');
 });
 
 test('FREE 套餐权益由订阅快照声明并由接口统一拦截', async ({ request }) => {
@@ -638,7 +708,7 @@ test('交卷结果支持错题复盘和再做一次', async ({ page }) => {
 
 test('结果弹窗支持 Esc、焦点锁定和关闭后焦点恢复', async ({ page }) => {
 	await loadEjuPaper(page);
-	await page.locator('#open-question-map').focus();
+	await page.locator('.task-details-toggle').focus();
 	await page.evaluate(() => window.examViewer.answerManager.showResults({
 		total_questions: 2, correct_count: 1, wrong_count: 1, unanswered_count: 0,
 		score: 50, accuracy: 50, completion: 100, results: {}
@@ -647,18 +717,22 @@ test('结果弹窗支持 Esc、焦点锁定和关闭后焦点恢复', async ({ p
 	await expect(page.locator('[data-result-action="explanations"]')).toBeFocused();
 	await page.keyboard.press('Escape');
 	await expect(page.locator('#exam-result-modal')).toBeHidden();
-	await expect(page.locator('#open-question-map')).toBeFocused();
+	await expect(page.locator('.task-details-toggle')).toBeFocused();
 });
 
 test('断网和网络恢复状态对用户可见', async ({ page }) => {
 	await loadEjuPaper(page);
 	const banner = page.locator('#network-status-banner');
-	await page.evaluate(() => window.dispatchEvent(new Event('offline')));
+	await page.context().setOffline(true);
+	await expect.poll(() => page.evaluate(() => navigator.onLine)).toBe(false);
+	expect(await page.evaluate(() => fetch('/healthz').then(() => false, () => true))).toBe(true);
 	await expect(banner).toBeVisible();
 	await expect(banner).toContainText('网络已断开');
 	await expect(banner).toHaveClass(/is-offline/);
 
-	await page.evaluate(() => window.dispatchEvent(new Event('online')));
+	await page.context().setOffline(false);
+	await expect.poll(() => page.evaluate(() => navigator.onLine)).toBe(true);
+	expect(await page.evaluate(() => fetch('/healthz').then(response => response.ok))).toBe(true);
 	await expect(banner).toContainText('网络已恢复');
 	await expect(banner).toHaveClass(/is-online/);
 	await expect(banner).toBeHidden({ timeout: 5000 });
@@ -840,6 +914,120 @@ test('草稿保存失败后自动重试', async ({ page }) => {
 	expect(saveAttempts).toBeGreaterThanOrEqual(2);
 });
 
+async function prepareDraftSyncFixture(page) {
+	await loginWithPassword(page, 'student_demo');
+	await page.waitForLoadState('networkidle');
+	await page.evaluate(async () => {
+		window.__syncData = { family: 'jlpt', exam_info: { exam_level: 'N3', sections: [{ section_type: 'vocabulary', questions: Array.from({ length: 13 }, (_, index) => ({ id: index + 1, question: `同步测试${index + 1}`, options: ['一', '二'], correct_answer: 1 })) }] } };
+		window.__syncSaves = [];
+		window.APIClient.getDraft = async () => null;
+		window.APIClient.getExam = async () => structuredClone(window.__syncData);
+		window.APIClient.recordStudySeconds = async () => ({});
+		window.APIClient.saveDraft = async (_user, payload) => { window.__syncSaves.push(payload); return { revision: window.__syncSaves.length }; };
+		const viewer = window.examViewer;
+		viewer.userId = 'student_draft_sync_fixture';
+		viewer._currentExamId = 'N3_2024_12';
+		viewer.examMode = 'practice';
+		viewer.savedPracticeMode = null;
+		viewer.answerManager.setDraftRevision(0);
+		viewer.loadExamData(structuredClone(window.__syncData));
+		await new Promise(resolve => setTimeout(resolve, 0));
+	});
+}
+
+test('本机没有作答时直接恢复云端13题，不弹冲突提示也不回写空草稿', async ({ page }) => {
+	await prepareDraftSyncFixture(page);
+	await page.evaluate(() => {
+		window.APIClient.getDraft = async () => ({ exam_id: 'N3_2024_12', revision: 7, answered_count: 13, answers: Object.fromEntries(Array.from({ length: 13 }, (_, i) => [`0:${i + 1}`, 1])), last_section_index: 0, last_question_index: 5 });
+		window.examViewer.loadExamData(structuredClone(window.__syncData));
+	});
+	await expect(page.locator('#answer-save-status')).toContainText('已恢复 13 题');
+	await expect(page.locator('#exam-result-modal')).toBeHidden();
+	expect(await page.evaluate(() => [window.examViewer.currentQuestionIndex, window.examViewer.answerManager.getAnswerComposite(0, '13'), window.__syncSaves.length])).toEqual([5, 1, 0]);
+});
+
+test('草稿只有版本变化且答案不冲突时自动合并，保留双方作答', async ({ page }) => {
+	await prepareDraftSyncFixture(page);
+	await page.evaluate(() => {
+		window.APIClient.getDraft = async () => ({ exam_id: 'N3_2024_12', revision: 7, answered_count: 1, answers: { '2': 2 } });
+		window.APIClient.saveDraft = async (_user, payload) => {
+			window.__syncSaves.push(payload);
+			if (window.__syncSaves.length === 1) throw { payload: { code: 'DRAFT_CONFLICT' } };
+			return { revision: 8 };
+		};
+		window.examViewer.answerManager.selectOption('1', 1);
+	});
+	await expect.poll(() => page.evaluate(() => window.__syncSaves.length)).toBe(2);
+	await expect(page.locator('#exam-result-modal')).toBeHidden();
+	const saved = await page.evaluate(() => window.__syncSaves[1]);
+	expect(saved.answers).toEqual({ '0:1': 1, '0:2': 2 });
+	expect(saved.base_revision).toBe(7);
+	expect(saved.force_overwrite).toBe(false);
+	expect(await page.evaluate(() => window.examViewer.answerManager.getAnswerComposite(0, '2'))).toBe(2);
+});
+
+test('旧题号与新题号是同一题时仍检测答案差异，不自动覆盖', async ({ page }) => {
+	await prepareDraftSyncFixture(page);
+	await page.evaluate(() => {
+		window.APIClient.getDraft = async () => ({ exam_id: 'N3_2024_12', revision: 7, answered_count: 1, answers: { '1': 2 } });
+		window.APIClient.saveDraft = async (_user, payload) => {
+			window.__syncSaves.push(payload);
+			if (!payload.force_overwrite) throw { payload: { code: 'DRAFT_CONFLICT' } };
+			return { revision: 8 };
+		};
+		window.examViewer.answerManager.selectOption('1', 1);
+	});
+	await expect(page.locator('.draft-conflict-row')).toHaveCount(1);
+	await expect(page.locator('.draft-conflict-row')).toContainText('题目 0:1');
+	expect(await page.evaluate(() => window.__syncSaves.length)).toBe(1);
+	await page.locator('[data-draft-choice="local"]').click();
+	await expect.poll(() => page.evaluate(() => window.__syncSaves.length)).toBe(2);
+	expect(await page.evaluate(() => window.__syncSaves[1].answers)).toEqual({ '0:1': 1 });
+});
+
+test('重置页面后取消尚未执行的旧保存，不向云端发送空答案', async ({ page }) => {
+	await prepareDraftSyncFixture(page);
+	await page.evaluate(async () => {
+		window.examViewer.answerManager.selectOption('1', 1);
+		window.examViewer.answerManager.initializeUserAnswers();
+		await new Promise(resolve => setTimeout(resolve, 0));
+	});
+	expect(await page.evaluate(() => window.__syncSaves)).toEqual([]);
+	await expect(page.locator('#exam-result-modal')).toBeHidden();
+});
+
+test('历史回顾忽略上一页面迟到的保存冲突，不读取或覆盖回顾答案', async ({ page }) => {
+	await prepareDraftSyncFixture(page);
+	await page.evaluate(() => {
+		window.__lateCloudReads = 0;
+		window.APIClient.getDraft = async () => { window.__lateCloudReads++; return { exam_id: 'N3_2024_12', revision: 7, answers: { '0:1': 1 } }; };
+		window.APIClient.saveDraft = async () => new Promise((_resolve, reject) => { window.__rejectOldSave = reject; });
+		window.examViewer.answerManager.selectOption('1', 1);
+	});
+	await expect.poll(() => page.evaluate(() => !!window.__rejectOldSave)).toBe(true);
+	await page.evaluate(async () => {
+		window.examViewer.openSavedPracticeAttempt('N3_2024_12', structuredClone(window.__syncData), { label: '历史作答', sectionIndexes: [0], answers: { '0:1': 2 } }, 'review');
+		window.__rejectOldSave({ payload: { code: 'DRAFT_CONFLICT' } });
+		await new Promise(resolve => setTimeout(resolve, 0));
+	});
+	expect(await page.evaluate(() => [window.__lateCloudReads, window.examViewer.answerManager.getAnswerComposite(0, '1'), window.examViewer.savedPracticeMode])).toEqual([0, 2, 'review']);
+	await expect(page.locator('#exam-result-modal')).toBeHidden();
+});
+
+test('切入整套练习后忽略旧草稿的迟到恢复，不改模式或覆盖当前答案', async ({ page }) => {
+	await prepareDraftSyncFixture(page);
+	await page.evaluate(async () => {
+		window.APIClient.getDraft = async () => new Promise(resolve => { window.__oldDraftReply = resolve; });
+		window.examViewer.loadExamData(structuredClone(window.__syncData));
+		await window.examViewer.startWholePaperPractice('N3_2024_12', '整套练习', { fresh: true, returnContext: { surface: 'paper', wholePaper: true } });
+		window.examViewer.answerManager.selectOption('1', 2);
+		window.__oldDraftReply({ exam_id: 'N3_2024_12', exam_mode: 'mock', revision: 7, answered_count: 13, answers: { '0:1': 1 }, last_section_index: 0, last_question_index: 5 });
+		await new Promise(resolve => setTimeout(resolve, 0));
+	});
+	expect(await page.evaluate(() => [window.examViewer.examMode, window.examViewer.specialtyPractice.index, window.examViewer.answerManager.getAnswerComposite(0, '1'), window.__syncSaves.length])).toEqual(['practice', 0, 2, 0]);
+	await expect(page.locator('#exam-result-modal')).toBeHidden();
+});
+
 test('多设备草稿冲突时允许保留本机或使用云端版本', async ({ page }) => {
 	const loginId = uniqueLoginId('student_draft_conflict');
 	await stubNoisyPersonalCenterApis(page, { includeDrafts: false });
@@ -873,11 +1061,17 @@ test('多设备草稿冲突时允许保留本机或使用云端版本', async ({
 		await route.continue();
 	});
 	await loginWithPassword(page, loginId);
-	await loadEjuPaper(page);
-	await selectViewerCategory(page, 'reading');
+	await page.evaluate(() => {
+		const viewer = window.examViewer;
+		viewer._currentExamId = '2023_02';
+		viewer.examMode = 'practice';
+		viewer.loadExamData({ family: 'eju', exam_info: { sections: [{ section_type: 'reading', questions: [{ id: 1, question: '草稿冲突测试', options: ['选项一', '选项二'], correct_answer: 1 }] }] } });
+		window.closeLearningWorkspace();
+	});
+	await page.waitForLoadState('networkidle');
 	await page.locator('#current-question-container .option').first().click();
 	await expect(page.locator('#exam-result-modal')).toBeVisible({ timeout: 10000 });
-	await expect(page.locator('#exam-result-panel')).toContainText('其他设备的答题进度');
+	await expect(page.locator('#exam-result-panel')).toContainText('另一份答题进度');
 	await expect(page.locator('.draft-conflict-row')).toHaveCount(1);
 	await page.locator('[data-draft-choice="merge"]').click();
 	await expect.poll(() => forcedPayload, { timeout: 10000 }).not.toBeNull();
@@ -937,17 +1131,29 @@ test('模拟考试分段超时后进入下一部分且不能返回', async ({ pa
 });
 
 test('分段计时展示剩余时间并发出五分钟和一分钟提醒', async ({ page }) => {
+	const loginId = uniqueLoginId('student_timer_display');
+	await stubNoisyPersonalCenterApis(page);
+	await loginWithPassword(page, loginId);
 	await loadEjuPaper(page);
 	await requestExamMode(page, 'mock');
+	await page.waitForFunction(() => Boolean(window.examViewer.examTimerManager.lastSnapshot));
 	await page.evaluate(() => {
 		window.__timerToasts = [];
 		window.showToast = (message) => window.__timerToasts.push(message);
 		const manager = window.examViewer.examTimerManager;
+		manager.stop();
 		manager.applySnapshot({ elapsed_seconds: 120, section_limit_seconds: 600, section_remaining_seconds: 300 });
 		manager.renderBar();
 		manager.checkExpiry();
 	});
-	await expect(page.locator('#exam-library-panel #exam-timer-bar')).toContainText('本部分 05:00');
+	await page.locator('#user-menu-trigger').click();
+	const menu = page.locator('#superadmin-account-menu');
+	const timer = page.locator('#ls-exam-timer-host #exam-timer-bar');
+	await expect(menu.locator('.pc-superadmin-account-study-time')).toBeVisible();
+	await expect(menu.locator('.pc-superadmin-account-study-time')).toContainText('今日学习');
+	await expect(timer).toContainText('本部分 05:00');
+	await expect(timer.locator('summary')).toBeVisible();
+	await expect(page.locator('#learning-account #exam-timer-slot, #superadmin-account-menu #exam-timer-slot')).toHaveCount(0);
 	await expect(page.locator('#exam-header')).toBeHidden();
 	expect(await page.evaluate(() => window.__timerToasts)).toContain('第 1 部分还剩 5 分钟');
 	await page.evaluate(() => {
@@ -956,8 +1162,14 @@ test('分段计时展示剩余时间并发出五分钟和一分钟提醒', async
 		manager.renderBar();
 		manager.checkExpiry();
 	});
-	await expect(page.locator('#exam-library-panel #exam-timer-bar')).toContainText('本部分 01:00');
+	await expect(page.locator('#exam-timer-bar')).toContainText('本部分 01:00');
 	expect(await page.evaluate(() => window.__timerToasts)).toContain('第 1 部分还剩 1 分钟');
+	await page.keyboard.press('Escape');
+	await expect(menu).toBeHidden();
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.locator('#user-menu-trigger').click();
+	await expect(menu.locator('.pc-superadmin-account-study-time')).toBeVisible();
+	await expect(timer).toContainText('本部分 01:00');
 });
 
 test('练习模式不启动或展示考试计时', async ({ page }) => {
@@ -968,9 +1180,20 @@ test('练习模式不启动或展示考试计时', async ({ page }) => {
 	await loadEjuPaper(page);
 
 	expect(await page.evaluate(() => window.examViewer.examTimerManager.currentExamId)).toBeNull();
+	expect(await page.evaluate(() => window.examViewer.examTimerManager.practiceTickHandle)).not.toBeNull();
+	const studySeconds = await page.evaluate(async () => {
+		const userId = window.examViewer.userId;
+		await window.APIClient.recordStudySeconds(userId, 30);
+		return (await window.APIClient.getStatistics(userId)).today_learning_seconds;
+	});
+	expect(studySeconds).toBeGreaterThanOrEqual(30);
 	await expect(page.locator('#exam-timer-bar')).toHaveCount(0);
 	await expect(page.locator('#exam-timer-slot')).toBeHidden();
 	await expect(page.locator('#exam-header')).toBeHidden();
+	await page.locator('#user-menu-trigger').click();
+	await expect(page.locator('#superadmin-account-menu .pc-superadmin-account-study-time')).toBeVisible();
+	await expect(page.locator('#superadmin-account-menu .pc-superadmin-account-study-time')).not.toContainText('本次模拟考试');
+	await expect(page.locator('#superadmin-account-menu .pc-superadmin-account-study-time strong')).toContainText('分钟');
 });
 
 test('模拟考试时间到后自动交卷', async ({ page }) => {

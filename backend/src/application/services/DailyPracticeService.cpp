@@ -29,9 +29,29 @@ std::string scalarString(const Json::Value &value)
     return {};
 }
 
-std::string questionKey(const std::string &examId, const std::string &questionId)
+std::string questionKey(const std::string &examId, const std::string &questionId, int sectionIndex = -1)
 {
-    return examId + '\x1f' + questionId;
+    return examId + '\x1f' + (sectionIndex >= 0 && questionId.find(':') == std::string::npos ? std::to_string(sectionIndex) + ":" : "") + questionId;
+}
+
+std::string itemKey(const Json::Value &item)
+{
+    return questionKey(item.get("exam_id", "").asString(), item.get("question_id", "").asString(), item.get("section_index", -1).asInt());
+}
+
+bool completedItem(const Json::Value &completed, const Json::Value &item)
+{
+    const auto id = item.get("question_id", "").asString();
+    for (const auto &key : completed)
+        if (key.asString() == itemKey(item) || key.asString() == questionKey(item.get("exam_id", "").asString(), id) || key.asString() == id) return true;
+    return false;
+}
+
+bool usableQuestion(const Json::Value &question)
+{
+    const auto &answer = question.isMember("correct_answer") ? question["correct_answer"] : question["answer"];
+    return question.get("has_ans", true).asBool() && !answer.isNull() && (!answer.isString() || !answer.asString().empty())
+        && question["options"].isArray() && !question["options"].empty();
 }
 
 std::string lowerCopy(std::string value)
@@ -112,7 +132,7 @@ DailyPracticeService::DailyPracticeService(std::filesystem::path userRootDir,
       wrongRepo_(wrongRepo),
       srsService_(srsService),
       examRepo_(examRepo),
-      answerRepo_(answerRepo)
+      answerRepo_(answerRepo), adaptive_(rootDir_.parent_path())
 {
     std::error_code ec;
     std::filesystem::create_directories(rootDir_, ec);
@@ -158,7 +178,8 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
                                              int targetCount,
                                              const std::string &examTarget,
                                              int dailyMinutes,
-                                             int &plannedMinutes) const
+                                             int &plannedMinutes,
+                                             const Json::Value &previous) const
 {
     Json::Value items(Json::arrayValue);
     std::unordered_set<std::string> seen;
@@ -176,21 +197,28 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
             const auto status = result.get("status", "").asString();
             const auto questionId = scalarString(result["question_id"]);
             if ((status == "correct" || status == "wrong") && !questionId.empty())
-                recent.insert(questionKey(examId, questionId));
+                recent.insert(questionKey(examId, questionId, result.get("section_index", -1).asInt()));
         }
     }
 
     auto exams = examRepo_.listExams();
     exams.erase(std::remove_if(exams.begin(), exams.end(), [&](const auto &exam) {
-        return exam.questionCount <= 0 || (!exam.accessLevel.empty() && exam.accessLevel != "free") || !matchesTarget(exam, examTarget);
+        return exam.id.find("DIAGNOSTIC") != std::string::npos || exam.questionCount <= 0 || (!exam.accessLevel.empty() && exam.accessLevel != "free") || !matchesTarget(exam, examTarget);
     }), exams.end());
     std::sort(exams.begin(), exams.end(), [](const auto &left, const auto &right) { return left.id < right.id; });
     std::unordered_map<std::string, domain::ExamSummary> examById;
-    for (const auto &exam : exams) examById.emplace(exam.id, exam);
+    for (const auto &exam : examRepo_.listExams()) if (matchesTarget(exam, examTarget) && (exam.accessLevel.empty() || exam.accessLevel == "free")) examById.emplace(exam.id, exam);
 
     const int budget = dailyMinutes > 0 ? std::clamp(dailyMinutes, 5, 180) : std::max(5, targetCount * 2);
     const int maxItems = std::clamp(targetCount, 1, 50);
     plannedMinutes = 0;
+    std::unordered_set<std::string> retainedMaterials;
+    for (const auto &item : previous["items"]) if (completedItem(previous["completed_question_ids"], item)) {
+        if (!seen.insert(itemKey(item)).second) continue;
+        items.append(item);
+        if (retainedMaterials.insert(item.get("exam_id", "").asString() + ':' + item.get("material_id", item.get("question_id", "")).asString()).second)
+            plannedMinutes += item.get("estimated_minutes", 1).asInt();
+    }
 
     const auto makeItem = [](const Json::Value &question,
                              const Json::Value &section,
@@ -198,12 +226,14 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
                              const std::string &source,
                              const std::string &materialId,
                              int materialSize,
-                             int minutes) {
+                             int minutes,
+                             int sectionIndex) {
         Json::Value item(Json::objectValue);
         item["question_id"] = scalarString(question["id"]);
         item["exam_id"] = examId;
         item["section_id"] = scalarString(section["section_id"]);
         item["section_type"] = section.get("section_type", "");
+        item["section_index"] = sectionIndex;
         item["question_type"] = question.get("question_type", "");
         item["source"] = source;
         item["material_id"] = materialId;
@@ -219,24 +249,27 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
         try { payload = examRepo_.getExamById(exam.id); } catch (...) { return groups; }
         const auto &sections = payload["exam_info"]["sections"];
         if (!sections.isArray()) return groups;
-        for (const auto &section : sections)
+        for (Json::ArrayIndex sectionIndex = 0; sectionIndex < sections.size(); ++sectionIndex)
         {
+            const auto &section = sections[sectionIndex];
             const auto type = section.get("section_type", "").asString();
             if (section["questions"].isArray())
             {
                 for (const auto &question : section["questions"])
                 {
+                    if (!usableQuestion(question)) continue;
                     QuestionGroup group;
                     group.minutes = estimatedMinutes(type, 1, false);
                     group.items.append(makeItem(question, section, exam.id, source,
-                                                scalarString(section["section_id"]) + ":" + scalarString(question["id"]), 1, group.minutes));
+                                                scalarString(section["section_id"]) + ":" + scalarString(question["id"]), 1, group.minutes, sectionIndex));
                     groups.push_back(std::move(group));
                 }
             }
             if (!section["passages"].isArray()) continue;
             for (const auto &passage : section["passages"])
             {
-                const auto &questions = passage["questions"];
+                Json::Value questions(Json::arrayValue);
+                for (const auto &question : passage["questions"]) if (usableQuestion(question)) questions.append(question);
                 if (!questions.isArray() || questions.empty()) continue;
                 const auto materialId = scalarString(section["section_id"]) + ":p" + scalarString(passage["id"]);
                 if (isAtomicMaterial(section, passage))
@@ -245,7 +278,7 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
                     group.minutes = estimatedMinutes(type, static_cast<int>(questions.size()), true);
                     for (const auto &question : questions)
                         group.items.append(makeItem(question, section, exam.id, source, materialId,
-                                                    static_cast<int>(questions.size()), group.minutes));
+                                                    static_cast<int>(questions.size()), group.minutes, sectionIndex));
                     groups.push_back(std::move(group));
                 }
                 else
@@ -255,7 +288,7 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
                         QuestionGroup group;
                         group.minutes = estimatedMinutes(type, 1, false);
                         group.items.append(makeItem(question, section, exam.id, source,
-                                                    materialId + ":" + scalarString(question["id"]), 1, group.minutes));
+                                                    materialId + ":" + scalarString(question["id"]), 1, group.minutes, sectionIndex));
                         groups.push_back(std::move(group));
                     }
                 }
@@ -270,12 +303,12 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
         if (plannedMinutes + group.minutes > budget) return false;
         for (const auto &item : group.items)
         {
-            const auto key = questionKey(item.get("exam_id", "").asString(), item.get("question_id", "").asString());
-            if (seen.count(key) || recent.count(key)) return false;
+            const auto key = itemKey(item);
+            if (seen.count(key) || (item.get("source", "").asString() == "recommended" && recent.count(key))) return false;
         }
         for (const auto &item : group.items)
         {
-            seen.insert(questionKey(item.get("exam_id", "").asString(), item.get("question_id", "").asString()));
+            seen.insert(itemKey(item));
             items.append(item);
         }
         plannedMinutes += group.minutes;
@@ -285,28 +318,50 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
     const auto findRecordedGroup = [&](const Json::Value &record, const std::string &source) {
         QuestionGroup empty;
         const auto examId = scalarString(record["exam_id"]);
-        const auto questionId = scalarString(record["question_id"]);
+        auto questionId = scalarString(record["question_id"]);
+        int sectionIndex = record.get("section_index", record["snapshot"].get("section_index", -1)).asInt();
+        const auto colon = questionId.find(':');
+        if (colon != std::string::npos) {
+            try { sectionIndex = std::stoi(questionId.substr(0, colon)); } catch (...) { return empty; }
+            questionId = questionId.substr(colon + 1);
+        }
         const auto foundExam = examById.find(examId);
         if (foundExam == examById.end() || questionId.empty()) return empty;
         for (auto group : groupsForExam(foundExam->second, source))
         {
             for (const auto &item : group.items)
             {
-                if (item.get("question_id", "").asString() != questionId) continue;
-                for (auto &groupItem : group.items)
-                {
-                    if (groupItem.get("question_id", "").asString() == questionId)
-                    {
-                        if (record.isMember("wrong_count")) groupItem["wrong_count"] = record["wrong_count"];
-                        if (record.isMember("card_id")) groupItem["card_id"] = record["card_id"];
-                    }
-                }
-                return group;
+                if (item.get("question_id", "").asString() != questionId || (sectionIndex >= 0 && item["section_index"].asInt() != sectionIndex)) continue;
+                QuestionGroup review;
+                auto selected = item;
+                if (record.isMember("wrong_count")) selected["wrong_count"] = record["wrong_count"];
+                if (record.isMember("card_id")) selected["card_id"] = record["card_id"];
+                selected["review_overdue"] = record.get("due_at", "9999").asString() < isoDaysAgo(1);
+                review.minutes = estimatedMinutes(selected.get("section_type", "").asString(), 1, false);
+                selected["estimated_minutes"] = review.minutes;
+                selected["material_question_count"] = 1;
+                review.items.append(selected);
+                return review;
             }
         }
         return empty;
     };
 
+    std::string focusDomain;
+    double weakest = 101;
+    const auto profile = adaptive_.profile(userId, examTarget);
+    for (const auto &domain : profile["domains"].getMemberNames()) {
+        const auto &summary = profile["domains"][domain];
+        if (summary.get("observation_count", 0).asInt() > 0 && summary.get("score", 100).asDouble() < weakest) {
+            weakest = summary["score"].asDouble(); focusDomain = domain;
+        }
+    }
+    const auto domainOf = [](const Json::Value &item) {
+        auto type = item.get("section_type", "").asString();
+        const auto sectionId = item.get("section_id", "").asString();
+        if ((type == "vocabulary" || type == "vocab") && sectionId >= "1.07" && sectionId <= "1.09") type = "grammar";
+        return type == "vocab" ? std::string("vocabulary") : type;
+    };
     // 到期复习先填充不超过约 40% 的时间预算，并限制为每天最多 10 组。
     // 其余到期卡保留在 SRS 中，后续日期继续按最早到期顺序安排。
     const auto due = srsService_.listDue(userId, 100);
@@ -319,6 +374,9 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
             auto group = findRecordedGroup(card, "srs_due");
             if (group.items.isArray() && !group.items.empty()) eligibleDueGroups.push_back(std::move(group));
         }
+        std::stable_sort(eligibleDueGroups.begin(), eligibleDueGroups.end(), [&](const auto &a, const auto &b) {
+            return (domainOf(a.items[0]) == focusDomain) > (domainOf(b.items[0]) == focusDomain);
+        });
         int scheduledDueGroups = 0;
         for (const auto &group : eligibleDueGroups)
         {
@@ -327,7 +385,7 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
             if (appendGroup(group)) ++scheduledDueGroups;
         }
     }
-    const bool hasHeavyDueBacklog = static_cast<int>(eligibleDueGroups.size()) >= std::max(10, budget * 3 / 4);
+    const bool hasHeavyDueBacklog = std::count_if(eligibleDueGroups.begin(), eligibleDueGroups.end(), [](const auto &group) { return group.items[0].get("review_overdue", false).asBool(); }) >= std::max(10, budget * 3 / 4);
 
     // 再用未掌握错题填充约 25% 预算，同一材料中的题一起加入。
     auto wrongDoc = wrongRepo_.load(userId);
@@ -339,13 +397,25 @@ Json::Value DailyPracticeService::buildItems(const std::string &userId,
         const auto lw = left.get("wrong_count", 0).asInt(), rw = right.get("wrong_count", 0).asInt();
         return lw == rw ? left.get("last_wrong_at", "").asString() > right.get("last_wrong_at", "").asString() : lw > rw;
     });
-    const auto wrongLimit = plannedMinutes + std::max(2, budget * 25 / 100);
+    const auto wrongLimit = focusDomain.empty() ? plannedMinutes + std::max(2, budget * 25 / 100) : std::max(plannedMinutes, budget / 2);
     for (const auto &wrong : wrongItems)
     {
         if (plannedMinutes >= wrongLimit) break;
-        appendGroup(findRecordedGroup(wrong, "wrong_question"));
+        const auto group = findRecordedGroup(wrong, "wrong_question");
+        if (plannedMinutes + group.minutes <= wrongLimit) appendGroup(group);
     }
 
+    // Use the current diagnostic evidence before filling the remaining budget.
+    if (!hasHeavyDueBacklog && !focusDomain.empty()) {
+        const int focusBudget = plannedMinutes + std::max(2, (budget - plannedMinutes) * 6 / 10);
+        for (const auto &exam : exams) {
+            for (const auto &group : groupsForExam(exam, "recommended")) {
+                if (plannedMinutes >= focusBudget) break;
+                if (!group.items.empty() && domainOf(group.items[0]) == focusDomain) appendGroup(group);
+            }
+            if (plannedMinutes >= focusBudget) break;
+        }
+    }
     // 剩余时间从当前考试目标的免费题库中补充；用户+日期保证同日稳定。
     const auto start = exams.empty() ? std::size_t{0} : std::hash<std::string>{}(userId + ':' + today() + ':' + examTarget) % exams.size();
     for (std::size_t scanned = 0; !hasHeavyDueBacklog && scanned < exams.size() && plannedMinutes < budget && static_cast<int>(items.size()) < maxItems; ++scanned)
@@ -365,6 +435,7 @@ Json::Value DailyPracticeService::getOrCreateToday(const std::string &userId,
                                                    const std::string &examTarget,
                                                    int dailyMinutes) const
 {
+    std::lock_guard lock(mutex_);
     if (userId.empty())
         throw common::AppException("VALIDATION_ERROR", "user_id required", drogon::k422UnprocessableEntity);
     targetCount = std::clamp(targetCount, 1, 50);
@@ -383,32 +454,61 @@ Json::Value DailyPracticeService::getOrCreateToday(const std::string &userId,
     if (doc.isObject() && doc.get("date", "").asString() == td &&
         doc.get("exam_target", "").asString() == examTarget &&
         doc.get("daily_minutes", 0).asInt() == dailyMinutes &&
-        doc.get("target_count", 0).asInt() == targetCount)
+        doc.get("target_count", 0).asInt() == targetCount && doc.get("plan_version", 0).asInt() == 2 &&
+        doc.get("diagnostic_version", "").asString() == diagnosticVersion(userId, examTarget) &&
+        doc.get("review_version", "").asString() == reviewVersion(userId))
     {
         // 已存在今日缓存，直接返回
         return doc;
     }
 
+    auto next = buildPlan(userId, targetCount, examTarget, dailyMinutes, doc.get("date", "").asString() == td ? doc : Json::Value(Json::objectValue));
+    infrastructure::storage::writeJsonFileAtomic(path, next);
+    return next;
+}
+
+std::string DailyPracticeService::diagnosticVersion(const std::string &userId, const std::string &examTarget) const
+{
+    const auto examId = examTarget.find("EJU") != std::string::npos ? "EJU_JAPANESE_DIAGNOSTIC_V1"
+        : examTarget.find("N3") != std::string::npos ? "N3_DIAGNOSTIC_V1" : examTarget.find("N1") != std::string::npos ? "N1_DIAGNOSTIC_V1" : "N2_DIAGNOSTIC_V1";
+    return answerRepo_.loadAnswer(userId, examId).get("saved_at", "").asString();
+}
+
+std::string DailyPracticeService::reviewVersion(const std::string &userId) const
+{
+    std::string version;
+    const auto wrong = wrongRepo_.load(userId);
+    for (const auto &item : wrong["items"]) version += item.get("exam_id", "").asString() + ':' + item.get("question_id", "").asString()
+        + ':' + item.get("last_wrong_at", "").asString() + ':' + std::to_string(item.get("correct_streak", 0).asInt()) + (item.get("mastered", false).asBool() ? "y" : "n");
+    const auto due = srsService_.listDue(userId, 100);
+    for (const auto &card : due["items"]) version += card.get("card_id", "").asString() + card.get("due_at", "").asString();
+    return std::to_string(std::hash<std::string>{}(version));
+}
+
+Json::Value DailyPracticeService::buildPlan(const std::string &userId, int targetCount, const std::string &examTarget, int dailyMinutes, const Json::Value &previous) const
+{
     Json::Value next(Json::objectValue);
     next["user_id"] = userId;
-    next["date"] = td;
+    next["date"] = today();
     next["target_count"] = targetCount;
     next["exam_target"] = examTarget;
     next["daily_minutes"] = dailyMinutes;
     int plannedMinutes = 0;
     try
     {
-        next["items"] = buildItems(userId, targetCount, examTarget, dailyMinutes, plannedMinutes);
+        next["items"] = buildItems(userId, targetCount, examTarget, dailyMinutes, plannedMinutes, previous);
     }
     catch (...)
     {
         // 个别旧学习数据损坏时仍返回可用的空清单，不让个人中心整体加载失败。
-        next["items"] = Json::Value(Json::arrayValue);
+        next["items"] = previous.get("items", Json::Value(Json::arrayValue));
     }
     next["planned_minutes"] = plannedMinutes;
-    next["completed_question_ids"] = Json::Value(Json::arrayValue);
+    next["completed_question_ids"] = previous.get("completed_question_ids", Json::Value(Json::arrayValue));
+    next["plan_version"] = 2;
+    next["diagnostic_version"] = diagnosticVersion(userId, examTarget);
+    next["review_version"] = reviewVersion(userId);
     next["generated_at"] = common::nowIso8601();
-    infrastructure::storage::writeJsonFileAtomic(path, next);
     return next;
 }
 
@@ -417,21 +517,15 @@ Json::Value DailyPracticeService::regenerate(const std::string &userId,
                                              const std::string &examTarget,
                                              int dailyMinutes) const
 {
+    std::lock_guard lock(mutex_);
     if (userId.empty())
         throw common::AppException("VALIDATION_ERROR", "user_id required", drogon::k422UnprocessableEntity);
     targetCount = std::clamp(targetCount, 1, 50);
     const auto path = fileFor(userId, examTarget);
-    Json::Value doc(Json::objectValue);
-    doc["user_id"] = userId;
-    doc["date"] = today();
-    doc["target_count"] = targetCount;
-    doc["exam_target"] = examTarget;
-    doc["daily_minutes"] = dailyMinutes;
-    int plannedMinutes = 0;
-    doc["items"] = buildItems(userId, targetCount, examTarget, dailyMinutes, plannedMinutes);
-    doc["planned_minutes"] = plannedMinutes;
-    doc["completed_question_ids"] = Json::Value(Json::arrayValue);
-    doc["generated_at"] = common::nowIso8601();
+    Json::Value previous(Json::objectValue);
+    try { previous = infrastructure::storage::readJsonFile(path); } catch (...) { }
+    if (previous.get("date", "").asString() != today()) previous = Json::Value(Json::objectValue);
+    auto doc = buildPlan(userId, targetCount, examTarget, dailyMinutes, previous);
     doc["regenerated"] = true;
     infrastructure::storage::writeJsonFileAtomic(path, doc);
     return doc;
@@ -442,6 +536,7 @@ Json::Value DailyPracticeService::markComplete(const std::string &userId,
                                                const std::string &questionId,
                                                const std::string &examTarget) const
 {
+    std::lock_guard lock(mutex_);
     if (userId.empty() || questionId.empty())
         throw common::AppException("VALIDATION_ERROR", "user_id 与 question_id 必填", drogon::k422UnprocessableEntity);
     Json::Value doc;
@@ -453,7 +548,12 @@ Json::Value DailyPracticeService::markComplete(const std::string &userId,
     if (!arr.isArray()) arr = Json::Value(Json::arrayValue);
     // 去重添加
     bool exists = false;
-    const auto completedKey = examId.empty() ? questionId : questionKey(examId, questionId);
+    auto completedKey = examId.empty() ? questionId : questionKey(examId, questionId);
+    if (questionId.find(':') == std::string::npos && !examId.empty()) {
+        int matches = 0;
+        for (const auto &item : doc["items"]) if (item.get("exam_id", "").asString() == examId && item.get("question_id", "").asString() == questionId) { completedKey = itemKey(item); ++matches; }
+        if (matches > 1) throw common::AppException("AMBIGUOUS_QUESTION", "请提供题型位置后标记完成", drogon::k422UnprocessableEntity);
+    }
     for (const auto &v : arr)
     {
         if (v.asString() == completedKey || v.asString() == questionId) { exists = true; break; }

@@ -165,6 +165,9 @@ bool FeedbackRepository::update(const std::string &paperId,
                 continue;
             }
             // 仅允许更新有限字段，避免被改 user_id 等关键字段
+            if (!it["processing_history"].isArray()) it["processing_history"] = Json::arrayValue;
+            Json::Value history(Json::objectValue); history["status"] = it.get("status", "open"); history["public_reply"] = it.get("public_reply", "");
+            history["changed_at"] = common::nowIso8601(); history["changed_by"] = patch.get("updated_by", ""); it["processing_history"].append(history);
             if (patch.isMember("status"))
             {
                 it["status"] = patch["status"].asString();
@@ -173,6 +176,8 @@ bool FeedbackRepository::update(const std::string &paperId,
             {
                 it["admin_note"] = patch["admin_note"].asString();
             }
+            if (patch.isMember("public_reply")) it["public_reply"] = patch["public_reply"].asString();
+            for (const auto *field : {"resolved_version_id", "resolved_fingerprint", "updated_by"}) if (patch[field].isString()) it[field] = patch[field];
             it["updated_at"] = common::nowIso8601();
             changed = true;
             break;

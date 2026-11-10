@@ -17,7 +17,7 @@ class FeedbackService
   public:
     explicit FeedbackService(infrastructure::storage::FeedbackRepository &repository);
 
-    // 提交反馈：必须包含 user_id / paper_id / question_id；校验后入库
+    // 题目反馈要求 paper_id / question_id；账号和支付反馈不关联试卷。
     Json::Value submit(const Json::Value &payload);
 
     // 列表（运营）：paperId 可空 = 全部

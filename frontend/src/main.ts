@@ -16,7 +16,7 @@ function logAppReady(levels: number): void {
 
 async function bootstrap(): Promise<void> {
 	const viewerBootstrapUrl = new URL(
-		'./features/viewerBootstrap.js?v=20261002-practice-close-v1',
+		'./features/viewerBootstrap.js?v=20261110-workspace-session',
 		import.meta.url
 	).href;
 	const { bootViewerApp } = await import(viewerBootstrapUrl) as typeof import('./features/viewerBootstrap.js');
@@ -35,9 +35,11 @@ async function bootstrap(): Promise<void> {
 	const appWindow = window as Window & {
 		__openLoginModal?: () => void;
 		__onLoginSuccess?: () => void;
+		openPersonalCenter?: () => void;
 		setUserContext?: (ctx: Record<string, unknown>) => void;
 		refreshPersonalCenterTrigger?: () => Promise<void> | void;
 		logoutUser?: () => void;
+		navigateLearningWorkspace?: (intent: string) => void;
 		UserContextManager?: { getInstance: () => { setUserContext: (ctx: Record<string, unknown>) => void } };
 	};
 	function applyUserContext(context: Record<string, unknown>): void {
@@ -68,6 +70,7 @@ async function bootstrap(): Promise<void> {
 	appWindow.__openLoginModal = () => loginModal.open();
 	appWindow.__onLoginSuccess = () => {
 		syncViewerUserState();
+		appWindow.openPersonalCenter?.();
 	};
 
 	// Fetch the exam directory while the viewer modules are downloading. On a
@@ -78,12 +81,15 @@ async function bootstrap(): Promise<void> {
 	await bootViewerApp(examsReady);
 	await sessionReady;
 	syncViewerUserState();
-	const guestWelcomeUrl = new URL('./features/guestWelcome.js?v=20261002-guest-record-quota-v1', import.meta.url).href;
+	const guestWelcomeUrl = new URL('./features/guestWelcome.js?v=20261006-guest-navigation-v1', import.meta.url).href;
 	const { initGuestWelcome } = await import(guestWelcomeUrl) as typeof import('./features/guestWelcome.js');
 	initGuestWelcome(api, store, () => loginModal.open());
-	const learningShellUrl = new URL('./features/learningShell.js?v=20261002-tablet-three-columns-v1', import.meta.url).href;
+	const learningShellUrl = new URL('./features/learningShell.js?v=20261030-overview-inset-v1', import.meta.url).href;
 	const { initLearningShell } = await import(learningShellUrl) as typeof import('./features/learningShell.js');
 	initLearningShell(store);
+	// Choose the landing page once, after authentication and navigation are ready.
+	// Later session updates must not interrupt an ongoing exercise.
+	if (!store.getState().user.guest) appWindow.navigateLearningWorkspace?.('__overview__');
 
 	const viewerLogout = appWindow.logoutUser;
 	appWindow.logoutUser = async () => {

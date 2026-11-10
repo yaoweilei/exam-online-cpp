@@ -887,6 +887,41 @@ Json::Value PaymentService::createOrder(const std::string &userId, const Json::V
     return order;
 }
 
+Json::Value PaymentService::archiveOrganization(const std::string &organizationId, const std::function<Json::Value()> &archive)
+{
+    // Use the same lock order as renewal workflows, and serialize with checkout/callbacks.
+    std::scoped_lock workflowLock(renewalWorkflowMutex_);
+    std::unique_lock lock(mutex_);
+    const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
+    const auto plan = subscription.get("plan", "free").asString();
+    const auto status = subscription.get("status", "active").asString();
+    const auto expiry = subscription.get("expires_at", "").asString();
+    if (plan != "free" && status != "expired" && status != "canceled" && (expiry.empty() || expiry > common::nowIso8601()))
+        throw common::AppException("ORGANIZATION_BILLING_ACTIVE", "机构仍有有效付费套餐，请先处理套餐后再移除", drogon::k409Conflict);
+    const auto renewal = sqliteStore_.get("payment_auto_renewals", "organization:" + organizationId);
+    if (renewal.get("enabled", false).asBool())
+        throw common::AppException("ORGANIZATION_BILLING_ACTIVE", "请先关闭机构自动续费后再移除", drogon::k409Conflict);
+    const auto orders = loadOrders();
+    Json::Value organizationOrderIds(Json::objectValue);
+    for (const auto &order : orders)
+    {
+        if (order.get("scope_type", "").asString() != "organization" || order.get("scope_id", "").asString() != organizationId) continue;
+        organizationOrderIds[order.get("id", "").asString()] = true;
+        const auto orderStatus = order.get("status", "").asString();
+        if (orderStatus == "pending" || orderStatus == "processing" || orderStatus == "requires_action")
+            throw common::AppException("ORGANIZATION_BILLING_PENDING", "机构有待支付或处理中的订单，请先处理后再移除", drogon::k409Conflict);
+    }
+    const auto refunds = loadRefunds();
+    for (const auto &refund : refunds)
+    {
+        const auto orderId = refund.get("order_id", "").asString();
+        const auto refundStatus = refund.get("status", "").asString();
+        if (organizationOrderIds.isMember(orderId) && refundStatus != "succeeded" && refundStatus != "failed" && refundStatus != "canceled")
+            throw common::AppException("ORGANIZATION_BILLING_PENDING", "机构有处理中的退款，请先处理后再移除", drogon::k409Conflict);
+    }
+    return archive();
+}
+
 Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
                                                     const std::string &organizationId,
                                                     const Json::Value &payload)
@@ -935,8 +970,8 @@ Json::Value PaymentService::createOrganizationOrder(const std::string &actorId,
     }
 
     // Validate the organization before persisting or contacting a payment provider.
-    const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
     std::unique_lock lock(mutex_);
+    const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
     auto orders = loadOrders();
     auto ledger = loadLedger();
     const auto quote = buildPriceQuote(
@@ -1108,6 +1143,32 @@ Json::Value PaymentService::listOrders(const Json::Value &filters) const
 {
     std::scoped_lock lock(mutex_);
     return paginateRecords(loadOrders(), filters);
+}
+
+Json::Value PaymentService::operationalAlerts(const std::string &date) const
+{
+    std::scoped_lock lock(mutex_);
+    Json::Value out(Json::arrayValue);
+    const auto append=[&](const Json::Value &record,const std::string &type,const std::string &message) {
+        const bool refund = type == "overdue_refund";
+        Json::Value item(Json::objectValue); item["type"]=type; item["message"]=message;
+        item["order_id"]=refund ? record.get("order_id", "") : record.get("id", record.get("order_id", ""));
+        item["refund_id"]=refund ? record.get("id", record.get("refund_id", "")) : Json::Value("");
+        item["status"]=record.get("status", ""); item["created_at"]=record.get("created_at", ""); item["updated_at"]=record.get("updated_at",item["created_at"]);
+        item["scope_type"]=record.get("scope_type", "user"); item["scope_id"]=record.get("scope_id",record.get("user_id","")); out.append(item);
+    };
+    for (const auto &order : loadOrders()) {
+        const auto status=order.get("status", "").asString(), updated=order.get("updated_at",order.get("created_at","")).asString(), created=order.get("created_at", "").asString();
+        if (status=="failed" && updated.substr(0,10)==date) append(order,"failed_payment","支付失败，请核查订单与支付渠道状态");
+        if ((status=="pending" || status=="processing" || status=="created") && !created.empty() && created.substr(0,10)<date)
+            append(order,"overdue_order","跨日未完成的支付订单，请核查是否仍需处理");
+    }
+    for (const auto &refund : loadRefunds()) {
+        const auto status=refund.get("status", "").asString(), created=refund.get("created_at", "").asString();
+        if ((status=="processing" || status=="pending" || status=="requested") && !created.empty() && created.substr(0,10)<date)
+            append(refund,"overdue_refund","跨日待处理退款，请核查审核与渠道处理进度");
+    }
+    return out;
 }
 
 Json::Value PaymentService::listRefunds(const Json::Value &filters) const

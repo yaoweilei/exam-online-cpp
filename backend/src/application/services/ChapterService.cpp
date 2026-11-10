@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <set>
 
 namespace application::services
 {
@@ -41,53 +40,18 @@ std::string lowerCopy(const std::string &input)
     return out;
 }
 
-std::vector<std::string> readStringArray(const Json::Value &node, const char *key)
+// Preserve all UTF-8 bytes so distinct Japanese section names never collide.
+std::string makeSectionChapterId(const std::string &family, const std::string &level,
+                                const std::string &sectionType, const std::string &sectionName)
 {
-    std::vector<std::string> out;
-    const auto &value = node[key];
-    if (!value.isArray())
+    constexpr char hex[] = "0123456789abcdef";
+    std::string encoded;
+    for (unsigned char byte : sectionType + "\n" + sectionName)
     {
-        return out;
+        encoded.push_back(hex[byte >> 4]);
+        encoded.push_back(hex[byte & 15]);
     }
-    for (const auto &item : value)
-    {
-        if (item.isString() && !item.asString().empty())
-        {
-            out.push_back(item.asString());
-        }
-    }
-    return out;
-}
-
-std::vector<std::string> collectSkillTags(const Json::Value &section, const Json::Value &question)
-{
-    std::set<std::string> skills;
-    for (const auto &item : readStringArray(section, "skill_tags"))
-    {
-        skills.insert(item);
-    }
-    for (const auto &item : readStringArray(question, "skill_tags"))
-    {
-        skills.insert(item);
-    }
-    return {skills.begin(), skills.end()};
-}
-
-std::string makeSkillChapterId(const std::string &family, const std::string &level, const std::string &skillKey)
-{
-    return lowerCopy(safeSlug(family)) + "__" + lowerCopy(safeSlug(level)) + "__skill__" + safeSlug(skillKey);
-}
-
-std::string makeFallbackChapterId(const std::string &family, const std::string &level, const std::string &sectionId)
-{
-    std::string out;
-    out.reserve(family.size() + level.size() + sectionId.size() + 6);
-    out.append(lowerCopy(safeSlug(family)));
-    out.append("__");
-    out.append(lowerCopy(safeSlug(level)));
-    out.append("__section__");
-    out.append(safeSlug(sectionId));
-    return out;
+    return lowerCopy(safeSlug(family)) + "__" + lowerCopy(safeSlug(level)) + "__section_name__" + encoded;
 }
 
 std::string pickText(const Json::Value &value)
@@ -146,12 +110,12 @@ void ChapterService::buildIndexLocked() const
         }();
         if (!info.isMember("sections")) continue;
 
-        for (const auto &section : info["sections"])
+        for (Json::ArrayIndex sectionIndex = 0; sectionIndex < info["sections"].size(); ++sectionIndex)
         {
-            const auto sectionId = section.get("section_id", "").asString();
+            const auto &section = info["sections"][sectionIndex];
             const auto sectionName = section.get("section_name", section.get("section_title", "")).asString();
             const auto sectionType = section.get("section_type", "").asString();
-            if (sectionId.empty() || sectionName.empty()) continue;
+            if (sectionName.empty()) continue;
 
             auto ensureChapter = [&](const std::string &chapterId, const std::string &skillKey, const std::string &displayName) {
                 auto it = chapters_.find(chapterId);
@@ -175,27 +139,15 @@ void ChapterService::buildIndexLocked() const
                 QuestionRef ref;
                 ref.examId = examId;
                 ref.questionId = toQuestionIdString(q["id"]);
+                ref.sectionIndex = static_cast<int>(sectionIndex);
                 if (ref.questionId.empty()) return;
                 ref.stem = pickStem(q);
-                const auto skills = collectSkillTags(section, q);
-                if (!skills.empty())
-                {
-                    for (const auto &skill : skills)
-                    {
-                        auto skillChapter = ensureChapter(
-                            makeSkillChapterId(family, level, skill),
-                            skill,
-                            skill);
-                        skillChapter->second.questions.push_back(ref);
-                    }
-                    return;
-                }
-
-                auto fallbackChapter = ensureChapter(
-                    makeFallbackChapterId(family, level, sectionId),
-                    {},
-                    sectionName);
-                fallbackChapter->second.questions.push_back(std::move(ref));
+                auto chapter = ensureChapter(
+                    makeSectionChapterId(family, level, sectionType, sectionName),
+                    {}, sectionName);
+                const auto duplicate = std::find_if(chapter->second.questions.begin(), chapter->second.questions.end(),
+                    [&](const QuestionRef &existing) { return existing.examId == ref.examId && existing.sectionIndex == ref.sectionIndex && existing.questionId == ref.questionId; });
+                if (duplicate == chapter->second.questions.end()) chapter->second.questions.push_back(std::move(ref));
             };
 
             if (section.isMember("questions") && section["questions"].isArray())
@@ -235,21 +187,32 @@ ChapterService::loadUserAnswerIndex(const std::string &userId) const
 {
     std::unordered_map<std::string, std::unordered_map<std::string, std::string>> index;
     if (userId.empty()) return index;
-    const auto rows = answerRepo_.listUserAnswers(userId);
+    auto rows = answerRepo_.listUserAnswers(userId);
+    std::sort(rows.begin(), rows.end(), [](const Json::Value &a, const Json::Value &b) { return a.get("saved_at", "").asString() < b.get("saved_at", "").asString(); });
     for (const auto &row : rows)
     {
-        const auto examId = row.get("exam_id", "").asString();
+        auto examId = row.get("exam_id", "").asString();
+        if (examId.size() > 10 && examId.substr(examId.size() - 10) == "__practice") examId.resize(examId.size() - 10);
         if (examId.empty()) continue;
         // statistics.results: { "1": {status: "correct"|...}, ... }
         const auto &stats = row["statistics"];
         if (!stats.isObject()) continue;
+        if (stats.get("exam_mode", "").asString() == "specialty") {
+            for (const auto &result : stats["mastery_results"]) {
+                const auto id = result.get("question_id", "").asString();
+                const auto key = result.isMember("section_index") ? std::to_string(result["section_index"].asInt()) + ":" + id : id;
+                index[result.get("exam_id", "").asString()][key] = result.get("status", "").asString();
+            }
+            continue;
+        }
         const auto &results = stats["results"];
         if (!results.isObject()) continue;
         auto &byExam = index[examId];
         const auto names = results.getMemberNames();
         for (const auto &qid : names)
         {
-            byExam[qid] = results[qid].get("status", "").asString();
+            const auto status = results[qid].get("status", "").asString();
+            if (status == "correct" || status == "wrong") byExam[qid] = status;
         }
     }
     return index;
@@ -274,7 +237,8 @@ Json::Value ChapterService::listChapters(const std::string &family, const std::s
         {
             const auto byExamIt = answers.find(q.examId);
             if (byExamIt == answers.end()) continue;
-            const auto statusIt = byExamIt->second.find(q.questionId);
+            auto statusIt = byExamIt->second.find(std::to_string(q.sectionIndex) + ":" + q.questionId);
+            if (statusIt == byExamIt->second.end()) statusIt = byExamIt->second.find(q.questionId);
             if (statusIt == byExamIt->second.end()) continue;
             const auto &status = statusIt->second;
             if (status == "correct" || status == "wrong")
@@ -332,12 +296,14 @@ Json::Value ChapterService::getChapter(const std::string &chapterId, const std::
         Json::Value row(Json::objectValue);
         row["exam_id"] = q.examId;
         row["question_id"] = q.questionId;
+        row["section_index"] = q.sectionIndex;
         row["stem"] = q.stem;
         std::string status;
         const auto byExamIt = answers.find(q.examId);
         if (byExamIt != answers.end())
         {
-            const auto s = byExamIt->second.find(q.questionId);
+            auto s = byExamIt->second.find(std::to_string(q.sectionIndex) + ":" + q.questionId);
+            if (s == byExamIt->second.end()) s = byExamIt->second.find(q.questionId);
             if (s != byExamIt->second.end()) status = s->second;
         }
         row["status"] = status;

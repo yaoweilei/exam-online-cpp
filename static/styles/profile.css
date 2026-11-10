@@ -1,0 +1,99 @@
+/* Account profile shares one flat surface per section across all roles. */
+:is(#platform-admin-shell, #personal-center) .pc-profile-page {
+  --profile-border: var(--workspace-border, var(--ls-border, #ebe6e1));
+  --profile-muted: var(--workspace-muted, var(--ls-muted, #81776f));
+  --profile-surface: var(--workspace-surface, var(--ls-surface, #fff));
+  --profile-text: var(--workspace-text, var(--ls-text, #26221f));
+  display: grid; gap: 12px; color: var(--profile-text);
+  font-size: 14px; line-height: 20px; min-width: 0;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-input {
+  min-width: 0; width: 100%; height: 44px; box-sizing: border-box;
+  padding: 8px 12px; border: 1px solid var(--profile-border); border-radius: 14px;
+  color: var(--profile-text); background: var(--profile-surface); font: inherit;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-page :is(.pc-inline-btn, .pc-inline-ghost) {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: auto; min-height: 44px; height: auto; margin: 0; padding: 8px 12px;
+  border: 1px solid var(--profile-border); border-radius: 14px;
+  background: var(--profile-surface); color: inherit; box-shadow: none;
+  font: inherit; white-space: nowrap; cursor: pointer;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-inline-btn { background: var(--workspace-selected, #fff3e9); border-color: transparent; color: var(--workspace-accent, #ae450e); }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page button[data-save-display-name] {
+  background: transparent; border-color: transparent; color: var(--workspace-accent, #ae450e);
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-page button[data-save-display-name]:disabled {
+  background: transparent; color: var(--profile-muted); opacity: .8; cursor: default;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-disclosure > summary {
+  display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 8px 0;
+  margin: 0; list-style: none; cursor: pointer; font-size: 14px; line-height: 20px;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-page summary::-webkit-details-marker { display: none; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page summary > strong { font-weight: 500; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page summary > span { margin-left: auto; font-size: 12px; font-weight: 400; color: var(--profile-muted); }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-disclosure[open] > summary { border-bottom: 1px solid var(--profile-border); margin-bottom: 4px; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-contact-verify-card { margin: 0; padding: 0; border: 0; background: transparent; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-contact-verify-list { display: grid; gap: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-row-card {
+  display: grid; gap: 8px; padding: 10px 0; margin: 0; border: 0;
+  border-radius: 0; border-top: 1px solid var(--profile-border); background: transparent; box-shadow: none;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-row-card:first-child { border-top: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-row-summary { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-row-label { font-size: 14px; color: inherit; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-row-value { min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: inherit; font-size: 14px; overflow-wrap: anywhere; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-row-value.is-empty { color: var(--profile-muted); }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-row-meta { display: flex; grid-column: auto; justify-self: end; gap: 6px; flex-wrap: wrap; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-row-meta .pc-inline-ghost { min-height: 32px; font-size: 12px; border-radius: 8px; padding: 4px 10px; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-editor { margin: 0; padding: 4px 0 0; gap: 8px; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-step { padding: 0; border: 0; border-radius: 0; background: transparent; gap: 8px; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-editor-note { font-size: 12px; line-height: 18px; color: var(--profile-muted); }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-avatar-body { display: grid; gap: 6px; padding: 4px 0 12px; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-avatar-preview { display: flex; align-items: center; gap: 8px; color: var(--profile-muted); font-size: 12px; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-preview-chip { width: 44px; height: 44px; border: 1px solid var(--profile-border); border-radius: 8px; background: var(--profile-surface); }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-style-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 4px; margin: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-style-chip { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; padding: 4px 2px; margin: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-style-chip.active { border-color: #ff7a2f; background: #fff7f1; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-style-chip-img { width: 40px; height: 40px; border-radius: 8px; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-style-chip-name { width: 100%; max-width: none; white-space: normal; overflow-wrap: anywhere; font-size: 12px; line-height: 18px; text-align: center; color: inherit; opacity: 1; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-picker-actions { display: flex; flex-direction: row; gap: 6px; margin: 0; flex-wrap: wrap; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-picker-actions #pc-avatar-apply { margin-left: auto; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-avatar-credit { margin: 0; font-size: 12px; line-height: 18px; color: var(--profile-muted); }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-avatar-credit a { color: inherit; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-plan-link { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 48px; margin: 0; padding: 8px 0; border: 0; border-top: 1px solid var(--profile-border); border-radius: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-plan-link strong { margin-left: auto; font-size: 12px; font-weight: 400; color: var(--profile-muted); }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-nickname-link {
+  border-top: 0; border-bottom: 1px solid var(--profile-border);
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-profile-nickname-link strong {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: inherit;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-link > span,
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-link > svg { flex-shrink: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-editor {
+  gap: 6px; width: 100%; max-width: 520px; margin: 0 auto;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-field { position: relative; min-width: 0; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-editor .pc-profile-input {
+  min-height: 48px; padding-inline: 16px 48px; border-color: transparent; border-radius: 999px; font-size: 16px;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-editor .pc-profile-input:focus {
+  border-color: transparent; outline: none; box-shadow: none;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-clear {
+  position: absolute; inset: 0 4px 0 auto; width: 44px; padding: 0;
+  border: 0; border-radius: 50%; color: var(--profile-muted); background: transparent; cursor: pointer;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-clear span {
+  display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%;
+  color: var(--profile-surface); background: var(--profile-muted); font-size: 14px; line-height: 1;
+}
+:is(#platform-admin-shell, #personal-center) .pc-profile-nickname-editor [data-save-display-name] { justify-self: end; }
+:is(#platform-admin-shell, #personal-center) .pc-profile-page :is(button, summary):focus-visible { outline: 2px solid var(--workspace-accent, #ae450e); outline-offset: 2px; }
+@container workbench (max-width: 420px) {
+  :is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-input-row { grid-template-columns: minmax(0, 1fr); }
+  :is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-verify-input-row > button { justify-self: start; }
+  :is(#platform-admin-shell, #personal-center) .pc-profile-page .pc-avatar-style-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

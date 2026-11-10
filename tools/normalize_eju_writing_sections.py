@@ -50,7 +50,7 @@ COMMON_REPLACEMENTS = {
     "そして。、": "そして、",
 }
 
-MANUAL_TEXT_KEEP = {"2023_02"}
+MANUAL_TEXT_KEEP = {"2023_02", "2024_01"}
 
 
 def normalize_spacing(text: str) -> str:

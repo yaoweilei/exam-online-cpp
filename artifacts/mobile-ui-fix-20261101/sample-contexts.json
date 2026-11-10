@@ -1,0 +1,26 @@
+{
+  "teacher": {
+    "account": "teacher_mobile_ui_20261101",
+    "organizationId": "org_01a19641-64e2-7657-b4bb-39454df6685c",
+    "organizationName": "手机布局审查学校 · 日语能力考试与留学课程中心",
+    "score": 22
+  },
+  "assistant": {
+    "account": "assistant_mobile_ui_20261101",
+    "organizationId": "org_01a19641-64e2-7657-b4bb-39454df6685c",
+    "organizationName": "手机布局审查学校 · 日语能力考试与留学课程中心",
+    "score": 22
+  },
+  "orgAdmin": {
+    "account": "student_mobile_ui_manager_20261101",
+    "organizationId": "org_01a19641-64e2-7657-b4bb-39454df6685c",
+    "organizationName": "手机布局审查学校 · 日语能力考试与留学课程中心",
+    "score": 22
+  },
+  "orgContentAdmin": {
+    "account": "student_mobile_ui_content_20261101",
+    "organizationId": "org_01a19641-64e2-7657-b4bb-39454df6685c",
+    "organizationName": "手机布局审查学校 · 日语能力考试与留学课程中心",
+    "score": 22
+  }
+}

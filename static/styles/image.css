@@ -747,6 +747,7 @@ mark.target-word,
 .exam-image-wrapper {
 	position: relative;
 	display: inline-block;
+	box-sizing: border-box;
 	max-width: 100%;
 	width: 600px; /* 默认宽度 */
 	margin: 0;
@@ -756,6 +757,7 @@ mark.target-word,
 
 /* 图片本身 */
 .exam-image-wrapper .exam-image {
+	box-sizing: border-box;
 	width: 100%;
 	height: auto;
 	display: block;
@@ -828,9 +830,40 @@ mark.target-word,
 
 /* 题目内图片的特殊样式 */
 .question-passage .exam-image-wrapper {
-	max-width: 600px;
+	max-width: 100%;
 	margin: 0;
 }
+
+.exam-image-zoom-trigger,
+.exam-image-detail-close {
+	display: block;
+	min-height: 40px;
+	margin: 4px 0;
+	padding: 6px 12px;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 8px;
+	background: var(--vscode-panel-background);
+	color: var(--vscode-foreground);
+	font: inherit;
+	cursor: pointer;
+}
+
+.exam-image-detail {
+	box-sizing: border-box;
+	width: min(1200px, calc(100vw - 24px));
+	max-width: calc(100vw - 24px);
+	max-height: calc(100dvh - 24px);
+	padding: 12px;
+	border: 1px solid var(--vscode-panel-border);
+	border-radius: 12px;
+	background: var(--vscode-editor-background);
+	color: var(--vscode-foreground);
+}
+
+.exam-image-detail::backdrop { background: rgb(0 0 0 / 65%); }
+.exam-image-detail-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.exam-image-detail-viewport { max-height: calc(100dvh - 110px); overflow: auto; overscroll-behavior: contain; }
+.exam-image-detail-viewport img { display: block; max-width: none; height: auto; }
 
 /* 当题干后面紧跟question-passage时，减少题干的下边距 */
 .question-text:has(+ .question-passage) {

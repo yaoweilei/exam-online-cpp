@@ -1,0 +1,336 @@
+[
+  {
+    "id": "preview-820",
+    "role": "superAdmin",
+    "label": "桌面内820px平板预览",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "position": "top",
+        "file": "preview-820-1440-top.png",
+        "metrics": {
+          "viewport": 1440,
+          "height": 1000,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 820,
+          "mainHeight": 956,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "机构管理\n\n机构、套餐、席位与管理员\n\n＋ 新建\nE2E 全链路机构 mqq09unm_tv995\nFREE · 2 人 · 席位 0/30\nE2E 全链路机构 mqq0an76_bz5b1\nFREE · 6 人 · 席位 2/30\nE2E 全链路机构 mqq0i1t2_qgej6\nFREE · 6 人 · 席位 2/30\nE2E 全链路机构 mqq0swie_trmb5\nFREE · 5 人 · 席位 2/30\nE2E 全链路机构 mqq1036i_ayje9\nFREE · 5 人 · 席位 2/30\nE2E 全链路机构 mqq12w9a_mh5qv\nFREE · 5 人 · 席位 2/30\nE2E 全链路机构 mqvzfsvv_sknro\nFREE · 5 人 · 席位 2/30\nE2E 全链路机构 mqvzp234_amm3h\nFREE · 5 人 · 席位 2/30\nE2E 全链路机构 mqvzr15w_s7w0g\nFREE · 5 人 · 席位 2/30\nE2E 全链路机构 mqvzt7bc_eztvz\nFREE · 5 人 · 席位 2/30\n共 317 个\n/ 32 页",
+          "headings": [
+            {
+              "text": "机构管理",
+              "size": "25px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "course-boundaries",
+    "role": "orgAdmin",
+    "label": "课程包断点补查",
+    "account": "student_mobile_ui_manager_20261101",
+    "captures": [
+      {
+        "width": 820,
+        "height": 1180,
+        "position": "top",
+        "file": "course-boundaries-820-top.png",
+        "metrics": {
+          "viewport": 820,
+          "height": 1180,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 820,
+          "mainHeight": 1136,
+          "sidebarWidth": 0,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "section.pc-package-section",
+              "text": "模板总课时已分配状态操作JLPT 阅读与听力完整课程 · 30 课时300 人可用查看分配手机审查课时账户 1201 人可用查看分配手机审查课时账户 2201 "
+            }
+          ],
+          "overflow": [],
+          "text": "课程包\n课程包\n课时管理\n学习组\n机构看板\n手机布局审查学校 · 日语能力考试与留学课程中心\n课程包 · 5\n课时管理\n学习组\n＋ 新建模板\n模板\n总课时\n已分配\n状态\n操作\nJLPT 阅读与听力完整课程 · 30 课时\n30\n0 人\n可用\n查看分配\n手机审查课时账户 1\n20\n1 人\n可用\n查看分配\n手机审查课时账户 2\n20\n1 人\n可用\n查看分配\n手机审查课时账户 3\n20\n1 人\n可用\n查看分配\n手机审查课时账户 4\n20\n1 人\n可用\n查看分配",
+          "headings": [
+            {
+              "text": "课程包",
+              "size": "25px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1180,
+        "height": 820,
+        "position": "top",
+        "file": "course-boundaries-1180-top.png",
+        "metrics": {
+          "viewport": 1180,
+          "height": 820,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 940,
+          "mainHeight": 776,
+          "sidebarWidth": 240,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "section.pc-package-section",
+              "text": "模板总课时已分配状态操作JLPT 阅读与听力完整课程 · 30 课时300 人可用查看分配手机审查课时账户 1201 人可用查看分配手机审查课时账户 2201 "
+            }
+          ],
+          "overflow": [],
+          "text": "课程包\n课程包\n课时管理\n学习组\n机构看板\n手机布局审查学校 · 日语能力考试与留学课程中心\n课程包 · 5\n课时管理\n学习组\n＋ 新建模板\n模板\n总课时\n已分配\n状态\n操作\nJLPT 阅读与听力完整课程 · 30 课时\n30\n0 人\n可用\n查看分配\n手机审查课时账户 1\n20\n1 人\n可用\n查看分配\n手机审查课时账户 2\n20\n1 人\n可用\n查看分配\n手机审查课时账户 3\n20\n1 人\n可用\n查看分配\n手机审查课时账户 4\n20\n1 人\n可用\n查看分配",
+          "headings": [
+            {
+              "text": "课程包",
+              "size": "25px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "chapters-boundaries",
+    "role": "student",
+    "label": "专项练习断点补查",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 820,
+        "height": 1180,
+        "position": "top",
+        "file": "chapters-boundaries-820-top.png",
+        "metrics": {
+          "viewport": 820,
+          "height": 1180,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 820,
+          "mainHeight": 1723,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\nJLPT-N1\nJLPT-N2\nJLPT-N3\nEJU\n全部题型\n词汇\n语法\n阅读\n听力\n时间升序\n时间降序\n随机\n\n独立作答 · 同一题只计一次\n\n大类\n专项题型\n未做\n答对\n答错\n词汇\n問題1 - 漢字読み\n152\n0\n0\n問題2 - 表記\n152\n0\n0\n問題3 - 語形成\n127\n0\n0\n問題4 - 文脈規定\n210\n0\n0\n問題5 - 言い換え類義\n151\n0\n0\n問題6 - 用法\n152\n0\n0\n语法\n問題7 - 文の文法1（文法形式の判断）\n364\n0\n0\n問題8 - 文の文法2（文の組み立て）\n153\n0\n0\n問題9 - 文章の文法\n143\n0\n0\n阅读\n問題10 - 内容理解（短文）\n152\n0\n0\n問題11 - 内容理解（中文）\n263\n0\n0\n問題12 - 統合理解\n60\n0\n2\n問題13 - 主張理解（長文）\n92\n0\n0\n問題14 - 情報検索\n62\n0\n0\n听力\n問題1 - 課題理解\n152\n0\n0\n問題2 - ポイント理解\n177\n0\n0\n問題3 - 概要理解\n151\n0\n0\n問題4 - 即時応答\n345\n0\n0\n問題5 - 統合理解\n112\n0\n0\n最近练习\n更多记录\n听力布局检查\n进行中 · 已做0/1题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期26条\n错题与收藏\n待订正0\n收藏2\n学习报告",
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "24px"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 820,
+        "height": 1180,
+        "position": "bottom",
+        "file": "chapters-boundaries-820-bottom.png",
+        "metrics": {
+          "viewport": 820,
+          "height": 1180,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 820,
+          "mainHeight": 1723,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\nJLPT-N1\nJLPT-N2\nJLPT-N3\nEJU\n全部题型\n词汇\n语法\n阅读\n听力\n时间升序\n时间降序\n随机\n\n独立作答 · 同一题只计一次\n\n大类\n专项题型\n未做\n答对\n答错\n词汇\n問題1 - 漢字読み\n152\n0\n0\n問題2 - 表記\n152\n0\n0\n問題3 - 語形成\n127\n0\n0\n問題4 - 文脈規定\n210\n0\n0\n問題5 - 言い換え類義\n151\n0\n0\n問題6 - 用法\n152\n0\n0\n语法\n問題7 - 文の文法1（文法形式の判断）\n364\n0\n0\n問題8 - 文の文法2（文の組み立て）\n153\n0\n0\n問題9 - 文章の文法\n143\n0\n0\n阅读\n問題10 - 内容理解（短文）\n152\n0\n0\n問題11 - 内容理解（中文）\n263\n0\n0\n問題12 - 統合理解\n60\n0\n2\n問題13 - 主張理解（長文）\n92\n0\n0\n問題14 - 情報検索\n62\n0\n0\n听力\n問題1 - 課題理解\n152\n0\n0\n問題2 - ポイント理解\n177\n0\n0\n問題3 - 概要理解\n151\n0\n0\n問題4 - 即時応答\n345\n0\n0\n問題5 - 統合理解\n112\n0\n0\n最近练习\n更多记录\n听力布局检查\n进行中 · 已做0/1题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期26条\n错题与收藏\n待订正0\n收藏2\n学习报告",
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "24px"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1180,
+        "height": 820,
+        "position": "top",
+        "file": "chapters-boundaries-1180-top.png",
+        "metrics": {
+          "viewport": 1180,
+          "height": 820,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 940,
+          "mainHeight": 1723,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\nJLPT-N1\nJLPT-N2\nJLPT-N3\nEJU\n全部题型\n词汇\n语法\n阅读\n听力\n时间升序\n时间降序\n随机\n\n独立作答 · 同一题只计一次\n\n大类\n专项题型\n未做\n答对\n答错\n词汇\n問題1 - 漢字読み\n152\n0\n0\n問題2 - 表記\n152\n0\n0\n問題3 - 語形成\n127\n0\n0\n問題4 - 文脈規定\n210\n0\n0\n問題5 - 言い換え類義\n151\n0\n0\n問題6 - 用法\n152\n0\n0\n语法\n問題7 - 文の文法1（文法形式の判断）\n364\n0\n0\n問題8 - 文の文法2（文の組み立て）\n153\n0\n0\n問題9 - 文章の文法\n143\n0\n0\n阅读\n問題10 - 内容理解（短文）\n152\n0\n0\n問題11 - 内容理解（中文）\n263\n0\n0\n問題12 - 統合理解\n60\n0\n2\n問題13 - 主張理解（長文）\n92\n0\n0\n問題14 - 情報検索\n62\n0\n0\n听力\n問題1 - 課題理解\n152\n0\n0\n問題2 - ポイント理解\n177\n0\n0\n問題3 - 概要理解\n151\n0\n0\n問題4 - 即時応答\n345\n0\n0\n問題5 - 統合理解\n112\n0\n0\n最近练习\n更多记录\n听力布局检查\n进行中 · 已做0/1题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期26条\n错题与收藏\n待订正0\n收藏2\n学习报告",
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "24px"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px"
+            }
+          ]
+        }
+      },
+      {
+        "width": 1180,
+        "height": 820,
+        "position": "bottom",
+        "file": "chapters-boundaries-1180-bottom.png",
+        "metrics": {
+          "viewport": 1180,
+          "height": 820,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 940,
+          "mainHeight": 1723,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "学习首页\n当前目标\nJLPT N2\n距目标 60 天 · 每天 20 分钟\n调整\n系统学习\n诊断未开始\n开始诊断 →\n入门诊断\n40 题 · 约35分钟 · 用于安排学习重点\n→\n我的课程\n课程与课时 →\n\n暂无待上课程，排课后会显示在这里。\n\n自由练习\n专项模式\n按题型练\n真题模式\n按试卷练\nJLPT-N1\nJLPT-N2\nJLPT-N3\nEJU\n全部题型\n词汇\n语法\n阅读\n听力\n时间升序\n时间降序\n随机\n\n独立作答 · 同一题只计一次\n\n大类\n专项题型\n未做\n答对\n答错\n词汇\n問題1 - 漢字読み\n152\n0\n0\n問題2 - 表記\n152\n0\n0\n問題3 - 語形成\n127\n0\n0\n問題4 - 文脈規定\n210\n0\n0\n問題5 - 言い換え類義\n151\n0\n0\n問題6 - 用法\n152\n0\n0\n语法\n問題7 - 文の文法1（文法形式の判断）\n364\n0\n0\n問題8 - 文の文法2（文の組み立て）\n153\n0\n0\n問題9 - 文章の文法\n143\n0\n0\n阅读\n問題10 - 内容理解（短文）\n152\n0\n0\n問題11 - 内容理解（中文）\n263\n0\n0\n問題12 - 統合理解\n60\n0\n2\n問題13 - 主張理解（長文）\n92\n0\n0\n問題14 - 情報検索\n62\n0\n0\n听力\n問題1 - 課題理解\n152\n0\n0\n問題2 - ポイント理解\n177\n0\n0\n問題3 - 概要理解\n151\n0\n0\n問題4 - 即時応答\n345\n0\n0\n問題5 - 統合理解\n112\n0\n0\n最近练习\n更多记录\n听力布局检查\n进行中 · 已做0/1题 其他等级 · JLPT N3\n继续练习 →\n学习档案\n学习记录\n近期26条\n错题与收藏\n待订正0\n收藏2\n学习报告",
+          "headings": [
+            {
+              "text": "学习首页",
+              "size": "24px"
+            },
+            {
+              "text": "系统学习",
+              "size": "18px"
+            },
+            {
+              "text": "我的课程",
+              "size": "17px"
+            },
+            {
+              "text": "自由练习",
+              "size": "16px"
+            },
+            {
+              "text": "最近练习",
+              "size": "13px"
+            },
+            {
+              "text": "学习档案",
+              "size": "16px"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-text",
+    "role": "exam",
+    "label": "整卷文本题",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 768,
+        "height": 1024,
+        "position": "top",
+        "file": "exam-text-768-top.png",
+        "metrics": {
+          "viewport": 768,
+          "height": 1024,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 0,
+          "mainHeight": 0,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t×\n\t\t\t\t\t‹返回\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t試\n\t\t\t\t\t在线试卷\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t待扫码\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t手机号验证码登录\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t+86 ▾\n\t\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t发送验证码\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t登录\n\t\t\t\t\t\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t忘记密码？\n\t\t\t\t\t\t登录\n\t\t\t\t\t\n\t\t\t\t\n\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t 我已阅读并同意 《用户协议》 和 《隐私政策》\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t验证码登录\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t密码登录\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\tG\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t测试账号\n\t\t\t\t\t\n\t\t\t\t\t\t学员 student_demo\n\t\t\t\t\t\t老师 teacher_demo\n\t\t\t\t\t\t教学运营 assistant_demo\n\t\t\t\t\t\t机构管理员 orgadmin_demo\n\t\t\t\t\t\t内容管理员 contentadmin_demo\n\t\t\t\t\t\t超级管理员 superadmin_demo\n\t\t\t\t\t\n\t\t\t\t\n\t\t\t\n\t\t",
+          "headings": []
+        }
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "position": "top",
+        "file": "exam-text-1024-top.png",
+        "metrics": {
+          "viewport": 1024,
+          "height": 768,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 0,
+          "mainHeight": 0,
+          "sidebarWidth": 0,
+          "nested": [],
+          "overflow": [],
+          "text": "\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t×\n\t\t\t\t\t‹返回\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t試\n\t\t\t\t\t在线试卷\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t待扫码\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t手机号验证码登录\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t+86 ▾\n\t\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t发送验证码\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t登录\n\t\t\t\t\t\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t忘记密码？\n\t\t\t\t\t\t登录\n\t\t\t\t\t\n\t\t\t\t\n\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t 我已阅读并同意 《用户协议》 和 《隐私政策》\n\t\t\t\t\n\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t验证码登录\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t密码登录\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\tG\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\t测试账号\n\t\t\t\t\t\n\t\t\t\t\t\t学员 student_demo\n\t\t\t\t\t\t老师 teacher_demo\n\t\t\t\t\t\t教学运营 assistant_demo\n\t\t\t\t\t\t机构管理员 orgadmin_demo\n\t\t\t\t\t\t内容管理员 contentadmin_demo\n\t\t\t\t\t\t超级管理员 superadmin_demo\n\t\t\t\t\t\n\t\t\t\t\n\t\t\t\n\t\t",
+          "headings": []
+        }
+      }
+    ],
+    "errors": []
+  }
+]

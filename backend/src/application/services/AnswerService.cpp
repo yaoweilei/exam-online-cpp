@@ -119,9 +119,10 @@ Json::Value AnswerService::save(const std::string &userId,
 const std::string &examId,
 const Json::Value &answers,
 const Json::Value &statistics,
-const std::string &submissionId)
+const std::string &submissionId,
+const std::string &attemptId)
 {
-    return repository_.saveAnswer(userId, examId, answers, statistics, submissionId);
+    return repository_.saveAnswer(userId, examId, answers, statistics, submissionId, attemptId);
 }
 
 Json::Value AnswerService::load(const std::string &userId, const std::string &examId) const

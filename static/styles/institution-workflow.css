@@ -1,0 +1,159 @@
+.pc-institution-flow, .pc-selfstudy-assignments {
+  --flow-text: var(--workspace-text, var(--ls-text, #26221f));
+  --flow-muted: var(--workspace-muted, var(--ls-muted, #78716c));
+  --flow-border: var(--workspace-border, var(--ls-border, #ebe7e2));
+  color: var(--flow-text); min-width: 0; box-sizing: border-box;
+  background: var(--workspace-surface, var(--ls-surface, #fff));
+  border: 1px solid var(--flow-border); border-radius: 14px; padding: 14px 16px;
+}
+.pc-institution-flow[hidden] { display: none !important; }
+.ls-link[data-ls-intent="openRoleContent:student-courses"][hidden] { display: none !important; }
+.pc-institution-flow :is(h2, h3, p) { margin: 8px 0; }
+.pc-institution-flow h2, .pc-selfstudy-assignments h2 { font-size: 17px; }
+.pc-institution-flow h3 { font-size: 15px; }
+.pc-institution-flow .pc-home-section-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.pc-institution-flow :is(input, select, textarea) { max-width: 100%; box-sizing: border-box; }
+.pc-institution-flow textarea.pc-profile-input { height: auto; min-height: 72px; resize: vertical; line-height: 1.6; }
+.pc-institution-flow .pc-org-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; margin-bottom: 10px; }
+.pc-flow-toolbar, .pc-flow-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.pc-flow-toolbar { margin-bottom: 10px; }
+.pc-flow-toolbar > input { flex: 1 1 160px; min-width: 0; width: auto; }
+.pc-flow-toolbar > select { flex: 0 1 200px; min-width: 0; width: auto; }
+.pc-flow-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--flow-border); min-width: 0; }
+.pc-flow-row > div { min-width: 0; }
+.pc-flow-row strong { font-size: 14px; overflow-wrap: anywhere; }
+.pc-flow-row :is(small, p, span) { font-size: 12px; overflow-wrap: anywhere; }
+.pc-flow-row small { display: block; margin-top: 4px; color: var(--flow-muted); }
+.pc-flow-row .pc-flow-actions { flex-shrink: 0; }
+.pc-flow-actions > button { min-height: 34px; padding: 6px 10px; }
+.pc-flow-editor { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--flow-border); }
+.pc-flow-empty { color: var(--flow-muted); font-size: 13px; }
+.pc-flow-error { color: #b42318; font-size: 13px; padding: 8px; border: 1px solid currentColor; border-radius: 8px; }
+body:not(.light-theme) .pc-flow-error { color: #ffa98c; }
+.pc-institution-flow details > summary, .pc-flow-import-disclosure > summary { cursor: pointer; padding: 10px 0; font-size: 13px; }
+.pc-flow-import-disclosure { margin: 12px 0; }
+.pc-institution-flow .pc-flow-attendance > div { display: grid; grid-template-columns: minmax(70px, .8fr) minmax(80px, .7fr) minmax(140px, 1.6fr) minmax(70px, .6fr); align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--flow-border); }
+.pc-flow-attendance label { min-width: 0; color: var(--flow-muted); font-size: 12px; }
+.pc-flow-attendance strong { min-width: 0; overflow-wrap: anywhere; line-height: 1.5; }
+.pc-flow-attendance strong small { display: block; color: var(--flow-muted); font-weight: 400; }
+.pc-flow-editor h3, .pc-flow-corrections p { overflow-wrap: anywhere; }
+.pc-flow-attendance label .pc-profile-input { width: 100%; }
+.pc-flow-students { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; border: 1px solid var(--flow-border); border-radius: 8px; min-width: 0; }
+.pc-flow-students label { display: flex; align-items: center; gap: 5px; overflow-wrap: anywhere; }
+.pc-selfstudy-assignments .pc-home-section-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.pc-selfstudy-assignments .pc-home-section-head h2 { margin: 0; }
+.pc-selfstudy-assignments .pc-home-section-head small { font-size: 12px; font-weight: 400; color: var(--flow-muted); }
+.pc-selfstudy-assignments .pc-selfstudy-assignment-notice { border: 0; border-top: 1px solid var(--flow-border); border-radius: 0; margin: 10px 0 0; padding: 10px 0 0; background: transparent; }
+.pc-workflow-onboarding { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; border: 1px solid var(--workspace-border); border-radius: 12px; }
+.pc-workflow-onboarding h2 { width: 100%; margin: 0; font-size: 15px; }
+.pc-workflow-onboarding button { flex: 1 1 130px; text-align: left; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-institution-overview-strip { grid-column: 1 / -1; border: 1px solid var(--workspace-border); background: var(--workspace-surface); border-radius: 14px; padding: 10px 14px; display: grid; gap: 6px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-institution-overview-strip > .pc-platform-stats { grid-column: auto; padding: 0; border: 0; border-radius: 0; background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-institution-overview-strip > .pc-platform-tasks { grid-column: auto; display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 6px 0 0; border: 0; border-top: 1px solid var(--workspace-border); background: transparent; margin: 0; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-institution-overview-strip .pc-platform-task { width: auto; min-width: 0; padding: 4px; margin: 0; gap: 8px; border: 0; background: transparent; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-institution-overview-strip .pc-platform-task em, #platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-institution-overview-strip .pc-overview-empty p { display: none; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-institution-overview-strip .pc-overview-empty { padding: 4px; }
+#platform-admin-shell:not([data-learning-role="student"]) .pc-role-home .pc-institution-overview-strip .pc-platform-task strong { font-size: 13px; }
+.pc-workflow-empty-course { grid-column: 1 / -1; color: var(--workspace-muted); font-size: 13px; padding-inline: 6px; }
+.pc-feedback-reply textarea.pc-profile-input { width: 100%; height: auto; min-height: 64px; }
+.pc-feedback-reply { flex-basis: 100%; max-width: 300px; }
+.pc-product-panel { margin: 12px 0; grid-column: 1 / -1; }
+.pc-product-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin: 10px 0; }
+.pc-product-filters > .pc-org-field { flex: 1 1 155px; margin: 0; }
+.pc-product-filters > button { min-height: 40px; }
+.pc-product-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; padding: 12px 0; border-block: 1px solid var(--flow-border); }
+.pc-product-summary small { display: block; color: var(--flow-muted); }
+.pc-product-summary strong { display: block; margin-top: 6px; font-size: 19px; }
+.pc-product-chart { width: 100%; max-height: 220px; margin: 10px 0; }
+.pc-product-chart text { font-size: 12px; fill: var(--flow-muted); }
+.pc-product-table { overflow-x: auto; }
+.pc-product-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pc-product-table :is(th,td) { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--flow-border); white-space: nowrap; }
+.pc-product-steps { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 0; list-style: none; font-size: 13px; color: var(--flow-muted); }
+.pc-product-steps [aria-current] { color: var(--workspace-accent, #b84b13); font-weight: 700; }
+.pc-product-choices { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; margin: 12px 0; padding: 12px; border: 1px solid var(--flow-border); border-radius: 10px; min-width: 0; }
+.pc-product-choices label { display: flex; align-items: start; gap: 8px; overflow-wrap: anywhere; font-size: 13px; }
+.pc-product-choices input { flex-shrink: 0; }
+.pc-product-queue-tabs, .pc-product-comment-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.pc-product-queue-tabs [aria-pressed="true"] { border-color: var(--workspace-accent, #b84b13); color: var(--workspace-accent, #b84b13); }
+.pc-product-comment-list button { white-space: normal; text-align: left; max-width: 100%; }
+.pc-product-disclosure { padding: 14px 16px; margin: 12px 0; }
+.pc-product-disclosure > summary { cursor: pointer; font-weight: 600; }
+.pc-product-review-history { margin: 10px 0; }
+.pc-assignment-submission { min-width: 0; overflow-wrap: anywhere; }
+.pc-assignment-submission .pc-service-header { white-space: normal; overflow-wrap: anywhere; }
+.pc-product-warning { color: var(--workspace-accent, #b84b13); font-size: 13px; }
+.pc-review-current { outline: 2px solid var(--workspace-accent, #b84b13); outline-offset: 2px; }
+.pc-feedback-return-bar { position: fixed; z-index: 1500; top: 68px; right: 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; max-width: calc(100vw - 40px); padding: 10px 14px; border: 1px solid #d38d5f; border-radius: 12px; background: var(--ls-surface, #fff); color: var(--ls-text, #26221f); box-shadow: 0 4px 20px #0002; font-size: 13px; }
+@media (max-width: 600px) {
+  #platform-admin-shell .pc-institution-detail-card .pc-info-row { flex-wrap: wrap; min-width: 0; gap: 6px; }
+  #platform-admin-shell .pc-institution-detail-card .pc-info-row :is(span, strong) { white-space: normal; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .pc-institution-flow, .pc-selfstudy-assignments { padding: 12px; }
+  .pc-flow-row { flex-wrap: wrap; gap: 8px; }
+  .pc-flow-row > .pc-flow-actions { width: 100%; justify-content: flex-end; }
+  .pc-flow-toolbar { align-items: stretch; }
+  .pc-flow-toolbar > input { flex-basis: 100%; }
+  .pc-flow-toolbar > select { flex: 1 1 120px; }
+  .pc-product-filters > .pc-org-field { flex-basis: 120px; }
+  .pc-product-panel { padding: 12px; }
+  .pc-feedback-return-bar { top: 52px; right: 12px; max-width: calc(100vw - 24px); }
+  .pc-institution-flow .pc-org-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .pc-institution-flow .pc-flow-attendance > div { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+}
+
+/* Task-focused details share the learner workbench's compact surfaces. */
+#platform-admin-shell [data-task-panel][hidden] { display: none !important; }
+#platform-admin-shell .pc-task-workspace { min-width: 0; }
+#platform-admin-shell .pc-task-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 14px; border-bottom: 1px solid var(--workspace-border, var(--ls-border)); }
+#platform-admin-shell .pc-task-tabs > button { flex: 1 1 auto; min-width: 0; min-height: 42px; padding: 8px 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--workspace-muted, var(--ls-muted)); font: inherit; cursor: pointer; }
+#platform-admin-shell .pc-task-tabs > button[aria-selected=true] { color: var(--workspace-accent, #b84b13); border-bottom-color: currentColor; font-weight: 600; }
+#platform-admin-shell .pc-task-tabs > button:focus-visible { outline: 2px solid var(--workspace-accent, #b84b13); outline-offset: -3px; }
+#platform-admin-shell [data-task-panel] > .pc-card + .pc-card { margin-top: 12px; }
+#platform-admin-shell .pc-detail-context { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; }
+#platform-admin-shell .pc-detail-context small { display: block; margin-top: 4px; color: var(--workspace-muted, var(--ls-muted)); }
+#platform-admin-shell .pc-detail-basics > summary,
+#platform-admin-shell .pc-member-invite > summary,
+#platform-admin-shell .pc-member-permission-overrides > summary,
+#platform-admin-shell .pc-member-audit > summary,
+#platform-admin-shell .pc-member-invitation-section > summary,
+#platform-admin-shell .pc-review-reminders > summary,
+#platform-admin-shell .pc-progress-daily > summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; min-height: 40px; cursor: pointer; font-weight: 600; }
+#platform-admin-shell .pc-detail-basics > summary > span { font-size: 12px; color: var(--workspace-muted, var(--ls-muted)); font-weight: 400; }
+#platform-admin-shell .pc-org-context-bar-compact { flex-wrap: wrap; gap: 4px 12px; }
+#platform-admin-shell .pc-org-context-bar-compact small { font-size: 12px; font-weight: 400; color: var(--workspace-muted, var(--ls-muted)); }
+#platform-admin-shell .pc-member-invite { margin-block: 6px; }
+#platform-admin-shell .pc-member-invite > summary { justify-content: flex-start; color: var(--workspace-accent, #b84b13); }
+#platform-admin-shell .pc-member-permission-overrides,
+#platform-admin-shell .pc-member-audit { margin-top: 12px; border-top: 1px solid var(--workspace-border, var(--ls-border)); }
+#platform-admin-shell .pc-review-heading { display: grid; gap: 8px; margin-bottom: 12px; }
+#platform-admin-shell .pc-review-heading p { margin: 0; color: var(--workspace-muted, var(--ls-muted)); }
+#platform-admin-shell .pc-review-heading > label { max-width: 480px; }
+#platform-admin-shell details.pc-assignment-submission { padding: 0; }
+#platform-admin-shell .pc-review-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 10px 14px; cursor: pointer; }
+#platform-admin-shell .pc-review-summary strong { min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-review-summary > span { flex-shrink: 0; color: var(--workspace-muted, var(--ls-muted)); font-size: 12px; }
+#platform-admin-shell .pc-review-body { padding: 0 14px 14px; }
+#platform-admin-shell .pc-review-body > label { margin-top: 10px; }
+#platform-admin-shell .pc-review-reminders { margin-top: 14px; }
+#platform-admin-shell .pc-review-reminders > .pc-card { padding: 0; border: 0; }
+#platform-admin-shell .pc-flow-row.is-selected { border-left: 3px solid var(--workspace-accent, #b84b13); padding-left: 10px; }
+#platform-admin-shell [data-flow-form=followup] { margin: 8px 0 16px; padding: 12px; border: 1px solid var(--flow-border); border-radius: 10px; }
+#platform-admin-shell .pc-progress-comparison span { display: block; margin-top: 4px; font-size: 12px; color: var(--workspace-muted, var(--ls-muted)); }
+#platform-admin-shell .pc-progress-daily { margin-top: 10px; }
+@media (max-width: 600px) {
+  #platform-admin-shell .pc-detail-context { flex-wrap: wrap; }
+  #platform-admin-shell .pc-progress-comparison { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #platform-admin-shell .pc-progress-comparison > div:last-child { grid-column: 1 / -1; }
+  #platform-admin-shell .pc-task-tabs > button { padding-inline: 6px; font-size: 13px; }
+}
+#platform-admin-shell .pc-platform-admin-content details.pc-assignment-submission { padding: 0; }
+#platform-admin-shell .pc-assignment-submission > .pc-review-summary { margin: 0; border: 0; border-radius: 0; background: transparent; padding: 10px 14px; }
+#platform-admin-shell .pc-assignment-submission .pc-review-body .pc-info-row { display: grid; grid-template-columns: minmax(64px, 1fr) minmax(0, 2fr); gap: 8px; align-items: baseline; min-height: 0; padding: 7px 0; }
+#platform-admin-shell .pc-assignment-submission .pc-review-body .pc-info-row > span { font-size: 12px; }
+#platform-admin-shell .pc-assignment-submission .pc-review-body .pc-info-row > strong { font-size: 13px; text-align: left; }
+#platform-admin-shell .pc-workspace-page-heading > div { min-width: 0; }
+#platform-admin-shell .pc-workspace-page-heading h1 { min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-task-workspace :is(strong, p, small, h2, h3, summary) { overflow-wrap: anywhere; }
+#platform-admin-shell .pc-org-context-bar-compact { display: flex; align-items: baseline; flex-wrap: wrap; }
+#platform-admin-shell .pc-org-context-bar-compact > strong { flex: 1 1 180px; min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+#platform-admin-shell .pc-org-context-bar-compact > small { flex: 1 1 240px; min-width: 0; white-space: normal; overflow-wrap: anywhere; }

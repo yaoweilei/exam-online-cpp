@@ -14,6 +14,12 @@ namespace transport::routes
 {
 namespace
 {
+void closePracticeDraft(const AppContext &ctx, const std::string &userId, const std::string &id)
+{
+    if (!ctx.draftService || id.empty()) return;
+    ctx.draftService->markSubmitted(userId + "__practice", id, id);
+    ctx.draftService->clear(userId + "__practice", id, id);
+}
 Json::Value recentItemFromScore(const std::string &userId, const std::string &examId, const Json::Value &score)
 {
     Json::Value item(Json::objectValue);
@@ -28,10 +34,126 @@ Json::Value recentItemFromScore(const std::string &userId, const std::string &ex
     item["completion"] = score.get("completion", 0.0);
     return item;
 }
+
+void recordLearningResult(const AppContext &ctx, const std::string &userId, const std::string &examId,
+                          const Json::Value &exam, const Json::Value &score)
+{
+    auto independent = score;
+    independent["results"] = Json::Value(Json::objectValue);
+    int correct = 0, wrong = 0;
+    for (const auto &key : score["results"].getMemberNames()) {
+        const auto &row = score["results"][key];
+        const auto status = row.get("status", "").asString();
+        if (row.get("viewed", false).asBool() || (status != "correct" && status != "wrong")) continue;
+        independent["results"][key] = row;
+        status == "correct" ? ++correct : ++wrong;
+    }
+    if (!correct && !wrong) return;
+    independent["total_questions"] = correct + wrong;
+    independent["correct_count"] = correct;
+    independent["wrong_count"] = wrong;
+    independent["unanswered_count"] = 0;
+    const auto enabled = [&](const std::string &feature) { return !ctx.featureFlagService || ctx.featureFlagService->isEnabled(feature, userId); };
+    if (ctx.wrongQuestionService && enabled("wrong_questions")) {
+        try { ctx.wrongQuestionService->recordFromScore(userId, examId, exam, independent); } catch (...) { }
+    }
+    if (ctx.srsService && enabled("srs")) {
+        try { ctx.srsService->ingestWrongFromScore(userId, examId, exam, independent); } catch (...) { }
+    }
+    if (ctx.streakService && enabled("streak")) {
+        try { ctx.streakService->recordActivity(userId, correct + wrong, correct); } catch (...) { }
+    }
+    if (ctx.adaptiveLearningService) {
+        try { ctx.adaptiveLearningService->recordSubmission(userId, examId, exam, independent); } catch (...) { }
+    }
+}
 }  // namespace
 
 void registerAnswerRoutes(const AppContext &ctx)
 {
+    app().registerHandler("/api/v1/answers/specialty-session",
+        [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+            handleRequest(req, std::move(callback), [&]() {
+                const auto session = requireSession(*ctx.authService, req);
+                const auto userId = session.get("user_id", session.get("id", "")).asString();
+                const auto body = parseJsonBody(req);
+                const auto label = requireBoundedString(body, "label", 1, 100);
+                const auto submission = requireBoundedString(body, "submission_id", 1, 100);
+                const auto &rows = body["questions"];
+                if (!rows.isArray() || rows.empty() || rows.size() > 1000)
+                    throw common::AppException("VALIDATION_ERROR", "Invalid specialty session", k422UnprocessableEntity);
+                Json::Value stats(Json::objectValue), results(Json::arrayValue), answers(Json::objectValue), mastery(Json::objectValue);
+                const auto previous = ctx.answerService->attempts(userId, "__specialty", 1);
+                if (!previous.empty()) mastery = previous[0]["statistics"].get("mastery_results", mastery);
+                std::unordered_set<std::string> seen;
+                Json::Value learningScores(Json::objectValue);
+                int correct = 0, wrong = 0, viewed = 0;
+                for (const auto &row : rows)
+                {
+                    const auto examId = requireBoundedString(row, "exam_id", 1, 100);
+                    const auto questionId = requireBoundedString(row, "question_id", 1, 100);
+                    const bool hasSection = row.isMember("section_index");
+                    if (hasSection && (!row["section_index"].isInt() || row["section_index"].asInt() < 0))
+                        throw common::AppException("VALIDATION_ERROR", "Invalid specialty section", k422UnprocessableEntity);
+                    auto exam = ctx.examService->getExam(examId);
+                    auto &sections = exam["exam_info"]["sections"];
+                    Json::Value question;
+                    int foundSection = -1;
+                    for (Json::ArrayIndex s = 0; s < sections.size() && foundSection < 0; ++s)
+                    {
+                        if (hasSection && static_cast<int>(s) != row["section_index"].asInt()) continue;
+                        const auto find = [&](const Json::Value &questions) {
+                            for (const auto &q : questions) if (q.get("id", "").asString() == questionId) { question = q; foundSection = static_cast<int>(s); break; }
+                        };
+                        find(sections[s]["questions"]);
+                        if (foundSection < 0) for (const auto &passage : sections[s]["passages"]) { find(passage["questions"]); if (foundSection >= 0) break; }
+                    }
+                    if (foundSection < 0) throw common::AppException("NOT_FOUND", "Specialty question unavailable", k404NotFound);
+                    const auto key = examId + ":" + std::to_string(foundSection) + ":" + questionId;
+                    if (!seen.insert(key).second) throw common::AppException("VALIDATION_ERROR", "Duplicate specialty question", k422UnprocessableEntity);
+                    Json::Value result(Json::objectValue);
+                    result["exam_id"] = examId; result["question_id"] = questionId; result["answer"] = row["answer"];
+                    result["section_index"] = foundSection;
+                    result["viewed"] = row.get("viewed", false).asBool();
+                    if (result["viewed"].asBool()) { result["status"] = "viewed"; ++viewed; }
+                    else {
+                        for (auto &section : sections) { section["questions"] = Json::arrayValue; section["passages"] = Json::arrayValue; }
+                        sections[foundSection]["questions"].append(question);
+                        Json::Value selected(Json::objectValue); selected[questionId] = row["answer"];
+                        const auto score = ctx.answerService->calculateScore(examId, selected, exam);
+                        for (const auto &scoreKey : score["results"].getMemberNames()) learningScores[examId]["results"][scoreKey] = score["results"][scoreKey];
+                        const auto status = score.get("correct_count", 0).asInt() ? "correct" : score.get("wrong_count", 0).asInt() ? "wrong" : "ungraded";
+                        result["status"] = status;
+                        if (std::string(status) == "correct") ++correct;
+                        if (std::string(status) == "wrong") ++wrong;
+                        if (std::string(status) != "ungraded") {
+                            const auto legacyKey = examId + ":" + questionId;
+                            if (mastery.isMember(legacyKey) && mastery[legacyKey].get("section_index", -1).asInt() == foundSection) mastery.removeMember(legacyKey);
+                            mastery[key] = result;
+                        }
+                    }
+                    answers[key] = row["answer"];
+                    results.append(result);
+                }
+                stats["exam_mode"] = "specialty"; stats["practice_label"] = label;
+                stats["total_questions"] = static_cast<int>(rows.size()); stats["correct_count"] = correct; stats["wrong_count"] = wrong;
+                stats["viewed_count"] = viewed; stats["accuracy"] = correct + wrong ? 100.0 * correct / (correct + wrong) : 0.0;
+                stats["session_questions"] = results; stats["mastery_results"] = mastery;
+                stats["learning_origin"] = body.get("learning_origin", "free").asString() == "system" ? "system" : "free";
+                const auto saved = ctx.answerService->save(userId, "__specialty", answers, stats, "specialty-" + submission);
+                closePracticeDraft(ctx, userId, submission);
+                if (!saved.get("idempotent_replay", false).asBool()) for (const auto &id : learningScores.getMemberNames())
+                    recordLearningResult(ctx, userId, id, ctx.examService->getExam(id), learningScores[id]);
+                if (ctx.recentLearningRepository && !saved.get("idempotent_replay", false).asBool()) {
+                    auto item = recentItemFromScore(userId, "__specialty", stats);
+                    item["source"] = "specialty"; item["exam_title"] = label + " · 专项练习";
+                    item["practice_label"] = label;
+                    item["learning_origin"] = stats["learning_origin"];
+                    ctx.recentLearningRepository->upsert(userId, item);
+                }
+                return common::ok(req, saved);
+            });
+        }, {Post});
     app().registerHandler("/api/v1/answers/practice-group",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
@@ -90,12 +212,14 @@ void registerAnswerRoutes(const AppContext &ctx)
                 score["practice_total_questions"] = practiceTotal;
                 score["practice_answered_count"] = practiceAnswered;
                 const auto saved = ctx.answerService->save(userId, examId + "__practice", answers, score, "practice-" + submissionId);
+                closePracticeDraft(ctx, userId, submissionId);
+                if (!saved.get("idempotent_replay", false).asBool()) recordLearningResult(ctx, userId, examId, exam, score);
                 if (ctx.recentLearningRepository != nullptr && !saved.get("idempotent_replay", false).asBool())
                 {
                     auto item = recentItemFromScore(userId, examId, score);
                     item["source"] = "practice_group";
                     item["practice_label"] = label;
-                    item["exam_title"] = exam["exam_info"].get("title", examId).asString() + " · " + label;
+                    item["exam_title"] = exam["exam_info"].get("title", examId).asString();
                     item["total_questions"] = practiceTotal;
                     item["answered_count"] = practiceAnswered;
                     ctx.recentLearningRepository->upsert(userId, item);
@@ -155,12 +279,35 @@ void registerAnswerRoutes(const AppContext &ctx)
                 const auto attemptId = body.get("attempt_id", "").asString();
                 const auto exam = ctx.examService->getExam(examId);
                 auto score = ctx.answerService->calculateScore(examId, answers, exam);
+                const bool diagnostic = exam["exam_info"].get("paper_type", exam.get("paper_type", "")).asString() == "diagnostic";
+                if (diagnostic) {
+                    int total = 0, answered = 0, sectionIndex = 0;
+                    std::unordered_set<std::string> counted;
+                    for (const auto &section : exam["exam_info"]["sections"]) {
+                        const auto count = [&](const Json::Value &questions) {
+                            for (const auto &question : questions) {
+                                const auto id = question.get("id", "").asString();
+                                const auto key = std::to_string(sectionIndex) + ":" + id;
+                                if (id.empty() || !counted.insert(key).second) continue;
+                                ++total;
+                                const auto &answer = answers.isMember(key) ? answers[key] : answers[id];
+                                if (!answer.isNull() && (!answer.isString() || !answer.asString().empty()) && (!answer.isArray() || !answer.empty())) ++answered;
+                            }
+                        };
+                        count(section["questions"]);
+                        for (const auto &passage : section["passages"]) count(passage["questions"]);
+                        ++sectionIndex;
+                    }
+                    if (!total || answered < total) throw common::AppException("DIAGNOSTIC_INCOMPLETE", "请完成全部诊断题目后提交；未完成的答案可保存后继续", k422UnprocessableEntity);
+                    score["diagnostic_answered_count"] = answered;
+                    score["diagnostic_total_questions"] = total;
+                }
                 if (userId == "guest" && readToken(req, &body).empty()) return common::ok(req, score);
                 const auto session = requireSession(*ctx.authService, req, &body);
                 const auto sessionUserId = session.get("user_id", session.get("id", "")).asString();
                 if (userId.empty() || userId == "guest") userId = sessionUserId;
                 requireDataOwnerOrAdmin(session, userId, "只能提交当前登录账号的答案");
-                score["exam_mode"] = body.get("exam_mode", "practice").asString();
+                score["exam_mode"] = diagnostic ? "mock" : body.get("exam_mode", "practice").asString();
                 if (ctx.attemptTimerService != nullptr)
                 {
                     const auto timer = ctx.attemptTimerService->get(userId);
@@ -169,7 +316,7 @@ void registerAnswerRoutes(const AppContext &ctx)
                         score["elapsed_seconds"] = timer.get("elapsed_seconds", 0);
                     }
                 }
-                const auto savedAttempt = ctx.answerService->save(userId, examId, answers, score, submissionId);
+                const auto savedAttempt = ctx.answerService->save(userId, examId, answers, score, submissionId, attemptId);
                 if (savedAttempt.get("idempotent_replay", false).asBool())
                 {
                     auto replayScore = savedAttempt.get("statistics", score);
@@ -182,36 +329,7 @@ void registerAnswerRoutes(const AppContext &ctx)
                 {
                     ctx.recentLearningRepository->upsert(userId, recentItemFromScore(userId, examId, score));
                 }
-                // 业务功能 1：评分完成后自动把错题写入错题本（容错：失败不影响主流程）
-                if (ctx.wrongQuestionService != nullptr
-                    && (ctx.featureFlagService == nullptr
-                        || ctx.featureFlagService->isEnabled("wrong_questions", userId)))
-                {
-                    try
-                    {
-                        ctx.wrongQuestionService->recordFromScore(userId, examId, exam, score);
-                    }
-                    catch (...)
-                    {
-                        // 错题本写入异常不应阻断答题提交
-                    }
-                }
-                // 业务功能 2：累计当日学习数据 + 推进连续天数（容错）
-                if (ctx.streakService != nullptr
-                    && (ctx.featureFlagService == nullptr
-                        || ctx.featureFlagService->isEnabled("streak", userId)))
-                {
-                    try
-                    {
-                        const int totalQ = score.get("total_questions", 0).asInt();
-                        const int correct = score.get("correct_count", 0).asInt();
-                        ctx.streakService->recordActivity(userId, totalQ, correct);
-                    }
-                    catch (...)
-                    {
-                        // 学习连续天数写入异常不应阻断答题提交
-                    }
-                }
+                recordLearningResult(ctx, userId, examId, exam, score);
                 // 业务功能 4：提交后清除该用户的草稿（容错；仅在同一试卷时才清）
                 if (ctx.draftService != nullptr
                     && (ctx.featureFlagService == nullptr
@@ -220,11 +338,7 @@ void registerAnswerRoutes(const AppContext &ctx)
                     try
                     {
                         ctx.draftService->markSubmitted(userId, examId, attemptId);
-                        const auto current = ctx.draftService->get(userId);
-                        if (current.isObject() && current.get("exam_id", "").asString() == examId)
-                        {
-                            ctx.draftService->clear(userId);
-                        }
+                        ctx.draftService->clear(userId, examId, attemptId);
                     }
                     catch (...)
                     {
@@ -247,31 +361,6 @@ void registerAnswerRoutes(const AppContext &ctx)
                     catch (...)
                     {
                         // 计时清理异常不应阻断答题提交
-                    }
-                }
-                // 业务功能 7：错题同时入 SRS 复习卡（幂等）
-                if (ctx.srsService != nullptr
-                    && (ctx.featureFlagService == nullptr
-                        || ctx.featureFlagService->isEnabled("srs", userId)))
-                {
-                    try
-                    {
-                        ctx.srsService->ingestWrongFromScore(userId, examId, exam, score);
-                    }
-                    catch (...)
-                    {
-                        // SRS 入卡异常不应阻断答题提交
-                    }
-                }
-                if (ctx.adaptiveLearningService != nullptr)
-                {
-                    try
-                    {
-                        ctx.adaptiveLearningService->recordSubmission(userId, examId, exam, score);
-                    }
-                    catch (...)
-                    {
-                        // 掌握画像失败不影响已完成的试卷提交；后续可从答题记录重建。
                     }
                 }
                 auto submittedScore = score;

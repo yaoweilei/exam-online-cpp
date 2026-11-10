@@ -1,0 +1,4725 @@
+[
+  {
+    "id": "orgAdmin-org-members",
+    "role": "orgAdmin",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "成员管理",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-members"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "权限管理",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-permissions"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "手机布局审查学校 · 日语能力考试与留学课程中心付费内容席位 13/30，剩余 17 席；共 17 名成员。",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学员12 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "student"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "教学管理员1 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "assistant"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "老师1 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "teacher"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构内容管理员1 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "orgContentAdmin"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构管理员2 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "orgAdmin"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "＋ 添加 / 邀请成员",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "输入账号 / 昵称 / 邮箱 / 手机号",
+        "attrs": [
+          [
+            "data-org-search-query",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "搜索",
+        "attrs": [
+          [
+            "data-org-search",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "添加/邀请",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "批量添加学员",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "预览导入",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "填写示例",
+        "attrs": [
+          [
+            "data-flow-action",
+            "import-example"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_01_20261101STU-000006\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "权限范围与有效期 · 永久有效",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "整个机构\n\t\t\t\t\t\t指定校区\n\t\t\t\t\t\t指定学习组\n\t\t\t\t\t\t个人",
+        "attrs": [
+          [
+            "data-org-permission-scope",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区 / 学习组 / 用户 ID，可留空",
+        "attrs": [
+          [
+            "data-org-permission-scope-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "修改",
+        "attrs": [
+          [
+            "data-org-member-number-edit",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员设置",
+        "attrs": [
+          [
+            "data-org-member-save",
+            ""
+          ],
+          [
+            "data-org-member-save-bound",
+            "1"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_02_20261101STU-000007\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "权限范围与有效期 · 永久有效",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "整个机构\n\t\t\t\t\t\t指定校区\n\t\t\t\t\t\t指定学习组\n\t\t\t\t\t\t个人",
+        "attrs": [
+          [
+            "data-org-permission-scope",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区 / 学习组 / 用户 ID，可留空",
+        "attrs": [
+          [
+            "data-org-permission-scope-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "修改",
+        "attrs": [
+          [
+            "data-org-member-number-edit",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员设置",
+        "attrs": [
+          [
+            "data-org-member-save",
+            ""
+          ],
+          [
+            "data-org-member-save-bound",
+            "1"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_03_20261101STU-000008\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "权限范围与有效期 · 永久有效",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "整个机构\n\t\t\t\t\t\t指定校区\n\t\t\t\t\t\t指定学习组\n\t\t\t\t\t\t个人",
+        "attrs": [
+          [
+            "data-org-permission-scope",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区 / 学习组 / 用户 ID，可留空",
+        "attrs": [
+          [
+            "data-org-permission-scope-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "修改",
+        "attrs": [
+          [
+            "data-org-member-number-edit",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员设置",
+        "attrs": [
+          [
+            "data-org-member-save",
+            ""
+          ],
+          [
+            "data-org-member-save-bound",
+            "1"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_04_20261101STU-000009\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "权限范围与有效期 · 永久有效",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "整个机构\n\t\t\t\t\t\t指定校区\n\t\t\t\t\t\t指定学习组\n\t\t\t\t\t\t个人",
+        "attrs": [
+          [
+            "data-org-permission-scope",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区 / 学习组 / 用户 ID，可留空",
+        "attrs": [
+          [
+            "data-org-permission-scope-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "修改",
+        "attrs": [
+          [
+            "data-org-member-number-edit",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员设置",
+        "attrs": [
+          [
+            "data-org-member-save",
+            ""
+          ],
+          [
+            "data-org-member-save-bound",
+            "1"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_05_20261101STU-000010\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orgAdmin-org-permissions",
+    "role": "orgAdmin",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "成员管理",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-members"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "权限管理",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-permissions"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "手机布局审查学校 · 日语能力考试与留学课程中心付费内容席位 13/30，剩余 17 席；共 17 名成员。",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学员",
+        "attrs": [
+          [
+            "data-org-role-permission-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "student"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "教学管理员",
+        "attrs": [
+          [
+            "data-org-role-permission-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "assistant"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "老师",
+        "attrs": [
+          [
+            "data-org-role-permission-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "teacher"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构内容管理员",
+        "attrs": [
+          [
+            "data-org-role-permission-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "orgContentAdmin"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构管理",
+        "attrs": [
+          [
+            "data-org-role-permission-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "orgAdmin"
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "布置作业查看/批改提交催交作业查看成绩册查看学员档案编辑学员档案编辑跟进记录学习组管理约课管理课程包管理查看课程包备课组卷导出讲义编辑课后反馈续费风险机构看板成",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "添加权限",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "暂无可选权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除权限",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "成员额外授权",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学员12 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "student"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "教学管理员1 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "assistant"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "老师1 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "teacher"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构内容管理员1 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "orgContentAdmin"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构管理员2 人",
+        "attrs": [
+          [
+            "data-org-member-role",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-role-id",
+            "orgAdmin"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_01_20261101STU-000006\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "权限范围与有效期 · 永久有效",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "整个机构\n\t\t\t\t\t\t指定校区\n\t\t\t\t\t\t指定学习组\n\t\t\t\t\t\t个人",
+        "attrs": [
+          [
+            "data-org-permission-scope",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区 / 学习组 / 用户 ID，可留空",
+        "attrs": [
+          [
+            "data-org-permission-scope-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "修改",
+        "attrs": [
+          [
+            "data-org-member-number-edit",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员设置",
+        "attrs": [
+          [
+            "data-org-member-save",
+            ""
+          ],
+          [
+            "data-org-member-save-bound",
+            "1"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_02_20261101STU-000007\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "权限范围与有效期 · 永久有效",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "整个机构\n\t\t\t\t\t\t指定校区\n\t\t\t\t\t\t指定学习组\n\t\t\t\t\t\t个人",
+        "attrs": [
+          [
+            "data-org-permission-scope",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区 / 学习组 / 用户 ID，可留空",
+        "attrs": [
+          [
+            "data-org-permission-scope-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "修改",
+        "attrs": [
+          [
+            "data-org-member-number-edit",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员设置",
+        "attrs": [
+          [
+            "data-org-member-save",
+            ""
+          ],
+          [
+            "data-org-member-save-bound",
+            "1"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_03_20261101STU-000008\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "权限范围与有效期 · 永久有效",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "整个机构\n\t\t\t\t\t\t指定校区\n\t\t\t\t\t\t指定学习组\n\t\t\t\t\t\t个人",
+        "attrs": [
+          [
+            "data-org-permission-scope",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区 / 学习组 / 用户 ID，可留空",
+        "attrs": [
+          [
+            "data-org-permission-scope-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "修改",
+        "attrs": [
+          [
+            "data-org-member-number-edit",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员设置",
+        "attrs": [
+          [
+            "data-org-member-save",
+            ""
+          ],
+          [
+            "data-org-member-save-bound",
+            "1"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_04_20261101STU-000009\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "权限范围与有效期 · 永久有效",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "整个机构\n\t\t\t\t\t\t指定校区\n\t\t\t\t\t\t指定学习组\n\t\t\t\t\t\t个人",
+        "attrs": [
+          [
+            "data-org-permission-scope",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区 / 学习组 / 用户 ID，可留空",
+        "attrs": [
+          [
+            "data-org-permission-scope-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-permission-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "修改",
+        "attrs": [
+          [
+            "data-org-member-number-edit",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员设置",
+        "attrs": [
+          [
+            "data-org-member-save",
+            ""
+          ],
+          [
+            "data-org-member-save-bound",
+            "1"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_05_20261101STU-000010\n\t\t\t\t学员0 项有效权限",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "移除成员",
+        "attrs": [
+          [
+            "data-org-member-remove",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-role",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orgAdmin-org-course-packages",
+    "role": "orgAdmin",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "课程包",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-course-packages"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课时管理",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-course-accounts"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学习组",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-groups"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构看板",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-dashboard"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "手机布局审查学校 · 日语能力考试与留学课程中心",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课程包 · 5",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-course-packages"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课时管理",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-course-accounts"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学习组",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-groups"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "＋ 新建模板",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "文综 20 课时",
+        "attrs": [
+          [
+            "data-org-course-package-title",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "文综",
+        "attrs": [
+          [
+            "data-org-course-package-subject",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-total",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "高级设置",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "留空表示新建",
+        "attrs": [
+          [
+            "data-org-course-package-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "可用停用",
+        "attrs": [
+          [
+            "data-org-course-package-status",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存模板",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "查看",
+        "attrs": [
+          [
+            "data-org-package-view-template",
+            "tpl_01a19641-7efd-7645-9385-e60d3b6aedd8"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "分配",
+        "attrs": [
+          [
+            "data-org-package-assign-template",
+            "tpl_01a19641-7efd-7645-9385-e60d3b6aedd8"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "查看",
+        "attrs": [
+          [
+            "data-org-package-view-template",
+            "acct_01a19641-7f52-791a-89b2-3d3f67659e31"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "分配",
+        "attrs": [
+          [
+            "data-org-package-assign-template",
+            "acct_01a19641-7f52-791a-89b2-3d3f67659e31"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "查看",
+        "attrs": [
+          [
+            "data-org-package-view-template",
+            "acct_01a19641-7fac-7d00-91a8-3f79cf5bae1c"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "分配",
+        "attrs": [
+          [
+            "data-org-package-assign-template",
+            "acct_01a19641-7fac-7d00-91a8-3f79cf5bae1c"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "查看",
+        "attrs": [
+          [
+            "data-org-package-view-template",
+            "acct_01a19641-7ff8-7c38-8b7f-5d0611e80bcf"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "分配",
+        "attrs": [
+          [
+            "data-org-package-assign-template",
+            "acct_01a19641-7ff8-7c38-8b7f-5d0611e80bcf"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "查看",
+        "attrs": [
+          [
+            "data-org-package-view-template",
+            "acct_01a19641-8047-7e57-9043-d4e0b77211af"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "分配",
+        "attrs": [
+          [
+            "data-org-package-assign-template",
+            "acct_01a19641-8047-7e57-9043-d4e0b77211af"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orgAdmin-org-course-accounts",
+    "role": "orgAdmin",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "课程包",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-course-packages"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课时管理",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-course-accounts"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学习组",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-groups"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构看板",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-dashboard"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "手机布局审查学校 · 日语能力考试与留学课程中心",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课程包",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-course-packages"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课时管理 · 4",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-course-accounts"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学习组",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-groups"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "课时分配",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "JLPT 阅读与听力完整课程 · 30 课时 · 30 课时手机审查课时账户 1 · 20 课时手机审查课时账户 2 · 20 课时手机审查课时账户 3 · 2",
+        "attrs": [
+          [
+            "data-org-course-package-template",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "正常",
+        "attrs": [
+          [
+            "data-org-course-package-status",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "全选当前结果",
+        "attrs": [
+          [
+            "data-org-package-students",
+            "all"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "清空",
+        "attrs": [
+          [
+            "data-org-package-students",
+            "none"
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "搜索姓名、账号或成员编号",
+        "attrs": [
+          [
+            "data-org-package-student-search",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-student",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "确认分配",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_01_20261101手机审查课时账户 120 / 20正常查看收起",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_02_20261101手机审查课时账户 215 / 20正常查看收起",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_03_20261101手机审查课时账户 310 / 20正常查看收起",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "student_mobile_ui_04_20261101手机审查课时账户 45 / 20正常查看收起",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "上一页",
+        "attrs": [
+          [
+            "data-org-package-list-page",
+            "prev"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "下一页",
+        "attrs": [
+          [
+            "data-org-package-list-page",
+            "next"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "搜索学员或课程包",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "搜索学员或课程包",
+        "attrs": [
+          [
+            "data-org-package-list-query",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "搜索筛选",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "全部课程包JLPT 阅读与听力完整课程 · 30 课时手机审查课时账户 1手机审查课时账户 2手机审查课时账户 3手机审查课时账户 4",
+        "attrs": [
+          [
+            "data-org-package-list-template",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "全部状态正常暂停已用完已过期已作废",
+        "attrs": [
+          [
+            "data-org-package-list-status",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "显示设置",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "按记录按学员",
+        "attrs": [
+          [
+            "data-org-package-list-view",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "20 条50 条100 条",
+        "attrs": [
+          [
+            "data-org-package-list-page-size",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orgAdmin-org-groups",
+    "role": "orgAdmin",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "课程包",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-course-packages"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课时管理",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-course-accounts"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学习组",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-groups"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构看板",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-dashboard"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "手机布局审查学校 · 日语能力考试与留学课程中心",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课程包",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-course-packages"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课时管理",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-course-accounts"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学习组 · 1",
+        "attrs": [
+          [
+            "data-org-teaching-nav",
+            "org-groups"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "＋ 新建学习组",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "EJU 日语基础班 / 文综一对一",
+        "attrs": [
+          [
+            "data-org-learning-group-name",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "班级 / 小班约课课次",
+        "attrs": [
+          [
+            "data-org-learning-group-type",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "日语 / 文综 / 写作",
+        "attrs": [
+          [
+            "data-org-learning-group-subject",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "不指定校区手机审查校区 · 日本语教学楼",
+        "attrs": [
+          [
+            "data-org-learning-group-campus",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-learning-group-starts",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-learning-group-ends",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "高级设置",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "留空表示新建",
+        "attrs": [
+          [
+            "data-org-learning-group-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "进行中未开始已结束已取消已归档",
+        "attrs": [
+          [
+            "data-org-learning-group-status",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "不绑定课程包手机审查课时账户 1 · student_mobile_ui_01_20261101手机审查课时账户 2 · student_mobile_ui_0",
+        "attrs": [
+          [
+            "data-org-learning-group-package",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存学习组",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "JLPT N3 阅读与听力提高班 · 周末学习组japanese · 14 人进行中",
+        "attrs": [
+          [
+            "data-org-learning-group-manage",
+            "lg_01a19641-78f6-7837-805e-e7d5bedcd421"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "管理成员",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+        "attrs": [
+          [
+            "data-org-enrollment-group",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "superadmin_demoteacher_mobile_ui_20261101assistant_mobile_ui_20261101student_mob",
+        "attrs": [
+          [
+            "data-org-enrollment-user",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "学员老师助教 / 教务",
+        "attrs": [
+          [
+            "data-org-enrollment-role",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "正常停用",
+        "attrs": [
+          [
+            "data-org-enrollment-status",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存成员",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "上一页",
+        "attrs": [
+          [
+            "data-org-learning-list-page",
+            "prev"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "下一页",
+        "attrs": [
+          [
+            "data-org-learning-list-page",
+            "next"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "搜索名称或科目",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "搜索名称或科目",
+        "attrs": [
+          [
+            "data-org-learning-list-query",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "搜索筛选",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "全部校区（1）未指定校区（1）手机审查校区 · 日本语教学楼（0）",
+        "attrs": [
+          [
+            "data-org-learning-campus-filter",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "排序设置",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "开始时间名称状态",
+        "attrs": [
+          [
+            "data-org-learning-list-sort",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "升序降序",
+        "attrs": [
+          [
+            "data-org-learning-list-order",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "10 条20 条50 条",
+        "attrs": [
+          [
+            "data-org-learning-list-page-size",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "标记完成",
+        "attrs": [
+          [
+            "data-org-learning-group-complete",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ],
+          [
+            "data-learning-group-id",
+            "lg_01a19641-78f6-7837-805e-e7d5bedcd421"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orgAdmin-org-dashboard",
+    "role": "orgAdmin",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "课程包",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-course-packages"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "课时管理",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-course-accounts"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "学习组",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-groups"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构看板",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-dashboard"
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "查看看板",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "看板班级",
+        "attrs": [
+          [
+            "data-product-local-filter",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "课次状态",
+        "attrs": [
+          [
+            "data-product-filter",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "处理课次",
+        "attrs": [
+          [
+            "data-product-open",
+            "group"
+          ],
+          [
+            "data-target",
+            "lg_01a19641-78f6-7837-805e-e7d5bedcd421"
+          ],
+          [
+            "data-target-org",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "待跟进（0）",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "学习概况与机构能力",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "提交",
+        "attrs": [
+          [
+            "data-inst-assignment-submissions",
+            "asg_01a19641-82e2-7c85-9b16-9623780e5399"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "催交",
+        "attrs": [
+          [
+            "data-inst-assignment-remind",
+            "asg_01a19641-82e2-7c85-9b16-9623780e5399"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "提交",
+        "attrs": [
+          [
+            "data-inst-assignment-submissions",
+            "asg_01a19641-834c-7046-aac4-ae7ab8892132"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "催交",
+        "attrs": [
+          [
+            "data-inst-assignment-remind",
+            "asg_01a19641-834c-7046-aac4-ae7ab8892132"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "提交",
+        "attrs": [
+          [
+            "data-inst-assignment-submissions",
+            "asg_01a19641-83d6-75a9-90a1-737f85430724"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "催交",
+        "attrs": [
+          [
+            "data-inst-assignment-remind",
+            "asg_01a19641-83d6-75a9-90a1-737f85430724"
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+        "attrs": [
+          [
+            "data-inst-learning-group",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "创建学习组",
+        "attrs": [
+          [
+            "data-inst-create-learning-group",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "添加学员",
+        "attrs": [
+          [
+            "data-inst-add-members",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "布置作业",
+        "attrs": [
+          [
+            "data-inst-create-assignment",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "打开成绩册",
+        "attrs": [
+          [
+            "data-inst-gradebook",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "批量导入预览",
+        "attrs": [
+          [
+            "data-inst-import",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "备课组卷",
+        "attrs": [
+          [
+            "data-inst-prep",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orgAdmin-org-plan",
+    "role": "orgAdmin",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "套餐与账单",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-plan"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构设置",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-settings"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "审计日志",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-audit"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "手机布局审查学校 · 日语能力考试与留学课程中心\n\t\t\t\n\t\t\t付费内容席位 13/30，剩余 17 席；共 17 名成员。\n\t\t\n\t\t\n\t\t\t套餐PRO状态正",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "续费或增加席位选择总席位与周期，确认报价后支付",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-payment-seats",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "计费周期：年付 · 365 天（推荐）",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "月付 · 30 天",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "30"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "季付 · 90 天",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "90"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "年付 · 365 天（推荐）✓",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "365"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "支付方式：微信支付",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "微信支付✓",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "wechat"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "支付宝",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "alipay"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Stripe",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "stripe"
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "用于确认本次购买",
+        "attrs": [
+          [
+            "data-org-payment-password",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "确认报价并支付",
+        "attrs": []
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "续费周期：年付（365 天）",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "月付（30 天）",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "30"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "季付（90 天）",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "90"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "年付（365 天）✓",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "365"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "支付渠道：微信支付",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "微信支付✓",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "wechat"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "支付宝",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "alipay"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Stripe",
+        "attrs": [
+          [
+            "data-admin-select-option",
+            "stripe"
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-auto-renew-email",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "开启自动续费",
+        "attrs": [
+          [
+            "data-auto-renew-toggle",
+            ""
+          ],
+          [
+            "data-renew-enabled",
+            "false"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orgAdmin-org-settings",
+    "role": "orgAdmin",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "套餐与账单",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-plan"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "机构设置",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-settings"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "审计日志",
+        "attrs": [
+          [
+            "data-role-admin-intent",
+            "openRoleContent:org-audit"
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "手机布局审查学校 · 日语能力考试与留学课程中心\n\t\t\t\n\t\t\t付费内容席位 13/30，剩余 17 席；共 17 名成员。\n\t\t\n\t\t\n\t\t\t套餐PRO校区1",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "留空新建",
+        "attrs": [
+          [
+            "data-org-campus-id",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "东京校区",
+        "attrs": [
+          [
+            "data-org-campus-name",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "正常已停用",
+        "attrs": [
+          [
+            "data-org-campus-status",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "校区地址或内部备注",
+        "attrs": [
+          [
+            "data-org-campus-address",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存校区",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "上一页",
+        "attrs": [
+          [
+            "data-org-campus-list-page",
+            "prev"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "下一页",
+        "attrs": [
+          [
+            "data-org-campus-list-page",
+            "next"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "名称、地址或校区 ID",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "名称、地址或校区 ID",
+        "attrs": [
+          [
+            "data-org-campus-list-query",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SUMMARY",
+        "text": "搜索筛选",
+        "attrs": []
+      },
+      {
+        "tag": "SELECT",
+        "text": "名称状态",
+        "attrs": [
+          [
+            "data-org-campus-list-sort",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "升序降序",
+        "attrs": [
+          [
+            "data-org-campus-list-order",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "10 条20 条50 条",
+        "attrs": [
+          [
+            "data-org-campus-list-page-size",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orgContentAdmin-org-course-packages",
+    "role": "orgContentAdmin",
+    "controls": [
+      {
+        "tag": "SUMMARY",
+        "text": "课程包列表＋ 新建课程包",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-title",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-subject",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-total",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "SELECT",
+        "text": "正常暂停已作废",
+        "attrs": [
+          [
+            "data-org-course-package-status",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "attrs": [
+          [
+            "data-org-course-package-expires",
+            ""
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "保存课程包",
+        "attrs": []
+      },
+      {
+        "tag": "BUTTON",
+        "text": "取消",
+        "attrs": [
+          [
+            "data-role-home-package-cancel",
+            ""
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "JLPT 阅读与听力完整课程 · 30 课时日语 · 30 课时正常",
+        "attrs": [
+          [
+            "data-role-home-package-edit",
+            "tpl_01a19641-7efd-7645-9385-e60d3b6aedd8"
+          ],
+          [
+            "data-org-id",
+            "org_01a19641-64e2-7657-b4bb-39454df6685c"
+          ]
+        ]
+      },
+      {
+        "tag": "BUTTON",
+        "text": "搜索课程包",
+        "attrs": []
+      },
+      {
+        "tag": "INPUT",
+        "text": "搜索课程包",
+        "attrs": [
+          [
+            "data-role-home-package-query",
+            ""
+          ]
+        ]
+      }
+    ]
+  }
+]

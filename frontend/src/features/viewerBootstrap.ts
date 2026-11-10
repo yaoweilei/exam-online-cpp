@@ -48,23 +48,23 @@ const VIEWER_MODULES: ViewerModule[] = [
 	{ name: 'ErrorHandler', path: '../viewer/utils/ErrorHandler.js' },
 	{ name: 'DOMUtils', path: '../viewer/utils/DOMUtils.js' },
 	{ name: 'DOMHelpers', path: '../viewer/utils/DOMHelpers.js' },
-	{ name: 'APIClient', path: '../viewer/core/APIClient.js?v=20261001-practice-result-v1' },
+	{ name: 'APIClient', path: '../viewer/core/APIClient.js?v=20261109-lan-http-uuid' },
 	{ name: 'ExamLoader', path: '../viewer/core/ExamLoader.js' },
 	{ name: 'UserContextManager', path: '../viewer/core/UserContextManager.js' },
 	{ name: 'StateManager', path: '../viewer/managers/StateManager.js' },
 	{ name: 'NavigationManager', path: '../viewer/managers/NavigationManager.js' },
-	{ name: 'ExamTimerManager', path: '../viewer/managers/ExamTimerManager.js' },
-	{ name: 'AudioManager', path: '../viewer/managers/AudioManager.js' },
+	{ name: 'ExamTimerManager', path: '../viewer/managers/ExamTimerManager.js?v=20261030-overview-inset-v1' },
+	{ name: 'AudioManager', path: '../viewer/managers/AudioManager.js?v=20261009-static-script-highlight-v7' },
 	{ name: 'TranslationManager', path: '../viewer/managers/TranslationManager.js' },
 	{ name: 'VocabLookupManager', path: '../viewer/managers/VocabLookupManager.js' },
-	{ name: 'AnswerManager', path: '../viewer/managers/AnswerManager.js?v=20261002-practice-close-v1' },
-	{ name: 'QuestionMapManager', path: '../viewer/managers/QuestionMapManager.js' },
+	{ name: 'AnswerManager', path: '../viewer/managers/AnswerManager.js?v=20261030-overview-inset-v1' },
+	{ name: 'QuestionMapManager', path: '../viewer/managers/QuestionMapManager.js?v=20261030-overview-inset-v1' },
 	{ name: 'CategoryNavigationManager', path: '../viewer/managers/CategoryNavigationManager.js' },
-	{ name: 'QuestionRenderer', path: '../viewer/renderers/QuestionRenderer.js?v=20261001-long-options-v1' },
-	{ name: 'ExamViewer', path: '../viewer/core/ExamViewer.js?v=20261002-guest-record-quota-v1' }
+	{ name: 'QuestionRenderer', path: '../viewer/renderers/QuestionRenderer.js?v=20261030-overview-inset-v1' },
+	{ name: 'ExamViewer', path: '../viewer/core/ExamViewer.js?v=20261030-overview-inset-v1' }
 ];
 
-const PERSONAL_CENTER_MODULE = '../viewer/personalCenter.js?v=20261001-practice-attempt-v1';
+const PERSONAL_CENTER_MODULE = '../viewer/personalCenter.js?v=20261110-workspace-session';
 
 const REQUIRED_GLOBALS = [
 	'DOMUtils',
@@ -550,10 +550,10 @@ async function initExamSelectors(): Promise<void> {
 				translationMgr.installDelegation();
 				void translationMgr.loadForExam(examId).then(() => {
 					const viewer = globalWindow.examViewer as
-						| { showReadingZh?: boolean; questionRenderer?: { renderCurrentQuestion?: () => void } }
+						| { showReadingZh?: boolean; renderExam?: () => void }
 						| undefined;
 					if (viewer?.showReadingZh) {
-						viewer.questionRenderer?.renderCurrentQuestion?.();
+						viewer.renderExam?.();
 					}
 				});
 			}

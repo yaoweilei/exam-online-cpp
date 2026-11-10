@@ -1,6 +1,9 @@
 #include "ContentWorkflowService.h"
 
 #include <functional>
+#include <openssl/sha.h>
+#include <iomanip>
+#include <sstream>
 
 #include "common/AppException.h"
 #include "common/IdGenerator.h"
@@ -172,6 +175,10 @@ Json::Value ContentWorkflowService::createVersion(Json::Value &state, const std:
     const auto exam = examRepository_.getExamById(examId); const auto id = common::generateOpaqueId("ver_");
     const auto dir = versionsDir_ / examId; std::filesystem::create_directories(dir); infrastructure::storage::writeJsonFileAtomic(dir / (id + ".json"), exam);
     Json::Value version(Json::objectValue); version["id"] = id; version["exam_id"] = examId; version["kind"] = kind; version["created_by"] = actorId; version["created_at"] = nowIso();
+    Json::StreamWriterBuilder writer; writer["indentation"] = ""; const auto encoded = Json::writeString(writer, exam);
+    unsigned char digest[SHA256_DIGEST_LENGTH]; SHA256(reinterpret_cast<const unsigned char *>(encoded.data()), encoded.size(), digest);
+    std::ostringstream fingerprint; for (const auto byte : digest) fingerprint << std::hex << std::setw(2) << std::setfill('0') << unsigned(byte);
+    version["fingerprint"] = fingerprint.str();
     state["items"][examId]["versions"].append(version); return version;
 }
 
@@ -195,6 +202,28 @@ Json::Value ContentWorkflowService::enqueuePublish(const std::string &examId, co
 Json::Value ContentWorkflowService::listQueue() const { std::scoped_lock lock(mutex_); return loadState()["queue"]; }
 Json::Value ContentWorkflowService::listItems() const { std::scoped_lock lock(mutex_); const auto items=loadState()["items"]; Json::Value out(Json::arrayValue); for(const auto &id:items.getMemberNames()){Json::Value item=items[id];item["exam_id"]=id;out.append(item);} return out; }
 Json::Value ContentWorkflowService::listVersions(const std::string &examId) const { std::scoped_lock lock(mutex_); return loadState()["items"][examId].get("versions", Json::Value(Json::arrayValue)); }
+
+Json::Value ContentWorkflowService::captureFeedbackVersion(const std::string &examId, const std::string &actorId)
+{
+    std::scoped_lock lock(mutex_); auto state=loadState();
+    const auto exam=examRepository_.getExamById(examId);
+    const auto versions=state["items"][examId].get("versions",Json::Value(Json::arrayValue));
+    if (!versions.empty()) {
+        const auto last=versions[versions.size()-1];
+        const auto path=versionsDir_/examId/(last["id"].asString()+".json");
+        if (std::filesystem::exists(path) && infrastructure::storage::readJsonFile(path)==exam) return last;
+    }
+    auto version=createVersion(state,examId,"feedback_source",actorId);
+    if (state["items"][examId].get("status", "").asString().empty()) state["items"][examId]["status"]="draft";
+    saveState(state); return version;
+}
+Json::Value ContentWorkflowService::versionSnapshot(const std::string &examId,const std::string &versionId) const
+{
+    std::scoped_lock lock(mutex_); const auto versions=loadState()["items"][examId].get("versions",Json::Value(Json::arrayValue));
+    for (const auto &version : versions) if (version.get("id", "").asString()==versionId)
+        return infrastructure::storage::readJsonFile(versionsDir_/examId/(versionId+".json"));
+    throw common::AppException("VERSION_NOT_FOUND","反馈关联版本不可用",drogon::k404NotFound);
+}
 
 Json::Value ContentWorkflowService::rollback(const std::string &examId, const std::string &versionId, const std::string &actorId)
 {

@@ -12,6 +12,8 @@
     "e2e:auto:ui": "powershell -ExecutionPolicy Bypass -File ./run-e2e.ps1 -Ui",
     "audit:content": "node tools/audit_exam_content.mjs",
     "audit:content:strict": "node tools/audit_exam_content.mjs --strict-timestamps",
+    "audit:explanations": "python tools/audit_explanation_consistency.py",
+    "audit:quality": "npm run audit:content && npm run audit:explanations",
     "audit:gaps": "node tools/audit_paper_library_gaps.mjs",
     "audit:gaps:write": "node tools/audit_paper_library_gaps.mjs --write"
   },

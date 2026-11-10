@@ -126,8 +126,17 @@ void registerFeatureFlagRoutes(const AppContext &ctx)
             handleRequest(req, std::move(callback), [&]() {
                 const auto body = parseJsonBody(req);
                 const auto session = requireSession(*ctx.authService, req, &body);
-                requireRole(session, {"orgAdmin", "superAdmin"}, "需要组织管理员权限");
                 const auto actorId = session.get("user_id", session.get("id", "")).asString();
+                bool administrator = hasAnyRole(session["roles"], {"orgAdmin", "superAdmin"});
+                if (!administrator)
+                {
+                    const auto context = ctx.userService->context(actorId);
+                    for (const auto &membership : context["memberships"])
+                        if (membership.get("scope_id", "").asString() == orgId &&
+                            membership.get("status", "active").asString() == "active" &&
+                            hasAnyRole(membership["roles"], {"orgAdmin"})) administrator = true;
+                }
+                if (!administrator) throw common::AppException("FORBIDDEN", "需要该机构管理员权限", drogon::k403Forbidden);
                 if (!ctx.organizationService->canManageOrganization(actorId, session["roles"], orgId))
                 {
                     throw common::AppException(

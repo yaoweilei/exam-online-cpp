@@ -311,6 +311,12 @@
 	color: var(--vscode-descriptionForeground);
 }
 
+/* 深蓝选中态中，假名和译文也需要跟随浅色文字。 */
+.option.selected:not(.correct-option) .text-assist-source ruby rt,
+.option.selected:not(.correct-option) .sentence-zh {
+	color: var(--vscode-button-foreground);
+}
+
 .explanation-source-btn {
 	display: inline-flex;
 	align-items: center;

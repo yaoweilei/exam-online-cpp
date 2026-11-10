@@ -1,0 +1,88 @@
+/* Tablet uses the same surfaces/tokens as mobile, retaining useful columns.
+   Scope by the workbench container; a desktop sidebar does not select mobile. */
+@container workbench (min-width: 601px) and (max-width: 1200px) {
+  #platform-admin-shell.pc-platform-admin-open .pc-platform-admin-content { padding: var(--ui-space-block, 4px); }
+  #platform-admin-shell.pc-platform-admin-open .pc-platform-admin-content > * + * { margin-top: var(--ui-space-block, 4px); }
+  #platform-admin-shell.pc-platform-admin-open .pc-workspace-page-heading { padding: 10px; margin-bottom: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-workspace-page-heading h1 { font-size: 18px; line-height: 24px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-workspace-page-heading p { font-size: 12px; line-height: 18px; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-card, .pc-platform-stat, .pc-platform-overview-panel) { padding: var(--ui-surface-padding, 6px); border-radius: var(--ui-surface-radius, 8px); box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-service-header, .pc-my-content-head, h2, h3, h4) { font-size: 14px; line-height: 20px; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-dashboard, .pc-platform-overview-grid, .pc-platform-stats) { gap: var(--ui-space-block, 4px); }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-org-subsection, .pc-org-add-form, .pc-org-choice-section, .pc-member-list-section, .pc-role-permission-detail, .pc-role-permission-block, .pc-role-permission-editor, .pc-org-billing-purchase, .pc-org-billing-summary, .pc-org-billing-fixed-value, .pc-package-manager, .pc-product-disclosure, .pc-teaching-composer) { border: 0; border-radius: 0; background: var(--workspace-surface, #fff); box-shadow: none; padding: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-managed-org-card > .pc-managed-org-body { padding: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-subsection + .pc-org-subsection { border-top: 1px solid var(--workspace-border); padding-top: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-context-bar { padding: 0; margin: 0; }
+  #platform-admin-shell.pc-platform-admin-open:has(.pc-workspace-section-tabs) .pc-teaching-links { display: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-manager-head { justify-content: flex-end; }
+  #platform-admin-shell.pc-platform-admin-open [data-product-panel="progress"] > h2 { display: none; }
+  #platform-admin-shell.pc-platform-admin-open [data-product-panel="progress"] { border: 0; padding: 10px 0; border-radius: 0; background: var(--workspace-surface); }
+  #platform-admin-shell.pc-platform-admin-open .pc-product-summary > div { border: 0; border-bottom: 1px solid var(--workspace-border); border-radius: 0; background: transparent; padding: 10px 6px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-role-permission-layout { display: block; }
+  #platform-admin-shell.pc-platform-admin-open .pc-role-permission-sidebar { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; padding: 8px 0; border: 0; background: transparent; }
+  #platform-admin-shell.pc-platform-admin-open .pc-role-permission-tab { width: auto; min-width: 0; padding: 6px 12px; min-height: 36px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-role-permission-tab strong { white-space: normal; overflow: visible; text-overflow: clip; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-unified-member-list { border: 0; border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-action[open] > form { background: var(--workspace-surface, #fff); border: 0; border-radius: 0; padding: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice-grid { max-height: 35dvh; overflow-y: auto; border-block: 1px solid var(--workspace-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice { background: transparent; border-radius: 0; border-bottom: 1px solid var(--workspace-border); padding: 10px 4px; min-height: 44px; box-sizing: border-box; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice span { min-width: 0; overflow-wrap: anywhere; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-summary > div { padding: 10px 6px; border: 0; border-bottom: 1px solid var(--workspace-border); border-radius: 0; background: transparent; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-purchase { border-top: 1px solid var(--workspace-border); margin-top: 12px; padding-top: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-purchase > summary { padding: 8px 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-campus-editor { padding: 12px 0; border-bottom: 1px solid var(--workspace-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-assignment-submission { border: 0; border-top: 1px solid var(--workspace-border); border-radius: 0; box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-assignment-submission[open] { outline: 0; box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-body { padding: 10px 6px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-flow-editor { padding: 12px 0; border: 0; border-radius: 0; background: var(--workspace-surface, #fff); }
+  #platform-admin-shell.pc-platform-admin-open main:has([data-flow-form="followup"]) .pc-floating-search-row { display: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-section { border: 0; border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-price-pair > label { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-table { width: 100%; min-width: 0; table-layout: fixed; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-table :is(th, td) { padding: 10px 6px; min-width: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-table tbody th { width: 110px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-money-field { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 0 8px; border: 1px solid var(--workspace-border); border-radius: 14px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-money-field > :is(span, b) { position: static; transform: none; flex: 0 0 auto; font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-money-field .pc-pricing-input { flex: 1 1 0; width: 0; min-width: 0; height: 44px; padding: 4px 0; border: 0; border-radius: 0; background: transparent; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-money-field:focus-within { outline: 2px solid var(--workspace-accent); outline-offset: 1px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-savebar { position: static; box-shadow: none; border: 0; border-top: 1px solid var(--workspace-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record-detail { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr); align-items: stretch; background: var(--workspace-surface, #fff); }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-detail-grid > div { border-right: 0; border-bottom: 1px solid var(--workspace-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-detail-grid > div:nth-child(odd) { border-right: 1px solid var(--workspace-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-detail-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-detail-grid strong { overflow-wrap: normal; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-number code { white-space: normal; overflow-wrap: anywhere; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-settlement > button { min-height: 44px; padding: 10px 20px; border: 1px solid var(--workspace-text); border-radius: 14px; background: var(--workspace-text); color: var(--workspace-surface); }
+  #platform-admin-shell.pc-platform-admin-open .pc-inline-btn[type="submit"]:not(.pc-floating-search-submit) { min-height: 44px; border-radius: 14px; border-color: var(--workspace-text); background: var(--workspace-text); color: var(--workspace-surface); font-size: 14px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-renewal-settings .pc-auto-renew-card { border: 0; border-radius: 0; padding: 10px 0; background: transparent; box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-detail-settings .pc-auto-renew-card { border: 0; border-radius: 0; padding: 10px 0; background: transparent; box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-detail-settings .pc-auto-renew-summary > span { border: 0; border-bottom: 1px solid var(--workspace-border); border-radius: 0; background: transparent; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-org-renewal-settings, .pc-org-detail-disclosure) .pc-auto-renew-head h4 { display: none; }
+  /* Audit remains a semantic table, but all essential columns fit without a
+     horizontal gesture. Internal IDs and full summaries remain in details. */
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table { display: table; width: 100%; min-width: 0; height: auto; table-layout: fixed; }
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table :is(tbody, thead) { height: auto; }
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table tr { display: table-row; height: auto; }
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table :is(th, td) { display: table-cell; height: auto; padding: 10px 8px; vertical-align: top; overflow-wrap: anywhere; }
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table :is(col:nth-child(3), col:nth-child(5), th:nth-child(3), th:nth-child(5), td:nth-child(3), td:nth-child(5)) { display: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table col { width: auto; }
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table col:first-child { width: 150px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table col:last-child { width: 92px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-audit-table .pc-audit-cell-action span { white-space: normal; }
+}
+@media (min-width: 601px) and (max-width: 1200px) {
+  .image-container, .resizable-image-container { resize: none; }
+  .exam-image-resize-handle { display: none; }
+  .exam-image-zoom-trigger { min-height: 36px; padding: 6px 12px; border: 1px solid var(--ls-border, #ebe6e1); border-radius: 14px; background: var(--ls-surface, #fff); color: var(--ls-text, #26221f); font: 12px/18px var(--font-zh, system-ui); }
+  .audio-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .audio-controls :is(select, button, label) { min-height: 44px; }
+  .audio-controls button { min-width: 44px; flex: 0 0 44px; }
+  .audio-controls label { display: inline-flex; align-items: center; gap: 6px; }
+  .audio-controls select { border: 1px solid var(--ls-border, #ebe6e1); border-radius: 12px; padding: 6px 10px; font: 14px var(--font-zh, system-ui); }
+  .audio-controls input[type="range"] { min-height: 32px; flex: 1 1 180px; }
+  #login-modal .login-box { width: min(440px, calc(100vw - 32px)); height: auto; aspect-ratio: auto; max-height: calc(100dvh - 32px); padding: 24px 32px; }
+  #login-modal .login-brand, #login-modal.login-mode-password .login-brand { padding-top: 48px; margin-bottom: 32px; min-height: 68px; display: flex; align-items: center; justify-content: center; }
+  #login-modal.login-mode-password .login-title { font-size: 28px; }
+}

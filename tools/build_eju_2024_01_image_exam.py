@@ -487,16 +487,16 @@ def answer_payload(value: int | None, answer_no: int) -> dict[str, object]:
     if value is None:
         return {
             "has_ans": False,
-            "explanation": "【答案解析】\n官方正解表没有刊载本题正解。本题在试卷中成立，但公开版材料和正解表都注明受出版原因限制，不能给出常规答案解析。",
-            "explanation_expand": "【补充解析】\n遇到这种未刊载题，不建议纳入错题统计，也不要根据上下题或选项规律猜答案。自学时可以直接跳过，重点练习材料完整、答案可核对的题目。",
+            "explanation": "【资料说明】\n官方正解表没有刊载本题正解，公开版材料也因出版原因缺失，无法核对答案或提供逐题解析。",
+            "explanation_expand": "",
         }
     correct_label = str(value)
     return {
         "correct_answer": value,
         "answer": correct_label,
         "has_ans": True,
-        "explanation": f"【答案解析】\n本题正确答案是第{value}项。该答案依据 2024 年度第 1 回 EJU 日本语官方正解表的解答番号{answer_no}录入。\n\n【作答思路】\n先在题目材料中定位解答番号{answer_no}对应的问题，再把选项与材料中的关键词、转折、因果关系或图表信息逐项核对。",
-        "explanation_expand": "【补充解析】\n这份数据为 OCR 文本版，扫描页中仍可能保留少量识别误差；遇到专有名词、图表或符号时，请同时参考题目页图像。EJU 选择题不要只看选项表面相似度，要确认选项是否完整、是否多加了原文没有的信息、是否把转折前后的观点混在一起。",
+        "explanation": f"【答案核对】\n2024年第1回EJU日本语正解表中，解答番号{answer_no}的正确选项是第{value}项。当前尚无经原文逐项核对的解析。",
+        "explanation_expand": "",
     }
 
 
@@ -504,45 +504,50 @@ def answer_payload_with_context(value: int | None, answer_no: int, options: list
     payload = answer_payload(value, answer_no)
     if value is None:
         return payload
-    correct_option = options[value - 1] if 0 < value <= len(options) and options[value - 1] not in {"1", "2", "3", "4"} else f"第{value}项"
     if mode == "reading":
-        has_option_text = correct_option != f"第{value}项"
-        option_sentence = (
-            f"第{value}项「{trim_for_explanation(correct_option)}」与材料内容一致。"
-            if has_option_text
-            else f"官方正解表给出的正确答案是第{value}项。"
-        )
-        payload["explanation"] = (
-            f"【题目解析】\n本题正确答案是第{value}项。{option_sentence}\n\n"
-            f"【定位方法】\n请先看 OCR 文本中解答番号{answer_no}附近的问题和选项，再回到前文确认对应的理由、条件或对比关系。读解题的错误选项常见问题是扩大范围、偷换对象、把作者否定的观点当作结论，或加入原文没有的推论。"
-        )
-        payload["explanation_expand"] = (
-            "【补充解析】\n这道题已按官方正解表录入答案。由于 2024_01 原始 PDF 是扫描件，本文字段来自 OCR；如果发现个别字形识别不准，以同题页图像为准。\n\n"
-            "【拿分提醒】\n阅读题建议按三步复盘：第一，找题干问的是内容一致、理由、指示词还是空格补充；第二，圈出选项里的判断对象；第三，回到材料中确认该判断是否被原文直接支持。"
-        )
+        if answer_no == 1:
+            payload["explanation"] = (
+                "【题目解析】\n原文指出，多数细菌难以分解ミルクオリゴ糖，ビフィズス菌却能利用它；"
+                "因此ビフィズス菌占优势，有害细菌也难以扩张。第1项概括了这一因果关系。"
+            )
+        else:
+            payload["explanation"] = (
+                f"【答案核对】\n2024年第1回EJU日本语正解表中，读解解答番号{answer_no}的正确选项是第{value}项。"
+                "当前尚无按原文逐项核对的解析；请结合本题正文或原页图像复核。"
+            )
+        payload["explanation_expand"] = ""
     elif mode == "listening_reading":
         payload["explanation"] = (
-            f"【题目解析】\n本题正确答案是第{value}项。读听解需要同时使用页面上的图表/文字和音频信息，不能只看图，也不能只凭听到的单个词判断。\n\n"
-            f"【作答思路】\n先查看 OCR 文本和题图中 {answer_no}番 的问题，再听对应音频，记录音频最后的问题、条件或比较对象。官方正解表给出的答案是第{value}项。"
+            f"【答案核对】\n2024年第1回EJU日本语正解表中，读听解{answer_no}番的正确选项是第{value}项。"
+            "本地尚无完整听力原文和逐题解析，因此目前无法说明该选项的判断依据；可结合题图和本题音频复听。"
         )
-        payload["explanation_expand"] = (
-            "【补充解析】\n当前本地资料没有完整听力原文，因此解析不编造音频细节。复习时建议打开题图和音频，按“图表轴/项目 -> 音频条件 -> 选项”的顺序核对。\n\n"
-            "【拿分提醒】\n读听解的陷阱通常在图表分类、数值比较、方向变化和最后一句提问。听前先看图，听中只记录会改变答案的条件。"
-        )
+        payload["explanation_expand"] = ""
     else:
         payload["explanation"] = (
-            f"【题目解析】\n本题正确答案是第{value}项。该题为纯听解题，题干和选项主要通过音频给出。\n\n"
-            f"【作答思路】\n听第一遍抓场景和问题目标，听第二遍核对人物态度、理由、顺序或数值。官方正解表对应解答番号{answer_no}的答案是第{value}项。"
+            f"【答案核对】\n2024年第1回EJU日本语正解表中，听解{answer_no}番的正确选项是第{value}项。"
+            "本地尚无这道题的听力原文和逐题解析，因此目前无法说明该选项的判断依据；可结合本题音频复听。"
         )
-        payload["explanation_expand"] = (
-            "【补充解析】\n当前本地资料没有完整听力原文，所以这里不编造具体台词。自学时请配合音频复听，把正确选项对应的关键词或转折句补记到个人笔记中。\n\n"
-            "【拿分提醒】\n听解题要特别注意最后的问题。如果前半段出现多个数字、地点或方案，最终答案通常由最后的限制条件决定。"
-        )
+        payload["explanation_expand"] = ""
     return payload
 
 
 def build_writing_section() -> dict:
-    prompt = read_ocr_pages([4])
+    # OCR of the scanned writing page includes the page header, furigana as
+    # standalone lines, and loses the second topic number. Keep the verified
+    # prompt as text so rebuilding the paper does not restore those artifacts.
+    prompt = (
+        "以下の二つのテーマのうち、どちらか一つを選んで400～500字程度で書いてください（句読点を含む）。\n\n"
+        "1.\n"
+        "　現代社会では、昼でも夜でも、時刻に関係なく活動をすることが可能です。\n"
+        "　昼でも夜でも、時刻に関係なく活動ができることには、どのようなよい点と問題点がありますか。"
+        "具体的な例を挙げながら、あなたの考えを述べなさい。\n\n"
+        "2.\n"
+        "　インターネットで買い物をするとき、その商品について評価や感想を読むことができます。"
+        "また、自分が買った商品について評価や感想を書くこともできます。\n"
+        "　商品の評価や感想を読んだり書いたりすることには、どのようなよい点と問題点がありますか。"
+        "具体的な例を挙げながら、あなたの考えを述べなさい。\n\n"
+        "問題冊子の表紙など、記述問題以外のページを書き写していると認められる場合は、0点になります。"
+    )
     return {
         "section_id": "1",
         "section_title": "記述問題",
@@ -560,8 +565,8 @@ def build_writing_section() -> dict:
                 },
                 "questions": [
                     {
-                        "id": 0,
-                        "question": prompt,
+                        "id": 1,
+                        "question": "",
                         "options": [],
                         "has_ans": False,
                         "source_pages": [3, 4, 5],

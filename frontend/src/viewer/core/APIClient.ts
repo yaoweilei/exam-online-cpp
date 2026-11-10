@@ -191,6 +191,9 @@ class APIClient {
 	static async savePracticeGroup(payload: { exam_id: string; label: string; section_indexes: number[]; answers: Record<string, unknown>; submission_id: string }): Promise<unknown> {
 		return this.request('/answers/practice-group', { method: 'POST', body: JSON.stringify(payload) });
 	}
+	static async saveSpecialtySession(payload: unknown): Promise<unknown> {
+		return this.request('/answers/specialty-session', { method: 'POST', body: JSON.stringify(payload) });
+	}
 
 	static async getAnswerAttempts(userId: string, examId: string, limit = 20): Promise<unknown> {
 		return this.request(`/answers/${encodeURIComponent(userId)}/${encodeURIComponent(examId)}/attempts?limit=${limit}`);
@@ -215,6 +218,13 @@ class APIClient {
 	// ==================== 统计 ====================
 	static async getStatistics(userId: string): Promise<unknown> {
 		return this.request(`/statistics/${userId}`);
+	}
+
+	static async recordStudySeconds(userId: string, deltaSeconds: number): Promise<unknown> {
+		return this.request(`/statistics/${encodeURIComponent(userId)}/study-time`, {
+			method: 'POST',
+			body: JSON.stringify({ delta_seconds: deltaSeconds })
+		});
 	}
 
 	static async getWeakPoints(userId: string): Promise<unknown> {
@@ -263,6 +273,11 @@ class APIClient {
 		return this.request(`/profile/${userId}`);
 	}
 
+	static async getMessageReads(): Promise<unknown> { return this.request('/me/message-reads'); }
+	static async markMessagesRead(ids: string[]): Promise<unknown> {
+		return this.request('/me/message-reads', { method: 'POST', body: JSON.stringify({ ids }) });
+	}
+
 	static async updateProfile(userId: string, patch: unknown): Promise<unknown> {
 		return this.request(`/profile/${userId}`, {
 			method: 'PUT',
@@ -279,6 +294,10 @@ class APIClient {
 
 	static async getMe(token: string): Promise<unknown> {
 		return this.request(`/me?token=${encodeURIComponent(token)}`);
+	}
+
+	static async selectOrganization(token: string, organizationId: string): Promise<unknown> {
+		return this.request('/me/organization', { method: 'PUT', body: JSON.stringify({ token, organization_id: organizationId }) });
 	}
 
 	static async getMeContext(token: string): Promise<unknown> {
@@ -326,6 +345,11 @@ class APIClient {
 		return this.request(`/users/search?${params.toString()}`);
 	}
 
+	static async listUsers(token: string, options: { q: string; page: number; page_size: number; sort?: string; order?: string }): Promise<unknown> {
+		const params = new URLSearchParams({ token, q: options.q, page: String(options.page), page_size: String(options.page_size), sort: options.sort || 'created_at', order: options.order || 'desc' });
+		return this.request(`/admin/users?${params.toString()}`);
+	}
+
 	static async getOrganizations(token: string, options: Record<string, string | number> = {}): Promise<unknown> {
 		const params = new URLSearchParams({ token });
 		Object.entries(options).forEach(([key, value]) => params.set(key, String(value)));
@@ -340,6 +364,13 @@ class APIClient {
 		return this.request('/organizations', {
 			method: 'POST',
 			body: JSON.stringify({ ...(payload as Record<string, unknown>), token })
+		});
+	}
+
+	static async setOrganizationArchived(organizationId: string, archived: boolean, token: string, reauthPassword: string): Promise<unknown> {
+		return this.request(`/organizations/${encodeURIComponent(organizationId)}${archived ? '' : '/restore'}`, {
+			method: archived ? 'DELETE' : 'POST',
+			body: JSON.stringify({ token, reauth_password: reauthPassword, confirmation: archived ? '确认移除机构' : '确认恢复机构' })
 		});
 	}
 
@@ -727,7 +758,7 @@ class APIClient {
 	static async submitWrongQuestionCorrection(
 		userId: string,
 		questionId: string,
-		payload: { exam_id: string; actual_question_id: string; section_index: number; answer: unknown; exam_target?: string }
+		payload: { exam_id: string; actual_question_id: string; section_index: number; answer: unknown; exam_target?: string; submission_id?: string }
 	): Promise<unknown> {
 		return this.request(
 			`/wrong-questions/${encodeURIComponent(userId)}/${encodeURIComponent(questionId)}/correction`,
@@ -807,9 +838,12 @@ class APIClient {
 
 	// ==================== 续考草稿（业务功能 4） ====================
 
-	static async getDraft(userId: string): Promise<unknown> {
-		return this.request(`/drafts/${encodeURIComponent(userId)}`);
+	static async getDraft(userId: string, examId?: string): Promise<unknown> {
+		return this.request(`/drafts/${encodeURIComponent(userId)}${examId ? `?exam_id=${encodeURIComponent(examId)}` : ''}`);
 	}
+	static async listPracticeDrafts(userId: string): Promise<unknown> { return this.request(`/practice-drafts/${encodeURIComponent(userId)}`); }
+	static async savePracticeDraft(userId: string, payload: unknown): Promise<unknown> { return this.request(`/practice-drafts/${encodeURIComponent(userId)}`, { method: 'POST', body: JSON.stringify(payload) }); }
+	static async clearPracticeDraft(userId: string, id: string): Promise<unknown> { return this.request(`/practice-drafts/${encodeURIComponent(userId)}/${encodeURIComponent(id)}`, { method: 'DELETE' }); }
 
 	static async saveDraft(userId: string, payload: Record<string, unknown>): Promise<unknown> {
 		return this.request(`/drafts/${encodeURIComponent(userId)}`, {
@@ -818,8 +852,11 @@ class APIClient {
 		});
 	}
 
-	static async clearDraft(userId: string): Promise<unknown> {
-		return this.request(`/drafts/${encodeURIComponent(userId)}`, { method: 'DELETE' });
+	static async clearDraft(userId: string, examId?: string, attemptId?: string): Promise<unknown> {
+		const query = new URLSearchParams();
+		if (examId) query.set('exam_id', examId);
+		if (attemptId) query.set('attempt_id', attemptId);
+		return this.request(`/drafts/${encodeURIComponent(userId)}?${query}`, { method: 'DELETE' });
 	}
 
 	// ==================== 答题计时（业务功能 3：分段限时） ====================
@@ -932,10 +969,10 @@ class APIClient {
 		return this.request(`/assignments/${encodeURIComponent(assignmentId)}`);
 	}
 
-	static async submitAssignment(assignmentId: string, answers: Record<string, unknown>): Promise<unknown> {
+	static async submitAssignment(assignmentId: string, answers: Record<string, unknown>, submissionId?: string): Promise<unknown> {
 		return this.request(`/assignments/${encodeURIComponent(assignmentId)}/submit`, {
 			method: 'POST',
-			body: JSON.stringify({ answers })
+			body: JSON.stringify({ answers, submission_id: submissionId || '' })
 		});
 	}
 
@@ -1117,6 +1154,7 @@ class APIClient {
 		orgId?: string;
 		actorId?: string;
 		action?: string;
+		scope?: 'content';
 		since?: string;
 		until?: string;
 		limit?: number;
@@ -1126,6 +1164,7 @@ class APIClient {
 		if (params.orgId) qs.set('org_id', params.orgId);
 		if (params.actorId) qs.set('actor_id', params.actorId);
 		if (params.action) qs.set('action', params.action);
+		if (params.scope) qs.set('scope', params.scope);
 		if (params.since) qs.set('since', params.since);
 		if (params.until) qs.set('until', params.until);
 		if (params.limit != null) qs.set('limit', String(params.limit));
@@ -1134,8 +1173,11 @@ class APIClient {
 		return this.request(`/admin/audit-logs${suffix}`);
 	}
 
-	static async listAuditLogActions(orgId?: string): Promise<unknown> {
-		const suffix = orgId ? `?org_id=${encodeURIComponent(orgId)}` : '';
+	static async listAuditLogActions(orgId?: string, scope?: 'content'): Promise<unknown> {
+		const qs = new URLSearchParams();
+		if (orgId) qs.set('org_id', orgId);
+		if (scope) qs.set('scope', scope);
+		const suffix = qs.size ? `?${qs.toString()}` : '';
 		return this.request(`/admin/audit-logs/actions${suffix}`);
 	}
 

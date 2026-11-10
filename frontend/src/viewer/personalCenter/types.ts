@@ -83,6 +83,8 @@ export interface PCUser {
 }
 
 export interface PCContext {
+	memberships?: unknown[];
+	organizations?: unknown[];
 	guest: boolean;
 	id?: string;
 	displayName?: string;
@@ -124,6 +126,7 @@ export interface PCContextManager {
 export interface ManagedOrganizationMember {
 	userId: string;
 	username: string;
+	displayName?: string;
 	memberNo?: string;
 	roles: string[];
 	permissionTemplates: PermissionTemplateId[];
@@ -244,6 +247,7 @@ export interface ManagedCoursePackage {
 export interface ManagedOrganization {
 	id: string;
 	name: string;
+	archivedAt?: string;
 	organizationType?: string;
 	memberCount: number;
 	billableMemberCount: number;
@@ -262,6 +266,7 @@ export interface ManagedOrganization {
 }
 
 export interface OrganizationMemberDraft {
+	addRole?: string;
 	searchQuery: string;
 	searchResults: PCUser[];
 	selectedUserId: string;

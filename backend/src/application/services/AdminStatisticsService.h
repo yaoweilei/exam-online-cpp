@@ -2,11 +2,7 @@
 
 // 业务功能 11：管理员统计 Service
 //
-// 设计：
-//   - 直接扫描 data/user 与 data/system 目录得到聚合计数；
-//     不引入新存储，避免重复维护索引。
-//   - 全部为只读、按需计算（每次请求都重扫描），适合中小数据量
-//     的内部仪表盘；如果数据量增长再切换到缓存或聚合任务。
+// 用户与机构统计读取当前仓库；活动文件按需聚合。
 //
 // 输出（overview）：
 //   {
@@ -25,6 +21,8 @@
 #include <string>
 
 #include <json/json.h>
+#include "infrastructure/storage/UserRepository.h"
+#include "infrastructure/storage/OrganizationRepository.h"
 
 namespace application::services
 {
@@ -33,12 +31,16 @@ class AdminStatisticsService
   public:
     AdminStatisticsService(std::filesystem::path userRootDir,
                           std::filesystem::path systemDir,
-                          std::filesystem::path paperDir);
+                          std::filesystem::path paperDir,
+                          infrastructure::storage::UserRepository &users,
+                          infrastructure::storage::OrganizationRepository &organizations);
 
     // 全站概览
     Json::Value overview() const;
 
   private:
+    infrastructure::storage::UserRepository &users_;
+    infrastructure::storage::OrganizationRepository &organizations_;
     std::filesystem::path userRootDir_;
     std::filesystem::path systemDir_;
     std::filesystem::path paperDir_;

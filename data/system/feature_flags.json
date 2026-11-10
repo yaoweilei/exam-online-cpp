@@ -20,6 +20,11 @@
     {
       "enabled" : true,
       "lock" : false
+    },
+    "streak" : 
+    {
+      "enabled" : false,
+      "lock" : true
     }
   }
 }

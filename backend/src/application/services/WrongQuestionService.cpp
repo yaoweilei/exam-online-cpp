@@ -51,7 +51,7 @@ namespace
 std::unordered_map<std::string, Json::Value> buildQuestionIndex(const Json::Value &examData)
 {
     std::unordered_map<std::string, Json::Value> index;
-    auto pushQuestion = [&](const Json::Value &q) {
+    auto pushQuestion = [&](const Json::Value &q, int sectionIndex) {
         // id 字段可能是 int 或 string，统一转字符串
         std::string id;
         const auto &raw = q["id"];
@@ -65,7 +65,10 @@ std::unordered_map<std::string, Json::Value> buildQuestionIndex(const Json::Valu
         }
         if (!id.empty())
         {
-            index.emplace(std::move(id), q);
+            auto indexed = q;
+            indexed["section_index"] = sectionIndex;
+            index.emplace(std::to_string(sectionIndex) + ":" + id, indexed);
+            index.emplace(id, indexed);
         }
     };
 
@@ -78,13 +81,14 @@ std::unordered_map<std::string, Json::Value> buildQuestionIndex(const Json::Valu
     {
         return index;
     }
+    int sectionIndex = 0;
     for (const auto &section : examInfo["sections"])
     {
         if (section.isMember("questions") && section["questions"].isArray())
         {
             for (const auto &q : section["questions"])
             {
-                pushQuestion(q);
+                pushQuestion(q, sectionIndex);
             }
         }
         if (section.isMember("passages") && section["passages"].isArray())
@@ -95,11 +99,12 @@ std::unordered_map<std::string, Json::Value> buildQuestionIndex(const Json::Valu
                 {
                     for (const auto &q : passage["questions"])
                     {
-                        pushQuestion(q);
+                        pushQuestion(q, sectionIndex);
                     }
                 }
             }
         }
+        ++sectionIndex;
     }
     return index;
 }
@@ -147,10 +152,12 @@ void WrongQuestionService::recordFromScore(const std::string &userId,
         // 找到题目 snapshot 与题型；若试卷中找不到（如题库变更），仍允许写入
         Json::Value snapshot(Json::objectValue);
         std::string questionType;
-        const auto it = qIndex.find(questionId);
+        const auto composite = qIndex.find(questionKey);
+        const auto it = composite != qIndex.end() ? composite : qIndex.find(questionId);
         if (it != qIndex.end())
         {
             snapshot = buildQuestionSnapshot(it->second);
+            snapshot["section_index"] = it->second["section_index"];
             questionType = pickQuestionType(it->second);
         }
 
@@ -338,9 +345,10 @@ Json::Value WrongQuestionService::recordCorrection(const std::string &userId,
                                                     const std::string &questionId,
                                                     const std::string &correctAnswer,
                                                     const std::string &userAnswer,
-                                                    bool correct)
+                                                    bool correct,
+                                                    const std::string &submissionId)
 {
-    return repository_.recordCorrection(userId, examId, questionId, correctAnswer, userAnswer, correct);
+    return repository_.recordCorrection(userId, examId, questionId, correctAnswer, userAnswer, correct, 2, submissionId);
 }
 
 void WrongQuestionService::reset(const std::string &userId, const std::string &actorUserId)

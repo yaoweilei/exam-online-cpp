@@ -22,7 +22,7 @@ body.learning-shell-active:not(.light-theme) { --ls-paper-surround: #17181a; }
 .ls-rail .ls-theme-menu button[aria-checked="true"] { color: var(--ls-selected-text); background: var(--ls-selected); }
 .ls-rail .ls-theme-menu button[aria-checked="true"] span { visibility: visible; }
 .ls-rail .ls-theme-menu button:focus-visible { outline: 2px solid var(--ls-accent); outline-offset: -2px; }
-.ls-menu { left: var(--ls-rail); top: var(--ls-top-inset); bottom: 8px; width: 240px; border: 1px solid var(--ls-border); border-right-width: 1px; border-radius: 18px 0 0 18px; padding: 18px 12px; z-index: 10045; overflow-y: auto; background: var(--ls-sidebar); }
+.ls-menu { left: var(--ls-rail); top: 0; bottom: 0; width: 240px; border: 1px solid var(--ls-border); border-right-width: 1px; border-radius: 0; padding: 18px 12px; z-index: 10045; overflow-y: auto; background: var(--ls-sidebar); }
 .ls-menu header { display: flex; align-items: center; justify-content: space-between; margin: 0 4px 18px; min-height: 32px; font-size: 18px; }
 .ls-menu header strong { font-weight: 600; }
 .ls-menu h2 { font-size: 12px; font-weight: 400; color: var(--ls-muted); margin: 26px 10px 8px; }
@@ -32,15 +32,18 @@ body.learning-shell-active:not(.light-theme) { --ls-paper-surround: #17181a; }
 .ls-link svg { flex: 0 0 18px; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .ls-link:hover, .ls-link.is-active { background: var(--ls-hover); }
 .ls-close, .ls-mobile-toggle { display: none; }
+.ls-mobile-toggle-mark { display: block; position: relative; flex: 0 0 auto; width: 20px; height: 18px; }
+.ls-mobile-toggle-mark::before, .ls-mobile-toggle-mark::after { content: ''; position: absolute; left: 0; height: 2px; border-radius: 999px; background: currentColor; }
+.ls-mobile-toggle-mark::before { top: 3px; width: 20px; box-shadow: 0 6px currentColor; }
+.ls-mobile-toggle-mark::after { top: 15px; width: 20px; }
 .ls-menu-collapsed .ls-menu { display: none; }
 #learning-topbar { position: fixed; top: var(--ls-top-inset); left: var(--ls-offset); right: 8px; z-index: 10030; margin: 0; height: 36px; display: flex; align-items: center; gap: 14px; padding: 0 0 0 24px; box-sizing: border-box; background: transparent; color: var(--ls-text); border: 0; font: 14px var(--font-zh); pointer-events: none; container: learning-floating-header / inline-size; }
 #learning-topbar > button, #learning-account { pointer-events: auto; }
-@container learning-floating-header (max-width: 1150px) { #learning-topbar > strong { display: none; } }
 #learning-account { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 #learning-account #user-menu-trigger { position: static; margin: 0; width: 28px; height: 28px; min-height: 28px; }
 #learning-account #user-menu-trigger svg { width: 16px; height: 16px; }
 #learning-account #theme-toggle { display: none; }
-body.learning-shell-active #exam-content { width: auto; max-width: none; margin-top: var(--ls-top-inset); margin-left: var(--ls-offset); margin-right: 8px; background: var(--ls-paper-surround); border: 1px solid var(--ls-border); border-left: 0; border-top: 0; border-radius: 0 0 18px 0; }
+body.learning-shell-active #exam-content { width: auto; max-width: none; margin-top: 0; margin-left: var(--ls-offset); margin-right: 8px; background: var(--ls-paper-surround); border: 1px solid var(--ls-border); border-left: 0; border-top: 0; border-radius: 0 0 18px 0; }
 body.learning-shell-active #exam-workarea { width: 100%; padding: 0 20px; box-sizing: border-box; min-width: 0; background: transparent; }
 body.learning-shell-active #exam-command-bar { display: none; }
 body.learning-shell-active #current-question-container { container-type: inline-size; margin-top: 0; }
@@ -91,11 +94,41 @@ body.learning-shell-active #current-question-container .current-question { backg
 .ls-menu #learning-tools-control .learning-tools-heading { font-size: 12px; color: var(--ls-muted); }
 .ls-menu .exam-settings-assists > strong { display: block; margin: 12px 8px 4px; font: 12px/1.5 var(--font-zh); color: var(--ls-muted); }
 .ls-backdrop { display: none; }
-body.guest-welcome-open #learning-topbar > strong, body.guest-welcome-open #learning-account { display: none; }
+body.guest-welcome-open #learning-account { display: none; }
 .ls-guest-rail { display: none; }
 .ls-guest-navigation .ls-guest-rail { display: flex; flex-direction: column; gap: 16px; }
 .ls-guest-navigation .ls-rail > [data-ls-group], .ls-guest-navigation .ls-continue { display: none; }
 .ls-guest-note { margin: 24px 10px; font-size: 12px; line-height: 1.8; color: var(--ls-muted); }
+body.ls-guest-navigation .ls-guest-primary,
+body.ls-guest-navigation .ls-guest-secondary,
+body.ls-guest-navigation .ls-guest-child { display: flex; align-items: center; width: 100%; min-height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--ls-text); font: 14px/1.4 var(--font-zh); text-align: left; cursor: pointer; }
+body.ls-guest-navigation .ls-guest-root-row { display: flex; align-items: center; margin: 5px 0; border-radius: 9px; }
+body.ls-guest-navigation .ls-guest-primary { flex: 1; min-width: 0; gap: 10px; padding: 9px 10px; }
+body.ls-guest-navigation .ls-guest-primary svg { flex: 0 0 18px; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+body.ls-guest-navigation .ls-guest-primary > span { min-width: 0; }
+body.ls-guest-navigation .ls-guest-root-toggle { display: grid; place-items: center; flex: 0 0 34px; width: 34px; min-height: 44px; padding: 0; border: 0; border-radius: 9px; background: transparent; color: var(--ls-muted); cursor: pointer; }
+body.ls-guest-navigation .ls-guest-root-toggle::after,
+body.ls-guest-navigation .ls-guest-group::after { content: ''; box-sizing: border-box; width: 8px; height: 8px; margin: 0 4px 0 auto; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(225deg); }
+body.ls-guest-navigation .ls-guest-root-toggle::after { margin: -4px 4px 0 0; }
+body.ls-guest-navigation .ls-guest-root-toggle[aria-expanded="false"]::after,
+body.ls-guest-navigation .ls-guest-group[aria-expanded="false"]::after { transform: rotate(45deg); }
+body.ls-guest-navigation .ls-guest-home-links[hidden],
+body.ls-guest-navigation .ls-guest-children[hidden] { display: none; }
+body.ls-guest-navigation .ls-guest-secondary { padding: 9px 10px 9px 38px; }
+body.ls-guest-navigation .ls-guest-child { padding: 9px 10px 9px 62px; }
+body.ls-guest-navigation .ls-guest-root-row:hover,
+body.ls-guest-navigation .ls-guest-primary:hover,
+body.ls-guest-navigation .ls-guest-secondary:hover,
+body.ls-guest-navigation .ls-guest-child:hover { background: var(--ls-hover); }
+body.ls-guest-navigation .ls-guest-root-row:has(.ls-guest-primary.is-active),
+body.ls-guest-navigation .ls-guest-primary.is-active,
+body.ls-guest-navigation .ls-guest-secondary.is-active,
+body.ls-guest-navigation .ls-guest-child.is-active { background: var(--ls-selected); color: var(--ls-selected-text); font-weight: 600; }
+body.ls-guest-navigation .ls-guest-root-row .ls-guest-primary.is-active { background: transparent; }
+body.ls-guest-navigation .ls-guest-primary:focus-visible,
+body.ls-guest-navigation .ls-guest-secondary:focus-visible,
+body.ls-guest-navigation .ls-guest-root-toggle:focus-visible,
+body.ls-guest-navigation .ls-guest-child:focus-visible { outline: 2px solid var(--ls-accent); outline-offset: -2px; }
 /* Orange identifies navigation and exam selections; answer feedback retains its own colors. */
 body.learning-shell-active { --ls-accent: #ff7a2d; --ls-selected: #fff3e9; --ls-selected-text: #a74713; }
 body.learning-shell-active:not(.light-theme) { --ls-selected: #38291f; --ls-selected-text: #ffac75; }
@@ -105,8 +138,13 @@ body.learning-shell-active:not(.light-theme) { --ls-selected: #38291f; --ls-sele
 .ls-link.is-active { background: var(--ls-selected); border-left: 3px solid var(--ls-accent); padding-left: 7px; }
 .ls-selected-summary { margin: 6px 12px 14px 28px; padding-left: 10px; border-left: 2px solid var(--ls-accent); color: var(--ls-muted); font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
 .ls-guest-paper-tools [data-ls-panel="practice"] > h2:first-child { display: none; }
-.ls-paper-view > h2, .ls-paper-view > .ls-link, .ls-paper-view > .ls-selected-summary { display: none; }
+.ls-paper-view > h2, .ls-paper-view > .ls-link, .ls-paper-view > .ls-selected-summary,
+.ls-paper-view > .ls-guest-primary, .ls-paper-view > .ls-guest-exams, .ls-paper-view > .ls-guest-root { display: none; }
 .ls-paper-header { position: relative; margin: 12px 0 20px; }
+#ls-exam-timer-host:has(#exam-timer-slot:not([hidden])) { margin: 6px 10px 0; }
+#ls-exam-timer-host #exam-timer-slot #exam-timer-bar { width: auto; height: auto; }
+#ls-exam-timer-host #exam-timer-slot #exam-timer-bar > summary { width: auto; height: auto; min-height: 30px; display: flex; gap: 7px; padding: 4px 0; background: none; opacity: .8; }
+#ls-exam-timer-host #exam-timer-slot #exam-timer-bar > summary::after { content: '模拟考试计时'; font-size: 12px; }
 .ls-menu .ls-paper-header h2 { margin: 0 10px 8px; }
 .ls-paper-header .ls-current-paper { padding-right: 42px; margin-bottom: 0; font-size: 13px; font-weight: 500; }
 .ls-paper-header .ls-paper-picker { margin: 0; }
@@ -148,54 +186,16 @@ body:has(#exam-result-modal:not([hidden])) #login-modal.active { z-index: 11020;
 }
 body.learning-shell-active .question-nav { flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - var(--ls-offset) - 40px); }
 body.learning-shell-active .question-nav .check-btn { background: var(--ls-surface); color: var(--ls-text); border: 1px solid var(--ls-border); }
-body.practice-scrubber-active #open-question-map { display: none !important; }
-.practice-scrubber { position: fixed; z-index: 10020; left: calc(var(--ls-offset) + 8px); top: 50%; transform: translateY(-50%); width: 42px; color: var(--ls-text); touch-action: none; }
-.practice-scrubber-track { display: grid; grid-template-rows: repeat(var(--scrubber-count), minmax(0, 1fr)); box-sizing: border-box; width: 42px; padding-left: 8px; align-items: center; justify-items: start; cursor: pointer; }
-.practice-scrubber-tick { width: 6px; height: 2px; border-radius: 3px; background: var(--ls-muted); opacity: .42; pointer-events: none; transition: width .16s ease, height .16s ease, background-color .16s ease, opacity .16s ease; }
-.practice-scrubber-tick:has(+ .practice-scrubber-tick + .practice-scrubber-tick + .practice-scrubber-tick.is-wave-center),
-.practice-scrubber-tick.is-wave-center + .practice-scrubber-tick + .practice-scrubber-tick + .practice-scrubber-tick { width: var(--scrubber-wave-3, 10px); opacity: .55; }
-.practice-scrubber-tick:has(+ .practice-scrubber-tick + .practice-scrubber-tick.is-wave-center),
-.practice-scrubber-tick.is-wave-center + .practice-scrubber-tick + .practice-scrubber-tick { width: var(--scrubber-wave-2, 14px); opacity: .68; }
-.practice-scrubber-tick:has(+ .practice-scrubber-tick.is-wave-center),
-.practice-scrubber-tick.is-wave-center + .practice-scrubber-tick { width: var(--scrubber-wave-1, 20px); opacity: .85; }
-.practice-scrubber-tick.is-wave-center { width: var(--scrubber-wave-center, 26px); opacity: 1; }
-.practice-scrubber-tick.is-answered { background: var(--ls-text); opacity: .95 !important; }
-.practice-scrubber-tick.is-current:not(.is-answered) { background: var(--ls-accent); opacity: 1 !important; }
-.practice-scrubber-tick.is-current.is-answered { background: linear-gradient(90deg, var(--ls-accent) 0 2px, var(--ls-text) 2px); opacity: 1 !important; }
-.practice-scrubber-tick.is-preview:not(.is-current) { background: var(--ls-text); }
-@media (prefers-reduced-motion: reduce) { .practice-scrubber-tick { transition: none; } }
-.practice-scrubber-preview { position: absolute; left: 46px; box-sizing: border-box; width: min(400px, calc(100vw - var(--ls-offset) - 72px)); padding: 14px 16px; border: 1px solid var(--ls-border); border-radius: 12px; background: var(--ls-surface); color: var(--ls-text); box-shadow: 0 10px 30px #0002; font: 14px/1.55 var(--font-zh); opacity: 0; visibility: hidden; pointer-events: none; }
-.practice-scrubber.has-preview .practice-scrubber-preview { opacity: 1; visibility: visible; }
-.practice-scrubber-preview strong { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; }
-.practice-scrubber-preview p { display: -webkit-box; overflow: hidden; margin: 7px 0 0; color: var(--ls-text); font: 15px/1.5 var(--jlpt-font-mincho); -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
-.practice-scrubber-preview .practice-scrubber-context { color: var(--ls-muted); -webkit-line-clamp: 2; }
-.practice-scrubber-preview p[hidden] { display: none; }
-.practice-scrubber-preview small { display: block; margin-top: 8px; color: var(--ls-muted); font-size: 12px; }
-.practice-scrubber:focus-visible { outline: 2px solid var(--ls-accent); outline-offset: 2px; border-radius: 6px; }
-body.guest-welcome-open .practice-scrubber, body.ls-drawer-open .practice-scrubber, body:has(#exam-review-bar) .practice-scrubber, body:has(#exam-result-modal:not([hidden])) .practice-scrubber { display: none; }
 body:has(#exam-review-bar) #question-navigation { display: none !important; }
 @media (min-width: 701px) {
-  body.learning-shell-active.practice-scrubber-active #exam-workarea { padding-left: 52px; }
-  body.practice-scrubber-active #current-question-container { anchor-name: --practice-paper; }
-  @supports (left: anchor(left)) {
-    .practice-scrubber { position-anchor: --practice-paper; left: calc(anchor(left) - 44px); }
-  }
   body.ls-menu-collapsed { --ls-rail: 36px; }
   body.ls-menu-collapsed .ls-rail { padding-inline: 2px; }
   body.ls-menu-collapsed .ls-rail button { width: 32px; min-height: 32px; padding: 6px; }
-  body.ls-menu-collapsed.learning-shell-active #exam-workarea,
-  body.ls-menu-collapsed.learning-shell-active.practice-scrubber-active #exam-workarea { padding-inline: 8px; }
-  body.ls-menu-collapsed .practice-scrubber { left: 0; width: 36px; z-index: 10047; }
-  body.ls-menu-collapsed .practice-scrubber-track { width: 36px; padding-left: 8px; }
+  body.ls-menu-collapsed.learning-shell-active #exam-workarea { padding-inline: 8px; }
 }
 @media (max-width: 700px) {
   body.learning-shell-active .question-nav { max-width: calc(100vw - 24px); gap: 8px; }
   body.learning-shell-active .question-nav .question-counter { order: -1; width: 100%; justify-content: center; box-sizing: border-box; font-size: 12px; }
-  body.learning-shell-active.practice-scrubber-active #exam-content { width: calc(100% - 24px) !important; max-width: calc(100% - 24px) !important; margin-left: 24px; margin-right: 0; }
-  .practice-scrubber { left: 0; right: auto; --scrubber-wave-3: 8px; --scrubber-wave-2: 11px; --scrubber-wave-1: 14px; --scrubber-wave-center: 18px; }
-  .practice-scrubber, .practice-scrubber-track { width: 24px; }
-  .practice-scrubber-track { padding-left: 6px; }
-  .practice-scrubber-preview { left: 28px; right: auto; }
 }
 .ls-menu .ls-settings > summary { list-style: none; color: var(--ls-text); }
 .ls-menu .ls-settings > summary::-webkit-details-marker { display: none; }
@@ -218,6 +218,10 @@ body.learning-shell-active #guest-welcome .gw-header [data-gw="home"] { display:
 body.learning-shell-active #guest-welcome .gw-header [data-gw="login"] { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 28px; height: 28px; min-height: 28px; padding: 0; border: 1.5px solid rgba(23, 19, 16, .9); border-radius: 50%; background: #fff; color: #171310; cursor: pointer; }
 body.learning-shell-active #guest-welcome .gw-header [data-gw="login"] svg { width: 16px; height: 16px; }
 @media (min-width: 1201px) {
+  body.learning-shell-active:not(.ls-guest-navigation):not(.ls-menu-collapsed) { --ls-rail: 72px; }
+  body.learning-shell-active:not(.ls-guest-navigation):not(.ls-menu-collapsed) .ls-rail { align-items: center; gap: 8px; padding-inline: 4px; }
+  body.learning-shell-active:not(.ls-guest-navigation):not(.ls-menu-collapsed) .ls-rail > [data-ls-group] { flex-direction: column; gap: 3px; width: 64px; min-height: 58px; padding: 6px 2px; }
+  body.learning-shell-active:not(.ls-guest-navigation):not(.ls-menu-collapsed) .ls-rail > [data-ls-group] > span { display: block; position: static; padding: 0; border-radius: 0; background: transparent; color: inherit; font: 12px/1.2 var(--font-zh); box-shadow: none; }
   body.learning-shell-active:not(.ls-menu-collapsed) #learning-topbar { right: 10px; height: 40px; }
   body.learning-shell-active:not(.ls-menu-collapsed) #guest-welcome .gw-header { top: 10px; right: 10px; }
 }
@@ -246,32 +250,51 @@ body.learning-shell-active #guest-welcome .gw-options button { background: #eaf5
 body.learning-shell-active #guest-welcome .gw-options .is-correct { background: #e5f5e8; border-color: #8dcea2; }
 body.learning-shell-active #guest-welcome .gw-levels [aria-pressed="true"] { background: var(--ls-selected); border-color: var(--ls-accent); color: var(--ls-selected-text); }
 /* Student workspace uses the shared navigation, retaining its account menu. */
-body.learning-shell-active #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { left: var(--ls-offset); top: var(--ls-top-inset); right: 8px; bottom: 8px; width: auto; max-width: none; height: calc(100dvh - var(--ls-top-inset) - 8px); margin: 0; border: 1px solid var(--ls-border); border-left: 0; border-radius: 0 18px 18px 0; box-shadow: none; background: var(--ls-surface); color: var(--ls-text); grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { left: var(--ls-offset); top: 0; right: 8px; bottom: 8px; width: auto; max-width: none; height: calc(100dvh - 8px); margin: 0; border: 1px solid var(--ls-border); border-top: 0; border-left: 0; border-radius: 0 0 18px 0; box-shadow: none; background: var(--ls-surface); color: var(--ls-text); grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+body:has(#platform-admin-shell[data-learning-role="student"].pc-platform-admin-open) #exam-content { visibility: hidden; }
+/* The workbench owns scrolling while the retained paper stays in the background. */
+body.learning-shell-active:has(#platform-admin-shell[data-learning-role="student"].pc-platform-admin-open) {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  box-sizing: border-box;
+  padding-bottom: 0;
+  overflow: hidden;
+}
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] > .pc-platform-sidebar { display: none; }
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-workspace { width: 100%; min-width: 0; background-color: var(--ls-paper-surround); background-image: linear-gradient(var(--ls-surface), var(--ls-surface)); background-size: min(100%, calc(var(--learning-text-max-width, 754px) + 240px)) 100%; background-position: center; background-repeat: no-repeat; }
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-content > * { max-width: var(--learning-text-max-width, 754px); margin-inline: auto; width: 100%; box-sizing: border-box; }
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] [data-platform-admin-display-toggle] { display: none; }
 body:has(#platform-admin-shell.pc-platform-admin-open:not([data-learning-role="student"])) #learning-shell { display: none; }
-body:has(#platform-admin-shell.pc-platform-admin-open) #learning-topbar > strong,
 body:has(#platform-admin-shell.pc-platform-admin-open) #learning-account { display: none; }
 body:has(#platform-admin-shell.pc-platform-admin-open:not([data-learning-role="student"])) #learning-topbar { display: none; }
-body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar { position: absolute; top: 8px; right: 16px; z-index: 2; display: flex; min-height: 0; padding: 0; background: transparent; border: 0; }
-body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar > div:first-child,
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar { position: relative; top: auto; right: auto; z-index: 5; display: flex; flex: 0 0 auto; align-items: center; gap: 8px; width: 100%; min-height: 56px; padding: 6px 16px; box-sizing: border-box; background: transparent; border: 0; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar .pc-platform-page-heading,
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar-spacer { display: none; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-account { margin-left: auto; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-user { width: 40px; height: 40px; min-height: 40px; padding: 4px; justify-content: center; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-user > span { box-sizing: border-box; width: 28px; height: 28px; flex-basis: 28px; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-user > span .pc-avatar-image { width: 24px; height: 24px; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-user > span .pc-avatar-icon { width: 20px; height: 20px; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-user div { display: none; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-window-button { width: 40px; height: 40px; }
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar h1 { font: 600 15px/1.5 var(--font-zh); }
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar p { font: 12px/1.5 var(--font-zh); color: var(--ls-muted); }
-body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-content { padding: 32px 28px; background: transparent; font-family: var(--font-zh); }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-content { padding: 12px 28px 32px; background: transparent; font-family: var(--font-zh); }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-learning-today-intro { padding: 18px 0 12px; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-learning-today-intro h1 { margin: 0 0 4px; font: 600 20px/1.4 var(--font-zh); }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-learning-today-intro p { margin: 0; color: var(--ls-muted); font: 13px/1.6 var(--font-zh); }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-learning-today-assignments { justify-self: start; margin: 12px 0 0; color: var(--ls-muted); }
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-workbench-step { border: 0; border-bottom: 1px solid var(--ls-border); border-radius: 0; box-shadow: none; padding: 20px 0; background: transparent; }
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-workbench-stage > span { background: var(--ls-hover); color: var(--ls-muted); }
 body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-workbench-stage strong { font-size: 16px; font-weight: 600; }
 @media (max-width: 1200px) and (min-width: 768px) {
-  body.learning-shell-active { --ls-menu: clamp(176px, 18vw, 216px); --ls-rail: 36px; }
+  body.learning-shell-active { --ls-menu: 240px; --ls-rail: 36px; }
   body.learning-shell-active.ls-menu-collapsed { --ls-menu: 0px; }
   .ls-menu { width: var(--ls-menu); padding-inline: 8px; }
   .ls-rail { padding-inline: 2px; }
   .ls-rail button { width: 32px; min-height: 32px; padding: 6px; }
-  body.learning-shell-active #exam-workarea,
-  body.learning-shell-active.practice-scrubber-active #exam-workarea { padding-inline: 8px; }
+  body.learning-shell-active #exam-workarea { padding-inline: 8px; }
 }
 @media (max-width: 767px) and (min-width: 701px) {
   body.learning-shell-active { --ls-menu: 0px; --ls-rail: 36px; }
@@ -279,10 +302,7 @@ body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .
   body.ls-drawer-open .ls-menu { display: block; box-shadow: 10px 0 30px #0001; }
   .ls-rail { padding-inline: 2px; }
   .ls-rail button { width: 32px; min-height: 32px; padding: 6px; }
-  body.learning-shell-active #exam-workarea,
-  body.learning-shell-active.practice-scrubber-active #exam-workarea { padding-inline: 8px; }
-  .practice-scrubber { left: 0; width: 36px; z-index: 10047; }
-  .practice-scrubber-track { width: 36px; padding-left: 8px; }
+  body.learning-shell-active #exam-workarea { padding-inline: 8px; }
 }
 @media (max-width: 700px) {
   body.learning-shell-active { --ls-offset: 0px; }
@@ -290,7 +310,7 @@ body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .
   #learning-topbar { height: 28px; top: var(--ls-top-inset); right: 6px; padding: 0 0 0 8px; margin: 0; border-radius: 0; }
   #learning-account #user-menu-trigger { width: 24px; height: 24px; min-height: 24px; }
   #learning-account #user-menu-trigger svg { width: 14px; height: 14px; }
-  body.learning-shell-active .current-question .section-instruction-toggle { margin-left: 28px; width: calc(100% - 60px); }
+  body.learning-shell-active .current-question .section-instruction-toggle { margin-left: 0; width: 100%; }
   body.learning-shell-active #exam-content { margin-right: 0; border-radius: 0; }
   body.learning-shell-active #guest-welcome { right: 0; }
   body.learning-shell-active #guest-welcome .gw-header { top: 6px; right: 6px; }
@@ -301,15 +321,11 @@ body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .
   body.learning-shell-active #guest-welcome .gw-has-back [data-gw="home"] { display: block; }
   .ls-mobile-toggle, .ls-close { display: block; background: transparent; color: inherit; border: 0; font-size: 22px; cursor: pointer; padding: 8px; }
   .ls-mobile-toggle { box-sizing: border-box; width: 36px; min-width: 36px; height: 36px; margin-left: -8px; padding: 0 0 0 6px; display: flex; align-items: center; justify-content: flex-start; }
-  .ls-mobile-toggle-mark { display: block; position: relative; width: 18px; height: 14px; }
-  .ls-mobile-toggle-mark::before, .ls-mobile-toggle-mark::after { content: ''; position: absolute; left: 0; height: 2px; border-radius: 999px; background: currentColor; }
-  .ls-mobile-toggle-mark::before { top: 1px; width: 18px; }
-  .ls-mobile-toggle-mark::after { top: 10px; width: 11px; }
-  body.learning-shell-active #exam-workarea { padding: 0 4px; }
+  body.learning-shell-active #exam-workarea { padding: 0; }
   body.ls-drawer-open .ls-rail, body.ls-drawer-open .ls-menu { display: flex; }
   body.ls-drawer-open .ls-menu { display: block; width: min(240px, calc(100vw - 50px)); }
-  body.learning-shell-active #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { inset: var(--ls-top-inset) 0 0; height: calc(100dvh - var(--ls-top-inset)); border: 0; border-radius: 0; }
-  body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-content { padding: 20px 16px; }
+  body.learning-shell-active #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { inset: 0; height: 100dvh; border: 0; border-radius: 0; }
+  body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-admin-content { padding: 8px 16px 20px; }
   body.ls-drawer-open .ls-backdrop { display: block; position: fixed; inset: 0; background: #0005; border: 0; z-index: 10044; }
   body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar { padding-left: 52px; }
   body:has(#platform-admin-shell[data-learning-role="student"].pc-platform-admin-open) .ls-mobile-toggle { position: fixed; left: 8px; top: 10px; z-index: 10045; }
@@ -333,6 +349,20 @@ body.learning-shell-active #guest-welcome .gw-levels [aria-pressed="true"]:hover
 
 body.learning-shell-active .question-nav .end-practice-btn { background: var(--ls-selected); color: var(--ls-selected-text); border: 1px solid var(--ls-accent); }
 body.learning-shell-active #question-navigation .finish-btn { width: auto; flex-basis: auto; white-space: nowrap; }
+@media (min-width: 701px) {
+  body.learning-shell-active.ls-guest-navigation.ls-scoped-practice #question-navigation .question-nav { gap: 8px; }
+  body.learning-shell-active.ls-guest-navigation.ls-scoped-practice #question-navigation .nav-btn {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    padding-inline: 12px;
+    font-size: 13px;
+  }
+  body.learning-shell-active.ls-guest-navigation.ls-scoped-practice #question-navigation .question-counter {
+    min-height: 40px;
+    padding-inline: 12px;
+  }
+}
 body.ls-range-locked .ls-paper-picker { display: none; }
 body.ls-scoped-practice .ls-category-heading, body.ls-scoped-practice #ls-exam-controls { display: none !important; }
 body.ls-scoped-practice .ls-menu .exam-mode-field { display: none; }
@@ -351,4 +381,470 @@ body.learning-shell-active .practice-start-btn { padding: 10px 20px; border: 1px
 @media (max-width: 700px) {
   body.learning-shell-active #question-navigation .question-nav { width: calc(100vw - 24px); gap: 8px; }
   body.learning-shell-active #question-navigation .nav-btn { flex: 1 1 0; width: auto; min-width: 0; padding: 8px 6px; font-size: 13px; }
+  body.learning-shell-active.ls-scoped-practice #question-navigation .question-nav:has(.end-practice-btn):not(.specialty-nav) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas: "end counter counter" "check prev next";
+  }
+  body.learning-shell-active.ls-scoped-practice #question-navigation .question-nav:has(.end-practice-btn):not(.specialty-nav) .end-practice-btn {
+    grid-area: end;
+    background: var(--ls-surface);
+    color: var(--ls-muted);
+    border-color: var(--ls-border);
+    box-shadow: none;
+  }
+  body.learning-shell-active.ls-scoped-practice #question-navigation .question-nav:has(.end-practice-btn):not(.specialty-nav) .question-counter {
+    grid-area: counter;
+    width: auto;
+    min-width: 0;
+    padding-inline: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  body.learning-shell-active.ls-scoped-practice #question-navigation .question-nav:has(.end-practice-btn):not(.specialty-nav) .check-btn { grid-area: check; }
+  body.learning-shell-active.ls-scoped-practice #question-navigation .question-nav:has(.end-practice-btn):not(.specialty-nav) .prev-btn { grid-area: prev; }
+  body.learning-shell-active.ls-scoped-practice #question-navigation .question-nav:has(.end-practice-btn):not(.specialty-nav) .next-btn { grid-area: next; }
+}
+
+/* The signed-in learner has one navigation column; compact mode uses a top-bar drawer. */
+body.learning-shell-active.ls-student-navigation { --ls-rail: 0px; --ls-menu: 240px; --ls-offset: var(--ls-menu); --ls-sidebar: var(--ls-surface); }
+body.learning-shell-active.ls-student-navigation.ls-menu-collapsed { --ls-menu: 0px; }
+body.ls-student-navigation .ls-rail { display: none; }
+body.ls-student-navigation .ls-menu { left: 0; width: var(--ls-menu); padding: 18px 8px 14px; display: flex; flex-direction: column; }
+body.ls-student-navigation.ls-menu-collapsed:not(.ls-drawer-open) .ls-menu { display: none; }
+body.ls-student-navigation .ls-menu header { flex: 0 0 auto; margin-bottom: 10px; }
+body.ls-student-navigation .ls-menu > [data-ls-group] { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; width: 100%; min-height: 44px; margin-top: 6px; padding: 8px; border: 0; border-radius: 8px; background: transparent; color: var(--ls-text); font: 500 14px/1.4 var(--font-zh); text-align: left; cursor: pointer; touch-action: manipulation; user-select: none; }
+body.ls-student-navigation .ls-menu > [data-ls-group] svg { width: 19px; height: 19px; flex: 0 0 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+body.ls-student-navigation .ls-menu > [data-ls-group]::after { display: none; }
+body:has(#platform-admin-shell[data-learning-role="student"].pc-platform-admin-open) .ls-menu > [data-ls-panel] { display: none; }
+body.ls-student-navigation .ls-menu > [data-ls-group]:hover,
+body.ls-student-navigation .ls-menu > [data-ls-group][aria-pressed="true"] { background: var(--ls-selected); color: var(--ls-selected-text); }
+body.ls-student-navigation .ls-menu > section > h2:first-child { display: none; }
+body.ls-student-navigation .ls-menu > section > .ls-link { padding-left: 30px; }
+body.ls-student-navigation .ls-menu > .ls-continue { flex: 0 0 auto; margin-bottom: 10px; }
+body.ls-guest-navigation .ls-home,
+body.ls-student-navigation.ls-focused-practice .ls-home,
+body.ls-student-navigation.ls-focused-practice [data-ls-panel="practice"] > .ls-link:not(.ls-practice-back) { display: none; }
+body.ls-student-navigation .ls-home { flex: 0 0 auto; margin-bottom: 4px; }
+body.ls-guest-navigation .ls-home-child,
+body.ls-student-navigation.ls-focused-practice .ls-home-child { display: none; }
+body.ls-student-navigation .ls-menu > .ls-home-child { box-sizing: border-box; flex: 0 0 auto; width: calc(100% - 20px); min-height: 44px; margin: 4px 0 0 20px; padding: 8px 10px; border-left: 3px solid transparent; border-right: 3px solid transparent; font-weight: 400; }
+body.ls-student-navigation .ls-menu > .ls-home-child.is-active,
+body.ls-student-navigation .ls-menu > .ls-home-child[aria-pressed="true"],
+body.ls-student-navigation .ls-home.is-active { border-left: 3px solid var(--ls-accent); background: var(--ls-selected); color: var(--ls-selected-text); }
+body:has(#platform-admin-shell[data-learning-role="student"].pc-platform-admin-open) [data-ls-panel="practice"] > :is(.ls-paper-header, .ls-category-heading, #ls-exam-controls, .ls-settings, .ls-practice-back) { display: none; }
+body.ls-student-navigation .ls-menu footer { display: flex; flex-direction: column; gap: 4px; margin: auto 0 0; padding: 16px 0 0; }
+body.ls-student-navigation .ls-menu footer .ls-theme-control { margin: 0; }
+body.ls-student-navigation .ls-menu footer .ls-theme-trigger,
+body.ls-student-navigation .ls-menu footer .ls-collapse { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 42px; padding: 9px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--ls-muted); font: 13px/1.4 var(--font-zh); text-align: left; cursor: pointer; }
+body.ls-student-navigation .ls-menu footer .ls-theme-trigger:hover,
+body.ls-student-navigation .ls-menu footer .ls-collapse:hover { background: var(--ls-hover); color: var(--ls-text); }
+body.ls-student-navigation .ls-menu footer svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+body.ls-student-navigation .ls-menu footer .ls-theme-trigger::after { content: '显示主题'; }
+body.ls-student-navigation .ls-theme-menu { left: 0; bottom: 44px; z-index: 2; }
+body.ls-student-navigation .ls-theme-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 36px; padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--ls-text); cursor: pointer; }
+body.ls-student-navigation .ls-theme-menu button[aria-checked="true"] { background: var(--ls-selected); color: var(--ls-selected-text); }
+body.ls-student-navigation .ls-theme-menu button span { visibility: hidden; }
+body.ls-student-navigation .ls-theme-menu button[aria-checked="true"] span { visibility: visible; }
+body.ls-student-navigation .ls-menu .ls-close { display: none; }
+body.ls-guest-navigation .ls-menu > [data-ls-group] { display: none; }
+.ls-practice-back { display: none; }
+body.ls-student-navigation.ls-diagnostic-session .ls-practice-back { display: flex; margin-top: 20px; border-top: 1px solid var(--ls-border); border-radius: 0; }
+body.ls-student-navigation.ls-focused-practice .ls-menu > .ls-continue,
+body.ls-student-navigation.ls-focused-practice .ls-menu > [data-ls-group],
+body.ls-student-navigation.ls-focused-practice .ls-menu > [data-ls-panel]:not([data-ls-panel="practice"]) { display: none; }
+body.ls-student-navigation.ls-focused-practice .ls-menu > [data-ls-panel="practice"] { display: block; }
+body.ls-student-navigation.ls-focused-practice .ls-practice-back { display: flex; margin-top: 24px; border-top: 1px solid var(--ls-border); border-radius: 0; color: var(--ls-muted); }
+
+body.ls-student-navigation.ls-menu-collapsed #learning-topbar,
+body.ls-student-navigation.ls-drawer-open #learning-topbar { top: 0; left: 0; right: 0; height: 56px; padding: 0 16px; gap: 12px; border-bottom: 1px solid var(--ls-border); background: var(--ls-surface); pointer-events: auto; }
+body.ls-student-navigation.ls-menu-collapsed .ls-mobile-toggle,
+body.ls-student-navigation.ls-drawer-open .ls-mobile-toggle { display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex: 0 0 44px; width: 44px; height: 44px; min-height: 44px; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--ls-text); cursor: pointer; }
+body.ls-student-navigation.ls-menu-collapsed #exam-content { margin-top: 56px; }
+body.ls-student-navigation.ls-menu-collapsed #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { top: 56px; height: calc(100dvh - 56px); }
+body.ls-student-navigation.ls-menu-collapsed #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar { padding-left: 16px; }
+body.ls-student-navigation.ls-drawer-open .ls-menu { left: 0; top: 0; bottom: 0; z-index: 10046; display: flex; width: min(240px, calc(100vw - 48px)); box-shadow: 12px 0 30px #0002; }
+body.ls-student-navigation.ls-drawer-open .ls-menu .ls-close { display: block; min-width: 40px; min-height: 40px; padding: 0; border: 0; background: transparent; color: var(--ls-text); font-size: 24px; cursor: pointer; }
+body.ls-student-navigation.ls-drawer-open .ls-backdrop { display: block; position: fixed; inset: 0; z-index: 10044; border: 0; background: #0005; }
+
+@media (max-width: 1023px) {
+  body.learning-shell-active.ls-student-navigation { --ls-menu: 0px; }
+  body.ls-student-navigation:not(.ls-drawer-open) .ls-menu { display: none; }
+  body.ls-student-navigation #learning-topbar { top: 0; left: 0; right: 0; height: 56px; padding: 0 16px; gap: 12px; border-bottom: 1px solid var(--ls-border); background: var(--ls-surface); pointer-events: auto; }
+  body.ls-student-navigation .ls-mobile-toggle { display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex: 0 0 44px; width: 44px; height: 44px; min-height: 44px; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--ls-text); cursor: pointer; }
+  body.ls-student-navigation #exam-content { margin-top: 56px; }
+  body.ls-student-navigation #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { top: 56px; height: calc(100dvh - 56px); }
+  body.ls-student-navigation #platform-admin-shell[data-learning-role="student"] .pc-platform-topbar { padding-left: 16px; }
+  body.ls-student-navigation .ls-menu footer .ls-collapse { display: none; }
+}
+
+/* Guests use the same two-column exam frame; the former icon rail is redundant. */
+body.learning-shell-active.ls-guest-navigation { --ls-rail: 0px; --ls-menu: 240px; --ls-offset: var(--ls-menu); }
+body.learning-shell-active.ls-guest-navigation.ls-menu-collapsed { --ls-menu: 0px; --ls-offset: 0px; }
+body.ls-guest-navigation .ls-rail { display: none; }
+body.ls-guest-navigation .ls-menu { left: 0; display: flex; flex-direction: column; width: var(--ls-menu); }
+body.ls-guest-navigation.ls-menu-collapsed .ls-menu { display: none; }
+body.ls-guest-navigation .ls-menu header,
+body.ls-guest-navigation .ls-menu > [data-ls-panel="guest"] { flex: 0 0 auto; }
+body.ls-guest-navigation .ls-menu footer { flex: 0 0 auto; margin: auto 0 0; padding: 12px 0 0; }
+/* Guest pages meet the viewport edges at every width; only the menu divider remains. */
+body.learning-shell-active.ls-guest-navigation,
+body.learning-shell-active.ls-guest-navigation:has(#question-navigation .nav-btn) { padding-bottom: 0; }
+body.ls-guest-navigation .ls-menu { border-top: 0; border-bottom: 0; border-left: 0; }
+body.learning-shell-active.ls-guest-navigation #guest-welcome { inset: 0 0 0 var(--ls-offset); background: var(--ls-paper-surround); }
+body.learning-shell-active.ls-guest-navigation #exam-content { margin-top: 0; margin-right: 0; border-top: 0; border-right: 0; border-bottom: 0; border-radius: 0; background: var(--ls-paper-surround); }
+body.learning-shell-active.ls-guest-navigation #current-question-container { margin-bottom: 0; }
+body.learning-shell-active.ls-guest-navigation #current-question-container .current-question { border-radius: 0; padding-bottom: 72px; }
+@media (max-width: 1242px) {
+  body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-content { border-inline-color: var(--ls-surface); }
+  body.learning-shell-active.ls-guest-navigation #exam-workarea { padding-inline: 0; }
+  body.learning-shell-active.ls-guest-navigation #current-question-container .current-question { border-inline: 0; }
+}
+body.ls-guest-navigation .ls-menu footer .ls-theme-trigger,
+body.ls-guest-navigation .ls-menu footer .ls-collapse { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 42px; padding: 9px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--ls-muted); font: 13px/1.4 var(--font-zh); text-align: left; cursor: pointer; }
+body.ls-guest-navigation .ls-menu footer .ls-theme-trigger:hover,
+body.ls-guest-navigation .ls-menu footer .ls-collapse:hover { background: var(--ls-hover); color: var(--ls-text); }
+body.ls-guest-navigation .ls-menu footer .ls-theme-trigger::after { content: '显示主题'; }
+body.ls-guest-navigation .ls-menu footer svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+body.ls-guest-navigation.ls-menu-collapsed #learning-topbar { top: 0; left: 0; right: 0; height: 44px; padding-left: 8px; }
+body.ls-guest-navigation.ls-menu-collapsed .ls-mobile-toggle { display: flex; align-items: center; justify-content: center; flex: 0 0 40px; width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 8px; background: var(--ls-surface); color: var(--ls-text); cursor: pointer; }
+body.ls-guest-navigation .ls-theme-menu { left: 0; bottom: 44px; z-index: 2; }
+body.ls-guest-navigation .ls-theme-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 36px; padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--ls-text); cursor: pointer; }
+body.ls-guest-navigation .ls-theme-menu button span { visibility: hidden; }
+body.ls-guest-navigation .ls-theme-menu button[aria-checked="true"] span { visibility: visible; }
+@media (max-width: 767px) {
+  body.learning-shell-active.ls-guest-navigation { --ls-menu: 0px; --ls-offset: 0px; }
+  body.ls-guest-navigation .ls-menu footer .ls-collapse { display: none; }
+  body.ls-guest-navigation:not(.ls-drawer-open) .ls-menu { display: none; }
+  body.ls-guest-navigation.ls-drawer-open .ls-menu { display: flex; width: min(240px, calc(100vw - 50px)); }
+  body.ls-guest-navigation.ls-drawer-open .ls-backdrop { display: block; position: fixed; inset: 0; z-index: 10044; border: 0; background: #0002; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  body.ls-guest-navigation.ls-menu-collapsed #guest-welcome .gw-content { padding-top: 56px; }
+  body.ls-guest-navigation.ls-menu-collapsed #current-question-container .current-question { padding-top: 56px; }
+}
+@media (max-width: 767px) and (min-width: 701px) {
+  body.ls-guest-navigation #learning-topbar { left: 0; right: 0; height: 40px; padding-left: 8px; }
+  body.ls-guest-navigation .ls-mobile-toggle { display: flex; align-items: center; justify-content: center; flex: 0 0 40px; width: 40px; height: 40px; border: 0; background: transparent; color: var(--ls-text); cursor: pointer; }
+}
+
+/* A single compact bar holds exam actions and the account above the paper. */
+#ls-page-tools { display: none; }
+body.ls-student-navigation #learning-topbar { top: 0; left: var(--ls-offset); right: 0; height: 44px; padding: 0 12px; gap: 10px; border-bottom: 1px solid var(--ls-border); background: var(--ls-surface); pointer-events: auto; }
+body.learning-shell-active.ls-student-navigation #exam-content { margin-top: 44px; min-height: calc(100dvh - 44px); }
+body.ls-student-navigation #ls-page-tools { position: relative; z-index: 2; display: flex; justify-content: flex-end; align-items: center; gap: 8px; min-width: 0; margin-left: auto; padding: 0; box-sizing: border-box; pointer-events: auto; }
+body.ls-student-navigation #learning-account { margin-left: 0; }
+body:has(#platform-admin-shell.pc-platform-admin-open) #ls-page-tools { display: none !important; }
+body.ls-student-navigation:has(#platform-admin-shell.pc-platform-admin-open) #learning-topbar { background: transparent; border-bottom: 0; }
+body.ls-student-navigation .ls-menu .ls-settings { display: none; }
+body.ls-student-navigation #ls-page-tools > button,
+body.ls-student-navigation #ls-page-tools #exam-settings-toggle { display: inline-flex !important; align-items: center; justify-content: center; gap: 6px; width: auto; height: 34px; min-height: 34px; margin: 0; padding: 0 10px; border: 1px solid var(--ls-border); border-radius: 7px; background: var(--ls-surface); color: var(--ls-text); font: 12px/1.4 var(--font-zh); box-shadow: none; cursor: pointer; }
+body.ls-student-navigation #ls-page-tools > button[hidden] { display: none !important; }
+body.ls-student-navigation #ls-page-tools > button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+body.ls-student-navigation #ls-page-tools .answer-card-icon,
+body.ls-student-navigation #ls-page-tools .submit-exam-icon { display: grid; width: 24px; height: 24px; place-items: center; }
+body.ls-student-navigation #ls-page-tools #exam-settings-control { display: block !important; position: relative; width: auto; height: auto; }
+body.ls-student-navigation #ls-page-tools #exam-settings-toggle { border-radius: 8px; }
+body.ls-student-navigation #ls-page-tools #exam-settings-toggle svg { width: 22px; height: 22px; }
+body.ls-student-navigation #learning-account #user-menu-trigger { width: 28px; height: 28px; min-height: 28px; }
+body.ls-student-navigation #learning-account #user-menu-trigger svg { width: 16px; height: 16px; }
+body.ls-student-navigation #ls-page-tools #exam-settings-toggle::after { content: '练习设置'; }
+body.ls-student-navigation #ls-page-tools #exam-settings-menu { top: calc(100% + 6px); right: 0; width: min(360px, calc(100vw - 32px)); max-height: min(70vh, 560px); }
+body.ls-student-navigation #ls-page-tools #exam-settings-menu[hidden] { display: none !important; }
+@media (max-width: 1023px) {
+  body.ls-student-navigation #learning-topbar { left: 0; height: 44px; }
+  body.ls-student-navigation:is(.ls-menu-collapsed, .ls-drawer-open) #learning-topbar { height: 44px; }
+  body.learning-shell-active.ls-student-navigation #exam-content { margin-top: 44px; min-height: calc(100dvh - 44px); }
+  body.ls-student-navigation #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { top: 44px; height: calc(100dvh - 44px); }
+  body.ls-student-navigation.ls-menu-collapsed #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { top: 44px; height: calc(100dvh - 44px); }
+  body.ls-student-navigation .ls-mobile-toggle { width: 40px; height: 40px; min-height: 40px; flex-basis: 40px; }
+  body.ls-student-navigation #ls-page-tools > button,
+  body.ls-student-navigation #ls-page-tools #exam-settings-toggle { height: 40px; min-height: 40px; }
+}
+@media (min-width: 1024px) {
+  body.learning-shell-active.ls-student-navigation:not(.ls-menu-collapsed) #learning-topbar { right: 0; height: 44px; }
+  body.ls-student-navigation.ls-menu-collapsed #learning-topbar,
+  body.ls-student-navigation.ls-drawer-open #learning-topbar { height: 44px; }
+  body.ls-student-navigation.ls-menu-collapsed .ls-mobile-toggle,
+  body.ls-student-navigation.ls-drawer-open .ls-mobile-toggle { flex-basis: 40px; width: 40px; height: 40px; min-height: 40px; }
+  body.learning-shell-active.ls-student-navigation.ls-menu-collapsed #exam-content { margin-top: 44px; min-height: calc(100dvh - 44px); }
+  body.ls-student-navigation.ls-menu-collapsed #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { top: 44px; height: calc(100dvh - 44px); }
+}
+@media (max-width: 600px) {
+  body.ls-student-navigation #learning-topbar,
+  body.ls-student-navigation:is(.ls-menu-collapsed, .ls-drawer-open) #learning-topbar { padding-left: 7px; }
+  body.ls-student-navigation #ls-page-tools { gap: 4px; }
+  body.ls-student-navigation #ls-page-tools > button,
+  body.ls-student-navigation #ls-page-tools #exam-settings-toggle { width: 40px; min-width: 40px; padding: 0; border: 0; border-radius: 8px; background: transparent; box-shadow: none; }
+  body.ls-student-navigation #ls-page-tools > button:hover,
+  body.ls-student-navigation #ls-page-tools #exam-settings-toggle:hover { background: var(--ls-hover); color: var(--ls-text); }
+  body.ls-student-navigation #ls-page-tools .answer-card-text,
+  body.ls-student-navigation #ls-page-tools .submit-exam-text { display: none !important; }
+  body.ls-student-navigation #ls-page-tools #exam-settings-toggle::after { content: none; }
+}
+
+/* One page-wide header; the navigation and paper begin underneath it. */
+body.ls-student-navigation #learning-topbar { left: 0; right: 0; }
+body.ls-student-navigation #learning-topbar .ls-mobile-toggle { display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex: 0 0 40px; width: 40px; height: 40px; min-height: 40px; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--ls-text); cursor: pointer; }
+body.ls-student-navigation .ls-menu { top: 44px; border-top: 0; }
+body.ls-student-navigation .ls-menu header { display: none; }
+body.ls-student-navigation.ls-drawer-open .ls-menu { top: 44px; }
+body.ls-student-navigation.ls-drawer-open .ls-backdrop { top: 44px; }
+
+/* Align the right-hand controls with the paper, while the bar spans the viewport. */
+body.ls-student-navigation { --ls-paper-right-margin: 8px; --ls-paper-left-gutter: 20px; --ls-paper-right-gutter: 20px; --ls-toolbar-inner-gutter: 8px; }
+body.ls-student-navigation #learning-topbar,
+body.ls-student-navigation:is(.ls-menu-collapsed, .ls-drawer-open) #learning-topbar {
+  padding-right: calc(var(--ls-paper-right-margin) + var(--ls-paper-right-gutter) + max(0px, (100vw - var(--ls-offset) - var(--ls-paper-right-margin) - var(--ls-paper-left-gutter) - var(--ls-paper-right-gutter) - 994px) / 2) + var(--ls-toolbar-inner-gutter));
+}
+
+/* The student workbench shares the page-wide header used by other roles. */
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open {
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  border: 0;
+  border-radius: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 44px minmax(0, 1fr);
+}
+body.learning-shell-active.ls-student-navigation.ls-menu-collapsed #platform-admin-shell[data-learning-role="student"].pc-platform-admin-open { top: 0; height: 100dvh; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] > .pc-platform-topbar {
+	position: relative;
+  grid-column: 1;
+  grid-row: 1;
+  z-index: 12;
+  min-height: 44px;
+  height: 44px;
+  padding: 2px max(2px, calc((100vw - var(--ls-offset) - 994px) / 2 + 2px)) 2px 7px;
+  background: var(--ls-surface);
+  border-bottom: 1px solid var(--ls-border);
+}
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] > .pc-platform-topbar .pc-topbar-back {
+  left: calc(var(--ls-offset) + max(0px, calc((100vw - var(--ls-offset) - 994px) / 2)) + 8px);
+}
+@media (max-width: 1023px) {
+  body.learning-shell-active #platform-admin-shell[data-learning-role="student"] > .pc-platform-topbar .pc-topbar-back { position: static; }
+}
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] > .pc-platform-workspace {
+  grid-column: 1;
+  grid-row: 2;
+  width: auto;
+  margin-left: var(--ls-offset);
+}
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-nav-trigger {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ls-text);
+  cursor: pointer;
+}
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-nav-trigger:hover { background: var(--ls-hover); }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-account { margin-left: 0; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-window-actions { order: 1; margin-left: auto; }
+body.learning-shell-active #platform-admin-shell[data-learning-role="student"] .pc-platform-account { order: 2; }
+body.ls-student-navigation:has(#platform-admin-shell[data-learning-role="student"].pc-platform-admin-open) #learning-topbar { display: none; }
+body.ls-student-navigation:has(#platform-admin-shell[data-learning-role="student"].pc-platform-admin-open) .ls-menu { top: 44px; }
+body.ls-student-navigation:has(#platform-admin-shell[data-learning-role="student"].pc-platform-admin-open) .ls-menu header { display: none; }
+
+/* Guest home and guest papers use the same persistent navigation bar. */
+body.learning-shell-active.ls-guest-navigation #learning-topbar,
+body.learning-shell-active.ls-guest-navigation.ls-menu-collapsed #learning-topbar {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  padding: 0 7px;
+  gap: 10px;
+  border-bottom: 1px solid var(--ls-border);
+  background: var(--ls-surface);
+  pointer-events: auto;
+}
+body.ls-guest-navigation #learning-topbar .ls-mobile-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ls-text);
+  cursor: pointer;
+}
+body.ls-guest-navigation .ls-menu,
+body.ls-guest-navigation.ls-drawer-open .ls-menu { top: 44px; }
+body.learning-shell-active.ls-guest-navigation #guest-welcome {
+  top: 44px;
+  z-index: 10031;
+  background: var(--ls-surface);
+  pointer-events: auto;
+}
+body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-content { border-inline-color: var(--ls-surface); }
+body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-content,
+body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-header { pointer-events: auto; }
+body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-header {
+  top: 8px;
+  right: max(8px, calc((100vw - var(--ls-offset) - 994px) / 2 + 8px));
+}
+body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-header [data-gw="login"] {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  border: 1.5px solid #ff7a2f;
+}
+body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-header [data-gw="login"] svg { width: 16px; height: 16px; }
+body.ls-guest-navigation.ls-menu-collapsed #guest-welcome .gw-content { padding-top: 24px; }
+body.learning-shell-active.ls-guest-navigation #exam-content { margin-top: 44px; }
+body.ls-guest-navigation.ls-drawer-open .ls-backdrop { top: 44px; }
+@media (max-width: 767px) {
+  body.learning-shell-active.ls-guest-navigation #learning-topbar,
+  body.learning-shell-active.ls-guest-navigation.ls-menu-collapsed #learning-topbar { height: 44px; padding: 0 7px; }
+  body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-header { top: 8px; right: 8px; }
+  body.ls-guest-navigation.ls-menu-collapsed #guest-welcome .gw-content { padding-top: 24px; }
+}
+body.ls-student-navigation #learning-account #user-menu-trigger { width: 28px; height: 28px; min-height: 28px; transform: none; }
+@media (max-width: 1200px) {
+  body.ls-student-navigation { --ls-paper-left-gutter: 8px; --ls-paper-right-gutter: 8px; }
+}
+@media (min-width: 701px) {
+  body.ls-student-navigation.ls-menu-collapsed { --ls-paper-left-gutter: 8px; --ls-paper-right-gutter: 8px; }
+}
+@media (max-width: 700px) {
+  body.ls-student-navigation { --ls-paper-right-margin: 0px; --ls-paper-left-gutter: 4px; --ls-paper-right-gutter: 4px; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  body.learning-shell-active.ls-student-navigation:not(.ls-menu-collapsed) { --ls-menu: 240px; }
+  body.ls-student-navigation:not(.ls-menu-collapsed):not(.ls-drawer-open) .ls-menu { display: flex; }
+}
+
+/* Keep full-paper question navigation compact without changing scoped-practice controls. */
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .question-nav {
+  width: auto;
+  max-width: calc(100vw - 24px);
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .nav-btn {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  box-shadow: none;
+}
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .check-btn {
+  padding-inline: 4px;
+  margin-right: 4px;
+  border: 1px solid var(--vscode-input-border);
+  background: transparent;
+  color: var(--ls-text);
+  font-weight: 500;
+}
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .check-btn:hover:not(:disabled) {
+  background: var(--ls-hover);
+  color: var(--ls-text);
+}
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .check-btn:disabled {
+  background: transparent;
+  color: var(--ls-muted);
+}
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .prev-btn,
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .next-btn {
+  border-color: var(--exam-option-border, rgba(0, 122, 204, .38));
+  background: var(--exam-option-bg, rgba(0, 122, 204, .08));
+  color: var(--ls-text);
+  box-shadow: none;
+}
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .prev-btn:hover:not(:disabled),
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .next-btn:hover:not(:disabled) {
+  background: var(--exam-option-bg-hover, rgba(0, 122, 204, .28));
+}
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .prev-btn,
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .next-btn:not(.finish-btn) {
+  flex: 0 0 88px;
+  width: 88px;
+  min-width: 88px;
+}
+body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .question-counter {
+  order: 0;
+  width: auto;
+  min-height: 0;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--ls-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 420px) {
+  body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .question-nav { gap: 6px; }
+  body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .check-btn { margin-right: 6px; }
+  body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .nav-btn { padding-inline: 8px; font-size: 12px; }
+  body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .prev-btn,
+  body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .next-btn:not(.finish-btn) { flex-basis: 70px; width: 70px; min-width: 70px; }
+  body.learning-shell-active.ls-student-navigation:not(.ls-scoped-practice) #question-navigation .question-counter { font-size: 12px; }
+}
+
+/* Center the learner menu and paper as one adjacent 240px + 994px layout. */
+@media (min-width: 768px) {
+  body.learning-shell-active:is(.ls-student-navigation, .ls-guest-navigation),
+  body.learning-shell-active.ls-guest-navigation.ls-menu-collapsed {
+    --ls-paper-width: calc(var(--learning-text-max-width, 754px) + 240px);
+    --ls-layout-inset: max(0px, calc((100vw - var(--ls-menu) - var(--ls-paper-width)) / 2));
+    --ls-offset: calc(var(--ls-layout-inset) + var(--ls-menu));
+  }
+  body.learning-shell-active:is(.ls-student-navigation, .ls-guest-navigation) .ls-menu { left: var(--ls-layout-inset); }
+  body.learning-shell-active.ls-student-navigation #platform-admin-shell[data-learning-role="student"] { background: var(--ls-paper-surround); }
+  body.learning-shell-active.ls-student-navigation #platform-admin-shell[data-learning-role="student"] > .pc-platform-workspace {
+    margin-left: var(--ls-offset);
+    margin-right: var(--ls-layout-inset);
+    background: var(--ls-surface);
+  }
+  body.learning-shell-active.ls-student-navigation #platform-admin-shell[data-learning-role="student"] > .pc-platform-topbar {
+    padding-left: calc(var(--ls-layout-inset) + 7px);
+    padding-right: calc(var(--ls-layout-inset) + 7px);
+  }
+  body.learning-shell-active.ls-student-navigation #platform-admin-shell[data-learning-role="student"] > .pc-platform-topbar .pc-topbar-back { left: calc(var(--ls-offset) + 8px); }
+  body.learning-shell-active:is(.ls-student-navigation, .ls-guest-navigation) #exam-content { margin-left: var(--ls-offset); margin-right: var(--ls-layout-inset); background: var(--ls-surface); }
+  body.learning-shell-active:is(.ls-student-navigation, .ls-guest-navigation) #exam-workarea { padding-inline: 0; }
+  body.learning-shell-active.ls-student-navigation #learning-topbar { padding-left: calc(var(--ls-layout-inset) + 7px); padding-right: calc(var(--ls-layout-inset) + 8px); }
+  body.learning-shell-active.ls-guest-navigation #guest-welcome { left: var(--ls-offset); right: var(--ls-layout-inset); }
+  body.learning-shell-active.ls-guest-navigation #learning-topbar,
+  body.learning-shell-active.ls-guest-navigation.ls-menu-collapsed #learning-topbar { padding-left: calc(var(--ls-layout-inset) + 7px); padding-right: calc(var(--ls-layout-inset) + 8px); }
+  body.learning-shell-active.ls-guest-navigation #guest-welcome .gw-header { right: calc(var(--ls-layout-inset) + 8px); }
+}
+
+/* Below 1100px the learner menu becomes an overlay drawer, leaving the paper wide. */
+@media (max-width: 1099px) {
+  body.learning-shell-active.ls-student-navigation,
+  body.learning-shell-active.ls-student-navigation:not(.ls-menu-collapsed) { --ls-menu: 0px; }
+  body.learning-shell-active.ls-student-navigation:not(.ls-drawer-open) .ls-menu { display: none; }
+  body.learning-shell-active.ls-student-navigation.ls-drawer-open .ls-menu { left: 0; top: 44px; width: min(240px, calc(100vw - 48px)); display: flex; }
+  body.learning-shell-active.ls-student-navigation.ls-drawer-open .ls-backdrop { top: 44px; }
+  body.learning-shell-active.ls-student-navigation .ls-menu footer .ls-collapse { display: none; }
+  body.learning-shell-active.ls-student-navigation #platform-admin-shell[data-learning-role="student"] > .pc-platform-topbar .pc-topbar-back { position: static; }
+}
+
+/* Keep the route home in the same place on papers and other student pages. */
+#learning-topbar .ls-topbar-home { display: none; }
+body.ls-student-navigation #learning-topbar .ls-topbar-home { display: grid; place-items: center; box-sizing: border-box; flex: 0 0 36px; width: 36px; height: 36px; min-height: 36px; padding: 0; border: 1px solid var(--ls-border); border-radius: 10px; background: var(--ls-surface); color: var(--ls-text); cursor: pointer; }
+body.ls-student-navigation #learning-topbar .ls-topbar-home svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+body.ls-student-navigation #learning-topbar .ls-topbar-home:hover { background: var(--ls-hover); border-color: var(--ls-muted); }
+body.ls-student-navigation #learning-topbar .ls-topbar-home:focus-visible { outline: 2px solid #1c67b4; outline-offset: 2px; }
+@media (min-width: 1100px) {
+  body.ls-student-navigation #learning-topbar .ls-topbar-home { position: absolute; top: 4px; left: max(calc(var(--ls-offset) + 8px), calc(var(--ls-layout-inset, 0px) + 55px)); }
+  body.learning-shell-active.ls-student-navigation #platform-admin-shell[data-learning-role="student"] > .pc-platform-topbar .pc-topbar-home { left: max(calc(var(--ls-offset) + 8px), calc(var(--ls-layout-inset, 0px) + 55px)); }
 }

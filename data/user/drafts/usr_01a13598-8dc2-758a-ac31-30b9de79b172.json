@@ -1,0 +1,14 @@
+{
+  "answered_count" : 1,
+  "answers" : 
+  {
+    "0:1" : 2
+  },
+  "attempt_status" : "draft",
+  "exam_id" : "N2_2010_07",
+  "revision" : 1,
+  "started_at" : "2026-10-13T14:09:14.041Z",
+  "total_questions" : 107,
+  "updated_at" : "2026-10-13T14:09:14.041Z",
+  "user_id" : "usr_01a13598-8dc2-758a-ac31-30b9de79b172"
+}

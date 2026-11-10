@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { cancellationEvidence } from './lib/paper_metadata.mjs';
 
 const root = process.cwd();
 const paperRoot = path.join(root, 'data', 'paper');
@@ -95,6 +96,8 @@ function auditJlpt() {
 	const missingFiles = [];
 	const emptyTemplates = [];
 	const complete = [];
+	const notHeldSessions = [];
+	const metadataConflicts = [];
 
 	for (const level of levels) {
 		for (let year = startYear; year <= endYear; year += 1) {
@@ -108,15 +111,18 @@ function auditJlpt() {
 				const doc = readJson(filePath);
 				const sections = doc?.exam_info?.sections;
 				const questions = countQuestions(sections);
+				const cancelled = cancellationEvidence(doc);
 				if (!Array.isArray(sections) || sections.length === 0 || questions === 0) {
-					emptyTemplates.push(id);
+					if (cancelled) notHeldSessions.push({ id, evidence: cancelled });
+					else emptyTemplates.push(id);
 				} else {
 					complete.push({ id, questions });
+					if (cancelled) metadataConflicts.push({ id, questions, evidence: cancelled });
 				}
 			}
 		}
 	}
-	return { expectedCount: levels.length * (endYear - startYear + 1) * sessions.length, missingFiles, emptyTemplates, complete };
+	return { expectedCount: levels.length * (endYear - startYear + 1) * sessions.length, missingFiles, emptyTemplates, notHeldSessions, metadataConflicts, complete };
 }
 
 function groupedByPrefix(items) {
@@ -140,9 +146,11 @@ function renderReport(report) {
 	lines.push(`- EJU JSON files present: ${report.eju.files.length}`);
 	lines.push(`- EJU expected sessions in local coverage window: ${report.eju.expected.length}`);
 	lines.push(`- EJU missing sessions: ${report.eju.missing.length}`);
-	lines.push(`- JLPT expected files: ${report.jlpt.expectedCount}`);
+	lines.push(`- JLPT calendar slots checked (includes locally marked cancellations): ${report.jlpt.expectedCount}`);
 	lines.push(`- JLPT missing JSON files: ${report.jlpt.missingFiles.length}`);
 	lines.push(`- JLPT empty template files: ${report.jlpt.emptyTemplates.length}`);
+	lines.push(`- JLPT cancelled/not-held sessions identified from local metadata: ${report.jlpt.notHeldSessions.length}`);
+	lines.push(`- JLPT contradictory cancellation metadata: ${report.jlpt.metadataConflicts.length}`);
 	lines.push(`- JLPT populated files: ${report.jlpt.complete.length}`);
 	lines.push('');
 	lines.push('## EJU Missing Sessions');
@@ -167,6 +175,14 @@ function renderReport(report) {
 		lines.push(`- ${group}`);
 	}
 	lines.push('');
+	lines.push('## Locally Marked Cancelled / Not-Held Sessions');
+	lines.push('');
+	for (const item of report.jlpt.notHeldSessions) lines.push(`- ${item.id}: ${item.evidence}`);
+	lines.push('');
+	lines.push('## Contradictory Local Metadata Requiring Review');
+	lines.push('');
+	for (const item of report.jlpt.metadataConflicts) lines.push(`- ${item.id}: ${item.questions} questions coexist with ${item.evidence}`);
+	lines.push('');
 	lines.push('## JLPT Missing Files');
 	lines.push('');
 	if (report.jlpt.missingFiles.length === 0) {
@@ -178,7 +194,8 @@ function renderReport(report) {
 	lines.push('## Notes');
 	lines.push('');
 	lines.push('- `tools/audit_exam_content.mjs` should still be used for field-level checks such as missing explanations, missing audio, missing images, and malformed timestamps.');
-	lines.push('- This report treats empty `exam_info.sections` or zero extracted questions as a template gap, even when a JSON placeholder exists.');
+	lines.push('- Empty files explicitly marked cancelled/not-held by local metadata or title are separate from templates awaiting content. These markers are not independently verified against official schedules.');
+	lines.push('- Missing files remain unknown coverage gaps; this report does not infer that an exam was held or that a source must exist.');
 	lines.push('- EJU source candidates are heuristic matches from local downloads; importing them still requires parsing and visual/content QA.');
 	lines.push('');
 	return lines.join('\n');

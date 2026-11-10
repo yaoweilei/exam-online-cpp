@@ -6,7 +6,7 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-09-16T15:37:59.295Z",
+  "last_active_at" : "2026-11-04T00:35:17.623Z",
   "last_credit_reason" : "",
   "last_xp_reason" : "study.pomodoro",
   "learning_credit_awards" : {},
@@ -28,12 +28,12 @@
   {
     "awarded_now" : 0,
     "daily_xp_cap" : 2,
-    "date" : "2026-06-21",
+    "date" : "2026-11-04",
     "pomodoro_seconds" : 1500,
-    "today_minutes" : 29,
-    "today_seconds" : 1770,
-    "today_xp_awarded" : 1,
-    "updated_at" : "2026-06-21T15:20:18.474Z"
+    "today_minutes" : 9,
+    "today_seconds" : 540,
+    "today_xp_awarded" : 0,
+    "updated_at" : "2026-11-04T00:35:17.623Z"
   },
   "user_id" : "usr_019ee904-c1b1-7066-940a-2296491d9df5",
   "xp" : 1,

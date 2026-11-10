@@ -21,6 +21,8 @@ class ContentWorkflowService
     Json::Value listQueue() const;
     Json::Value listItems() const;
     Json::Value listVersions(const std::string &examId) const;
+    Json::Value captureFeedbackVersion(const std::string &examId, const std::string &actorId);
+    Json::Value versionSnapshot(const std::string &examId, const std::string &versionId) const;
     Json::Value rollback(const std::string &examId, const std::string &versionId, const std::string &actorId);
     Json::Value recordDraft(const std::string &examId, const std::string &actorId);
 

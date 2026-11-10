@@ -314,7 +314,7 @@ Json::Value AdaptiveLearningService::profile(const std::string &userId, const st
     out["available_targets"] = Json::Value(Json::arrayValue);
     std::set<std::string> availableTargets;
     if (doc["tracks"].isObject())
-        for (const auto &name : doc["tracks"].getMemberNames()) availableTargets.insert(name);
+        for (const auto &name : doc["tracks"].getMemberNames()) if (doc["tracks"][name].isObject()) availableTargets.insert(name);
     if (doc["domains"].isObject() && !doc["domains"].empty()) availableTargets.insert("JLPT N2");
     for (const auto &name : availableTargets) out["available_targets"].append(name);
     out["domains"] = Json::Value(Json::objectValue);

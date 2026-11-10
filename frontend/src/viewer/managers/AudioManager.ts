@@ -36,30 +36,18 @@ interface AudioExamViewer {
 	currentExam: AudioManagedExam;
 	currentSectionIndex: number;
 	showReadingKana?: boolean;
+	canUseReadingAssists?: () => boolean;
 	showReadingZh?: boolean;
 	_currentExamId?: string | null;
 }
 
 type DragLikeEvent = MouseEvent | Touch;
 
-// 业务功能 9：音频增强 —— 每个播放器的本地状态
-//   - speed:   倍速（0.5/0.75/1/1.25/1.5/2）
-//   - loop:    单段循环（播放结束自动重头）
-//   - abStart: AB 复读起点（秒；NaN 表示未设置）
-//   - abEnd:   AB 复读终点（秒；NaN 表示未设置）
+// 业务功能 9：音频增强 —— 每个播放器的倍速与循环状态
 interface AudioEnhanceState {
 	speed: number;
 	loop: boolean;
-	abStart: number;
-	abEnd: number;
 }
-
-// 听力三段式练习状态：
-//   - 'blind1'  第一遍盲听（transcript 隐藏）
-//   - 'reveal'  第二阶段：看 transcript 跟读 / 精听
-//   - 'blind2'  第三遍盲听验证（transcript 再次隐藏）
-//   - 'done'    完成（默认显示 transcript 供回看）
-type PracticeStage = 'blind1' | 'reveal' | 'blind2' | 'done';
 
 /**
  * 音频管理器 - 负责音频播放和脚本同步
@@ -85,7 +73,7 @@ class AudioManager {
 	private getEnhanceState(questionKey: string): AudioEnhanceState {
 		let s = this.enhanceStates.get(questionKey);
 		if (!s) {
-			s = { speed: 1, loop: false, abStart: Number.NaN, abEnd: Number.NaN };
+			s = { speed: 1, loop: false };
 			this.enhanceStates.set(questionKey, s);
 		}
 		return s;
@@ -140,12 +128,12 @@ class AudioManager {
 		controlsDiv.appendChild(playBtn);
 		controlsDiv.appendChild(progressDiv);
 		controlsDiv.appendChild(timeDisplay);
-		audioDiv.appendChild(controlsDiv);
 
 		// 业务功能 9：音频增强控件（受 audio_enhancement 开关控制）
 		if (this.isEnhanceEnabled()) {
-			audioDiv.appendChild(this.createEnhanceControls(question));
+			controlsDiv.appendChild(this.createEnhanceControls(question));
 		}
+		audioDiv.appendChild(controlsDiv);
 
 		return audioDiv;
 	}
@@ -185,9 +173,12 @@ class AudioManager {
 
 	private setPlaybackState(playBtn: HTMLButtonElement | null, playing: boolean): void {
 		if (!playBtn) return;
-		playBtn.dataset.playing = String(playing);
-		playBtn.setAttribute('aria-label', playing ? '暂停音频' : '播放音频');
-		if (playing) delete playBtn.dataset.audioError;
+		const currentButton = document.querySelector<HTMLButtonElement>(
+			`.audio-btn[data-question-id="${playBtn.dataset.questionId}"]`
+		) || playBtn;
+		currentButton.dataset.playing = String(playing);
+		currentButton.setAttribute('aria-label', playing ? '暂停音频' : '播放音频');
+		if (playing) delete currentButton.dataset.audioError;
 	}
 
 	private reportAudioFailure(
@@ -226,8 +217,12 @@ class AudioManager {
 			timeDisplay.title = '';
 		}
 		void audio.play().then(() => {
-			this.setPlaybackState(playBtn, true);
-		}).catch(() => {
+			this.setPlaybackState(playBtn, !audio.paused);
+		}).catch((error: unknown) => {
+			if (error instanceof DOMException && error.name === 'AbortError' && audio.paused) {
+				this.setPlaybackState(playBtn, false);
+				return;
+			}
 			this.reportAudioFailure(questionKey, playBtn, audio.src, audio.error);
 		});
 	}
@@ -236,7 +231,6 @@ class AudioManager {
 	 * 业务功能 9：创建音频增强控件区
 	 *   - 倍速下拉
 	 *   - 循环开关
-	 *   - AB 复读：A=当前点 / B=当前点 / 清除
 	 */
 	private createEnhanceControls(question: AudioQuestion): HTMLDivElement {
 		const questionKey = this.keyOf(question.id);
@@ -244,14 +238,13 @@ class AudioManager {
 
 		const wrap = document.createElement('div');
 		wrap.className = 'audio-enhance';
-		wrap.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:#555;';
 
 		// 倍速
 		const speedLabel = document.createElement('label');
-		speedLabel.textContent = '倍速';
 		speedLabel.style.cssText = 'display:inline-flex;align-items:center;gap:4px;';
 		const speedSel = document.createElement('select');
 		speedSel.style.cssText = 'padding:2px 4px;font-size:12px;';
+		speedSel.setAttribute('aria-label', '播放倍速');
 		[0.5, 0.75, 1, 1.25, 1.5, 2].forEach((v) => {
 			const opt = document.createElement('option');
 			opt.value = String(v);
@@ -276,99 +269,21 @@ class AudioManager {
 		loopCb.addEventListener('change', () => {
 			state.loop = loopCb.checked;
 			const audio = this.audioPlayers.get(questionKey);
-			if (audio) audio.loop = state.loop && Number.isNaN(state.abStart);
+			if (audio) audio.loop = state.loop;
 		});
 		loopLabel.appendChild(loopCb);
 		loopLabel.appendChild(document.createTextNode('循环'));
 
-		// AB 复读
-		const abWrap = document.createElement('span');
-		abWrap.style.cssText = 'display:inline-flex;align-items:center;gap:4px;';
-
-		const setA = document.createElement('button');
-		setA.type = 'button';
-		setA.textContent = 'A';
-		setA.title = '将当前播放位置设为 A 点';
-		setA.style.cssText = 'padding:2px 8px;font-size:12px;cursor:pointer;';
-		setA.addEventListener('click', () => {
-			const audio = this.audioPlayers.get(questionKey);
-			if (!audio) return;
-			state.abStart = audio.currentTime;
-			this.refreshAbStatus(questionKey);
-		});
-
-		const setB = document.createElement('button');
-		setB.type = 'button';
-		setB.textContent = 'B';
-		setB.title = '将当前播放位置设为 B 点（必须在 A 之后）';
-		setB.style.cssText = 'padding:2px 8px;font-size:12px;cursor:pointer;';
-		setB.addEventListener('click', () => {
-			const audio = this.audioPlayers.get(questionKey);
-			if (!audio) return;
-			const t = audio.currentTime;
-			if (Number.isNaN(state.abStart) || t <= state.abStart + 0.2) {
-				// 用户未设 A 或 B 太靠前；自动忽略
-				return;
-			}
-			state.abEnd = t;
-			audio.loop = false; // AB 段循环时禁用普通循环
-			this.refreshAbStatus(questionKey);
-		});
-
-		const clearAb = document.createElement('button');
-		clearAb.type = 'button';
-		clearAb.textContent = '×';
-		clearAb.title = '清除 AB 复读';
-		clearAb.style.cssText = 'padding:2px 8px;font-size:12px;cursor:pointer;';
-		clearAb.addEventListener('click', () => {
-			state.abStart = Number.NaN;
-			state.abEnd = Number.NaN;
-			const audio = this.audioPlayers.get(questionKey);
-			if (audio) audio.loop = state.loop;
-			this.refreshAbStatus(questionKey);
-		});
-
-		const abStatus = document.createElement('span');
-		abStatus.className = 'audio-ab-status';
-		abStatus.dataset.questionId = questionKey;
-		abStatus.style.cssText = 'color:#888;font-size:11px;';
-		abStatus.textContent = '复读 A--/B--';
-
-		abWrap.appendChild(document.createTextNode('复读'));
-		abWrap.appendChild(setA);
-		abWrap.appendChild(setB);
-		abWrap.appendChild(clearAb);
-		abWrap.appendChild(abStatus);
-
 		wrap.appendChild(speedLabel);
 		wrap.appendChild(loopLabel);
-		wrap.appendChild(abWrap);
 		return wrap;
 	}
 
-	// 业务功能 9：刷新 AB 状态文本
-	private refreshAbStatus(questionKey: string): void {
-		const state = this.getEnhanceState(questionKey);
-		const el = document.querySelector(
-			`.audio-ab-status[data-question-id="${questionKey}"]`
-		) as HTMLSpanElement | null;
-		if (!el) return;
-		const a = Number.isNaN(state.abStart) ? '--' : this.formatTime(state.abStart);
-		const b = Number.isNaN(state.abEnd) ? '--' : this.formatTime(state.abEnd);
-		el.textContent = `复读 A${a}/B${b}`;
-	}
-
-	// 业务功能 9：在音频元素上挂载增强行为（speed/loop/AB 段循环）
+	// 业务功能 9：在音频元素上应用倍速与循环设置
 	private applyEnhanceToAudio(questionKey: string, audio: HTMLAudioElement): void {
 		const state = this.getEnhanceState(questionKey);
 		audio.playbackRate = state.speed;
-		audio.loop = state.loop && Number.isNaN(state.abStart);
-		audio.addEventListener('timeupdate', () => {
-			// AB 段循环：到达 B 点回到 A 点
-			if (!Number.isNaN(state.abStart) && !Number.isNaN(state.abEnd) && audio.currentTime >= state.abEnd) {
-				audio.currentTime = state.abStart;
-			}
-		});
+		audio.loop = state.loop;
 	}
 
 	/**
@@ -458,16 +373,15 @@ class AudioManager {
 			displayText = match ? line.text.substring(match[0].length) : line.text;
 		}
 
+		const textSpan = document.createElement('span');
+		textSpan.className = 'script-text';
+		textSpan.innerHTML = this.renderScriptTextAssist(scriptScopeKey, lineIndex, displayText);
 		if (line.speaker) {
 			const speakerSpan = document.createElement('span');
 			speakerSpan.className = 'speaker';
 			speakerSpan.textContent = line.speaker;
-			lineEl.appendChild(speakerSpan);
+			(textSpan.querySelector('.text-assist-source') || textSpan).prepend(speakerSpan);
 		}
-
-		const textSpan = document.createElement('span');
-		textSpan.className = 'script-text';
-		textSpan.innerHTML = this.renderScriptTextAssist(scriptScopeKey, lineIndex, displayText);
 		lineEl.appendChild(textSpan);
 
 		lineEl.addEventListener('click', () => {
@@ -485,8 +399,9 @@ class AudioManager {
 	}
 
 	private renderScriptTextAssist(scopeKey: string, lineIndex: number, text: string): string {
-		const showKana = Boolean(this.examViewer.showReadingKana);
-		const showZh = Boolean(this.examViewer.showReadingZh);
+		const allowed = this.examViewer.canUseReadingAssists?.() !== false;
+		const showKana = allowed && Boolean(this.examViewer.showReadingKana);
+		const showZh = allowed && Boolean(this.examViewer.showReadingZh);
 		const sourceHtml = this.escapeHtml(text);
 		if (!showKana && !showZh) {
 			return sourceHtml;
@@ -524,121 +439,6 @@ class AudioManager {
 		return String(text).replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char] || char));
 	}
 
-	// ============================================================
-	// 听力三段式练习模式
-	// ============================================================
-	// 状态持久化在 localStorage，key 形如 listening_stage:{questionId}
-	private practiceStageKey(questionKey: string): string {
-		return `listening_stage:${questionKey}`;
-	}
-
-	private getPracticeStage(questionKey: string): PracticeStage {
-		try {
-			const v = window.localStorage?.getItem(this.practiceStageKey(questionKey));
-			if (v === 'blind1' || v === 'reveal' || v === 'blind2' || v === 'done') {
-				return v;
-			}
-		} catch {
-			/* ignore */
-		}
-		return 'blind1';
-	}
-
-	private setPracticeStage(questionKey: string, stage: PracticeStage): void {
-		try {
-			window.localStorage?.setItem(this.practiceStageKey(questionKey), stage);
-		} catch {
-			/* ignore */
-		}
-	}
-
-	/**
-	 * 创建「先盲听 → 看原文 → 再盲听」三段式切换条
-	 * 仅在做题阶段（未显示答案）时使用；显示答案时直接出 transcript。
-	 */
-	createPracticeStageElement(question: AudioQuestion): HTMLDivElement {
-		const questionKey = this.keyOf(question.id);
-		const wrap = document.createElement('div');
-		wrap.className = 'listening-practice-bar';
-		wrap.dataset.questionId = questionKey;
-
-		const label = document.createElement('span');
-		label.className = 'listening-practice-label';
-		label.textContent = '练习模式：';
-		wrap.appendChild(label);
-
-		const stages: { key: PracticeStage; text: string; hint: string }[] = [
-			{ key: 'blind1', text: '1. 盲听', hint: '只听音频，不看原文，捕捉大意' },
-			{ key: 'reveal', text: '2. 看原文', hint: '展开 transcript，对照精听 / 跟读' },
-			{ key: 'blind2', text: '3. 再盲听', hint: '关闭原文，验证是否真听懂' },
-			{ key: 'done', text: '✓ 完成', hint: '保留 transcript 供随时回看' }
-		];
-
-		stages.forEach(({ key, text, hint }) => {
-			const btn = document.createElement('button');
-			btn.type = 'button';
-			btn.className = 'listening-stage-btn';
-			btn.dataset.stage = key;
-			btn.dataset.questionId = questionKey;
-			btn.textContent = text;
-			btn.title = hint;
-			btn.addEventListener('click', () => this.applyPracticeStage(questionKey, key));
-			wrap.appendChild(btn);
-		});
-
-		const tip = document.createElement('span');
-		tip.className = 'listening-practice-tip';
-		tip.dataset.questionId = questionKey;
-		wrap.appendChild(tip);
-
-		// 初始化为已保存或默认 blind1
-		// 注意：此时 script 容器还未挂入 DOM（QuestionRenderer 在我们之后 append），
-		// 所以延迟到下一帧再应用，确保能找到 .script-container。
-		const initial = this.getPracticeStage(questionKey);
-		queueMicrotask(() => this.applyPracticeStage(questionKey, initial, /*persist*/ false));
-
-		return wrap;
-	}
-
-	private applyPracticeStage(questionKey: string, stage: PracticeStage, persist = true): void {
-		if (persist) this.setPracticeStage(questionKey, stage);
-
-		// 高亮按钮
-		document
-			.querySelectorAll<HTMLButtonElement>(`.listening-stage-btn[data-question-id="${questionKey}"]`)
-			.forEach((b) => {
-				b.classList.toggle('is-active', b.dataset.stage === stage);
-			});
-
-		// 控制 transcript 显隐
-		const scriptEl = document.querySelector<HTMLDivElement>(
-			`.script-container[data-stage-wrap="${questionKey}"]`
-		);
-		if (scriptEl) {
-			const showScript = stage === 'reveal' || stage === 'done';
-			scriptEl.classList.toggle('script-stage-hidden', !showScript);
-		}
-
-		// 提示文案
-		const tipEl = document.querySelector<HTMLSpanElement>(
-			`.listening-practice-tip[data-question-id="${questionKey}"]`
-		);
-		if (tipEl) {
-			const tips: Record<PracticeStage, string> = {
-				blind1: '先不看原文，专心听 1–2 遍',
-				reveal: '可点击任一句跳转；配合 AB 复读练精听',
-				blind2: '关闭原文再听一遍，验证理解',
-				done: '已完成本题练习，原文可随时查看'
-			};
-			tipEl.textContent = tips[stage];
-		}
-
-		// 进入盲听阶段时若音频在播则不动；若 transcript 切换瞬间高亮可能显得突兀，主动清掉高亮
-		if (stage === 'blind1' || stage === 'blind2') {
-			this.clearActiveScriptLines(questionKey);
-		}
-	}
-
 	/**
 	 * 切换播放/暂停
 	 */
@@ -662,6 +462,7 @@ class AudioManager {
 			this.playManagedAudio(audio, questionKey, playBtn);
 		} else {
 			audio.pause();
+			this.setPlaybackState(playBtn, false);
 		}
 	}
 
@@ -736,7 +537,6 @@ class AudioManager {
 			if (currentTime >= start && currentTime < end && !foundActive) {
 				if (!line.classList.contains('active')) {
 					line.classList.add('active');
-					this.scrollScriptLineIntoView(line);
 				}
 				foundActive = true;
 			} else {
@@ -761,17 +561,6 @@ class AudioManager {
 			return parts[0] * 60 + parts[1];
 		}
 		return 0;
-	}
-
-	/**
-	 * 清除活动脚本行
-	 */
-	clearActiveScriptLines(questionId: string): void {
-		let active = document.querySelectorAll(`.script-line[data-question-id="${questionId}"] .active`);
-		if (!active.length) {
-			active = document.querySelectorAll(`.script-line[data-question-id="${questionId}"]`);
-		}
-		active.forEach((line) => (line as HTMLElement).classList.remove('active'));
 	}
 
 	/**
@@ -808,7 +597,6 @@ class AudioManager {
 		});
 
 		lineDiv.classList.add('active');
-		this.scrollScriptLineIntoView(lineDiv);
 		this.seekAndPlayScriptLine(activeAudio, start, questionId, playBtn, wasPlaying || activeAudio.paused);
 	}
 
@@ -866,20 +654,6 @@ class AudioManager {
 		}
 
 		seekThenPlay();
-	}
-
-	/**
-	 * 滚动脚本行到视图
-	 */
-	scrollScriptLineIntoView(lineEl: HTMLElement | null): void {
-		if (!lineEl) {
-			return;
-		}
-		try {
-			lineEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-		} catch {
-			lineEl.scrollIntoView();
-		}
 	}
 
 	/**

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
 #include <mutex>
 #include <shared_mutex>
 #include <string>
@@ -23,13 +24,14 @@ class OrganizationRepository
     explicit OrganizationRepository(std::filesystem::path userRootDir)
 ;
 
-    Json::Value allOrganizationsArray() const;
+    Json::Value allOrganizationsArray(bool includeArchived = false) const;
 
     Json::Value listOrganizationsForUser(const std::string &userId) const;
 
-    Json::Value findOrganization(const std::string &organizationId) const;
+    Json::Value findOrganization(const std::string &organizationId, bool includeArchived = false) const;
 
     Json::Value upsertOrganization(const Json::Value &organization);
+    Json::Value updateOrganization(const std::string &organizationId, const std::function<void(Json::Value &)> &update, bool includeArchived = false);
 
     Json::Value listMembershipsForUser(const std::string &userId) const;
 
@@ -41,6 +43,8 @@ class OrganizationRepository
 
     void removeMembership(const std::string &userId, const std::string &scopeId);
 
+    std::size_t organizationCount() const;
+
     int memberCount(const std::string &scopeId) const;
 
     int billableMemberCount(const std::string &scopeId) const;
@@ -49,12 +53,11 @@ class OrganizationRepository
 
     std::unordered_map<std::string, int> memberCounts() const;
 
+    std::unordered_map<std::string, int> billableMemberCounts() const;
+
   private:
     void ensureBaseline();
 
-    Json::Value readOrganizationsUnlocked() const;
-
-    Json::Value readMembershipsUnlocked() const;
     void writeOrganizationsUnlocked(const Json::Value &organizations);
     void writeMembershipsUnlocked(const Json::Value &memberships);
 
@@ -72,9 +75,7 @@ class OrganizationRepository
     std::filesystem::path membershipsFile_;
     mutable std::shared_mutex mutex_;
     SqliteJsonStore sqliteStore_;
-    mutable Json::Value organizationsCache_{Json::objectValue};
-    mutable Json::Value membershipsCache_{Json::objectValue};
-    mutable bool organizationsCacheLoaded_{false};
-    mutable bool membershipsCacheLoaded_{false};
+    Json::Value organizationsCache_{Json::objectValue};
+    Json::Value membershipsCache_{Json::objectValue};
 };
 }  // namespace infrastructure::storage

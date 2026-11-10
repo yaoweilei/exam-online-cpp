@@ -1,0 +1,50 @@
+[
+  {
+    "name": "课程记录操作无需横向滑动，分配弹窗单表面",
+    "status": "passed"
+  },
+  {
+    "name": "机构成员默认10条、分页和筛选保持原表单归属",
+    "status": "passed"
+  },
+  {
+    "name": "机构看板长标题无内容区溢出",
+    "status": "passed"
+  },
+  {
+    "name": "校区编辑默认折叠，新建与编辑正确带入字段",
+    "status": "passed"
+  },
+  {
+    "name": "机构学习组进入独立详情并可以返回",
+    "status": "passed"
+  },
+  {
+    "name": "订单详情业务字段、技术折叠与复制",
+    "status": "passed"
+  },
+  {
+    "name": "质检路径完整可读且可复制",
+    "status": "passed"
+  },
+  {
+    "name": "桌面手机预览使用容器宽度的窄屏布局",
+    "status": "passed"
+  },
+  {
+    "name": "出勤结算独立编辑、逐人展开，取消返回课次",
+    "status": "passed"
+  },
+  {
+    "name": "作业/备课高级题序默认收拢且参与表单数据",
+    "status": "passed"
+  },
+  {
+    "name": "账号资料/安全留在工作台，头像按需展开",
+    "status": "passed"
+  },
+  {
+    "name": "内容管理员业务页不重复首页指标",
+    "status": "passed"
+  }
+]

@@ -6,7 +6,7 @@
   "display_name" : "",
   "goal_date" : "",
   "goal_level" : "",
-  "last_active_at" : "2026-09-16T15:38:14.357Z",
+  "last_active_at" : "2026-11-06T21:21:33.019Z",
   "last_credit_reason" : "",
   "learning_credit_awards" : {},
   "learning_credit_cents" : 0,
@@ -22,17 +22,17 @@
   "plan_status" : "active",
   "scope_id" : "usr_019ee90c-6364-77fb-8fb2-92d80cfdecfa",
   "scope_type" : "personal",
-  "streak_days" : 1,
+  "streak_days" : 2,
   "study_stats" : 
   {
     "awarded_now" : 0,
     "daily_xp_cap" : 2,
-    "date" : "2026-07-29",
+    "date" : "2026-11-05",
     "pomodoro_seconds" : 1500,
-    "today_minutes" : 0,
-    "today_seconds" : 30,
+    "today_minutes" : 3,
+    "today_seconds" : 225,
     "today_xp_awarded" : 0,
-    "updated_at" : "2026-07-29T08:29:45.466Z"
+    "updated_at" : "2026-11-05T14:33:55.207Z"
   },
   "user_id" : "usr_019ee90c-6364-77fb-8fb2-92d80cfdecfa",
   "xp" : 0

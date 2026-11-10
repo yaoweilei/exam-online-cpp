@@ -38,6 +38,11 @@ StatisticsService::StatisticsService(infrastructure::storage::AnswerRepository &
 {
 }
 
+Json::Value StatisticsService::recordStudySeconds(const std::string &userId, int deltaSeconds)
+{
+    return profileRepository_.recordStudySeconds(userId, deltaSeconds);
+}
+
 Json::Value StatisticsService::userStatistics(const std::string &userId) const
 {
     const auto all = repository_.listUserAnswers(userId);

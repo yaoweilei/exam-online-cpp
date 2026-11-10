@@ -1,0 +1,253 @@
+/* Shared narrow-screen presentation. Business cards own the surface; their
+   inner sections use separators, never another decorative card. */
+#platform-admin-shell.pc-platform-admin-open { container-name: workbench; container-type: inline-size; --mobile-border: var(--workspace-border, #ebe6e1); }
+#platform-admin-shell.pc-platform-admin-open.pc-platform-admin-mobile-preview { grid-template-columns: minmax(0, 1fr); --workspace-inset: 0px; }
+#platform-admin-shell.pc-platform-admin-open .pc-platform-admin-content > * { min-width: 0; max-width: 100%; box-sizing: border-box; }
+#platform-admin-shell.pc-platform-admin-open .pc-dashboard :is(.pc-info-row, .pc-info-list, .pc-info-card) { min-width: 0; }
+#platform-admin-shell.pc-platform-admin-open .pc-dashboard .pc-info-row > :is(span, strong) { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+#platform-admin-shell.pc-platform-admin-open :is(.pc-content-quality, .pc-content-quality-issues, .pc-content-quality-issue, .pc-workflow-quality, [data-content-quality]) { min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell.pc-platform-admin-open .pc-content-inspection-issues :is(code, span, p),
+#platform-admin-shell.pc-platform-admin-open .pc-content-quality-detail :is(code, span, p) { white-space: normal; overflow-wrap: anywhere; }
+
+/* Same compact member editor is shared by platform and institution views. */
+#platform-admin-shell.pc-platform-admin-open .pc-org-member-compact { border: 0; border-radius: 0; background: var(--workspace-surface, #fff); box-shadow: none; }
+#platform-admin-shell.pc-platform-admin-open .pc-org-member-compact + .pc-org-member-compact { border-top: 1px solid var(--workspace-border, #ebe6e1); }
+#platform-admin-shell.pc-platform-admin-open .pc-org-member-compact > form { padding: 12px 0; margin: 0; border-top: 1px solid var(--workspace-border, #ebe6e1); }
+#platform-admin-shell.pc-platform-admin-open .pc-org-member-compact :is(.pc-org-member-setting-block, .pc-org-member-number-editor) { padding: 12px 0; margin: 0; border: 0; border-radius: 0; background: var(--workspace-surface, #fff); box-shadow: none; }
+#platform-admin-shell.pc-platform-admin-open .pc-org-member-compact .pc-org-member-setting-block + .pc-org-member-setting-block { border-top: 1px solid var(--workspace-border, #ebe6e1); }
+#platform-admin-shell.pc-platform-admin-open .pc-org-member-compact .pc-org-member-remove-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-payment-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin: 0; }
+#platform-admin-shell.pc-platform-admin-open .pc-payment-facts > div { min-width: 0; padding: 10px; border-bottom: 1px solid var(--workspace-border, #ebe6e1); }
+#platform-admin-shell.pc-platform-admin-open .pc-payment-facts dt { color: var(--workspace-muted, #81766e); font-size: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-payment-facts dd { margin: 5px 0 0; font-weight: 600; overflow-wrap: anywhere; }
+#platform-admin-shell.pc-platform-admin-open .pc-payment-reference { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px; }
+#platform-admin-shell.pc-platform-admin-open .pc-payment-reference code { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell.pc-platform-admin-open .pc-payment-technical { margin-top: var(--ui-space-block, 4px); }
+#platform-admin-shell.pc-platform-admin-open .pc-payment-technical pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-content-workflow-inspection { min-width: 0; max-width: 100%; }
+#platform-admin-shell.pc-platform-admin-open .pc-content-workflow-inspection li { min-width: 0; max-width: 100%; }
+#platform-admin-shell.pc-platform-admin-open .pc-content-workflow-inspection li > span { min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell.pc-platform-admin-open .pc-quality-path { display: block; white-space: normal; overflow-wrap: anywhere; margin-block: 4px; font-size: 11px; }
+#platform-admin-shell.pc-platform-admin-open .pc-report-record { display: flex; justify-content: space-between; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--workspace-border, #ebe6e1); }
+#platform-admin-shell.pc-platform-admin-open .pc-report-record > div { min-width: 0; }
+#platform-admin-shell.pc-platform-admin-open .pc-report-record > div:last-child { text-align: right; }
+#platform-admin-shell.pc-platform-admin-open .pc-report-record :is(strong, small) { display: block; overflow-wrap: anywhere; }
+#platform-admin-shell.pc-platform-admin-open .pc-report-record small { color: var(--workspace-muted); font-size: 12px; margin-top: 4px; }
+#platform-admin-shell.pc-platform-admin-open .pc-report-more { padding-block: 10px; }
+#platform-admin-shell.pc-platform-admin-open .pc-profile-stack > .pc-superadmin-detail-head { display: none; }
+#platform-admin-shell.pc-platform-admin-open .pc-teaching-scope { padding-block: 10px; border-block: 1px solid var(--workspace-border, #ebe6e1); }
+#platform-admin-shell.pc-platform-admin-open .pc-teaching-scope > summary, #platform-admin-shell.pc-platform-admin-open .pc-teaching-preview > summary { min-height: 32px; cursor: pointer; }
+
+/* A filter button already is a disclosure. All of its fields are visible and
+   labelled, and moving them keeps the original form and delegated handlers. */
+#platform-admin-shell.pc-platform-admin-open .pc-floating-search-options { display: grid; gap: 12px; text-align: left; }
+#platform-admin-shell.pc-platform-admin-open .pc-floating-search-options :is(.pc-org-form-grid, .pc-content-extra-fields, .pc-learning-filter-fields, .pc-package-filter-fields, .pc-audit-filters, .pc-content-log-search, .pc-flow-toolbar) { display: contents; }
+#platform-admin-shell.pc-platform-admin-open .pc-floating-search-options :is(label, .pc-org-field) { display: grid; gap: 6px; margin: 0; width: 100%; min-width: 0; color: var(--workspace-muted, #81766e); font-size: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-floating-search-options :is(input, select) { width: 100%; min-width: 0; height: 44px; font-size: 14px; }
+#platform-admin-shell.pc-platform-admin-open .pc-floating-search-options :is(.pc-admin-note, .pc-audit-filter-actions) { grid-column: 1 / -1; }
+#platform-admin-shell.pc-platform-admin-open :is(.pc-floating-search-pagination, .pc-member-list-pagination, .pc-package-pagination, .pc-org-staff-pagination) { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 0; border-top: 1px solid var(--workspace-border, #ebe6e1); border-radius: 0; background: transparent; }
+#platform-admin-shell.pc-platform-admin-open :is(.pc-floating-search-pagination, .pc-member-list-pagination, .pc-package-pagination) > span:first-child { margin-right: auto; }
+
+@container workbench (max-width: 600px) {
+  #platform-admin-shell.pc-platform-admin-open > .pc-platform-workspace { grid-column: 1 / -1; min-width: 0; }
+  #platform-admin-shell.pc-platform-admin-open.pc-platform-admin-mobile-preview > .pc-platform-workspace { grid-column: 1 / -1; }
+  #platform-admin-shell.pc-platform-admin-open > .pc-platform-sidebar { display: none; }
+  #platform-admin-shell.pc-platform-mobile-menu-open > .pc-platform-sidebar { display: flex; position: fixed; inset: 56px auto 0 0; width: min(280px, 85cqw); z-index: 20; }
+  #platform-admin-shell.pc-platform-admin-open .pc-platform-admin-content { padding: var(--ui-space-block, 4px); }
+  #platform-admin-shell.pc-platform-admin-open .pc-workspace-page-heading { margin: 0 0 14px; padding: 10px; box-sizing: border-box; }
+  #platform-admin-shell.pc-platform-admin-open .pc-workspace-page-heading h1 { font-size: 18px; line-height: 24px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-workspace-page-heading p { font-size: 12px; line-height: 18px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-platform-admin-content > * + * { margin-top: var(--ui-space-block, 4px); }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-card, .pc-platform-stat, .pc-platform-overview-panel) { padding: var(--ui-surface-padding, 6px); border-radius: var(--ui-surface-radius, 8px); box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-dashboard, .pc-platform-overview-grid, .pc-platform-stats) { gap: var(--ui-space-block, 4px); }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-service-header, .pc-my-content-head, h2, h3, h4) { font-size: 14px; line-height: 20px; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-org-subsection, .pc-org-add-form, .pc-org-choice-section, .pc-member-list-section, .pc-role-permission-detail, .pc-role-permission-block, .pc-role-permission-editor, .pc-org-billing-purchase, .pc-org-billing-fixed-value, .pc-org-billing-summary, .pc-package-manager, .pc-product-disclosure) { border: 0; border-radius: 0; background: var(--workspace-surface, #fff); box-shadow: none; padding: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-managed-org-card > .pc-managed-org-body { padding: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-managed-org-summary { padding: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-context-bar { margin: 0; padding: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-context-bar small { font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-subsection { margin: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-subsection + .pc-org-subsection { padding-top: 12px; border-top: 1px solid var(--mobile-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-overview { margin: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-name { font-size: 16px; overflow-wrap: anywhere; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-meta { gap: 0 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-metric { border: 0; border-radius: 0; background: var(--workspace-surface, #fff); padding: 8px 0; border-bottom: 1px solid var(--mobile-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-seat { background: transparent; border: 0; padding: 0; font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-subsection-head { padding: 10px 0; margin: 0; align-items: center; flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-subsection-head > span { font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-member-role-tabs, #platform-admin-shell.pc-platform-admin-open .pc-role-permission-sidebar { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 0; border: 0; background: var(--workspace-surface, #fff); }
+  #platform-admin-shell.pc-platform-admin-open .pc-role-permission-tab { width: auto; min-width: 0; flex: 0 1 auto; padding: 6px 10px; min-height: 32px; border-radius: 14px; font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-role-permission-tab strong { font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-role-permission-tab.is-active { border-width: 1px; border-color: var(--workspace-accent); box-shadow: none; background: var(--workspace-selected, #fff4eb); }
+  #platform-admin-shell.pc-platform-admin-open .pc-role-permission-layout { display: block; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-summary { padding: 12px 30px 12px 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-unified-member-list { border: 0; border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-compact > .pc-org-member-summary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; align-items: start; justify-items: start; text-align: left; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-compact .pc-org-member-meta { width: 100%; align-items: flex-start; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-compact .pc-org-member-role-summary { justify-content: flex-start; text-align: left; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-meta strong { font-size: 14px; overflow-wrap: anywhere; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-summary .pc-org-member-meta > span, #platform-admin-shell.pc-platform-admin-open .pc-org-member-role-summary em { display: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-role-summary { font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-compact .pc-role-toggle { border: 0; background: transparent; padding: 7px 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-compact .pc-permission-group { display: grid; grid-template-columns: minmax(0, 1fr); }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-member-compact .pc-org-member-setting-head { flex-wrap: wrap; gap: 4px; }
+
+  /* Course records become two-line rows. No horizontal gesture is needed to
+     reach View/Allocate, while the desktop table remains unchanged. */
+  #platform-admin-shell.pc-platform-admin-open .pc-package-section { overflow: visible; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-table { min-width: 0; width: 100%; overflow: visible; border: 0; border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-table-head, #platform-admin-shell.pc-platform-admin-open .pc-package-account-head { display: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-template-grid { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; padding: 12px 4px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-template-name { grid-column: 1; white-space: normal; overflow-wrap: anywhere; font-size: 14px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-template-grid > .pc-tag { grid-column: 2; grid-row: 1; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-template-grid > b { grid-column: 1; font-weight: 400; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-template-grid > b::after { content: ' 课时'; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-template-grid > span:not(.pc-tag) { grid-column: 1; font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-row-actions { grid-column: 2; grid-row: 2 / span 2; display: flex; flex-wrap: wrap; gap: 6px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-account-grid { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) auto; padding: 12px 4px; gap: 6px 10px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-account-person { grid-column: 1; grid-row: 1; white-space: normal; overflow-wrap: anywhere; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-account-course { grid-column: 1; grid-row: 2; white-space: normal; font-size: 12px; font-weight: 400; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-account-balance { grid-column: 2; grid-row: 1; text-align: right; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-account-status { grid-column: 1; grid-row: 3; font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-account-toggle { grid-column: 2; grid-row: 2 / span 2; text-align: right; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-account-detail { min-width: 0; overflow-wrap: anywhere; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-account-row { min-width: 0; width: 100%; border: 0; border-bottom: 1px solid var(--mobile-border); border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-table .pc-package-table-head, #platform-admin-shell.pc-platform-admin-open .pc-package-table .pc-package-account-head { display: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-package-action[open] > form { background: var(--workspace-surface, #fff); border: 0; border-radius: 0; padding: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice-head { display: grid; gap: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice-head > div:first-child { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice-head strong { white-space: nowrap; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice-grid { max-height: 35dvh; overflow-y: auto; border-block: 1px solid var(--mobile-border); padding: 6px 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice { background: var(--workspace-surface, #fff); margin: 0; padding: 9px 0; border-radius: 0; border-bottom: 1px solid var(--mobile-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-choice span { min-width: 0; overflow-wrap: anywhere; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-summary > div { border: 0; border-radius: 0; background: var(--workspace-surface, #fff); padding: 10px 4px; border-bottom: 1px solid var(--mobile-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-purchase { margin-top: 10px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-purchase > summary { padding: 10px 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-purchase > summary small { display: block; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-billing-purchase[open] > form { margin-top: 10px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-campus-editor { padding-block: 10px; border-bottom: 1px solid var(--mobile-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-campus-editor > summary { cursor: pointer; min-height: 32px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-campus-editor > form { padding-block: 10px; }
+
+  /* Forms and nested diagnostic details share the white surface. */
+  #platform-admin-shell.pc-platform-admin-open .pc-content-workflow-issues { min-width: 0; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-content-workflow-issues, .pc-content-inspection, .pc-content-workflow-quality) :is(code, span, small, div) { min-width: 0; max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
+  #platform-admin-shell.pc-platform-admin-open .pc-teaching-composer { background: var(--workspace-surface, #fff); border: 0; box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-assignment-submission { box-shadow: none; border: 0; border-top: 1px solid var(--mobile-border); border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-assignment-submission[open] { outline: 0; box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-body { padding: 8px 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-flow-editor { padding: 10px 0; border: 0; background: var(--workspace-surface, #fff); box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-flow-editor > h3 { margin: 0 0 10px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-flow-attendance > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #platform-admin-shell.pc-platform-admin-open .pc-flow-attendance > div > strong { grid-column: 1 / -1; }
+  #platform-admin-shell.pc-platform-admin-open .pc-flow-attendance label { min-width: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-flow-attendance input { width: 100%; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-plan .pc-review-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px 0; border: 0; border-bottom: 1px solid var(--mobile-border); border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-summary-main { grid-column: 1; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-summary-main > span { font-size: 18px; white-space: nowrap; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-summary-main > small { display: block; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-summary .pc-review-primary { grid-column: 1 / -1; min-height: 44px; white-space: nowrap; width: 100%; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-plan { border: 0; border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-tasks { border: 0; border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-progress { grid-column: 1 / -1; grid-row: 2; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-progress-label { grid-column: 2; grid-row: 1; display: grid; text-align: right; font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-review-workbench-body > .pc-card { border: 0; padding: 0; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-product-summary, .pc-product-progress-summary) { gap: 4px; }
+  #platform-admin-shell.pc-platform-admin-open [data-product-panel="progress"] > h2 { display: none; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-learning-report-summary, .pc-report-stats) { gap: 4px; }
+
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 6px 8px; align-items: center; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record-product { grid-column: 1; grid-row: 1 / span 2; min-width: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record-copy { display: block; min-width: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record-copy > strong { font-size: 14px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record-copy > small { display: block; white-space: normal; overflow: visible; text-overflow: clip; font-size: 11px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record-total { grid-column: 2; grid-row: 1 / span 2; display: grid; gap: 4px; justify-items: end; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record-chevron { grid-column: 3; grid-row: 1 / span 2; justify-self: end; }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-record-detail { padding: 8px 0; background: var(--workspace-surface, #fff); border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-order-detail-grid, .pc-order-detail-id, .pc-order-timeline) { border: 0; border-radius: 0; background: var(--workspace-surface, #fff); }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-detail-grid { border-block: 1px solid var(--mobile-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-detail-id { border-bottom: 1px solid var(--mobile-border); }
+  #platform-admin-shell.pc-platform-admin-open .pc-order-number { border: 0; border-bottom: 1px solid var(--mobile-border); border-radius: 0; background: var(--workspace-surface, #fff); }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-card { min-width: 0; min-height: 0; padding: 10px 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; border-radius: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-card > input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-card:focus-within { outline: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-card:has(> input:focus-visible) { outline: 2px solid var(--workspace-accent); outline-offset: 2px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-label { font-size: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-label em { font-size: 10px; margin-left: 2px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-price { font-size: 18px; margin: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-price small { display: block; font-size: 10px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-duration-reference { font-size: 10px; margin: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-provider-field { border: 0; border-radius: 0; padding: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-checkout-grid { gap: 10px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-preference { border: 0; border-radius: 0; padding: 8px 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-preference.is-disabled { border-radius: 8px; padding: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-preference > span { min-width: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-settlement { display: grid; gap: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-recharge-settlement > button { min-height: 44px; width: 100%; background: var(--workspace-text, #211c17); color: #fff; border-radius: 14px; }
+  /* Keep the default purchase view and collapsed orders visible on a phone.
+     Reduce internal whitespace while retaining 44px payment controls. */
+  #platform-admin-shell.pc-platform-admin-open .pc-platform-admin-content:has([data-account-recharge-panel]) > .pc-workspace-page-heading { margin-bottom: 10px; padding-block: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-account-purchase-head { margin-bottom: 8px; gap: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-duration-grid { margin-top: 4px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-duration-card { padding: 10px 6px; gap: 4px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-duration-label { line-height: 18px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-duration-price { line-height: 24px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-duration-price small { line-height: 14px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-duration-reference { line-height: 16px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-checkout-grid { margin-top: 8px; gap: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-provider-field { grid-template-columns: 64px minmax(0, 1fr); align-items: center; min-height: 44px; gap: 6px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-provider-field .pc-profile-input { height: 44px; min-height: 44px; margin: 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-preference { min-height: 56px; padding: 8px; gap: 6px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-preference strong { font-size: 12px; line-height: 18px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-preference small { margin-top: 0; font-size: 10px; line-height: 14px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-settlement { margin-top: 8px; gap: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-preview { min-height: 54px; padding: 8px 10px; gap: 4px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-account-purchase-card .pc-recharge-settlement > button { min-height: 44px; padding-block: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .cp-catalog-head { display: none; }
+  #platform-admin-shell.pc-platform-admin-open .cp-category { display: block; border: 0; border-bottom: 1px solid var(--mobile-border); margin: 0; padding: 0; }
+  #platform-admin-shell.pc-platform-admin-open .cp-category > summary { cursor: pointer; padding: 12px 4px; font-size: 14px; font-weight: 600; }
+  #platform-admin-shell.pc-platform-admin-open .cp-category-topics { min-width: 0; }
+  #platform-admin-shell.pc-platform-admin-open .cp-topic { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px 4px; gap: 8px; }
+  #platform-admin-shell.pc-platform-admin-open .cp-topic-name { grid-column: 1 / -1; font-size: 14px; white-space: normal; }
+  #platform-admin-shell.pc-platform-admin-open :is(.cp-stat-number, .cp-stat-zero) { display: grid; justify-items: center; min-height: 40px; align-content: center; font-size: 14px; }
+  #platform-admin-shell.pc-platform-admin-open [data-stat-label]::after { content: attr(data-stat-label); display: block; font-size: 10px; font-weight: 400; color: var(--workspace-muted); }
+  #platform-admin-shell.pc-platform-admin-open .cp-category:not([open]) > .cp-category-topics { display: none; }
+  #platform-admin-shell.pc-platform-admin-open [data-pricing-form] .pc-pricing-table :is(tr, td) { border-radius: 0; box-shadow: none; background: var(--workspace-surface, #fff); }
+  #platform-admin-shell.pc-platform-admin-open [data-pricing-form] .pc-pricing-table tr { border: 0; border-top: 1px solid var(--mobile-border); padding: 12px 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-renewal-settings { border-top: 1px solid var(--mobile-border); padding-block: 12px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-renewal-settings > summary { cursor: pointer; min-height: 32px; }
+  #platform-admin-shell.pc-platform-admin-open .pc-org-renewal-settings .pc-auto-renew-card { border: 0; border-radius: 0; padding: 8px 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-learning-tool-page :is(select, input:not([type="checkbox"]):not([type="radio"])) { min-height: 44px; font-size: 14px; border-radius: 14px; border: 1px solid var(--mobile-border); background: var(--workspace-surface, #fff); }
+  #platform-admin-shell.pc-platform-admin-open .pc-inline-btn[type="submit"]:not(.pc-floating-search-submit) { min-height: 44px; border-radius: 14px; border-color: var(--workspace-text, #26221f); background: var(--workspace-text, #26221f); color: var(--workspace-surface, #fff); font-size: 14px; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-goal-editor, .pc-study-goal-editor, .pc-pricing-plan-card, .pc-pricing-tier-card) { background: var(--workspace-surface, #fff); box-shadow: none; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-section { border: 0; border-radius: 0; }
+  #platform-admin-shell.pc-platform-admin-open :is(.pc-pricing-plan-card, .pc-pricing-tier-card) { border: 0; border-radius: 0; border-top: 1px solid var(--mobile-border); padding: 12px 0; }
+  #platform-admin-shell.pc-platform-admin-open .pc-pricing-savebar { position: static; border: 0; border-top: 1px solid var(--mobile-border); background: var(--workspace-surface, #fff); box-shadow: none; }
+}
+
+@media (max-width: 600px) {
+  /* Existing desktop tools remain resizable with a pointer. Mobile uses the
+     image viewer instead and provides full-size audio targets. */
+  .image-container, .resizable-image-container { resize: none; }
+  .exam-image-resize-handle { display: none; }
+  .audio-controls :is(select, button) { min-height: 36px; }
+  .audio-controls select { font: 14px/1.4 var(--font-zh, system-ui); border: 1px solid var(--ls-border, #ebe6e1); border-radius: 10px; padding: 4px 8px; background: var(--ls-surface, #fff); color: var(--ls-text, #26221f); }
+  .audio-controls input[type="range"] { min-height: 32px; }
+  .audio-controls { flex-wrap: wrap; row-gap: 8px; align-items: center; }
+  .exam-image-zoom-trigger { min-height: 32px; padding: 6px 12px; border: 1px solid var(--ls-border, #ebe6e1); border-radius: 14px; background: var(--ls-surface, #fff); color: var(--ls-text, #26221f); font: 12px/18px var(--font-zh, system-ui); }
+  #login-modal .login-box { width: min(420px, calc(100vw - 24px)); aspect-ratio: auto; height: auto; padding: 24px; }
+  #login-modal .login-brand { padding-top: 48px; margin-bottom: 36px; }
+  #login-modal.login-mode-password .login-brand { padding-top: 48px; margin-bottom: 36px; }
+  #login-modal.login-mode-password .login-title { font-size: 28px; }
+}
+
+#platform-admin-shell.pc-platform-admin-open .pc-attendance-person { border: 0; border-bottom: 1px solid var(--workspace-border, #ebe6e1); border-radius: 0; padding: 0; background: var(--workspace-surface, #fff); }
+#platform-admin-shell.pc-platform-admin-open .pc-attendance-person > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 12px 0; cursor: pointer; }
+#platform-admin-shell.pc-platform-admin-open .pc-attendance-person > summary > strong { flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; }
+#platform-admin-shell.pc-platform-admin-open .pc-attendance-person > summary > span { color: var(--workspace-muted); font-size: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-attendance-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; padding-bottom: 12px; }
+#platform-admin-shell.pc-platform-admin-open .pc-attendance-fields > label { min-width: 0; }
+#platform-admin-shell.pc-platform-admin-open #sg-form { background: var(--workspace-surface, #fff); border: 0; border-radius: 0; padding: 10px 0; }
+#platform-admin-shell.pc-platform-admin-open #sg-form > h3 { margin-bottom: 8px; }

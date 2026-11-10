@@ -638,6 +638,229 @@
       "updated_at" : "2026-08-14T16:29:41.684Z",
       "updated_by" : "usr_01a0011b-929e-771e-a9f7-826409f6eeb2"
     },
+    "EJU_JAPANESE_DIAGNOSTIC_V1" : 
+    {
+      "inspection" : 
+      {
+        "assets" : 
+        [
+          {
+            "field" : "/exam_info/sections/2/passages/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_06.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/0/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_06.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/1/audio",
+            "path" : "/data/audio/eju/2024_01/track_07.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/1/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_07.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/2/audio",
+            "path" : "/data/audio/eju/2024_01/track_08.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/2/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_08.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/3/audio",
+            "path" : "/data/audio/eju/2024_01/track_09.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/3/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_09.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/4/audio",
+            "path" : "/data/audio/eju/2024_01/track_10.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/4/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_10.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/5/audio",
+            "path" : "/data/audio/eju/2024_01/track_11.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/5/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_11.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/6/audio",
+            "path" : "/data/audio/eju/2024_01/track_12.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/6/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_12.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/7/audio",
+            "path" : "/data/audio/eju/2024_01/track_13.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/7/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_13.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/8/audio",
+            "path" : "/data/audio/eju/2024_01/track_14.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/8/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_14.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/9/audio",
+            "path" : "/data/audio/eju/2024_01/track_15.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/9/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_15.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/10/audio",
+            "path" : "/data/audio/eju/2024_01/track_16.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/10/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_16.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/11/audio",
+            "path" : "/data/audio/eju/2024_01/track_17.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/2/passages/11/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_17.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/0/audio",
+            "path" : "/data/audio/eju/2024_01/track_22.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/1/audio",
+            "path" : "/data/audio/eju/2024_01/track_23.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/2/audio",
+            "path" : "/data/audio/eju/2024_01/track_24.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/3/audio",
+            "path" : "/data/audio/eju/2024_01/track_25.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/4/audio",
+            "path" : "/data/audio/eju/2024_01/track_26.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/5/audio",
+            "path" : "/data/audio/eju/2024_01/track_27.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/6/audio",
+            "path" : "/data/audio/eju/2024_01/track_28.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/7/audio",
+            "path" : "/data/audio/eju/2024_01/track_29.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/8/audio",
+            "path" : "/data/audio/eju/2024_01/track_30.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/9/audio",
+            "path" : "/data/audio/eju/2024_01/track_31.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/10/audio",
+            "path" : "/data/audio/eju/2024_01/track_32.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/11/audio",
+            "path" : "/data/audio/eju/2024_01/track_33.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/12/audio",
+            "path" : "/data/audio/eju/2024_01/track_34.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/exam_info/sections/3/questions/13/audio",
+            "path" : "/data/audio/eju/2024_01/track_35.mp3",
+            "type" : "audio"
+          },
+          {
+            "field" : "/source_files/audio_dir",
+            "path" : "data\\audio\\eju\\2024_01",
+            "type" : "audio"
+          }
+        ],
+        "audio_count" : 39,
+        "checked_at" : "2026-11-06T21:23:31.592Z",
+        "errors" : [],
+        "exam_id" : "EJU_JAPANESE_DIAGNOSTIC_V1",
+        "explanation_count" : 39,
+        "image_count" : 0,
+        "passed" : true,
+        "question_count" : 40,
+        "warnings" : 
+        [
+          {
+            "code" : "EXPLANATION_MISSING",
+            "message" : "缺少解析",
+            "path" : "/exam_info/sections/0/passages/0/questions/0"
+          }
+        ]
+      },
+      "status" : "quality_checked",
+      "updated_at" : "2026-11-06T21:23:31.592Z",
+      "updated_by" : "usr_019ee90c-6364-77fb-8fb2-92d80cfdecfa"
+    },
     "N1_2025_07" : 
     {
       "inspection" : 

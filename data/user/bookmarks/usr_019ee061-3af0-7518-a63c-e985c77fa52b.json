@@ -1,26 +1,86 @@
 {
-  "exams": [],
-  "questions": [
+  "exams" : [],
+  "questions" : 
+  [
     {
-      "bookmark_id": "N2_2016_07::0::3",
-      "created_at": "2026-09-17T09:40:00.000Z",
-      "exam_id": "N2_2016_07",
-      "folder_id": "fld_demo_n2_vocab",
-      "question_id": "3",
-      "question_index": 2,
-      "question_no": "3",
-      "question_snapshot": {
-        "correct_answer": "4",
-        "explanation": "「批評」读作「ひひょう」，用于表达对作品的评论。",
-        "options": ["1.ひびょう", "2.ひべい", "3.ひへい", "4.ひひょう"],
-        "question": "今月の雑誌に新しい映画の批評が掲載された。",
-        "section_title": "文字・語彙"
+      "bookmark_id" : "N2_2016_07::0::3",
+      "created_at" : "2026-09-17T09:40:00.000Z",
+      "exam_id" : "N2_2016_07",
+      "folder_id" : "fld_demo_n2_vocab",
+      "question_id" : "3",
+      "question_index" : 2,
+      "question_no" : "3",
+      "question_snapshot" : 
+      {
+        "correct_answer" : "4",
+        "explanation" : "「批評」读作「ひひょう」，用于表达对作品的评论。",
+        "options" : 
+        [
+          "1.ひびょう",
+          "2.ひべい",
+          "3.ひへい",
+          "4.ひひょう"
+        ],
+        "question" : "今月の雑誌に新しい映画の批評が掲載された。",
+        "section_title" : "文字・語彙"
       },
-      "reason": "读音容易和「批判」混淆，复习时对照记忆。",
-      "section_index": 0,
-      "updated_at": "2026-09-17T09:40:00.000Z"
+      "reason" : "读音容易和「批判」混淆，复习时对照记忆。",
+      "section_index" : 0,
+      "updated_at" : "2026-09-17T09:40:00.000Z"
+    },
+    {
+      "bookmark_id" : "N3_2011_07::0::4",
+      "created_at" : "2026-10-18T05:48:15.579Z",
+      "exam_id" : "N3_2011_07",
+      "folder_id" : "",
+      "question_id" : "4",
+      "question_index" : 3,
+      "question_no" : "4",
+      "question_snapshot" : 
+      {
+        "correct_answer" : "3",
+        "explanation" : "【题目解析】\n确认句子里的「協力」。这题要判断它在这里该怎么读。句子意思是：如果两人合作的话，工作也能很快完成吧。\n\n【为什么选3】\n「協力」读作「きょうりょく」。協（きょう）＋力（りょく），3正确。\n\n【误选项为什么不对】\n- 1 きょりょく：協缺长音う，读成きょ，不完整。\n- 2 どりょく：努力的读音，不是協力。\n- 4 どうりょく：動力的读音，不是協力。\n\n【拿分提醒】\n協力と努力仅一字之差：協力＝きょうりょく，努力＝どりょく。選項2和4就是努力/動力的读音，专门干扰。\n協力＝きょうりょく，\"協(きょう)心協(きょう)力\"，合作齐心。",
+        "options" : 
+        [
+          "1.きょりょく",
+          "2.どりょく",
+          "3.きょうりょく",
+          "4.どうりょく"
+        ],
+        "question" : "二人で協力すれば、仕事も早く終わるだろう。",
+        "section_title" : "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。"
+      },
+      "reason" : "",
+      "section_index" : 0,
+      "updated_at" : "2026-10-18T05:48:19.844Z"
+    },
+    {
+      "bookmark_id" : "N3_2011_12::1::11",
+      "created_at" : "2026-10-18T06:23:43.389Z",
+      "exam_id" : "N3_2011_12",
+      "folder_id" : "fld_demo_n2_vocab",
+      "question_id" : "11",
+      "question_index" : 2,
+      "question_no" : "11",
+      "question_snapshot" : 
+      {
+        "correct_answer" : "4",
+        "explanation" : "【题目解析】\n确认这句话的意思：在大学学习了法律。这里要判断「ほうりつ」的正确汉字写法。\n\n【为什么选4】\n「ほうりつ」写作「法律」，法 → ほう、律 → りつ，4正确。\n\n【误选项为什么不对】\n- 1 方立：「方」读ほう但「立」读りつ，就方立非正式词汇，方≠法。\n- 2 法立：「法」读ほう正确，但「立」不是「律」，法立非正式词汇。\n- 3 方律：「方」≠「法」，虽然律正确但前字偏离目标表记。\n\n【拿分提醒】\n法 vs 方：都读ほう，但法＝法律，方＝方向。律 vs 立：律＝规律，立＝站立，字不同。\n法律，法＝氵＋去，有水旁的才是法律的法。",
+        "options" : 
+        [
+          "1.方立",
+          "2.法立",
+          "3.方律",
+          "4.法律"
+        ],
+        "question" : "大学ではほうりつを勉強しました。",
+        "section_title" : "問題2     のことばを漢字で書くとき、最もよいものを、1 • 2 • 3 • 4 から一つえらびなさい。"
+      },
+      "reason" : "",
+      "section_index" : 1,
+      "updated_at" : "2026-10-18T06:23:43.389Z"
     }
   ],
-  "updated_at": "2026-09-17T09:40:00.000Z",
-  "user_id": "usr_019ee061-3af0-7518-a63c-e985c77fa52b"
+  "updated_at" : "2026-10-18T06:23:43.389Z",
+  "user_id" : "usr_019ee061-3af0-7518-a63c-e985c77fa52b"
 }

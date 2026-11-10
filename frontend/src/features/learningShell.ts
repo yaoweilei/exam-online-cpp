@@ -14,16 +14,15 @@ export function initLearningShell(store: AppStore): void {
     '<path d="M4 20h17M7 16v-5M12 16V7M17 16V3"/>'
   ];
   const groups = [
-    { id: 'study', name: '学习', title: '学习安排', links: [['学习总览', '__overview__'], ['今日学习', 'openStudentQueue'], ['我的作业', 'openAssignments']] },
-    { id: 'practice', name: '练习', title: '试卷练习', links: [] },
-    { id: 'review', name: '复习', title: '复习资料', links: [['复习资料', 'openRoleContent:student-review-library'], ['收藏题目', 'openBookmarkFolders']] },
-    { id: 'history', name: '记录', title: '学习记录', links: [['最近学习', 'openRecentLearningPage'], ['学习报告', 'openLearningReport']] }
+    { id: 'study', route: 'openRoleContent:student-today', name: '学习', title: '系统学习', links: [['今日学习', 'openRoleContent:student-today'], ['学习目标', 'openStudyGoal'], ['能力诊断', 'openStudentDiagnosis'], ['我的作业', 'openAssignments']] },
+    { id: 'practice', route: 'openRoleContent:student-free-practice', name: '练习', title: '自由练习', links: [['专项练习', 'openChapterPath'], ['真题考试', 'openCurrentTargetExamLibrary']] },
+    { id: 'review', route: 'openRoleContent:student-learning-archive', name: '档案', title: '学习档案', links: [['档案总览', 'openRoleContent:student-learning-archive'], ['学习记录', 'openRecentLearningPage'], ['错题与收藏', 'openRoleContent:student-review-library'], ['学习报告', 'openLearningReport']] }
   ];
   const experienceIcon = '<path d="M12 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M7 7h6M7 11h3"/><path d="m14 15 5-5 3 3-5 5-4 1zM18 11l3 3"/>';
   const menuIcon = (intent: string) => {
     const path = intent === '__overview__' ? icons[0]
       : intent === 'guestExperience' ? experienceIcon
-      : intent === 'openStudentQueue' ? '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+      : intent === 'openStudentQueue' || intent === 'openReviewWorkbench' || intent === 'openRoleContent:student-today' ? '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
       : intent === 'openAssignments' ? '<path d="M3 7h7l2 2h9v11H3zM3 7V4h7l2 3"/>'
       : intent === 'openBookmarkFolders' ? '<path d="M6 3h12v18l-6-4-6 4z"/>'
       : intent === 'openLearningReport' ? icons[3] : icons[2];
@@ -31,28 +30,60 @@ export function initLearningShell(store: AppStore): void {
   };
   const shell = document.createElement('div');
   shell.id = 'learning-shell';
-  shell.innerHTML = `<nav class="ls-rail" aria-label="工作台分类">${groups.map((group, i) => `<button type="button" data-ls-group="${group.id}" title="${group.title}" aria-label="${group.title}" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true">${icons[i]}</svg><span>${group.name}</span></button>`).join('')}<button class="ls-collapse" type="button" aria-label="收起功能菜单" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4zM9 4v16"/></svg><span>收起</span></button></nav>
-    <aside class="ls-menu" aria-label="工作台功能"><header><strong>日语学习</strong><button class="ls-close" type="button" aria-label="关闭导航">×</button></header><button type="button" class="ls-link ls-continue" data-ls-continue>${menuIcon('openStudentQueue')}<span>继续练习</span></button>${groups.map(group => `<section data-ls-panel="${group.id}" hidden><h2>${group.title}</h2>${group.links.map(([label, intent]) => `<button class="ls-link" type="button" data-ls-intent="${intent}">${menuIcon(intent)}<span>${label}</span></button>`).join('')}${group.id === 'practice' ? '<div class="ls-paper-header"><h2>当前试卷</h2><p class="ls-current-paper" id="ls-current-paper"></p><p class="ls-range-summary" hidden></p><details class="ls-paper-picker"><summary aria-label="更换试卷">更换</summary><div id="ls-paper-fields"></div></details></div><h2 class="ls-category-heading">题型</h2><div id="ls-exam-controls"></div><details class="ls-settings"><summary><span aria-hidden="true">⚙</span> 练习设置</summary><div id="ls-settings-host"></div></details>' : ''}</section>`).join('')}<footer></footer></aside>`;
+  shell.innerHTML = `<nav class="ls-rail" aria-label="工作台分类">${groups.map((group, i) => `<button type="button" data-ls-group="${group.id}" title="${group.title}" aria-label="${group.title}" aria-pressed="false" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true">${icons[i]}</svg><span>${group.title}</span></button>`).join('')}<button class="ls-collapse" type="button" aria-label="收起功能菜单" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4zM9 4v16"/></svg><span>收起</span></button></nav>
+    <aside class="ls-menu" id="ls-menu" aria-label="工作台功能"><header><strong>日语学习</strong><button class="ls-close" type="button" aria-label="关闭导航">×</button></header><button type="button" class="ls-link ls-continue" data-ls-continue>${menuIcon('openStudentQueue')}<span>继续练习</span></button>${groups.map(group => `<section data-ls-panel="${group.id}" hidden><h2>${group.title}</h2>${group.id === 'practice' ? '<div class="ls-paper-header"><h2>当前试卷</h2><p class="ls-current-paper" id="ls-current-paper"></p><div id="ls-exam-timer-host"></div><p class="ls-range-summary" hidden></p><details class="ls-paper-picker"><summary aria-label="更换试卷">更换</summary><div id="ls-paper-fields"></div></details></div><h2 class="ls-category-heading">题型</h2><div id="ls-exam-controls"></div><details class="ls-settings"><summary><span aria-hidden="true">⚙</span> 练习设置</summary><div id="ls-settings-host"></div></details><button type="button" class="ls-link ls-practice-back" data-ls-return-navigation>← 返回菜单</button>' : ''}</section>`).join('')}<footer></footer></aside>`;
   const topbar = document.createElement('header');
   topbar.id = 'learning-topbar';
-  topbar.innerHTML = '<button class="ls-mobile-toggle" type="button" aria-label="打开工作台导航" aria-expanded="false"><span class="ls-mobile-toggle-mark" aria-hidden="true"></span></button><strong>试卷练习</strong><div id="learning-account"></div>';
+  topbar.innerHTML = `<button class="ls-mobile-toggle" type="button" aria-label="打开工作台导航" aria-controls="ls-menu" aria-expanded="false"><span class="ls-mobile-toggle-mark" aria-hidden="true"></span></button><button class="ls-topbar-home" type="button" aria-label="返回学习首页" title="返回学习首页">${menuIcon('__overview__')}</button><div id="learning-account"></div>`;
   const backdrop = document.createElement('button');
   backdrop.className = 'ls-backdrop';
   backdrop.type = 'button';
   backdrop.setAttribute('aria-label', '关闭导航');
   document.body.append(shell, backdrop);
   document.getElementById('exam-content')?.before(topbar);
+  const pageTools = document.createElement('div');
+  pageTools.id = 'ls-page-tools';
+  pageTools.setAttribute('aria-label', '练习工具');
+  topbar.querySelector('#learning-account')?.before(pageTools);
   document.body.classList.add('learning-shell-active');
   const guestRail = document.createElement('div');
   guestRail.className = 'ls-guest-rail';
-  guestRail.innerHTML = [['home', '首页', icons[0]], ['experience', '先试一题', experienceIcon], ['exams', '选择考试', icons[1]]].map(([action, label, icon]) => `<button type="button" data-ls-guest-action="${action}" aria-label="${label}" title="${label}" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg><span>${label}</span></button>`).join('');
+  guestRail.innerHTML = [['home', '首页', icons[0]], ['experience', 'N3 短篇阅读体验', experienceIcon], ['exams', '选择考试', icons[1]]].map(([action, label, icon]) => `<button type="button" data-ls-guest-action="${action}" aria-label="${label}" title="${label}" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg><span>${label}</span></button>`).join('');
   shell.querySelector('.ls-rail')?.prepend(guestRail);
   const guestPanel = document.createElement('section');
   guestPanel.dataset.lsPanel = 'guest';
   guestPanel.hidden = true;
-  guestPanel.innerHTML = `<h2>开始学习</h2><button class="ls-link" type="button" data-ls-guest-action="home">${menuIcon('__overview__')}<span>首页</span></button><h2>先试一题</h2><button class="ls-link" type="button" data-ls-guest-action="experience">${menuIcon('guestExperience')}<span>N3 短篇阅读体验</span></button><h2>选择考试</h2><button class="ls-link" type="button" data-ls-guest-action="jlpt">${menuIcon('openAssignments')}<span>JLPT · N3 / N2 / N1</span></button><button class="ls-link" type="button" data-ls-guest-action="eju">${menuIcon('openAssignments')}<span>EJU · 日本语</span></button><p class="ls-guest-note">登录后作答可自动保存进度。</p>`;
+  guestPanel.innerHTML = `<div class="ls-guest-root"><div class="ls-guest-root-row"><button class="ls-guest-primary" type="button" data-ls-guest-action="home">${menuIcon('__overview__')}<span>首页</span></button><button class="ls-guest-root-toggle" type="button" data-ls-guest-toggle="home" aria-label="展开或收起首页菜单" aria-expanded="true" aria-controls="ls-guest-home-links"></button></div><div class="ls-guest-home-links" id="ls-guest-home-links"><button class="ls-guest-secondary" type="button" data-ls-guest-action="experience">N3 短篇阅读体验</button><div class="ls-guest-exams"><button class="ls-guest-secondary ls-guest-group" type="button" data-ls-guest-toggle="exams" aria-expanded="true" aria-controls="ls-guest-exam-links">选择考试</button><div class="ls-guest-children" id="ls-guest-exam-links"><button class="ls-guest-child" type="button" data-ls-guest-action="jlpt">JLPT</button><button class="ls-guest-child" type="button" data-ls-guest-action="eju">EJU</button></div></div></div></div><p class="ls-guest-note">登录后作答可自动保存进度。</p>`;
   shell.querySelector('.ls-menu footer')?.before(guestPanel);
+  // Student navigation uses direct page entries; exam controls remain contextual.
+  shell.querySelectorAll<HTMLElement>('.ls-rail > [data-ls-group]').forEach(button => {
+    shell.querySelector(`[data-ls-panel="${button.dataset.lsGroup}"]`)?.before(button);
+  });
   const practicePanel = shell.querySelector<HTMLElement>('[data-ls-panel="practice"]')!;
+  const homeLink = document.createElement('button');
+  homeLink.type = 'button';
+  homeLink.className = 'ls-link ls-home';
+  homeLink.dataset.lsIntent = '__overview__';
+  homeLink.innerHTML = `${menuIcon('__overview__')}<span>学习首页</span>`;
+  shell.querySelector('.ls-menu > header')?.after(homeLink);
+  const goalLink = document.createElement('button');
+  goalLink.type = 'button';
+  goalLink.className = 'ls-link ls-home-child';
+  goalLink.dataset.lsIntent = 'openStudyGoal';
+  goalLink.innerHTML = `${menuIcon('openStudyGoal')}<span>学习目标</span>`;
+  homeLink.after(goalLink);
+  const courseLink = document.createElement('button');
+  courseLink.type = 'button'; courseLink.className = 'ls-link ls-home-child'; courseLink.dataset.lsIntent = 'openRoleContent:student-courses';
+  courseLink.innerHTML = `${menuIcon('openRoleContent:student-today')}<span>我的课程</span>`; courseLink.hidden = true;
+  shell.querySelector('.ls-menu footer')?.before(courseLink);
+  window.addEventListener('institutionCoursesLoaded', ((event: CustomEvent<{hasCourses: boolean; owner: string}>) => {
+    if (window.getUserContext?.().id !== event.detail.owner) return;
+    courseLink.hidden = !event.detail.hasCourses;
+  }) as EventListener);
+
+  const continueLink = shell.querySelector<HTMLButtonElement>('[data-ls-continue]')!;
+  continueLink.querySelector('span')!.textContent = '继续当前试卷';
+  practicePanel.querySelector('.ls-paper-header')?.before(continueLink);
   const guestTools = document.createElement('div');
   guestTools.className = 'ls-guest-paper-tools';
   guestTools.hidden = true;
@@ -65,13 +96,30 @@ export function initLearningShell(store: AppStore): void {
     guestPanel.querySelector(`[data-ls-guest-action="${family}"]`)?.after(summary);
   }
   let guest = store.getState().user.guest;
+  let wasScopedPractice = false;
+  let focusedPracticeNavigation = false;
   const move = (id: string, host: string) => {
     const element = document.getElementById(id);
     const parent = document.getElementById(host);
     if (element && parent) parent.append(element);
   };
   move('exam-controls', 'ls-exam-controls');
+  move('exam-timer-slot', 'ls-exam-timer-host');
   move('exam-settings-control', 'ls-settings-host');
+  const syncPracticeTools = () => {
+    const host = guest ? document.getElementById('exam-controls') : pageTools;
+    for (const id of ['open-question-map', 'submit-exam']) {
+      const control = document.getElementById(id);
+      if (control && host && control.parentElement !== host) host.append(control);
+    }
+    const settingsHost = guest ? document.getElementById('ls-settings-host') : pageTools;
+    const settingsControl = document.getElementById('exam-settings-control');
+    if (settingsControl && settingsHost && settingsControl.parentElement !== settingsHost) {
+      settingsHost.append(settingsControl);
+      document.getElementById('exam-settings-menu')?.setAttribute('hidden', '');
+      document.getElementById('exam-settings-toggle')?.setAttribute('aria-expanded', 'false');
+    }
+  };
     const themeSelect = document.getElementById('theme-mode-select') as HTMLSelectElement | null;
     if (themeSelect) {
       const themeControl = document.createElement('div');
@@ -121,24 +169,45 @@ export function initLearningShell(store: AppStore): void {
       if (label) document.getElementById('ls-paper-fields')?.append(label);
     }
   }
+  move('learning-message-trigger', 'learning-account');
   move('user-menu-trigger', 'learning-account');
   move('theme-toggle', 'learning-account');
   move('answer-save-status', 'learning-account');
-  move('exam-timer-slot', 'learning-account');
+  function learningSessionKind(): string | undefined {
+    return (window as unknown as { examViewer?: { getLearningSessionKind?: () => string } }).examViewer?.getLearningSessionKind?.();
+  }
   function syncPaperSummary(): void {
-    const viewer = (window as Window & { examViewer?: { _currentExamId?: string | null; practiceRangeLocked?: boolean; practiceScope?: { label: string; sectionIndexes: number[] } | null; currentSectionIndex?: number; currentExam?: { family?: string; exam_info?: { sections?: { section_name?: string; section_type?: string }[] } } } }).examViewer;
+    const viewer = (window as Window & { examViewer?: { getSpecialtySessionInfo?: () => { mode: string; label: string; target: string; progress: string; returnLabel?: string } | null; returnFromSpecialtyPractice?: () => void; _currentExamId?: string | null; practiceRangeLocked?: boolean; practiceScope?: { label: string; sectionIndexes: number[] } | null; currentSectionIndex?: number; currentExam?: { family?: string; exam_info?: { sections?: { section_name?: string; section_type?: string }[] } } } }).examViewer;
+    const specialty = viewer?.getSpecialtySessionInfo?.();
+    const diagnostic = learningSessionKind() === 'diagnostic';
+    const systemCorrection = learningSessionKind() === 'system' && !specialty;
+    const systemContext = diagnostic || systemCorrection;
+    const submitted = (window as unknown as { examViewer?: { isSubmitted?: boolean } }).examViewer?.isSubmitted;
+    continueLink.querySelector('span')!.textContent = diagnostic ? (submitted ? '查看诊断' : '继续诊断') : learningSessionKind() === 'system' ? '继续当前学习' : '继续当前试卷';
+    document.body.classList.toggle('ls-diagnostic-session', systemContext);
+    document.body.classList.toggle('ls-specialty-session', !!specialty);
+    const scopedPractice = !!viewer?.practiceRangeLocked && !!viewer.practiceScope;
+    if (scopedPractice && !wasScopedPractice) focusedPracticeNavigation = true;
+    if (!scopedPractice) focusedPracticeNavigation = false;
+    if (specialty || systemContext) { focusedPracticeNavigation = false; practicePanel.hidden = false; }
+    wasScopedPractice = scopedPractice;
+    document.body.classList.toggle('ls-focused-practice', !guest && scopedPractice && focusedPracticeNavigation);
+    if (!guest && scopedPractice && focusedPracticeNavigation) practicePanel.hidden = false;
     document.body.classList.toggle('ls-range-locked', !!viewer?.practiceRangeLocked);
-    document.body.classList.toggle('ls-scoped-practice', !!viewer?.practiceRangeLocked && !!viewer?.practiceScope);
-    shell.querySelector('.ls-paper-header h2')!.textContent = viewer?.practiceRangeLocked ? '当前练习' : '当前试卷';
+    document.body.classList.toggle('ls-scoped-practice', scopedPractice);
+    shell.querySelector('.ls-paper-header h2')!.textContent = diagnostic ? '入门诊断' : systemCorrection ? '错题订正' : specialty?.mode || (viewer?.practiceRangeLocked ? '当前练习' : '当前试卷');
+    shell.querySelector<HTMLDetailsElement>('.ls-paper-picker')!.hidden = systemContext;
     const rangeSummary = shell.querySelector<HTMLElement>('.ls-range-summary')!;
     rangeSummary.hidden = !viewer?.practiceRangeLocked;
-    rangeSummary.textContent = viewer?.practiceScope ? `${viewer.practiceScope.label} · ${viewer.practiceScope.sectionIndexes.length} 个题组` : '完整试卷';
+    rangeSummary.classList.toggle('specialty-session-progress', !!specialty);
+    rangeSummary.textContent = specialty?.progress || (viewer?.practiceScope ? `${viewer.practiceScope.label} · ${viewer.practiceScope.sectionIndexes.length} 个题组` : '完整试卷');
+    shell.querySelector('[data-ls-return-navigation]')!.textContent = systemContext ? '← 返回系统学习' : specialty?.returnLabel || (specialty ? '← 返回专项' : '← 返回菜单');
     const id = viewer?._currentExamId || '';
     const level = id.match(/N[1-3]/)?.[0] || '';
     const date = id.match(/(20\d{2})[_-](\d{2})/);
     const family = /EJU/i.test(id) || viewer?.currentExam?.family?.toLowerCase() === 'eju' ? 'EJU' : /N[1-3]/.test(id) ? 'JLPT' : '';
     const text = [family && `${family}${level ? ` ${level}` : ''}`, date && `${date[1]}年${family === 'EJU' ? `第${Number(date[2])}回` : `${Number(date[2])}月`}`].filter(Boolean).join(' · ') || '选择一份试卷开始练习';
-    shell.querySelector('#ls-current-paper')!.textContent = text;
+    shell.querySelector('#ls-current-paper')!.textContent = specialty ? `${specialty.target} · ${specialty.label}` : text;
     const section = viewer?.currentExam?.exam_info?.sections?.[viewer.currentSectionIndex || 0];
     const category = ({ vocabulary: '词汇', grammar: '语法', reading: '阅读', listening: '听力', writing: '记述', listening_reading: '听读解' } as Record<string, string>)[section?.section_type || ''] || '';
     guestPanel.querySelectorAll<HTMLElement>('.ls-selected-summary').forEach(summary => {
@@ -159,6 +228,7 @@ export function initLearningShell(store: AppStore): void {
   const returnButton = document.querySelector('.gw-return');
   if (returnButton) shell.querySelector('.ls-menu footer')?.before(returnButton);
   let currentGroup = 'practice';
+  let expandedGroup = '';
   function syncGuestView(view: string): void {
     if (!guest) return;
     guestTools.append(practicePanel);
@@ -168,14 +238,14 @@ export function initLearningShell(store: AppStore): void {
     selectGroup('guest', false);
     practicePanel.hidden = view !== 'paper';
     syncPaperSummary();
-    const selected = view === 'paper' ? 'exams' : view;
+    const selected = view === 'paper' ? 'exams' : view === 'experience-intro' ? 'experience' : view;
     guestRail.querySelectorAll<HTMLElement>('[data-ls-guest-action]').forEach(button => {
       const active = button.dataset.lsGuestAction === selected;
       button.setAttribute('aria-pressed', String(active));
       if (active) button.setAttribute('aria-current', 'page');
       else button.removeAttribute('aria-current');
     });
-    const selectedLink = view === 'exams' || view === 'paper' ? document.getElementById('guest-welcome')?.dataset.family : selected;
+    const selectedLink = view === 'exams' || view === 'paper' ? document.getElementById('guest-welcome')?.dataset.family : view === 'experience-intro' ? 'experience' : selected;
     guestPanel.querySelectorAll<HTMLElement>('[data-ls-guest-action]').forEach(button => {
       const active = button.dataset.lsGuestAction === selectedLink;
       button.classList.toggle('is-active', active);
@@ -184,18 +254,60 @@ export function initLearningShell(store: AppStore): void {
     });
   }
   function syncGuestState(): void {
-    guest = store.getState().user.guest;
+    const user = store.getState().user;
+    const wasGuest = guest;
+    guest = user.guest;
+    if (guest) courseLink.hidden = true;
+    if (wasGuest && !guest) focusedPracticeNavigation = true;
+    // The exam shell uses the same two-column learner navigation for every
+    // authenticated account. The active admin/workbench identity must not
+    // bring back the legacy icon rail while viewing an exam.
+    const student = !guest;
     document.body.classList.toggle('ls-guest-navigation', guest);
+    document.body.classList.toggle('ls-student-navigation', student);
+    syncPracticeTools();
+    const rail = shell.querySelector('.ls-rail')!;
+    const footer = shell.querySelector('.ls-menu footer')!;
+    const themeControl = document.querySelector('.ls-theme-control');
+    const themeFooter = document.querySelector('#platform-admin-shell:not([data-learning-role="student"]).pc-platform-admin-open [data-workspace-theme-slot]') || footer;
+    const collapse = shell.querySelector('.ls-collapse')!;
+    if (guest) {
+      if (themeControl && themeControl.parentElement !== themeFooter) themeFooter.append(themeControl);
+      if (collapse.parentElement !== footer) footer.append(collapse);
+      if (!wasGuest) document.body.classList.remove('ls-menu-collapsed');
+    } else {
+      if (themeControl && themeControl.parentElement !== themeFooter) themeFooter.append(themeControl);
+      if (collapse.parentElement !== footer) footer.append(collapse);
+      if (localStorage.getItem('learningStudentNavCollapsed') === 'true') document.body.classList.add('ls-menu-collapsed');
+    }
+    if (student) {
+      // The guest paper temporarily hosts the practice panel elsewhere. Put
+      // every heading and its panel back together in the original menu order.
+      let previous: Element = goalLink;
+      for (const group of groups) {
+        const button = shell.querySelector<HTMLElement>(`[data-ls-group="${group.id}"]`)!;
+        const panel = shell.querySelector<HTMLElement>(`[data-ls-panel="${group.id}"]`)!;
+        button.removeAttribute('aria-expanded');
+        button.classList.add('ls-home-child');
+        if (previous.nextElementSibling !== button) previous.after(button);
+        if (button.nextElementSibling !== panel) button.after(panel);
+        previous = panel;
+      }
+    } else if (!guest) {
+      shell.querySelectorAll<HTMLElement>('[data-ls-group]').forEach(button => rail.insertBefore(button, themeControl || collapse));
+      expandGroup(currentGroup);
+    }
+    syncCollapse();
     if (guest) syncGuestView(document.body.classList.contains('guest-welcome-open') ? document.getElementById('guest-welcome')?.dataset.view || 'home' : 'paper');
     else {
-      guestPanel.before(practicePanel);
       guestTools.hidden = true;
       if (currentGroup === 'guest') selectGroup('practice', false);
     }
+    syncPaperSummary();
   }
   function selectGroup(id: string, closeWorkspace = true): void {
     currentGroup = id;
-    shell.querySelectorAll<HTMLElement>('[data-ls-panel]').forEach(panel => { panel.hidden = panel.dataset.lsPanel !== id; });
+    expandGroup(id);
     shell.querySelectorAll<HTMLElement>('[data-ls-group]').forEach(button => {
       const active = button.dataset.lsGroup === id;
       button.setAttribute('aria-pressed', String(active));
@@ -204,35 +316,118 @@ export function initLearningShell(store: AppStore): void {
     });
     if (id === 'practice') {
       syncPaperSummary();
-      if (closeWorkspace) app.closeLearningWorkspace?.();
-      topbar.querySelector('strong')!.textContent = '试卷练习';
+      if (closeWorkspace && document.querySelector('#platform-admin-shell.pc-platform-admin-open')) app.closeLearningWorkspace?.();
     }
+  }
+  function expandGroup(id: string, toggle = false): void {
+    if (document.body.classList.contains('ls-student-navigation') && id !== 'guest') {
+      const panel = shell.querySelector<HTMLElement>(`[data-ls-panel="${id}"]`);
+      const open = !toggle || !!panel?.hidden;
+      if (panel) panel.hidden = id !== 'practice' || !open;
+      shell.querySelector<HTMLElement>(`[data-ls-group="${id}"]`)?.removeAttribute('aria-expanded');
+      if (open) expandedGroup = id;
+      else if (expandedGroup === id) expandedGroup = '';
+      return;
+    }
+    expandedGroup = toggle && expandedGroup === id ? '' : id;
+    shell.querySelectorAll<HTMLElement>('[data-ls-panel]').forEach(panel => { panel.hidden = panel.dataset.lsPanel !== expandedGroup; });
+    shell.querySelectorAll<HTMLElement>('[data-ls-group]').forEach(button => button.setAttribute('aria-expanded', String(button.dataset.lsGroup === expandedGroup)));
   }
   function closeDrawer(): void {
     document.body.classList.remove('ls-drawer-open');
     topbar.querySelector('button')!.setAttribute('aria-expanded', 'false');
   }
+  topbar.querySelector('.ls-topbar-home')!.addEventListener('click', () => {
+    delete document.body.dataset.lsHomeSection;
+    closeDrawer();
+    app.navigateLearningWorkspace?.('__overview__');
+  });
+  function selectHomeSection(section: 'goal' | 'study' | 'practice' | 'review'): void {
+    document.body.dataset.lsHomeSection = section;
+    shell.querySelectorAll<HTMLElement>('[data-ls-group]').forEach(button => {
+      const active = button.dataset.lsGroup === section;
+      button.setAttribute('aria-pressed', String(active));
+      if (active) button.setAttribute('aria-current', 'location');
+      else button.removeAttribute('aria-current');
+    });
+    shell.querySelectorAll<HTMLElement>('[data-ls-intent]').forEach(link => {
+      const active = section === 'goal' && link === goalLink;
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  }
+  function focusHomeSection(section: 'goal' | 'study' | 'practice' | 'review'): void {
+    app.navigateLearningWorkspace?.('__overview__');
+    selectHomeSection(section);
+    closeDrawer();
+    const selectors = { goal: '.pc-selfstudy-goal', study: '.pc-selfstudy-primary', practice: '.pc-selfstudy-choose', review: '.pc-selfstudy-archive' };
+    requestAnimationFrame(() => {
+      const surface = document.querySelector(`#student-learning-home ${selectors[section]}`);
+      (surface?.closest('.pc-grouped-card') ?? surface)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+  }
   shell.addEventListener('click', event => {
     const target = event.target as HTMLElement;
     if (target.closest('.gw-return')) { closeDrawer(); return; }
+    const guestToggle = target.closest<HTMLButtonElement>('[data-ls-guest-toggle]');
+    if (guestToggle) {
+      const children = guestPanel.querySelector<HTMLElement>(`#${guestToggle.getAttribute('aria-controls')}`)!;
+      children.hidden = !children.hidden;
+      guestToggle.setAttribute('aria-expanded', String(!children.hidden));
+      return;
+    }
     const guestAction = target.closest<HTMLElement>('[data-ls-guest-action]');
     if (guestAction) {
-      window.dispatchEvent(new CustomEvent('guestWelcomeNavigate', { detail: { action: guestAction.dataset.lsGuestAction } }));
+      const action = guestAction.closest('.ls-guest-rail') && guestAction.dataset.lsGuestAction === 'experience'
+        ? 'experience-intro' : guestAction.dataset.lsGuestAction;
+      window.dispatchEvent(new CustomEvent('guestWelcomeNavigate', { detail: { action } }));
       closeDrawer();
       return;
     }
-    if (target.closest('[data-ls-continue]')) { selectGroup('practice'); closeDrawer(); }
+    if (target.closest('[data-ls-return-navigation]')) {
+      if (learningSessionKind() === 'diagnostic' || learningSessionKind() === 'system' && !document.body.classList.contains('ls-specialty-session')) { closeDrawer(); app.navigateLearningWorkspace?.('openRoleContent:student-today'); return; }
+      const viewer = (window as unknown as { examViewer?: { getSpecialtySessionInfo?: () => unknown; returnFromSpecialtyPractice?: () => void } }).examViewer;
+      if (viewer?.getSpecialtySessionInfo?.()) { closeDrawer(); viewer.returnFromSpecialtyPractice?.(); return; }
+      focusedPracticeNavigation = false;
+      syncPaperSummary();
+      return;
+    }
+    if (target.closest('[data-ls-continue]')) {
+      if (document.body.classList.contains('ls-scoped-practice')) {
+        focusedPracticeNavigation = true;
+        syncPaperSummary();
+      }
+      const kind = learningSessionKind();
+      const system = kind === 'system' || kind === 'diagnostic';
+      selectGroup(system ? 'study' : 'practice');
+      if (system) { app.closeLearningWorkspace?.(); syncPaperSummary(); }
+      closeDrawer();
+    }
     const group = target.closest<HTMLElement>('[data-ls-group]');
     if (group) {
-      selectGroup(group.dataset.lsGroup!);
-      document.body.classList.remove('ls-menu-collapsed');
-      if (window.innerWidth < 768) document.body.classList.add('ls-drawer-open');
-      syncCollapse();
-      const first = shell.querySelector<HTMLButtonElement>(`[data-ls-panel="${currentGroup}"] [data-ls-intent]`);
-      first?.click();
+      const groupId = group.dataset.lsGroup!;
+      if (!document.body.classList.contains('ls-student-navigation')) {
+        selectGroup(groupId);
+        document.body.classList.remove('ls-menu-collapsed');
+        if (window.innerWidth < 768) document.body.classList.add('ls-drawer-open');
+        syncCollapse();
+        shell.querySelector<HTMLButtonElement>(`[data-ls-panel="${currentGroup}"] [data-ls-intent]`)?.click();
+      } else {
+        const destination = groups.find(item => item.id === groupId);
+        if (destination) focusHomeSection(destination.id as 'study' | 'practice' | 'review');
+        closeDrawer();
+        return;
+      }
     }
     const link = target.closest<HTMLElement>('[data-ls-intent]');
     if (link) {
+      if (link === goalLink) {
+        focusHomeSection('goal');
+        if (!document.querySelector('.pc-selfstudy-goal [aria-expanded="true"]')) app.navigateLearningWorkspace?.('openStudyGoal');
+        return;
+      }
+      delete document.body.dataset.lsHomeSection;
       app.navigateLearningWorkspace?.(link.dataset.lsIntent!);
       shell.querySelectorAll('.ls-link').forEach(el => el.classList.toggle('is-active', el === link));
       closeDrawer();
@@ -240,8 +435,15 @@ export function initLearningShell(store: AppStore): void {
     if (target.closest('.ls-close')) closeDrawer();
     if (target.closest('.category-menu-item, #open-question-map, #submit-exam')) closeDrawer();
     if (target.closest('.ls-collapse')) {
-      if (window.innerWidth < 768) document.body.classList.toggle('ls-drawer-open');
-      else document.body.classList.toggle('ls-menu-collapsed');
+      if (guest) {
+        document.body.classList.toggle('ls-menu-collapsed');
+        closeDrawer();
+      }
+      else {
+        const collapsed = document.body.classList.toggle('ls-menu-collapsed');
+        localStorage.setItem('learningStudentNavCollapsed', String(collapsed));
+        closeDrawer();
+      }
       syncCollapse();
       window.dispatchEvent(new Event('resize'));
     }
@@ -252,20 +454,48 @@ export function initLearningShell(store: AppStore): void {
     button.setAttribute('aria-expanded', String(!collapsed));
     button.setAttribute('aria-label', collapsed ? '展开功能菜单' : '收起功能菜单');
     button.querySelector('span')!.textContent = collapsed ? '展开' : '收起';
+    if (guest) {
+      const guestToggle = topbar.querySelector<HTMLButtonElement>('.ls-mobile-toggle')!;
+      guestToggle.setAttribute('aria-label', collapsed ? '展开功能菜单' : '收起功能菜单');
+      if (window.innerWidth >= 768) guestToggle.setAttribute('aria-expanded', String(!collapsed));
+    }
   }
   topbar.querySelector('button')!.addEventListener('click', () => {
+    if (guest && window.innerWidth >= 768) {
+      document.body.classList.toggle('ls-menu-collapsed');
+      closeDrawer();
+      syncCollapse();
+      window.dispatchEvent(new Event('resize'));
+      return;
+    }
+    if (!guest && window.innerWidth >= 1100) {
+      const collapsed = document.body.classList.toggle('ls-menu-collapsed');
+      localStorage.setItem('learningStudentNavCollapsed', String(collapsed));
+      closeDrawer();
+      syncCollapse();
+      window.dispatchEvent(new Event('resize'));
+      return;
+    }
     const open = document.body.classList.toggle('ls-drawer-open');
     topbar.querySelector('button')!.setAttribute('aria-expanded', String(open));
-    if (open) (guest ? guestRail.querySelector<HTMLButtonElement>('[aria-pressed="true"]') : shell.querySelector<HTMLButtonElement>(`[data-ls-group="${currentGroup}"]`))?.focus();
+    if (open) {
+      const firstGuestControl = guestPanel.classList.contains('ls-paper-view')
+        ? practicePanel.querySelector<HTMLElement>('.ls-settings summary')
+        : guestPanel.querySelector<HTMLElement>('[data-ls-guest-action][aria-current="page"]');
+      (guest ? firstGuestControl : shell.querySelector<HTMLElement>(`[data-ls-group="${currentGroup}"]`))?.focus();
+    }
   });
   shell.addEventListener('keydown', event => {
-    if (event.key !== 'Tab' || !document.body.classList.contains('ls-drawer-open') || window.innerWidth > 700) return;
+    if (event.key !== 'Tab' || !document.body.classList.contains('ls-drawer-open') || (guest && window.innerWidth > 700)) return;
     const focusable = Array.from(shell.querySelectorAll<HTMLElement>('button, select, summary, [tabindex="0"]')).filter(el => el.getClientRects().length > 0 && !el.hasAttribute('disabled'));
     const first = focusable[0], last = focusable[focusable.length - 1];
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
   });
   backdrop.addEventListener('click', closeDrawer);
+  window.addEventListener('resize', () => {
+    if (!guest && window.innerWidth >= 1100 && document.body.classList.contains('ls-drawer-open')) closeDrawer();
+  });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && document.body.classList.contains('ls-drawer-open')) {
       closeDrawer();
@@ -274,11 +504,29 @@ export function initLearningShell(store: AppStore): void {
   });
   window.addEventListener('learningWorkspaceChanged', ((event: CustomEvent<{ role: string; intent: string }>) => {
     if (event.detail.role !== 'student') return;
-    const group = groups.find(group => group.links.some(([, intent]) => intent === event.detail.intent));
-    if (event.detail.intent === '__practice__') selectGroup('practice', false);
+    const section = document.body.dataset.lsHomeSection;
+    if (event.detail.intent === '__overview__' && (section === 'goal' || section === 'study' || section === 'practice' || section === 'review')) {
+      selectHomeSection(section);
+      return;
+    }
+    delete document.body.dataset.lsHomeSection;
+    const navigationIntent = event.detail.intent === 'openRoleContent:student-progress' ? 'openRoleContent:student-learning-archive' : event.detail.intent;
+    const group = event.detail.intent === 'openStudyGoal' ? undefined : groups.find(group => group.route === navigationIntent || group.links.some(([, intent]) => intent === navigationIntent));
+    if (event.detail.intent === '__system-practice__') { selectGroup('study', false); syncPaperSummary(); }
+    else if (event.detail.intent === '__practice__') selectGroup('practice', false);
     else if (group) selectGroup(group.id, false);
-    shell.querySelectorAll<HTMLElement>('[data-ls-intent]').forEach(link => link.classList.toggle('is-active', link.dataset.lsIntent === event.detail.intent));
+    else if (event.detail.intent === '__overview__' || event.detail.intent === 'openStudyGoal' || event.detail.intent === 'openRoleContent:student-courses') shell.querySelectorAll<HTMLElement>('[data-ls-group]').forEach(button => {
+      button.setAttribute('aria-pressed', 'false');
+      button.removeAttribute('aria-current');
+    });
+    shell.querySelectorAll<HTMLElement>('[data-ls-intent]').forEach(link => {
+      const active = link.dataset.lsIntent === navigationIntent;
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
   }) as EventListener);
+  window.addEventListener('learningWorkspaceRoleChanged', syncGuestState);
   selectGroup('practice');
   window.addEventListener('guestWelcomeChanged', ((event: CustomEvent<{ view: string }>) => syncGuestView(event.detail.view)) as EventListener);
   store.subscribe(syncGuestState);

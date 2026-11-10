@@ -1,0 +1,23 @@
+{
+  "items" : 
+  [
+    {
+      "answered_count" : 1,
+      "completion" : 0.0,
+      "correct_count" : 1,
+      "created_at" : "2026-10-16T15:43:45.413Z",
+      "exam_id" : "__specialty",
+      "exam_title" : "漢字読み测试 · 专项练习",
+      "practice_label" : "漢字読み测试",
+      "score" : 0.0,
+      "source" : "specialty",
+      "status" : "submitted",
+      "total_questions" : 1,
+      "updated_at" : "2026-10-16T15:43:45.413Z",
+      "user_id" : "usr_01a14562-24ac-7d0a-b561-dcc0faeb768e",
+      "wrong_count" : 0
+    }
+  ],
+  "updated_at" : "2026-10-16T15:43:45.413Z",
+  "user_id" : "usr_01a14562-24ac-7d0a-b561-dcc0faeb768e"
+}

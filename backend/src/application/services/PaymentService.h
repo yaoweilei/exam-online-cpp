@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
 #include <mutex>
 #include <string>
 
@@ -30,6 +31,7 @@ class PaymentService
     Json::Value createOrganizationOrder(const std::string &actorId,
                                         const std::string &organizationId,
                                         const Json::Value &payload);
+    Json::Value archiveOrganization(const std::string &organizationId, const std::function<Json::Value()> &archive);
     Json::Value simulateWechatPaymentSuccess(const std::string &userId,
                                              const std::string &orderId);
     Json::Value getOrder(const std::string &userId, const Json::Value &roles, const std::string &orderId) const;
@@ -41,6 +43,7 @@ class PaymentService
     Json::Value listRefunds(const Json::Value &filters) const;
     Json::Value listAllLedger(const Json::Value &filters) const;
     Json::Value reconciliation() const;
+    Json::Value operationalAlerts(const std::string &date) const;
     Json::Value updateRefundStatus(const std::string &refundId,
                                    const std::string &status,
                                    const std::string &actorId,

@@ -52,7 +52,8 @@ class WrongQuestionService
                                  const std::string &questionId,
                                  const std::string &correctAnswer,
                                  const std::string &userAnswer,
-                                 bool correct);
+                                 bool correct,
+                                 const std::string &submissionId = "");
 
     // 错题归因标签（错因分析）：覆盖式设置该题的所有标签
     // 已知标签：vocab_blindspot / grammar_unsure / reading_pace / listening_missed / careless / option_trap

@@ -70,7 +70,8 @@ class WrongQuestionRepository
                                  const std::string &correctAnswer,
                                  const std::string &userAnswer,
                                  bool correct,
-                                 int autoMasterThreshold = 2);
+                                 int autoMasterThreshold = 2,
+                                 const std::string &submissionId = "");
 
     // 手动从错题本移除一题
     bool removeOne(const std::string &userId, const std::string &questionId);

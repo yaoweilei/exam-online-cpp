@@ -1,0 +1,46 @@
+/* One account component, mounted by either the learning or workspace avatar. */
+[data-platform-admin-account-menu] { touch-action: manipulation; }
+[data-platform-admin-account-menu] > .pc-platform-admin-avatar { pointer-events: none; }
+
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu {
+  position: fixed; z-index: 10040; box-sizing: border-box; margin: 0; padding: 6px;
+  overflow-y: auto; overscroll-behavior: contain;
+  border: 1px solid var(--ls-border, #ebe6e1); border-radius: var(--ui-surface-radius, 8px);
+  background: var(--ls-surface, #fff); color: var(--ls-text, #26221f);
+  box-shadow: 0 8px 28px #00000014; font: 14px/20px var(--font-zh, system-ui);
+}
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu > .pc-account-summary { display: grid; gap: 3px; padding: 10px 8px; border: 0; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-account-summary strong { font-size: 14px; line-height: 20px; overflow-wrap: anywhere; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-account-summary span { font-size: 12px; line-height: 18px; color: var(--ls-muted, #81776f); }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-account-group { display: grid; margin: 0; padding: 4px 0; border: 0; border-top: 1px solid var(--ls-border, #ebe6e1); }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu button { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; box-sizing: border-box; margin: 0; padding: 8px; border: 0; border-radius: 6px; background: transparent; color: inherit; box-shadow: none; text-align: left; font: inherit; cursor: pointer; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu button:hover { background: var(--ls-selected, #fff3e9); }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu :is(button, summary, select):focus-visible { outline: 2px solid var(--ls-accent, #ae450e); outline-offset: -2px; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu { display: block; margin: 0; padding: 4px 0; border: 0; border-top: 1px solid var(--ls-border, #ebe6e1); border-radius: 0; background: transparent; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu > summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; box-sizing: border-box; padding: 8px; list-style: none; cursor: pointer; font: inherit; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu > summary::-webkit-details-marker { display: none; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu > summary span { margin-left: auto; color: var(--ls-muted, #81776f); font-size: 12px; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu > summary::after { content: ''; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); flex-shrink: 0; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu[open] > summary::after { transform: rotate(225deg); }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu:not([open]) > div { display: none; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu[open] > div { display: grid; gap: 2px; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu button.active { background: var(--ls-selected, #fff3e9); color: var(--ls-accent, #ae450e); box-shadow: inset 2px 0 currentColor; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-menu em { font-style: normal; font-size: 11px; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu [data-platform-admin-logout] { color: #c94337; }
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-switcher {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px;
+  margin: 0; padding: 4px 0; border: 0; background: transparent; box-shadow: none;
+}
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-switcher > span {
+  padding-inline: 8px; color: var(--ls-muted, #81776f); font: 12px/18px var(--font-zh, system-ui);
+}
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-switcher select {
+  box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; margin: 0;
+  padding: 6px 7px; border: 1px solid var(--ls-border, #ebe6e1); border-radius: 6px;
+  background: color-mix(in srgb, var(--ls-selected, #fff3e9) 70%, var(--ls-surface, #fff));
+  color: inherit; font: inherit; text-overflow: ellipsis; cursor: pointer;
+}
+:is(body, #platform-admin-shell) #superadmin-account-menu.pc-unified-account-menu .pc-role-identity-switcher select:hover {
+  background: var(--ls-selected, #fff3e9);
+  border-color: var(--ls-accent, #ae450e);
+}

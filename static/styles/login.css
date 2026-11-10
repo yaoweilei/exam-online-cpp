@@ -616,17 +616,7 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 	z-index: 2;
 }
 
-.login-close-back {
-	display: none;
-	align-items: center;
-	gap: 2px;
-	font-size: 17px;
-}
-
-.login-close-back > span {
-	font-size: 32px;
-	line-height: 1;
-}
+.login-close-back { display: none; }
 
 #login-modal.login-mode-password .login-close-x,
 #login-modal.login-mode-wechat .login-close-x {
@@ -635,7 +625,7 @@ body:not(.light-theme) .login-mode-icon { background: #f6f5f6; }
 
 #login-modal.login-mode-password .login-close-back,
 #login-modal.login-mode-wechat .login-close-back {
-	display: inline-flex;
+	display: block;
 }
 
 .login-brand {

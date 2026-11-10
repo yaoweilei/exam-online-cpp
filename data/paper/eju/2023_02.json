@@ -1185,8 +1185,8 @@
                   "eju.listening_reading"
                 ],
                 "source_page": 33,
-                "explanation": "【答案解析】\n本题在当前数据中标注为“試験問題として成立していますが、出版上の都合により本問題の掲載はいたしません”。也就是说，原题材料没有刊载，无法根据题干、材料或音频判断正确答案。\n\n按照标准文档的缺题处理规则，这类题不能补写常规解析，也不能编造误选项理由。",
-                "explanation_expand": "【补充解析】\n自学时遇到未刊载题，建议直接跳过，不纳入错题统计。真正有训练价值的是能看到材料、听到音频、核对选项的题目。",
+                "explanation": "【资料说明】\n本题在当前数据中标注为“試験問題として成立していますが、出版上の都合により本問題の掲載はいたしません”。也就是说，原题材料没有刊载，无法根据题干、材料或音频判断正确答案。\n\n按照标准文档的缺题处理规则，这类题不能补写常规解析，也不能编造误选项理由。",
+                "explanation_expand": "【复习建议】\n自学时遇到未刊载题，建议直接跳过，不纳入错题统计。真正有训练价值的是能看到材料、听到音频、核对选项的题目。",
                 "explanation_source": {
                   "generated_by": "codex_eju_listening_teacher_style_v5_standard_2023_02_unpublished",
                   "style_reference": "data/paper/eju/eju_answer_explan_standard.md",

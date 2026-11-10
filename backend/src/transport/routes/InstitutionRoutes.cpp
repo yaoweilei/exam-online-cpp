@@ -11,8 +11,10 @@ using namespace drogon;
 
 namespace transport::routes
 {
+void registerInstitutionWorkflowRoutes(const AppContext &ctx);
 void registerInstitutionRoutes(const AppContext &ctx)
 {
+    registerInstitutionWorkflowRoutes(ctx);
     app().registerHandler(
         "/api/v1/institution/plans",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
@@ -115,7 +117,7 @@ void registerInstitutionRoutes(const AppContext &ctx)
                 requireFeature(*ctx.featureFlagService, "learning_groups", userId);
                 return common::ok(
                     req,
-                    ctx.institutionService->studentProfile(userId, session["roles"], studentId));
+                    ctx.institutionService->studentProfile(userId, session["roles"], studentId, req->getParameter("org_id")));
             });
         },
         {Get});
@@ -131,24 +133,21 @@ void registerInstitutionRoutes(const AppContext &ctx)
                 const auto userId = session.get("user_id", "").asString();
                 requireFeature(*ctx.featureFlagService, "learning_groups", userId);
 
-                // 复用学员档案的机构归属校验，防止教师跨机构写备注。
-                ctx.institutionService->studentProfile(userId, session["roles"], studentId);
                 const auto text = requireBoundedString(body, "text", 1, 500);
-                auto profile = ctx.profileService->getProfile(studentId);
-                auto notes = profile.get("teacher_notes", Json::Value(Json::arrayValue));
-                if (!notes.isArray())
+                auto orgId = body.get("org_id", "").asString();
+                if (orgId.empty())
                 {
-                    notes = Json::Value(Json::arrayValue);
+                    const auto profile = ctx.institutionService->studentProfile(userId, session["roles"], studentId);
+                    const auto workbench = ctx.institutionService->teachingWorkbench(userId, session["roles"], "");
+                    for (const auto &org : workbench["organizations"])
+                    {
+                        const auto candidate = org.get("organization_id", "").asString();
+                        try { ctx.institutionService->studentProfile(userId, session["roles"], studentId, candidate); orgId = candidate; break; }
+                        catch (const common::AppException &) {}
+                    }
                 }
-                Json::Value note(Json::objectValue);
-                note["text"] = text;
-                note["created_at"] = common::nowIso8601();
-                note["created_by"] = userId;
-                notes.append(note);
-
-                Json::Value patch(Json::objectValue);
-                patch["teacher_notes"] = notes;
-                return common::ok(req, ctx.profileService->updateProfile(studentId, patch), "teacher_note_added");
+                Json::Value payload = body; payload["student_id"] = studentId; payload["text"] = text;
+                return common::ok(req, ctx.institutionService->saveFollowup(userId, session["roles"], orgId, payload), "teacher_note_added");
             });
         },
         {Post});

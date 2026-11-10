@@ -1,0 +1,77 @@
+const { test, expect } = require('@playwright/test');
+test('角色权限紧凑读写视图、角色切换、取消和受保护控件', async ({ page }, info) => {
+  const chip = (label, code) => `<span class="pc-platform-permission-chip"><strong>${label}</strong><small>${code}</small></span>`;
+  await page.route('**/__compact_role_editor__', r => r.fulfill({ contentType: 'text/html; charset=utf-8', body: '<meta charset="utf-8"><link rel="stylesheet" href="/static/styles/personal-center.css"><link rel="stylesheet" href="/static/styles/role-workspace.css"><body class="light-theme"><div id="platform-admin-shell" class="pc-platform-roles-active" data-learning-role="superAdmin"><main style="padding:16px"><div class="pc-platform-role-layout"><label class="pc-platform-role-picker"><span>当前角色</span><select class="pc-profile-input" data-platform-role-picker aria-label="选择角色模板"><option value="assistant">教学管理员 · 2 项</option><option value="superAdmin">超级管理员 · 受保护</option></select></label><form class="pc-platform-role-editor" data-platform-role-template-form data-role-id="assistant"><header class="pc-platform-role-editor-head"><div><div class="pc-my-content-head">教学管理员</div><code>assistant</code><p>负责作业流转、催交、成绩汇总和学员跟进，默认不查看试卷答案。</p></div><span class="pc-tag">2 项权限</span></header><section class="pc-platform-role-current"><div class="pc-platform-role-section-head"><div><strong>当前权限</strong></div><em>2 项</em></div><div class="pc-platform-permission-chips" data-role-permission-summary>' + chip('批改作业','assignment.review') + chip('催交作业','assignment.remind') + '</div><div data-role-permission-removals hidden></div></section><details class="pc-platform-role-adjust"><summary>调整权限</summary><fieldset class="pc-platform-permission-group"><legend>教学运营</legend><div class="pc-platform-permission-options"><label class="pc-platform-permission-option"><input type="checkbox" data-role-permission-toggle checked value="assignment.review"><span><strong>批改作业</strong><small>assignment.review</small></span></label><label class="pc-platform-permission-option"><input type="checkbox" data-role-permission-toggle checked value="assignment.remind"><span><strong>催交作业</strong><small>assignment.remind</small></span></label></div></fieldset></details><details class="pc-platform-role-advanced"><summary><span><strong>高级设置</strong><small>权限代码与批量编辑</small></span><b>展开</b></summary><textarea data-role-permissions>assignment.review\nassignment.remind</textarea></details><section class="pc-platform-role-policy"><label><input type="checkbox" data-role-org-override checked><span><strong>机构可调整</strong><small>机构管理员可在该模板范围内配置本机构权限</small></span></label></section><div class="pc-platform-role-save"><span class="pc-platform-role-save-note">有未保存修改</span><div class="pc-org-form-actions"><button type="submit" class="pc-inline-btn" disabled>检查并保存</button></div></div></form></div></main></div>' }));
+  await page.setViewportSize({width:390,height:844}); await page.goto('/__compact_role_editor__');
+  await page.evaluate(async () => {
+    const m=await import('/static/app/viewer/personalCenter/compactRoleEditor.js');
+    const form=document.querySelector('form');form.querySelector('.pc-platform-role-policy').after(form.querySelector('.pc-platform-role-advanced'));window.selected='';window.cancelled=false;
+    m.bindCompactRoleEditor(document.querySelector('main'), id=>window.selected=id, form=>{window.cancelled=true;delete form.dataset.pcDirty;});
+    form.addEventListener('change',e=>{if(e.target.matches('[data-role-permission-toggle],[data-role-org-override]')){form.dataset.pcDirty='true';form.querySelector('button[type=submit]').disabled=false;}});
+    form.addEventListener('submit',e=>e.preventDefault());
+  });
+  await expect(page.locator('.pc-platform-role-save')).not.toBeVisible();
+  await expect(page.locator('.pc-platform-permission-chip small').first()).not.toBeVisible();
+  await expect(page.locator('header .pc-role-description')).toBeVisible();
+  await expect(page.locator('.pc-role-intro')).toHaveCount(0);
+  await expect(page.locator('header code')).not.toBeVisible();
+  await expect(page.getByRole('switch',{name:'允许机构调整本角色权限'})).toBeChecked();
+  await expect(page.locator('.pc-role-scope-note')).toHaveCount(0);
+  expect(await page.locator('.pc-platform-permission-chip strong').first().evaluate(el=>getComputedStyle(el).textDecorationLine)).toBe('none');
+  await expect(page.locator('.pc-platform-permission-options')).not.toBeVisible();
+  await expect(page.locator('.pc-role-heading-copy > em')).toHaveText('2 项');
+  await expect(page.locator('.pc-role-edit-button svg')).toBeVisible();
+  expect(await page.getByLabel('选择角色模板').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+  await page.getByLabel('选择角色模板').focus();
+  expect(await page.locator('.pc-platform-permission-chip strong').first().evaluate(el=>getComputedStyle(el).fontFamily)).toContain('Segoe UI');
+  const selectStyle=await page.getByLabel('选择角色模板').evaluate(el=>{const s=getComputedStyle(el);return [s.borderTopWidth,s.outlineStyle,s.boxShadow];});
+  expect(selectStyle).toEqual(['0px','none','none']);
+  await page.getByRole('button',{name:'编辑',exact:true}).click();
+  await expect(page.locator('[data-role-permission-summary]')).not.toBeVisible();
+  await expect(page.locator('[data-role-permission-toggle]').first()).toBeVisible();
+  await page.locator('[data-role-permission-toggle]').first().uncheck();
+  await expect(page.locator('.pc-platform-role-save')).toBeVisible();
+  await page.getByRole('button',{name:'完成',exact:true}).click();
+  await expect(page.locator('[data-role-permission-summary]')).toBeVisible();
+  await expect(page.locator('[data-role-permission-toggle]').first()).not.toBeVisible();
+  await page.getByRole('button',{name:'取消修改',exact:true}).click();
+  expect(await page.evaluate(()=>window.cancelled)).toBe(true);
+  await expect(page.locator('.pc-platform-role-save')).not.toBeVisible();
+  await page.getByLabel('选择角色模板').selectOption('superAdmin');expect(await page.evaluate(()=>window.selected)).toBe('superAdmin');
+  for(const width of [390,1440]){await page.setViewportSize({width,height:844});expect(await page.locator('main').evaluate(el=>el.scrollWidth-el.clientWidth)).toBeLessThanOrEqual(1);}
+  await page.getByLabel('选择角色模板').selectOption('assistant');
+  await page.setViewportSize({width:390,height:844});
+  await page.evaluate(async()=>{
+    document.body.classList.add('light-theme');
+    const shell=document.querySelector('#platform-admin-shell'),main=document.querySelector('main');
+    shell.classList.add('pc-platform-admin-open'); main.className='pc-platform-admin-content';main.removeAttribute('style');
+    const layout=main.querySelector('.pc-platform-role-layout');
+    const dashboard=document.createElement('div');dashboard.className='pc-dashboard pc-dashboard-simple pc-subpage';
+    dashboard.append(layout);dashboard.insertAdjacentHTML('beforeend','<details class="pc-card pc-platform-access-panel"><summary><span><strong>成员临时授权</strong><small>指定成员额外角色，到期自动失效</small></span><b>展开</b></summary><input aria-label="用户ID"></details>');
+    main.append(dashboard);
+    main.insertAdjacentHTML('afterbegin','<div class="pc-workspace-page-heading"><h1>用户与权限</h1><p>全局角色模板与临时授权</p></div><nav class="pc-workspace-section-tabs"><button class="pc-workspace-section-tab">用户管理</button><button class="pc-workspace-section-tab active">角色权限</button></nav>');
+    const workspace=document.createElement('div');workspace.className='pc-platform-workspace';shell.append(workspace);workspace.append(main);
+    shell.insertAdjacentHTML('afterbegin','<header class="pc-platform-topbar"></header><aside class="pc-platform-sidebar"></aside>');
+    const labels=['批改作业','催交作业','查看成绩册','查看学员档案','编辑跟进记录','查看课程包'];
+    document.querySelector('[data-role-permission-summary]').innerHTML=labels.map(label=>'<span class="pc-platform-permission-chip"><strong>'+label+'</strong><small>permission.code</small></span>').join('');
+    const m=await import('/static/app/viewer/personalCenter/scrollIndicator.js');m.bindScrollIndicator(main,true);
+  });
+  await expect.poll(()=>page.locator('main').evaluate(el=>el.scrollHeight-el.clientHeight)).toBeLessThanOrEqual(1);
+  await expect(page.locator('.pc-platform-overlay-scrollbar')).toBeHidden();
+  const typeScale=()=>page.locator('main').evaluate(el=>['h1','.pc-workspace-page-heading p','.pc-workspace-section-tab'].map(selector=>[getComputedStyle(el.querySelector(selector)).fontSize,getComputedStyle(el.querySelector(selector)).fontWeight]));
+  const roleScale=await typeScale();
+  await page.locator('#platform-admin-shell').evaluate(el=>{el.classList.remove('pc-platform-roles-active');el.classList.add('pc-platform-users-active');});
+  expect(await typeScale()).toEqual(roleScale);
+  await page.locator('#platform-admin-shell').evaluate(el=>{el.classList.remove('pc-platform-users-active');el.classList.add('pc-platform-roles-active');});
+  await page.screenshot({path:info.outputPath('role-permissions-mobile.png')});
+  await page.evaluate(()=>document.body.classList.remove('light-theme'));await page.screenshot({path:info.outputPath('role-permissions-dark.png')});
+  // Long expanded content can still scroll; the indicator appears only during scrolling.
+  await page.locator('main').evaluate(el=>{el.insertAdjacentHTML('beforeend','<div id="long-content" style="height:1000px;flex-shrink:0"></div>');});
+  await page.locator('main').hover();await expect(page.locator('.pc-platform-overlay-scrollbar')).not.toHaveClass(/is-active/);
+  await page.locator('main').evaluate(el=>el.scrollTop=100);await expect(page.locator('.pc-platform-overlay-scrollbar')).toHaveClass(/is-active/);
+  await expect.poll(()=>page.locator('.pc-platform-overlay-scrollbar').evaluate(el=>getComputedStyle(el).opacity)).toBe('0');
+  await page.locator('#long-content').evaluate(el=>el.remove());
+  // Protected template: no edit disclosure, save or policy changes are offered.
+  await page.evaluate(async()=>{document.querySelector('form').remove();const form=document.createElement('form');form.dataset.platformRoleTemplateForm='';form.innerHTML='<header class="pc-platform-role-editor-head"><div><p>受保护模板</p></div></header><section class="pc-platform-role-current"><div class="pc-platform-role-section-head"><strong>当前权限</strong></div></section><input type="checkbox" data-role-org-override disabled>';document.querySelector('main').append(form);const m=await import('/static/app/viewer/personalCenter/compactRoleEditor.js');m.bindCompactRoleEditor(document.querySelector('main'),()=>{},()=>{});});
+  await expect(page.getByRole('button',{name:'编辑',exact:true})).toHaveCount(0);await expect(page.locator('[data-role-org-override]')).toBeDisabled();
+});

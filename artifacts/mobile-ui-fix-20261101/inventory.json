@@ -1,0 +1,246 @@
+[
+  {
+    "role": "superAdmin",
+    "account": "superadmin_demo",
+    "destinations": [
+      {
+        "key": "overview",
+        "name": "总览"
+      },
+      {
+        "key": "users",
+        "name": "用户管理"
+      },
+      {
+        "key": "roles",
+        "name": "角色权限"
+      },
+      {
+        "key": "access",
+        "name": "临时授权"
+      },
+      {
+        "key": "organizations",
+        "name": "机构管理"
+      },
+      {
+        "key": "content",
+        "name": "内容工作流"
+      },
+      {
+        "key": "feedback",
+        "name": "反馈处理"
+      },
+      {
+        "key": "payments",
+        "name": "订单与支付"
+      },
+      {
+        "key": "pricing",
+        "name": "价格与套餐"
+      },
+      {
+        "key": "flags",
+        "name": "功能开关"
+      },
+      {
+        "key": "audit",
+        "name": "审计日志"
+      }
+    ],
+    "organizationCount": 87,
+    "memberships": 87
+  },
+  {
+    "role": "teacher",
+    "account": "teacher_mobile_ui_20261101",
+    "destinations": [
+      {
+        "key": "__overview__",
+        "name": "总览"
+      },
+      {
+        "key": "openRoleContent:teacher-students",
+        "name": "我的学生"
+      },
+      {
+        "key": "openRoleContent:teacher-groups",
+        "name": "学习组"
+      },
+      {
+        "key": "openRoleContent:teacher-gradebook",
+        "name": "成绩册"
+      },
+      {
+        "key": "openRoleContent:teacher-schedule",
+        "name": "课程"
+      },
+      {
+        "key": "openRoleContent:teacher-review",
+        "name": "作业"
+      },
+      {
+        "key": "openRoleContent:teacher-prep",
+        "name": "备课"
+      }
+    ],
+    "organizationCount": 1,
+    "memberships": 1
+  },
+  {
+    "role": "assistant",
+    "account": "assistant_mobile_ui_20261101",
+    "destinations": [
+      {
+        "key": "__overview__",
+        "name": "总览"
+      },
+      {
+        "key": "openRoleContent:assistant-followup",
+        "name": "学员跟进"
+      },
+      {
+        "key": "openRoleContent:teacher-groups",
+        "name": "学习组"
+      },
+      {
+        "key": "openRoleContent:teacher-schedule",
+        "name": "课程表"
+      },
+      {
+        "key": "openRoleContent:assistant-package",
+        "name": "课时账户"
+      }
+    ],
+    "organizationCount": 1,
+    "memberships": 1
+  },
+  {
+    "role": "orgAdmin",
+    "account": "student_mobile_ui_manager_20261101",
+    "destinations": [
+      {
+        "key": "__overview__",
+        "name": "总览"
+      },
+      {
+        "key": "openRoleContent:org-members",
+        "name": "成员管理"
+      },
+      {
+        "key": "openRoleContent:org-permissions",
+        "name": "权限管理"
+      },
+      {
+        "key": "openRoleContent:org-course-packages",
+        "name": "课程包"
+      },
+      {
+        "key": "openRoleContent:org-course-accounts",
+        "name": "课时管理"
+      },
+      {
+        "key": "openRoleContent:org-groups",
+        "name": "学习组"
+      },
+      {
+        "key": "openRoleContent:org-dashboard",
+        "name": "机构看板"
+      },
+      {
+        "key": "openRoleContent:org-plan",
+        "name": "套餐与账单"
+      },
+      {
+        "key": "openRoleContent:org-settings",
+        "name": "机构设置"
+      },
+      {
+        "key": "openRoleContent:org-audit",
+        "name": "审计日志"
+      }
+    ],
+    "organizationCount": 1,
+    "memberships": 1
+  },
+  {
+    "role": "orgContentAdmin",
+    "account": "student_mobile_ui_content_20261101",
+    "destinations": [
+      {
+        "key": "__overview__",
+        "name": "课程包"
+      }
+    ],
+    "organizationCount": 1,
+    "memberships": 1
+  },
+  {
+    "role": "contentAdmin",
+    "account": "contentadmin_demo",
+    "destinations": [
+      {
+        "key": "__overview__",
+        "name": "总览"
+      },
+      {
+        "key": "openRoleContent:content-feedback",
+        "name": "内容反馈"
+      },
+      {
+        "key": "openRoleContent:content-publish",
+        "name": "发布工作流"
+      },
+      {
+        "key": "openAuditLog",
+        "name": "内容日志"
+      }
+    ],
+    "organizationCount": 0,
+    "memberships": 0
+  },
+  {
+    "role": "student",
+    "account": "student_demo",
+    "destinations": [
+      {
+        "key": "__overview__",
+        "name": "总览"
+      },
+      {
+        "key": "openReviewWorkbench",
+        "name": "今日学习"
+      },
+      {
+        "key": "openAssignments",
+        "name": "我的作业"
+      },
+      {
+        "key": "openChapterPath",
+        "name": "专项练习"
+      },
+      {
+        "key": "openRoleContent:student-review-library",
+        "name": "复习资料"
+      },
+      {
+        "key": "openLearningReport",
+        "name": "学习报告"
+      },
+      {
+        "key": "openRoleContent:student-account-plan",
+        "name": "套餐与订单"
+      },
+      {
+        "key": "openRoleContent:student-account-coupons",
+        "name": "优惠与邀请"
+      },
+      {
+        "key": "openRoleContent:student-account-feedback",
+        "name": "帮助与反馈"
+      }
+    ],
+    "organizationCount": 1,
+    "memberships": 1
+  }
+]

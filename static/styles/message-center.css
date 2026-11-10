@@ -1,0 +1,42 @@
+/* Common account navigation, shared by the learner and every management role. */
+.pc-platform-account { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+button.pc-global-messages {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 40px; width: 40px; min-width: 40px; height: 40px; min-height: 40px;
+  padding: 8px; margin: 0; border: 0; border-radius: 10px;
+  background: transparent; color: #57534e; cursor: pointer; box-sizing: border-box;
+}
+button.pc-global-messages svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+button.pc-global-messages:hover, button.pc-global-messages[aria-current="page"] { background: #fff3e9; color: #ae450e; }
+button.pc-global-messages:focus-visible { outline: 2px solid #ae450e; outline-offset: 1px; }
+.pc-global-message-badge {
+  position: absolute; top: 1px; right: -2px; min-width: 17px; height: 17px;
+  padding: 0 4px; border-radius: 9px; box-sizing: border-box;
+  background: #bd3d23; color: white; font: 600 10px/17px system-ui, sans-serif;
+  text-align: center; pointer-events: none;
+}
+.pc-global-message-badge[hidden], button.pc-global-messages[hidden] { display: none !important; }
+body:not(.light-theme) button.pc-global-messages { color: #e8e6e3; }
+body:not(.light-theme) button.pc-global-messages:hover,
+body:not(.light-theme) button.pc-global-messages[aria-current="page"] { background: #453328; color: #ffb17e; }
+body:not(.light-theme) button.pc-global-messages:focus-visible { outline-color: #ffb17e; }
+.pc-message-center-toolbar { gap: 12px; padding: 12px 16px; }
+.pc-message-center-tools { flex-wrap: wrap; }
+.pc-message-center-row { overflow-wrap: anywhere; }
+.pc-message-center-row-actions { flex-shrink: 0; }
+.pc-message-center-list > [data-message-center-more] { display: block; margin: 16px auto 0; }
+body:not(.light-theme) .pc-message-center-row { color: #e8e6e3; border-color: #48474b; }
+body:not(.light-theme) .pc-message-center-row.is-unread { background: #302b27; }
+body:not(.light-theme) .pc-message-center-row-title strong,
+body:not(.light-theme) .pc-message-center-row p { color: #e8e6e3; }
+body:not(.light-theme) .pc-message-center-row small,
+body:not(.light-theme) .pc-message-center-empty,
+body:not(.light-theme) .pc-message-center-tabs button { color: #b9b4ae; }
+body:not(.light-theme) .pc-message-center-tabs button.active,
+body:not(.light-theme) .pc-message-center-row-title span { background: #453328; color: #ffb17e; border-color: #936748; }
+@media (max-width: 600px) {
+  .pc-platform-account, #learning-account { gap: 6px; }
+  .pc-message-center-toolbar { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .pc-message-center-tools { margin-left: auto; }
+  .pc-message-center-row-actions { flex-wrap: wrap; }
+}

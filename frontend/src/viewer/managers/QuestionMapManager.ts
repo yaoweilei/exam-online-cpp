@@ -25,6 +25,7 @@ interface QuestionMapCategory {
 }
 
 interface QuestionMapExamViewer {
+	getLearningSessionKind?: () => string;
 	currentExam?: {
 		exam_info?: {
 			sections?: QuestionMapSection[];
@@ -35,8 +36,13 @@ interface QuestionMapExamViewer {
 	userAnswers: Record<string, unknown>;
 	showAnswers: boolean;
 	examMode?: string;
+	savedPracticeMode?: string | null;
+	isSubmitted?: boolean;
 	practiceScope?: { label: string; sectionIndexes: number[] } | null;
 	finishPractice?: () => void;
+	specialtyPractice?: unknown;
+	getSpecialtyQuestionMapItems?: () => { index: number; current: boolean; status: string }[] | null;
+	jumpToSpecialtyPosition?: (index: number) => Promise<void>;
 	getCategories: () => QuestionMapCategory[];
 	submitAnswers?: () => void;
 	audioManager: {
@@ -89,8 +95,14 @@ class QuestionMapManager {
 		if (!this.questionMapVisible) this.previousFocus = document.activeElement as HTMLElement | null;
 		this.questionMapVisible = true;
 		this.questionMapContainer.style.display = 'flex';
+		this.questionMapContainer.classList.add('task-question-sheet');
 		this.questionMapContainer.setAttribute('aria-hidden', 'false');
 		this.renderQuestionMap();
+		const finish = this.questionMapContainer.querySelector<HTMLButtonElement>('[data-question-map-submit]');
+		if (finish) {
+			finish.hidden = !!this.examViewer.specialtyPractice || this.examViewer.savedPracticeMode === 'review' || !!this.examViewer.isSubmitted;
+			finish.textContent = this.examViewer.getLearningSessionKind?.() === 'diagnostic' ? '提交诊断' : this.examViewer.examMode === 'practice' && this.examViewer.practiceScope ? '完成本次练习' : '提交试卷';
+		}
 		requestAnimationFrame(() => this.questionMapContainer?.querySelector<HTMLButtonElement>('[data-question-map-close]')?.focus());
 	}
 
@@ -103,7 +115,13 @@ class QuestionMapManager {
 			this.questionMapContainer.setAttribute('aria-hidden', 'true');
 		}
 		this.questionMapVisible = false;
-		if (this.previousFocus?.isConnected) this.previousFocus.focus();
+		if (this.previousFocus?.isConnected && this.previousFocus.getClientRects().length) this.previousFocus.focus();
+		else {
+			const selector = this.previousFocus?.classList.contains('question-counter')
+				? '#question-navigation .question-counter'
+				: '#question-navigation .task-details-toggle';
+			document.querySelector<HTMLButtonElement>(selector)?.focus();
+		}
 	}
 
 	/**
@@ -374,7 +392,7 @@ class QuestionMapManager {
 
 		const footer = document.createElement('div');
 		footer.className = 'question-map-footer';
-		footer.innerHTML = `<span class="question-map-status" data-question-map-status></span><div class="question-map-actions"><button type="button" class="question-map-close" data-question-map-close-footer>继续检查</button><button type="button" class="question-map-submit" data-question-map-submit>提交试卷</button></div>`;
+		footer.innerHTML = `<span class="question-map-status" data-question-map-status></span><div class="question-map-actions"><button type="button" class="question-map-close" data-question-map-close-footer>收起答题卡</button><button type="button" class="question-map-submit" data-question-map-submit>提交试卷</button></div>`;
 		if (this.examViewer.examMode === 'practice' && this.examViewer.practiceScope) footer.querySelector('[data-question-map-submit]')!.textContent = '完成本次练习';
 		footer.querySelector<HTMLButtonElement>('[data-question-map-close-footer]')?.addEventListener('click', () => this.hideQuestionMap());
 		footer.querySelector<HTMLButtonElement>('[data-question-map-submit]')?.addEventListener('click', () => {
@@ -395,6 +413,12 @@ class QuestionMapManager {
 				event.preventDefault();
 				this.hideQuestionMap();
 			}
+			if (event.key === 'Tab') {
+				const buttons = Array.from(mapContent.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')).filter(button => !button.hidden && button.getClientRects().length > 0);
+				const first = buttons[0], last = buttons[buttons.length - 1];
+				if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+				else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+			}
 		});
 	}
 
@@ -404,6 +428,35 @@ class QuestionMapManager {
 	renderQuestionMap(): void {
 		if (!this.questionMapContent || !this.examViewer.currentExam) {
 			console.warn('[QuestionMapManager] Cannot render: missing content or exam');
+			return;
+		}
+		const specialty = this.examViewer.getSpecialtyQuestionMapItems?.();
+		if (specialty) {
+			this.questionMapContent.replaceChildren();
+			const legend = document.createElement('p'); legend.className = 'task-map-legend';
+			legend.textContent = specialty.some(item => ['correct', 'incorrect'].includes(item.status)) ? '绿色答对 · 红色答错 · 描边为当前题' : '橙色已答 · 灰色未答 · 描边为当前题';
+			const grid = document.createElement('div'); grid.className = 'task-map-grid';
+			const labels: Record<string, string> = { correct: '答对', incorrect: '答错', answered: '已答', unanswered: '未答', viewed: '看答案学习' };
+			for (const item of specialty) {
+				const button = document.createElement('button'); button.type = 'button';
+				button.className = `question-map-item ${item.status}${item.current ? ' current' : ''}`;
+				button.textContent = String(item.index + 1);
+				button.dataset.specialtyIndex = String(item.index);
+				button.setAttribute('aria-label', `第 ${item.index + 1} 题，${labels[item.status]}${item.current ? '，当前题' : ''}`);
+				if (item.current) button.setAttribute('aria-current', 'step');
+				grid.append(button);
+			}
+			this.questionMapContent.append(legend, grid);
+			this.questionMapContent.onclick = async event => {
+				const button = (event.target as HTMLElement)?.closest<HTMLButtonElement>('[data-specialty-index]');
+				if (!button) return;
+				button.disabled = true;
+				try { await this.examViewer.jumpToSpecialtyPosition?.(Number(button.dataset.specialtyIndex)); this.hideQuestionMap(); }
+				catch (error) { const status = this.questionMapContainer?.querySelector('[data-question-map-status]'); if (status) status.textContent = error instanceof Error ? error.message : '读取题目失败，请重试'; }
+				finally { button.disabled = false; }
+			};
+			const status = this.questionMapContainer?.querySelector('[data-question-map-status]');
+			if (status) status.textContent = `本次共 ${specialty.length} 题 · 点击题号跳转`;
 			return;
 		}
 
@@ -503,7 +556,7 @@ class QuestionMapManager {
 		const status = this.questionMapContainer?.querySelector<HTMLElement>('[data-question-map-status]');
 		if (status) status.textContent = `已答 ${answeredQuestions} / ${totalQuestions} 题`;
 
-		this.questionMapContent.addEventListener('click', (event) => {
+		this.questionMapContent.onclick = (event) => {
 			const target = event.target as HTMLElement | null;
 			const item = target?.closest('.question-map-item') as HTMLElement | null;
 			if (!item) {
@@ -521,8 +574,8 @@ class QuestionMapManager {
 			if (Number.isNaN(sectionIndex) || Number.isNaN(questionIndex)) {
 				return;
 			}
-			this.selectQuestion(sectionIndex, questionIndex, true);
-		});
+			this.selectQuestion(sectionIndex, questionIndex);
+		};
 	}
 
 	/**
@@ -561,6 +614,7 @@ class QuestionMapManager {
 	 * 刷新答题状态
 	 */
 	refreshQuestionMapAnswered(): void {
+		if (this.examViewer.specialtyPractice) { if (this.questionMapVisible) this.renderQuestionMap(); return; }
 		this.evaluateAnswersInMap();
 	}
 

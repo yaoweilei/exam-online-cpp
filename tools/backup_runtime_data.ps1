@@ -15,11 +15,14 @@ $backupBase = FullPath $BackupRoot
 if (-not (Test-Path -LiteralPath $source -PathType Container)) {
     throw "Data root does not exist: $source"
 }
-if ($backupBase.StartsWith($source + '\', [System.StringComparison]::OrdinalIgnoreCase)) {
+if ($backupBase -eq $source -or $backupBase.StartsWith($source + '\', [System.StringComparison]::OrdinalIgnoreCase)) {
     throw 'Backup root must not be inside the data root'
 }
 if (Get-Process exam_online_cpp -ErrorAction SilentlyContinue) {
     throw 'Stop exam_online_cpp before creating a consistent runtime backup'
+}
+if (((Get-Item -LiteralPath $source -Force).Attributes -band [System.IO.FileAttributes]::ReparsePoint) -or @(Get-ChildItem -LiteralPath $source -Recurse -Force | Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReparsePoint }).Count) {
+    throw 'Data root contains links or junctions; use a physical offline snapshot'
 }
 
 New-Item -ItemType Directory -Path $backupBase -Force | Out-Null
@@ -36,7 +39,7 @@ try {
     $payload = Join-Path $partial 'data'
     Copy-Item -LiteralPath $source -Destination $payload -Recurse -Force
 
-    $files = @(Get-ChildItem -LiteralPath $payload -Recurse -File | Sort-Object FullName | ForEach-Object {
+    $files = @(Get-ChildItem -LiteralPath $payload -Recurse -File -Force | Sort-Object FullName | ForEach-Object {
         [pscustomobject]@{
             path = $_.FullName.Substring($payload.Length + 1).Replace('\', '/')
             length = $_.Length

@@ -21,6 +21,8 @@ class StatisticsService
 
     Json::Value userStatistics(const std::string &userId) const;
 
+    Json::Value recordStudySeconds(const std::string &userId, int deltaSeconds);
+
     Json::Value weakPoints(const std::string &userId) const;
 
     Json::Value learningCurve(const std::string &userId, int days) const;

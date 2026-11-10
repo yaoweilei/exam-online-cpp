@@ -12,13 +12,14 @@ sqliteStore_(std::move(userRootDir) / "core.sqlite3")
     ensureBaseline();
 }
 
-Json::Value OrganizationRepository::allOrganizationsArray() const
+Json::Value OrganizationRepository::allOrganizationsArray(bool includeArchived) const
 {
     std::shared_lock lock(mutex_);
     Json::Value out(Json::arrayValue);
-    const auto organizations = readOrganizationsUnlocked();
+    const auto &organizations = organizationsCache_;
     for (const auto &organizationId : organizations.getMemberNames())
     {
+        if (!includeArchived && !organizations[organizationId].get("archived_at", "").asString().empty()) continue;
         out.append(normalizeOrganization(organizations[organizationId], organizationId));
     }
     return out;
@@ -27,14 +28,13 @@ Json::Value OrganizationRepository::allOrganizationsArray() const
 Json::Value OrganizationRepository::listOrganizationsForUser(const std::string &userId) const
 {
     std::shared_lock lock(mutex_);
-    const auto organizations = readOrganizationsUnlocked();
-    const auto memberships = readMembershipsUnlocked();
+    const auto &organizations = organizationsCache_;
+    const auto &memberships = membershipsCache_;
 
     Json::Value out(Json::arrayValue);
     std::unordered_set<std::string> seen;
-    for (const auto &membershipId : memberships.getMemberNames())
+    for (const auto &membership : memberships)
     {
-        const auto membership = normalizeMembership(memberships[membershipId]);
         if (membership.get("user_id", "").asString() != userId)
         {
             continue;
@@ -45,17 +45,18 @@ Json::Value OrganizationRepository::listOrganizationsForUser(const std::string &
         {
             continue;
         }
+        if (!organizations[scopeId].get("archived_at", "").asString().empty()) continue;
         seen.insert(scopeId);
         out.append(normalizeOrganization(organizations[scopeId], scopeId));
     }
     return out;
 }
 
-Json::Value OrganizationRepository::findOrganization(const std::string &organizationId) const
+Json::Value OrganizationRepository::findOrganization(const std::string &organizationId, bool includeArchived) const
 {
     std::shared_lock lock(mutex_);
-    const auto organizations = readOrganizationsUnlocked();
-    if (!organizations.isMember(organizationId))
+    const auto &organizations = organizationsCache_;
+    if (!organizations.isMember(organizationId) || (!includeArchived && !organizations[organizationId].get("archived_at", "").asString().empty()))
     {
         return Json::Value(Json::nullValue);
     }
@@ -71,8 +72,14 @@ Json::Value OrganizationRepository::upsertOrganization(const Json::Value &organi
     }
 
     std::unique_lock lock(mutex_);
-    auto organizations = readOrganizationsUnlocked();
+    auto organizations = organizationsCache_;
+    if (organizations.isMember(organizationId) && !organizations[organizationId].get("archived_at", "").asString().empty())
+        throw common::AppException("ORGANIZATION_ARCHIVED", "机构已移除，请先恢复后再操作", drogon::k409Conflict);
+    if (organizations.isMember(organizationId) &&
+        organization.get("workflow_revision", Json::UInt64(0)).asUInt64() != organizations[organizationId].get("workflow_revision", Json::UInt64(0)).asUInt64())
+        throw common::AppException("ORGANIZATION_CONFLICT", "机构课次或跟进已更新，请刷新后重试", drogon::k409Conflict);
     auto normalized = normalizeOrganization(organization, organizationId);
+    normalized["workflow_revision"]=organizations.isMember(organizationId)?organizations[organizationId].get("workflow_revision",Json::UInt64(0)).asUInt64()+Json::UInt64(1):Json::UInt64(0);
     normalized["updated_at"] = common::nowIso8601();
     if (!organizations.isMember(organizationId))
     {
@@ -87,17 +94,35 @@ Json::Value OrganizationRepository::upsertOrganization(const Json::Value &organi
     return normalized;
 }
 
+Json::Value OrganizationRepository::updateOrganization(const std::string &organizationId, const std::function<void(Json::Value &)> &update, bool includeArchived)
+{
+    std::unique_lock lock(mutex_);
+    auto organizations = organizationsCache_;
+    if (!organizations.isMember(organizationId) || (!includeArchived && !organizations[organizationId].get("archived_at", "").asString().empty()))
+        throw common::AppException("ORGANIZATION_NOT_FOUND", "机构不存在", drogon::k404NotFound);
+    auto organization = normalizeOrganization(organizations[organizationId], organizationId);
+    update(organization);
+    // Reject stale whole-organization saves from legacy management operations.
+    organization["workflow_revision"] = organizations[organizationId].get("workflow_revision", Json::UInt64(0)).asUInt64() + Json::UInt64(1);
+    organization["updated_at"] = common::nowIso8601();
+    organizations[organizationId] = organization;
+    writeOrganizationsUnlocked(organizations);
+    return organization;
+}
+
 Json::Value OrganizationRepository::listMembershipsForUser(const std::string &userId) const
 {
     std::shared_lock lock(mutex_);
-    const auto memberships = readMembershipsUnlocked();
+    const auto &memberships = membershipsCache_;
+    const auto &organizations = organizationsCache_;
     Json::Value out(Json::arrayValue);
-    for (const auto &membershipId : memberships.getMemberNames())
+    for (const auto &membership : memberships)
     {
-        const auto membership = normalizeMembership(memberships[membershipId]);
         if (membership.get("user_id", "").asString() == userId)
         {
-            out.append(membership);
+            const auto scopeId = membership.get("scope_id", "").asString();
+            if (organizations.isMember(scopeId) && !organizations[scopeId].get("archived_at", "").asString().empty()) continue;
+            out.append(normalizeMembership(membership));
         }
     }
     return out;
@@ -106,7 +131,7 @@ Json::Value OrganizationRepository::listMembershipsForUser(const std::string &us
 Json::Value OrganizationRepository::listMembershipsForScope(const std::string &scopeId) const
 {
     std::shared_lock lock(mutex_);
-    const auto memberships = readMembershipsUnlocked();
+    const auto &memberships = membershipsCache_;
     Json::Value out(Json::arrayValue);
     for (const auto &membershipId : memberships.getMemberNames())
     {
@@ -122,7 +147,9 @@ Json::Value OrganizationRepository::listMembershipsForScope(const std::string &s
 Json::Value OrganizationRepository::findMembership(const std::string &userId, const std::string &scopeId) const
 {
     std::shared_lock lock(mutex_);
-    const auto memberships = readMembershipsUnlocked();
+    const auto &organizations = organizationsCache_;
+    if (organizations.isMember(scopeId) && !organizations[scopeId].get("archived_at", "").asString().empty()) return Json::nullValue;
+    const auto &memberships = membershipsCache_;
     const auto compositeId = membershipStorageKey(userId, scopeId);
     if (memberships.isMember(compositeId))
     {
@@ -150,7 +177,10 @@ Json::Value OrganizationRepository::upsertMembership(const Json::Value &membersh
     }
 
     std::unique_lock lock(mutex_);
-    auto memberships = readMembershipsUnlocked();
+    const auto &organizations = organizationsCache_;
+    if (organizations.isMember(scopeId) && !organizations[scopeId].get("archived_at", "").asString().empty())
+        throw common::AppException("ORGANIZATION_ARCHIVED", "机构已移除，请先恢复后再操作", drogon::k409Conflict);
+    auto memberships = membershipsCache_;
     const auto key = membershipStorageKey(userId, scopeId);
     auto normalized = normalizeMembership(membership, key);
     const auto currentMembershipId = normalized.get("membership_id", "").asString();
@@ -166,7 +196,10 @@ Json::Value OrganizationRepository::upsertMembership(const Json::Value &membersh
 void OrganizationRepository::removeMembership(const std::string &userId, const std::string &scopeId)
 {
     std::unique_lock lock(mutex_);
-    auto memberships = readMembershipsUnlocked();
+    const auto &organizations = organizationsCache_;
+    if (organizations.isMember(scopeId) && !organizations[scopeId].get("archived_at", "").asString().empty())
+        throw common::AppException("ORGANIZATION_ARCHIVED", "机构已移除，请先恢复后再操作", drogon::k409Conflict);
+    auto memberships = membershipsCache_;
     const auto key = membershipStorageKey(userId, scopeId);
     if (memberships.isMember(key))
     {
@@ -187,10 +220,15 @@ void OrganizationRepository::removeMembership(const std::string &userId, const s
     }
 }
 
+std::size_t OrganizationRepository::organizationCount() const
+{
+    return allOrganizationsArray().size();
+}
+
 int OrganizationRepository::memberCount(const std::string &scopeId) const
 {
     std::shared_lock lock(mutex_);
-    const auto memberships = readMembershipsUnlocked();
+    const auto &memberships = membershipsCache_;
     int count = 0;
     for (const auto &membershipId : memberships.getMemberNames())
     {
@@ -206,7 +244,7 @@ int OrganizationRepository::memberCount(const std::string &scopeId) const
 int OrganizationRepository::billableMemberCount(const std::string &scopeId) const
 {
     std::shared_lock lock(mutex_);
-    const auto memberships = readMembershipsUnlocked();
+    const auto &memberships = membershipsCache_;
     int count = 0;
     for (const auto &membershipId : memberships.getMemberNames())
     {
@@ -245,40 +283,44 @@ void OrganizationRepository::ensureBaseline()
         const auto legacy = readJsonFile(membershipsFile_);
         if (legacy.isObject() && !legacy.empty()) writeMembershipsUnlocked(legacy);
     }
-}
-
-Json::Value OrganizationRepository::readOrganizationsUnlocked() const
-{
-    if (organizationsCacheLoaded_) return organizationsCache_;
-    Json::Value out(Json::objectValue);
-    for (const auto &entry : sqliteStore_.list("organizations"))
+    if (organizationsCache_.empty())
     {
-        const auto id = entry.get("organization_id", entry.get("scope_id", "")).asString();
-        if (!id.empty()) out[id] = entry;
+        for (const auto &entry : sqliteStore_.list("organizations"))
+        {
+            const auto id = entry.get("organization_id", entry.get("scope_id", "")).asString();
+            if (!id.empty()) organizationsCache_[id] = entry;
+        }
     }
-    organizationsCache_ = out;
-    organizationsCacheLoaded_ = true;
-    return organizationsCache_;
-}
-
-Json::Value OrganizationRepository::readMembershipsUnlocked() const
-{
-    if (membershipsCacheLoaded_) return membershipsCache_;
-    Json::Value out(Json::objectValue);
-    for (const auto &entry : sqliteStore_.list("memberships"))
+    if (membershipsCache_.empty())
     {
-        const auto userId = entry.get("user_id", "").asString();
-        const auto scopeId = entry.get("scope_id", "").asString();
-        if (!userId.empty() && !scopeId.empty()) out[membershipStorageKey(userId, scopeId)] = entry;
+        for (const auto &entry : sqliteStore_.list("memberships"))
+        {
+            const auto userId = entry.get("user_id", "").asString();
+            const auto scopeId = entry.get("scope_id", "").asString();
+            if (!userId.empty() && !scopeId.empty()) membershipsCache_[membershipStorageKey(userId, scopeId)] = entry;
+        }
     }
-    membershipsCache_ = out;
-    membershipsCacheLoaded_ = true;
-    return membershipsCache_;
 }
 
 std::unordered_map<std::string, int> OrganizationRepository::memberCounts() const
 {
 	return sqliteStore_.groupCount("memberships", "$.scope_id");
+}
+
+std::unordered_map<std::string, int> OrganizationRepository::billableMemberCounts() const
+{
+    std::shared_lock lock(mutex_);
+    const auto &memberships = membershipsCache_;
+    std::unordered_map<std::string, int> counts;
+    for (const auto &membershipId : memberships.getMemberNames())
+    {
+        const auto membership = normalizeMembership(memberships[membershipId]);
+        if (membershipUsesPaidSeat(membership))
+        {
+            ++counts[membership.get("scope_id", "").asString()];
+        }
+    }
+    return counts;
 }
 
 void OrganizationRepository::writeOrganizationsUnlocked(const Json::Value &organizations)
@@ -287,7 +329,6 @@ void OrganizationRepository::writeOrganizationsUnlocked(const Json::Value &organ
     if (organizations.isObject()) for (const auto &id : organizations.getMemberNames()) items.append(normalizeOrganization(organizations[id], id));
     sqliteStore_.replace("organizations", items, "organization_id");
     organizationsCache_ = organizations;
-    organizationsCacheLoaded_ = true;
 }
 
 void OrganizationRepository::writeMembershipsUnlocked(const Json::Value &memberships)
@@ -301,7 +342,6 @@ void OrganizationRepository::writeMembershipsUnlocked(const Json::Value &members
     }
     sqliteStore_.replace("memberships", items, "_storage_key");
     membershipsCache_ = memberships;
-    membershipsCacheLoaded_ = true;
 }
 
 std::string OrganizationRepository::membershipStorageKey(const std::string &userId, const std::string &scopeId)

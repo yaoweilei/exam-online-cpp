@@ -12,7 +12,7 @@
 // 职责：
 //   1. 在 ExamViewer.loadExamData 之后启动后端计时（POST /api/v1/timers/{userId}/start）
 //   2. 每 15 秒做一次心跳 tick，累计当前 section 的用时
-//   3. 在试卷选择栏渲染一个紧凑的计时状态：
+//   3. 用时钟图标提供可展开的计时详情：
 //        - 已用时（mm:ss）
 //        - 全卷剩余（若设置了 total_limit_seconds）
 //        - 当前小节剩余（若该 section 设置了 section_limits_seconds[i]）
@@ -50,6 +50,10 @@ interface ExamTimerSnapshot {
 class ExamTimerManager {
 	private readonly examViewer: ExamTimerExamViewer;
 	private tickHandle: number | null = null;
+	private practiceTickHandle: number | null = null;
+	private practiceUserId: string | null = null;
+	private practiceExamId: string | null = null;
+	private practiceTickPending = false;
 	private currentExamId: string | null = null;
 	private localElapsedSeconds = 0;
 	private lastSnapshot: ExamTimerSnapshot | null = null;
@@ -61,6 +65,11 @@ class ExamTimerManager {
 	private warnedSectionExpired: Record<number, boolean> = {};
 	private warnedSectionFiveMinutes: Record<number, boolean> = {};
 	private warnedSectionOneMinute: Record<number, boolean> = {};
+	private readonly closeTimerDetailsOnOutsideClick = (event: PointerEvent): void => {
+		const bar = document.getElementById('exam-timer-bar') as HTMLDetailsElement | null;
+		if (bar?.closest('#superadmin-account-menu')) return;
+		if (bar?.open && !bar.contains(event.target as Node)) bar.open = false;
+	};
 
 	// 心跳间隔（毫秒）；与后端 tick 上限 120s 保持安全距离
 	private static readonly TICK_INTERVAL_MS = 15000;
@@ -83,8 +92,10 @@ class ExamTimerManager {
 	}): void {
 		if (this.examViewer.examMode !== 'mock') {
 			this.stop();
+			this.startPracticeTracking(examId);
 			return;
 		}
+		if (this.practiceTickHandle !== null) this.stop();
 		const userId = this.examViewer.userId;
 		if (!userId || userId === 'guest' || !examId) {
 			return;
@@ -113,10 +124,10 @@ class ExamTimerManager {
 		this.warnedSectionOneMinute = {};
 
 		const payload: Record<string, unknown> = { exam_id: examId, current_section_index: this.examViewer.currentSectionIndex };
-		if (options?.totalLimitSeconds && options.totalLimitSeconds > 0) {
+		if (options?.totalLimitSeconds !== undefined) {
 			payload.total_limit_seconds = options.totalLimitSeconds;
 		}
-		if (options?.sectionLimitsSeconds && options.sectionLimitsSeconds.length > 0) {
+		if (options?.sectionLimitsSeconds) {
 			payload.section_limits_seconds = options.sectionLimitsSeconds;
 		}
 
@@ -145,11 +156,35 @@ class ExamTimerManager {
 			window.clearInterval(this.tickHandle);
 			this.tickHandle = null;
 		}
+		if (this.practiceTickHandle !== null) {
+			window.clearInterval(this.practiceTickHandle);
+			this.practiceTickHandle = null;
+		}
+		this.practiceUserId = null;
+		this.practiceExamId = null;
 		this.currentExamId = null;
 		this.localElapsedSeconds = 0;
 		this.lastSnapshot = null;
 		this.removeBar();
 		this.unbindActivityListeners();
+	}
+
+	private startPracticeTracking(examId: string): void {
+		const userId = this.examViewer.userId;
+		if (!examId || !userId || userId === 'guest' || typeof window.APIClient?.recordStudySeconds !== 'function') return;
+		this.practiceUserId = userId;
+		this.practiceExamId = examId;
+		this.markActive();
+		this.bindActivityListeners();
+		this.practiceTickHandle = window.setInterval(() => {
+			if (this.practiceTickPending || this.examViewer.examMode !== 'practice'
+				|| this.examViewer.userId !== userId || this.examViewer._currentExamId !== examId
+				|| !this.shouldCountTime()) return;
+			this.practiceTickPending = true;
+			void window.APIClient!.recordStudySeconds(userId, 15).catch(() => {
+				// 学习时长心跳失败不打断练习。
+			}).finally(() => { this.practiceTickPending = false; });
+		}, ExamTimerManager.TICK_INTERVAL_MS);
 	}
 
 	/**
@@ -198,22 +233,30 @@ class ExamTimerManager {
 	}
 
 	/**
-	 * 在试卷选择栏中渲染紧凑计时状态，不单独占用内容行。
+	 * 只在角落显示计时图标，展开后查看用时与剩余时间。
 	 */
 	private renderBar(): void {
-		this.removeBar();
-		if (this.examViewer.examMode !== 'mock') return;
+		if (this.examViewer.examMode !== 'mock') { this.removeBar(); return; }
 		const snapshot = this.lastSnapshot;
 		const slot = document.getElementById('exam-timer-slot');
-		if (!snapshot || !slot) return;
+		if (!snapshot || !slot) { this.removeBar(); return; }
 		const elapsed = formatDuration(Number(snapshot.elapsed_seconds || 0));
 		const totalLimit = Number(snapshot.total_limit_seconds || 0);
 		const remaining = Number(snapshot.total_remaining_seconds || 0);
-		const bar = document.createElement('div');
-		bar.id = 'exam-timer-bar';
+		let bar = slot.querySelector<HTMLDetailsElement>('#exam-timer-bar');
+		if (!bar) {
+			bar = document.createElement('details');
+			bar.id = 'exam-timer-bar';
+			bar.innerHTML = '<summary><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></summary><div class="exam-timer-popover" role="timer"><strong></strong><span></span></div>';
+			bar.addEventListener('keydown', (event) => {
+				if (event.key !== 'Escape') return;
+				bar!.open = false;
+				bar!.querySelector('summary')?.focus();
+			});
+			slot.appendChild(bar);
+			document.addEventListener('pointerdown', this.closeTimerDetailsOnOutsideClick, true);
+		}
 		bar.className = snapshot.expired ? 'is-expired' : '';
-		bar.setAttribute('role', 'timer');
-		bar.setAttribute('aria-live', snapshot.expired ? 'assertive' : 'off');
 		const sectionLimit = Number(snapshot.section_limit_seconds || 0);
 		const sectionRemaining = Number(snapshot.section_remaining_seconds || 0);
 		const primaryText = snapshot.expired
@@ -226,15 +269,19 @@ class ExamTimerManager {
 		const details = [`已用 ${elapsed}`];
 		if (totalLimit > 0) details.push(`全卷剩余 ${formatDuration(remaining)}`);
 		if (sectionLimit > 0) details.push(`本部分剩余 ${formatDuration(sectionRemaining)}`);
-		bar.textContent = primaryText;
-		bar.title = details.join(' · ');
-		bar.setAttribute('aria-label', details.join('，'));
+		const summary = bar.querySelector('summary')!;
+		summary.title = details.join(' · ');
+		summary.setAttribute('aria-label', `查看计时：${primaryText}`);
+		const popover = bar.querySelector<HTMLElement>('.exam-timer-popover')!;
+		popover.setAttribute('aria-live', snapshot.expired ? 'assertive' : 'off');
+		popover.querySelector('strong')!.textContent = primaryText;
+		popover.querySelector('span')!.textContent = details.filter(item => item !== primaryText).join(' · ');
 		slot.hidden = false;
-		slot.appendChild(bar);
 		document.getElementById('exam-library-panel')?.classList.add('has-exam-timer');
 	}
 
 	private removeBar(): void {
+		document.removeEventListener('pointerdown', this.closeTimerDetailsOnOutsideClick, true);
 		const bar = document.getElementById('exam-timer-bar');
 		if (bar && bar.parentNode) {
 			bar.parentNode.removeChild(bar);

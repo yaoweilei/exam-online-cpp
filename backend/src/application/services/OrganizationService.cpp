@@ -74,6 +74,7 @@ Json::Value OrganizationService::createOrganization(const std::string &actorUser
     subscription["seats"] = payload.get("seats", 0).asInt();
     organization["subscription"] = subscription;
 
+    const auto ownerRoles = normalizeMemberRoles(payload.isMember("owner_roles") ? payload["owner_roles"] : defaultOwnerRoles());
     auto savedOrganization = organizationRepository_.upsertOrganization(organization);
 
     Json::Value membership(Json::objectValue);
@@ -81,7 +82,6 @@ Json::Value OrganizationService::createOrganization(const std::string &actorUser
     membership["scope_type"] = "organization";
     membership["scope_id"] = organizationId;
     membership["organization_type"] = organizationType;
-    const auto ownerRoles = normalizeMemberRoles(payload.isMember("owner_roles") ? payload["owner_roles"] : defaultOwnerRoles());
     membership["roles"] = ownerRoles;
     membership["permission_templates"] = normalizePermissionTemplates(payload.get("permission_templates", Json::Value(Json::arrayValue)), ownerRoles);
     membership["permission_overrides"] = normalizePermissionOverrides(payload.get("permission_overrides", Json::Value(Json::arrayValue)));
@@ -105,6 +105,28 @@ Json::Value OrganizationService::createOrganization(const std::string &actorUser
     savedOrganization = organizationRepository_.upsertOrganization(savedOrganization);
 
     return enrichOrganization(savedOrganization);
+}
+
+Json::Value OrganizationService::setOrganizationArchived(const std::string &actorUserId, const std::string &organizationId, bool archived)
+{
+    const auto actor = userRepository_.findUserById(actorUserId);
+    if (!hasPlatformRole(actor["roles"]))
+        throw common::AppException("FORBIDDEN", "只有超级管理员可以移除或恢复机构", drogon::k403Forbidden);
+    return organizationRepository_.updateOrganization(organizationId, [&](Json::Value &organization) {
+        const bool wasArchived = !organization.get("archived_at", "").asString().empty();
+        if (wasArchived == archived) return;
+        const auto subscription = organization.get("subscription", Json::Value(Json::objectValue));
+        const auto expiry = subscription.get("expires_at", "").asString();
+        if (archived && subscription.get("plan", "free").asString() != "free"
+            && subscription.get("status", "active").asString() != "expired" && subscription.get("status", "active").asString() != "canceled"
+            && (expiry.empty() || expiry > common::nowIso8601()))
+            throw common::AppException("ORGANIZATION_BILLING_ACTIVE", "机构仍有有效付费套餐，请先处理套餐后再移除", drogon::k409Conflict);
+        organization["archived_at"] = archived ? common::nowIso8601() : "";
+        organization["archived_by"] = archived ? actorUserId : "";
+        organization = appendAuditEntry(organization, createAuditEntry(actorUserId,
+            archived ? "organization.archived" : "organization.restored",
+            archived ? "移除机构（归档）" : "恢复机构", Json::Value(Json::objectValue)));
+    }, true);
 }
 
 Json::Value OrganizationService::listMembers(const std::string &organizationId) const
@@ -310,7 +332,7 @@ Json::Value OrganizationService::acceptInvitation(const std::string &actorUserId
             membership["scope_type"] = "organization";
             membership["scope_id"] = organizationId;
             membership["organization_type"] = organization.get("organization_type", "business").asString();
-            membership["roles"] = normalizeMemberRoles(invitation.get("roles", defaultMemberRoles()));
+            membership["roles"] = normalizeMemberRoles(invitation.get("roles", defaultMemberRoles()), true);
             membership["permission_templates"] = normalizePermissionTemplates(invitation.get("permission_templates", Json::Value(Json::arrayValue)), membership["roles"]);
             membership["permission_overrides"] = normalizePermissionOverrides(invitation.get("permission_overrides", Json::Value(Json::arrayValue)));
             membership["joined_at"] = common::nowIso8601();
@@ -419,7 +441,8 @@ Json::Value OrganizationService::upsertMember(const std::string &actorUserId, co
     }
 
     const auto existing = organizationRepository_.findMembership(userId, organizationId);
-    const auto roles = normalizeMemberRoles(payload.isMember("roles") ? payload["roles"] : defaultMemberRoles());
+    const auto currentRoles = existing.get("roles", defaultMemberRoles());
+    const auto roles = normalizeMemberRoles(payload.get("roles", currentRoles), hasRole(currentRoles, "orgContentAdmin"));
     const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
     const auto seats = subscription.get("seats", 0).asInt();
     Json::Value seatCandidate(Json::objectValue);
@@ -433,6 +456,12 @@ Json::Value OrganizationService::upsertMember(const std::string &actorUserId, co
     }
 
     ensureOrgAdminGuard(organizationId, existing, roles);
+    if (!existing.isNull()) {
+        bool teachingRole=false; for (const auto &role:roles) if (role.asString()=="teacher"||role.asString()=="assistant"||role.asString()=="orgAdmin") teachingRole=true;
+        if (!teachingRole) for (const auto &group:organization.get("learning_groups",Json::Value(Json::arrayValue))) for (const auto &entry:group.get("enrollments",Json::Value(Json::arrayValue)))
+            if (entry.get("user_id","").asString()==userId&&entry.get("status","active").asString()=="active"&&entry.get("role","student").asString()!="student")
+                throw common::AppException("HANDOFF_REQUIRED","该职员仍有班级授课关系，请先办理教师交接或离班，再移除授课身份",drogon::k409Conflict);
+    }
     const auto permissionTemplates = payload.isMember("permission_templates")
                                          ? normalizePermissionTemplates(payload["permission_templates"], roles)
                                          : normalizePermissionTemplates(existing.get("permission_templates", Json::Value(Json::arrayValue)), roles);
@@ -494,6 +523,13 @@ void OrganizationService::removeMember(const std::string &actorUserId, const std
         return;
     }
     ensureOrgAdminGuard(organizationId, existing, Json::Value(Json::nullValue));
+    for (const auto &group : organization.get("learning_groups",Json::Value(Json::arrayValue)))
+        for (const auto &entry : group.get("enrollments",Json::Value(Json::arrayValue)))
+            if (entry.get("user_id","").asString()==userId&&entry.get("status","active").asString()=="active")
+                throw common::AppException("HANDOFF_REQUIRED","成员仍在班级中，请先到班级课次的“人员变更”预览并办理离班或教师交接，再移除机构成员",drogon::k409Conflict);
+    for (const auto &followup : organization.get("followups",Json::Value(Json::arrayValue)))
+        if (followup.get("owner_id","").asString()==userId&&followup.get("status","").asString()!="completed")
+            throw common::AppException("HANDOFF_REQUIRED","该职员仍有未完成跟进，请先转交负责人或完成跟进，再移除成员",drogon::k409Conflict);
     const auto user = userRepository_.findUserById(userId);
     organizationRepository_.removeMembership(userId, organizationId);
     organization = appendAuditEntry(
@@ -514,17 +550,21 @@ void OrganizationService::removeMember(const std::string &actorUserId, const std
 }
 
 Json::Value OrganizationService::listOrganizationSummaries(const std::string &userId, bool includeAll,
-                                                            const std::string &query, int page, int pageSize) const
+                                                            const std::string &query, int page, int pageSize,
+                                                            const Json::Value &filters) const
 {
-    const auto organizations = includeAll ? organizationRepository_.allOrganizationsArray()
+    const bool archivedOnly = includeAll && filters.get("visibility", "").asString() == "archived";
+    const auto organizations = includeAll ? organizationRepository_.allOrganizationsArray(archivedOnly)
                                           : organizationRepository_.listOrganizationsForUser(userId);
     const auto counts = organizationRepository_.memberCounts();
+    const auto billableCounts = organizationRepository_.billableMemberCounts();
     std::vector<Json::Value> matches;
     std::string normalizedQuery = query;
     std::transform(normalizedQuery.begin(), normalizedQuery.end(), normalizedQuery.begin(),
                    [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     for (const auto &organization : organizations)
     {
+        if (archivedOnly && organization.get("archived_at", "").asString().empty()) continue;
         const auto id = organization.get("organization_id", organization.get("scope_id", "")).asString();
         const auto name = organization.get("name", "").asString();
         std::string searchable = id + " " + name;
@@ -536,16 +576,34 @@ Json::Value OrganizationService::listOrganizationSummaries(const std::string &us
         summary["name"] = name;
         summary["organization_type"] = organization.get("organization_type", "business").asString();
         summary["status"] = organization.get("status", "active").asString();
+        summary["archived_at"] = organization.get("archived_at", "").asString();
         summary["subscription"] = organization.get("subscription", Json::Value(Json::objectValue));
         summary["member_count"] = counts.contains(id) ? counts.at(id) : 0;
+        summary["billable_member_count"] = billableCounts.contains(id) ? billableCounts.at(id) : 0;
+        const auto plan = filters.get("plan", "").asString();
+        const auto status = filters.get("status", "").asString();
+        const auto members = filters.get("members", "").asString();
+        const int count = summary["member_count"].asInt();
+        if (!plan.empty() && summary["subscription"].get("plan", "free").asString() != plan) continue;
+        if (!status.empty() && summary["status"].asString() != status) continue;
+        if ((members == "0" && count != 0) || (members == "1-10" && (count < 1 || count > 10))
+            || (members == "11-50" && (count < 11 || count > 50)) || (members == "51+" && count < 51)) continue;
         matches.push_back(std::move(summary));
     }
-    std::stable_sort(matches.begin(), matches.end(), [](const Json::Value &a, const Json::Value &b) {
-        return a.get("name", "").asString() < b.get("name", "").asString();
+    const bool byMembers = filters.get("sort", "name").asString() == "member_count";
+    const bool descending = filters.get("order", "asc").asString() == "desc";
+    std::stable_sort(matches.begin(), matches.end(), [byMembers, descending](const Json::Value &a, const Json::Value &b) {
+        if (byMembers && a["member_count"].asInt() != b["member_count"].asInt())
+            return descending ? a["member_count"].asInt() > b["member_count"].asInt() : a["member_count"].asInt() < b["member_count"].asInt();
+        if (a["name"].asString() != b["name"].asString())
+            return descending ? a["name"].asString() > b["name"].asString() : a["name"].asString() < b["name"].asString();
+        return a["organization_id"].asString() < b["organization_id"].asString();
     });
     Json::Value out(Json::objectValue);
     out["items"] = Json::arrayValue;
     const int total = static_cast<int>(matches.size());
+    pageSize = std::clamp(pageSize, 1, 100);
+    page = std::clamp(page, 1, (std::max)(1, (total + pageSize - 1) / pageSize));
     const int begin = (page - 1) * pageSize;
     for (int i = begin; i < total && i < begin + pageSize; ++i) out["items"].append(matches[static_cast<std::size_t>(i)]);
     out["total"] = total;
@@ -760,6 +818,9 @@ Json::Value OrganizationService::completeLearningGroup(const std::string &actorU
                                                        const Json::Value &payload)
 {
     auto organization = requireOrganization(organizationId);
+    for (const auto &lesson : organization.get("lessons", Json::Value(Json::arrayValue)))
+        if (lesson.get("group_id", "").asString() == learningGroupId)
+            throw common::AppException("USE_LESSON_SETTLEMENT", "该班级已启用独立课次，请在班级课次中确认出勤和结算", drogon::k409Conflict);
     auto groups = ensureArray(organization.get("learning_groups", Json::Value(Json::arrayValue)));
     auto group = findEntityById(groups, "learning_group_id", learningGroupId);
     if (group.isNull())
@@ -885,6 +946,9 @@ Json::Value OrganizationService::upsertLearningGroupEnrollment(const std::string
     const auto role = normalizeEnrollmentRole(payload.get("role", "student").asString());
     auto enrollments = ensureArray(group.get("enrollments", Json::Value(Json::arrayValue)));
     const auto existingEnrollment = findEntityById(enrollments, "user_id", userId);
+    if (!existingEnrollment.isNull()&&existingEnrollment.get("status","active").asString()=="active"&&
+        (payload.get("status","active").asString()=="inactive"||role!=existingEnrollment.get("role","student").asString()))
+        throw common::AppException("HANDOFF_REQUIRED","已有授课关系请到班级课次的“人员变更”办理，先核对课次、作业和余额；不能直接覆盖身份或停用",drogon::k409Conflict);
     Json::Value enrollment(Json::objectValue);
     enrollment["enrollment_id"] = payload.get("enrollment_id", existingEnrollment.get("enrollment_id", common::generateOpaqueId("enr_"))).asString();
     enrollment["organization_id"] = organizationId;
@@ -948,6 +1012,16 @@ Json::Value OrganizationService::upsertCoursePackage(const std::string &actorUse
         throw common::AppException("USER_NOT_FOUND", "Student not found: " + studentId, drogon::k404NotFound);
     }
 
+    const auto templateId = payload.get("template_id", existing.get("template_id", "")).asString();
+    if (!isTemplate && !templateId.empty() && (existing.isNull() || existing.get("template_id", "").asString() != templateId))
+    {
+        const auto sourceTemplate = findEntityById(ensureArray(organization.get("course_packages", Json::Value(Json::arrayValue))), "course_package_id", templateId);
+        if (sourceTemplate.isNull() || sourceTemplate.get("record_type", "assignment").asString() != "template" ||
+            sourceTemplate.get("status", "active").asString() != "active" ||
+            isExpiredIso8601(sourceTemplate.get("expires_at", "").asString()))
+            throw common::AppException("COURSE_PACKAGE_UNAVAILABLE", "课程包模板已过期、停用或不存在，无法分配", drogon::k409Conflict);
+    }
+
     const auto totalLessons = (std::max)(0, payload.get("total_lessons", existing.get("total_lessons", 0)).asInt());
     const auto usedLessons = (std::max)(0, payload.get("used_lessons", existing.get("used_lessons", 0)).asInt());
     const auto remainingLessons = payload.isMember("remaining_lessons")
@@ -971,7 +1045,7 @@ Json::Value OrganizationService::upsertCoursePackage(const std::string &actorUse
     {
         status = "depleted";
     }
-    else if (!isTemplate && status == "active" && isExpiredIso8601(coursePackage.get("expires_at", "").asString()))
+    else if (status == "active" && isExpiredIso8601(coursePackage.get("expires_at", "").asString()))
     {
         status = "expired";
     }
@@ -1056,6 +1130,7 @@ Json::Value OrganizationService::deleteCoursePackage(const std::string &actorUse
 
 bool OrganizationService::canAccessOrganization(const std::string &actorUserId, const Json::Value &actorRoles, const std::string &organizationId) const
 {
+    if (organizationRepository_.findOrganization(organizationId).isNull()) return false;
     if (hasPlatformRole(actorRoles))
     {
         return true;
@@ -1070,6 +1145,7 @@ Json::Value OrganizationService::effectiveOrganizationPermissions(const std::str
                                                                    const std::string &scopeId) const
 {
     Json::Value permissions(Json::arrayValue);
+    if (organizationRepository_.findOrganization(organizationId).isNull()) return permissions;
     if (hasPlatformRole(actorRoles))
     {
         permissions.append("*");
@@ -1438,7 +1514,7 @@ bool OrganizationService::hasRole(const Json::Value &roles, const std::string &e
     return false;
 }
 
-Json::Value OrganizationService::normalizeMemberRoles(const Json::Value &inputRoles)
+Json::Value OrganizationService::normalizeMemberRoles(const Json::Value &inputRoles, bool preserveRetiredRole)
 {
     Json::Value roles(Json::arrayValue);
     std::unordered_set<std::string> seen;
@@ -1453,6 +1529,10 @@ Json::Value OrganizationService::normalizeMemberRoles(const Json::Value &inputRo
         for (const auto &role : inputRoles)
         {
             const auto value = role.asString();
+            if (value == "orgContentAdmin" && !preserveRetiredRole)
+            {
+                throw common::AppException("VALIDATION_ERROR", "机构内容管理员已停用新增授权，请通过机构管理员管理课程包", drogon::k422UnprocessableEntity);
+            }
             if (value.empty() || !allowed.contains(value) || seen.contains(value))
             {
                 continue;
@@ -1835,7 +1915,7 @@ const Json::Value &invitation) const
     const auto subscription = subscriptionService_.subscriptionForOrganization(organizationId);
     const auto seats = subscription.get("seats", 0).asInt();
     Json::Value seatCandidate(Json::objectValue);
-    seatCandidate["roles"] = normalizeMemberRoles(invitation.get("roles", defaultMemberRoles()));
+    seatCandidate["roles"] = normalizeMemberRoles(invitation.get("roles", defaultMemberRoles()), true);
     if (seats > 0 &&
         infrastructure::storage::OrganizationRepository::membershipUsesPaidSeat(seatCandidate) &&
         organizationRepository_.billableMemberCount(organizationId) >= seats)

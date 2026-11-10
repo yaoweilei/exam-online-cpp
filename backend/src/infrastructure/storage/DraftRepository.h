@@ -16,7 +16,7 @@
 //     "updated_at": "..."                // 最近一次更新时间
 //     "revision": 1                       // 乐观锁版本号；每次保存递增
 //   }
-// - 注意：每个用户只保留一份草稿；保存不同 exam_id 会覆盖前一份。
+// - 按试卷保存草稿；兼容旧版 {userId}.json，首次保存时迁移旧草稿。
 
 #include <filesystem>
 #include <mutex>
@@ -33,18 +33,21 @@ class DraftRepository
     explicit DraftRepository(std::filesystem::path userRootDir);
 
     // 读取最新草稿；不存在返回 Json::nullValue（前端据此判定"无未完成"）
-    Json::Value load(const std::string &userId) const;
+    Json::Value load(const std::string &userId, const std::string &examId = "") const;
+    Json::Value list(const std::string &userId) const;
 
     // 保存/覆盖草稿
     //   base_revision 不等于服务端版本时返回 DRAFT_CONFLICT；force_overwrite 可显式覆盖
     Json::Value save(const std::string &userId, const Json::Value &patch);
 
     // 删除草稿（提交完成或用户主动放弃）
-    bool clear(const std::string &userId);
+    bool clear(const std::string &userId, const std::string &examId = "", const std::string &attemptId = "");
 
     void markSubmitted(const std::string &userId, const std::string &examId, const std::string &attemptId);
 
   private:
+    Json::Value loadUnlocked(const std::string &userId, const std::string &examId) const;
+    std::filesystem::path paperPath(const std::string &userId, const std::string &examId) const;
     std::filesystem::path draftDir_;
     mutable std::shared_mutex mutex_;
 };

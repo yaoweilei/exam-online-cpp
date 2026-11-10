@@ -1,0 +1,25 @@
+/* The learning-home disclosure shares one white surface. Labels sit beside
+   counts so compact rows keep their full touch targets. Standalone catalog
+   pages retain their existing layout. */
+#platform-admin-shell .pc-selfstudy-choose:has(#cp-inline-host:not([hidden])) { background: var(--pc-home-card-background, #fff); }
+#platform-admin-shell #cp-inline-host { margin-top: 8px; padding-top: 8px; }
+#platform-admin-shell #cp-inline-host #cp-filters { padding: 0 0 6px !important; gap: 6px !important; }
+#platform-admin-shell #cp-inline-host #cp-filters select { min-height: 36px; font-size: 12px; }
+#platform-admin-shell #cp-inline-host .cp-catalog-caption { margin: 4px 0; font-size: 11px; line-height: 18px; }
+#platform-admin-shell #cp-inline-host .cp-catalog-head { display: none; }
+#platform-admin-shell #cp-inline-host .cp-category { display: block; margin: 0; padding: 0; border: 0; }
+#platform-admin-shell #cp-inline-host .cp-category + .cp-category { border-top: 1px solid var(--pc-home-separator, #eee8e2); }
+#platform-admin-shell #cp-inline-host .cp-category > summary { min-height: 40px; box-sizing: border-box; padding: 10px 0 6px; font-size: 14px; line-height: 20px; font-weight: 600; cursor: pointer; }
+#platform-admin-shell #cp-inline-host .cp-category-topics { display: block; }
+#platform-admin-shell #cp-inline-host .cp-category:not([open]) > .cp-category-topics { display: none; }
+#platform-admin-shell #cp-inline-host .cp-topic { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 6px; align-items: center; padding: 6px 0; }
+#platform-admin-shell #cp-inline-host .cp-topic + .cp-topic { border-top: 1px solid var(--pc-home-separator, #eee8e2); }
+#platform-admin-shell #cp-inline-host .cp-topic-name { grid-column: 1 / -1; min-width: 0; min-height: 20px; margin: 0; font-size: 13px; line-height: 20px; font-weight: 500; white-space: normal; overflow-wrap: anywhere; }
+#platform-admin-shell #cp-inline-host :is(.cp-stat-number, .cp-stat-zero) { display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 44px; padding: 0 4px; font-size: 14px; line-height: 20px; text-decoration: none; }
+#platform-admin-shell #cp-inline-host [data-stat-label]::after { content: attr(data-stat-label); display: inline; font-size: 11px; line-height: 18px; font-weight: 400; color: var(--pc-home-muted, #81776f); }
+#platform-admin-shell #cp-inline-host .cp-stat-number:hover { background: var(--pc-home-selected-background, #fff3e9); }
+#platform-admin-shell #cp-inline-host .cp-stat-number:focus-visible { outline: 2px solid var(--pc-home-accent, #a74713); outline-offset: -2px; }
+@container workbench (min-width: 480px) {
+  #platform-admin-shell #cp-inline-host .cp-topic { grid-template-columns: minmax(0, 1fr) repeat(3, 68px); gap: 6px; padding: 0; }
+  #platform-admin-shell #cp-inline-host .cp-topic-name { grid-column: 1; }
+}

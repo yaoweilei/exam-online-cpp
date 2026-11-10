@@ -26,6 +26,7 @@ void stripPrivateOrganizationFields(Json::Value &organization)
 {
     organization.removeMember("invitations");
     organization.removeMember("audit_logs");
+    for (const auto *field : {"followups", "lessons", "lesson_ledger", "course_notifications", "review_comments"}) organization.removeMember(field);
 }
 
 Json::Value paginateItems(const std::vector<Json::Value> &items, int page, int pageSize)
@@ -59,19 +60,43 @@ namespace transport::routes
 {
 void registerOrganizationRoutes(const AppContext &ctx)
 {
+    for (const bool restore : {false, true})
+    {
+        app().registerHandler(restore ? "/api/v1/organizations/{1}/restore" : "/api/v1/organizations/{1}",
+            [ctx, restore](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, std::string organizationId) {
+                handleRequest(req, std::move(callback), [&]() {
+                    const auto body = parseJsonBody(req);
+                    const auto session = requireSession(*ctx.authService, req, &body);
+                    if (!hasAnyRole(session["roles"], {"superAdmin"}))
+                        throw common::AppException("FORBIDDEN", "只有超级管理员可以移除或恢复机构", k403Forbidden);
+                    const auto confirmation = restore ? "确认恢复机构" : "确认移除机构";
+                    if (body.get("confirmation", "").asString() != confirmation)
+                        throw common::AppException("CONFIRMATION_REQUIRED", std::string("请确认：") + confirmation, k422UnprocessableEntity);
+                    requirePasswordReauthentication(*ctx.authService, session, body);
+                    const auto change = [&]() { return ctx.organizationService->setOrganizationArchived(session["user_id"].asString(), organizationId, !restore); };
+                    if (!restore && !ctx.paymentService)
+                        throw common::AppException("SERVICE_UNAVAILABLE", "交易状态暂不可核对，请稍后再试", k503ServiceUnavailable);
+                    return common::ok(req, restore ? change() : ctx.paymentService->archiveOrganization(organizationId, change));
+                });
+            }, {restore ? Post : Delete});
+    }
     app().registerHandler(
         "/api/v1/organizations",
         [ctx](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
             handleRequest(req, std::move(callback), [&]() {
                 const auto session = requireSession(*ctx.authService, req);
                 const bool paged = !req->getParameter("page").empty() || !req->getParameter("page_size").empty()
-                    || !req->getParameter("q").empty() || req->getParameter("summary") == "1";
+                    || !req->getParameter("q").empty() || req->getParameter("summary") == "1"
+                    || !req->getParameter("plan").empty() || !req->getParameter("status").empty()
+                    || !req->getParameter("members").empty() || !req->getParameter("sort").empty() || !req->getParameter("order").empty() || !req->getParameter("visibility").empty();
                 if (paged)
                 {
                     const auto [page, pageSize] = readPage(req);
+                    Json::Value filters(Json::objectValue);
+                    for (const auto *key : {"plan", "status", "members", "sort", "order", "visibility"}) filters[key] = req->getParameter(key);
                     return common::ok(req, ctx.organizationService->listOrganizationSummaries(
                         session.get("user_id", "").asString(), hasAnyRole(session["roles"], {"superAdmin"}),
-                        req->getParameter("q"), page, pageSize));
+                        req->getParameter("q"), page, pageSize, filters));
                 }
                 auto organizations = ctx.organizationService->listOrganizationsForUser(
                     session.get("user_id", "").asString(),
@@ -168,6 +193,11 @@ void registerOrganizationRoutes(const AppContext &ctx)
                 const bool paged = !req->getParameter("page").empty() || !req->getParameter("page_size").empty()
                     || !query.empty() || !role.empty() || !status.empty() || !sort.empty();
                 auto members = ctx.organizationService->listMembers(organizationId);
+                for (auto &member : members)
+                {
+                    try { const auto profile=ctx.profileService->getProfile(member["user_id"].asString()); member["display_name"]=profile.get("display_name",""); }
+                    catch (const common::AppException &) { /* Removed accounts retain their historical account label. */ }
+                }
                 if (!paged) return common::ok(req, members);
                 std::vector<Json::Value> matches;
                 for (const auto &member : members)
@@ -184,15 +214,16 @@ void registerOrganizationRoutes(const AppContext &ctx)
                     }
                     if (!query.empty())
                     {
-                        const auto searchable = member.get("username", "").asString() + " "
+                        const auto searchable = member.get("display_name", "").asString() + " " + member.get("username", "").asString() + " "
                             + member.get("user_id", "").asString() + " " + member.get("member_no", "").asString();
                         if (searchable.find(query) == std::string::npos) continue;
                     }
                     matches.push_back(member);
                 }
                 std::stable_sort(matches.begin(), matches.end(), [&](const Json::Value &left, const Json::Value &right) {
-                    const auto field = sort == "status" ? "status" : sort == "member_no" ? "member_no" : "username";
-                    const auto a = left.get(field, "").asString(), b = right.get(field, "").asString();
+                    const auto field = sort == "status" ? "status" : sort == "member_no" ? "member_no" : "display_name";
+                    const auto label = [&](const Json::Value &member) { const auto value=member.get(field,"").asString(); return value.empty() && std::string(field)=="display_name" ? member.get("username","").asString() : value; };
+                    const auto a = label(left), b = label(right);
                     return ascending ? a < b : a > b;
                 });
                 const auto [page, pageSize] = readPage(req);

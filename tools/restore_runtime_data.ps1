@@ -14,6 +14,12 @@ function FullPath([string]$PathValue) {
 }
 
 function VerifyPayload([string]$PayloadRoot, $Manifest) {
+    if ((Get-Item -LiteralPath $PayloadRoot -Force).Attributes -band [System.IO.FileAttributes]::ReparsePoint) { throw 'Backup payload root cannot be a link' }
+    if ($Manifest.schema_version -ne 1 -or [int]$Manifest.file_count -lt 1) { throw 'Unsupported or empty backup manifest' }
+    $inventory = @(Get-ChildItem -LiteralPath $PayloadRoot -Recurse -Force)
+    if (@($inventory | Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReparsePoint }).Count) { throw 'Backup payload contains links or junctions' }
+    if (@($inventory | Where-Object { -not $_.PSIsContainer }).Count -ne [int]$Manifest.file_count) { throw 'Backup contains missing or unlisted files' }
+    $seen = @{}
     $checked = 0
     foreach ($entry in @($Manifest.files)) {
         $relative = [string]$entry.path
@@ -21,12 +27,15 @@ function VerifyPayload([string]$PayloadRoot, $Manifest) {
             throw "Unsafe manifest path: $relative"
         }
         $file = FullPath (Join-Path $PayloadRoot $relative)
+        if ($seen.ContainsKey($file)) { throw "Duplicate manifest path: $relative" }
+        $seen[$file] = $true
         if (-not $file.StartsWith((FullPath $PayloadRoot) + '\', [System.StringComparison]::OrdinalIgnoreCase)) {
             throw "Manifest path escaped payload: $relative"
         }
         if (-not (Test-Path -LiteralPath $file -PathType Leaf)) {
             throw "Backup file is missing: $relative"
         }
+        if ((Get-Item -LiteralPath $file).Length -ne [long]$entry.length) { throw "Backup length mismatch: $relative" }
         $actual = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
         if ($actual -ne ([string]$entry.sha256).ToLowerInvariant()) {
             throw "Backup checksum mismatch: $relative"
@@ -61,6 +70,9 @@ if (Get-Process exam_online_cpp -ErrorAction SilentlyContinue) {
 }
 
 $destination = FullPath $DestinationDataRoot
+if ($destination -eq $backup -or $destination.StartsWith($backup + '\', [System.StringComparison]::OrdinalIgnoreCase) -or $backup.StartsWith($destination + '\', [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Restore destination and backup must not overlap'
+}
 if ($destination -eq [System.IO.Path]::GetPathRoot($destination).TrimEnd('\', '/')) {
     throw 'Refusing to restore over a drive root'
 }

@@ -1,0 +1,21 @@
+{
+  "organizationId": "org_01a19641-64e2-7657-b4bb-39454df6685c",
+  "groupId": "lg_01a19641-78f6-7837-805e-e7d5bedcd421",
+  "accounts": {
+    "teacher": "teacher_mobile_ui_20261101",
+    "assistant": "assistant_mobile_ui_20261101",
+    "orgAdmin": "student_mobile_ui_manager_20261101",
+    "orgContentAdmin": "student_mobile_ui_content_20261101"
+  },
+  "studentAccount": "student_mobile_ui_01_20261101",
+  "assignmentIds": [
+    "asg_01a19641-82e2-7c85-9b16-9623780e5399",
+    "asg_01a19641-834c-7046-aac4-ae7ab8892132",
+    "asg_01a19641-83d6-75a9-90a1-737f85430724"
+  ],
+  "lessonIds": [
+    "lesson_01a19641-84e1-7aa6-a371-5a614b1d2453",
+    "lesson_01a19641-858b-7f29-81a6-f89933939fb7",
+    "lesson_01a19641-8675-7841-a536-c02653728d57"
+  ]
+}

@@ -228,6 +228,7 @@ export interface PendingOrganizationInvitationView extends OrganizationInvitatio
 
 export interface OrganizationView {
 	organization_id: string;
+	status?: string;
 	scope_type: 'organization';
 	scope_id: string;
 	name: string;
@@ -382,6 +383,8 @@ export interface MeContext {
 }
 
 export interface CurrentUser extends UserView {
+	memberships?: MembershipView[];
+	organizations?: Array<Pick<OrganizationView, 'organization_id' | 'name' | 'status'>>;
 	guest: boolean;
 	token: string;
 	profile: ProfileView;

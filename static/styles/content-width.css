@@ -32,19 +32,23 @@
   }
 }
 #current-question-container .jlpt-vocabulary-paper .question-text {
-  padding-left: 48px;
+  padding-left: max(32px, var(--question-number-gutter, 1.75em));
   position: relative;
 }
 #current-question-container .jlpt-vocabulary-paper .question-number-inline {
   position: absolute;
   left: 0;
-  top: 0;
+  /* Center the compact number box within the stem's first line, not its top edge. */
+  top: calc((var(--jlpt-screen-leading) - 1.4em) / 2 - 1px);
   display: inline-block;
   min-width: 26px;
   text-align: center;
   border: 1px solid currentColor;
   line-height: 1.4;
+  white-space: nowrap;
+  margin-right: 0;
 }
+#current-question-container .option { padding-block: 8px; }
 #current-question-container .jlpt-short-options .options-container {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   padding-left: 24px;
@@ -60,20 +64,36 @@
 }
 #current-question-container .jlpt-long-options .options-container {
   grid-template-columns: minmax(0, 1fr);
-  padding-left: 24px;
+  padding-left: 0;
+}
+#current-question-container .jlpt-long-options .question-text {
+  padding-left: max(40px, 2.5em);
+  position: relative;
+}
+#current-question-container .jlpt-long-options .question-number-inline {
+  position: absolute;
+  left: 0;
+  margin-right: 0;
+}
+#current-question-container .jlpt-long-options:not(.jlpt-vocabulary-paper) .question-number-inline {
+  top: 0;
+}
+#current-question-container .jlpt-long-options.jlpt-vocabulary-paper .question-text {
+  padding-left: max(32px, var(--question-number-gutter, 1.75em));
 }
 #current-question-container .jlpt-long-options .option {
   display: grid;
-  grid-template-columns: 1.6em minmax(0, 1fr) auto auto;
-  column-gap: 8px;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto;
+  column-gap: 0;
   align-items: start;
   min-width: 0;
   min-height: 44px;
+  padding-left: 0;
   box-sizing: border-box;
 }
 #current-question-container .jlpt-long-options .option-number {
   grid-column: 1;
-  text-align: right;
+  padding-left: 12px;
   white-space: nowrap;
 }
 #current-question-container .jlpt-long-options .option-text {
@@ -100,10 +120,10 @@
 @media (max-width: 600px) {
   #guest-welcome .gw-content { padding-inline: 16px; }
   #current-question-container .current-question { padding-inline: 16px; }
-  #current-question-container .jlpt-vocabulary-paper .question-text { padding-left: 36px; }
   #current-question-container .jlpt-short-options .options-container {
     grid-template-columns: 1fr;
     padding-left: 0;
   }
-  #current-question-container .jlpt-long-options .options-container { padding-left: 0; }
+  #current-question-container .jlpt-long-options .option { grid-template-columns: 30px minmax(0, 1fr) auto auto; }
+  #current-question-container .jlpt-long-options .option-number { padding-left: 8px; }
 }

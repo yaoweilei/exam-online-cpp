@@ -1,0 +1,1448 @@
+[
+  {
+    "id": "platform-access-grant",
+    "role": "superAdmin",
+    "label": "临时授权 · 新增表单",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "platform-access-grant-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "用户与权限",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "新增授权",
+              "size": "18px",
+              "selector": "h3"
+            }
+          ],
+          "text": "用户与权限\n\n按用户管理临时角色与有效期\n\n用户管理\n角色权限\n临时授权\nstudent_demo\nstudent_demo\n更换用户\n刷新\n授权记录\n新增授权\n\n该用户暂无临时授权。\n\n新增授权\n临时角色\n教学管理员\n老师\n机构管理员\n内容管理员\n有效期\n取消\n预览授权"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "platform-access-grant-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "用户与权限",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "新增授权",
+              "size": "18px",
+              "selector": "h3"
+            }
+          ],
+          "text": "用户与权限\n\n按用户管理临时角色与有效期\n\n用户管理\n角色权限\n临时授权\nstudent_demo\nstudent_demo\n更换用户\n刷新\n授权记录\n新增授权\n\n该用户暂无临时授权。\n\n新增授权\n临时角色\n教学管理员\n老师\n机构管理员\n内容管理员\n有效期\n取消\n预览授权"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "platform-flag-editor",
+    "role": "superAdmin",
+    "label": "功能开关 · 修改弹窗",
+    "account": "superadmin_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "platform-flag-editor-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 2688,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "学习功能14 项 · 已启用 13 项 错题本错题自动沉淀与复习入口详细信息wrong_questions 已启用允许调整系统默认 修改 学习连续天数"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "内容与互动4 项 · 已启用 3 项 题目反馈/纠错用户报错入口与运营后台查看详细信息question_feedback 已启用允许调整系统默认 修改"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "数据与管理3 项 · 已启用 3 项 数据导出下载个人全部数据的 JSON 快照详细信息data_export 已启用允许调整系统默认 修改 管理员仪"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "系统能力3 项 · 已启用 3 项 PWA 离线与安装注册 Service Worker、静态资源与 API 缓存、安装到桌面详细信息pwa 已启用允"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "系统设置",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "系统设置\n\n系统层开关与下层覆盖规则\n\n功能开关\n审计日志\n按业务分类查看功能状态；点击“修改”集中设置启停状态和管理方式。\n学习功能\n14 项 · 已启用 13 项\n错题本\n错题自动沉淀与复习入口\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习连续天数\n每日目标与连续学习天数统计\n详细信息\n已启用\n允许调整\n系统默认\n修改\n答题计时与限时\n全卷/分段限时和顶部计时条\n详细信息\n已启用\n允许调整\n系统默认\n修改\n上次未完成自动续考\n自动保存答题草稿与续考横幅\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习组与作业\n学习组管理、布置作业及学生作业汇总\n详细信息\n已启用\n允许调整\n系统默认\n修改\n间隔重复复习\nSM-2 调度的错题复习卡\n详细信息\n已启用\n允许调整\n系统默认\n修改\n每日一练\n每日自动混编错题 + SRS 到期题\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习报告\n周/月小结：答题/错题/SRS/连续天数\n详细信息\n已启用\n允许调整\n系统默认\n修改\n备考目标 / 倒计时\n设置考试日期与每日题量目标\n详细信息\n已启用\n允许调整\n系统默认\n修改\n排行榜\n周/月/总榜：连胜 + 答题量 + 正确率\n详细信息\n已停用\n允许调整\n系统默认\n修改\n个人生词本\n题面/听力原文点词查词并加入个人词本\n详细信息\n已启用\n允许调整\n系统默认\n修改\n错题归因维度\n为错题打上词汇/语法/粗心等标签用于复盘\n详细信息\n已启用\n允许调整\n系统默认\n修改\n同考点串题\n基于 target_words 聚合同考点的历届真题\n详细信息\n已启用\n允许调整\n系统默认\n修改\n章节式学习路径\n按 section 聚合跨卷题目形成章节与进度视图\n详细信息\n已启用\n允许调整\n系统默认\n修改\n内容与互动\n4 项 · 已启用 3 项\n数据与管理\n3 项 · 已启用 3 项\n系统能力\n3 项 · 已启用 3 项"
+        }
+      },
+      {
+        "width": 390,
+        "position": "bottom",
+        "file": "platform-flag-editor-390-bottom.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 2688,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "学习功能14 项 · 已启用 13 项 错题本错题自动沉淀与复习入口详细信息wrong_questions 已启用允许调整系统默认 修改 学习连续天数"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "内容与互动4 项 · 已启用 3 项 题目反馈/纠错用户报错入口与运营后台查看详细信息question_feedback 已启用允许调整系统默认 修改"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "数据与管理3 项 · 已启用 3 项 数据导出下载个人全部数据的 JSON 快照详细信息data_export 已启用允许调整系统默认 修改 管理员仪"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "系统能力3 项 · 已启用 3 项 PWA 离线与安装注册 Service Worker、静态资源与 API 缓存、安装到桌面详细信息pwa 已启用允"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "系统设置",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "系统设置\n\n系统层开关与下层覆盖规则\n\n功能开关\n审计日志\n按业务分类查看功能状态；点击“修改”集中设置启停状态和管理方式。\n学习功能\n14 项 · 已启用 13 项\n错题本\n错题自动沉淀与复习入口\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习连续天数\n每日目标与连续学习天数统计\n详细信息\n已启用\n允许调整\n系统默认\n修改\n答题计时与限时\n全卷/分段限时和顶部计时条\n详细信息\n已启用\n允许调整\n系统默认\n修改\n上次未完成自动续考\n自动保存答题草稿与续考横幅\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习组与作业\n学习组管理、布置作业及学生作业汇总\n详细信息\n已启用\n允许调整\n系统默认\n修改\n间隔重复复习\nSM-2 调度的错题复习卡\n详细信息\n已启用\n允许调整\n系统默认\n修改\n每日一练\n每日自动混编错题 + SRS 到期题\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习报告\n周/月小结：答题/错题/SRS/连续天数\n详细信息\n已启用\n允许调整\n系统默认\n修改\n备考目标 / 倒计时\n设置考试日期与每日题量目标\n详细信息\n已启用\n允许调整\n系统默认\n修改\n排行榜\n周/月/总榜：连胜 + 答题量 + 正确率\n详细信息\n已停用\n允许调整\n系统默认\n修改\n个人生词本\n题面/听力原文点词查词并加入个人词本\n详细信息\n已启用\n允许调整\n系统默认\n修改\n错题归因维度\n为错题打上词汇/语法/粗心等标签用于复盘\n详细信息\n已启用\n允许调整\n系统默认\n修改\n同考点串题\n基于 target_words 聚合同考点的历届真题\n详细信息\n已启用\n允许调整\n系统默认\n修改\n章节式学习路径\n按 section 聚合跨卷题目形成章节与进度视图\n详细信息\n已启用\n允许调整\n系统默认\n修改\n内容与互动\n4 项 · 已启用 3 项\n数据与管理\n3 项 · 已启用 3 项\n系统能力\n3 项 · 已启用 3 项"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "platform-flag-editor-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 2688,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "学习功能14 项 · 已启用 13 项 错题本错题自动沉淀与复习入口详细信息wrong_questions 已启用允许调整系统默认 修改 学习连续天数"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "内容与互动4 项 · 已启用 3 项 题目反馈/纠错用户报错入口与运营后台查看详细信息question_feedback 已启用允许调整系统默认 修改"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "数据与管理3 项 · 已启用 3 项 数据导出下载个人全部数据的 JSON 快照详细信息data_export 已启用允许调整系统默认 修改 管理员仪"
+            },
+            {
+              "depth": 2,
+              "element": "details.pc-platform-flag-group",
+              "parents": [
+                "div.pc-card.pc-lite-list-card.pc-platform-flags-card"
+              ],
+              "text": "系统能力3 项 · 已启用 3 项 PWA 离线与安装注册 Service Worker、静态资源与 API 缓存、安装到桌面详细信息pwa 已启用允"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "系统设置",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "系统设置\n\n系统层开关与下层覆盖规则\n\n功能开关\n审计日志\n按业务分类查看功能状态；点击“修改”集中设置启停状态和管理方式。\n学习功能\n14 项 · 已启用 13 项\n错题本\n错题自动沉淀与复习入口\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习连续天数\n每日目标与连续学习天数统计\n详细信息\n已启用\n允许调整\n系统默认\n修改\n答题计时与限时\n全卷/分段限时和顶部计时条\n详细信息\n已启用\n允许调整\n系统默认\n修改\n上次未完成自动续考\n自动保存答题草稿与续考横幅\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习组与作业\n学习组管理、布置作业及学生作业汇总\n详细信息\n已启用\n允许调整\n系统默认\n修改\n间隔重复复习\nSM-2 调度的错题复习卡\n详细信息\n已启用\n允许调整\n系统默认\n修改\n每日一练\n每日自动混编错题 + SRS 到期题\n详细信息\n已启用\n允许调整\n系统默认\n修改\n学习报告\n周/月小结：答题/错题/SRS/连续天数\n详细信息\n已启用\n允许调整\n系统默认\n修改\n备考目标 / 倒计时\n设置考试日期与每日题量目标\n详细信息\n已启用\n允许调整\n系统默认\n修改\n排行榜\n周/月/总榜：连胜 + 答题量 + 正确率\n详细信息\n已停用\n允许调整\n系统默认\n修改\n个人生词本\n题面/听力原文点词查词并加入个人词本\n详细信息\n已启用\n允许调整\n系统默认\n修改\n错题归因维度\n为错题打上词汇/语法/粗心等标签用于复盘\n详细信息\n已启用\n允许调整\n系统默认\n修改\n同考点串题\n基于 target_words 聚合同考点的历届真题\n详细信息\n已启用\n允许调整\n系统默认\n修改\n章节式学习路径\n按 section 聚合跨卷题目形成章节与进度视图\n详细信息\n已启用\n允许调整\n系统默认\n修改\n内容与互动\n4 项 · 已启用 3 项\n数据与管理\n3 项 · 已启用 3 项\n系统能力\n3 项 · 已启用 3 项"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "teacher-prep-new",
+    "role": "teacher",
+    "label": "老师 · 新建备课表单",
+    "account": "teacher_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "teacher-prep-new-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 831,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "section.pc-teaching-preview",
+              "parents": [
+                "form.pc-card.pc-teaching-form"
+              ],
+              "text": "选择试卷后预览题目"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "新建备课",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "新建备课\n刷新\n学习组\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局审查学校 · 日语能力考试与留学课程中心\n试卷\n请选择试卷\nJLPT-N2-2025_07\nJLPT-N1-2025_07\nJLPT-N3-2024_12\nJLPT-N2-2024_12\nJLPT-N1-2024_12\nJLPT-N3-2024_07\nJLPT-N2-2024_07\nJLPT-N1-2024_07\nEJU 日本語 入门测评（40题）\nEJU-Japanese-2024_01\nJLPT-N3-2023_12\nJLPT-N2-2023_12\nJLPT-N1-2023_12\nJLPT-N3-2023_07\nJLPT-N2-2023_07\nJLPT-N1-2023_07\nEJU-Japanese-2023_02\nEJU-Japanese-2023_01\nJLPT-N3-2022_12\nJLPT-N2-2022_12\nJLPT-N1-2022_12\nJLPT-N3-2022_07\nJLPT-N2-2022_07\nJLPT-N1-2022_07\nEJU-Japanese-2022_02\nEJU-Japanese-2022_01\nJLPT-N3-2021_12\nJLPT-N2-2021_12\nJLPT-N1-2021_12\nJLPT-N3-2021_07\nJLPT-N2-2021_07\nJLPT-N1-2021_07\nEJU-Japanese-2021_02\nEJU-Japanese-2021_01\nJLPT-N3-2020_12\nJLPT-N2-2020_12\nJLPT-N1-2020_12\nEJU-Japanese-2020_02\nJLPT-N3-2019_12\nJLPT-N2-2019_12\nJLPT-N1-2019_12\nJLPT-N3-2019_07\nJLPT-N2-2019_07\nJLPT-N1-2019_07\nEJU-Japanese-2019_01\nJLPT-N3-2018_12\nJLPT-N2-2018_12\nJLPT-N1-2018_12\nJLPT-N3-2018_07\nJLPT-N2-2018_07\nJLPT-N1-2018_07\nEJU-Japanese-2018_02\nEJU-Japanese-2018_01\nJLPT-N3-2017_12\nJLPT-N2-2017_12\nJLPT-N1-2017_12\nJLPT-N3-2017_07\nJLPT-N2-2017_07\nJLPT-N1-2017_07\nEJU-Japanese-2017_02\nEJU-Japanese-2017_01\nJLPT-N3-2016_12\nJLPT-N2-2016_12\nJLPT-N1-2016_12\nJLPT-N3-2016_07\nJLPT-N2-2016_07\nJLPT-N1-2016_07\nEJU-Japanese-2016_02\nEJU-Japanese-2016_01\nJLPT-N3-2015_12\nJLPT-N2-2015_12\nJLPT-N1-2015_12\nJLPT-N3-2015_07\nJLPT-N2-2015_07\nJLPT-N1-2015_07\nEJU-Japanese-2015_02\nEJU-Japanese-2015_01\nJLPT-N3-2014_12\nJLPT-N2-2014_12\nJLPT-N1-2014_12\nJLPT-N3-2014_07\nJLPT-N2-2014_07\nJLPT-N1-2014_07\nEJU-Japanese-2014_02\nEJU-Japanese-2014_01\nJLPT-N3-2013_12\nJLPT-N2-2013_12\nJLPT-N1-2013_12\nJLPT-N3-2013_07\nJLPT-N2-2013_07\nJLPT-N1-2013_07\nEJU-Japanese-2013_02\nEJU-Japanese-2013_01\nJLPT-N3-2012_12\nJLPT-N2-2012_12\nJLPT-N1-2012_12\nJLPT-N3-2012_07\nJLPT-N2-2012_07\nJLPT-N1-2012_07\nEJU-Japanese-2012_02\nEJU-Japanese-2012_01\nJLPT-N3-2011_12\nJLPT-N2-2011_12\nJLPT-N1-2011_12\nJLPT-N3-2011_07\nJLPT-N2-2011_07\nJLPT-N1-2011_07\nEJU-Japanese-2011_02\nEJU-Japanese-2011_01\nJLPT-N2-2010_12\nJLPT-N1-2010_12\nJLPT-N3-2010_07\nJLPT-N2-2010_07\nJLPT-N1-2010_07\nEJU-Japanese-2010_02\nEJU-Japanese-2010_01\nJLPT N3 入门测评（40题）\nJLPT N2 å…¥é—¨è¯Šæ–­ï¼ˆ40é¢˜ï¼‰\nJLPT N1 入门测评（40题）\n方案标题\n考点关键词（可选）\n起始题序（可选）\n结束题序（可选）\n\n题序按整张试卷的显示顺序计算。范围留空表示整卷。\n\n选择试卷后预览题目\n\n保存备课方案"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "teacher-prep-new-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 831,
+          "nested": [
+            {
+              "depth": 2,
+              "element": "section.pc-teaching-preview",
+              "parents": [
+                "form.pc-card.pc-teaching-form"
+              ],
+              "text": "选择试卷后预览题目"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "新建备课",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "新建备课\n刷新\n学习组\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局审查学校 · 日语能力考试与留学课程中心\n试卷\n请选择试卷\nJLPT-N2-2025_07\nJLPT-N1-2025_07\nJLPT-N3-2024_12\nJLPT-N2-2024_12\nJLPT-N1-2024_12\nJLPT-N3-2024_07\nJLPT-N2-2024_07\nJLPT-N1-2024_07\nEJU 日本語 入门测评（40题）\nEJU-Japanese-2024_01\nJLPT-N3-2023_12\nJLPT-N2-2023_12\nJLPT-N1-2023_12\nJLPT-N3-2023_07\nJLPT-N2-2023_07\nJLPT-N1-2023_07\nEJU-Japanese-2023_02\nEJU-Japanese-2023_01\nJLPT-N3-2022_12\nJLPT-N2-2022_12\nJLPT-N1-2022_12\nJLPT-N3-2022_07\nJLPT-N2-2022_07\nJLPT-N1-2022_07\nEJU-Japanese-2022_02\nEJU-Japanese-2022_01\nJLPT-N3-2021_12\nJLPT-N2-2021_12\nJLPT-N1-2021_12\nJLPT-N3-2021_07\nJLPT-N2-2021_07\nJLPT-N1-2021_07\nEJU-Japanese-2021_02\nEJU-Japanese-2021_01\nJLPT-N3-2020_12\nJLPT-N2-2020_12\nJLPT-N1-2020_12\nEJU-Japanese-2020_02\nJLPT-N3-2019_12\nJLPT-N2-2019_12\nJLPT-N1-2019_12\nJLPT-N3-2019_07\nJLPT-N2-2019_07\nJLPT-N1-2019_07\nEJU-Japanese-2019_01\nJLPT-N3-2018_12\nJLPT-N2-2018_12\nJLPT-N1-2018_12\nJLPT-N3-2018_07\nJLPT-N2-2018_07\nJLPT-N1-2018_07\nEJU-Japanese-2018_02\nEJU-Japanese-2018_01\nJLPT-N3-2017_12\nJLPT-N2-2017_12\nJLPT-N1-2017_12\nJLPT-N3-2017_07\nJLPT-N2-2017_07\nJLPT-N1-2017_07\nEJU-Japanese-2017_02\nEJU-Japanese-2017_01\nJLPT-N3-2016_12\nJLPT-N2-2016_12\nJLPT-N1-2016_12\nJLPT-N3-2016_07\nJLPT-N2-2016_07\nJLPT-N1-2016_07\nEJU-Japanese-2016_02\nEJU-Japanese-2016_01\nJLPT-N3-2015_12\nJLPT-N2-2015_12\nJLPT-N1-2015_12\nJLPT-N3-2015_07\nJLPT-N2-2015_07\nJLPT-N1-2015_07\nEJU-Japanese-2015_02\nEJU-Japanese-2015_01\nJLPT-N3-2014_12\nJLPT-N2-2014_12\nJLPT-N1-2014_12\nJLPT-N3-2014_07\nJLPT-N2-2014_07\nJLPT-N1-2014_07\nEJU-Japanese-2014_02\nEJU-Japanese-2014_01\nJLPT-N3-2013_12\nJLPT-N2-2013_12\nJLPT-N1-2013_12\nJLPT-N3-2013_07\nJLPT-N2-2013_07\nJLPT-N1-2013_07\nEJU-Japanese-2013_02\nEJU-Japanese-2013_01\nJLPT-N3-2012_12\nJLPT-N2-2012_12\nJLPT-N1-2012_12\nJLPT-N3-2012_07\nJLPT-N2-2012_07\nJLPT-N1-2012_07\nEJU-Japanese-2012_02\nEJU-Japanese-2012_01\nJLPT-N3-2011_12\nJLPT-N2-2011_12\nJLPT-N1-2011_12\nJLPT-N3-2011_07\nJLPT-N2-2011_07\nJLPT-N1-2011_07\nEJU-Japanese-2011_02\nEJU-Japanese-2011_01\nJLPT-N2-2010_12\nJLPT-N1-2010_12\nJLPT-N3-2010_07\nJLPT-N2-2010_07\nJLPT-N1-2010_07\nEJU-Japanese-2010_02\nEJU-Japanese-2010_01\nJLPT N3 入门测评（40题）\nJLPT N2 å…¥é—¨è¯Šæ–­ï¼ˆ40é¢˜ï¼‰\nJLPT N1 入门测评（40题）\n方案标题\n考点关键词（可选）\n起始题序（可选）\n结束题序（可选）\n\n题序按整张试卷的显示顺序计算。范围留空表示整卷。\n\n选择试卷后预览题目\n\n保存备课方案"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "teacher-lesson-create",
+    "role": "teacher",
+    "label": "老师 · 新增课次",
+    "account": "teacher_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "teacher-lesson-create-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 1941,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "班级课次",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "新增课次",
+              "size": "18px",
+              "selector": "h3"
+            }
+          ],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n\n手机布局审查学校 · 日语能力考试与留学课程中心 · JLPT N3 阅读与听力提高班 · 周末学习组\n\n班级课次\n＋ 新增课次\n\n下节课：手机布局检查 · 阅读与听力课程 · 2026/11/02 15:00\n\n新增课次\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n授课学员（补课可只选需要参加的学员）\nstudent_mobile_ui_01_20261101\nstudent_mobile_ui_02_20261101\nstudent_mobile_ui_03_20261101\nstudent_mobile_ui_04_20261101\nstudent_mobile_ui_05_20261101\nstudent_mobile_ui_06_20261101\nstudent_mobile_ui_07_20261101\nstudent_mobile_ui_08_20261101\nstudent_mobile_ui_09_20261101\nstudent_mobile_ui_10_20261101\nstudent_mobile_ui_11_20261101\nstudent_mobile_ui_12_20261101\n关联原课次（仅补课时选择）\n普通课次\n课后反馈（学员可见）\n保存课次\n取消编辑\n按周重复排课\n复制上一课\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 — 2026/11/02 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 — 2026/11/04 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 待结算课程\n2026/10/30 15:00 — 2026/10/30 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n原有单次排课设置"
+        }
+      },
+      {
+        "width": 390,
+        "position": "bottom",
+        "file": "teacher-lesson-create-390-bottom.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 1941,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "班级课次",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "新增课次",
+              "size": "18px",
+              "selector": "h3"
+            }
+          ],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n\n手机布局审查学校 · 日语能力考试与留学课程中心 · JLPT N3 阅读与听力提高班 · 周末学习组\n\n班级课次\n＋ 新增课次\n\n下节课：手机布局检查 · 阅读与听力课程 · 2026/11/02 15:00\n\n新增课次\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n授课学员（补课可只选需要参加的学员）\nstudent_mobile_ui_01_20261101\nstudent_mobile_ui_02_20261101\nstudent_mobile_ui_03_20261101\nstudent_mobile_ui_04_20261101\nstudent_mobile_ui_05_20261101\nstudent_mobile_ui_06_20261101\nstudent_mobile_ui_07_20261101\nstudent_mobile_ui_08_20261101\nstudent_mobile_ui_09_20261101\nstudent_mobile_ui_10_20261101\nstudent_mobile_ui_11_20261101\nstudent_mobile_ui_12_20261101\n关联原课次（仅补课时选择）\n普通课次\n课后反馈（学员可见）\n保存课次\n取消编辑\n按周重复排课\n复制上一课\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 — 2026/11/02 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 — 2026/11/04 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 待结算课程\n2026/10/30 15:00 — 2026/10/30 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n原有单次排课设置"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "teacher-lesson-create-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 1941,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "班级课次",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "新增课次",
+              "size": "18px",
+              "selector": "h3"
+            }
+          ],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n\n手机布局审查学校 · 日语能力考试与留学课程中心 · JLPT N3 阅读与听力提高班 · 周末学习组\n\n班级课次\n＋ 新增课次\n\n下节课：手机布局检查 · 阅读与听力课程 · 2026/11/02 15:00\n\n新增课次\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n授课学员（补课可只选需要参加的学员）\nstudent_mobile_ui_01_20261101\nstudent_mobile_ui_02_20261101\nstudent_mobile_ui_03_20261101\nstudent_mobile_ui_04_20261101\nstudent_mobile_ui_05_20261101\nstudent_mobile_ui_06_20261101\nstudent_mobile_ui_07_20261101\nstudent_mobile_ui_08_20261101\nstudent_mobile_ui_09_20261101\nstudent_mobile_ui_10_20261101\nstudent_mobile_ui_11_20261101\nstudent_mobile_ui_12_20261101\n关联原课次（仅补课时选择）\n普通课次\n课后反馈（学员可见）\n保存课次\n取消编辑\n按周重复排课\n复制上一课\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 — 2026/11/02 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 — 2026/11/04 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 待结算课程\n2026/10/30 15:00 — 2026/10/30 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n原有单次排课设置"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "teacher-lesson-attendance",
+    "role": "teacher",
+    "label": "老师 · 出勤与扣课结算",
+    "account": "teacher_mobile_ui_20261101",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "teacher-lesson-attendance-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 3365,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "班级课次",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "确认出勤与课时",
+              "size": "18px",
+              "selector": "h3"
+            }
+          ],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n\n手机布局审查学校 · 日语能力考试与留学课程中心 · JLPT N3 阅读与听力提高班 · 周末学习组\n\n班级课次\n＋ 新增课次\n\n下节课：手机布局检查 · 阅读与听力课程 · 2026/11/02 15:00\n\n确认出勤与课时\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n课后反馈（学员可见）\n\n出勤默认扣 1 次，缺席、请假和待补课默认不扣。请逐人确认；保存后生成课时明细。\n\nstudent_mobile_ui_01_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 1 · 剩余 20\n扣课次数\nstudent_mobile_ui_02_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 2 · 剩余 15\n扣课次数\nstudent_mobile_ui_03_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 3 · 剩余 10\n扣课次数\nstudent_mobile_ui_04_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 4 · 剩余 5\n扣课次数\nstudent_mobile_ui_05_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_06_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_07_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_08_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_09_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_10_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_11_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_12_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\n完成并结算课时\n取消编辑\n按周重复排课\n复制上一课\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 — 2026/11/02 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 — 2026/11/04 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 待结算课程\n2026/10/30 15:00 — 2026/10/30 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n原有单次排课设置"
+        }
+      },
+      {
+        "width": 390,
+        "position": "bottom",
+        "file": "teacher-lesson-attendance-390-bottom.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 3365,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "班级课次",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "确认出勤与课时",
+              "size": "18px",
+              "selector": "h3"
+            }
+          ],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n\n手机布局审查学校 · 日语能力考试与留学课程中心 · JLPT N3 阅读与听力提高班 · 周末学习组\n\n班级课次\n＋ 新增课次\n\n下节课：手机布局检查 · 阅读与听力课程 · 2026/11/02 15:00\n\n确认出勤与课时\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n课后反馈（学员可见）\n\n出勤默认扣 1 次，缺席、请假和待补课默认不扣。请逐人确认；保存后生成课时明细。\n\nstudent_mobile_ui_01_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 1 · 剩余 20\n扣课次数\nstudent_mobile_ui_02_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 2 · 剩余 15\n扣课次数\nstudent_mobile_ui_03_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 3 · 剩余 10\n扣课次数\nstudent_mobile_ui_04_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 4 · 剩余 5\n扣课次数\nstudent_mobile_ui_05_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_06_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_07_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_08_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_09_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_10_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_11_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_12_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\n完成并结算课时\n取消编辑\n按周重复排课\n复制上一课\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 — 2026/11/02 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 — 2026/11/04 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 待结算课程\n2026/10/30 15:00 — 2026/10/30 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n原有单次排课设置"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "teacher-lesson-attendance-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 3365,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "班级课次",
+              "size": "17px",
+              "selector": "h2"
+            },
+            {
+              "text": "确认出勤与课时",
+              "size": "18px",
+              "selector": "h3"
+            }
+          ],
+          "text": "JLPT N3 阅读与听力提高班 · 周末学习组\n刷新\n日语 · 班课 · 12 名学员\n按课次安排 · 进行中\n布置作业\n课次\n学员\n课程包\n作业与成绩\n\n手机布局审查学校 · 日语能力考试与留学课程中心 · JLPT N3 阅读与听力提高班 · 周末学习组\n\n班级课次\n＋ 新增课次\n\n下节课：手机布局检查 · 阅读与听力课程 · 2026/11/02 15:00\n\n确认出勤与课时\n课次标题\n开始时间\n结束时间\n关联课后作业（可选）\n暂不关联\n手机布局检查 · 待批改阅读作业\n手机布局检查 · 未提交听力作业\n手机布局检查 · 已批改专项练习\n课后反馈（学员可见）\n\n出勤默认扣 1 次，缺席、请假和待补课默认不扣。请逐人确认；保存后生成课时明细。\n\nstudent_mobile_ui_01_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 1 · 剩余 20\n扣课次数\nstudent_mobile_ui_02_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 2 · 剩余 15\n扣课次数\nstudent_mobile_ui_03_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 3 · 剩余 10\n扣课次数\nstudent_mobile_ui_04_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n手机审查课时账户 4 · 剩余 5\n扣课次数\nstudent_mobile_ui_05_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_06_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_07_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_08_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_09_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_10_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_11_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\nstudent_mobile_ui_12_20261101\n出勤\n出勤\n缺席\n请假\n需补课\n课时账户\n不扣课 / 请选择账户\n扣课次数\n完成并结算课时\n取消编辑\n按周重复排课\n复制上一课\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 — 2026/11/02 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 — 2026/11/04 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n手机布局检查 · 待结算课程\n2026/10/30 15:00 — 2026/10/30 16:00 · 已排课\n编辑 / 改期\n上课结算\n取消课次\n原有单次排课设置"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "org-dashboard-open",
+    "role": "orgAdmin",
+    "label": "机构看板 · 展开复核",
+    "account": "student_mobile_ui_manager_20261101",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "org-dashboard-open-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 116,
+          "mainWidth": 390,
+          "mainHeight": 6428,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-pricing-plan-card",
+              "parents": [
+                "div.pc-card.pc-info-card",
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构 PRO¥15/席/月 单校区、小型培训机构和小型团队 年付 ¥99.9/席 · 折合 ¥8.33/席/月 最低 1 席 · 完整教学闭环 · 1"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-pricing-plan-card.is-recommended",
+              "parents": [
+                "div.pc-card.pc-info-card",
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构 ULTRA · 推荐¥39/席/月 多校区、中型机构及深度分析需求 年付 ¥299/席 · 折合 ¥24.92/席/月 最低 30 席 · 跨校"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "当前套餐功能 核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。 核心教学学习组管理布置作业自动批改成绩册学员档案 高级管理机构看板老师教学看板"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "作业完成手机布局检查 · 待批改阅读作业1/12 · 66.7% 提交催交手机布局检查 · 未提交听力作业0/12 提交催交手机布局检查 · 已批改专"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "续费风险当前套餐未开通续费风险。"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "老师教学概览assistant_mobile_ui_202611011 组 · 3 作业teacher_mobile_ui_202611011 组 ·"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "学习组平均分趋势JLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业66.7% · 1/12JLPT N3 阅读与听"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "学员排名1. student_mobile_ui_01_2026110166.7% · 1 次2. student_mobile_ui_02_2026"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "各题型弱项词汇33.3% · 错 2/6"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构套餐价格 价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "老师/学员日程手机布局检查 · 待结算课程2026/10/30 15:00 - 2026/10/30 16:00 · japanese手机布局检查 ·"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "课程包预警学员 · JLPT 阅读与听力完整课程 · 30 课时30/30 次 · 状态正常student_mobile_ui_01_20261101"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "机构看板",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "教学履约与跟进",
+              "size": "18px",
+              "selector": "h2"
+            }
+          ],
+          "text": "机构看板\n\n趋势和风险\n\n课程包\n课时管理\n学习组\n机构看板\n教学履约与跟进\n开始日期\n结束日期\n查看看板\n已完成 / 已排课\n0 / 1\n出勤率\n—\n待结算\n1\n待确认请假\n0\n\n按授课开始日期统计，出勤率仅使用已记录考勤。未结算课次不推断出勤；待跟进包含所选结束日期前到期的未完成安排。\n\n全部班级\nJLPT N3 阅读与听力提高班 · 周末学习组\n全部课次\n已完成\n已结束待结算\n有请假记录\n已取消\n手机布局检查 · 待结算课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/10/30 15:00 · 待上课 · 待结算\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n待跟进（0）\n\n所选结束日期前没有到期未完成的跟进安排。\n\n学习概况与机构能力\n机构工作台已经接入学习组、作业、成绩册、席位、学员档案和备课工具。\n当前机构套餐\n机构 PRO\n学习组 / 学员 / 作业\n1 / 12 / 3\n席位\n13 / 30 已用\n可用席位\n17 · 成员 17\n平均作业得分\n75.8%\n当前套餐功能\n核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。\n核心教学\n学习组管理\n布置作业\n自动批改\n成绩册\n学员档案\n高级管理\n机构看板\n老师教学看板\n续费风险（未开通）\n批量导入\n备课组卷\n导出讲义\n多老师协作\n审计日志\n多校区（未开通）\n专属成功支持（未开通）\n当前锁定：续费风险\n作业完成\n手机布局检查 · 待批改阅读作业\n1/12 · 66.7% 提交催交\n手机布局检查 · 未提交听力作业\n0/12 提交催交\n手机布局检查 · 已批改专项练习\n1/12 · 85.0% 提交催交\n续费风险\n当前套餐未开通续费风险。\n老师教学概览\nassistant_mobile_ui_20261101\n1 组 · 3 作业\nteacher_mobile_ui_20261101\n1 组 · 3 作业\n学习组平均分趋势\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业\n66.7% · 1/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 未提交听力作业\n暂无 · 0/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 已批改专项练习\n85.0% · 1/12\n学员排名\n1. student_mobile_ui_01_20261101\n66.7% · 1 次\n2. student_mobile_ui_02_20261101\n66.7% · 1 次\n3. student_mobile_ui_03_20261101\n暂无 · 0 次\n4. student_mobile_ui_04_20261101\n暂无 · 0 次\n5. student_mobile_ui_05_20261101\n暂无 · 0 次\n各题型弱项\n词汇\n33.3% · 错 2/6\n机构套餐价格\n价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500、501 席以上累进计价。\n机构 PRO\n¥15/席/月\n单校区、小型培训机构和小型团队\n年付 ¥99.9/席 · 折合 ¥8.33/席/月\n最低 1 席 · 完整教学闭环 · 1 个主管理员 · 可增管理账号 · 基础统计与标准导出\n机构 ULTRA · 推荐\n¥39/席/月\n多校区、中型机构及深度分析需求\n年付 ¥299/席 · 折合 ¥24.92/席/月\n最低 30 席 · 跨校区分析 · 风险预警与自动报告 · 1 个主管理员 · 可增管理账号\nJLPT N3 阅读与听力提高班 · 周末学习组\n创建学习组\n添加学员\n布置作业\n打开成绩册\n批量导入预览\n备课组卷\n自动批改来自学生提交答案后的统计结果；成绩册会自动聚合提交状态、正确率和平均分。\n老师/学员日程\n手机布局检查 · 待结算课程\n2026/10/30 15:00 - 2026/10/30 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 - 2026/11/02 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 - 2026/11/04 16:00 · japanese\n课程包预警\n学员 · JLPT 阅读与听力完整课程 · 30 课时\n30/30 次 · 状态正常\nstudent_mobile_ui_01_20261101 · 手机审查课时账户 1\n20/20 次 · 状态正常\nstudent_mobile_ui_02_20261101 · 手机审查课时账户 2\n15/20 次 · 状态正常\nstudent_mobile_ui_03_20261101 · 手机审查课时账户 3\n10/20 次 · 状态正常\nstudent_mobile_ui_04_20261101 · 手机审查课时账户 4\n5/20 次 · 状态正常\n学生学习关系\nstudent_mobile_ui_01_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_07_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_02_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_05_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_03_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_08_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_04_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_06_20261101\n1 个学习关系 · 0 个课程包\n已保存备课方案\n手机布局检查 · 阅读备课方案\nN3_2010_07 · 3 题"
+        }
+      },
+      {
+        "width": 390,
+        "position": "bottom",
+        "file": "org-dashboard-open-390-bottom.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 116,
+          "mainWidth": 390,
+          "mainHeight": 6428,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-pricing-plan-card",
+              "parents": [
+                "div.pc-card.pc-info-card",
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构 PRO¥15/席/月 单校区、小型培训机构和小型团队 年付 ¥99.9/席 · 折合 ¥8.33/席/月 最低 1 席 · 完整教学闭环 · 1"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-pricing-plan-card.is-recommended",
+              "parents": [
+                "div.pc-card.pc-info-card",
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构 ULTRA · 推荐¥39/席/月 多校区、中型机构及深度分析需求 年付 ¥299/席 · 折合 ¥24.92/席/月 最低 30 席 · 跨校"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "当前套餐功能 核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。 核心教学学习组管理布置作业自动批改成绩册学员档案 高级管理机构看板老师教学看板"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "作业完成手机布局检查 · 待批改阅读作业1/12 · 66.7% 提交催交手机布局检查 · 未提交听力作业0/12 提交催交手机布局检查 · 已批改专"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "续费风险当前套餐未开通续费风险。"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "老师教学概览assistant_mobile_ui_202611011 组 · 3 作业teacher_mobile_ui_202611011 组 ·"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "学习组平均分趋势JLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业66.7% · 1/12JLPT N3 阅读与听"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "学员排名1. student_mobile_ui_01_2026110166.7% · 1 次2. student_mobile_ui_02_2026"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "各题型弱项词汇33.3% · 错 2/6"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构套餐价格 价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "老师/学员日程手机布局检查 · 待结算课程2026/10/30 15:00 - 2026/10/30 16:00 · japanese手机布局检查 ·"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "课程包预警学员 · JLPT 阅读与听力完整课程 · 30 课时30/30 次 · 状态正常student_mobile_ui_01_20261101"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "机构看板",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "教学履约与跟进",
+              "size": "18px",
+              "selector": "h2"
+            }
+          ],
+          "text": "机构看板\n\n趋势和风险\n\n课程包\n课时管理\n学习组\n机构看板\n教学履约与跟进\n开始日期\n结束日期\n查看看板\n已完成 / 已排课\n0 / 1\n出勤率\n—\n待结算\n1\n待确认请假\n0\n\n按授课开始日期统计，出勤率仅使用已记录考勤。未结算课次不推断出勤；待跟进包含所选结束日期前到期的未完成安排。\n\n全部班级\nJLPT N3 阅读与听力提高班 · 周末学习组\n全部课次\n已完成\n已结束待结算\n有请假记录\n已取消\n手机布局检查 · 待结算课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/10/30 15:00 · 待上课 · 待结算\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n待跟进（0）\n\n所选结束日期前没有到期未完成的跟进安排。\n\n学习概况与机构能力\n机构工作台已经接入学习组、作业、成绩册、席位、学员档案和备课工具。\n当前机构套餐\n机构 PRO\n学习组 / 学员 / 作业\n1 / 12 / 3\n席位\n13 / 30 已用\n可用席位\n17 · 成员 17\n平均作业得分\n75.8%\n当前套餐功能\n核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。\n核心教学\n学习组管理\n布置作业\n自动批改\n成绩册\n学员档案\n高级管理\n机构看板\n老师教学看板\n续费风险（未开通）\n批量导入\n备课组卷\n导出讲义\n多老师协作\n审计日志\n多校区（未开通）\n专属成功支持（未开通）\n当前锁定：续费风险\n作业完成\n手机布局检查 · 待批改阅读作业\n1/12 · 66.7% 提交催交\n手机布局检查 · 未提交听力作业\n0/12 提交催交\n手机布局检查 · 已批改专项练习\n1/12 · 85.0% 提交催交\n续费风险\n当前套餐未开通续费风险。\n老师教学概览\nassistant_mobile_ui_20261101\n1 组 · 3 作业\nteacher_mobile_ui_20261101\n1 组 · 3 作业\n学习组平均分趋势\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业\n66.7% · 1/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 未提交听力作业\n暂无 · 0/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 已批改专项练习\n85.0% · 1/12\n学员排名\n1. student_mobile_ui_01_20261101\n66.7% · 1 次\n2. student_mobile_ui_02_20261101\n66.7% · 1 次\n3. student_mobile_ui_03_20261101\n暂无 · 0 次\n4. student_mobile_ui_04_20261101\n暂无 · 0 次\n5. student_mobile_ui_05_20261101\n暂无 · 0 次\n各题型弱项\n词汇\n33.3% · 错 2/6\n机构套餐价格\n价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500、501 席以上累进计价。\n机构 PRO\n¥15/席/月\n单校区、小型培训机构和小型团队\n年付 ¥99.9/席 · 折合 ¥8.33/席/月\n最低 1 席 · 完整教学闭环 · 1 个主管理员 · 可增管理账号 · 基础统计与标准导出\n机构 ULTRA · 推荐\n¥39/席/月\n多校区、中型机构及深度分析需求\n年付 ¥299/席 · 折合 ¥24.92/席/月\n最低 30 席 · 跨校区分析 · 风险预警与自动报告 · 1 个主管理员 · 可增管理账号\nJLPT N3 阅读与听力提高班 · 周末学习组\n创建学习组\n添加学员\n布置作业\n打开成绩册\n批量导入预览\n备课组卷\n自动批改来自学生提交答案后的统计结果；成绩册会自动聚合提交状态、正确率和平均分。\n老师/学员日程\n手机布局检查 · 待结算课程\n2026/10/30 15:00 - 2026/10/30 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 - 2026/11/02 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 - 2026/11/04 16:00 · japanese\n课程包预警\n学员 · JLPT 阅读与听力完整课程 · 30 课时\n30/30 次 · 状态正常\nstudent_mobile_ui_01_20261101 · 手机审查课时账户 1\n20/20 次 · 状态正常\nstudent_mobile_ui_02_20261101 · 手机审查课时账户 2\n15/20 次 · 状态正常\nstudent_mobile_ui_03_20261101 · 手机审查课时账户 3\n10/20 次 · 状态正常\nstudent_mobile_ui_04_20261101 · 手机审查课时账户 4\n5/20 次 · 状态正常\n学生学习关系\nstudent_mobile_ui_01_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_07_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_02_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_05_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_03_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_08_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_04_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_06_20261101\n1 个学习关系 · 0 个课程包\n已保存备课方案\n手机布局检查 · 阅读备课方案\nN3_2010_07 · 3 题"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "org-dashboard-open-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 146,
+          "mainWidth": 360,
+          "mainHeight": 6508,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-pricing-plan-card",
+              "parents": [
+                "div.pc-card.pc-info-card",
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构 PRO¥15/席/月 单校区、小型培训机构和小型团队 年付 ¥99.9/席 · 折合 ¥8.33/席/月 最低 1 席 · 完整教学闭环 · 1"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-pricing-plan-card.is-recommended",
+              "parents": [
+                "div.pc-card.pc-info-card",
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构 ULTRA · 推荐¥39/席/月 多校区、中型机构及深度分析需求 年付 ¥299/席 · 折合 ¥24.92/席/月 最低 30 席 · 跨校"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "当前套餐功能 核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。 核心教学学习组管理布置作业自动批改成绩册学员档案 高级管理机构看板老师教学看板"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "作业完成手机布局检查 · 待批改阅读作业1/12 · 66.7% 提交催交手机布局检查 · 未提交听力作业0/12 提交催交手机布局检查 · 已批改专"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "续费风险当前套餐未开通续费风险。"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "老师教学概览assistant_mobile_ui_202611011 组 · 3 作业teacher_mobile_ui_202611011 组 ·"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "学习组平均分趋势JLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业66.7% · 1/12JLPT N3 阅读与听"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "学员排名1. student_mobile_ui_01_2026110166.7% · 1 次2. student_mobile_ui_02_2026"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "各题型弱项词汇33.3% · 错 2/6"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "机构套餐价格 价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "老师/学员日程手机布局检查 · 待结算课程2026/10/30 15:00 - 2026/10/30 16:00 · japanese手机布局检查 ·"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-card.pc-info-card",
+              "parents": [
+                "details.pc-card.pc-product-disclosure"
+              ],
+              "text": "课程包预警学员 · JLPT 阅读与听力完整课程 · 30 课时30/30 次 · 状态正常student_mobile_ui_01_20261101"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "机构看板",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "教学履约与跟进",
+              "size": "18px",
+              "selector": "h2"
+            }
+          ],
+          "text": "机构看板\n\n趋势和风险\n\n课程包\n课时管理\n学习组\n机构看板\n教学履约与跟进\n开始日期\n结束日期\n查看看板\n已完成 / 已排课\n0 / 1\n出勤率\n—\n待结算\n1\n待确认请假\n0\n\n按授课开始日期统计，出勤率仅使用已记录考勤。未结算课次不推断出勤；待跟进包含所选结束日期前到期的未完成安排。\n\n全部班级\nJLPT N3 阅读与听力提高班 · 周末学习组\n全部课次\n已完成\n已结束待结算\n有请假记录\n已取消\n手机布局检查 · 待结算课程\nJLPT N3 阅读与听力提高班 · 周末学习组 · 2026/10/30 15:00 · 待上课 · 待结算\n出勤 0 · 请假 0 · 缺席/待补课 0\n处理课次\n待跟进（0）\n\n所选结束日期前没有到期未完成的跟进安排。\n\n学习概况与机构能力\n机构工作台已经接入学习组、作业、成绩册、席位、学员档案和备课工具。\n当前机构套餐\n机构 PRO\n学习组 / 学员 / 作业\n1 / 12 / 3\n席位\n13 / 30 已用\n可用席位\n17 · 成员 17\n平均作业得分\n75.8%\n当前套餐功能\n核心教学能力默认覆盖；高级管理能力会按当前机构套餐启用。\n核心教学\n学习组管理\n布置作业\n自动批改\n成绩册\n学员档案\n高级管理\n机构看板\n老师教学看板\n续费风险（未开通）\n批量导入\n备课组卷\n导出讲义\n多老师协作\n审计日志\n多校区（未开通）\n专属成功支持（未开通）\n当前锁定：续费风险\n作业完成\n手机布局检查 · 待批改阅读作业\n1/12 · 66.7% 提交催交\n手机布局检查 · 未提交听力作业\n0/12 提交催交\n手机布局检查 · 已批改专项练习\n1/12 · 85.0% 提交催交\n续费风险\n当前套餐未开通续费风险。\n老师教学概览\nassistant_mobile_ui_20261101\n1 组 · 3 作业\nteacher_mobile_ui_20261101\n1 组 · 3 作业\n学习组平均分趋势\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 待批改阅读作业\n66.7% · 1/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 未提交听力作业\n暂无 · 0/12\nJLPT N3 阅读与听力提高班 · 周末学习组 · 手机布局检查 · 已批改专项练习\n85.0% · 1/12\n学员排名\n1. student_mobile_ui_01_20261101\n66.7% · 1 次\n2. student_mobile_ui_02_20261101\n66.7% · 1 次\n3. student_mobile_ui_03_20261101\n暂无 · 0 次\n4. student_mobile_ui_04_20261101\n暂无 · 0 次\n5. student_mobile_ui_05_20261101\n暂无 · 0 次\n各题型弱项\n词汇\n33.3% · 错 2/6\n机构套餐价格\n价格来自统一支付商品目录。仅学员和可查看试卷内容的老师占付费席位，管理账号不占席；PRO 年付按 1～20、21～200、201～500、501 席以上累进计价。\n机构 PRO\n¥15/席/月\n单校区、小型培训机构和小型团队\n年付 ¥99.9/席 · 折合 ¥8.33/席/月\n最低 1 席 · 完整教学闭环 · 1 个主管理员 · 可增管理账号 · 基础统计与标准导出\n机构 ULTRA · 推荐\n¥39/席/月\n多校区、中型机构及深度分析需求\n年付 ¥299/席 · 折合 ¥24.92/席/月\n最低 30 席 · 跨校区分析 · 风险预警与自动报告 · 1 个主管理员 · 可增管理账号\nJLPT N3 阅读与听力提高班 · 周末学习组\n创建学习组\n添加学员\n布置作业\n打开成绩册\n批量导入预览\n备课组卷\n自动批改来自学生提交答案后的统计结果；成绩册会自动聚合提交状态、正确率和平均分。\n老师/学员日程\n手机布局检查 · 待结算课程\n2026/10/30 15:00 - 2026/10/30 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 - 2026/11/02 16:00 · japanese\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 - 2026/11/04 16:00 · japanese\n课程包预警\n学员 · JLPT 阅读与听力完整课程 · 30 课时\n30/30 次 · 状态正常\nstudent_mobile_ui_01_20261101 · 手机审查课时账户 1\n20/20 次 · 状态正常\nstudent_mobile_ui_02_20261101 · 手机审查课时账户 2\n15/20 次 · 状态正常\nstudent_mobile_ui_03_20261101 · 手机审查课时账户 3\n10/20 次 · 状态正常\nstudent_mobile_ui_04_20261101 · 手机审查课时账户 4\n5/20 次 · 状态正常\n学生学习关系\nstudent_mobile_ui_01_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_07_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_02_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_05_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_03_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_08_20261101\n1 个学习关系 · 0 个课程包\nstudent_mobile_ui_04_20261101\n1 个学习关系 · 1 个课程包\nstudent_mobile_ui_06_20261101\n1 个学习关系 · 0 个课程包\n已保存备课方案\n手机布局检查 · 阅读备课方案\nN3_2010_07 · 3 题"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "org-groups-filter-visible",
+    "role": "orgAdmin",
+    "label": "机构学习组 · 筛选复核",
+    "account": "student_mobile_ui_manager_20261101",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "org-groups-filter-visible-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 973,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-learning-table.pc-grouped-list.pc-grouped-action-list",
+              "parents": [
+                "section.pc-package-section",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组japanese · 14 人进行中"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-floating-search-options",
+              "parents": [
+                "div.pc-floating-search-row",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "校区全部校区（1）未指定校区（1）手机审查校区 · 日本语教学楼（0）排序设置排序开始时间名称状态顺序升序降序每页10 条20 条50 条"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-org-invite-item",
+              "parents": [
+                "div.pc-org-subsection",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组未排时间标记完成班级 · active科目：japanese校区：未指定老师：teacher_mobi"
+            },
+            {
+              "depth": 2,
+              "element": "section.pc-package-section",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组japanese · 14 人进行中"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "校区全部校区（1）未指定校区（1）手机审查校区 · 日本语教学楼（0）排序设置排序开始时间名称状态顺序升序降序每页10 条20 条50 条"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-org-subsection",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "课程安排0 个已排时间 / 0 个约课JLPT N3 阅读与听力提高班 · 周末学习组未排时间标记完成班级 · active科目：japanese校区"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "课程安排",
+              "size": "14px",
+              "selector": "h4"
+            }
+          ],
+          "text": "学习组\n课程包\n课时管理\n学习组\n机构看板\n手机布局审查学校 · 日语能力考试与留学课程中心\n课程包\n课时管理\n学习组 · 1\n＋ 新建学习组\nJLPT N3 阅读与听力提高班 · 周末学习组\njapanese · 14 人\n进行中\n第 1/1 页\n上一页\n下一页\n校区\n全部校区（1）\n未指定校区（1）\n手机审查校区 · 日本语教学楼（0）\n排序设置\n课程安排\n0 个已排时间 / 0 个约课\nJLPT N3 阅读与听力提高班 · 周末学习组未排时间\n标记完成\n班级 · active\n科目：japanese\n校区：未指定\n老师：teacher_mobile_ui_20261101 / assistant_mobile_ui_20261101\n学员：student_mobile_ui_01_20261101 / student_mobile_ui_02_20261101 / student_mobile_ui_03_20261101 / student_mobile_ui_04_20261101 / student_mobile_ui_05_20261101 / student_mobile_ui_06_20261101 / student_mobile_ui_07_20261101 / student_mobile_ui_08_20261101 / student_mobile_ui_09_20261101 / student_mobile_ui_10_20261101 / student_mobile_ui_11_20261101 / student_mobile_ui_12_20261101"
+        }
+      },
+      {
+        "width": 390,
+        "position": "bottom",
+        "file": "org-groups-filter-visible-390-bottom.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 973,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-learning-table.pc-grouped-list.pc-grouped-action-list",
+              "parents": [
+                "section.pc-package-section",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组japanese · 14 人进行中"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-floating-search-options",
+              "parents": [
+                "div.pc-floating-search-row",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "校区全部校区（1）未指定校区（1）手机审查校区 · 日本语教学楼（0）排序设置排序开始时间名称状态顺序升序降序每页10 条20 条50 条"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-org-invite-item",
+              "parents": [
+                "div.pc-org-subsection",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组未排时间标记完成班级 · active科目：japanese校区：未指定老师：teacher_mobi"
+            },
+            {
+              "depth": 2,
+              "element": "section.pc-package-section",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组japanese · 14 人进行中"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "校区全部校区（1）未指定校区（1）手机审查校区 · 日本语教学楼（0）排序设置排序开始时间名称状态顺序升序降序每页10 条20 条50 条"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-org-subsection",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "课程安排0 个已排时间 / 0 个约课JLPT N3 阅读与听力提高班 · 周末学习组未排时间标记完成班级 · active科目：japanese校区"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "课程安排",
+              "size": "14px",
+              "selector": "h4"
+            }
+          ],
+          "text": "学习组\n课程包\n课时管理\n学习组\n机构看板\n手机布局审查学校 · 日语能力考试与留学课程中心\n课程包\n课时管理\n学习组 · 1\n＋ 新建学习组\nJLPT N3 阅读与听力提高班 · 周末学习组\njapanese · 14 人\n进行中\n第 1/1 页\n上一页\n下一页\n校区\n全部校区（1）\n未指定校区（1）\n手机审查校区 · 日本语教学楼（0）\n排序设置\n课程安排\n0 个已排时间 / 0 个约课\nJLPT N3 阅读与听力提高班 · 周末学习组未排时间\n标记完成\n班级 · active\n科目：japanese\n校区：未指定\n老师：teacher_mobile_ui_20261101 / assistant_mobile_ui_20261101\n学员：student_mobile_ui_01_20261101 / student_mobile_ui_02_20261101 / student_mobile_ui_03_20261101 / student_mobile_ui_04_20261101 / student_mobile_ui_05_20261101 / student_mobile_ui_06_20261101 / student_mobile_ui_07_20261101 / student_mobile_ui_08_20261101 / student_mobile_ui_09_20261101 / student_mobile_ui_10_20261101 / student_mobile_ui_11_20261101 / student_mobile_ui_12_20261101"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "org-groups-filter-visible-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 996,
+          "nested": [
+            {
+              "depth": 3,
+              "element": "div.pc-learning-table.pc-grouped-list.pc-grouped-action-list",
+              "parents": [
+                "section.pc-package-section",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组japanese · 14 人进行中"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-floating-search-options",
+              "parents": [
+                "div.pc-floating-search-row",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "校区全部校区（1）未指定校区（1）手机审查校区 · 日本语教学楼（0）排序设置排序开始时间名称状态顺序升序降序每页10 条20 条50 条"
+            },
+            {
+              "depth": 3,
+              "element": "div.pc-org-invite-item",
+              "parents": [
+                "div.pc-org-subsection",
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组未排时间标记完成班级 · active科目：japanese校区：未指定老师：teacher_mobi"
+            },
+            {
+              "depth": 2,
+              "element": "section.pc-package-section",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "JLPT N3 阅读与听力提高班 · 周末学习组japanese · 14 人进行中"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-floating-search-row",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "校区全部校区（1）未指定校区（1）手机审查校区 · 日本语教学楼（0）排序设置排序开始时间名称状态顺序升序降序每页10 条20 条50 条"
+            },
+            {
+              "depth": 2,
+              "element": "div.pc-org-subsection",
+              "parents": [
+                "details.pc-card.pc-lite-list-card.pc-managed-org-card.is-expanded"
+              ],
+              "text": "课程安排0 个已排时间 / 0 个约课JLPT N3 阅读与听力提高班 · 周末学习组未排时间标记完成班级 · active科目：japanese校区"
+            }
+          ],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "学习组",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "课程安排",
+              "size": "14px",
+              "selector": "h4"
+            }
+          ],
+          "text": "学习组\n课程包\n课时管理\n学习组\n机构看板\n手机布局审查学校 · 日语能力考试与留学课程中心\n课程包\n课时管理\n学习组 · 1\n＋ 新建学习组\nJLPT N3 阅读与听力提高班 · 周末学习组\njapanese · 14 人\n进行中\n第 1/1 页\n上一页\n下一页\n校区\n全部校区（1）\n未指定校区（1）\n手机审查校区 · 日本语教学楼（0）\n排序设置\n课程安排\n0 个已排时间 / 0 个约课\nJLPT N3 阅读与听力提高班 · 周末学习组未排时间\n标记完成\n班级 · active\n科目：japanese\n校区：未指定\n老师：teacher_mobile_ui_20261101 / assistant_mobile_ui_20261101\n学员：student_mobile_ui_01_20261101 / student_mobile_ui_02_20261101 / student_mobile_ui_03_20261101 / student_mobile_ui_04_20261101 / student_mobile_ui_05_20261101 / student_mobile_ui_06_20261101 / student_mobile_ui_07_20261101 / student_mobile_ui_08_20261101 / student_mobile_ui_09_20261101 / student_mobile_ui_10_20261101 / student_mobile_ui_11_20261101 / student_mobile_ui_12_20261101"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-assignments-populated",
+    "role": "student",
+    "label": "学员 · 我的作业（有数据）",
+    "account": "student_mobile_ui_01_20261101",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-assignments-populated-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "我的作业",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "我的作业\n\n老师布置的任务\n\n作业列表\n手机布局检查 · 待批改阅读作业\n截止：2026/12/01 18:00 · 试卷：N3_2010_07 · 提交：2026/11/01 16:37\n已提交\n手机布局检查 · 未提交听力作业\n截止：2026/12/01 18:00 · 试卷：N3_2010_07\n待完成\n手机布局检查 · 已批改专项练习\n截止：2026/12/01 18:00 · 试卷：N3_2010_07\n待完成"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-assignments-populated-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 756,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "我的作业",
+              "size": "25px",
+              "selector": "h1"
+            }
+          ],
+          "text": "我的作业\n\n老师布置的任务\n\n作业列表\n手机布局检查 · 待批改阅读作业\n截止：2026/12/01 18:00 · 试卷：N3_2010_07 · 提交：2026/11/01 16:37\n已提交\n手机布局检查 · 未提交听力作业\n截止：2026/12/01 18:00 · 试卷：N3_2010_07\n待完成\n手机布局检查 · 已批改专项练习\n截止：2026/12/01 18:00 · 试卷：N3_2010_07\n待完成"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "student-courses-populated",
+    "role": "student",
+    "label": "学员 · 课程与课时（有数据）",
+    "account": "student_mobile_ui_01_20261101",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "student-courses-populated-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 800,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "我的课程",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "课时账户",
+              "size": "15px",
+              "selector": "h3"
+            }
+          ],
+          "text": "我的课程\n\n上课安排、老师反馈与课时明细\n\n待上课程\n历史课程与反馈\n刷新\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 · 手机布局审查学校 · 日语能力考试与留学课程中心 · 已排课\n申请请假\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 · 手机布局审查学校 · 日语能力考试与留学课程中心 · 已排课\n申请请假\n我的班级与老师\n\nJLPT N3 阅读与听力提高班 · 周末学习组 · teacher_mobile_ui_20261101、assistant_mobile_ui_20261101 · 手机布局审查学校 · 日语能力考试与留学课程中心\n\n课时账户\n手机审查课时账户 1\n手机布局审查学校 · 日语能力考试与留学课程中心 · 剩余 20/20 次 · 2027/01/31 08:00 到期\n正常\n扣课明细（0）"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "student-courses-populated-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 767,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "我的课程",
+              "size": "25px",
+              "selector": "h1"
+            },
+            {
+              "text": "课时账户",
+              "size": "15px",
+              "selector": "h3"
+            }
+          ],
+          "text": "我的课程\n\n上课安排、老师反馈与课时明细\n\n待上课程\n历史课程与反馈\n刷新\n手机布局检查 · 阅读与听力课程\n2026/11/02 15:00 · 手机布局审查学校 · 日语能力考试与留学课程中心 · 已排课\n申请请假\n手机布局检查 · 阅读与听力课程\n2026/11/04 15:00 · 手机布局审查学校 · 日语能力考试与留学课程中心 · 已排课\n申请请假\n我的班级与老师\n\nJLPT N3 阅读与听力提高班 · 周末学习组 · teacher_mobile_ui_20261101、assistant_mobile_ui_20261101 · 手机布局审查学校 · 日语能力考试与留学课程中心\n\n课时账户\n手机审查课时账户 1\n手机布局审查学校 · 日语能力考试与留学课程中心 · 剩余 20/20 次 · 2027/01/31 08:00 到期\n正常\n扣课明细（0）"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-settings",
+    "role": "exam",
+    "label": "专项练习 · 考试设置",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "exam-settings-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 905,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "练习设置\n显示辅助\n答案解析\n补充解析\n假名标注\n中文翻译\n2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "exam-settings-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 861,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            }
+          ],
+          "text": "练习设置\n显示辅助\n答案解析\n补充解析\n假名标注\n中文翻译\n2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-jump",
+    "role": "exam",
+    "label": "专项练习 · 题目跳转",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "exam-jump-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 905,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            },
+            {
+              "text": "答题卡",
+              "size": "18px",
+              "selector": "h3#question-map-title"
+            }
+          ],
+          "text": "2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习\n✕\n答题卡\n\n橙色已答 · 灰色未答 · 描边为当前题\n\n1\n本次共 1 题 · 点击题号跳转\n收起答题卡"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "exam-jump-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 861,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            },
+            {
+              "text": "答题卡",
+              "size": "18px",
+              "selector": "h3#question-map-title"
+            }
+          ],
+          "text": "2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习\n✕\n答题卡\n\n橙色已答 · 灰色未答 · 描边为当前题\n\n1\n本次共 1 题 · 点击题号跳转\n收起答题卡"
+        }
+      }
+    ],
+    "errors": []
+  },
+  {
+    "id": "exam-feedback",
+    "role": "exam",
+    "label": "专项练习 · 题目报错",
+    "account": "student_demo",
+    "captures": [
+      {
+        "width": 390,
+        "position": "top",
+        "file": "exam-feedback-390-top.png",
+        "metrics": {
+          "viewport": 390,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 390,
+          "mainHeight": 905,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            },
+            {
+              "text": "反馈题目问题（题号：1）",
+              "size": "16px",
+              "selector": "h3#fb-title"
+            }
+          ],
+          "text": "2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习\n反馈题目问题（题号：1）\n问题类别\n答案错误\n文字错误\n翻译/释义问题\n音频问题\n其他\n详细描述（最多 1000 字）\n取消 提交"
+        }
+      },
+      {
+        "width": 360,
+        "position": "top",
+        "file": "exam-feedback-360-top.png",
+        "metrics": {
+          "viewport": 360,
+          "documentOverflow": 0,
+          "mainOverflow": 0,
+          "mainWidth": 360,
+          "mainHeight": 861,
+          "nested": [],
+          "overflow": [],
+          "headings": [
+            {
+              "text": "問題1     の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。展开",
+              "size": "14px",
+              "selector": "h3"
+            },
+            {
+              "text": "反馈题目问题（题号：1）",
+              "size": "16px",
+              "selector": "h3#fb-title"
+            }
+          ],
+          "text": "2\n\n本题来源：JLPT N3 · 2010年7月真题\n\n問題1 の言葉の読み方として最もよいものを、1・2・3・4から一つ選びなさい。\n展开\n1.\nプレゼントはきれいな紙で包んであった。🐛 报错收藏本题\n1.つつんで\n2.つづんで\n3.つうつんで\n4.つうづんで\n选择答案后，点下一题保存 · 确认并查看解析\n1 / 1\n上一题\n完成练习\n反馈题目问题（题号：1）\n问题类别\n答案错误\n文字错误\n翻译/释义问题\n音频问题\n其他\n详细描述（最多 1000 字）\n取消 提交"
+        }
+      }
+    ],
+    "errors": []
+  }
+]

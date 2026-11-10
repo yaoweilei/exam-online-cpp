@@ -24,7 +24,12 @@ class ProfileRepository
 
     void saveProfile(const std::string &userId, const Json::Value &data);
 
+    Json::Value messageReads(const std::string &userId) const;
+    Json::Value markMessagesRead(const std::string &userId, const Json::Value &ids);
+
     Json::Value searchByDisplayName(const std::string &query, std::size_t limit) const;
+
+    Json::Value matchingDisplayNames(const std::string &query) const;
 
     bool grantCreditsIfAbsent(const std::string &userId,
                               const std::string &awardKey,

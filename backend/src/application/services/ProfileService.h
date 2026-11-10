@@ -19,6 +19,9 @@ class ProfileService
     // Accepts a partial JSON patch; only white-listed fields are written.
     Json::Value updateProfile(const std::string &userId, const Json::Value &patch);
 
+    Json::Value messageReads(const std::string &userId) const { return repository_.messageReads(userId); }
+    Json::Value markMessagesRead(const std::string &userId, const Json::Value &ids) { return repository_.markMessagesRead(userId, ids); }
+
   private:
     infrastructure::storage::ProfileRepository &repository_;
 };

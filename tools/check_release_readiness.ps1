@@ -63,6 +63,7 @@ try {
         'static/legal/privacy-policy.html',
         'static/legal/user-agreement.html',
         'tools/audit_exam_content.mjs',
+        'tools/audit_explanation_consistency.py',
         'tools/backup_runtime_data.ps1',
         'tools/restore_runtime_data.ps1',
         'tools/check_service_health.ps1',
@@ -89,6 +90,20 @@ try {
         $ErrorActionPreference = $previousErrorActionPreference
         if ($contentAuditExitCode -ne 0) {
             $violations.Add('Content audit found blocking issues; run node tools/audit_exam_content.mjs for details')
+        }
+    }
+    $explanationScript = Join-Path $root 'tools/audit_explanation_consistency.py'
+    if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+        $violations.Add('Python is required to execute the answer/explanation release audit')
+    }
+    elseif (Test-Path -LiteralPath $explanationScript) {
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        & python $explanationScript *> $null
+        $explanationExitCode = $LASTEXITCODE
+        $ErrorActionPreference = $previousErrorActionPreference
+        if ($explanationExitCode -ne 0) {
+            $violations.Add('Answer/explanation consistency audit failed; run python tools/audit_explanation_consistency.py for details')
         }
     }
 }

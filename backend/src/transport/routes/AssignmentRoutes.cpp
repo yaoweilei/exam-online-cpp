@@ -6,6 +6,7 @@
 
 #include "transport/RouteUtils.h"
 #include "transport/routes/Routes.h"
+#include "application/services/AssignmentScope.h"
 
 using namespace drogon;
 
@@ -33,49 +34,12 @@ void requireLearningGroupStaffOrAdmin(const AppContext &ctx,
     }
 }
 
-int parseQuestionNo(const std::string &questionId)
-{
-    std::string digits;
-    for (const auto ch : questionId)
-    {
-        if (ch >= '0' && ch <= '9')
-        {
-            digits.push_back(ch);
-        }
-    }
-    if (digits.empty())
-    {
-        return 0;
-    }
-    try
-    {
-        return std::stoi(digits);
-    }
-    catch (...)
-    {
-        return 0;
-    }
-}
-
-Json::Value filterScoreForAssignment(const Json::Value &score, const Json::Value &assignment)
+Json::Value filterScoreForAssignment(const Json::Value &score, const Json::Value &assignment, const Json::Value &exam)
 {
     std::unordered_set<std::string> selectedIds;
-    if (assignment.isMember("question_ids") && assignment["question_ids"].isArray())
+    for (const auto &id : application::services::resolveAssignmentQuestionKeys(exam, assignment))
     {
-        for (const auto &id : assignment["question_ids"])
-        {
-            const auto value = id.asString();
-            if (!value.empty())
-            {
-                selectedIds.insert(value);
-            }
-        }
-    }
-    const int start = assignment.get("question_start", 0).asInt();
-    const int end = assignment.get("question_end", 0).asInt();
-    if (selectedIds.empty() && start <= 0 && end <= 0)
-    {
-        return score;
+        selectedIds.insert(id.asString());
     }
 
     Json::Value filtered = score;
@@ -87,14 +51,7 @@ Json::Value filterScoreForAssignment(const Json::Value &score, const Json::Value
     for (const auto &key : score["results"].getMemberNames())
     {
         const auto row = score["results"][key];
-        const auto questionId = row.get("question_id", "").asString();
-        bool include = selectedIds.count(questionId) > 0 || selectedIds.count(key) > 0;
-        if (!include && (start > 0 || end > 0))
-        {
-            const int no = parseQuestionNo(questionId);
-            include = no > 0 && (start <= 0 || no >= start) && (end <= 0 || no <= end);
-        }
-        if (!include)
+        if (!selectedIds.contains(key))
         {
             continue;
         }
@@ -107,15 +64,16 @@ Json::Value filterScoreForAssignment(const Json::Value &score, const Json::Value
     }
     if (total == 0)
     {
-        filtered["assignment_scope_warning"] = "指定题目范围没有匹配到可评分题目，已保留整卷评分";
-        return filtered;
+        // A valid writing-only scope is submitted for teacher review. It must
+        // neither acquire an unrelated whole-paper score nor be rejected.
+        filtered["requires_manual_review"] = true;
     }
     filtered["results"] = results;
     filtered["total_questions"] = total;
     filtered["correct_count"] = correct;
     filtered["wrong_count"] = wrong;
     filtered["unanswered_count"] = unanswered;
-    filtered["score"] = total > 0 ? std::round(static_cast<double>(correct) * 10000.0 / total) / 100.0 : 0.0;
+    filtered["score"] = total > 0 ? std::round(static_cast<double>(correct) * 10000.0 / total) / 100.0 : -1.0;
     filtered["accuracy"] = (correct + wrong) > 0 ? std::round(static_cast<double>(correct) * 10000.0 / (correct + wrong)) / 100.0 : 0.0;
     filtered["completion"] = total > 0 ? std::round(static_cast<double>(correct + wrong) * 10000.0 / total) / 100.0 : 0.0;
     filtered["assignment_scope_applied"] = true;
@@ -137,9 +95,12 @@ void registerAssignmentRoutes(const AppContext &ctx)
                 const auto userId = session.get("user_id", session.get("id", "")).asString();
                 requireFeature(*ctx.featureFlagService, "learning_groups", userId);
                 requireLearningGroupStaffOrAdmin(ctx, session, organizationId, learningGroupId);
+                auto payload = body;
+                payload["question_ids"] = application::services::resolveAssignmentQuestionKeys(
+                    ctx.examService->getExam(body.get("exam_id", "").asString()), body);
                 return common::ok(
                     req,
-                    ctx.assignmentService->createAssignment(organizationId, learningGroupId, userId, body),
+                    ctx.assignmentService->createAssignment(organizationId, learningGroupId, userId, payload),
                     "assignment_created");
             });
         },
@@ -161,7 +122,15 @@ void registerAssignmentRoutes(const AppContext &ctx)
                 {
                     throw common::AppException("FORBIDDEN", "无权查看该学习组作业", drogon::k403Forbidden);
                 }
-                return common::ok(req, ctx.assignmentService->listAssignmentsByLearningGroup(organizationId, learningGroupId));
+                auto result=ctx.assignmentService->listAssignmentsByLearningGroup(organizationId, learningGroupId);
+                if (!ctx.assignmentService->isLearningGroupStaff(organizationId,learningGroupId,userId) &&
+                    !ctx.organizationService->canManageOrganization(userId,session["roles"],organizationId) && !hasAnyRole(session["roles"],{"superAdmin"})) {
+                    Json::Value safe(Json::arrayValue);
+                    for (const auto &assignment : result["items"]) if (application::services::assignmentTargetsStudent(assignment,userId))
+                        safe.append(ctx.assignmentService->getAssignmentForStudent(assignment["assignment_id"].asString(),userId));
+                    result["items"]=safe;
+                }
+                return common::ok(req, result);
             });
         },
         {Get});
@@ -190,6 +159,8 @@ void registerAssignmentRoutes(const AppContext &ctx)
                 {
                     assignment = ctx.assignmentService->getAssignmentForStudent(assignmentId, userId);
                 }
+                assignment["question_ids"] = application::services::resolveAssignmentQuestionKeys(
+                    ctx.examService->getExam(assignment.get("exam_id", "").asString()), assignment);
                 return common::ok(req, assignment);
             });
         },
@@ -210,13 +181,15 @@ void registerAssignmentRoutes(const AppContext &ctx)
                 const auto answers = body.get("answers", Json::Value(Json::objectValue));
                 const auto exam = ctx.examService->getExam(examId);
                 auto score = ctx.answerService->calculateScore(examId, answers, exam);
-                score = filterScoreForAssignment(score, assignment);
-                ctx.answerService->save(userId, examId, answers, score);
-                const auto submission = ctx.assignmentService->submitAssignment(assignmentId, userId, answers, score);
+                score = filterScoreForAssignment(score, assignment, exam);
+                const auto receipt = body.get("submission_id", "").asString();
+                if (receipt.size() > 120) throw common::AppException("VALIDATION_ERROR", "提交标识过长", k422UnprocessableEntity);
+                const auto submission = ctx.assignmentService->submitAssignment(assignmentId, userId, answers, score, receipt);
+                ctx.answerService->save(userId, examId, submission["answers"], submission["score"], submission["submission_id"].asString());
                 Json::Value out(Json::objectValue);
                 out["assignment_id"] = assignmentId;
                 out["submission"] = submission;
-                out["score"] = score;
+                out["score"] = submission["score"];
                 return common::ok(req, out);
             });
         },
@@ -340,7 +313,24 @@ void registerAssignmentRoutes(const AppContext &ctx)
                     session,
                     assignment.get("organization_id", "").asString(),
                     assignment.get("learning_group_id", assignment.get("group_id", "")).asString());
-                const auto updated = ctx.assignmentService->updateAssignment(assignmentId, body);
+                auto patch = body;
+                if (body.isMember("exam_id") || body.isMember("question_ids") ||
+                    body.isMember("question_start") || body.isMember("question_end"))
+                {
+                    auto scoped = assignment;
+                    for (const auto &field : body.getMemberNames()) scoped[field] = body[field];
+                    if (!body.isMember("question_ids")) scoped["question_ids"] = Json::Value(Json::arrayValue);
+                    if (body.isMember("exam_id") && body["exam_id"] != assignment["exam_id"])
+                    {
+                        if (!body.isMember("question_start")) scoped["question_start"] = 0;
+                        if (!body.isMember("question_end")) scoped["question_end"] = 0;
+                        patch["question_start"] = scoped["question_start"];
+                        patch["question_end"] = scoped["question_end"];
+                    }
+                    patch["question_ids"] = application::services::resolveAssignmentQuestionKeys(
+                        ctx.examService->getExam(scoped.get("exam_id", "").asString()), scoped);
+                }
+                const auto updated = ctx.assignmentService->updateAssignment(assignmentId, patch);
                 if (body.isMember("auto_reminder_enabled") || body.isMember("auto_reminder_hours_before"))
                 {
                     Json::Value details(Json::objectValue);

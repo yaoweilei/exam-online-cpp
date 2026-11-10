@@ -1,0 +1,41 @@
+{
+  "primary_navigation_entries": 47,
+  "roles": 7,
+  "distinct_ui_states": 132,
+  "indexed_screenshots": 369,
+  "supplemental_middle_screenshots": 9,
+  "widths": [
+    360,
+    390,
+    540
+  ],
+  "navigation_by_role": {
+    "超级管理员": 11,
+    "老师": 7,
+    "教学管理员": 5,
+    "机构管理员": 10,
+    "机构内容管理员": 1,
+    "平台内容管理员": 4,
+    "学员": 9
+  },
+  "findings": {
+    "P1": 3,
+    "P2": 21,
+    "P3": 5
+  },
+  "browser_errors": [],
+  "nonzero_content_overflow": [
+    {
+      "id": "platform-content-record",
+      "max_px": 34
+    },
+    {
+      "id": "orgAdmin-org-dashboard-expanded",
+      "max_px": 146
+    },
+    {
+      "id": "org-dashboard-open",
+      "max_px": 146
+    }
+  ]
+}

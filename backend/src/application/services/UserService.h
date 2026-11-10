@@ -32,6 +32,9 @@ class UserService
 
     Json::Value searchUsers(const std::string &query, std::size_t limit = 12) const;
 
+    Json::Value listUsers(const std::string &query, int page, int pageSize,
+                          const std::string &sort = "created_at", const std::string &order = "desc") const;
+
     Json::Value allRoles() const;
     Json::Value platformRoleTemplates() const;
     Json::Value previewRoleTemplate(const std::string &roleId, const Json::Value &payload) const;
@@ -42,6 +45,8 @@ class UserService
     Json::Value permissions(const std::string &userId) const;
 
     Json::Value context(const std::string &userId) const;
+
+    Json::Value selectOrganization(const std::string &userId, const std::string &organizationId);
 
     Json::Value claimReferral(const std::string &userId, const std::string &referralCode) const;
 
